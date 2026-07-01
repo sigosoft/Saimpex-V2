@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../utils/toast_helper.dart';
+import '../views/select_location_screen.dart';
 
 class OtpController extends GetxController {
   final String phoneNumber = Get.arguments ?? '+222 45 12 34 56';
@@ -52,19 +53,13 @@ class OtpController extends GetxController {
 
   void verifyOtp() {
     final code = codeControllers.map((c) => c.text).join();
-    if (code.length < 6) {
-      showAppToast(
-        'Please enter all 6 digits of the OTP code',
-        backgroundColor: Colors.redAccent,
-      );
-      return;
-    }
 
     // Process verify mock
     showAppToast(
       'OTP verified successfully: $code',
       backgroundColor: const Color(0xFFFF5E00),
     );
+    Get.to(() => const SelectLocationScreen());
   }
 
   @override
