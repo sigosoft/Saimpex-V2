@@ -6,6 +6,8 @@ import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
 import 'category_screen.dart';
 import 'under_30_min_screen.dart';
+import 'cart_screen.dart';
+import 'my_orders_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -599,6 +601,7 @@ class HomeScreen extends StatelessWidget {
         'dist': '10 Km',
         'discount': '50% OFF',
         'points': '200 Points Available',
+        'isTemporarilyClosed': false,
         'image':
             'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=350&auto=format&fit=crop',
       },
@@ -611,6 +614,7 @@ class HomeScreen extends StatelessWidget {
         'dist': '12 Km',
         'discount': '30% OFF',
         'points': '200 Points Available',
+        'isTemporarilyClosed': false,
         'image':
             'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=350&auto=format&fit=crop',
       },
@@ -643,6 +647,9 @@ class HomeScreen extends StatelessWidget {
     Map<String, dynamic> item,
   ) {
     final isClosed = item['isClosed'] == true || item['isClosed'] == 'true';
+    final isTemporarilyClosed =
+        item['isTemporarilyClosed'] == true ||
+        item['isTemporarilyClosed'] == 'true';
     return Container(
       width: 220,
       margin: const EdgeInsets.only(right: 14),
@@ -811,13 +818,18 @@ class HomeScreen extends StatelessWidget {
                       (item['opensAt'] ?? '10 AM').toString(),
                     ),
                   ),
+                ] else if (isTemporarilyClosed) ...[
+                  Positioned.fill(
+                    child: Container(color: Colors.black.withOpacity(0.35)),
+                  ),
+                  Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                 ],
               ],
             ),
           ),
           // Info Details
           Opacity(
-            opacity: isClosed ? 0.65 : 1.0,
+            opacity: (isClosed || isTemporarilyClosed) ? 0.65 : 1.0,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -943,6 +955,77 @@ class HomeScreen extends StatelessWidget {
                 width: 8,
                 height: 8,
                 color: const Color(0xFFD30000),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTemporarilyClosedOverlay() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF8A00),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Temporarily not accepting',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  'orders',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Transform.translate(
+            offset: const Offset(0, -3),
+            child: Transform.rotate(
+              angle: 45 * 3.14159 / 180,
+              child: Container(
+                width: 8,
+                height: 8,
+                color: const Color(0xFFFF8A00),
               ),
             ),
           ),
@@ -1179,6 +1262,7 @@ class HomeScreen extends StatelessWidget {
         'time': '30m',
         'discount': '50% OFF',
         'points': '200 Points Available',
+        'isTemporarilyClosed': false,
         'image':
             'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=350&auto=format&fit=crop',
       },
@@ -1190,6 +1274,7 @@ class HomeScreen extends StatelessWidget {
         'time': '30m',
         'discount': '50% OFF',
         'points': '200 Points Available',
+        'isTemporarilyClosed': false,
         'image':
             'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=350&auto=format&fit=crop',
       },
@@ -1224,6 +1309,9 @@ class HomeScreen extends StatelessWidget {
     Map<String, dynamic> item,
   ) {
     final isClosed = item['isClosed'] == true || item['isClosed'] == 'true';
+    final isTemporarilyClosed =
+        item['isTemporarilyClosed'] == true ||
+        item['isTemporarilyClosed'] == 'true';
     return Container(
       width: 190,
       margin: const EdgeInsets.only(right: 14),
@@ -1261,7 +1349,10 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                         )
-                      : Image.asset((item['image'] ?? '').toString(), fit: BoxFit.cover),
+                      : Image.asset(
+                          (item['image'] ?? '').toString(),
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 // Discount Overlay
                 Positioned(
@@ -1393,20 +1484,25 @@ class HomeScreen extends StatelessWidget {
                 ),
                 if (isClosed) ...[
                   Positioned.fill(
-                    child: Container(
-                      color: Colors.black.withOpacity(0.35),
-                    ),
+                    child: Container(color: Colors.black.withOpacity(0.35)),
                   ),
                   Positioned.fill(
-                    child: _buildClosedOverlay((item['opensAt'] ?? '10 AM').toString()),
+                    child: _buildClosedOverlay(
+                      (item['opensAt'] ?? '10 AM').toString(),
+                    ),
                   ),
+                ] else if (isTemporarilyClosed) ...[
+                  Positioned.fill(
+                    child: Container(color: Colors.black.withOpacity(0.35)),
+                  ),
+                  Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                 ],
               ],
             ),
           ),
           // Info Details
           Opacity(
-            opacity: isClosed ? 0.65 : 1.0,
+            opacity: (isClosed || isTemporarilyClosed) ? 0.65 : 1.0,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
@@ -1694,7 +1790,19 @@ class HomeScreen extends StatelessWidget {
     int badgeCount = 0,
   }) {
     return GestureDetector(
-      onTap: () => controller.selectNavigation(index),
+      onTap: () async {
+        if (index == 2) {
+          controller.selectNavigation(2);
+          await Get.to(() => const MyOrdersScreen());
+          controller.selectNavigation(0);
+        } else if (index == 3) {
+          controller.selectNavigation(3);
+          await Get.to(() => const CartScreen());
+          controller.selectNavigation(0);
+        } else {
+          controller.selectNavigation(index);
+        }
+      },
       child: Container(
         color: Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
