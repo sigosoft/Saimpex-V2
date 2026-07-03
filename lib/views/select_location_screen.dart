@@ -11,9 +11,6 @@ class SelectLocationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Get.isRegistered<SelectLocationController>()) {
-      Get.delete<SelectLocationController>();
-    }
     final controller = Get.put(SelectLocationController());
     final orientation = MediaQuery.of(context).orientation;
 

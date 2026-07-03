@@ -158,7 +158,7 @@ class SelectLocationController extends GetxController {
       // Update UI with address lookup
       updateAddressFromCoordinates(position.latitude, position.longitude);
 
-      if (mapController != null) {
+      if (!_isDisposed && mapController != null) {
         mapController!.animateCamera(CameraUpdate.newLatLngZoom(latLng, 16.0));
       }
     } catch (e) {
@@ -175,7 +175,7 @@ class SelectLocationController extends GetxController {
       defaultCenter.latitude,
       defaultCenter.longitude,
     );
-    if (mapController != null) {
+    if (!_isDisposed && mapController != null) {
       mapController!.animateCamera(
         CameraUpdate.newLatLngZoom(defaultCenter, 16.0),
       );
@@ -187,10 +187,14 @@ class SelectLocationController extends GetxController {
     getCurrentLocation();
   }
 
+  bool _isDisposed = false;
+
   @override
   void onClose() {
+    _isDisposed = true;
     searchController.dispose();
     mapController?.dispose();
+    mapController = null;
     super.onClose();
   }
 }

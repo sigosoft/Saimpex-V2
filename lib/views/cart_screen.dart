@@ -4,7 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({Key? key}) : super(key: key);
+  final String? storeName;
+  final String? itemName;
+  final String? itemPortion;
+  final int? basePrice;
+  final String? itemImage;
+
+  const CartScreen({
+    Key? key,
+    this.storeName,
+    this.itemName,
+    this.itemPortion,
+    this.basePrice,
+    this.itemImage,
+  }) : super(key: key);
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -17,9 +30,13 @@ class _CartScreenState extends State<CartScreen> {
   int selectedPaymentIndex = 0; // 0: Wallet, 1: Online, 2: COD
   String scheduleText = "Pick a delivery time";
 
-  final String itemTitle = "Chicken Tagine";
-  final String itemPortion = "Full portion • Spicy";
-  final int basePrice = 750;
+  String get storeName => widget.storeName ?? "Al Fantasia Restaurant";
+  String get itemTitle => widget.itemName ?? "Chicken Tagine";
+  String get itemPortion => widget.itemPortion ?? "Full portion • Spicy";
+  int get basePrice => widget.basePrice ?? 750;
+  String get itemImage =>
+      widget.itemImage ??
+      'https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg';
   final int pointDiscountValue = 50;
   final int deliveryFee = 20;
   final int tax = 10;
@@ -91,7 +108,7 @@ class _CartScreenState extends State<CartScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'From Al Fantasia Restaurant',
+              'From $storeName',
               style: GoogleFonts.outfit(
                 color: const Color(0xFFA59A94),
                 fontSize: 12,
@@ -122,10 +139,20 @@ class _CartScreenState extends State<CartScreen> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child: Image.network(
-                          'https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg',
+                          itemImage,
                           width: 74,
                           height: 74,
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                width: 74,
+                                height: 74,
+                                color: const Color(0xFFF3EFEA),
+                                child: const Icon(
+                                  Icons.image_not_supported_outlined,
+                                  color: Colors.grey,
+                                ),
+                              ),
                         ),
                       ),
                       const SizedBox(width: 12),

@@ -11,9 +11,6 @@ class OtpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Get.isRegistered<OtpController>()) {
-      Get.delete<OtpController>();
-    }
     final controller = Get.put(OtpController());
     final orientation = MediaQuery.of(context).orientation;
 

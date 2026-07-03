@@ -5,6 +5,7 @@ import '../constants/colors.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
 import 'category_screen.dart';
+import 'grocery/grocery_screen.dart';
 import 'under_30_min_screen.dart';
 import 'cart_screen.dart';
 import 'my_orders_screen.dart';
@@ -413,9 +414,13 @@ class HomeScreen extends StatelessWidget {
           final isSelected = index == 0;
           return GestureDetector(
             onTap: () {
-              Get.to(
-                () => CategoryScreen(categoryName: cat['label'] as String),
-              );
+              if (cat['label'] == 'Grocery') {
+                Get.to(() => const GroceryScreen());
+              } else {
+                Get.to(
+                  () => CategoryScreen(categoryName: cat['label'] as String),
+                );
+              }
             },
             child: Stack(
               clipBehavior: Clip.none,
