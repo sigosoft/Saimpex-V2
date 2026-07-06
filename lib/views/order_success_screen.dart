@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'track_order_screen.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
   const OrderSuccessScreen({Key? key}) : super(key: key);
@@ -110,15 +112,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Opening order details...',
-                              style: GoogleFonts.outfit(),
-                            ),
-                            backgroundColor: const Color(0xFFFF5E00),
-                          ),
-                        );
+                        Get.to(() => const TrackOrderScreen());
                       },
                       child: Container(
                         height: 48,

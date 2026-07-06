@@ -24,22 +24,22 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  bool isDelivery = false; // default to Self Pickup as in screen 1
+  bool isDelivery = true; // default to Delivery as in reference image 2
   int quantity = 1;
   bool usePoints = true;
   int selectedPaymentIndex = 0; // 0: Wallet, 1: Online, 2: COD
   String scheduleText = "Pick a delivery time";
 
-  String get storeName => widget.storeName ?? "Al Fantasia Restaurant";
-  String get itemTitle => widget.itemName ?? "Chicken Tagine";
-  String get itemPortion => widget.itemPortion ?? "Full portion • Spicy";
-  int get basePrice => widget.basePrice ?? 750;
+  String get storeName => widget.storeName ?? "Pharmacy Nasr";
+  String get itemTitle => widget.itemName ?? "Paracetamol 500 Mg";
+  String get itemPortion => widget.itemPortion ?? "10 Tablets";
+  int get basePrice => widget.basePrice ?? 50;
   String get itemImage =>
       widget.itemImage ??
-      'https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg';
-  final int pointDiscountValue = 50;
-  final int deliveryFee = 20;
-  final int tax = 10;
+      'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop';
+  final int pointDiscountValue = 1;
+  final int deliveryFee = 5;
+  final int tax = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -487,8 +487,77 @@ class _CartScreenState extends State<CartScreen> {
 
             const SizedBox(height: 14),
 
-            // 4. Pickup Location (Shown ONLY if Self Pickup is active)
-            if (!isDelivery) ...[
+            // 4. Address Details (Shown conditionally based on delivery or pickup selection)
+            if (isDelivery) ...[
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFFEAD8C9),
+                    width: 0.8,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFF0EA),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.home_outlined,
+                        color: Color(0xFFFF5E00),
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Sahara View Home',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Near Marhaba Supermarket, Nouakchott.',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {},
+                      child: Text(
+                        'Edit',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ] else ...[
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -523,7 +592,7 @@ class _CartScreenState extends State<CartScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Pickup Location',
+                            storeName,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 12,
@@ -532,7 +601,7 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Al fantasia restaurant, Near Nouakchott, Mauritania',
+                            '$storeName, Near Nouakchott, Mauritania',
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 10,
