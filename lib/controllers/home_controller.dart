@@ -16,8 +16,19 @@ class HomeController extends GetxController {
   // Grocery mid-page banner slider active index
   final groceryBannerSliderIndex = 0.obs;
 
-  // List of liked restaurant/grocery item IDs
+  // Water mid-page banner slider active index
+  final waterBannerSliderIndex = 0.obs;
+
+  // Pharmacy mid-page banner slider active index
+  final pharmacyBannerSliderIndex = 0.obs;
+
+  /// Favourited stores/restaurants with full card data for My Favourites.
+  final favourites = <Map<String, dynamic>>[].obs;
+
+  /// Kept in sync for any legacy ID-only checks.
   final likedItems = <String>[].obs;
+
+  int get favouritesCount => favourites.length;
 
   void selectNavigation(int index) {
     currentNavIndex.value = index;
@@ -39,15 +50,54 @@ class HomeController extends GetxController {
     groceryBannerSliderIndex.value = index;
   }
 
-  void toggleLike(String itemId) {
-    if (likedItems.contains(itemId)) {
+  void updateWaterBannerIndex(int index) {
+    waterBannerSliderIndex.value = index;
+  }
+
+  void updatePharmacyBannerIndex(int index) {
+    pharmacyBannerSliderIndex.value = index;
+  }
+
+  void toggleLike(String itemId, [Map<String, dynamic>? item]) {
+    if (itemId.isEmpty) return;
+
+    final existingIndex = favourites.indexWhere(
+      (e) => (e['id'] ?? '').toString() == itemId,
+    );
+
+    if (existingIndex >= 0) {
+      favourites.removeAt(existingIndex);
       likedItems.remove(itemId);
     } else {
-      likedItems.add(itemId);
+      final data = Map<String, dynamic>.from(item ?? {});
+      data['id'] = itemId;
+      if (data['title'] == null && data['name'] != null) {
+        data['title'] = data['name'];
+      }
+      if (data['subtitle'] == null) {
+        data['subtitle'] =
+            data['category'] ?? data['subtitle'] ?? '';
+      }
+      data.putIfAbsent('title', () => 'Favourite');
+      data.putIfAbsent('subtitle', () => '');
+      data.putIfAbsent('rating', () => '4.5');
+      data.putIfAbsent('time', () => '30–35 min');
+      data.putIfAbsent('dist', () => '10 Km');
+      data.putIfAbsent('discount', () => '50% OFF');
+      data.putIfAbsent('points', () => '200 Points Available');
+      data.putIfAbsent(
+        'image',
+        () =>
+            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop',
+      );
+      favourites.add(data);
+      if (!likedItems.contains(itemId)) {
+        likedItems.add(itemId);
+      }
     }
   }
 
   bool isLiked(String itemId) {
-    return likedItems.contains(itemId);
+    return favourites.any((e) => (e['id'] ?? '').toString() == itemId);
   }
 }

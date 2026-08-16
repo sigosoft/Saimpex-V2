@@ -14,7 +14,6 @@ class GroceryStoresScreen extends StatefulWidget {
 
 class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
   int selectedSubcategoryIndex = 0;
-  final Set<String> likedStores = {};
 
   final subcategories = [
     {'label': 'All', 'isAll': true},
@@ -137,7 +136,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   itemBuilder: (context, index) {
                     final store = groceryStores[index];
-                    final isLiked = likedStores.contains(store['id']);
+                    final homeController = Get.isRegistered<HomeController>()
+                        ? Get.find<HomeController>()
+                        : Get.put(HomeController());
 
                     return GestureDetector(
                       onTap: () {
@@ -252,31 +253,31 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                   Positioned(
                                     top: 10,
                                     right: 10,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (isLiked) {
-                                            likedStores.remove(store['id']);
-                                          } else {
-                                            likedStores.add(store['id']!);
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(5),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
+                                    child: Obx(() {
+                                      final isLiked = homeController.isLiked(
+                                        (store['id'] ?? '').toString(),
+                                      );
+                                      return GestureDetector(
+                                        onTap: () => homeController.toggleLike(
+                                          (store['id'] ?? '').toString(),
+                                          store,
                                         ),
-                                        child: Icon(
-                                          isLiked
-                                              ? Icons.favorite_rounded
-                                              : Icons.favorite_border_rounded,
-                                          color: const Color(0xFFE03A3A),
-                                          size: 16,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(5),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            isLiked
+                                                ? Icons.favorite_rounded
+                                                : Icons.favorite_border_rounded,
+                                            color: const Color(0xFFE03A3A),
+                                            size: 16,
+                                          ),
                                         ),
-                                      ),
-                                    ),
+                                      );
+                                    }),
                                   ),
 
                                   // Bottom Left Points overlay with Coin.png/Points.png

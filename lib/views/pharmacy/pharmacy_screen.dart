@@ -16,7 +16,6 @@ class PharmacyScreen extends StatefulWidget {
 
 class _PharmacyScreenState extends State<PharmacyScreen> {
   int selectedCategoryIndex = 0; // Default to "All"
-  final Set<String> likedPharmacies = {};
 
   final quickCategories = [
     {
@@ -721,7 +720,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         itemCount: trustedPharmacies.length,
         itemBuilder: (context, index) {
           final store = trustedPharmacies[index];
-          final isLiked = likedPharmacies.contains(store['id']);
+          final homeController = Get.isRegistered<HomeController>()
+              ? Get.find<HomeController>()
+              : Get.put(HomeController());
 
           return GestureDetector(
             onTap: () {
@@ -829,31 +830,31 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                         Positioned(
                           top: 10,
                           right: 10,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (isLiked) {
-                                  likedPharmacies.remove(store['id']);
-                                } else {
-                                  likedPharmacies.add(store['id'] as String);
-                                }
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
+                          child: Obx(() {
+                            final isLiked = homeController.isLiked(
+                              (store['id'] ?? '').toString(),
+                            );
+                            return GestureDetector(
+                              onTap: () => homeController.toggleLike(
+                                (store['id'] ?? '').toString(),
+                                Map<String, dynamic>.from(store),
                               ),
-                              child: Icon(
-                                isLiked
-                                    ? Icons.favorite_rounded
-                                    : Icons.favorite_border_rounded,
-                                color: const Color(0xFFE03A3A),
-                                size: 16,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isLiked
+                                      ? Icons.favorite_rounded
+                                      : Icons.favorite_border_rounded,
+                                  color: const Color(0xFFE03A3A),
+                                  size: 16,
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
                         ),
                         // Points Badge with Coin
                         Positioned(
@@ -997,7 +998,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         itemCount: nearbyPharmacies.length,
         itemBuilder: (context, index) {
           final store = nearbyPharmacies[index];
-          final isLiked = likedPharmacies.contains(store['id']);
+          final homeController = Get.isRegistered<HomeController>()
+              ? Get.find<HomeController>()
+              : Get.put(HomeController());
           final isClosed = store['isClosed'] == true;
           final isTemporarilyClosed = store['isTemporarilyClosed'] == true;
 
@@ -1103,31 +1106,31 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                         Positioned(
                           top: 10,
                           right: 10,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (isLiked) {
-                                  likedPharmacies.remove(store['id']);
-                                } else {
-                                  likedPharmacies.add(store['id'] as String);
-                                }
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
+                          child: Obx(() {
+                            final isLiked = homeController.isLiked(
+                              (store['id'] ?? '').toString(),
+                            );
+                            return GestureDetector(
+                              onTap: () => homeController.toggleLike(
+                                (store['id'] ?? '').toString(),
+                                Map<String, dynamic>.from(store),
                               ),
-                              child: Icon(
-                                isLiked
-                                    ? Icons.favorite_rounded
-                                    : Icons.favorite_border_rounded,
-                                color: const Color(0xFFE03A3A),
-                                size: 16,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isLiked
+                                      ? Icons.favorite_rounded
+                                      : Icons.favorite_border_rounded,
+                                  color: const Color(0xFFE03A3A),
+                                  size: 16,
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
                         ),
                         // Coin overlay
                         Positioned(

@@ -325,8 +325,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             Obx(() {
                               final liked = controller.isLiked(restaurantId);
                               return GestureDetector(
-                                onTap: () =>
-                                    controller.toggleLike(restaurantId),
+                                onTap: () => controller.toggleLike(
+                                  restaurantId,
+                                  widget.restaurant,
+                                ),
                                 child: Container(
                                   width: 44,
                                   height: 44,

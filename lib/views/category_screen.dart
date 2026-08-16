@@ -38,7 +38,7 @@ class CategoryScreen extends StatelessWidget {
             'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=100&auto=format&fit=crop',
       },
       {
-        'label': 'Cafe',
+        'label': 'Cafes',
         'image':
             'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=100&auto=format&fit=crop',
       },
@@ -171,7 +171,7 @@ class CategoryScreen extends StatelessWidget {
 
                   // 2. Subcategories Horizontal Scroll Row
                   SizedBox(
-                    height: 70,
+                    height: 76,
                     child: Obx(() {
                       final selectedIndex =
                           controller.selectedSubcategoryIndex.value;
@@ -190,6 +190,7 @@ class CategoryScreen extends StatelessWidget {
                               margin: const EdgeInsets.only(right: 18),
                               color: Colors.transparent,
                               child: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   isAll
                                       ? Container(
@@ -646,8 +647,10 @@ class CategoryScreen extends StatelessWidget {
                                       item['id']!,
                                     );
                                     return GestureDetector(
-                                      onTap: () =>
-                                          controller.toggleLike(item['id']!),
+                                      onTap: () => controller.toggleLike(
+                                        item['id']!,
+                                        item,
+                                      ),
                                       child: Container(
                                         padding: const EdgeInsets.all(5),
                                         decoration: const BoxDecoration(

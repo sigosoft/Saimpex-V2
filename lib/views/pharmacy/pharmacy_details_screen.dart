@@ -375,7 +375,10 @@ class _PharmacyDetailsScreenState extends State<PharmacyDetailsScreen> {
                             ),
                             const SizedBox(width: 12),
                             GestureDetector(
-                              onTap: () => controller.toggleLike(storeId),
+                              onTap: () => controller.toggleLike(
+                                storeId,
+                                widget.store,
+                              ),
                               child: Obx(() {
                                 final liked = controller.isLiked(storeId);
                                 return Container(

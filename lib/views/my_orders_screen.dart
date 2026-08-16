@@ -5,6 +5,7 @@ import 'cart_screen.dart';
 import 'order_detail_screen.dart';
 import 'track_order_screen.dart';
 import 'rate_order_screen.dart';
+import 'account_screen.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   const MyOrdersScreen({Key? key}) : super(key: key);
@@ -478,6 +479,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         } else if (index == 3) {
           // Off to CartScreen
           Get.off(() => const CartScreen());
+        } else if (index == 4) {
+          Get.off(() => const AccountScreen());
         }
       },
       child: Container(

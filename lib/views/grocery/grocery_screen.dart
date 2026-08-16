@@ -15,7 +15,6 @@ class GroceryScreen extends StatefulWidget {
 
 class _GroceryScreenState extends State<GroceryScreen> {
   int selectedSubcategoryIndex = 0;
-  final Set<String> likedStores = {};
 
   final subcategories = [
     {'label': 'All', 'isAll': true},
@@ -771,7 +770,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
         itemCount: topStores.length,
         itemBuilder: (context, index) {
           final store = topStores[index];
-          final isLiked = likedStores.contains(store['id']);
+          final homeController = Get.isRegistered<HomeController>()
+              ? Get.find<HomeController>()
+              : Get.put(HomeController());
 
           return GestureDetector(
             onTap: () {
@@ -887,31 +888,31 @@ class _GroceryScreenState extends State<GroceryScreen> {
                     Positioned(
                       top: 10,
                       right: 10,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (isLiked) {
-                              likedStores.remove(store['id']);
-                            } else {
-                              likedStores.add(store['id']!);
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
+                      child: Obx(() {
+                        final isLiked = homeController.isLiked(
+                          (store['id'] ?? '').toString(),
+                        );
+                        return GestureDetector(
+                          onTap: () => homeController.toggleLike(
+                            (store['id'] ?? '').toString(),
+                            store,
                           ),
-                          child: Icon(
-                            isLiked
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: const Color(0xFFE03A3A),
-                            size: 14,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isLiked
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: const Color(0xFFE03A3A),
+                              size: 14,
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      }),
                     ),
 
                     // Points overlay bottom-left
@@ -1213,7 +1214,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
         itemCount: fastDeliveryStores.length,
         itemBuilder: (context, index) {
           final store = fastDeliveryStores[index];
-          final isLiked = likedStores.contains(store['id']);
+          final homeController = Get.isRegistered<HomeController>()
+              ? Get.find<HomeController>()
+              : Get.put(HomeController());
 
           return GestureDetector(
             onTap: () {
@@ -1323,31 +1326,31 @@ class _GroceryScreenState extends State<GroceryScreen> {
                     Positioned(
                       top: 10,
                       right: 10,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (isLiked) {
-                              likedStores.remove(store['id']);
-                            } else {
-                              likedStores.add(store['id']!);
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
+                      child: Obx(() {
+                        final isLiked = homeController.isLiked(
+                          (store['id'] ?? '').toString(),
+                        );
+                        return GestureDetector(
+                          onTap: () => homeController.toggleLike(
+                            (store['id'] ?? '').toString(),
+                            store,
                           ),
-                          child: Icon(
-                            isLiked
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: const Color(0xFFE03A3A),
-                            size: 14,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isLiked
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: const Color(0xFFE03A3A),
+                              size: 14,
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      }),
                     ),
 
                     // Points + Time badge overlay bottom-left

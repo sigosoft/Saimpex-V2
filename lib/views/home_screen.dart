@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/colors.dart';
@@ -10,6 +11,7 @@ import 'pharmacy/pharmacy_screen.dart';
 import 'under_30_min_screen.dart';
 import 'cart_screen.dart';
 import 'my_orders_screen.dart';
+import 'account_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,7 +21,16 @@ class HomeScreen extends StatelessWidget {
     final controller = Get.put(HomeController());
     final size = MediaQuery.of(context).size;
 
-    return Container(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Color(0xFFFFE6DC),
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Color(0xFFFAF6F0),
+        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarContrastEnforced: false,
+      ),
+      child: Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -118,6 +129,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -630,7 +642,13 @@ class HomeScreen extends StatelessWidget {
 
     return Column(
       children: [
-        _buildSectionHeader('Trending in Nouakchott', () {}),
+        _buildSectionHeader(
+          'Trending in Nouakchott',
+          () {
+            controller.selectSubcategory(0);
+            Get.to(() => const CategoryScreen(categoryName: 'Trending'));
+          },
+        ),
         const SizedBox(height: 12),
         SizedBox(
           height: 240,
@@ -765,8 +783,10 @@ class HomeScreen extends StatelessWidget {
                       (item['id'] ?? '').toString(),
                     );
                     return GestureDetector(
-                      onTap: () =>
-                          controller.toggleLike((item['id'] ?? '').toString()),
+                      onTap: () => controller.toggleLike(
+                        (item['id'] ?? '').toString(),
+                        item,
+                      ),
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: const BoxDecoration(
@@ -863,30 +883,32 @@ class HomeScreen extends StatelessWidget {
                   Row(
                     children: [
                       const Icon(
-                        Icons.access_time_rounded,
-                        color: Color(0xFF7A6A60),
+                        Icons.timer_outlined,
+                        color: Color(0xFFFF5E00),
                         size: 12,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         (item['time'] ?? '').toString(),
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF7A6A60),
+                          color: const Color(0xFF4A453F),
                           fontSize: 9,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(width: 12),
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFF7A6A60),
+                        color: Color(0xFFFF5E00),
                         size: 12,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         (item['dist'] ?? '').toString(),
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF7A6A60),
+                          color: const Color(0xFF4A453F),
                           fontSize: 9,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -1044,6 +1066,53 @@ class HomeScreen extends StatelessWidget {
 
   // Recent Orders Section
   Widget _buildRecentOrdersSection() {
+    final orders = [
+      {
+        'title': 'Al Fantasia',
+        'rating': '4.6',
+        'itemPrefix': 'Chiken Tagine (Half) ',
+        'qty': 'x2',
+        'itemSuffix': ' • Chick.....',
+        'date': 'Yesterday',
+        'itemsCount': '2 Items',
+        'image':
+            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
+      },
+      {
+        'title': 'Al Fantasia',
+        'rating': '4.6',
+        'itemPrefix': 'Chiken Tagine (Half) ',
+        'qty': 'x2',
+        'itemSuffix': ' • Chick.....',
+        'date': 'Yesterday',
+        'itemsCount': '2 Items',
+        'image':
+            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
+      },
+      {
+        'title': 'Al Fantasia',
+        'rating': '4.6',
+        'itemPrefix': 'Chiken Tagine (Half) ',
+        'qty': 'x2',
+        'itemSuffix': ' • Chick.....',
+        'date': '2 days ago',
+        'itemsCount': '2 Items',
+        'image':
+            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
+      },
+      {
+        'title': 'Al Fantasia',
+        'rating': '4.6',
+        'itemPrefix': 'Chiken Tagine (Half) ',
+        'qty': 'x2',
+        'itemSuffix': ' • Chick.....',
+        'date': '3 days ago',
+        'itemsCount': '2 Items',
+        'image':
+            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1087,164 +1156,139 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           height: 120,
-          child: ListView(
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              return _buildRecentOrderCard(orders[index]);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentOrderCard(Map<String, String> order) {
+    return Container(
+      width: 250,
+      margin: const EdgeInsets.only(right: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFF5E00).withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 250,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF5E00).withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  order['image']!,
+                  width: 54,
+                  height: 54,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 54,
+                    height: 54,
+                    color: const Color(0xFFF3EFEA),
+                    child: const Icon(
+                      Icons.image_not_supported_outlined,
+                      color: Colors.grey,
+                      size: 16,
                     ),
-                  ],
+                  ),
                 ),
-                padding: const EdgeInsets.all(12),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Pizza thumbnail
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.network(
-                            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
-                            width: 54,
-                            height: 54,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                                  width: 54,
-                                  height: 54,
-                                  color: const Color(0xFFF3EFEA),
-                                  child: const Icon(
-                                    Icons.image_not_supported_outlined,
-                                    color: Colors.grey,
-                                    size: 16,
-                                  ),
-                                ),
+                        Expanded(
+                          child: Text(
+                            order['title']!,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Al Fantasia',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: Color(0xFFFFAE00),
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    '4.6',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF2C2520),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Chiken Tagine (Half) x2 • Chick.....',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF7A6A60),
-                                  fontSize: 10,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.calendar_today_outlined,
-                                    color: Color(0xFFFF5E00),
-                                    size: 11,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Yesterday',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF7A6A60),
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Color(0xFFFFAE00),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          order['rating']!,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
-                    const Spacer(),
+                    const SizedBox(height: 2),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: order['itemPrefix'],
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF7A6A60),
+                              fontSize: 10,
+                            ),
+                          ),
+                          TextSpan(
+                            text: order['qty'],
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFFF5E00),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          TextSpan(
+                            text: order['itemSuffix'],
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF7A6A60),
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          color: Color(0xFFFF5E00),
+                          size: 11,
+                        ),
+                        const SizedBox(width: 4),
                         Text(
-                          '2 Items',
+                          order['date']!,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: const Color(0xFFFF5E00),
-                                width: 1.2,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.refresh_rounded,
-                                  color: Color(0xFFFF5E00),
-                                  size: 12,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Reorder',
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFFFF5E00),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            fontSize: 10,
                           ),
                         ),
                       ],
@@ -1254,8 +1298,57 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ],
+          const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                order['itemsCount']!,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF7A6A60),
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFFF5E00),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.refresh_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 12,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Reorder',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1541,20 +1634,52 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Mid-page Grocery Promo Banner
+  // Mid-page Grocery Promo Banner (slider)
   Widget _buildGroceryPromoBanner(HomeController controller) {
+    const slideCount = 4;
+    const imagePath = 'lib/assets/images/Grocery slider.png';
+
     return Column(
       children: [
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
-          height: 120,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.asset(
-              "lib/assets/images/Grocery slider.png",
-              fit: BoxFit.fill,
-              width: double.infinity,
-            ),
+          height: 140,
+          child: PageView.builder(
+            itemCount: slideCount,
+            physics: const BouncingScrollPhysics(),
+            onPageChanged: controller.updateGroceryBannerIndex,
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.fill,
+                  width: double.infinity,
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(slideCount, (index) {
+              final isActive =
+                  controller.groceryBannerSliderIndex.value == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                height: 6,
+                width: isActive ? 22 : 6,
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFFFF5E00)
+                      : const Color(0xFFD9D1C9),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              );
+            }),
           ),
         ),
       ],
@@ -1609,40 +1734,103 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Mid-page Pharmacy Promo Banner
+  // Mid-page Pharmacy Promo Banner (slider)
   Widget _buildPharmacyPromoBanner(HomeController controller) {
+    const slideCount = 4;
+    const imagePath = 'lib/assets/images/Pharmacy slider.png';
+
     return Column(
       children: [
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
-          height: 120,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.asset(
-              "lib/assets/images/Pharmacy slider.png",
-              fit: BoxFit.fill,
-              width: double.infinity,
-            ),
+          height: 140,
+          child: PageView.builder(
+            itemCount: slideCount,
+            physics: const BouncingScrollPhysics(),
+            onPageChanged: controller.updatePharmacyBannerIndex,
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.fill,
+                  width: double.infinity,
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(slideCount, (index) {
+              final isActive =
+                  controller.pharmacyBannerSliderIndex.value == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                height: 6,
+                width: isActive ? 22 : 6,
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFFFF5E00)
+                      : const Color(0xFFD9D1C9),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              );
+            }),
           ),
         ),
       ],
     );
   }
 
-  // Mid-page Water Promo Banner
+  // Mid-page Water Promo Banner (slider)
   Widget _buildWaterPromoBanner(HomeController controller) {
+    const slideCount = 4;
+    const imagePath = 'lib/assets/images/Water slider.png';
+
     return Column(
       children: [
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
-          height: 120,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.asset(
-              "lib/assets/images/Water slider.png",
-              fit: BoxFit.fill,
-              width: double.infinity,
-            ),
+          height: 140,
+          child: PageView.builder(
+            itemCount: slideCount,
+            physics: const BouncingScrollPhysics(),
+            onPageChanged: controller.updateWaterBannerIndex,
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.fill,
+                  width: double.infinity,
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(slideCount, (index) {
+              final isActive = controller.waterBannerSliderIndex.value == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                height: 6,
+                width: isActive ? 22 : 6,
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFFFF5E00)
+                      : const Color(0xFFD9D1C9),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              );
+            }),
           ),
         ),
       ],
@@ -1651,6 +1839,8 @@ class HomeScreen extends StatelessWidget {
 
   // Trusted Pharmacies
   Widget _buildTrustedPharmacies(HomeController controller) {
+    const pharmacyImage =
+        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop';
     final pharmacies = [
       {
         'id': 'p1',
@@ -1661,8 +1851,40 @@ class HomeScreen extends StatelessWidget {
         'dist': '10 Km',
         'discount': '50% OFF',
         'points': '200 Points Available',
-        'image':
-            'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop',
+        'image': pharmacyImage,
+      },
+      {
+        'id': 'p2',
+        'title': 'City Care Pharmacy',
+        'subtitle': 'Trusted',
+        'rating': '4.5',
+        'time': '25-30 min',
+        'dist': '8 Km',
+        'discount': '30% OFF',
+        'points': '180 Points Available',
+        'image': pharmacyImage,
+      },
+      {
+        'id': 'p3',
+        'title': 'Al Shifa Pharmacy',
+        'subtitle': 'Trusted',
+        'rating': '4.7',
+        'time': '30-35 min',
+        'dist': '12 Km',
+        'discount': '40% OFF',
+        'points': '200 Points Available',
+        'image': pharmacyImage,
+      },
+      {
+        'id': 'p4',
+        'title': 'Wellness Plus',
+        'subtitle': 'Trusted',
+        'rating': '4.4',
+        'time': '20-25 min',
+        'dist': '6 Km',
+        'discount': '25% OFF',
+        'points': '150 Points Available',
+        'image': pharmacyImage,
       },
     ];
 
@@ -1700,6 +1922,41 @@ class HomeScreen extends StatelessWidget {
         'points': '200 Points Available',
         'image':
             'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=350&auto=format&fit=crop',
+      },
+      {
+        'id': 'w2',
+        'title': 'AquaFresh Supply',
+        'subtitle': 'Mineral & filtered water',
+        'rating': '4.5',
+        'time': '25-30 min',
+        'dist': '8 Km',
+        'discount': '40% OFF',
+        'points': '180 Points Available',
+        'image':
+            'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=350&auto=format&fit=crop',
+      },
+      {
+        'id': 'w3',
+        'title': 'Crystal Springs',
+        'subtitle': 'Natural spring water delivery',
+        'rating': '4.7',
+        'time': '35-40 min',
+        'dist': '12 Km',
+        'discount': '30% OFF',
+        'points': '220 Points Available',
+        'image': 'lib/assets/images/Water.png',
+      },
+      {
+        'id': 'w4',
+        'title': 'HydroPlus Waters',
+        'subtitle': 'Bulk water for home & office',
+        'rating': '4.4',
+        'time': '20-25 min',
+        'dist': '6 Km',
+        'discount': '25% OFF',
+        'points': '150 Points Available',
+        'image':
+            'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=350&auto=format&fit=crop',
       },
     ];
 
@@ -1806,6 +2063,10 @@ class HomeScreen extends StatelessWidget {
         } else if (index == 3) {
           controller.selectNavigation(3);
           await Get.to(() => const CartScreen());
+          controller.selectNavigation(0);
+        } else if (index == 4) {
+          controller.selectNavigation(4);
+          await Get.to(() => const AccountScreen());
           controller.selectNavigation(0);
         } else {
           controller.selectNavigation(index);

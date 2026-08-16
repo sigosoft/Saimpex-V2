@@ -422,8 +422,10 @@ class Under30MinScreen extends StatelessWidget {
                                 child: Obx(() {
                                   final liked = controller.isLiked(item['id']!);
                                   return GestureDetector(
-                                    onTap: () =>
-                                        controller.toggleLike(item['id']!),
+                                    onTap: () => controller.toggleLike(
+                                      item['id']!,
+                                      item,
+                                    ),
                                     child: Container(
                                       padding: const EdgeInsets.all(5),
                                       decoration: const BoxDecoration(
