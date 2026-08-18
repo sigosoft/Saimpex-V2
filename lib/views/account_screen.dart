@@ -12,6 +12,8 @@ import 'saved_addresses_screen.dart';
 import 'my_subscriptions_screen.dart';
 import 'my_schedules_screen.dart';
 import 'app_preferences_screen.dart';
+import 'help_support_screen.dart';
+import 'terms_conditions_screen.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -680,6 +682,22 @@ class _AccountScreenState extends State<AccountScreen> {
                     _openLogoutConfirmSheet();
                   } else if (item['label'] == 'App Preferences') {
                     Get.to(() => const AppPreferencesScreen());
+                  } else if (item['label'] == 'Help & Support') {
+                    Get.to(() => const HelpSupportScreen());
+                  } else if (item['label'] == 'Terms & Conditions') {
+                    Get.to(() => const TermsConditionsScreen());
+                  } else if (item['label'] == 'Privacy & Security') {
+                    Get.to(
+                      () => const TermsConditionsScreen(
+                        title: 'Privacy & Security',
+                      ),
+                    );
+                  } else if (item['label'] == 'About Us') {
+                    Get.to(
+                      () => const TermsConditionsScreen(
+                        title: 'About Us',
+                      ),
+                    );
                   }
                 },
                 borderRadius: BorderRadius.vertical(

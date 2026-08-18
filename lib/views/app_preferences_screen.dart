@@ -293,14 +293,17 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        if (showChevron) ...[
-          const SizedBox(width: 4),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: Color(0xFFFF5E00),
-            size: 22,
-          ),
-        ],
+        const SizedBox(width: 4),
+        SizedBox(
+          width: 22,
+          child: showChevron
+              ? const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFFFF5E00),
+                  size: 22,
+                )
+              : null,
+        ),
       ],
     );
   }

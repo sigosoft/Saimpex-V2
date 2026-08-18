@@ -63,6 +63,8 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
       'points': '200 Points Available',
       'image':
           'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop',
+      'isClosed': true,
+      'opensAt': '10 AM',
     },
     {
       'id': 'gs_all2',
@@ -75,6 +77,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
       'points': '200 Points Available',
       'image':
           'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500&auto=format&fit=crop',
+      'isTemporarilyClosed': true,
     },
     {
       'id': 'gs_all3',
@@ -86,7 +89,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
       'discount': '30% OFF',
       'points': '200 Points Available',
       'image':
-          'https://images.unsplash.com/photo-1583258292688-d0213df4a3a8?w=500&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=500&auto=format&fit=crop',
     },
   ];
 
@@ -139,6 +142,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     final homeController = Get.isRegistered<HomeController>()
                         ? Get.find<HomeController>()
                         : Get.put(HomeController());
+                    final isClosed = store['isClosed'] == true;
+                    final isTemporarilyClosed =
+                        store['isTemporarilyClosed'] == true;
 
                     return GestureDetector(
                       onTap: () {
@@ -324,13 +330,38 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                       ),
                                     ),
                                   ),
+                                  if (isClosed) ...[
+                                    Positioned.fill(
+                                      child: Container(
+                                        color: Colors.black.withOpacity(0.35),
+                                      ),
+                                    ),
+                                    Positioned.fill(
+                                      child: _buildClosedOverlay(
+                                        (store['opensAt'] ?? '10 AM')
+                                            .toString(),
+                                      ),
+                                    ),
+                                  ] else if (isTemporarilyClosed) ...[
+                                    Positioned.fill(
+                                      child: Container(
+                                        color: Colors.black.withOpacity(0.35),
+                                      ),
+                                    ),
+                                    Positioned.fill(
+                                      child: _buildTemporarilyClosedOverlay(),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
 
-                            // Text details area
-                            Padding(
-                              padding: const EdgeInsets.all(12),
+                            Opacity(
+                              opacity: (isClosed || isTemporarilyClosed)
+                                  ? 0.65
+                                  : 1.0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -386,6 +417,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                   ),
                                 ],
                               ),
+                            ),
                             ),
                           ],
                         ),
@@ -757,6 +789,134 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                   size: 11,
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClosedOverlay(String opensAt) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD30000),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Closed',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Opens $opensAt',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Transform.translate(
+            offset: const Offset(0, -3),
+            child: Transform.rotate(
+              angle: 45 * 3.14159 / 180,
+              child: Container(
+                width: 8,
+                height: 8,
+                color: const Color(0xFFD30000),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTemporarilyClosedOverlay() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF8A00),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Temporarily not accepting',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  'orders',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Transform.translate(
+            offset: const Offset(0, -3),
+            child: Transform.rotate(
+              angle: 45 * 3.14159 / 180,
+              child: Container(
+                width: 8,
+                height: 8,
+                color: const Color(0xFFFF8A00),
+              ),
             ),
           ),
         ],
