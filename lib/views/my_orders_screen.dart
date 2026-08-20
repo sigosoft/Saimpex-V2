@@ -8,7 +8,7 @@ import 'rate_order_screen.dart';
 import 'account_screen.dart';
 
 class MyOrdersScreen extends StatefulWidget {
-  const MyOrdersScreen({Key? key}) : super(key: key);
+  const MyOrdersScreen({super.key});
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
@@ -20,12 +20,25 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFFDF9),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFFAF6F0),
+            Color(0xFFFFEEE5),
+            Color(0xFFFFDDCF),
+          ],
+          stops: [0.0, 0.55, 1.0],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: Container(
-          color: const Color(0xFFFFFDF9),
+          color: Colors.transparent,
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top + 10,
             left: 16,
@@ -42,8 +55,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFEAD8C9),
+                        width: 0.8,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.04),
@@ -121,7 +138,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               style: GoogleFonts.outfit(
                                 color: isSelected
                                     ? Colors.white
-                                    : const Color(0xFFA59A94),
+                                    : const Color(0xFF2C2520),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -146,7 +163,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           statusColor: const Color(0xFFFF8A00),
                           statusBgColor: const Color(0xFFFFF4EC),
                           detailsText:
-                              "Delivery - 750 MRU - 2 items - #22789002",
+                              "Delivery • 750 MRU • 2 items • #22789002",
                           buttons: [
                             _buildOrderButton(
                               text: "Cancel",
@@ -172,7 +189,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           statusText: "SELF PICKUP",
                           statusColor: const Color(0xFF007DFE),
                           statusBgColor: const Color(0xFFECF5FF),
-                          detailsText: "Pickup - 500 MRU - 2 items - #22789001",
+                          detailsText: "Pickup • 500 MRU • 2 items • #22789001",
                           buttons: [
                             _buildOrderButton(
                               text: "Cancel",
@@ -188,7 +205,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           statusColor: const Color(0xFF00B25C),
                           statusBgColor: const Color(0xFFE8F8EE),
                           detailsText:
-                              "Delivery - 1500 MRU - 10 items - #22789000",
+                              "Delivery • 1500 MRU • 10 items • #22789000",
                           buttons: [
                             _buildOrderButton(
                               text: "Reorder",
@@ -220,6 +237,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

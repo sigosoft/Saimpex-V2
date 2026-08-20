@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
-import 'grocery_screen.dart';
 import 'grocery_details_screen.dart';
 
 class GroceryStoresScreen extends StatefulWidget {
-  const GroceryStoresScreen({Key? key}) : super(key: key);
+  const GroceryStoresScreen({super.key});
 
   @override
   State<GroceryStoresScreen> createState() => _GroceryStoresScreenState();
@@ -99,41 +98,71 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFFFE6DC), // Top peach gradient
-            Color(0xFFFFF4EE), // Middle soft peach
-            Color(0xFFFAF6F0), // Base color at the bottom
+            Color(0xFFFFDDCF), // Richer peach at top
+            Color(0xFFFFEEE5), // Soft peach fade
+            Color(0xFFFAF6F0), // Warm cream base
           ],
+          stops: [0.0, 0.38, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. App Bar Header Row
-              _buildHeader(context),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top white sheet: App Bar + Subcategories (full-bleed, rounded bottom)
+            Container(
+              width: double.infinity,
+              clipBehavior: Clip.antiAlias,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFFCF8),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(22),
+                  bottomRight: Radius.circular(22),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x14000000),
+                    blurRadius: 16,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(context),
+                    _buildSubcategoriesRow(),
+                  ],
+                ),
+              ),
+            ),
 
-              // 2. Subcategories Horizontal Scroll Row
-              _buildSubcategoriesRow(),
+            Expanded(
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Search Bar (on peach background below the white sheet)
+                    _buildSearchBar(),
 
-              // 3. Search Bar
-              _buildSearchBar(),
+                    // Filters Row
+                    _buildFiltersRow(),
+                    const SizedBox(height: 16),
 
-              // 4. Filters Row
-              _buildFiltersRow(),
-              const SizedBox(height: 16),
+                    // Section Header Title + Map Button
+                    _buildSectionHeader(),
+                    const SizedBox(height: 12),
 
-              // 5. Section Header Title + Map Button
-              _buildSectionHeader(),
-              const SizedBox(height: 12),
-
-              // 6. Stores Vertical List
-              Expanded(
-                child: ListView.builder(
+                    // Stores Vertical List
+                    Expanded(
+                      child: ListView.builder(
                   itemCount: groceryStores.length,
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -154,7 +183,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                         margin: const EdgeInsets.only(bottom: 16),
                         height: 220,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Color(0xFFFFFCF8),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: const Color(0xFFEAD8C9),
@@ -212,7 +241,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                       child: Text(
                                         store['discount']!,
                                         style: GoogleFonts.outfit(
-                                          color: Colors.white,
+                                          color: Color(0xFFFFFCF8),
                                           fontSize: 9,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -271,7 +300,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                         child: Container(
                                           padding: const EdgeInsets.all(5),
                                           decoration: const BoxDecoration(
-                                            color: Colors.white,
+                                            color: Color(0xFFFFFCF8),
                                             shape: BoxShape.circle,
                                           ),
                                           child: Icon(
@@ -321,7 +350,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                           Text(
                                             store['points']!,
                                             style: GoogleFonts.outfit(
-                                              color: Colors.white,
+                                              color: Color(0xFFFFFCF8),
                                               fontSize: 8,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -426,8 +455,11 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                   },
                 ),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -445,7 +477,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color:Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -476,138 +508,126 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
     );
   }
 
-  // Subcategories
+  // Subcategories (inside the white top sheet)
   Widget _buildSubcategoriesRow() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: SizedBox(
-        height: 70,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: subcategories.length,
-          itemBuilder: (context, index) {
-            final sub = subcategories[index];
-            final isSelected = selectedSubcategoryIndex == index;
-            final isAll = sub['isAll'] == true;
+    return SizedBox(
+      height: 86,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
+        itemCount: subcategories.length,
+        itemBuilder: (context, index) {
+          final sub = subcategories[index];
+          final isSelected = selectedSubcategoryIndex == index;
+          final isAll = sub['isAll'] == true;
 
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedSubcategoryIndex = index;
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(right: 18),
-                child: Column(
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedSubcategoryIndex = index;
+              });
+            },
+            child: Padding(
+              padding: EdgeInsets.only(
+                right: index == subcategories.length - 1 ? 0 : 10,
+              ),
+              child: SizedBox(
+                width: 62,
+                child: Stack(
+                  alignment: Alignment.topCenter,
                   children: [
-                    isAll
-                        ? Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              gradient: isSelected
-                                  ? const LinearGradient(
-                                      colors: [
-                                        Color(0xFFFE5102),
-                                        Color(0xFFFFAE00),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    )
-                                  : const LinearGradient(
-                                      colors: [
-                                        Color(0xFFA59A94),
-                                        Color(0xFFC0B6B0),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                    Column(
+                      children: [
+                        isAll
+                            ? Container(
+                                width: 46,
+                                height: 46,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                    'lib/assets/images/All.png',
+                                    width: 22,
+                                    height: 22,
+                                    color: const Color(0xFFFF5E00),
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.10),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                'lib/assets/images/All.png',
-                                width: 20,
-                                height: 20,
-                                color: Colors.white,
+                                  ],
+                                ),
+                                child: ClipOval(
+                                  child: Image.network(
+                                    sub['image'] as String,
+                                    width: 46,
+                                    height: 46,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                              width: 46,
+                                              height: 46,
+                                              color: Colors.grey.shade300,
+                                              child: const Icon(
+                                                Icons.fastfood,
+                                                size: 18,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                  ),
+                                ),
                               ),
+                        const SizedBox(height: 8),
+                        Text(
+                          sub['label'] as String,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.visible,
+                          style: GoogleFonts.outfit(
+                            color: isSelected
+                                ? const Color(0xFFFF5E00)
+                                : const Color(0xFF3A312C),
+                            fontSize: 11,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (isSelected)
+                      Positioned(
+                        bottom: 0,
+                        child: Container(
+                          height: 10,
+                          width: 56,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                             ),
-                          )
-                        : Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isSelected
-                                    ? const Color(0xFFFF5E00)
-                                    : Colors.transparent,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: ClipOval(
-                              child: Image.network(
-                                sub['image'] as String,
-                                width: 36,
-                                height: 36,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      color: Colors.grey.shade300,
-                                      child: const Icon(
-                                        Icons.fastfood,
-                                        size: 16,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                              ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
                             ),
                           ),
-                    const SizedBox(height: 4),
-                    Text(
-                      sub['label'] as String,
-                      style: GoogleFonts.outfit(
-                        color: isSelected
-                            ? const Color(0xFFFF5E00)
-                            : const Color(0xFF7A6A60),
-                        fontSize: 10,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.w600,
-                      ),
-                    ),
-                    if (isSelected) ...[
-                      const SizedBox(height: 2),
-                      Container(
-                        height: 3,
-                        width: 16,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
-                          borderRadius: BorderRadius.circular(1.5),
                         ),
                       ),
-                    ],
                   ],
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -619,7 +639,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
       child: Container(
         height: 46,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Color(0xFFFFFCF8),
           borderRadius: BorderRadius.circular(23),
           boxShadow: [
             BoxShadow(
@@ -697,7 +717,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
             margin: const EdgeInsets.only(right: 10),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFFFFFCF8),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
             ),
@@ -767,7 +787,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFFFFFCF8),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFFF5E00), width: 1),
             ),
@@ -813,7 +833,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                 Text(
                   'Closed',
                   style: GoogleFonts.outfit(
-                    color: Colors.white,
+                    color: Color(0xFFFFFCF8),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
@@ -826,7 +846,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                       width: 4,
                       height: 4,
                       decoration: const BoxDecoration(
-                        color: Colors.white,
+                        color: Color(0xFFFFFCF8),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -834,7 +854,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     Text(
                       'Opens $opensAt',
                       style: GoogleFonts.outfit(
-                        color: Colors.white,
+                        color: Color(0xFFFFFCF8),
                         fontSize: 8,
                         fontWeight: FontWeight.w500,
                       ),
@@ -881,7 +901,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                       width: 4,
                       height: 4,
                       decoration: const BoxDecoration(
-                        color: Colors.white,
+                        color: Color(0xFFFFFCF8),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -889,7 +909,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     Text(
                       'Temporarily not accepting',
                       style: GoogleFonts.outfit(
-                        color: Colors.white,
+                        color: Color(0xFFFFFCF8),
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
                       ),
@@ -900,7 +920,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                 Text(
                   'orders',
                   style: GoogleFonts.outfit(
-                    color: Colors.white,
+                    color: Color(0xFFFFFCF8),
                     fontSize: 8,
                     fontWeight: FontWeight.bold,
                   ),
@@ -924,3 +944,4 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
     );
   }
 }
+

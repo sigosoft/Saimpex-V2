@@ -97,10 +97,11 @@ class CategoryScreen extends StatelessWidget {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFFFE6DC), // Top peach gradient
-            Color(0xFFFFF4EE), // Middle soft peach
-            Color(0xFFFAF6F0), // Base color at the bottom
+            Color(0xFFFFDDCF),
+            Color(0xFFFFEEE5),
+            Color(0xFFFAF6F0),
           ],
+          stops: [0.0, 0.38, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -109,200 +110,209 @@ class CategoryScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         body: Column(
           children: [
+            // Top cream sheet: App Bar + Subcategories (same as GroceryStoresScreen)
             Container(
+              width: double.infinity,
+              clipBehavior: Clip.antiAlias,
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.white, Color(0xFFFFF6F1)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                color: Color(0xFFFFFCF8),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(22),
+                  bottomRight: Radius.circular(22),
                 ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(24),
-                ),
-              ),
-              child: Column(
-                children: [
-                  SizedBox(height: MediaQuery.of(context).padding.top + 8),
-                  // 1. App Bar Header
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Back button card
-                        GestureDetector(
-                          onTap: () => Get.back(),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          categoryName,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 32), // spacer to center title
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // 2. Subcategories Horizontal Scroll Row
-                  SizedBox(
-                    height: 76,
-                    child: Obx(() {
-                      final selectedIndex =
-                          controller.selectedSubcategoryIndex.value;
-                      return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: subcategories.length,
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemBuilder: (context, index) {
-                          final sub = subcategories[index];
-                          final isAll = sub['isAll'] == true;
-                          final isSelected = selectedIndex == index;
-                          return GestureDetector(
-                            onTap: () => controller.selectSubcategory(index),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 18),
-                              color: Colors.transparent,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  isAll
-                                      ? Container(
-                                          width: 44,
-                                          height: 44,
-                                          decoration: BoxDecoration(
-                                            gradient: isSelected
-                                                ? const LinearGradient(
-                                                    colors: [
-                                                      Color(0xFFFE5102),
-                                                      Color(0xFFFFAE00),
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  )
-                                                : const LinearGradient(
-                                                    colors: [
-                                                      Color(0xFFA59A94),
-                                                      Color(0xFFC0B6B0),
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: Image.asset(
-                                              'lib/assets/images/All.png',
-                                              width: 20,
-                                              height: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        )
-                                      : Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: isSelected
-                                                  ? const Color(0xFFFF5E00)
-                                                  : Colors.transparent,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          child: ClipOval(
-                                            child: Image.network(
-                                              sub['image'] as String,
-                                              width: 38,
-                                              height: 38,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (
-                                                    context,
-                                                    error,
-                                                    stackTrace,
-                                                  ) => Container(
-                                                    width: 38,
-                                                    height: 38,
-                                                    color: const Color(
-                                                      0xFFEAD8C9,
-                                                    ),
-                                                    child: const Icon(
-                                                      Icons.fastfood,
-                                                      color: Colors.grey,
-                                                      size: 18,
-                                                    ),
-                                                  ),
-                                            ),
-                                          ),
-                                        ),
-                                  const SizedBox(height: 6),
-                                  IntrinsicWidth(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Text(
-                                          sub['label'] as String,
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.outfit(
-                                            color: isSelected
-                                                ? const Color(0xFFFF5E00)
-                                                : const Color(0xFF2C2520),
-                                            fontSize: 11,
-                                            fontWeight: isSelected
-                                                ? FontWeight.bold
-                                                : FontWeight.w500,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Container(
-                                          height: 2.5,
-                                          color: isSelected
-                                              ? const Color(0xFFFF5E00)
-                                              : Colors.transparent,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x14000000),
+                    blurRadius: 16,
+                    offset: Offset(0, 6),
                   ),
                 ],
               ),
+              child: SafeArea(
+                bottom: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () => Get.back(),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.04),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                color: Color(0xFFFF5E00),
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            categoryName,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 32),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 86,
+                      child: Obx(() {
+                        final selectedIndex =
+                            controller.selectedSubcategoryIndex.value;
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: subcategories.length,
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
+                          itemBuilder: (context, index) {
+                            final sub = subcategories[index];
+                            final isAll = sub['isAll'] == true;
+                            final isSelected = selectedIndex == index;
+                            return GestureDetector(
+                              onTap: () =>
+                                  controller.selectSubcategory(index),
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  right: index == subcategories.length - 1
+                                      ? 0
+                                      : 10,
+                                ),
+                                child: SizedBox(
+                                  width: 62,
+                                  child: Stack(
+                                    alignment: Alignment.topCenter,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          isAll
+                                              ? Container(
+                                                  width: 46,
+                                                  height: 46,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Center(
+                                  child: Image.asset(
+                                    'lib/assets/images/All.png',
+                                    width: 22,
+                                    height: 22,
+                                    color: const Color(0xFFFF5E00),
+                                  ),
+                                ),
+                              )
+                                              : Container(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.10),
+                                                        blurRadius: 10,
+                                                        offset:
+                                                            const Offset(0, 4),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: ClipOval(
+                                                    child: Image.network(
+                                                      sub['image'] as String,
+                                                      width: 46,
+                                                      height: 46,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) =>
+                                                          Container(
+                                                        width: 46,
+                                                        height: 46,
+                                                        color: const Color(
+                                                          0xFFEAD8C9,
+                                                        ),
+                                                        child: const Icon(
+                                                          Icons.fastfood,
+                                                          color: Colors.grey,
+                                                          size: 18,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            sub['label'] as String,
+                                            textAlign: TextAlign.center,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.visible,
+                                            style: GoogleFonts.outfit(
+                                              color: isSelected
+                                                  ? const Color(0xFFFF5E00)
+                                                  : const Color(0xFF3A312C),
+                                              fontSize: 11,
+                                              fontWeight: isSelected
+                                                  ? FontWeight.w700
+                                                  : FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      if (isSelected)
+                                        Positioned(
+                                          bottom: 0,
+                                          child: Container(
+                                            height: 10,
+                                            width: 56,
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Color(0xFFFF5E00),
+                                                  Color(0xFFFFAE00),
+                                                ],
+                                              ),
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(12),
+                                                topRight: Radius.circular(12),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // 3. Search Field Row
             Padding(

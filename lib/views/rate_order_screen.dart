@@ -4,36 +4,48 @@ import 'package:google_fonts/google_fonts.dart';
 import 'rating_reviews_screen.dart';
 
 class RateOrderScreen extends StatefulWidget {
-  const RateOrderScreen({Key? key}) : super(key: key);
+  const RateOrderScreen({super.key});
 
   @override
   State<RateOrderScreen> createState() => _RateOrderScreenState();
 }
 
 class _RateOrderScreenState extends State<RateOrderScreen> {
-  // Ratings state
   int restaurantRating = 0;
   int deliveryRating = 0;
   int item1Rating = 0;
   int item2Rating = 0;
 
-  // Selected tags state
   final Set<String> selectedRestaurantTags = {};
   final Set<String> selectedDeliveryTags = {};
 
-  final List<String> restaurantTags = ["Tasty Food", "Clean packaging", "Good portion size"];
-  final List<String> deliveryTags = ["Fast Delivery", "Polite", "Safe Handling"];
+  final List<String> restaurantTags = [
+    'Tasty Food',
+    'Clean packaging',
+    'Good portion size',
+  ];
+  final List<String> deliveryTags = [
+    'Fast Delivery',
+    'Polite',
+    'Safe Handling',
+  ];
 
   final TextEditingController _reviewController = TextEditingController();
 
   @override
+  void dispose() {
+    _reviewController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFDF9),
+      backgroundColor: const Color(0xFFFAF6F0),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: Container(
-          color: const Color(0xFFFFFDF9),
+          color: const Color(0xFFFAF6F0),
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top + 10,
             left: 16,
@@ -52,13 +64,10 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                      border: Border.all(
+                        color: const Color(0xFFE0D6CE),
+                        width: 1,
+                      ),
                     ),
                     child: const Icon(
                       Icons.arrow_back_ios_new_rounded,
@@ -73,293 +82,121 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. Rate Restaurant Card
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(16),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=100&auto=format&fit=crop',
-                          width: 64,
-                          height: 64,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Rate Restaurant Review',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            _buildStarSelector(
-                              rating: restaurantRating,
-                              onRatingChanged: (newRating) {
-                                setState(() {
-                                  restaurantRating = newRating;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  _buildExperienceCard(
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&auto=format&fit=crop',
+                    title: 'Rate Restaurant Review',
+                    rating: restaurantRating,
+                    onRatingChanged: (value) {
+                      setState(() => restaurantRating = value);
+                    },
+                    tags: restaurantTags,
+                    selectedTags: selectedRestaurantTags,
                   ),
                   const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: restaurantTags.map((tag) {
-                      final isSelected = selectedRestaurantTags.contains(tag);
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (isSelected) {
-                              selectedRestaurantTags.remove(tag);
-                            } else {
-                              selectedRestaurantTags.add(tag);
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFFF5E00) : const Color(0xFFFDF8F5),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isSelected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Text(
-                            tag,
-                            style: GoogleFonts.outfit(
-                              color: isSelected ? Colors.white : const Color(0xFF2C2520),
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                  _buildExperienceCard(
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+                    fallbackAsset: 'lib/assets/images/delivery_icon.png',
+                    title: 'Rate Your Delivery Experience',
+                    rating: deliveryRating,
+                    onRatingChanged: (value) {
+                      setState(() => deliveryRating = value);
+                    },
+                    tags: deliveryTags,
+                    selectedTags: selectedDeliveryTags,
                   ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // 2. Rate Delivery Card
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Rate Ordered Items',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ],
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
-                          width: 64,
-                          height: 64,
-                          fit: BoxFit.cover,
-                        ),
+                  const SizedBox(height: 12),
+                  _buildItemRateCard(
+                    title: 'Tomato',
+                    description: '1Kg',
+                    rating: item1Rating,
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=350&auto=format&fit=crop',
+                    onRatingChanged: (value) {
+                      setState(() => item1Rating = value);
+                    },
+                  ),
+                  _buildItemRateCard(
+                    title: 'Banana',
+                    description: '2 Kg',
+                    rating: item2Rating,
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&auto=format&fit=crop',
+                    onRatingChanged: (value) {
+                      setState(() => item2Rating = value);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Detailed Review',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                    child: TextField(
+                      controller: _reviewController,
+                      maxLines: 5,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13,
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Rate Your Delivery Experience',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            _buildStarSelector(
-                              rating: deliveryRating,
-                              onRatingChanged: (newRating) {
-                                setState(() {
-                                  deliveryRating = newRating;
-                                });
-                              },
-                            ),
-                          ],
+                      decoration: InputDecoration(
+                        hintText: 'Type your review here....',
+                        hintStyle: GoogleFonts.outfit(
+                          color: const Color(0xFFC4B8B0),
+                          fontSize: 13,
                         ),
+                        border: InputBorder.none,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: deliveryTags.map((tag) {
-                      final isSelected = selectedDeliveryTags.contains(tag);
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (isSelected) {
-                              selectedDeliveryTags.remove(tag);
-                            } else {
-                              selectedDeliveryTags.add(tag);
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFFF5E00) : const Color(0xFFFDF8F5),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isSelected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Text(
-                            tag,
-                            style: GoogleFonts.outfit(
-                              color: isSelected ? Colors.white : const Color(0xFF2C2520),
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                    ),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 18),
-
-            // 3. Rate Ordered Items Section
-            Text(
-              'Rate Ordered Items',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF2C2520),
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              MediaQuery.of(context).viewPadding.bottom + 12,
             ),
-            const SizedBox(height: 10),
-
-            // Item 1
-            _buildItemRateCard(
-              title: "Chicken Tagine",
-              description: "Full portion",
-              rating: item1Rating,
-              onRatingChanged: (newRating) {
-                setState(() {
-                  item1Rating = newRating;
-                });
-              },
-              imageUrl: "https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg",
-            ),
-
-            // Item 2
-            _buildItemRateCard(
-              title: "Thieboudienne",
-              description: "Full portion",
-              rating: item2Rating,
-              onRatingChanged: (newRating) {
-                setState(() {
-                  item2Rating = newRating;
-                });
-              },
-              imageUrl: "https://sensationalrecipes.com/wp-content/uploads/2023/06/thieboudienne-recipe.jpg",
-            ),
-
-            const SizedBox(height: 18),
-
-            // 4. Detailed Review Field
-            Text(
-              'Detailed Review',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF2C2520),
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: TextField(
-                controller: _reviewController,
-                maxLines: 4,
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 13,
-                ),
-                decoration: InputDecoration(
-                  hintText: "Type your review here...",
-                  hintStyle: GoogleFonts.outfit(
-                    color: const Color(0xFFA59A94),
-                    fontSize: 13,
-                  ),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // 5. Submit Button
-            GestureDetector(
+            child: GestureDetector(
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -370,23 +207,22 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                     backgroundColor: const Color(0xFF00B25C),
                   ),
                 );
-                // Navigate to Reviews Screen
                 Get.to(() => const RatingReviewsScreen());
               },
               child: Container(
-                height: 48,
+                height: 52,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(26),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      color: const Color(0xFFFF5E00).withValues(alpha: 0.32),
+                      blurRadius: 12,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
@@ -395,76 +231,64 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   'Submit Rating',
                   style: GoogleFonts.outfit(
                     color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStarSelector({
-    required int rating,
-    required Function(int) onRatingChanged,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(5, (index) {
-        final starIndex = index + 1;
-        final isFilled = starIndex <= rating;
-        return GestureDetector(
-          onTap: () => onRatingChanged(starIndex),
-          child: Padding(
-            padding: const EdgeInsets.only(right: 6.0),
-            child: Icon(
-              isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
-              color: const Color(0xFFFFAE00),
-              size: 26,
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildItemRateCard({
-    required String title,
-    required String description,
-    required int rating,
-    required Function(int) onRatingChanged,
-    required String imageUrl,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(12),
-      child: Stack(
+    );
+  }
+
+  Widget _buildExperienceCard({
+    required String imageUrl,
+    String? fallbackAsset,
+    required String title,
+    required int rating,
+    required ValueChanged<int> onRatingChanged,
+    required List<String> tags,
+    required Set<String> selectedTags,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 child: Image.network(
                   imageUrl,
-                  width: 54,
-                  height: 54,
+                  width: 62,
+                  height: 62,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    if (fallbackAsset != null) {
+                      return Image.asset(
+                        fallbackAsset,
+                        width: 62,
+                        height: 62,
+                        fit: BoxFit.cover,
+                      );
+                    }
+                    return Container(
+                      width: 62,
+                      height: 62,
+                      color: const Color(0xFFEAD8C9),
+                      child: const Icon(
+                        Icons.image_outlined,
+                        color: Colors.white,
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 12),
@@ -476,59 +300,180 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                       title,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      description,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: List.generate(5, (index) {
-                        final starIndex = index + 1;
-                        final isFilled = starIndex <= rating;
-                        return GestureDetector(
-                          onTap: () => onRatingChanged(starIndex),
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 4.0),
-                            child: Icon(
-                              isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
-                              color: const Color(0xFFFFAE00),
-                              size: 16,
-                            ),
-                          ),
-                        );
-                      }),
+                    const SizedBox(height: 8),
+                    _buildStarSelector(
+                      rating: rating,
+                      onRatingChanged: onRatingChanged,
+                      size: 26,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          Positioned(
-            top: 2,
-            right: 2,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3EFEA),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                'x1',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFFA59A94),
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: tags.map((tag) {
+              final isSelected = selectedTags.contains(tag);
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (isSelected) {
+                      selectedTags.remove(tag);
+                    } else {
+                      selectedTags.add(tag);
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFFFFE8D9)
+                        : const Color(0xFFF6EEE8),
+                    borderRadius: BorderRadius.circular(20),
+                    border: isSelected
+                        ? Border.all(color: const Color(0xFFFF5E00), width: 0.8)
+                        : null,
+                  ),
+                  child: Text(
+                    tag,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStarSelector({
+    required int rating,
+    required ValueChanged<int> onRatingChanged,
+    double size = 22,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) {
+        final starIndex = index + 1;
+        final isFilled = starIndex <= rating;
+        return GestureDetector(
+          onTap: () => onRatingChanged(starIndex),
+          child: Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Icon(
+              isFilled ? Icons.star_rounded : Icons.star_border_rounded,
+              color: isFilled
+                  ? const Color(0xFFFFAE00)
+                  : const Color(0xFFC8BEB8),
+              size: size,
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildItemRateCard({
+    required String title,
+    required String description,
+    required int rating,
+    required String imageUrl,
+    required ValueChanged<int> onRatingChanged,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.network(
+              imageUrl,
+              width: 58,
+              height: 58,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 58,
+                height: 58,
+                color: const Color(0xFFEAD8C9),
+                child: const Icon(Icons.image_outlined, color: Colors.white),
               ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3EFEA),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'x1',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFA59A94),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFA59A94),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                _buildStarSelector(
+                  rating: rating,
+                  onRatingChanged: onRatingChanged,
+                  size: 20,
+                ),
+              ],
             ),
           ),
         ],

@@ -1,8 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../controllers/select_location_controller.dart';
 
 class TrackOrderScreen extends StatefulWidget {
   final String orderId;
@@ -14,53 +14,179 @@ class TrackOrderScreen extends StatefulWidget {
 }
 
 class _TrackOrderScreenState extends State<TrackOrderScreen> {
-  late GoogleMapController _mapController;
+  GoogleMapController? _mapController;
 
-  // Custom LatLng points for visual demo matching mockup
-  final LatLng restaurantLoc = const LatLng(18.0838, -15.9795);
-  final LatLng riderLoc = const LatLng(18.0855, -15.9770);
-  final LatLng homeLoc = const LatLng(18.0880, -15.9750);
+  // Store (left) → courier (mid) → home (upper-right), matching the mockup path.
+  final LatLng restaurantLoc = const LatLng(18.0836, -15.9802);
+  final LatLng riderLoc = const LatLng(18.0858, -15.9768);
+  final LatLng homeLoc = const LatLng(18.0884, -15.9746);
 
-  Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
+  Offset? _storeScreen;
+  Offset? _riderScreen;
+  Offset? _homeScreen;
+  bool _updatingPins = false;
+  bool _needsPinUpdate = false;
+
+  static const String _lightMapStyle = '''
+[
+  {"elementType":"geometry","stylers":[{"color":"#f4efe8"}]},
+  {"elementType":"labels.icon","stylers":[{"visibility":"off"}]},
+  {"elementType":"labels.text.fill","stylers":[{"color":"#8a7d74"}]},
+  {"elementType":"labels.text.stroke","stylers":[{"color":"#f4efe8"}]},
+  {"featureType":"administrative","elementType":"geometry","stylers":[{"visibility":"off"}]},
+  {"featureType":"poi","stylers":[{"visibility":"off"}]},
+  {"featureType":"poi.park","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#e4efe0"}]},
+  {"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},
+  {"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#e6dcd3"}]},
+  {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#f7e7d4"}]},
+  {"featureType":"transit","stylers":[{"visibility":"off"}]},
+  {"featureType":"water","elementType":"geometry","stylers":[{"color":"#d5e6ee"}]}
+]
+''';
 
   @override
   void initState() {
     super.initState();
-    _initMapData();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initMapData());
   }
 
-  void _initMapData() {
-    _markers = {
-      Marker(
-        markerId: const MarkerId('restaurant'),
-        position: restaurantLoc,
-        infoWindow: const InfoWindow(title: 'Al Fantasia Restaurant'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-      ),
-      Marker(
-        markerId: const MarkerId('rider'),
-        position: riderLoc,
-        infoWindow: const InfoWindow(title: 'Amadou Sy (Courier)'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-      ),
-      Marker(
-        markerId: const MarkerId('home'),
-        position: homeLoc,
-        infoWindow: const InfoWindow(title: 'Sahara View Home'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-      ),
-    };
+  Future<void> _initMapData() async {
+    setState(() {
+      _polylines = {
+        Polyline(
+          polylineId: const PolylineId('delivery_route'),
+          points: _curvedRoute(restaurantLoc, riderLoc, homeLoc),
+          color: const Color(0xFF3E342F),
+          width: 4,
+          geodesic: false,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+          jointType: JointType.round,
+        ),
+      };
+    });
 
-    _polylines = {
-      Polyline(
-        polylineId: const PolylineId('delivery_route'),
-        points: [restaurantLoc, riderLoc, homeLoc],
-        color: const Color(0xFF5D4037), // Dark brown matching image route line
-        width: 4,
-        geodesic: true,
+    await _fitRouteInView();
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    await _updateMarkerScreens();
+  }
+
+  Future<void> _updateMarkerScreens() async {
+    final controller = _mapController;
+    if (controller == null || !mounted) return;
+    if (_updatingPins) {
+      _needsPinUpdate = true;
+      return;
+    }
+    _updatingPins = true;
+    try {
+      final dpr = View.of(context).devicePixelRatio;
+      final store = await controller.getScreenCoordinate(restaurantLoc);
+      final rider = await controller.getScreenCoordinate(riderLoc);
+      final home = await controller.getScreenCoordinate(homeLoc);
+      if (!mounted) return;
+      setState(() {
+        _storeScreen = Offset(store.x / dpr, store.y / dpr);
+        _riderScreen = Offset(rider.x / dpr, rider.y / dpr);
+        _homeScreen = Offset(home.x / dpr, home.y / dpr);
+      });
+    } finally {
+      _updatingPins = false;
+      if (_needsPinUpdate) {
+        _needsPinUpdate = false;
+        _updateMarkerScreens();
+      }
+    }
+  }
+
+  List<LatLng> _curvedRoute(LatLng start, LatLng mid, LatLng end) {
+    final c1 = _perpOffset(start, mid, 0.42);
+    final c2 = _perpOffset(mid, end, -0.38);
+    return [
+      ..._quadraticPoints(start, c1, mid, 24),
+      ..._quadraticPoints(mid, c2, end, 24).skip(1),
+    ];
+  }
+
+  LatLng _perpOffset(LatLng a, LatLng b, double factor) {
+    final midLat = (a.latitude + b.latitude) / 2;
+    final midLng = (a.longitude + b.longitude) / 2;
+    final dLat = b.latitude - a.latitude;
+    final dLng = b.longitude - a.longitude;
+    return LatLng(midLat - dLng * factor, midLng + dLat * factor);
+  }
+
+  List<LatLng> _quadraticPoints(LatLng p0, LatLng p1, LatLng p2, int steps) {
+    final points = <LatLng>[];
+    for (var i = 0; i <= steps; i++) {
+      final t = i / steps;
+      final u = 1 - t;
+      points.add(
+        LatLng(
+          u * u * p0.latitude + 2 * u * t * p1.latitude + t * t * p2.latitude,
+          u * u * p0.longitude + 2 * u * t * p1.longitude + t * t * p2.longitude,
+        ),
+      );
+    }
+    return points;
+  }
+
+  Future<void> _fitRouteInView() async {
+    final controller = _mapController;
+    if (controller == null) return;
+
+    final lats = [
+      restaurantLoc.latitude,
+      riderLoc.latitude,
+      homeLoc.latitude,
+    ];
+    final lngs = [
+      restaurantLoc.longitude,
+      riderLoc.longitude,
+      homeLoc.longitude,
+    ];
+    final bounds = LatLngBounds(
+      southwest: LatLng(lats.reduce(math.min) - 0.0008, lngs.reduce(math.min) - 0.0008),
+      northeast: LatLng(lats.reduce(math.max) + 0.0008, lngs.reduce(math.max) + 0.0008),
+    );
+    await controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 88));
+  }
+
+  Widget _routePin({
+    required Offset? screen,
+    required IconData icon,
+    double size = 34,
+  }) {
+    if (screen == null) return const SizedBox.shrink();
+    return Positioned(
+      left: screen.dx - size / 2,
+      top: screen.dy - size / 2,
+      child: IgnorePointer(
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFF5E00),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                blurRadius: 10,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Icon(icon, color: Colors.white, size: size * 0.52),
+        ),
       ),
-    };
+    );
+  }
+
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -124,24 +250,76 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
             child: GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: riderLoc,
-                zoom: 15.2,
+                zoom: 15.0,
               ),
-              onMapCreated: (controller) {
+              onMapCreated: (controller) async {
                 _mapController = controller;
+                await _fitRouteInView();
+                await _updateMarkerScreens();
               },
-              markers: _markers,
+              onCameraMove: (_) => _updateMarkerScreens(),
+              onCameraIdle: _updateMarkerScreens,
+              style: _lightMapStyle,
               polylines: _polylines,
+              padding: const EdgeInsets.only(bottom: 280, top: 8),
               zoomControlsEnabled: false,
               myLocationButtonEnabled: false,
               compassEnabled: false,
+              mapToolbarEnabled: false,
+              rotateGesturesEnabled: false,
+              tiltGesturesEnabled: false,
             ),
+          ),
+
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 220,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      const Color(0xFFFFFDF9).withValues(alpha: 0),
+                      const Color(0xFFFFFDF9).withValues(alpha: 0.55),
+                      const Color(0xFFFFFDF9),
+                    ],
+                    stops: const [0.0, 0.45, 1.0],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          _routePin(
+            screen: _storeScreen,
+            icon: Icons.restaurant,
+            size: 34,
+          ),
+          _routePin(
+            screen: _homeScreen,
+            icon: Icons.home_rounded,
+            size: 34,
+          ),
+          _routePin(
+            screen: _riderScreen,
+            icon: Icons.delivery_dining_rounded,
+            size: 48,
           ),
 
           // 2. Sliding bottom panel card overlay
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              margin: const EdgeInsets.all(16),
+              margin: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                MediaQuery.viewPaddingOf(context).bottom + 16,
+              ),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFFDF9),
                 borderRadius: BorderRadius.circular(28),
@@ -207,10 +385,10 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
 
                   // Order tag
                   Text(
-                    'Order #22789000 - Al Fantasia',
+                    'Order #22789000 • Salam Supermarket',
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 11,
+                      color: const Color(0xFF7A6A60),
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -256,19 +434,19 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                             isActive: true,
                             icon: Icons.check,
                             title: "Order placed",
-                            time: "25/07/2026, 10:00 AM",
+                            time: "22 Oct 2025, 10 AM",
                           ),
                           _buildStepperNode(
                             isActive: true,
-                            icon: Icons.soup_kitchen_outlined,
-                            title: "Preparing food",
-                            time: "25/07/2026, 10:10 AM",
+                            icon: Icons.shopping_bag_outlined,
+                            title: "Picking Items",
+                            time: "",
                           ),
                           _buildStepperNode(
                             isActive: true,
-                            icon: Icons.people_alt_rounded,
+                            icon: Icons.delivery_dining_rounded,
                             title: "On the way",
-                            time: "25/07/2026, 10:15 AM",
+                            time: "",
                           ),
                           _buildStepperNode(
                             isActive: false,
@@ -281,103 +459,121 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 18),
-                  const Divider(color: Color(0xFFEAD8C9), height: 1),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
-                  // Your Driver title
                   Text(
                     'Your Driver',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  // Rider Card row
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(18),
-                        child: Image.network(
-                          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
-                          width: 36,
-                          height: 36,
-                          fit: BoxFit.cover,
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Amadou Sy',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.star_rounded,
-                                  color: Color(0xFFFFAE00),
-                                  size: 12,
-                                ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  '4.6',
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFF2C2520),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        ClipOval(
+                          child: Image.network(
+                            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop',
+                            width: 64,
+                            height: 64,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  width: 64,
+                                  height: 64,
+                                  color: const Color(0xFFEAD8C9),
+                                  child: const Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                    size: 32,
                                   ),
                                 ),
-                                Text(
-                                  ' (10k+ reviews)',
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 9.5,
-                                  ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Amadou Sy',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Calling Amadou Sy...',
-                                style: GoogleFonts.outfit(),
                               ),
-                              backgroundColor: const Color(0xFFFF5E00),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFF5E00),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.call,
-                            color: Colors.white,
-                            size: 16,
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    color: Color(0xFFFFAE00),
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    '4.6',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF2C2520),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text(
+                                    ' (10k + reviews)',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        GestureDetector(
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Calling Amadou Sy...',
+                                  style: GoogleFonts.outfit(),
+                                ),
+                                backgroundColor: const Color(0xFFFF5E00),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFF5E00),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.call,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -404,6 +600,16 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
             decoration: BoxDecoration(
               color: isActive ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
               shape: BoxShape.circle,
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E00).withOpacity(0.35),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
             ),
             child: Icon(
               icon,

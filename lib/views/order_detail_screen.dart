@@ -8,10 +8,10 @@ class OrderDetailScreen extends StatelessWidget {
   final bool isSelfPickup;
 
   const OrderDetailScreen({
-    Key? key,
+    super.key,
     this.orderId = "#22789002",
     this.isSelfPickup = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +39,10 @@ class OrderDetailScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                        width: 1,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.04),
@@ -84,10 +88,10 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: const Color(0xFFEAD8C9),
-                        width: 0.8,
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.45),
+                        width: 1,
                       ),
                     ),
                     child: Text(
@@ -105,7 +109,10 @@ class OrderDetailScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
@@ -192,21 +199,30 @@ class OrderDetailScreen extends StatelessWidget {
                             isActive: true,
                             icon: Icons.check,
                             title: "Order placed",
-                            time: "25/07/2026, 10:00 AM",
+                            time: isSelfPickup
+                                ? "22 Oct 2023, 10:05 AM"
+                                : "22 Oct 2023, 10:00 AM",
                           ),
                           _buildStepperNode(
                             isActive: true,
-                            icon: Icons.soup_kitchen_outlined,
-                            title: "Preparing food",
-                            time: "25/07/2026, 10:10 AM",
+                            icon: Icons.shopping_bag_outlined,
+                            title: "Picking Items",
+                            time: isSelfPickup
+                                ? "22 Oct 2023, 10:05 AM"
+                                : "22 Oct 2023, 10:10 AM",
                           ),
                           _buildStepperNode(
                             isActive: true,
+                            showGlow: true,
                             icon: isSelfPickup
-                                ? Icons.shopping_bag_outlined
-                                : Icons.motorcycle_outlined,
-                            title: isSelfPickup ? "Ready for pickup" : "On the way",
-                            time: "25/07/2026, 10:15 AM",
+                                ? Icons.inventory_2_outlined
+                                : Icons.delivery_dining_rounded,
+                            title: isSelfPickup
+                                ? "Ready for pickup"
+                                : "On the way",
+                            time: isSelfPickup
+                                ? "22 Oct 2023, 10:10 AM"
+                                : "22 Oct 2023, 10:15 AM",
                           ),
                           _buildStepperNode(
                             isActive: false,
@@ -260,7 +276,7 @@ class OrderDetailScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.storefront_rounded,
+                        Icons.my_location_rounded,
                         color: Color(0xFFFF5E00),
                         size: 16,
                       ),
@@ -271,7 +287,7 @@ class OrderDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Al Fantasia Restaurant',
+                            'Salam Supermarket',
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 12,
@@ -280,7 +296,7 @@ class OrderDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Al Fantasia Restaurant, Near Nouakchott, Mauritania',
+                            'Salam Supermarket, Near Nouakchott, Mauritania',
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 10,
@@ -324,7 +340,7 @@ class OrderDetailScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.storefront_rounded,
+                        Icons.home_outlined,
                         color: Color(0xFFFF5E00),
                         size: 16,
                       ),
@@ -360,30 +376,34 @@ class OrderDetailScreen extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              // Rider Card
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
                 child: Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(18),
+                    ClipOval(
                       child: Image.network(
-                        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
-                        width: 36,
-                        height: 36,
+                        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop',
+                        width: 56,
+                        height: 56,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Container(
+                              width: 56,
+                              height: 56,
+                              color: const Color(0xFFEAD8C9),
+                              child: const Icon(Icons.person, color: Colors.white),
+                            ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -395,32 +415,32 @@ class OrderDetailScreen extends StatelessWidget {
                             'Amadou Sy',
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              ),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
                             ),
-                          const SizedBox(height: 2),
+                          ),
+                          const SizedBox(height: 4),
                           Row(
                             children: [
                               const Icon(
                                 Icons.star_rounded,
                                 color: Color(0xFFFFAE00),
-                                size: 12,
+                                size: 14,
                               ),
                               const SizedBox(width: 2),
                               Text(
-                                '4.6',
+                                '4.8',
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                               Text(
                                 ' (10k+ reviews)',
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFA59A94),
-                                  fontSize: 9.5,
+                                  fontSize: 11,
                                 ),
                               ),
                             ],
@@ -441,8 +461,8 @@ class OrderDetailScreen extends StatelessWidget {
                         );
                       },
                       child: Container(
-                        width: 36,
-                        height: 36,
+                        width: 42,
+                        height: 42,
                         decoration: const BoxDecoration(
                           color: Color(0xFFFF5E00),
                           shape: BoxShape.circle,
@@ -450,7 +470,7 @@ class OrderDetailScreen extends StatelessWidget {
                         child: const Icon(
                           Icons.call,
                           color: Colors.white,
-                          size: 16,
+                          size: 18,
                         ),
                       ),
                     ),
@@ -490,24 +510,23 @@ class OrderDetailScreen extends StatelessWidget {
                 children: [
                   // Item 1
                   _buildSummaryItem(
-                    title: "Chicken Tagine",
-                    description: "Full portion - Spicy",
-                    priceText: "550 MRU",
+                    title: "Potato",
+                    description: "1Kg",
+                    priceText: "50 MRU",
                     imageUrl:
-                        "https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg",
+                        "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=200&auto=format&fit=crop",
                   ),
                   const Divider(
                     color: Color(0xFFEAD8C9),
                     height: 20,
                     thickness: 0.5,
                   ),
-                  // Item 2
                   _buildSummaryItem(
-                    title: "Milk Dessert",
-                    description: "• Pure Dairy",
-                    priceText: "120 MRU",
+                    title: "Banana",
+                    description: "2 Kg",
+                    priceText: "50 MRU",
                     imageUrl:
-                        "https://myminichefs.com/wp-content/uploads/2022/09/vanilla-almond-milk-pudding-image.jpg",
+                        "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&auto=format&fit=crop",
                   ),
                 ],
               ),
@@ -534,15 +553,15 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  _buildPaymentDetailsRow("Item total", "750 MRU", false),
+                  _buildPaymentDetailsRow("Item total", "100 MRU", false),
                   const SizedBox(height: 10),
                   _buildPaymentDetailsRow("Redeemed points", "-50 MRU", true),
                   if (!isSelfPickup) ...[
                     const SizedBox(height: 10),
-                    _buildPaymentDetailsRow("Delivery fee", "20 MRU", false),
+                    _buildPaymentDetailsRow("Delivery fee", "5 MRU", false),
                   ],
                   const SizedBox(height: 10),
-                  _buildPaymentDetailsRow("Tax", "10 MRU", false),
+                  _buildPaymentDetailsRow("Tax", "2 MRU", false),
                   const SizedBox(height: 14),
                   const Divider(color: Color(0xFF423B36), height: 1),
                   const SizedBox(height: 14),
@@ -550,7 +569,7 @@ class OrderDetailScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        isSelfPickup ? 'To pay' : 'Total payed',
+                        isSelfPickup ? 'To pay' : 'Total paid',
                         style: GoogleFonts.outfit(
                           color: Colors.white,
                           fontSize: 15,
@@ -558,7 +577,7 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        isSelfPickup ? '710 MRU' : '730 MRU',
+                        isSelfPickup ? '52 MRU' : '57 MRU',
                         style: GoogleFonts.outfit(
                           color: Colors.white,
                           fontSize: 18,
@@ -571,61 +590,121 @@ class OrderDetailScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 24),
-
-            // 5. Action Button (Track Order or Cancel)
-            GestureDetector(
-              onTap: () {
-                if (isSelfPickup) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Order cancellation requested!',
-                        style: GoogleFonts.outfit(),
-                      ),
-                      backgroundColor: const Color(0xFFFF3E3E),
-                    ),
-                  );
-                } else {
-                  Get.to(() => TrackOrderScreen(orderId: orderId));
-                }
-              },
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: isSelfPickup
-                      ? null
-                      : const LinearGradient(
-                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                  color: isSelfPickup ? const Color(0xFFF3EFEA) : null,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: isSelfPickup
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: const Color(0xFFFF5E00).withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  isSelfPickup ? 'Cancel' : 'Track Order',
-                  style: GoogleFonts.outfit(
-                    color: isSelfPickup ? const Color(0xFF2C2520) : Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
           ],
         ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              MediaQuery.of(context).viewPadding.bottom + 12,
+            ),
+            child: isSelfPickup
+                ? GestureDetector(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Order cancellation requested!',
+                            style: GoogleFonts.outfit(),
+                          ),
+                          backgroundColor: const Color(0xFFFF3E3E),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3EFEA),
+                        borderRadius: BorderRadius.circular(26),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  )
+                : Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Order cancellation requested!',
+                                  style: GoogleFonts.outfit(),
+                                ),
+                                backgroundColor: const Color(0xFFFF3E3E),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3EFEA),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(() => TrackOrderScreen(orderId: orderId));
+                          },
+                          child: Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFFF5E00)
+                                      .withValues(alpha: 0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Track Order',
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -635,9 +714,10 @@ class OrderDetailScreen extends StatelessWidget {
     required IconData icon,
     required String title,
     required String time,
+    bool showGlow = false,
   }) {
     return SizedBox(
-      width: 70,
+      width: 78,
       child: Column(
         children: [
           Container(
@@ -648,8 +728,21 @@ class OrderDetailScreen extends StatelessWidget {
                   ? const Color(0xFFFF5E00)
                   : const Color(0xFFEAD8C9),
               shape: BoxShape.circle,
+              boxShadow: showGlow
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E00).withOpacity(0.45),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : null,
             ),
-            child: Icon(icon, color: Colors.white, size: 18),
+            child: Icon(
+              icon,
+              color: isActive ? Colors.white : const Color(0xFFC4B8B0),
+              size: 18,
+            ),
           ),
           const SizedBox(height: 6),
           Text(

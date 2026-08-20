@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'track_order_screen.dart';
+import 'my_orders_screen.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
   const OrderSuccessScreen({Key? key}) : super(key: key);
@@ -112,7 +112,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        Get.to(() => const TrackOrderScreen());
+                        Get.to(() => const MyOrdersScreen());
                       },
                       child: Container(
                         height: 48,

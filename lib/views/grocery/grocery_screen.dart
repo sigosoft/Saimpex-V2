@@ -7,7 +7,7 @@ import 'grocery_stores_screen.dart';
 import 'grocery_details_screen.dart';
 
 class GroceryScreen extends StatefulWidget {
-  const GroceryScreen({Key? key}) : super(key: key);
+  const GroceryScreen({super.key});
 
   @override
   State<GroceryScreen> createState() => _GroceryScreenState();
@@ -147,10 +147,11 @@ class _GroceryScreenState extends State<GroceryScreen> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFFFE6DC), // Top peach gradient
-            Color(0xFFFFF4EE), // Middle soft peach
-            Color(0xFFFAF6F0), // Base color at the bottom
+            Color(0xFFFFDDCF),
+            Color(0xFFFFEEE5),
+            Color(0xFFFAF6F0),
           ],
+          stops: [0.0, 0.38, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -492,7 +493,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFE6F5EE), // Soft green background
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: Row(
         children: [
@@ -626,25 +627,31 @@ class _GroceryScreenState extends State<GroceryScreen> {
   // Subcategories
   Widget _buildSubcategoriesRow() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+      margin: const EdgeInsets.fromLTRB(0, 8, 0, 10),
+      padding: const EdgeInsets.only(top: 4),
+      clipBehavior: Clip.antiAlias,
+      decoration: const BoxDecoration(
+        color: Color(0xFFFFFCF8),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(22),
+          bottomRight: Radius.circular(22),
+          topLeft: Radius.circular(22),
+          topRight: Radius.circular(22),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Color(0x14000000),
+            blurRadius: 16,
+            offset: Offset(0, 6),
           ),
         ],
       ),
       child: SizedBox(
-        height: 70,
+        height: 86,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
           itemCount: subcategories.length,
           itemBuilder: (context, index) {
             final sub = subcategories[index];
@@ -658,98 +665,101 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 });
               },
               child: Padding(
-                padding: const EdgeInsets.only(right: 18),
-                child: Column(
-                  children: [
-                    isAll
-                        ? Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              gradient: isSelected
-                                  ? const LinearGradient(
-                                      colors: [
-                                        Color(0xFFFE5102),
-                                        Color(0xFFFFAE00),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    )
-                                  : const LinearGradient(
-                                      colors: [
-                                        Color(0xFFA59A94),
-                                        Color(0xFFC0B6B0),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                'lib/assets/images/All.png',
-                                width: 20,
-                                height: 20,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        : Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isSelected
-                                    ? const Color(0xFFFF5E00)
-                                    : Colors.transparent,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: ClipOval(
-                              child: Image.network(
-                                sub['image'] as String,
-                                width: 36,
-                                height: 36,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      color: Colors.grey.shade300,
-                                      child: const Icon(
-                                        Icons.fastfood,
-                                        size: 16,
-                                        color: Colors.grey,
+                padding: EdgeInsets.only(
+                  right: index == subcategories.length - 1 ? 0 : 10,
+                ),
+                child: SizedBox(
+                  width: 62,
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Column(
+                        children: [
+                          isAll
+                              ? Container(
+                                  width: 46,
+                                  height: 46,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                  child: Image.asset(
+                                    'lib/assets/images/All.png',
+                                    width: 22,
+                                    height: 22,
+                                    color: const Color(0xFFFF5E00),
+                                  ),
+                                ),
+                              )
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.10),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
                                       ),
+                                    ],
+                                  ),
+                                  child: ClipOval(
+                                    child: Image.network(
+                                      sub['image'] as String,
+                                      width: 46,
+                                      height: 46,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                width: 46,
+                                                height: 46,
+                                                color: Colors.grey.shade300,
+                                                child: const Icon(
+                                                  Icons.fastfood,
+                                                  size: 18,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
                                     ),
+                                  ),
+                                ),
+                          const SizedBox(height: 8),
+                          Text(
+                            sub['label'] as String,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.visible,
+                            style: GoogleFonts.outfit(
+                              color: isSelected
+                                  ? const Color(0xFFFF5E00)
+                                  : const Color(0xFF3A312C),
+                              fontSize: 11,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (isSelected)
+                        Positioned(
+                          bottom: 0,
+                          child: Container(
+                            height: 10,
+                            width: 56,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              ),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
                               ),
                             ),
                           ),
-                    const SizedBox(height: 4),
-                    Text(
-                      sub['label'] as String,
-                      style: GoogleFonts.outfit(
-                        color: isSelected
-                            ? const Color(0xFFFF5E00)
-                            : const Color(0xFF7A6A60),
-                        fontSize: 10,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.w600,
-                      ),
-                    ),
-                    if (isSelected) ...[
-                      const SizedBox(height: 2),
-                      Container(
-                        height: 3,
-                        width: 16,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
-                          borderRadius: BorderRadius.circular(1.5),
                         ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
               ),
             );

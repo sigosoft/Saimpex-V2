@@ -419,26 +419,27 @@ class _PharmacyDetailsScreenState extends State<PharmacyDetailsScreen> {
 
                   // Horizontal Category Row
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                    margin: const EdgeInsets.fromLTRB(0, 8, 0, 10),
+                    padding: const EdgeInsets.only(top: 4),
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFFCF8),
+                      borderRadius: BorderRadius.all(Radius.circular(22)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          color: Color(0x14000000),
+                          blurRadius: 16,
+                          offset: Offset(0, 6),
                         ),
                       ],
                     ),
                     child: SizedBox(
-                      height: 70,
+                      height: 86,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: subcategories.length,
                         physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
                         itemBuilder: (context, index) {
                           final sub = subcategories[index];
                           final isAll = sub['isAll'] == true;
@@ -451,91 +452,93 @@ class _PharmacyDetailsScreenState extends State<PharmacyDetailsScreen> {
                               });
                             },
                             child: Padding(
-                              padding: const EdgeInsets.only(right: 18),
-                              child: Column(
-                                children: [
+                              padding: EdgeInsets.only(
+                                right: index == subcategories.length - 1 ? 0 : 10,
+                              ),
+                              child: SizedBox(
+                                width: 72,
+                                child: Stack(
+                                  alignment: Alignment.topCenter,
+                                  children: [
+                                    Column(
+                                      children: [
                                   isAll
                                       ? Container(
-                                          width: 44,
-                                          height: 44,
-                                          decoration: BoxDecoration(
-                                            gradient: isSelected
-                                                ? const LinearGradient(
-                                                    colors: [
-                                                      Color(0xFFFE5102),
-                                                      Color(0xFFFFAE00),
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  )
-                                                : const LinearGradient(
-                                                    colors: [
-                                                      Color(0xFFA59A94),
-                                                      Color(0xFFC0B6B0),
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
+                                          width: 46,
+                                          height: 46,
+                                          decoration: const BoxDecoration(
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(
-                                            child: Image.asset(
-                                              'lib/assets/images/All.png',
-                                              width: 20,
-                                              height: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        )
+                                  child: Image.asset(
+                                    'lib/assets/images/All.png',
+                                    width: 22,
+                                    height: 22,
+                                    color: const Color(0xFFFF5E00),
+                                  ),
+                                ),
+                              )
                                       : Container(
-                                          padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: isSelected
-                                                ? const Color(0xFFFF5E00)
-                                                : const Color(0xFFEAF5F8),
-                                            border: Border.all(
-                                              color: isSelected
-                                                  ? const Color(0xFFFF5E00)
-                                                  : Colors.transparent,
-                                              width: 1.5,
-                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.10),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
                                           ),
-                                          width: 44,
-                                          height: 44,
+                                          width: 46,
+                                          height: 46,
                                           child: Center(
                                             child: Icon(
                                               _getSubIcon(sub['label']),
-                                              color: isSelected ? Colors.white : const Color(0xFF00ACC1),
+                                              color: const Color(0xFF00ACC1),
                                               size: 18,
                                             ),
                                           ),
                                         ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 8),
                                   Text(
                                     sub['label'] as String,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.visible,
                                     style: GoogleFonts.outfit(
                                       color: isSelected
                                           ? const Color(0xFFFF5E00)
-                                          : const Color(0xFF7A6A60),
-                                      fontSize: 10,
+                                          : const Color(0xFF3A312C),
+                                      fontSize: 11,
                                       fontWeight: isSelected
-                                          ? FontWeight.bold
+                                          ? FontWeight.w700
                                           : FontWeight.w600,
                                     ),
                                   ),
-                                  if (isSelected) ...[
-                                    const SizedBox(height: 2),
-                                    Container(
-                                      height: 3,
-                                      width: 16,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFF5E00),
-                                        borderRadius: BorderRadius.circular(1.5),
-                                      ),
+                                      ],
                                     ),
+                                    if (isSelected)
+                                      Positioned(
+                                        bottom: 0,
+                                        child: Container(
+                                          height: 10,
+                                          width: 56,
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFFFF5E00),
+                                                Color(0xFFFFAE00),
+                                              ],
+                                            ),
+                                            borderRadius: const BorderRadius.only(
+                                              topLeft: Radius.circular(12),
+                                              topRight: Radius.circular(12),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
-                                ],
+                                ),
                               ),
                             ),
                           );

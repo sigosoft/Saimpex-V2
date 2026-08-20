@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
@@ -293,7 +293,11 @@ class _CartScreenState extends State<CartScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+                border: Border.all(
+                  color: const Color(0xFFD9D0C8),
+                  width: 1,
+                  strokeAlign: BorderSide.strokeAlignInside,
+                ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               alignment: Alignment.centerLeft,
@@ -1029,7 +1033,7 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Card • Mobile money',
+                            'Card â€¢ Mobile money',
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 10,
@@ -1340,19 +1344,36 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _showScheduleBottomSheet(BuildContext context) {
-    String selectedFrequency = "Weekly";
-    String selectedDay = "Mon";
-    String selectedTimeSlot = "10-12 PM";
+    final now = DateTime.now();
+    final dates = List<DateTime>.generate(
+      5,
+      (i) => DateTime(now.year, now.month, now.day).add(Duration(days: i)),
+    );
+    DateTime selectedDate = dates.first;
+    String? selectedTimeSlot;
 
-    final frequencies = ["One-time", "Daily", "Weekly", "Custom"];
-    final days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    final timeSlots = [
-      "8-10 AM",
-      "10-12 PM",
-      "2-4 PM",
-      "4-6 PM",
-      "6-8 PM",
-      "Late night",
+    const months = [
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
+    ];
+    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const timeSlots = [
+      '8-10 AM',
+      '10-12 PM',
+      '2-4 PM',
+      '4-6 PM',
+      '6-8 PM',
+      'Late night',
     ];
 
     showModalBottomSheet(
@@ -1362,211 +1383,232 @@ class _CartScreenState extends State<CartScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            final bottomPad = MediaQuery.paddingOf(context).bottom;
             return Stack(
               clipBehavior: Clip.none,
+              alignment: Alignment.topCenter,
               children: [
                 Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.85,
-                  ),
+                  margin: const EdgeInsets.only(top: 56),
+                  height: MediaQuery.of(context).size.height * 0.72,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFFFFDF9),
+                    color: Colors.white,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(32),
                     ),
                   ),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.calendar_month_outlined,
-                            color: Color(0xFF00B25C),
-                            size: 18,
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFFFFF3EC),
+                              Colors.white,
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Schedule for Later",
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF0E5A2A),
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(32),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF6F1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFFFFD7C2),
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.calendar_today_outlined,
+                                color: Color(0xFFFF5E00),
+                                size: 20,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Schedule Delivery',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF2C2520),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Choose your preferred delivery date and time',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 8),
                       const Divider(color: Color(0xFFEAD8C9), height: 1),
-
                       Expanded(
                         child: SingleChildScrollView(
                           physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Delivery Frequency",
+                                'Select Date',
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              Container(
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEDE9E5),
-                                  borderRadius: BorderRadius.circular(22),
-                                ),
-                                padding: const EdgeInsets.all(3),
-                                child: Row(
-                                  children: frequencies.map((freq) {
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                height: 86,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  itemCount: dates.length,
+                                  separatorBuilder: (_, index) =>
+                                      const SizedBox(width: 10),
+                                  itemBuilder: (context, index) {
+                                    final date = dates[index];
                                     final isSelected =
-                                        selectedFrequency == freq;
-                                    return Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setModalState(() {
-                                            selectedFrequency = freq;
-                                          });
-                                        },
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
+                                        selectedDate.year == date.year &&
+                                        selectedDate.month == date.month &&
+                                        selectedDate.day == date.day;
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setModalState(() => selectedDate = date);
+                                      },
+                                      child: Container(
+                                        width: 62,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          border: Border.all(
                                             color: isSelected
                                                 ? const Color(0xFFFF5E00)
-                                                : Colors.transparent,
-                                            borderRadius: BorderRadius.circular(
-                                              19,
-                                            ),
+                                                : const Color(0xFFEAD8C9),
+                                            width: isSelected ? 1.5 : 1,
                                           ),
-                                          child: Text(
-                                            freq,
-                                            style: GoogleFonts.outfit(
-                                              color: isSelected
-                                                  ? Colors.white
-                                                  : const Color(0xFFA59A94),
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              months[date.month - 1],
+                                              style: GoogleFonts.outfit(
+                                                color: isSelected
+                                                    ? const Color(0xFFFF5E00)
+                                                    : const Color(0xFFA59A94),
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
-                                          ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              '${date.day}',
+                                              style: GoogleFonts.outfit(
+                                                color: const Color(0xFF2C2520),
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              weekdays[date.weekday - 1],
+                                              style: GoogleFonts.outfit(
+                                                color: isSelected
+                                                    ? const Color(0xFFFF5E00)
+                                                    : const Color(0xFFA59A94),
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     );
-                                  }).toList(),
+                                  },
                                 ),
                               ),
-
-                              const SizedBox(height: 20),
-
+                              const SizedBox(height: 22),
                               Text(
-                                "Pick Day",
+                                'Time Slot',
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: days.map((day) {
-                                  final isSelected = selectedDay == day;
-                                  return GestureDetector(
-                                    onTap: () {
-                                      setModalState(() {
-                                        selectedDay = day;
-                                      });
-                                    },
-                                    child: Container(
-                                      width: 38,
-                                      height: 38,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: isSelected
-                                              ? const Color(0xFFFF5E00)
-                                              : const Color(0xFFEAD8C9),
-                                          width: isSelected ? 1.5 : 0.8,
-                                        ),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        day,
-                                        style: GoogleFonts.outfit(
-                                          color: isSelected
-                                              ? const Color(0xFFFF5E00)
-                                              : const Color(0xFFA59A94),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              Text(
-                                "Time Slot",
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 12),
                               GridView.count(
                                 crossAxisCount: 2,
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
-                                childAspectRatio: 3.5,
+                                childAspectRatio: 3.4,
                                 crossAxisSpacing: 12,
                                 mainAxisSpacing: 10,
                                 children: timeSlots.map((slot) {
                                   final isSelected = selectedTimeSlot == slot;
                                   return GestureDetector(
                                     onTap: () {
-                                      setModalState(() {
-                                        selectedTimeSlot = slot;
-                                      });
+                                      setModalState(
+                                        () => selectedTimeSlot = slot,
+                                      );
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(24),
                                         border: Border.all(
                                           color: isSelected
                                               ? const Color(0xFFFF5E00)
-                                              : const Color(0xFFEAD8C9),
-                                          width: isSelected ? 1.5 : 0.8,
+                                              : const Color(0xFFE6E0DB),
+                                          width: isSelected ? 1.5 : 1,
                                         ),
                                       ),
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
+                                        horizontal: 12,
                                       ),
                                       child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           const Icon(
                                             Icons.access_time_rounded,
                                             color: Color(0xFFFF5E00),
-                                            size: 14,
+                                            size: 16,
                                           ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            slot,
-                                            style: GoogleFonts.outfit(
-                                              color: const Color(0xFF2C2520),
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
+                                          const SizedBox(width: 6),
+                                          Flexible(
+                                            child: Text(
+                                              slot,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.outfit(
+                                                color: const Color(0xFFFF5E00),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -1579,61 +1621,62 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ),
                       ),
-
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(
-                              color: Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
-                          ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          8,
+                          20,
+                          16 + bottomPad,
                         ),
                         child: GestureDetector(
                           onTap: () {
+                            final month = months[selectedDate.month - 1];
+                            final weekday = weekdays[selectedDate.weekday - 1];
+                            final slot = selectedTimeSlot ?? timeSlots.first;
                             Navigator.pop(context);
                             setState(() {
                               scheduleText =
-                                  "$selectedFrequency on $selectedDay, $selectedTimeSlot";
+                                  '$weekday, $month ${selectedDate.day} • $slot';
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Scheduled: $scheduleText',
+                                  'Scheduled: $weekday, $month ${selectedDate.day} • $slot',
                                   style: GoogleFonts.outfit(),
                                 ),
-                                backgroundColor: const Color(0xFF00B25C),
+                                backgroundColor: const Color(0xFFFF5E00),
                               ),
                             );
                           },
                           child: Container(
-                            height: 48,
+                            height: 50,
+                            alignment: Alignment.center,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [
+                                  Color(0xFFFF5E00),
+                                  Color(0xFFFFAE00),
+                                ],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(25),
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(
                                     0xFFFF5E00,
-                                  ).withOpacity(0.3),
+                                  ).withOpacity(0.35),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
-                            alignment: Alignment.center,
                             child: Text(
                               'Continue',
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -1642,33 +1685,28 @@ class _CartScreenState extends State<CartScreen> {
                     ],
                   ),
                 ),
-
                 Positioned(
-                  top: -56,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.close_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 22,
-                        ),
+                  top: 0,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 22,
                       ),
                     ),
                   ),
