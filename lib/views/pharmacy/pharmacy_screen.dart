@@ -5,7 +5,8 @@ import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../coupons_screen.dart';
 import '../cart_screen.dart';
-import 'pharmacy_details_screen.dart';
+import 'pharmacy_items_screen.dart';
+import 'upload_prescription_screen.dart';
 
 class PharmacyScreen extends StatefulWidget {
   const PharmacyScreen({Key? key}) : super(key: key);
@@ -126,10 +127,25 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
       'dist': '10 Km',
       'discount': '30% OFF',
       'points': '200 Points Available',
-      'isClosed': false,
-      'isOpen247': true,
+      'isTemporarilyClosed': true,
+      'isOpen247': false,
       'image':
           'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=400&auto=format&fit=crop',
+    },
+    {
+      'id': 'p_trusted3',
+      'title': 'Pharmacy El Amal',
+      'subtitle': 'Trusted',
+      'rating': '4.7',
+      'time': '25-30 min',
+      'dist': '8 Km',
+      'discount': '40% OFF',
+      'points': '200 Points Available',
+      'isClosed': true,
+      'opensAt': '10 AM',
+      'isOpen247': true,
+      'image':
+          'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=400&auto=format&fit=crop',
     },
   ];
 
@@ -460,7 +476,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GestureDetector(
-        onTap: () => _showPrescriptionUploadSheet(context),
+        onTap: () {
+          Get.to(() => const UploadPrescriptionScreen());
+        },
         child: Container(
           height: 50,
           decoration: BoxDecoration(
@@ -723,10 +741,13 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
           final homeController = Get.isRegistered<HomeController>()
               ? Get.find<HomeController>()
               : Get.put(HomeController());
+          final isClosed = store['isClosed'] == true;
+          final isTemporarilyClosed = store['isTemporarilyClosed'] == true;
+          final opensAt = (store['opensAt'] ?? '10 AM').toString();
 
           return GestureDetector(
             onTap: () {
-              Get.to(() => PharmacyDetailsScreen(store: store));
+              Get.to(() => PharmacyItemsScreen(store: store));
             },
             child: Container(
               width: 240,
@@ -743,6 +764,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                 ],
                 border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
               ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -750,14 +772,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                   Expanded(
                     child: Stack(
                       children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
+                        Positioned.fill(
                           child: Image.network(
                             store['image'] as String,
-                            width: double.infinity,
-                            height: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
                                 Container(
@@ -890,93 +907,115 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                             ),
                           ),
                         ),
+                        if (isClosed) ...[
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.35),
+                            ),
+                          ),
+                          Positioned.fill(
+                            child: _buildClosedOverlay(opensAt),
+                          ),
+                        ] else if (isTemporarilyClosed) ...[
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.35),
+                            ),
+                          ),
+                          Positioned.fill(
+                            child: _buildTemporarilyClosedOverlay(),
+                          ),
+                        ],
                       ],
                     ),
                   ),
                   // Details Info
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              store['title'] as String,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                  Opacity(
+                    opacity: (isClosed || isTemporarilyClosed) ? 0.65 : 1.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                store['title'] as String,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            if (store['isOpen247'] == true)
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 5,
-                                    height: 5,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF4CAF50),
-                                      shape: BoxShape.circle,
+                              if (store['isOpen247'] == true)
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 5,
+                                      height: 5,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF4CAF50),
+                                        shape: BoxShape.circle,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Open 24/7',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF4CAF50),
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Open 24/7',
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF4CAF50),
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          store['subtitle'] as String,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFA59A94),
-                            fontSize: 10,
+                                  ],
+                                ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.access_time_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 12,
+                          const SizedBox(height: 2),
+                          Text(
+                            store['subtitle'] as String,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 10,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              store['time'] as String,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF7A6A60),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.access_time_rounded,
+                                color: Color(0xFFFF5E00),
+                                size: 12,
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Icon(
-                              Icons.location_on_outlined,
-                              color: Color(0xFFFF5E00),
-                              size: 12,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              store['dist'] as String,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF7A6A60),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                              const SizedBox(width: 4),
+                              Text(
+                                store['time'] as String,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF7A6A60),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              const SizedBox(width: 12),
+                              const Icon(
+                                Icons.location_on_outlined,
+                                color: Color(0xFFFF5E00),
+                                size: 12,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                store['dist'] as String,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF7A6A60),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -1006,7 +1045,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
 
           return GestureDetector(
             onTap: () {
-              Get.to(() => PharmacyDetailsScreen(store: store));
+              Get.to(() => PharmacyItemsScreen(store: store));
             },
             child: Container(
               margin: const EdgeInsets.only(bottom: 16),
