@@ -9,12 +9,13 @@ import 'category_screen.dart';
 import 'grocery/grocery_screen.dart';
 import 'pharmacy/pharmacy_screen.dart';
 import 'under_30_min_screen.dart';
-import 'cart_screen.dart';
-import 'my_orders_screen.dart';
-import 'account_screen.dart';
+import '../widgets/app_bottom_nav_bar.dart';
+import 'main_shell_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final bool showBottomNav;
+
+  const HomeScreen({super.key, this.showBottomNav = true});
 
   @override
   Widget build(BuildContext context) {
@@ -121,12 +122,13 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             // 2. Floating Bottom Navigation Bar Layer
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: _buildBottomNavigationBar(controller),
-            ),
+            if (showBottomNav)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: _buildBottomNavigationBar(controller),
+              ),
           ],
         ),
       ),
@@ -1982,163 +1984,23 @@ class HomeScreen extends StatelessWidget {
 
   // Bottom Navigation Bar
   Widget _buildBottomNavigationBar(HomeController controller) {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
-        height: 70,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(35),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Obx(() {
-          final selected = controller.currentNavIndex.value;
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                0,
-                "lib/assets/images/Bottom Home.png",
-                'Home',
-                selected == 0,
-                controller,
-              ),
-              _buildNavItem(
-                1,
-                "lib/assets/images/Bottom Search.png",
-                'Search',
-                selected == 1,
-                controller,
-              ),
-              _buildNavItem(
-                2,
-                "lib/assets/images/Bottom Order.png",
-                'Orders',
-                selected == 2,
-                controller,
-              ),
-              _buildNavItem(
-                3,
-                "lib/assets/images/Bottom Cart.png",
-                'Cart',
-                selected == 3,
-                controller,
-                badgeCount: 2,
-              ),
-              _buildNavItem(
-                4,
-                "lib/assets/images/Bottom Profile.png",
-                'Profile',
-                selected == 4,
-                controller,
-              ),
-            ],
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-    int index,
-    String assetPath,
-    String label,
-    bool isSelected,
-    HomeController controller, {
-    int badgeCount = 0,
-  }) {
-    return GestureDetector(
-      onTap: () async {
-        if (index == 2) {
-          controller.selectNavigation(2);
-          await Get.to(() => const MyOrdersScreen());
-          controller.selectNavigation(0);
-        } else if (index == 3) {
-          controller.selectNavigation(3);
-          await Get.to(() => const CartScreen());
-          controller.selectNavigation(0);
-        } else if (index == 4) {
-          controller.selectNavigation(4);
-          await Get.to(() => const AccountScreen());
-          controller.selectNavigation(0);
-        } else {
+    return Obx(
+      () => AppBottomNavBar(
+        selectedIndex: controller.currentNavIndex.value,
+        onTap: (index) {
+          if (index == 0) {
+            controller.selectNavigation(0);
+            return;
+          }
+          // Standalone home — jump into shell at the chosen tab
           controller.selectNavigation(index);
-        }
-      },
-      child: Container(
-        color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Image.asset(
-                  assetPath,
-                  width: 22,
-                  height: 22,
-                  color: isSelected
-                      ? const Color(0xFFFF5E00)
-                      : const Color(0xFFA59A94),
-                ),
-                if (badgeCount > 0)
-                  Positioned(
-                    top: -4,
-                    right: -6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.white, width: 1.5),
-                      ),
-                      child: Text(
-                        '$badgeCount',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: GoogleFonts.outfit(
-                color: isSelected
-                    ? const Color(0xFFFF5E00)
-                    : const Color(0xFFA59A94),
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Container(
-              width: 4,
-              height: 4,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFFFF5E00)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-        ),
+          Get.offAll(
+            () => const MainShellScreen(),
+            transition: Transition.fadeIn,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+          );
+        },
       ),
     );
   }

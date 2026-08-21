@@ -4,8 +4,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/colors.dart';
 import '../controllers/home_controller.dart';
-import 'cart_screen.dart';
-import 'my_orders_screen.dart';
 import 'my_favourites_screen.dart';
 import 'rewards_referral_screen.dart';
 import 'saved_addresses_screen.dart';
@@ -14,9 +12,13 @@ import 'my_schedules_screen.dart';
 import 'app_preferences_screen.dart';
 import 'help_support_screen.dart';
 import 'terms_conditions_screen.dart';
+import '../widgets/app_bottom_nav_bar.dart';
+import '../navigation/bottom_nav_router.dart';
 
 class AccountScreen extends StatefulWidget {
-  const AccountScreen({super.key});
+  final bool showBottomNav;
+
+  const AccountScreen({super.key, this.showBottomNav = true});
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();
@@ -121,12 +123,16 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
             ],
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildBottomNavigationBar(context),
-          ),
+          if (widget.showBottomNav)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AppBottomNavBar(
+                selectedIndex: 4,
+                onTap: BottomNavRouter.go,
+              ),
+            ),
           if (_showDeleteMenu) ...[
             Positioned.fill(
               child: GestureDetector(
@@ -531,7 +537,7 @@ class _AccountScreenState extends State<AccountScreen> {
         return GestureDetector(
           onTap: () {
             if (action['label'] == 'Orders') {
-              Get.to(() => const MyOrdersScreen());
+              BottomNavRouter.go(2);
             } else if (action['label'] == 'My Favourite') {
               Get.to(() => const MyFavouritesScreen());
             } else if (action['label'] == 'Reward & Referral') {
@@ -834,156 +840,6 @@ class _AccountScreenState extends State<AccountScreen> {
             ],
           );
         }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
-        height: 70,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(35),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildNavItem(
-              context,
-              0,
-              'lib/assets/images/Bottom Home.png',
-              'Home',
-              false,
-            ),
-            _buildNavItem(
-              context,
-              1,
-              'lib/assets/images/Bottom Search.png',
-              'Chat',
-              false,
-            ),
-            _buildNavItem(
-              context,
-              2,
-              'lib/assets/images/Bottom Order.png',
-              'Orders',
-              false,
-            ),
-            _buildNavItem(
-              context,
-              3,
-              'lib/assets/images/Bottom Cart.png',
-              'Cart',
-              false,
-              badgeCount: 2,
-            ),
-            _buildNavItem(
-              context,
-              4,
-              'lib/assets/images/Bottom Profile.png',
-              'Profile',
-              true,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-    BuildContext context,
-    int index,
-    String assetPath,
-    String label,
-    bool isSelected, {
-    int badgeCount = 0,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        if (index == 0) {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        } else if (index == 2) {
-          Get.off(() => const MyOrdersScreen());
-        } else if (index == 3) {
-          Get.off(() => const CartScreen());
-        }
-      },
-      child: Container(
-        color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Image.asset(
-                  assetPath,
-                  width: 22,
-                  height: 22,
-                  color: isSelected
-                      ? const Color(0xFFFF5E00)
-                      : const Color(0xFFA59A94),
-                ),
-                if (badgeCount > 0)
-                  Positioned(
-                    top: -4,
-                    right: -6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.white, width: 1.5),
-                      ),
-                      child: Text(
-                        '$badgeCount',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: GoogleFonts.outfit(
-                color: isSelected
-                    ? const Color(0xFFFF5E00)
-                    : const Color(0xFFA59A94),
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            if (isSelected) ...[
-              const SizedBox(height: 2),
-              Container(
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFF5E00),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }

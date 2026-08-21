@@ -2,6 +2,8 @@
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
+import '../widgets/app_bottom_nav_bar.dart';
+import '../navigation/bottom_nav_router.dart';
 
 class CartScreen extends StatefulWidget {
   final String? storeName;
@@ -9,6 +11,7 @@ class CartScreen extends StatefulWidget {
   final String? itemPortion;
   final int? basePrice;
   final String? itemImage;
+  final bool showBottomNav;
 
   const CartScreen({
     Key? key,
@@ -17,6 +20,7 @@ class CartScreen extends StatefulWidget {
     this.itemPortion,
     this.basePrice,
     this.itemImage,
+    this.showBottomNav = true,
   }) : super(key: key);
 
   @override
@@ -65,29 +69,31 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                child: widget.showBottomNav
+                    ? GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Color(0xFFFF5E00),
+                            size: 15,
+                          ),
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
-                ),
+                      )
+                    : const SizedBox(width: 38),
               ),
               Text(
                 'Cart',
@@ -101,12 +107,15 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             Text(
               'From $storeName',
               style: GoogleFonts.outfit(
@@ -1338,7 +1347,21 @@ class _CartScreenState extends State<CartScreen> {
             ),
             const SizedBox(height: 20),
           ],
-        ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: widget.showBottomNav
+                ? AppBottomNavBar(
+                    selectedIndex: 3,
+                    onTap: BottomNavRouter.go,
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
       ),
     );
   }

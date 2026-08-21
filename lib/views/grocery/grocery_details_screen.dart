@@ -135,29 +135,29 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               children: [
                 Stack(
                     children: [
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
                         height: topInset + 132,
-                        child: Image.network(
-                          widget.store['image'] ??
-                              'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop',
-                          fit: BoxFit.cover,
+            child: Image.network(
+              widget.store['image'] ??
+                  'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop',
+              fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
                               Container(
-                                color: const Color(0xFFF3EFEA),
-                                child: const Icon(
-                                  Icons.storefront_outlined,
-                                  color: Colors.grey,
-                                  size: 40,
-                                ),
-                              ),
-                        ),
-                      ),
+                color: const Color(0xFFF3EFEA),
+                child: const Icon(
+                  Icons.storefront_outlined,
+                  color: Colors.grey,
+                  size: 40,
+                ),
+              ),
+            ),
+          ),
                       Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: [
+                children: [
                           SizedBox(height: topInset + 56),
 
                   // Floating Info Card
@@ -429,12 +429,12 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
                       height: 42,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
                         borderRadius: BorderRadius.circular(23),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -501,23 +501,23 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     ),
                     child: SizedBox(
                       height: 86,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: subcategories.length,
-                      physics: const BouncingScrollPhysics(),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: subcategories.length,
+                        physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
-                      itemBuilder: (context, index) {
-                        final sub = subcategories[index];
-                        final isAll = sub['isAll'] == true;
-                        final isSelected = activeSubcategoryIndex == index;
+                        itemBuilder: (context, index) {
+                          final sub = subcategories[index];
+                          final isAll = sub['isAll'] == true;
+                          final isSelected = activeSubcategoryIndex == index;
 
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              activeSubcategoryIndex = index;
-                            });
-                          },
-                          child: Padding(
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                activeSubcategoryIndex = index;
+                              });
+                            },
+                            child: Padding(
                             padding: EdgeInsets.only(
                               right: index == subcategories.length - 1 ? 0 : 10,
                             ),
@@ -527,26 +527,26 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 alignment: Alignment.topCenter,
                                 children: [
                                   Column(
-                                    children: [
-                                      isAll
-                                          ? Container(
+                                children: [
+                                  isAll
+                                      ? Container(
                                               width: 46,
                                               height: 46,
                                               decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Center(
-                                  child: Image.asset(
-                                    'lib/assets/images/All.png',
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: Image.asset(
+                                              'lib/assets/images/All.png',
                                     width: 22,
                                     height: 22,
                                     color: const Color(0xFFFF5E00),
-                                  ),
-                                ),
-                              )
-                                          : Container(
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black.withOpacity(0.10),
@@ -554,13 +554,13 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                     offset: const Offset(0, 4),
                                                   ),
                                                 ],
-                                              ),
-                                              child: ClipOval(
-                                                child: Image.network(
-                                                  sub['image'] as String,
+                                          ),
+                                          child: ClipOval(
+                                            child: Image.network(
+                                              sub['image'] as String,
                                                   width: 46,
                                                   height: 46,
-                                                  fit: BoxFit.cover,
+                                              fit: BoxFit.cover,
                                                   errorBuilder: (
                                                     context,
                                                     error,
@@ -575,23 +575,23 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                       color: Colors.grey,
                                                     ),
                                                   ),
-                                                ),
-                                              ),
                                             ),
+                                          ),
+                                        ),
                                       const SizedBox(height: 8),
-                                      Text(
-                                        sub['label'] as String,
+                                  Text(
+                                    sub['label'] as String,
                                         textAlign: TextAlign.center,
                                         maxLines: 1,
                                         overflow: TextOverflow.visible,
-                                        style: GoogleFonts.outfit(
-                                          color: isSelected
-                                              ? const Color(0xFFFF5E00)
+                                    style: GoogleFonts.outfit(
+                                      color: isSelected
+                                          ? const Color(0xFFFF5E00)
                                               : const Color(0xFF3A312C),
                                           fontSize: 11,
-                                          fontWeight: isSelected
+                                      fontWeight: isSelected
                                               ? FontWeight.w700
-                                              : FontWeight.w600,
+                                          : FontWeight.w600,
                                         ),
                                       ),
                                     ],
@@ -599,10 +599,10 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   if (isSelected)
                                     Positioned(
                                       bottom: 0,
-                                      child: Container(
+                    child: Container(
                                         height: 10,
                                         width: 56,
-                                        decoration: BoxDecoration(
+                      decoration: BoxDecoration(
                                           gradient: const LinearGradient(
                                             colors: [
                                               Color(0xFFFF5E00),
@@ -622,9 +622,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           ),
                         );
                       },
-                    ),
-                  ),
-                  ),
+                              ),
+                            ),
+                          ),
                   const SizedBox(height: 12),
 
                   SizedBox(
@@ -668,7 +668,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                         'lib/assets/images/Coin.png',
                                         width: 12,
                                         height: 12,
-                                      ),
+                                  ),
                                 ),
                               ] else if (filter['icon'] != null) ...[
                                 if (filter['icon'] is IconData)
@@ -697,7 +697,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               ),
                             ],
                           ),
-                        ),
+                          ),
                         );
                       },
                     ),
@@ -776,8 +776,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     ),
                   ),
                 ],
-              ),
             ),
+          ),
 
           // 3. Floating Back Button
           Positioned(
@@ -1040,9 +1040,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     ),
                   ),
                 ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -1076,14 +1076,14 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Image.network(
-                      food['image']!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: const Color(0xFFF3EFEA),
-                        child: const Icon(
-                          Icons.image_not_supported_outlined,
-                          color: Colors.grey,
+                      child: Image.network(
+                        food['image']!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: const Color(0xFFF3EFEA),
+                          child: const Icon(
+                            Icons.image_not_supported_outlined,
+                            color: Colors.grey,
                         ),
                       ),
                     ),
@@ -1091,21 +1091,21 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                   Positioned(
                     top: 8,
                     left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
                         vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5E00),
                         borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        food['discount']!,
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
+                        ),
+                        child: Text(
+                          food['discount']!,
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
                           fontSize: 8,
-                          fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -1153,22 +1153,22 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             '(${food['reviews']})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFFA59A94),
-                              fontSize: 9,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFA59A94),
+                            fontSize: 9,
                             ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      food['originalPrice']!,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 10,
-                        decoration: TextDecoration.lineThrough,
-                        decorationColor: const Color(0xFFA59A94),
+                            Text(
+                              food['originalPrice']!,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFA59A94),
+                                fontSize: 10,
+                                decoration: TextDecoration.lineThrough,
+                                decorationColor: const Color(0xFFA59A94),
                       ),
                     ),
                     Text(
@@ -1180,66 +1180,66 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       ),
                     ),
                     const Spacer(),
-                    GestureDetector(
-                      onTap: isNotAccepting
-                          ? () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Store is currently closed or temporarily not accepting orders.',
-                                    style: GoogleFonts.outfit(),
-                                  ),
-                                  backgroundColor: const Color(0xFFEF4444),
-                                ),
-                              );
-                            }
-                          : () {
-                              _showCustomizeBottomSheet(
-                                context,
-                                food,
-                                fromBottomSheet: false,
-                              );
-                            },
-                      child: Container(
+                        GestureDetector(
+                          onTap: isNotAccepting
+                              ? () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Store is currently closed or temporarily not accepting orders.',
+                                        style: GoogleFonts.outfit(),
+                                      ),
+                                      backgroundColor: const Color(0xFFEF4444),
+                                    ),
+                                  );
+                                }
+                              : () {
+                                  _showCustomizeBottomSheet(
+                                    context,
+                                    food,
+                                    fromBottomSheet: false,
+                                  );
+                                },
+                          child: Container(
                         width: double.infinity,
                         height: 32,
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          gradient: isNotAccepting
-                              ? null
-                              : const LinearGradient(
-                                  colors: [
-                                    Color(0xFFFF5E00),
-                                    Color(0xFFFFAE00),
-                                  ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                ),
-                          color: isNotAccepting
-                              ? const Color(0xFFA59A94)
-                              : null,
+                            decoration: BoxDecoration(
+                              gradient: isNotAccepting
+                                  ? null
+                                  : const LinearGradient(
+                                      colors: [
+                                        Color(0xFFFF5E00),
+                                        Color(0xFFFFAE00),
+                                      ],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                              color: isNotAccepting
+                                  ? const Color(0xFFA59A94)
+                                  : null,
                           borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
+                            ),
+                            child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.shopping_cart_outlined,
-                              color: Colors.white,
+                              children: [
+                                const Icon(
+                                  Icons.shopping_cart_outlined,
+                                  color: Colors.white,
                               size: 13,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              isNotAccepting ? 'CLOSED' : 'ADD',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  isNotAccepting ? 'CLOSED' : 'ADD',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
                     ),
                   ],
                 ),

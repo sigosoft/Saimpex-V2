@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'prescription_success_screen.dart';
 
 class UploadPrescriptionScreen extends StatefulWidget {
   final String? initialPharmacy;
@@ -728,22 +731,24 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   .contains(query.toLowerCase());
             }).toList();
 
-            return Padding(
-              padding: const EdgeInsets.only(top: 28),
+            return SizedBox(
+              height: sheetHeight + 56,
               child: Stack(
-                clipBehavior: Clip.none,
                 children: [
-                  Material(
-                    color: const Color(0xFFFAF6F0),
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: SizedBox(
-                      height: sheetHeight,
+                  Positioned(
+                    top: 56,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Material(
+                      color: const Color(0xFFFAF6F0),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(28),
+                      ),
+                      clipBehavior: Clip.antiAlias,
                       child: Column(
                         children: [
-                          const SizedBox(height: 28),
+                          const SizedBox(height: 22),
                           Text(
                             'Choose a Pharmacy',
                             style: GoogleFonts.outfit(
@@ -848,32 +853,36 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                       ),
                     ),
                   ),
+                  // Keep close inside hit-test bounds (above the sheet)
                   Positioned(
-                    top: -22,
+                    top: 7,
                     left: 0,
                     right: 0,
                     child: Center(
-                      child: GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.12),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.close,
-                            color: Color(0xFFFF5E00),
-                            size: 22,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => Navigator.pop(context),
+                          child: Ink(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.12),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.close_rounded,
+                              color: Color(0xFFFF5E00),
+                              size: 22,
+                            ),
                           ),
                         ),
                       ),
@@ -1084,10 +1093,13 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
       return;
     }
 
-    _showToast('Quotation request submitted successfully');
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (mounted) Navigator.pop(context);
-    });
+    Get.to(
+      () => PrescriptionSuccessScreen(
+        fileName: uploadedLabel ?? 'Prescription.pdf',
+        filePath: uploadedPath,
+        isImage: uploadedIsImage,
+      ),
+    );
   }
 
   void _showToast(String message, {bool isError = false}) {

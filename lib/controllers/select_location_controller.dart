@@ -4,7 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import '../utils/toast_helper.dart';
-import '../views/home_screen.dart';
+import '../views/main_shell_screen.dart';
 
 class SelectLocationController extends GetxController {
   // Track selected address type: 'Home', 'Office', or 'Other'
@@ -33,7 +33,7 @@ class SelectLocationController extends GetxController {
   }
 
   void onContinuePressed() {
-    Get.offAll(() => const HomeScreen());
+    Get.offAll(() => const MainShellScreen());
   }
 
   void onMapCreated(GoogleMapController controller) {

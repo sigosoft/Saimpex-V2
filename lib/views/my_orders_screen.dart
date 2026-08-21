@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'cart_screen.dart';
 import 'order_detail_screen.dart';
 import 'track_order_screen.dart';
 import 'rate_order_screen.dart';
-import 'account_screen.dart';
+import 'pharmacy/widgets/pharmacy_order_cards.dart';
+import '../widgets/app_bottom_nav_bar.dart';
+import '../navigation/bottom_nav_router.dart';
 
 class MyOrdersScreen extends StatefulWidget {
-  const MyOrdersScreen({super.key});
+  final bool showBottomNav;
+
+  const MyOrdersScreen({super.key, this.showBottomNav = true});
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
 }
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
-  int selectedCategoryIndex = 0; // 0: All, 1: Food, 2: Grocery, 3: Pharmacy
-  final List<String> categories = ["All", "Food", "Grocery", "Pharmacy"];
+  // Matches design: Pharmacy, Water, Courier, Grocery
+  int selectedCategoryIndex = 0;
+  final List<String> categories = ["Pharmacy", "Water", "Courier", "Grocery"];
 
   @override
   Widget build(BuildContext context) {
@@ -49,33 +53,35 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                      border: Border.all(
-                        color: const Color(0xFFEAD8C9),
-                        width: 0.8,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                child: widget.showBottomNav
+                    ? GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
+                            border: Border.all(
+                              color: const Color(0xFFEAD8C9),
+                              width: 0.8,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Color(0xFFFF5E00),
+                            size: 15,
+                          ),
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
-                ),
+                      )
+                    : const SizedBox(width: 38),
               ),
               Text(
                 'My Orders',
@@ -138,7 +144,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               style: GoogleFonts.outfit(
                                 color: isSelected
                                     ? Colors.white
-                                    : const Color(0xFF2C2520),
+                                    : const Color(0xFF8A7F77),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -154,74 +160,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   // Orders Cards List
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        // Card 1
-                        _buildOrderCard(
-                          restaurantName: "Al Fantasia Restaurant",
-                          statusText: "ON THE WAY",
-                          statusColor: const Color(0xFFFF8A00),
-                          statusBgColor: const Color(0xFFFFF4EC),
-                          detailsText:
-                              "Delivery • 750 MRU • 2 items • #22789002",
-                          buttons: [
-                            _buildOrderButton(
-                              text: "Cancel",
-                              onTap: () => _showCancelDialog(),
-                            ),
-                            const SizedBox(width: 12),
-                            _buildGradientButton(
-                              text: "Track Order",
-                              onTap: () {
-                                Get.to(
-                                  () => const TrackOrderScreen(
-                                    orderId: "#22789002",
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-
-                        // Card 2
-                        _buildOrderCard(
-                          restaurantName: "Al Fantasia Restaurant",
-                          statusText: "SELF PICKUP",
-                          statusColor: const Color(0xFF007DFE),
-                          statusBgColor: const Color(0xFFECF5FF),
-                          detailsText: "Pickup • 500 MRU • 2 items • #22789001",
-                          buttons: [
-                            _buildOrderButton(
-                              text: "Cancel",
-                              onTap: () => _showCancelDialog(),
-                            ),
-                          ],
-                        ),
-
-                        // Card 3
-                        _buildOrderCard(
-                          restaurantName: "Salam Supermarket",
-                          statusText: "DELIVERED",
-                          statusColor: const Color(0xFF00B25C),
-                          statusBgColor: const Color(0xFFE8F8EE),
-                          detailsText:
-                              "Delivery • 1500 MRU • 10 items • #22789000",
-                          buttons: [
-                            _buildOrderButton(
-                              text: "Reorder",
-                              onTap: () => _showReorderSnackBar(),
-                            ),
-                            const SizedBox(width: 12),
-                            _buildOrderButton(
-                              text: "Rate",
-                              onTap: () {
-                                Get.to(() => const RateOrderScreen());
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    child: selectedCategoryIndex == 0
+                        ? _buildPharmacyOrders()
+                        : _buildOtherCategoryOrders(),
                   ),
                 ],
               ),
@@ -229,15 +170,127 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           ),
 
           // Floating Bottom Navigation Bar
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildBottomNavigationBar(context),
-          ),
+          if (widget.showBottomNav)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AppBottomNavBar(
+                selectedIndex: 2,
+                onTap: BottomNavRouter.go,
+              ),
+            ),
         ],
       ),
     ),
+    );
+  }
+
+  Widget _buildPharmacyOrders() {
+    return Column(
+      children: [
+        const PharmacyQuotationReadyCard(),
+        PharmacyActiveOrderCard(
+          statusText: 'ON THE WAY',
+          statusColor: const Color(0xFFFF8A00),
+          statusBgColor: const Color(0xFFFFF4EC),
+          detailsText: 'Delivery • 50 MRU • #22789007',
+          orderId: '#22789007',
+          showPrescription: true,
+          showTrack: true,
+        ),
+        PharmacyActiveOrderCard(
+          statusText: 'SELF PICKUP',
+          statusColor: const Color(0xFF007DFE),
+          statusBgColor: const Color(0xFFECF5FF),
+          detailsText: 'Delivery • 50 MRU • #22789007',
+          orderId: '#22789007',
+          showPrescription: true,
+          showTrack: true,
+        ),
+        PharmacyActiveOrderCard(
+          statusText: 'ON THE WAY',
+          statusColor: const Color(0xFFFF8A00),
+          statusBgColor: const Color(0xFFFFF4EC),
+          detailsText: 'Delivery • 100 MRU • 2 items • #22789009',
+          orderId: '#22789009',
+          showPrescription: false,
+          showTrack: true,
+        ),
+        PharmacyActiveOrderCard(
+          statusText: 'SELF PICKUP',
+          statusColor: const Color(0xFF007DFE),
+          statusBgColor: const Color(0xFFECF5FF),
+          detailsText: 'Delivery • 100 MRU • 2 items • #22789009',
+          orderId: '#22789009',
+          showPrescription: false,
+          showTrack: false,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOtherCategoryOrders() {
+    return Column(
+      children: [
+        _buildOrderCard(
+          restaurantName: "Al Fantasia Restaurant",
+          statusText: "ON THE WAY",
+          statusColor: const Color(0xFFFF8A00),
+          statusBgColor: const Color(0xFFFFF4EC),
+          detailsText: "Delivery • 750 MRU • 2 items • #22789002",
+          buttons: [
+            _buildOrderButton(
+              text: "Cancel",
+              onTap: () => _showCancelDialog(),
+            ),
+            const SizedBox(width: 12),
+            _buildGradientButton(
+              text: "Track Order",
+              onTap: () {
+                Get.to(
+                  () => const TrackOrderScreen(
+                    orderId: "#22789002",
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        _buildOrderCard(
+          restaurantName: "Al Fantasia Restaurant",
+          statusText: "SELF PICKUP",
+          statusColor: const Color(0xFF007DFE),
+          statusBgColor: const Color(0xFFECF5FF),
+          detailsText: "Pickup • 500 MRU • 2 items • #22789001",
+          buttons: [
+            _buildOrderButton(
+              text: "Cancel",
+              onTap: () => _showCancelDialog(),
+            ),
+          ],
+        ),
+        _buildOrderCard(
+          restaurantName: "Salam Supermarket",
+          statusText: "DELIVERED",
+          statusColor: const Color(0xFF00B25C),
+          statusBgColor: const Color(0xFFE8F8EE),
+          detailsText: "Delivery • 1500 MRU • 10 items • #22789000",
+          buttons: [
+            _buildOrderButton(
+              text: "Reorder",
+              onTap: () => _showReorderSnackBar(),
+            ),
+            const SizedBox(width: 12),
+            _buildOrderButton(
+              text: "Rate",
+              onTap: () {
+                Get.to(() => const RateOrderScreen());
+              },
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -421,123 +474,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  // Floating Bottom Navigation Bar
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
-        height: 70,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(35),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(
-              0,
-              "lib/assets/images/Bottom Home.png",
-              'Home',
-              false,
-            ),
-            _buildNavItem(
-              1,
-              "lib/assets/images/Bottom Search.png",
-              'Search',
-              false,
-            ),
-            _buildNavItem(
-              2,
-              "lib/assets/images/Bottom Order.png",
-              'Orders',
-              true,
-            ),
-            _buildNavItem(
-              3,
-              "lib/assets/images/Bottom Cart.png",
-              'Cart',
-              false,
-            ),
-            _buildNavItem(
-              4,
-              "lib/assets/images/Bottom Profile.png",
-              'Profile',
-              false,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-    int index,
-    String assetPath,
-    String label,
-    bool isSelected,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        if (index == 0) {
-          // Go to HomeScreen
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        } else if (index == 3) {
-          // Off to CartScreen
-          Get.off(() => const CartScreen());
-        } else if (index == 4) {
-          Get.off(() => const AccountScreen());
-        }
-      },
-      child: Container(
-        color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              assetPath,
-              width: 22,
-              height: 22,
-              color: isSelected
-                  ? const Color(0xFFFF5E00)
-                  : const Color(0xFFA59A94),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: GoogleFonts.outfit(
-                color: isSelected
-                    ? const Color(0xFFFF5E00)
-                    : const Color(0xFFA59A94),
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            if (isSelected) ...[
-              const SizedBox(height: 2),
-              Container(
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFF5E00),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ],
-          ],
         ),
       ),
     );
