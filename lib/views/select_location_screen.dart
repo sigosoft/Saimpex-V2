@@ -35,7 +35,10 @@ class SelectLocationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPortraitLayout(BuildContext context, SelectLocationController controller) {
+  Widget _buildPortraitLayout(
+    BuildContext context,
+    SelectLocationController controller,
+  ) {
     return Column(
       children: [
         // 1. Header Bar
@@ -98,9 +101,7 @@ class SelectLocationScreen extends StatelessWidget {
               Center(
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 30),
-                  child: IgnorePointer(
-                    child: _buildCenterPin(),
-                  ),
+                  child: IgnorePointer(child: _buildCenterPin()),
                 ),
               ),
 
@@ -117,9 +118,7 @@ class SelectLocationScreen extends StatelessWidget {
                 bottom: 20,
                 left: 0,
                 right: 0,
-                child: Center(
-                  child: _buildCurrentLocationButton(controller),
-                ),
+                child: Center(child: _buildCurrentLocationButton(controller)),
               ),
             ],
           ),
@@ -130,7 +129,10 @@ class SelectLocationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLandscapeLayout(BuildContext context, SelectLocationController controller) {
+  Widget _buildLandscapeLayout(
+    BuildContext context,
+    SelectLocationController controller,
+  ) {
     return Row(
       children: [
         // Left Column: Map Area
@@ -198,9 +200,7 @@ class SelectLocationScreen extends StatelessWidget {
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 24),
-                        child: IgnorePointer(
-                          child: _buildCenterPinLandscape(),
-                        ),
+                        child: IgnorePointer(child: _buildCenterPinLandscape()),
                       ),
                     ),
 
@@ -228,16 +228,22 @@ class SelectLocationScreen extends StatelessWidget {
           ),
         ),
         // Vertical Divider
-        Container(
-          width: 1,
-          color: const Color(0xFFEAD8C9),
-        ),
+        Container(width: 1, color: const Color(0xFFEAD8C9)),
         // Right Column: Address Details Card
         Expanded(
           flex: 4,
           child: Container(
             color: const Color(0xFFFAF6F0),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 24,
+              bottom:
+                  24 +
+                  (MediaQuery.of(context).padding.bottom > 0
+                      ? MediaQuery.of(context).padding.bottom
+                      : 16),
+            ),
             child: SingleChildScrollView(
               child: _buildBottomCardContent(context, controller),
             ),
@@ -255,10 +261,7 @@ class SelectLocationScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: const Color(0xFFEAD8C9),
-            width: 1.0,
-          ),
+          border: Border.all(color: const Color(0xFFEAD8C9), width: 1.0),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
@@ -283,10 +286,7 @@ class SelectLocationScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFFEAD8C9),
-          width: 1.5,
-        ),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -297,19 +297,12 @@ class SelectLocationScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.search,
-            color: Color(0xFFA59A94),
-            size: 22,
-          ),
+          const Icon(Icons.search, color: Color(0xFFA59A94), size: 22),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               controller: controller.searchController,
-              style: GoogleFonts.outfit(
-                color: Colors.black,
-                fontSize: 14,
-              ),
+              style: GoogleFonts.outfit(color: Colors.black, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Search for area, street name.....',
                 hintStyle: GoogleFonts.outfit(
@@ -334,11 +327,7 @@ class SelectLocationScreen extends StatelessWidget {
         Stack(
           alignment: Alignment.center,
           children: [
-            const Icon(
-              Icons.location_on,
-              color: Color(0xFFE03A3A),
-              size: 48,
-            ),
+            const Icon(Icons.location_on, color: Color(0xFFE03A3A), size: 48),
             Positioned(
               top: 9,
               child: Container(
@@ -363,11 +352,7 @@ class SelectLocationScreen extends StatelessWidget {
         Stack(
           alignment: Alignment.center,
           children: [
-            const Icon(
-              Icons.location_on,
-              color: Color(0xFFE03A3A),
-              size: 38,
-            ),
+            const Icon(Icons.location_on, color: Color(0xFFE03A3A), size: 38),
             Positioned(
               top: 7,
               child: Container(
@@ -424,19 +409,31 @@ class SelectLocationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomCard(BuildContext context, SelectLocationController controller) {
+  Widget _buildBottomCard(
+    BuildContext context,
+    SelectLocationController controller,
+  ) {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
         color: Color(0xFFFAF6F0),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: 24 + (bottomInset > 0 ? bottomInset : 16),
+      ),
       child: _buildBottomCardContent(context, controller),
     );
   }
 
-  Widget _buildBottomCardContent(BuildContext context, SelectLocationController controller) {
+  Widget _buildBottomCardContent(
+    BuildContext context,
+    SelectLocationController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -445,11 +442,7 @@ class SelectLocationScreen extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.location_on,
-              color: Color(0xFFFF5E00),
-              size: 26,
-            ),
+            const Icon(Icons.location_on, color: Color(0xFFFF5E00), size: 26),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -550,11 +543,7 @@ class SelectLocationScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                color: const Color(0xFFFF5E00),
-                size: 18,
-              ),
+              Icon(icon, color: const Color(0xFFFF5E00), size: 18),
               const SizedBox(width: 6),
               Text(
                 label,

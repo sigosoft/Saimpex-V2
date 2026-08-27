@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_detail_screen.dart';
+import 'water/water_order_details_screen.dart';
+import 'water/water_track_order_screen.dart';
 import 'track_order_screen.dart';
 import 'rate_order_screen.dart';
 import 'pharmacy/widgets/pharmacy_order_cards.dart';
@@ -18,9 +20,9 @@ class MyOrdersScreen extends StatefulWidget {
 }
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
-  // Matches design: Pharmacy, Water, Courier, Grocery
+  // Matches design: Pharmacy, Water, Courier, Local Store
   int selectedCategoryIndex = 0;
-  final List<String> categories = ["Pharmacy", "Water", "Courier", "Grocery"];
+  final List<String> categories = ["Pharmacy", "Water", "Courier", "Local Store"];
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +164,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: selectedCategoryIndex == 0
                         ? _buildPharmacyOrders()
-                        : _buildOtherCategoryOrders(),
+                        : selectedCategoryIndex == 1
+                            ? _buildWaterOrders()
+                            : _buildOtherCategoryOrders(),
                   ),
                 ],
               ),
@@ -225,6 +229,75 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           orderId: '#22789009',
           showPrescription: false,
           showTrack: false,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWaterOrders() {
+    return Column(
+      children: [
+        // 1. Order Card 1: ON THE WAY (Delivery)
+        _buildOrderCard(
+          restaurantName: "PureLife Water Co.",
+          statusText: "ON THE WAY",
+          statusColor: const Color(0xFFFF5E00),
+          statusBgColor: const Color(0xFFFFF4EC),
+          detailsText: "Delivery • 50 MRU • 1 items • #22789002",
+          buttons: [
+            _buildOrderButton(
+              text: "Cancel",
+              onTap: () => _showCancelDialog(),
+            ),
+            const SizedBox(width: 12),
+            _buildGradientButton(
+              text: "Track Order",
+              onTap: () {
+                Get.to(
+                  () => const WaterTrackOrderScreen(
+                    orderId: "#22789002",
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+
+        // 2. Order Card 2: SELF PICKUP (Pickup)
+        _buildOrderCard(
+          restaurantName: "PureLife Water Co.",
+          statusText: "SELF PICKUP",
+          statusColor: const Color(0xFF007DFE),
+          statusBgColor: const Color(0xFFECF5FF),
+          detailsText: "Pickup • 50 MRU • 1 items • #22789001",
+          buttons: [
+            _buildOrderButton(
+              text: "Cancel",
+              onTap: () => _showCancelDialog(),
+            ),
+          ],
+        ),
+
+        // 3. Order Card 3: DELIVERED (Delivery)
+        _buildOrderCard(
+          restaurantName: "PureLife Water Co.",
+          statusText: "DELIVERED",
+          statusColor: const Color(0xFF00B25C),
+          statusBgColor: const Color(0xFFE8F8EE),
+          detailsText: "Delivery • 500 MRU • 3 items • #22789000",
+          buttons: [
+            _buildOrderButton(
+              text: "Reorder",
+              onTap: () => _showReorderSnackBar(),
+            ),
+            const SizedBox(width: 12),
+            _buildOrderButton(
+              text: "Rate",
+              onTap: () {
+                Get.to(() => const RateOrderScreen());
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -380,12 +453,19 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   final orderId = parts.length > 1
                       ? '#${parts[1]}'
                       : '#22789002';
-                  Get.to(
-                    () => OrderDetailScreen(
-                      orderId: orderId,
-                      isSelfPickup: statusText == "SELF PICKUP",
-                    ),
-                  );
+                  if (restaurantName.contains('Water')) {
+                    Get.to(() => WaterOrderDetailsScreen(
+                          orderId: orderId,
+                          isSelfPickup: statusText == "SELF PICKUP",
+                        ));
+                  } else {
+                    Get.to(
+                      () => OrderDetailScreen(
+                        orderId: orderId,
+                        isSelfPickup: statusText == "SELF PICKUP",
+                      ),
+                    );
+                  }
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

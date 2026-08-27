@@ -8,6 +8,7 @@ import '../controllers/select_location_controller.dart';
 import 'category_screen.dart';
 import 'grocery/grocery_screen.dart';
 import 'pharmacy/pharmacy_screen.dart';
+import 'water/water_screen.dart';
 import 'under_30_min_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'main_shell_screen.dart';
@@ -433,6 +434,8 @@ class HomeScreen extends StatelessWidget {
                 Get.to(() => const GroceryScreen());
               } else if (cat['label'] == 'Pharmacy') {
                 Get.to(() => const PharmacyScreen());
+              } else if (cat['label'] == 'Water') {
+                Get.to(() => const WaterScreen());
               } else {
                 Get.to(
                   () => CategoryScreen(categoryName: cat['label'] as String),
@@ -1803,12 +1806,15 @@ class HomeScreen extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             onPageChanged: controller.updateWaterBannerIndex,
             itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.fill,
-                  width: double.infinity,
+              return GestureDetector(
+                onTap: () => Get.to(() => const WaterScreen()),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.fill,
+                    width: double.infinity,
+                  ),
                 ),
               );
             },
