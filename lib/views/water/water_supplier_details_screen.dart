@@ -511,9 +511,20 @@ class _WaterSupplierDetailsScreenState
   }
 
   Widget _buildProductCard(Map<String, dynamic> item) {
+    final isNotAccepting = widget.supplier['isClosed'] == true ||
+        widget.supplier['isTemporarilyClosed'] == true;
     return GestureDetector(
       onTap: () {
-        showWaterProductDetailsSheet(context, item);
+        showWaterProductDetailsSheet(
+          context,
+          product: item,
+          isNotAccepting: isNotAccepting,
+          onAdd: () {
+            Get.to(() => WaterSubscriptionConfigureScreen(
+                  product: item,
+                ));
+          },
+        );
       },
       child: Container(
         decoration: BoxDecoration(
