@@ -4,27 +4,19 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'pharmacy_track_order_screen.dart';
 
-class PharmacyPaidOrderDetailScreen extends StatelessWidget {
+class PharmacyItemOrderDetailScreen extends StatelessWidget {
   final String orderId;
   final bool isDelivery;
-  final String pharmacyName;
-  final String? prescriptionImageUrl;
 
-  const PharmacyPaidOrderDetailScreen({
+  const PharmacyItemOrderDetailScreen({
     super.key,
-    this.orderId = '#22789007',
+    this.orderId = '#22789009',
     this.isDelivery = true,
-    this.pharmacyName = 'Pharmacy Nasr',
-    this.prescriptionImageUrl,
   });
-
-  static const _samplePrescription =
-      'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&auto=format&fit=crop';
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final imageUrl = prescriptionImageUrl ?? _samplePrescription;
 
     return Container(
       decoration: const BoxDecoration(
@@ -88,6 +80,44 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Help center opened',
+                              style: GoogleFonts.outfit(),
+                            ),
+                            backgroundColor: const Color(0xFFFF5E00),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: const Color(0xFFFFD4B8),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          'Help',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFFF5E00),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -102,17 +132,30 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Prescription',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'Order Status',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          isDelivery ? 'Delivery' : 'Self Pickup',
+                          style: GoogleFonts.outfit(
+                            color: isDelivery
+                                ? const Color(0xFFFF5E00)
+                                : const Color(0xFF007DFE),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
-                    _buildPrescriptionCard(imageUrl),
-                    const SizedBox(height: 16),
                     _buildOrderStatusCard(),
                     const SizedBox(height: 18),
                     Text(
@@ -130,6 +173,17 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
                       _buildCourierCard(),
                     ] else
                       _buildPickupLocationCard(),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Order Summary',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildOrderSummaryCard(),
                     const SizedBox(height: 16),
                     _buildPaymentCard(),
                   ],
@@ -182,7 +236,7 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   Widget _buildTrackButton() {
     return GestureDetector(
       onTap: () {
-        Get.to(() => PharmacyTrackOrderScreen(orderId: orderId));
+          Get.to(() => PharmacyTrackOrderScreen(orderId: orderId));
       },
       child: Container(
         height: 48,
@@ -214,75 +268,24 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPrescriptionCard(String imageUrl) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: AspectRatio(
-          aspectRatio: 16 / 10,
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
-              color: const Color(0xFFF3EFEA),
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.description_outlined,
-                    color: Color(0xFFFF5E00),
-                    size: 40,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Prescription_Jun25.jpg',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF8A7F77),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildOrderStatusCard() {
     final steps = isDelivery
         ? const [
             _StatusStep(
-              label: 'Payment\nSuccessful',
-              time: '22 Oct 2025,\n10:00 AM',
+              label: 'Order\nPlaced',
+              time: '22 Oct 2023,\n10:20 AM',
               done: true,
               icon: Icons.check_rounded,
             ),
             _StatusStep(
-              label: 'Preparing\nMedicines',
-              time: '22 Oct 2025,\n10:05 AM',
+              label: 'Preparing',
+              time: '22 Oct 2023,\n10:28 AM',
               done: true,
-              icon: Icons.medication_liquid_rounded,
+              icon: Icons.assignment_outlined,
             ),
             _StatusStep(
               label: 'On the way',
-              time: '22 Oct 2025,\n10:10 AM',
+              time: '22 Oct 2023,\n10:30 AM',
               done: true,
               icon: Icons.delivery_dining_rounded,
             ),
@@ -295,23 +298,22 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
           ]
         : const [
             _StatusStep(
-              label: 'Payment\nSuccessful',
-              time: '22 Oct 2025,\n10:00 AM',
+              label: 'Order\nPlaced',
+              time: '22 Oct 2024,\n10:15 AM',
               done: true,
               icon: Icons.check_rounded,
             ),
             _StatusStep(
-              label: 'Preparing\nMedicines',
-              time: '22 Oct 2025,\n10:05 AM',
+              label: 'Preparing',
+              time: '22 Oct 2024,\n10:20 AM',
               done: true,
-              icon: Icons.medication_liquid_rounded,
+              icon: Icons.assignment_outlined,
             ),
             _StatusStep(
               label: 'Ready for\nPickup',
-              time: '22 Oct 2025,\n10:10 AM',
+              time: '22 Oct 2024,\n10:25 AM',
               done: true,
-              icon: Icons.shopping_bag_outlined,
-              highlight: true,
+              icon: Icons.local_shipping_outlined,
             ),
             _StatusStep(
               label: 'Delivered',
@@ -334,151 +336,113 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                'Order Status',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                isDelivery ? 'Delivery' : 'Self Pickup',
-                style: GoogleFonts.outfit(
-                  color: isDelivery
-                      ? const Color(0xFFFF5E00)
-                      : const Color(0xFF007DFE),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              const circle = 36.0;
-              final usable = constraints.maxWidth - circle;
-              final segment = usable / 3;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          const circle = 36.0;
+          final usable = constraints.maxWidth - circle;
+          final segment = usable / 3;
 
-              return Column(
-                children: [
-                  SizedBox(
-                    height: circle + 8,
-                    child: Stack(
-                      alignment: Alignment.centerLeft,
+          return Column(
+            children: [
+              SizedBox(
+                height: circle,
+                child: Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    Positioned(
+                      left: circle / 2,
+                      right: circle / 2,
+                      child: Row(
+                        children: List.generate(3, (i) {
+                          final active = i < 2;
+                          return Container(
+                            width: segment,
+                            height: 3,
+                            color: active
+                                ? const Color(0xFFFF5E00)
+                                : const Color(0xFFE5DDD4),
+                          );
+                        }),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Positioned(
-                          left: circle / 2,
-                          right: circle / 2,
-                          child: Row(
-                            children: List.generate(3, (i) {
-                              final active = i < 2;
-                              return Container(
-                                width: segment,
-                                height: 3,
-                                color: active
-                                    ? const Color(0xFFFF5E00)
-                                    : const Color(0xFFE5DDD4),
-                              );
-                            }),
+                        for (var i = 0; i < steps.length; i++)
+                          Container(
+                            width: circle,
+                            height: circle,
+                            decoration: BoxDecoration(
+                              color: steps[i].done
+                                  ? const Color(0xFFFF5E00)
+                                  : const Color(0xFFEFE8E1),
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: i == 2 && steps[i].done && isDelivery
+                                ? Image.asset(
+                                    'lib/assets/images/delivery_icon.png',
+                                    width: 18,
+                                    height: 18,
+                                    color: Colors.white,
+                                    errorBuilder: (_, __, ___) => Icon(
+                                      steps[i].icon,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  )
+                                : Icon(
+                                    steps[i].icon,
+                                    color: steps[i].done
+                                        ? Colors.white
+                                        : const Color(0xFFB0A59C),
+                                    size: 18,
+                                  ),
                           ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            for (var i = 0; i < steps.length; i++)
-                              Container(
-                                width: circle,
-                                height: circle,
-                                decoration: BoxDecoration(
-                                  color: steps[i].done
-                                      ? const Color(0xFFFF5E00)
-                                      : const Color(0xFFEFE8E1),
-                                  shape: BoxShape.circle,
-                                  boxShadow: steps[i].highlight
-                                      ? [
-                                          BoxShadow(
-                                            color: const Color(0xFFFF5E00)
-                                                .withValues(alpha: 0.35),
-                                            blurRadius: 10,
-                                            spreadRadius: 1,
-                                          ),
-                                        ]
-                                      : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: i == 2 && steps[i].done && isDelivery
-                                    ? Image.asset(
-                                        'lib/assets/images/delivery_icon.png',
-                                        width: 18,
-                                        height: 18,
-                                        color: Colors.white,
-                                        errorBuilder: (_, __, ___) => Icon(
-                                          steps[i].icon,
-                                          color: Colors.white,
-                                          size: 18,
-                                        ),
-                                      )
-                                    : Icon(
-                                        steps[i].icon,
-                                        color: steps[i].done
-                                            ? Colors.white
-                                            : const Color(0xFFB0A59C),
-                                        size: 18,
-                                      ),
-                              ),
-                          ],
-                        ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: steps.map((step) {
-                      return Expanded(
-                        child: Column(
-                          children: [
-                            Text(
-                              step.label,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
-                                color: step.done
-                                    ? const Color(0xFF2C2520)
-                                    : const Color(0xFFA59A94),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                height: 1.25,
-                              ),
-                            ),
-                            if (step.time.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                step.time,
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFFA59A94),
-                                  fontSize: 8.5,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.25,
-                                ),
-                              ),
-                            ],
-                          ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: steps.map((step) {
+                  return Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          step.label,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.outfit(
+                            color: step.done
+                                ? const Color(0xFF2C2520)
+                                : const Color(0xFFA59A94),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            height: 1.25,
+                          ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+                        if (step.time.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            step.time,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w500,
+                              height: 1.25,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -577,7 +541,7 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  pharmacyName,
+                  'Pharmacy Nasr',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
@@ -586,8 +550,8 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '$pharmacyName, Near Nouakchott, Mauritania',
-                  maxLines: 1,
+                  'Pharmacy Nasr, Near Nouakchott, Mauritania',
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
@@ -700,6 +664,122 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildOrderSummaryCard() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _itemRow(
+            imageUrl:
+                'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&auto=format&fit=crop',
+            title: 'Paracetamol 500 mg',
+            subtitle: '10 Tablets',
+            qty: 'x1',
+            price: '50 MRU',
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Divider(height: 1, color: Color(0xFFEFE8E1)),
+          ),
+          _itemRow(
+            imageUrl:
+                'https://images.unsplash.com/photo-1584833409684-cfa318603b87?w=200&auto=format&fit=crop',
+            title: 'Baby Diapers',
+            subtitle: 'Size M • 54 Pieces',
+            qty: 'x1',
+            price: '50 MRU',
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemRow({
+    required String imageUrl,
+    required String title,
+    required String subtitle,
+    required String qty,
+    required String price,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.network(
+            imageUrl,
+            width: 54,
+            height: 54,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              width: 54,
+              height: 54,
+              color: const Color(0xFFF3EFEA),
+              child: const Icon(
+                Icons.medication_outlined,
+                color: Color(0xFFFF5E00),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFA59A94),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                qty,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Text(
+          price,
+          style: GoogleFonts.outfit(
+            color: const Color(0xFF2C2520),
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildPaymentCard() {
     return Container(
       width: double.infinity,
@@ -721,17 +801,19 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Item total', '50 MRU'),
+          _payRow('Item total', '100 MRU'),
           const SizedBox(height: 10),
           _payRow(
             'Redeemed points',
-            '-1 MRU',
+            '-50 MRU',
             valueColor: const Color(0xFFFF5E00),
           ),
+          if (isDelivery) ...[
+            const SizedBox(height: 10),
+            _payRow('Delivery fee', '20 MRU'),
+          ],
           const SizedBox(height: 10),
-          _payRow('Delivery fee', '5 MRU'),
-          const SizedBox(height: 10),
-          _payRow('Tax', '2 MRU'),
+          _payRow('Tax', '10 MRU'),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(height: 1, color: Color(0xFF3A434E)),
@@ -748,7 +830,7 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '56 MRU',
+                isDelivery ? '80 MRU' : '60 MRU',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -792,13 +874,11 @@ class _StatusStep {
   final String time;
   final bool done;
   final IconData icon;
-  final bool highlight;
 
   const _StatusStep({
     required this.label,
     required this.time,
     required this.done,
     required this.icon,
-    this.highlight = false,
   });
 }

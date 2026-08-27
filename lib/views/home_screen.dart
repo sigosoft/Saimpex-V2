@@ -6,6 +6,7 @@ import '../constants/colors.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
 import 'category_screen.dart';
+import 'water/water_screen.dart';
 import 'grocery/grocery_screen.dart';
 import 'pharmacy/pharmacy_screen.dart';
 import 'under_30_min_screen.dart';
@@ -433,6 +434,8 @@ class HomeScreen extends StatelessWidget {
                 Get.to(() => const GroceryScreen());
               } else if (cat['label'] == 'Pharmacy') {
                 Get.to(() => const PharmacyScreen());
+              } else if (cat['label'] == 'Water') {
+                Get.to(() => const WaterScreen());
               } else {
                 Get.to(
                   () => CategoryScreen(categoryName: cat['label'] as String),

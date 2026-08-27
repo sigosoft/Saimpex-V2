@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../../controllers/home_controller.dart';
@@ -910,6 +910,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 onTap: () {
                   Get.to(
                     () => CartScreen(
+                      showBottomNav: false,
                       storeName: widget.store['title'],
                       itemName: lastAddedItem?['title'],
                       itemPortion: lastAddedItemPortion,
