@@ -20,7 +20,7 @@ class CartScreen extends StatefulWidget {
     this.itemPortion,
     this.basePrice,
     this.itemImage,
-    this.showBottomNav = true,
+    this.showBottomNav = false,
   }) : super(key: key);
 
   @override
@@ -44,6 +44,38 @@ class _CartScreenState extends State<CartScreen> {
   final int pointDiscountValue = 1;
   final int deliveryFee = 5;
   final int tax = 2;
+  final TextEditingController _customQuantityController = TextEditingController();
+  bool _syncingQuantityField = false;
+
+  @override
+  void dispose() {
+    _customQuantityController.dispose();
+    super.dispose();
+  }
+
+  void _onCustomQuantityChanged(String value) {
+    if (_syncingQuantityField) return;
+
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+
+    final parsed = int.tryParse(trimmed);
+    if (parsed != null && parsed >= 1 && parsed != quantity) {
+      setState(() => quantity = parsed);
+    }
+  }
+
+  void _setQuantity(int value) {
+    final next = value < 1 ? 1 : value;
+    setState(() => quantity = next);
+
+    _syncingQuantityField = true;
+    _customQuantityController.value = TextEditingValue(
+      text: next.toString(),
+      selection: TextSelection.collapsed(offset: next.toString().length),
+    );
+    _syncingQuantityField = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +84,8 @@ class _CartScreenState extends State<CartScreen> {
     final pointsOff = usePoints ? pointDiscountValue : 0;
     final currentDeliveryFee = isDelivery ? deliveryFee : 0;
     final toPay = itemTotal - pointsOff + currentDeliveryFee + tax;
+
+    final canPop = Navigator.canPop(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFDF9),
@@ -69,7 +103,7 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: widget.showBottomNav
+                child: canPop
                     ? GestureDetector(
                         onTap: () => Navigator.pop(context),
                         child: Container(
@@ -213,9 +247,7 @@ class _CartScreenState extends State<CartScreen> {
                             GestureDetector(
                               onTap: () {
                                 if (quantity > 1) {
-                                  setState(() {
-                                    quantity--;
-                                  });
+                                  _setQuantity(quantity - 1);
                                 }
                               },
                               child: Container(
@@ -243,11 +275,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             const SizedBox(width: 8),
                             GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  quantity++;
-                                });
-                              },
+                              onTap: () => _setQuantity(quantity + 1),
                               child: Container(
                                 width: 22,
                                 height: 22,
@@ -268,7 +296,6 @@ class _CartScreenState extends State<CartScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  // Customize label
                   Container(
                     height: 40,
                     decoration: BoxDecoration(
@@ -281,13 +308,28 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Customize your quantity here',
+                    child: TextField(
+                      controller: _customQuantityController,
+                      keyboardType: TextInputType.number,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
                         fontSize: 11,
+                        color: const Color(0xFF2C2520),
                         fontWeight: FontWeight.w500,
                       ),
+                      decoration: InputDecoration(
+                        hintText: 'Customize your quantity here',
+                        hintStyle: GoogleFonts.outfit(
+                          color: const Color(0xFFA59A94),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      textInputAction: TextInputAction.done,
+                      onChanged: _onCustomQuantityChanged,
+                      onSubmitted: (_) => FocusScope.of(context).unfocus(),
                     ),
                   ),
                 ],
@@ -296,37 +338,38 @@ class _CartScreenState extends State<CartScreen> {
 
             const SizedBox(height: 14),
 
-            // 2. Add Delivery Note button
-            Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: const Color(0xFFD9D0C8),
-                  width: 1,
-                  strokeAlign: BorderSide.strokeAlignInside,
+            if (isDelivery) ...[
+              // Add Delivery Note — delivery only
+              Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFFD9D0C8),
+                    width: 1,
+                    strokeAlign: BorderSide.strokeAlignInside,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    const Icon(Icons.add, color: Color(0xFFA59A94), size: 14),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Add delivery note (Optional)',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFA59A94),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  const Icon(Icons.add, color: Color(0xFFA59A94), size: 14),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Add delivery note (Optional)',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 18),
+              const SizedBox(height: 18),
+            ],
 
             // 3. Delivery Type
             Text(

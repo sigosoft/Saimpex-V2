@@ -6,6 +6,7 @@ import '../constants/colors.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
 import 'category_screen.dart';
+import 'water/water_screen.dart';
 import 'grocery/grocery_screen.dart';
 import 'pharmacy/pharmacy_screen.dart';
 import 'water/water_screen.dart';

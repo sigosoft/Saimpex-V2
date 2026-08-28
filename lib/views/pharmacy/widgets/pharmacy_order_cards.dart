@@ -5,9 +5,10 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../chat_screen.dart';
-import '../../track_order_screen.dart';
+import '../pharmacy_track_order_screen.dart';
 import '../quotation_detail_screen.dart';
 import '../pharmacy_paid_order_detail_screen.dart';
+import '../pharmacy_item_order_detail_screen.dart';
 
 class PharmacyQuotationReadyCard extends StatefulWidget {
   final String pharmacyName;
@@ -64,10 +65,9 @@ class _PharmacyQuotationReadyCardState
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -76,118 +76,183 @@ class _PharmacyQuotationReadyCardState
           ),
         ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  widget.pharmacyName,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              _StatusBadge(
-                text: 'QUOTATION READY',
-                color: const Color(0xFF00A854),
-                bgColor: const Color(0xFFDDF7E8),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Prescription • ${widget.orderId}',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1B2430),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF5E00),
-                    borderRadius: BorderRadius.circular(7),
-                  ),
-                  child: const Icon(
-                    Icons.alarm_rounded,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  'Quote Expires in:',
-                  style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  _timerText,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF4EC),
-              borderRadius: BorderRadius.circular(12),
-            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Quotation Summary',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
                 Row(
                   children: [
-                    Text(
-                      'Item total',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF8A7F77),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: Text(
+                        widget.pharmacyName,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      widget.amount,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
+                    _StatusBadge(
+                      text: 'QUOTATION READY',
+                      color: const Color(0xFF00A854),
+                      bgColor: const Color(0xFFDDF7E8),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Prescription • ${widget.orderId}',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFA59A94),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1B2430),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5E00),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: const Icon(
+                          Icons.alarm_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Quote Expires in:',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        _timerText,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF4EC),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Quotation Summary',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Text(
+                            'Item total',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF8A7F77),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            widget.amount,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFFF5E00),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _SoftButton(
+                        label: 'Decline Quotation',
+                        outlined: true,
+                        onTap: () {},
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.to(
+                            () => ChatScreen(
+                              restaurant: {
+                                'title': widget.pharmacyName,
+                                'image':
+                                    'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop',
+                              },
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF5E00),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.chat_bubble_outline_rounded,
+                                color: Colors.white,
+                                size: 15,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Chat with Pharmacy',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -195,62 +260,6 @@ class _PharmacyQuotationReadyCardState
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _SoftButton(
-                  label: 'Decline Quotation',
-                  outlined: true,
-                  onTap: () {},
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Get.to(
-                      () => ChatScreen(
-                        restaurant: {
-                          'title': widget.pharmacyName,
-                          'image':
-                              'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop',
-                        },
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF5E00),
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.chat_bubble_outline_rounded,
-                          color: Colors.white,
-                          size: 15,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Chat with Pharmacy',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
           GestureDetector(
             onTap: () {
               Get.to(
@@ -262,22 +271,15 @@ class _PharmacyQuotationReadyCardState
               );
             },
             child: Container(
-              height: 48,
+              width: double.infinity,
+              height: 52,
               padding: const EdgeInsets.symmetric(horizontal: 18),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
                   colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: Row(
                 children: [
@@ -285,7 +287,7 @@ class _PharmacyQuotationReadyCardState
                     'Review & Pay',
                     style: GoogleFonts.outfit(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -294,7 +296,7 @@ class _PharmacyQuotationReadyCardState
                     widget.amount,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -327,19 +329,39 @@ class PharmacyActiveOrderCard extends StatelessWidget {
     required this.statusBgColor,
     required this.detailsText,
     required this.orderId,
-    this.showPrescription = true,
+    this.showPrescription = false,
     this.showTrack = true,
     this.prescriptionName = 'Prescription_Jun25.jpg',
   });
 
+  void _openOrderDetails() {
+    if (showPrescription) {
+      Get.to(
+        () => PharmacyPaidOrderDetailScreen(
+          orderId: orderId,
+          isDelivery: statusText != 'SELF PICKUP',
+        ),
+      );
+    } else {
+      Get.to(
+        () => PharmacyItemOrderDetailScreen(
+          orderId: orderId,
+          isDelivery: statusText != 'SELF PICKUP',
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: _openOrderDetails,
+      child: Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -385,12 +407,12 @@ class PharmacyActiveOrderCard extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: const Color(0xFFF3F0EC),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(30),
                     child: Container(
                       width: 42,
                       height: 42,
@@ -458,7 +480,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      Get.to(() => TrackOrderScreen(orderId: orderId));
+                      Get.to(() => PharmacyTrackOrderScreen(orderId: orderId));
                     },
                     child: Container(
                       height: 42,
@@ -468,7 +490,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
-                        borderRadius: BorderRadius.circular(22),
+                        borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
                             color: const Color(0xFFFF5E00)
@@ -496,14 +518,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
           const SizedBox(height: 12),
           Center(
             child: GestureDetector(
-              onTap: () {
-                Get.to(
-                  () => PharmacyPaidOrderDetailScreen(
-                    orderId: orderId,
-                    isDelivery: statusText != 'SELF PICKUP',
-                  ),
-                );
-              },
+              onTap: _openOrderDetails,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -527,6 +542,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
@@ -548,7 +564,7 @@ class _StatusBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
         text,
@@ -582,7 +598,7 @@ class _SoftButton extends StatelessWidget {
         height: 42,
         decoration: BoxDecoration(
           color: outlined ? Colors.white : const Color(0xFFF3EFEA),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(30),
           border: outlined
               ? Border.all(color: const Color(0xFFE5DDD4), width: 1)
               : null,

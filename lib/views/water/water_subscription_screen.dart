@@ -3,107 +3,112 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'water_nearby_suppliers_screen.dart';
+
 class WaterSubscriptionScreen extends StatelessWidget {
   const WaterSubscriptionScreen({super.key});
+
+  static const _steps = [
+    {
+      'icon': Icons.storefront_outlined,
+      'title': 'Choose Supplier',
+      'subtitle': 'Browse top-rated local water providers in your location',
+    },
+    {
+      'icon': Icons.local_drink_outlined,
+      'title': 'Select Products',
+      'subtitle': 'Pick your preferred bottle sizes and water mineral balance',
+    },
+    {
+      'icon': Icons.star_outline_rounded,
+      'title': 'Choose a Delivery Plan',
+      'subtitle':
+          'Select any subscription plan like daily, weekly or monthly',
+    },
+    {
+      'icon': Icons.schedule_outlined,
+      'title': 'Choose Schedule',
+      'subtitle':
+          'Set your delivery days and preferred morning or evening slots.',
+    },
+    {
+      'title': 'Enjoy Delivery',
+      'subtitle': 'Relax as your water arrives automatically on schedule.',
+      'highlight': true,
+    },
+  ];
+
+  static const _benefits = [
+    {
+      'icon': Icons.sync_rounded,
+      'title': 'Automatic Deliveries',
+      'subtitle': 'Set it once and never think about ordering water again',
+    },
+    {
+      'icon': Icons.local_offer_outlined,
+      'title': 'Save More',
+      'subtitle': 'Subscribers get up to 50% off compared to one-time orders',
+    },
+    {
+      'icon': Icons.calendar_month_outlined,
+      'title': 'Flexible Plans',
+      'subtitle': 'Pause, resume, or cancel your subscription whenever needed',
+    },
+    {
+      'icon': Icons.apartment_outlined,
+      'title': 'Home & Office',
+      'subtitle': 'Tailored solutions for families and corporate workspace',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFAF6F0),
+        statusBarColor: Color(0xFFFFF9F5),
         statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Color(0xFFFAF6F0),
-        systemNavigationBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFAF6F0),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 36),
-            child: Column(
-              children: [
-                const SizedBox(height: 8),
-                // 1. Header Bar
-                _buildHeader(context),
-                const SizedBox(height: 16),
-
-                // 2. Banner Graphic
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.asset(
-                      'lib/assets/images/Sub banner.png',
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        height: 120,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF0052D4), Color(0xFF4364F7)],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ),
+        backgroundColor: const Color(0xFFFFF9F5),
+        body: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                child: Column(
+                  children: [
+                    _buildHeroBanner(),
+                    const SizedBox(height: 16),
+                    _buildFindSupplierButton(),
+                    const SizedBox(height: 28),
+                    _buildSectionTitle('How It Works'),
+                    const SizedBox(height: 20),
+                    _buildHowItWorks(),
+                    const SizedBox(height: 28),
+                    _buildSectionTitle('Why Subscribe?'),
+                    const SizedBox(height: 20),
+                    _buildWhySubscribeGrid(),
+                  ],
                 ),
-                const SizedBox(height: 16),
-
-                // 3. Find Supplier Button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFF5E00).withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Find Supplier',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 28),
-
-                // 4. How It Works Section
-                _buildHowItWorksSection(),
-                const SizedBox(height: 32),
-
-                // 5. Why Subscribe? Section
-                _buildWhySubscribeSection(),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  // Header Bar
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        MediaQuery.paddingOf(context).top + 8,
+        16,
+        12,
+      ),
       child: Row(
         children: [
           GestureDetector(
@@ -114,19 +119,23 @@ class WaterSubscriptionScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFEAD8C9), width: 1.0),
+                border: Border.all(
+                  color: const Color(0xFFFF5E00).withValues(alpha: 0.25),
+                  width: 0.8,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 4,
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
+              alignment: Alignment.center,
               child: const Icon(
-                Icons.chevron_left_rounded,
+                Icons.arrow_back_ios_new_rounded,
                 color: Color(0xFFFF5E00),
-                size: 24,
+                size: 16,
               ),
             ),
           ),
@@ -135,339 +144,328 @@ class WaterSubscriptionScreen extends StatelessWidget {
               'Subscription',
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
-                color: const Color(0xFF1A1A1A),
+                color: const Color(0xFF2C2520),
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
-          const SizedBox(width: 40), // Balance header back button
+          const SizedBox(width: 40),
         ],
       ),
     );
   }
 
-  // How It Works Section
-  Widget _buildHowItWorksSection() {
-    final steps = [
-      {
-        'title': 'Choose Supplier',
-        'subtitle': 'Browse top rated local water providers in your location',
-        'icon': Image.asset("lib/assets/images/choose supplier.png"),
-        'isFilled': false,
-      },
-      {
-        'title': 'Select Products',
-        'subtitle':
-            'Pick your preferred bottle sizes and water mineral balance',
-        'icon': Image.asset("lib/assets/images/select product.png"),
-        'isFilled': false,
-      },
-      {
-        'title': 'Choose a Delivery Plan',
-        'subtitle':
-            'Select any subscription plan like daily, weekly or monthly',
-        'icon': Image.asset("lib/assets/images/delivery plan.png"),
-        'isFilled': false,
-      },
-      {
-        'title': 'Choose Schedule',
-        'subtitle':
-            'Set your delivery days and preferred morning or evening slots',
-        'icon': Image.asset("lib/assets/images/schedule.png"),
-        'isFilled': false,
-      },
-      {
-        'title': 'Enjoy Delivery',
-        'subtitle': 'Relax as your water arrives automatically on schedule',
-        'icon': Image.asset("lib/assets/images/Enjoy delivery.png"),
-        'isFilled': true,
-      },
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          // Section Heading
-          Text(
-            'How It Works',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+  Widget _buildHeroBanner() {
+    return Container(
+      height: 168,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Image.asset(
+        'lib/assets/images/water_subscription_banner.jpg',
+        width: double.infinity,
+        height: 168,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Color(0xFF0A3D6E),
+                Color(0xFF1565A8),
+                Color(0xFF1BA4B8),
+              ],
             ),
           ),
-          const SizedBox(height: 6),
-          Container(
-            width: 40,
-            height: 3,
-            decoration: BoxDecoration(
-              color: const Color(0xFF2C2520),
-              borderRadius: BorderRadius.circular(2),
-            ),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.water_drop_outlined,
+            color: Colors.white.withValues(alpha: 0.5),
+            size: 48,
           ),
-          const SizedBox(height: 24),
+        ),
+      ),
+    );
+  }
 
-          // Stepper Timeline
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: steps.length,
-            itemBuilder: (context, index) {
-              final step = steps[index];
-              final isLast = index == steps.length - 1;
+  Widget _buildFindSupplierButton() {
+    return GestureDetector(
+      onTap: () => Get.to(() => const WaterNearbySuppliersScreen()),
+      child: Container(
+        height: 48,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          'Find Supplier',
+          style: GoogleFonts.outfit(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
 
-              return IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Timeline Line & Circle Icon
-                    Column(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: (step['isFilled'] as bool)
-                                ? const Color(0xFFFF5E00)
-                                : Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
+  Widget _buildSectionTitle(String title) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.outfit(
+            color: const Color(0xFFFF5E00),
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: 120,
+          height: 3,
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C2520),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHowItWorks() {
+    const double iconSize = 46.0;
+    const double colWidth = 52.0;
+
+    return Stack(
+      children: [
+        Positioned(
+          left: (colWidth - 2) / 2,
+          top: iconSize / 2,
+          bottom: iconSize / 2,
+          child: Container(width: 2, color: const Color(0xFFFF5E00)),
+        ),
+        Column(
+          children: List.generate(_steps.length, (index) {
+            final step = _steps[index];
+            final isLast = index == _steps.length - 1;
+            final highlight = step['highlight'] == true;
+            final icon = step['icon'] as IconData?;
+
+            return Padding(
+              padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: colWidth,
+                    child: Center(
+                      child: _buildStepCircle(
+                        size: iconSize,
+                        highlight: highlight,
+                        icon: icon,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            step['title'] as String,
+                            style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
-                              width: (step['isFilled'] as bool) ? 0 : 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(
-                                  0xFFFF5E00,
-                                ).withOpacity(0.12),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: step['icon'] is Widget
-                                ? Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: step['icon'] as Widget,
-                                  )
-                                : step['icon'] is String
-                                ? Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Image.asset(
-                                      step['icon'] as String,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  )
-                                : Icon(
-                                    step['icon'] as IconData,
-                                    color: (step['isFilled'] as bool)
-                                        ? Colors.white
-                                        : const Color(0xFFFF5E00),
-                                    size: 22,
-                                  ),
-                          ),
-                        ),
-                        if (!isLast)
-                          Expanded(
-                            child: Container(
-                              width: 2,
-                              color: const Color(0xFFFBE6DB),
-                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                      ],
-                    ),
-                    const SizedBox(width: 14),
-
-                    // Card Content
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
+                          const SizedBox(height: 4),
+                          Text(
+                            step['subtitle'] as String,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF4A453F),
+                              fontSize: 11,
+                              height: 1.4,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              step['title'] as String,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              step['subtitle'] as String,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF6B635C),
-                                fontSize: 11,
-                                height: 1.35,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              );
-            },
+                  ),
+                ],
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepCircle({
+    required double size,
+    required bool highlight,
+    IconData? icon,
+  }) {
+    if (highlight) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFF6B00),
+              Color(0xFFFFB200),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFFF8A00).withValues(alpha: 0.35),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          Icons.sentiment_satisfied_alt_rounded,
+          color: Colors.white,
+          size: size * 0.55,
+        ),
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFFF5E00), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
+      ),
+      child: Icon(
+        icon ?? Icons.water_drop_outlined,
+        color: const Color(0xFFFF5E00),
+        size: size * 0.42,
       ),
     );
   }
 
-  // Why Subscribe? Section
-  Widget _buildWhySubscribeSection() {
-    final features = [
-      {
-        'title': 'Automatic Deliveries',
-        'subtitle': 'Set it once and never worry about ordering water again',
-        'icon': Icons.autorenew_rounded,
-      },
-      {
-        'title': 'Save More',
-        'subtitle': 'Subscribers get up to 20% off compared to one-time orders',
-        'icon': Icons.local_offer_outlined,
-      },
-      {
-        'title': 'Flexible Plans',
-        'subtitle':
-            'Pause, resume, or cancel your subscription whenever needed',
-        'icon': Icons.calendar_month_outlined,
-      },
-      {
-        'title': 'Home & Office',
-        'subtitle': 'Tailored solutions for homes and corporate workplaces',
-        'icon': Icons.domain_outlined,
-      },
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          // Section Heading
-          Text(
-            'Why Subscribe?',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            width: 40,
-            height: 3,
-            decoration: BoxDecoration(
-              color: const Color(0xFF2C2520),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // 2x2 Grid
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: features.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
-              childAspectRatio: 0.95,
-            ),
-            itemBuilder: (context, index) {
-              final feat = features[index];
-              return Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 30,
-                      height: 30,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFF0E6),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: feat['icon'] is Widget
-                            ? Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child: feat['icon'] as Widget,
-                              )
-                            : feat['icon'] is String
-                            ? Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child: Image.asset(
-                                  feat['icon'] as String,
-                                  fit: BoxFit.contain,
-                                ),
-                              )
-                            : Icon(
-                                feat['icon'] as IconData,
-                                color: const Color(0xFFFF5E00),
-                                size: 20,
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      feat['title'] as String,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      feat['subtitle'] as String,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF6B635C),
-                        fontSize: 10,
-                        height: 1.35,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+  Widget _buildWhySubscribeGrid() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _benefits.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        mainAxisExtent: 130,
       ),
+      itemBuilder: (context, index) {
+        final item = _benefits[index];
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFEAD8C9),
+              width: 0.8,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0EA),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  item['icon'] as IconData,
+                  color: const Color(0xFFFF5E00),
+                  size: 18,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                item['title'] as String,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                item['subtitle'] as String,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 10,
+                  height: 1.35,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

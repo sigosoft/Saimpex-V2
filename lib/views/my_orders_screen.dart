@@ -62,7 +62,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           width: 38,
                           height: 38,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(30),
                             color: Colors.white,
                             border: Border.all(
                               color: const Color(0xFFEAD8C9),
@@ -132,7 +132,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               color: isSelected
                                   ? const Color(0xFFFF5E00)
                                   : Colors.white,
-                              borderRadius: BorderRadius.circular(19),
+                              borderRadius: BorderRadius.circular(30),
                               border: Border.all(
                                 color: isSelected
                                     ? const Color(0xFFFF5E00)
@@ -225,8 +225,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           statusText: 'SELF PICKUP',
           statusColor: const Color(0xFF007DFE),
           statusBgColor: const Color(0xFFECF5FF),
-          detailsText: 'Delivery • 100 MRU • 2 items • #22789009',
-          orderId: '#22789009',
+          detailsText: 'Self Pickup • 60 MRU • 2 items • #22789010',
+          orderId: '#22789010',
           showPrescription: false,
           showTrack: false,
         ),
@@ -379,7 +379,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(30),
         border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
         boxShadow: [
           BoxShadow(
@@ -412,7 +412,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: statusBgColor,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
                   statusText,
@@ -505,7 +505,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           height: 38,
           decoration: BoxDecoration(
             color: const Color(0xFFF3EFEA),
-            borderRadius: BorderRadius.circular(19),
+            borderRadius: BorderRadius.circular(30),
           ),
           alignment: Alignment.center,
           child: Text(
@@ -536,7 +536,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
-            borderRadius: BorderRadius.circular(19),
+            borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFFFF5E00).withOpacity(0.2),
