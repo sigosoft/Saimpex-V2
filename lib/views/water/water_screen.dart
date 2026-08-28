@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
+import 'water_nearby_suppliers_screen.dart';
 import 'water_supplier_screen.dart';
 import 'water_subscription_screen.dart';
 
@@ -157,7 +158,11 @@ class _WaterScreenState extends State<WaterScreen> {
                       _buildHeroBanner(),
                       _buildSearchBar(),
                       _buildCategoriesSection(),
-                      _buildSectionHeader('Top Rated Suppliers', 'See All', () {}),
+                      _buildSectionHeader(
+                        'Top Rated Suppliers',
+                        'See All',
+                        () => Get.to(() => const WaterNearbySuppliersScreen()),
+                      ),
                       _buildSuppliersList(
                         controller,
                         markSecondTemporarilyClosed: true,
@@ -170,7 +175,7 @@ class _WaterScreenState extends State<WaterScreen> {
                       _buildSectionHeader(
                         'Nearby Suppliers',
                         'Store Map',
-                        () {},
+                        () => Get.to(() => const WaterNearbySuppliersScreen()),
                         showMapIcon: true,
                       ),
                       _buildSuppliersList(controller),

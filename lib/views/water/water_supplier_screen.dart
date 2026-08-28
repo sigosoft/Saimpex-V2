@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../cart_screen.dart';
 import '../chat_screen.dart';
+import 'water_product_subscription_screen.dart';
 import 'widgets/water_product_card.dart';
 import 'widgets/water_product_details_sheet.dart';
 
@@ -153,13 +154,10 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                           },
                         ),
                         onSubscribe: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Subscription setup for ${product['title']}',
-                                style: GoogleFonts.outfit(),
-                              ),
-                              backgroundColor: const Color(0xFFFF5E00),
+                          Get.to(
+                            () => WaterProductSubscriptionScreen(
+                              product: product,
+                              supplier: widget.supplier,
                             ),
                           );
                         },

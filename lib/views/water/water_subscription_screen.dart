@@ -3,28 +3,30 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'water_nearby_suppliers_screen.dart';
+
 class WaterSubscriptionScreen extends StatelessWidget {
   const WaterSubscriptionScreen({super.key});
 
   static const _steps = [
     {
-      'image': 'lib/assets/images/supplier.png',
+      'icon': Icons.storefront_outlined,
       'title': 'Choose Supplier',
       'subtitle': 'Browse top-rated local water providers in your location',
     },
     {
-      'image': 'lib/assets/images/water_glass.png',
+      'icon': Icons.local_drink_outlined,
       'title': 'Select Products',
       'subtitle': 'Pick your preferred bottle sizes and water mineral balance',
     },
     {
-      'image': 'lib/assets/images/star.png',
+      'icon': Icons.star_outline_rounded,
       'title': 'Choose a Delivery Plan',
       'subtitle':
           'Select any subscription plan like daily, weekly or monthly',
     },
     {
-      'image': 'lib/assets/images/schedule.png',
+      'icon': Icons.schedule_outlined,
       'title': 'Choose Schedule',
       'subtitle':
           'Set your delivery days and preferred morning or evening slots.',
@@ -198,7 +200,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
 
   Widget _buildFindSupplierButton() {
     return GestureDetector(
-      onTap: () => Get.back(),
+      onTap: () => Get.to(() => const WaterNearbySuppliersScreen()),
       child: Container(
         height: 48,
         width: double.infinity,
@@ -271,7 +273,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
             final step = _steps[index];
             final isLast = index == _steps.length - 1;
             final highlight = step['highlight'] == true;
-            final image = step['image'] as String?;
+            final icon = step['icon'] as IconData?;
 
             return Padding(
               padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
@@ -281,26 +283,11 @@ class WaterSubscriptionScreen extends StatelessWidget {
                   SizedBox(
                     width: colWidth,
                     child: Center(
-                      child: highlight
-                          ? Container(
-                              width: iconSize,
-                              height: iconSize,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFF5E00),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.sentiment_satisfied_alt_rounded,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            )
-                          : Image.asset(
-                              image!,
-                              width: iconSize,
-                              height: iconSize,
-                              fit: BoxFit.contain,
-                            ),
+                      child: _buildStepCircle(
+                        size: iconSize,
+                        highlight: highlight,
+                        icon: icon,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -349,6 +336,64 @@ class WaterSubscriptionScreen extends StatelessWidget {
           }),
         ),
       ],
+    );
+  }
+
+  Widget _buildStepCircle({
+    required double size,
+    required bool highlight,
+    IconData? icon,
+  }) {
+    if (highlight) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFF6B00),
+              Color(0xFFFFB200),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFFF8A00).withValues(alpha: 0.35),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          Icons.sentiment_satisfied_alt_rounded,
+          color: Colors.white,
+          size: size * 0.55,
+        ),
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFFF5E00), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Icon(
+        icon ?? Icons.water_drop_outlined,
+        color: const Color(0xFFFF5E00),
+        size: size * 0.42,
+      ),
     );
   }
 
