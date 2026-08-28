@@ -1809,12 +1809,15 @@ class HomeScreen extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             onPageChanged: controller.updateWaterBannerIndex,
             itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.fill,
-                  width: double.infinity,
+              return GestureDetector(
+                onTap: () => Get.to(() => const WaterScreen()),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.fill,
+                    width: double.infinity,
+                  ),
                 ),
               );
             },
