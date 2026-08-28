@@ -79,7 +79,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       return;
     }
 
-    BottomNavRouter.returnToShell(tabIndex: 2);
+    BottomNavRouter.returnToShell(tabIndex: HomeController.navOrders);
   }
 
   @override
@@ -240,7 +240,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               right: 0,
               bottom: 0,
               child: AppBottomNavBar(
-                selectedIndex: 2,
+                selectedIndex: HomeController.navOrders,
                 onTap: BottomNavRouter.go,
               ),
             ),

@@ -8,6 +8,8 @@ import 'cart_screen.dart';
 import 'home_screen.dart';
 import 'messages_screen.dart';
 import 'my_orders_screen.dart';
+import 'my_schedules_screen.dart';
+import 'services/services_screen.dart';
 
 /// Root shell after login — keeps tabs alive and switches without route jank.
 class MainShellScreen extends StatefulWidget {
@@ -44,7 +46,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final index = _controller.currentNavIndex.value.clamp(0, 4);
+      final index =
+          _controller.currentNavIndex.value.clamp(0, HomeController.navMaxIndex);
 
       return Scaffold(
         backgroundColor: const Color(0xFFFAF6F0),
@@ -56,6 +59,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
                 children: const [
                   HomeScreen(showBottomNav: false),
                   MessagesScreen(showBottomNav: false),
+                  MySchedulesScreen(),
+                  ServicesScreen(),
                   MyOrdersScreen(showBottomNav: false),
                   CartScreen(showBottomNav: false),
                   AccountScreen(showBottomNav: false),

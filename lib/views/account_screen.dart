@@ -129,7 +129,7 @@ class _AccountScreenState extends State<AccountScreen> {
               right: 0,
               bottom: 0,
               child: AppBottomNavBar(
-                selectedIndex: 4,
+                selectedIndex: HomeController.navProfile,
                 onTap: BottomNavRouter.go,
               ),
             ),
@@ -537,7 +537,7 @@ class _AccountScreenState extends State<AccountScreen> {
         return GestureDetector(
           onTap: () {
             if (action['label'] == 'Orders') {
-              BottomNavRouter.go(2);
+              BottomNavRouter.go(HomeController.navOrders);
             } else if (action['label'] == 'My Favourite') {
               Get.to(() => const MyFavouritesScreen());
             } else if (action['label'] == 'Reward & Referral') {

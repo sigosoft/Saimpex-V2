@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../controllers/home_controller.dart';
 import '../../navigation/bottom_nav_router.dart';
 
 class CourierBookingSuccessScreen extends StatelessWidget {
@@ -128,7 +129,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         onTap: () => BottomNavRouter.returnToShell(
-                          tabIndex: 2,
+                          tabIndex: HomeController.navOrders,
                           ordersCategoryIndex: 2,
                         ),
                         child: Container(

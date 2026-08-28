@@ -1,6 +1,15 @@
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
+  static const int navHome = 0;
+  static const int navChat = 1;
+  static const int navBookings = 2;
+  static const int navServices = 3;
+  static const int navOrders = 4;
+  static const int navCart = 5;
+  static const int navProfile = 6;
+  static const int navMaxIndex = 6;
+
   // Active bottom navigation index
   final currentNavIndex = 0.obs;
 
@@ -39,7 +48,7 @@ class HomeController extends GetxController {
 
   void goToOrdersTab({int categoryIndex = 0}) {
     pendingOrdersCategoryIndex.value = categoryIndex;
-    selectNavigation(2);
+    selectNavigation(navOrders);
   }
 
   int consumePendingOrdersCategory(int fallback) {

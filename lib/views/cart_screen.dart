@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
+import '../controllers/home_controller.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
@@ -1508,7 +1509,7 @@ class _CartScreenState extends State<CartScreen> {
             bottom: 0,
             child: widget.showBottomNav
                 ? AppBottomNavBar(
-                    selectedIndex: 3,
+                    selectedIndex: HomeController.navCart,
                     onTap: BottomNavRouter.go,
                   )
                 : const SizedBox.shrink(),
