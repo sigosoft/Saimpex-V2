@@ -695,7 +695,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
               right: 16,
               child: GestureDetector(
                 onTap: () {
-                  Get.to(() => const CartScreen());
+                  Get.to(() => const CartScreen(isFoodOrGrocery: true));
                 },
                 child: Container(
                   height: 56,

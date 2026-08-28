@@ -9,7 +9,7 @@ import 'category_screen.dart';
 import 'water/water_screen.dart';
 import 'grocery/grocery_screen.dart';
 import 'pharmacy/pharmacy_screen.dart';
-import 'express/express_screen.dart';
+import 'water/water_screen.dart';
 import 'under_30_min_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'main_shell_screen.dart';
@@ -34,106 +34,106 @@ class HomeScreen extends StatelessWidget {
         systemNavigationBarContrastEnforced: false,
       ),
       child: Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFFFE6DC), // Top peach gradient
-            Color(0xFFFFF4EE), // Middle soft peach
-            Color(0xFFFAF6F0), // Base color at the bottom
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFFFE6DC), // Top peach gradient
+              Color(0xFFFFF4EE), // Middle soft peach
+              Color(0xFFFAF6F0), // Base color at the bottom
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            // 1. Scrollable Content Layer
-            SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  // Top Header Row
-                  _buildTopHeader(context),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Stack(
+            children: [
+              // 1. Scrollable Content Layer
+              SafeArea(
+                bottom: false,
+                child: Column(
+                  children: [
+                    // Top Header Row
+                    _buildTopHeader(context),
 
-                  // Scrollable Body
-                  Expanded(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 120),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 12),
-                          // Banner Carousel (Iftar in 25 min)
-                          _buildTopBannerCarousel(controller),
-                          const SizedBox(height: 16),
+                    // Scrollable Body
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 120),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 12),
+                            // Banner Carousel (Iftar in 25 min)
+                            _buildTopBannerCarousel(controller),
+                            const SizedBox(height: 16),
 
-                          // Search Box
-                          _buildSearchBox(),
-                          const SizedBox(height: 20),
+                            // Search Box
+                            _buildSearchBox(),
+                            const SizedBox(height: 20),
 
-                          // Category Selector Grid
-                          _buildCategoryGrid(controller),
-                          const SizedBox(height: 24),
+                            // Category Selector Grid
+                            _buildCategoryGrid(controller),
+                            const SizedBox(height: 24),
 
-                          // Save More Today Section
-                          _buildSaveMoreToday(),
-                          const SizedBox(height: 24),
+                            // Save More Today Section
+                            _buildSaveMoreToday(),
+                            const SizedBox(height: 24),
 
-                          // Trending in Nouakchott
-                          _buildTrendingSection(controller),
-                          const SizedBox(height: 24),
+                            // Trending in Nouakchott
+                            _buildTrendingSection(controller),
+                            const SizedBox(height: 24),
 
-                          // Recent Orders
-                          _buildRecentOrdersSection(),
-                          const SizedBox(height: 24),
+                            // Recent Orders
+                            _buildRecentOrdersSection(),
+                            const SizedBox(height: 24),
 
-                          // Under 30 Minutes
-                          _buildUnder30MinSection(controller),
-                          const SizedBox(height: 24),
+                            // Under 30 Minutes
+                            _buildUnder30MinSection(controller),
+                            const SizedBox(height: 24),
 
-                          // Mid-page Grocery Banner Slider
-                          _buildGroceryPromoBanner(controller),
-                          const SizedBox(height: 24),
+                            // Mid-page Grocery Banner Slider
+                            _buildGroceryPromoBanner(controller),
+                            const SizedBox(height: 24),
 
-                          // Top Grocery Stores Near You
-                          _buildTopGroceryStores(controller),
-                          const SizedBox(height: 24),
+                            // Top Grocery Stores Near You
+                            _buildTopGroceryStores(controller),
+                            const SizedBox(height: 24),
 
-                          // Mid-page Pharmacy Banner Slider
-                          _buildPharmacyPromoBanner(controller),
-                          const SizedBox(height: 24),
+                            // Mid-page Pharmacy Banner Slider
+                            _buildPharmacyPromoBanner(controller),
+                            const SizedBox(height: 24),
 
-                          // Trusted Pharmacies
-                          _buildTrustedPharmacies(controller),
-                          const SizedBox(height: 24),
+                            // Trusted Pharmacies
+                            _buildTrustedPharmacies(controller),
+                            const SizedBox(height: 24),
 
-                          // Mid-page Water Banner Slider
-                          _buildWaterPromoBanner(controller),
-                          const SizedBox(height: 24),
+                            // Mid-page Water Banner Slider
+                            _buildWaterPromoBanner(controller),
+                            const SizedBox(height: 24),
 
-                          // Top Rated Suppliers (Water)
-                          _buildTopRatedSuppliers(controller),
-                        ],
+                            // Top Rated Suppliers (Water)
+                            _buildTopRatedSuppliers(controller),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            // 2. Floating Bottom Navigation Bar Layer
-            if (showBottomNav)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: _buildBottomNavigationBar(controller),
-              ),
-          ],
+              // 2. Floating Bottom Navigation Bar Layer
+              if (showBottomNav)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: _buildBottomNavigationBar(controller),
+                ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -437,8 +437,6 @@ class HomeScreen extends StatelessWidget {
                 Get.to(() => const PharmacyScreen());
               } else if (cat['label'] == 'Water') {
                 Get.to(() => const WaterScreen());
-              } else if (cat['label'] == 'Express') {
-                Get.to(() => const ExpressScreen());
               } else {
                 Get.to(
                   () => CategoryScreen(categoryName: cat['label'] as String),
@@ -650,13 +648,10 @@ class HomeScreen extends StatelessWidget {
 
     return Column(
       children: [
-        _buildSectionHeader(
-          'Trending in Nouakchott',
-          () {
-            controller.selectSubcategory(0);
-            Get.to(() => const CategoryScreen(categoryName: 'Trending'));
-          },
-        ),
+        _buildSectionHeader('Trending in Nouakchott', () {
+          controller.selectSubcategory(0);
+          Get.to(() => const CategoryScreen(categoryName: 'Trending'));
+        }),
         const SizedBox(height: 12),
         SizedBox(
           height: 240,
