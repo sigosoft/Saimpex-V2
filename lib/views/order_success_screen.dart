@@ -92,8 +92,8 @@ class OrderSuccessScreen extends StatelessWidget {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: const Color(0xFFEAD8C9),
-                            width: 0.8,
+                            color: const Color(0xFFFF5E00),
+                            width: 1,
                           ),
                         ),
                         alignment: Alignment.center,

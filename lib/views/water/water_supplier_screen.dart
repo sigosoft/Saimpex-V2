@@ -154,10 +154,13 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                           },
                         ),
                         onSubscribe: () {
-                          Get.to(
-                            () => WaterProductSubscriptionScreen(
-                              product: product,
-                              supplier: widget.supplier,
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Subscription setup for ${product['title']}',
+                                style: GoogleFonts.outfit(),
+                              ),
+                              backgroundColor: const Color(0xFFFF5E00),
                             ),
                           );
                         },
