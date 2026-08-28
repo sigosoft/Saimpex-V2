@@ -7,13 +7,20 @@ import 'water/water_track_order_screen.dart';
 import 'track_order_screen.dart';
 import 'rate_order_screen.dart';
 import 'pharmacy/widgets/pharmacy_order_cards.dart';
+import 'courier/widgets/courier_order_cards.dart';
+import '../controllers/home_controller.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   final bool showBottomNav;
+  final int initialCategoryIndex;
 
-  const MyOrdersScreen({super.key, this.showBottomNav = true});
+  const MyOrdersScreen({
+    super.key,
+    this.showBottomNav = true,
+    this.initialCategoryIndex = 0,
+  });
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
@@ -21,8 +28,58 @@ class MyOrdersScreen extends StatefulWidget {
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
   // Matches design: Pharmacy, Water, Courier, Local Store
-  int selectedCategoryIndex = 0;
+  late int selectedCategoryIndex;
   final List<String> categories = ["Pharmacy", "Water", "Courier", "Local Store"];
+  Worker? _ordersCategoryWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    _applyInitialCategory();
+    if (Get.isRegistered<HomeController>()) {
+      final home = Get.find<HomeController>();
+      _ordersCategoryWorker = ever<int>(
+        home.pendingOrdersCategoryIndex,
+        (pending) {
+          if (pending < 0 || !mounted) return;
+          setState(() {
+            selectedCategoryIndex =
+                pending.clamp(0, categories.length - 1);
+          });
+          home.pendingOrdersCategoryIndex.value = -1;
+        },
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _ordersCategoryWorker?.dispose();
+    super.dispose();
+  }
+
+  void _applyInitialCategory() {
+    final fallback = widget.initialCategoryIndex.clamp(
+      0,
+      categories.length - 1,
+    );
+    if (Get.isRegistered<HomeController>()) {
+      selectedCategoryIndex = Get.find<HomeController>()
+          .consumePendingOrdersCategory(fallback)
+          .clamp(0, categories.length - 1);
+    } else {
+      selectedCategoryIndex = fallback;
+    }
+  }
+
+  void _handleBack(BuildContext context) {
+    if (Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+      return;
+    }
+
+    BottomNavRouter.returnToShell(tabIndex: 2);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +114,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 alignment: Alignment.centerLeft,
                 child: widget.showBottomNav
                     ? GestureDetector(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => _handleBack(context),
                         child: Container(
                           width: 38,
                           height: 38,
@@ -166,7 +223,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                         ? _buildPharmacyOrders()
                         : selectedCategoryIndex == 1
                             ? _buildWaterOrders()
-                            : _buildOtherCategoryOrders(),
+                            : selectedCategoryIndex == 2
+                                ? _buildCourierOrders()
+                                : _buildOtherCategoryOrders(),
                   ),
                 ],
               ),
@@ -298,6 +357,20 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               },
             ),
           ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCourierOrders() {
+    return Column(
+      children: [
+        CourierActiveOrderCard(
+          statusText: 'ON THE WAY',
+          statusColor: const Color(0xFFFF8A00),
+          statusBgColor: const Color(0xFFFFF4EC),
+          detailsText: 'Bike Delivery • 50 MRU • #227890011',
+          orderId: '#227890011',
         ),
       ],
     );

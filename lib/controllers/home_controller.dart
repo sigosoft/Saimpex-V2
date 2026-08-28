@@ -28,10 +28,25 @@ class HomeController extends GetxController {
   /// Kept in sync for any legacy ID-only checks.
   final likedItems = <String>[].obs;
 
+  /// When >= 0, [MyOrdersScreen] opens on this category once then resets.
+  final pendingOrdersCategoryIndex = (-1).obs;
+
   int get favouritesCount => favourites.length;
 
   void selectNavigation(int index) {
     currentNavIndex.value = index;
+  }
+
+  void goToOrdersTab({int categoryIndex = 0}) {
+    pendingOrdersCategoryIndex.value = categoryIndex;
+    selectNavigation(2);
+  }
+
+  int consumePendingOrdersCategory(int fallback) {
+    final pending = pendingOrdersCategoryIndex.value;
+    pendingOrdersCategoryIndex.value = -1;
+    if (pending < 0) return fallback;
+    return pending;
   }
 
   void selectCategory(int index) {

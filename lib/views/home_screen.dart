@@ -10,6 +10,7 @@ import 'water/water_screen.dart';
 import 'grocery/grocery_screen.dart';
 import 'pharmacy/pharmacy_screen.dart';
 import 'express/express_screen.dart';
+import 'courier/courier_screen.dart';
 import 'under_30_min_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'main_shell_screen.dart';
@@ -439,6 +440,8 @@ class HomeScreen extends StatelessWidget {
                 Get.to(() => const WaterScreen());
               } else if (cat['label'] == 'Express') {
                 Get.to(() => const ExpressScreen());
+              } else if (cat['label'] == 'Courier') {
+                Get.to(() => const CourierScreen());
               } else {
                 Get.to(
                   () => CategoryScreen(categoryName: cat['label'] as String),

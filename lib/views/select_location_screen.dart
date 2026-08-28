@@ -303,6 +303,9 @@ class SelectLocationScreen extends StatelessWidget {
             child: TextField(
               controller: controller.searchController,
               style: GoogleFonts.outfit(color: Colors.black, fontSize: 14),
+              textInputAction: TextInputAction.search,
+              onChanged: controller.onSearchQueryChanged,
+              onSubmitted: controller.searchAddress,
               decoration: InputDecoration(
                 hintText: 'Search for area, street name.....',
                 hintStyle: GoogleFonts.outfit(

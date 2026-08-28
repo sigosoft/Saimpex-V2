@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,6 +22,11 @@ class SelectLocationController extends GetxController {
 
   // Search controller
   final searchController = TextEditingController();
+  final searchResults = <Map<String, dynamic>>[].obs;
+  final showSearchResults = false.obs;
+  final isSearching = false.obs;
+
+  Timer? _searchDebounce;
 
   // Google Map Controller & Camera Position
   GoogleMapController? mapController;
@@ -187,10 +194,132 @@ class SelectLocationController extends GetxController {
     getCurrentLocation();
   }
 
+  void onSearchQueryChanged(String query) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 450), () {
+      searchAddress(query);
+    });
+  }
+
+  Future<void> searchAddress(String query) async {
+    final trimmed = query.trim();
+    if (trimmed.length < 3) {
+      searchResults.clear();
+      showSearchResults.value = false;
+      return;
+    }
+
+    isSearching.value = true;
+    try {
+      final queries = [
+        '$trimmed, Nouakchott, Mauritania',
+        '$trimmed, Mauritania',
+        trimmed,
+      ];
+
+      List<Location> locations = [];
+      for (final searchQuery in queries) {
+        try {
+          locations = await locationFromAddress(searchQuery);
+          if (locations.isNotEmpty) break;
+        } catch (_) {
+          continue;
+        }
+      }
+
+      if (locations.isEmpty) {
+        searchResults.clear();
+        showSearchResults.value = false;
+        return;
+      }
+
+      final results = <Map<String, dynamic>>[];
+      for (final location in locations.take(5)) {
+        String label = trimmed;
+        try {
+          final placemarks = await placemarkFromCoordinates(
+            location.latitude,
+            location.longitude,
+          );
+          if (placemarks.isNotEmpty) {
+            final place = placemarks.first;
+            label = [
+              place.street,
+              place.subLocality,
+              place.locality,
+              place.country,
+            ].where((part) => part != null && part.isNotEmpty).join(', ');
+            if (label.isEmpty) label = trimmed;
+          }
+        } catch (_) {
+          label = trimmed;
+        }
+
+        results.add({
+          'label': label,
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+        });
+      }
+
+      searchResults.assignAll(results);
+      showSearchResults.value = results.isNotEmpty;
+    } catch (_) {
+      searchResults.clear();
+      showSearchResults.value = false;
+    } finally {
+      isSearching.value = false;
+    }
+  }
+
+  Future<void> selectSearchResult(Map<String, dynamic> result) async {
+    showSearchResults.value = false;
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    final label = result['label']?.toString() ?? '';
+    if (label.isNotEmpty) {
+      searchController.text = label;
+    }
+
+    final latitude = result['latitude'] as double;
+    final longitude = result['longitude'] as double;
+    final latLng = LatLng(latitude, longitude);
+
+    currentCameraPosition = CameraPosition(target: latLng, zoom: 16);
+    await updateAddressFromCoordinates(latitude, longitude);
+
+    if (!_isDisposed && mapController != null) {
+      await mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(latLng, 16),
+      );
+    }
+  }
+
+  void hideSearchResults() {
+    showSearchResults.value = false;
+  }
+
+  bool get hasValidAddress {
+    final title = addressTitle.value.trim();
+    if (title.isEmpty) return false;
+    return !title.startsWith('Loading') &&
+        !title.startsWith('Fetching') &&
+        title != 'Selected Location';
+  }
+
+  Map<String, String>? getSelectedAddressResult() {
+    if (!hasValidAddress) return null;
+    return {
+      'title': addressTitle.value,
+      'subtitle': addressSubtitle.value,
+    };
+  }
+
   bool _isDisposed = false;
 
   @override
   void onClose() {
+    _searchDebounce?.cancel();
     _isDisposed = true;
     searchController.dispose();
     mapController?.dispose();
