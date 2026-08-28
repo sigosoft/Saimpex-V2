@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
@@ -12,6 +12,7 @@ class CartScreen extends StatefulWidget {
   final int? basePrice;
   final String? itemImage;
   final bool showBottomNav;
+  final bool isFoodOrGrocery;
 
   const CartScreen({
     Key? key,
@@ -21,6 +22,7 @@ class CartScreen extends StatefulWidget {
     this.basePrice,
     this.itemImage,
     this.showBottomNav = false,
+    this.isFoodOrGrocery = false,
   }) : super(key: key);
 
   @override
@@ -31,8 +33,14 @@ class _CartScreenState extends State<CartScreen> {
   bool isDelivery = true; // default to Delivery as in reference image 2
   int quantity = 1;
   bool usePoints = true;
-  int selectedPaymentIndex = 0; // 0: Wallet, 1: Online, 2: COD
+  late int selectedPaymentIndex;
   String scheduleText = "Pick a delivery time";
+
+  @override
+  void initState() {
+    super.initState();
+    selectedPaymentIndex = widget.isFoodOrGrocery ? 3 : 0;
+  }
 
   String get storeName => widget.storeName ?? "Pharmacy Nasr";
   String get itemTitle => widget.itemName ?? "Paracetamol 500 Mg";
@@ -942,6 +950,107 @@ class _CartScreenState extends State<CartScreen> {
             const SizedBox(height: 10),
 
             // Payment Cards list
+            if (widget.isFoodOrGrocery) ...[
+              // Card 0: Pay After Delivery (Featured Top Option for Food & Grocery)
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedPaymentIndex = 3;
+                  });
+                  _showScheduleBottomSheet(context);
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: selectedPaymentIndex == 3
+                        ? const Color(0xFFFFF0EA)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: selectedPaymentIndex == 3
+                          ? const Color(0xFFFF5E00)
+                          : const Color(0xFFEAD8C9),
+                      width: selectedPaymentIndex == 3 ? 1.5 : 0.8,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFF0EA),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.verified_user_rounded,
+                            color: Color(0xFFFF5E00),
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Pay After Delivery',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              "Enjoy your order first. Complete your payment whenever it's convenient after delivery.",
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF8C7D73),
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: selectedPaymentIndex == 3
+                                ? const Color(0xFFFF5E00)
+                                : const Color(0xFFA59A94),
+                            width: 1.5,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(3),
+                        child: selectedPaymentIndex == 3
+                            ? Container(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFF5E00),
+                                  shape: BoxShape.circle,
+                                ),
+                              )
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
             // Card 1: SAIMPEX Wallet
             GestureDetector(
               onTap: () {
@@ -1379,7 +1488,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'Pay $toPay MRU',
+                  selectedPaymentIndex == 3 ? 'Order Now' : 'Pay $toPay MRU',
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 14,

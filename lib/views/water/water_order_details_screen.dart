@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'water_track_order_screen.dart';
 import '../help_support_screen.dart';
+import '../../widgets/cancel_order_bottom_sheet.dart';
 
 class WaterOrderDetailsScreen extends StatelessWidget {
   final String orderId;
@@ -820,42 +821,8 @@ class WaterOrderDetailsScreen extends StatelessWidget {
   }
 
   void _showCancelDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Cancel Order',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          'Are you sure you want to cancel this order?',
-          style: GoogleFonts.outfit(fontSize: 13),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'No',
-              style: GoogleFonts.outfit(color: const Color(0xFF8C7E75)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              Get.back();
-            },
-            child: Text(
-              'Yes, Cancel',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    showCancelOrderBottomSheet(context, onConfirm: () {
+      Get.back();
+    });
   }
 }

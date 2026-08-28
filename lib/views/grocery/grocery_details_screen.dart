@@ -818,6 +818,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 onTap: () {
                   Get.to(
                     () => CartScreen(
+                      isFoodOrGrocery: true,
                       storeName: widget.store['name'],
                       itemName: lastAddedItem?['title'],
                       itemPortion: lastAddedItemPortion,

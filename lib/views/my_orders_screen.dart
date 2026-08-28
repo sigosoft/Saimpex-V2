@@ -11,6 +11,7 @@ import 'courier/widgets/courier_order_cards.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
+import '../widgets/cancel_order_bottom_sheet.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   final bool showBottomNav;
@@ -379,12 +380,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Widget _buildOtherCategoryOrders() {
     return Column(
       children: [
+        // 1. Golden Bakery - ON THE WAY (Delivery)
         _buildOrderCard(
-          restaurantName: "Al Fantasia Restaurant",
+          restaurantName: "Golden Bakery",
           statusText: "ON THE WAY",
           statusColor: const Color(0xFFFF8A00),
           statusBgColor: const Color(0xFFFFF4EC),
-          detailsText: "Delivery • 750 MRU • 2 items • #22789002",
+          detailsText: "Delivery • 100 MRU • 2 items • #22789002",
           buttons: [
             _buildOrderButton(
               text: "Cancel",
@@ -403,12 +405,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ],
         ),
+
+        // 2. Golden Bakery - SELF PICKUP (Pickup)
         _buildOrderCard(
-          restaurantName: "Al Fantasia Restaurant",
+          restaurantName: "Golden Bakery",
           statusText: "SELF PICKUP",
           statusColor: const Color(0xFF007DFE),
           statusBgColor: const Color(0xFFECF5FF),
-          detailsText: "Pickup • 500 MRU • 2 items • #22789001",
+          detailsText: "Pickup • 100 MRU • 2 items • #22789001",
           buttons: [
             _buildOrderButton(
               text: "Cancel",
@@ -416,8 +420,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ],
         ),
+
+        // 3. City Florist - DELIVERED (Delivery)
         _buildOrderCard(
-          restaurantName: "Salam Supermarket",
+          restaurantName: "City Florist",
           statusText: "DELIVERED",
           statusColor: const Color(0xFF00B25C),
           statusBgColor: const Color(0xFFE8F8EE),
@@ -634,12 +640,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   // SnackBar notifications
   void _showCancelDialog() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Cancel requested!', style: GoogleFonts.outfit()),
-        backgroundColor: const Color(0xFFFF3E3E),
-      ),
-    );
+    showCancelOrderBottomSheet(context);
   }
 
   void _showTrackSnackBar() {
