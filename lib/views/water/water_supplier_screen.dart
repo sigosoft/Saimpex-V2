@@ -144,14 +144,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                         isNotAccepting: isNotAccepting,
                         onTap: () => showWaterProductDetailsSheet(
                           context,
-                          product: product,
-                          isNotAccepting: isNotAccepting,
-                          onAdd: () {
-                            setState(() {
-                              showCartBar = true;
-                              lastAddedItem = product;
-                            });
-                          },
+                          product,
                         ),
                         onSubscribe: () {
                           Get.to(
