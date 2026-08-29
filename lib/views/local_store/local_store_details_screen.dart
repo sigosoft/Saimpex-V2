@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saimpex_v2/controllers/home_controller.dart';
 import '../chat_screen.dart';
 import '../cart_screen.dart';
 import 'local_store_cart_screen.dart';
@@ -961,6 +962,15 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
+                        if (Get.isRegistered<HomeController>()) {
+                          Get.find<HomeController>().setCartItem(
+                            storeName: widget.store['name']?.toString() ?? widget.store['title']?.toString() ?? 'Local Store',
+                            itemName: (item['name'] ?? item['title'])?.toString(),
+                            itemPortion: item['portion']?.toString() ?? '1 Portion',
+                            basePrice: item['price'],
+                            itemImage: item['image']?.toString(),
+                          );
+                        }
                         Get.to(
                           () => LocalStoreCartScreen(
                             store: widget.store,

@@ -21,6 +21,13 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   int activeSubcategoryIndex = 0;
   final TextEditingController searchController = TextEditingController();
   bool showCartBar = false;
+  Map<String, dynamic>? lastAddedFood;
+
+  int _parsePrice(String? priceStr) {
+    if (priceStr == null) return 750;
+    final digits = priceStr.replaceAll(RegExp(r'[^\d]'), '');
+    return int.tryParse(digits) ?? 750;
+  }
 
   final List<Map<String, dynamic>> subcategories = [
     {'label': 'All', 'isAll': true},
@@ -113,6 +120,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     final restaurantId = widget.restaurant['id']?.toString() ?? 'r1';
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFDF9),
@@ -133,9 +141,14 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
           // 2. Main Scrollable Content
           Positioned.fill(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
+            child: Obx(() {
+              final hasItems = controller.cartItemCount.value > 0;
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  bottom: hasItems ? bottomInset + 88 : bottomInset + 24,
+                ),
+                child: Column(
                 children: [
                   const SizedBox(height: 140),
 
@@ -677,8 +690,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                   const SizedBox(height: 24),
                 ],
               ),
-            ),
-          ),
+            );
+          }),
+        ),
 
           // 3. Floating Back Button (App Bar overlay)
           Positioned(
@@ -688,14 +702,31 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           ),
 
           // 4. Floating Cart Summary Bar
-          if (showCartBar)
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: GestureDetector(
+          Positioned(
+            bottom: bottomInset + 16,
+            left: 16,
+            right: 16,
+            child: Obx(() {
+              final hasItems = controller.cartItemCount.value > 0;
+              if (!hasItems) return const SizedBox.shrink();
+              return GestureDetector(
                 onTap: () {
-                  Get.to(() => const CartScreen(isFoodOrGrocery: true));
+                  Get.to(
+                    () => CartScreen(
+                      isFoodOrGrocery: true,
+                      storeName:
+                          widget.restaurant['name']?.toString() ??
+                          'Golden Bakery',
+                      itemName:
+                          lastAddedFood?['title']?.toString() ??
+                          'Chicken Tagine',
+                      itemPortion: '1 Portion',
+                      basePrice: _parsePrice(
+                        lastAddedFood?['price']?.toString(),
+                      ),
+                      itemImage: lastAddedFood?['image']?.toString(),
+                    ),
+                  );
                 },
                 child: Container(
                   height: 56,
@@ -723,7 +754,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          '1',
+                          controller.cartItemCount.value.toString(),
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 14,
@@ -739,7 +770,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'View Cart • 1 items',
+                              'View Cart • ${controller.cartItemCount.value} items',
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -747,41 +778,27 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                               ),
                             ),
                             Text(
-                              'Ready in 30-35 min',
+                              'Ready in 15-20 min',
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFA59A94),
-                                fontSize: 10,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // Price & Chevron
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '700 MRU',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            color: Color(0xFFFF5E00),
-                            size: 20,
-                          ),
-                        ],
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 20,
                       ),
                     ],
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
+          ),
         ],
       ),
     );
@@ -1018,39 +1035,46 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
+        final bottomInset = MediaQuery.of(context).padding.bottom;
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Stack(
               clipBehavior: Clip.none,
               children: [
                 Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.85,
+                  ),
                   decoration: const BoxDecoration(
                     color: Color(0xFFFFFDF9),
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(32),
                     ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header image
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(32),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header image
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(32),
+                          ),
+                          child: Image.network(
+                            food['image']!,
+                            height: 240,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                        child: Image.network(
-                          food['image']!,
-                          height: 240,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
 
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(20, 20, 20, 24 + bottomInset),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1246,6 +1270,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     ],
                   ),
                 ),
+              ),
 
                 // Floating close button at top center with a clear space (gap) above the bottom sheet
                 Positioned(
@@ -1324,6 +1349,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return StatefulBuilder(
@@ -1740,7 +1766,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       ),
 
                       Container(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                        padding: EdgeInsets.fromLTRB(20, 12, 20, 24 + MediaQuery.of(context).padding.bottom),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           border: Border(
@@ -1829,7 +1855,17 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
                                   setState(() {
                                     showCartBar = true;
+                                    lastAddedFood = food;
                                   });
+                                  if (Get.isRegistered<HomeController>()) {
+                                    Get.find<HomeController>().setCartItem(
+                                      storeName: widget.restaurant['name']?.toString() ?? 'Golden Bakery',
+                                      itemName: food['title']?.toString(),
+                                      itemPortion: '1 Portion',
+                                      basePrice: _parsePrice(food['price']?.toString()),
+                                      itemImage: food['image']?.toString(),
+                                    );
+                                  }
 
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

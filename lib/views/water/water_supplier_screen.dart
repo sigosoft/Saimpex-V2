@@ -122,14 +122,16 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                   topInset,
                 ),
               ),
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  0,
-                  16,
-                  showCartBar ? bottomInset + 88 : 24,
-                ),
-                sliver: SliverGrid(
+              Obx(() {
+                final hasItems = controller.cartItemCount.value > 0;
+                return SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    0,
+                    16,
+                    hasItems ? bottomInset + 88 : 24,
+                  ),
+                  sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
@@ -162,13 +164,23 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                             showCartBar = true;
                             lastAddedItem = product;
                           });
+                          if (Get.isRegistered<HomeController>()) {
+                            Get.find<HomeController>().setCartItem(
+                              storeName: widget.supplier['title']?.toString() ?? 'PureLife Water Co.',
+                              itemName: product['title']?.toString(),
+                              itemPortion: product['size']?.toString(),
+                              basePrice: parsePrice(product['price']?.toString() ?? '50'),
+                              itemImage: product['image']?.toString(),
+                            );
+                          }
                         },
                       );
                     },
                     childCount: products.length,
                   ),
                 ),
-              ),
+              );
+            }),
             ],
           ),
           Positioned(
@@ -198,13 +210,16 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               ),
             ),
           ),
-          if (showCartBar)
-            Positioned(
-              bottom: bottomInset + 16,
-              left: 16,
-              right: 16,
-              child: _buildCartBar(),
-            ),
+          Positioned(
+            bottom: bottomInset + 16,
+            left: 16,
+            right: 16,
+            child: Obx(() {
+              final hasItems = controller.cartItemCount.value > 0;
+              if (!hasItems) return const SizedBox.shrink();
+              return _buildCartBar();
+            }),
+          ),
         ],
       ),
     );

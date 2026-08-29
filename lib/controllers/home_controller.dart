@@ -40,7 +40,50 @@ class HomeController extends GetxController {
   /// When >= 0, [MyOrdersScreen] opens on this category once then resets.
   final pendingOrdersCategoryIndex = (-1).obs;
 
+  /// Active cart items count for bottom navigation badge.
+  final cartItemCount = 0.obs;
+
+  /// Active cart product details so that tapping Cart in bottom navigation bar displays the added product.
+  Map<String, dynamic>? lastCartItem;
+
   int get favouritesCount => favourites.length;
+
+  void updateCartItemCount(int count) {
+    cartItemCount.value = count < 0 ? 0 : count;
+    if (count == 0) {
+      lastCartItem = null;
+    }
+  }
+
+  void setCartItem({
+    String? storeName,
+    String? itemName,
+    String? itemPortion,
+    dynamic basePrice,
+    String? itemImage,
+  }) {
+    int parsedPrice = 50;
+    if (basePrice is num) {
+      parsedPrice = basePrice.toInt();
+    } else if (basePrice is String) {
+      parsedPrice =
+          int.tryParse(basePrice.replaceAll(RegExp(r'[^0-9]'), '')) ?? 50;
+    }
+
+    lastCartItem = {
+      'storeName': storeName,
+      'itemName': itemName,
+      'itemPortion': itemPortion,
+      'basePrice': parsedPrice,
+      'itemImage': itemImage,
+    };
+    cartItemCount.value = 1;
+  }
+
+  void clearCart() {
+    lastCartItem = null;
+    cartItemCount.value = 0;
+  }
 
   void selectNavigation(int index) {
     currentNavIndex.value = index;
