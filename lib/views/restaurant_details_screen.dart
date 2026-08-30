@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/replace_cart_item_dialog.dart';
 import 'chat_screen.dart';
 import 'messages_screen.dart';
 import 'cart_screen.dart';
@@ -20,8 +21,188 @@ class RestaurantDetailsScreen extends StatefulWidget {
 class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   int activeSubcategoryIndex = 0;
   final TextEditingController searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
   bool showCartBar = false;
+  bool _showStickySearch = false;
   Map<String, dynamic>? lastAddedFood;
+
+  /// search(46) + gap(12) + filters(32) + bottom gap(12)
+  static const double _searchFiltersExtent = 102;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    final shouldShow = top <= topInset + 2;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        height: 46,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(23),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.search_rounded,
+              color: Color(0xFFA59A94),
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Find something from this restaurant',
+                  hintStyle: GoogleFonts.outfit(
+                    color: const Color(0xFFA59A94),
+                    fontSize: 12,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                ),
+              ),
+            ),
+            Container(
+              width: 26,
+              height: 26,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFF0EA),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.mic_none_rounded,
+                color: Color(0xFFFF5E00),
+                size: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFiltersRow() {
+    return SizedBox(
+      height: 32,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: filters.length,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemBuilder: (context, index) {
+          final filter = filters[index];
+          final isVeg = filter['isVeg'] == true;
+          return Container(
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: const Color(0xFFEAD8C9),
+                width: 0.8,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isVeg) ...[
+                  Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.green,
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    padding: const EdgeInsets.all(2),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ] else if (filter['icon'] is IconData) ...[
+                  Icon(
+                    filter['icon'] as IconData,
+                    color: filter['label'] == 'Ratings 4.0+'
+                        ? const Color(0xFFFFAE00)
+                        : const Color(0xFF7A6A60),
+                    size: 14,
+                  ),
+                ] else if (filter['asset'] is String) ...[
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: Image.asset(filter['asset'] as String),
+                  ),
+                ],
+                const SizedBox(width: 6),
+                Text(
+                  filter['label'] as String,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchFiltersSection() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildSearchBar(),
+        const SizedBox(height: 12),
+        _buildFiltersRow(),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
 
   int _parsePrice(String? priceStr) {
     if (priceStr == null) return 750;
@@ -59,9 +240,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   ];
 
   final List<Map<String, dynamic>> filters = [
-    {'label': 'Filter', 'icon': Image.asset("lib/assets/images/Filter.png")},
+    {'label': 'Filter', 'asset': 'lib/assets/images/Filter.png'},
     {'label': 'Veg', 'isVeg': true},
-    {'label': 'Offers', 'icon': Image.asset("lib/assets/images/Offer.png")},
+    {'label': 'Offers', 'asset': 'lib/assets/images/Offer.png'},
     {'label': 'Ratings 4.0+', 'icon': Icons.star_rounded},
   ];
 
@@ -120,588 +301,552 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     final restaurantId = widget.restaurant['id']?.toString() ?? 'r1';
+    final topInset = MediaQuery.paddingOf(context).top;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFDF9),
       body: Stack(
         children: [
-          // 1. Background Cover Image
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 240,
-            child: Image.network(
-              widget.restaurant['image'] ??
-                  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop',
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. Main Scrollable Content
           Positioned.fill(
             child: Obx(() {
               final hasItems = controller.cartItemCount.value > 0;
               return SingleChildScrollView(
+                controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.only(
                   bottom: hasItems ? bottomInset + 88 : bottomInset + 24,
                 ),
                 child: Column(
-                children: [
-                  const SizedBox(height: 140),
-
-                  // Floating Info Card (containing Title, Rating, Subtitle, Delivery info, and Action Buttons inside)
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Collapses: banner + info + categories
+                    Stack(
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                widget.restaurant['title'] ?? 'Restaurant',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: topInset + 132,
+                          child: Image.network(
+                            widget.restaurant['image'] ??
+                                'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              color: const Color(0xFFF3EFEA),
+                              child: const Icon(
+                                Icons.restaurant_outlined,
+                                color: Colors.grey,
+                                size: 40,
                               ),
                             ),
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: topInset + 56),
+
+                            // Floating Info Card
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00B25C),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: Colors.white,
-                                    size: 12,
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.06),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 8),
                                   ),
-                                  const SizedBox(width: 2),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          widget.restaurant['title'] ??
+                                              'Restaurant',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF00B25C),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.star_rounded,
+                                              color: Colors.white,
+                                              size: 12,
+                                            ),
+                                            const SizedBox(width: 2),
+                                            Text(
+                                              widget.restaurant['rating'] ??
+                                                  '4.6',
+                                              style: GoogleFonts.outfit(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    widget.restaurant['rating'] ?? '4.6',
+                                    widget.restaurant['subtitle'] ??
+                                        'Moroccan • Traditional',
                                     style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF7A6A60),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                     ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.access_time_rounded,
+                                        color: Color(0xFFFF5E00),
+                                        size: 13,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        widget.restaurant['time'] ??
+                                            '30-35 min',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF7A6A60),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      const Icon(
+                                        Icons.location_on_outlined,
+                                        color: Color(0xFFFF5E00),
+                                        size: 13,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        widget.restaurant['dist'] ?? '10 Km',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF7A6A60),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFF5E00),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          widget.restaurant['discount'] ??
+                                              '50% OFF',
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.white,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Get.to(
+                                              () => MessagesScreen(
+                                                restaurant: widget.restaurant,
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                              gradient:
+                                                  const LinearGradient(
+                                                colors: [
+                                                  Color(0xFFFF5E00),
+                                                  Color(0xFFFFAE00),
+                                                ],
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(22),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: const Color(0xFFFF5E00)
+                                                      .withOpacity(0.3),
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Image.asset(
+                                                  "lib/assets/images/Chat Details.png",
+                                                  height: 18,
+                                                  width: 18,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  'Chat with Restaurant',
+                                                  style: GoogleFonts.outfit(
+                                                    color: Colors.white,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Obx(() {
+                                        final liked = controller.isLiked(
+                                          restaurantId,
+                                        );
+                                        return GestureDetector(
+                                          onTap: () => controller.toggleLike(
+                                            restaurantId,
+                                            widget.restaurant,
+                                          ),
+                                          child: Container(
+                                            width: 44,
+                                            height: 44,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: const Color(0xFFEAD8C9),
+                                                width: 0.8,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.04),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Icon(
+                                              liked
+                                                  ? Icons.favorite_rounded
+                                                  : Icons
+                                                      .favorite_border_rounded,
+                                              color: const Color(0xFFFF5E00),
+                                              size: 18,
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.restaurant['subtitle'] ??
-                              'Moroccan • Traditional',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF7A6A60),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.access_time_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 13,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              widget.restaurant['time'] ?? '30-35 min',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF7A6A60),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            const Icon(
-                              Icons.location_on_outlined,
-                              color: Color(0xFFFF5E00),
-                              size: 13,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              widget.restaurant['dist'] ?? '10 Km',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF7A6A60),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
+
+                            const SizedBox(height: 12),
+
+                            // Horizontal Category Row
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFF5E00),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                widget.restaurant['discount'] ?? '50% OFF',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        // Action Buttons inside the container
-                        Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.to(
-                                    () => MessagesScreen(
-                                      restaurant: widget.restaurant,
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFFF5E00),
-                                        Color(0xFFFFAE00),
-                                      ],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(22),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(
-                                          0xFFFF5E00,
-                                        ).withOpacity(0.3),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
+                              margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                              padding: const EdgeInsets.only(top: 4),
+                              clipBehavior: Clip.antiAlias,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFFFFCF8),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(22)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0x14000000),
+                                    blurRadius: 16,
+                                    offset: Offset(0, 6),
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        "lib/assets/images/Chat Details.png",
-                                        height: 18,
-                                        width: 18,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Chat with Restaurant',
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Obx(() {
-                              final liked = controller.isLiked(restaurantId);
-                              return GestureDetector(
-                                onTap: () => controller.toggleLike(
-                                  restaurantId,
-                                  widget.restaurant,
-                                ),
-                                child: Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: const Color(0xFFEAD8C9),
-                                      width: 0.8,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.04),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    liked
-                                        ? Icons.favorite_rounded
-                                        : Icons.favorite_border_rounded,
-                                    color: const Color(0xFFFF5E00),
-                                    size: 18,
-                                  ),
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Horizontal Category Row (wrapped inside a card container with rounded corners and shadow)
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 8, 0, 10),
-                    padding: const EdgeInsets.only(top: 4),
-                    clipBehavior: Clip.antiAlias,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFFCF8),
-                      borderRadius: BorderRadius.all(Radius.circular(22)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0x14000000),
-                          blurRadius: 16,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: SizedBox(
-                      height: 86,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: subcategories.length,
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
-                        itemBuilder: (context, index) {
-                          final sub = subcategories[index];
-                          final isAll = sub['isAll'] == true;
-                          final isSelected = activeSubcategoryIndex == index;
-
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                activeSubcategoryIndex = index;
-                              });
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                right: index == subcategories.length - 1 ? 0 : 10,
+                                ],
                               ),
                               child: SizedBox(
-                                width: 62,
-                                child: Stack(
-                                  alignment: Alignment.topCenter,
-                                  children: [
-                                    Column(
-                                      children: [
-                                  isAll
-                                      ? Container(
-                                          width: 46,
-                                          height: 46,
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                  child: Image.asset(
-                                    'lib/assets/images/All.png',
-                                    width: 22,
-                                    height: 22,
-                                    color: const Color(0xFFFF5E00),
-                                  ),
-                                ),
-                              )
-                                      : Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(0.10),
-                                                blurRadius: 10,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: ClipOval(
-                                            child: Image.network(
-                                              sub['image'] as String,
-                                              width: 46,
-                                              height: 46,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) =>
-                                                      Container(
-                                                        width: 46,
-                                                        height: 46,
-                                                        color: Colors.grey.shade300,
-                                                        child: const Icon(
-                                                          Icons.fastfood,
-                                                          size: 18,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                            ),
-                                          ),
+                                height: 86,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: subcategories.length,
+                                  physics: const BouncingScrollPhysics(),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(14, 4, 14, 0),
+                                  itemBuilder: (context, index) {
+                                    final sub = subcategories[index];
+                                    final isAll = sub['isAll'] == true;
+                                    final isSelected =
+                                        activeSubcategoryIndex == index;
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          activeSubcategoryIndex = index;
+                                        });
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          right:
+                                              index == subcategories.length - 1
+                                                  ? 0
+                                                  : 10,
                                         ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    sub['label'] as String,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.visible,
-                                    style: GoogleFonts.outfit(
-                                      color: isSelected
-                                          ? const Color(0xFFFF5E00)
-                                          : const Color(0xFF3A312C),
-                                      fontSize: 11,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w700
-                                          : FontWeight.w600,
-                                    ),
-                                  ),
-                                      ],
-                                    ),
-                                    if (isSelected)
-                                      Positioned(
-                                        bottom: 0,
-                                        child: Container(
-                                          height: 10,
-                                          width: 56,
-                                          decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
-                                              colors: [
-                                                Color(0xFFFF5E00),
-                                                Color(0xFFFFAE00),
-                                              ],
-                                            ),
-                                            borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(12),
-                                              topRight: Radius.circular(12),
-                                            ),
+                                        child: SizedBox(
+                                          width: 62,
+                                          child: Stack(
+                                            alignment: Alignment.topCenter,
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  isAll
+                                                      ? Container(
+                                                          width: 46,
+                                                          height: 46,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            shape: BoxShape
+                                                                .circle,
+                                                          ),
+                                                          child: Center(
+                                                            child: Image.asset(
+                                                              'lib/assets/images/All.png',
+                                                              width: 22,
+                                                              height: 22,
+                                                              color:
+                                                                  const Color(
+                                                                0xFFFF5E00,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape: BoxShape
+                                                                .circle,
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                  0.10,
+                                                                ),
+                                                                blurRadius: 10,
+                                                                offset:
+                                                                    const Offset(
+                                                                  0,
+                                                                  4,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: ClipOval(
+                                                            child:
+                                                                Image.network(
+                                                              sub['image']
+                                                                  as String,
+                                                              width: 46,
+                                                              height: 46,
+                                                              fit: BoxFit.cover,
+                                                              errorBuilder: (
+                                                                context,
+                                                                error,
+                                                                stackTrace,
+                                                              ) =>
+                                                                  Container(
+                                                                width: 46,
+                                                                height: 46,
+                                                                color: Colors
+                                                                    .grey
+                                                                    .shade300,
+                                                                child:
+                                                                    const Icon(
+                                                                  Icons
+                                                                      .fastfood,
+                                                                  size: 18,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    sub['label'] as String,
+                                                    textAlign:
+                                                        TextAlign.center,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.visible,
+                                                    style: GoogleFonts.outfit(
+                                                      color: isSelected
+                                                          ? const Color(
+                                                              0xFFFF5E00)
+                                                          : const Color(
+                                                              0xFF3A312C),
+                                                      fontSize: 11,
+                                                      fontWeight: isSelected
+                                                          ? FontWeight.w700
+                                                          : FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              if (isSelected)
+                                                Positioned(
+                                                  bottom: 0,
+                                                  child: Container(
+                                                    height: 10,
+                                                    width: 56,
+                                                    decoration: BoxDecoration(
+                                                      gradient:
+                                                          const LinearGradient(
+                                                        colors: [
+                                                          Color(0xFFFF5E00),
+                                                          Color(0xFFFFAE00),
+                                                        ],
+                                                      ),
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                              .only(
+                                                        topLeft:
+                                                            Radius.circular(12),
+                                                        topRight:
+                                                            Radius.circular(12),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                  ],
+                                    );
+                                  },
                                 ),
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
 
-                  // Search Bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(23),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
+                    // Search + filters — pins when scrolled
+                    KeyedSubtree(
+                      key: _searchAnchorKey,
+                      child: _showStickySearch
+                          ? const SizedBox(height: _searchFiltersExtent)
+                          : _buildSearchFiltersSection(),
+                    ),
+
+                    // Menu Title Section
+                    Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.search_rounded,
-                            color: Color(0xFFA59A94),
-                            size: 18,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'All Items from This Restaurant',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: searchController,
-                              decoration: InputDecoration(
-                                hintText: 'Find something from this restaurant',
-                                hintStyle: GoogleFonts.outfit(
-                                  color: const Color(0xFFA59A94),
-                                  fontSize: 12,
-                                ),
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: 26,
-                            height: 26,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFFF0EA),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.mic_none_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Horizontal Filter Chips
-                  SizedBox(
-                    height: 32,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: filters.length,
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemBuilder: (context, index) {
-                        final filter = filters[index];
-                        final isVeg = filter['isVeg'] == true;
-                        return Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: const Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (isVeg) ...[
-                                Container(
-                                  width: 14,
-                                  height: 14,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.green,
-                                      width: 1.5,
-                                    ),
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                  padding: const EdgeInsets.all(2),
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.green,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ] else if (filter['icon'] != null) ...[
-                                if (filter['icon'] is IconData)
-                                  Icon(
-                                    filter['icon'] as IconData,
-                                    color: filter['label'] == 'Ratings 4.0+'
-                                        ? const Color(0xFFFFAE00)
-                                        : const Color(0xFF7A6A60),
-                                    size: 14,
-                                  )
-                                else if (filter['icon'] is Widget)
-                                  SizedBox(
-                                    width: 14,
-                                    height: 14,
-                                    child: filter['icon'] as Widget,
-                                  ),
-                              ],
-                              const SizedBox(width: 6),
-                              Text(
-                                filter['label'] as String,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Menu Title Section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'All Items from This Restaurant',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                  // Vertical Menu List
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: menuItems.map((food) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: _buildFoodCard(context, food),
-                        );
-                      }).toList(),
+                    // Vertical Menu List
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: menuItems.map((food) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _buildFoodCard(context, food),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            );
-          }),
-        ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              );
+            }),
+          ),
 
-          // 3. Floating Back Button (App Bar overlay)
+          // Sticky search + filters overlay
+          if (_showStickySearch)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Material(
+                elevation: 2,
+                color: const Color(0xFFFFFDF9),
+                child: Padding(
+                  padding: EdgeInsets.only(top: topInset, bottom: 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildSearchBar(),
+                      const SizedBox(height: 12),
+                      _buildFiltersRow(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Floating Back Button (App Bar overlay)
           Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
+            top: topInset + 10,
             left: 16,
             child: const CustomBackButton(),
           ),
 
-          // 4. Floating Cart Summary Bar
+          // Floating Cart Summary Bar
           Positioned(
             bottom: bottomInset + 16,
             left: 16,
@@ -744,7 +889,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      // Circular Orange Count Badge
                       Container(
                         width: 36,
                         height: 36,
@@ -763,7 +907,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // View Cart Text and Delivery Info
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1074,203 +1217,212 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         ),
 
                         Padding(
-                          padding: EdgeInsets.fromLTRB(20, 20, 20, 24 + bottomInset),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Title
-                            Text(
-                              food['title']!,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-
-                            // Tag (Spicy / Pure Dairy)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFF5E00),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                food['tag']!,
+                          padding: EdgeInsets.fromLTRB(
+                            20,
+                            20,
+                            20,
+                            24 + bottomInset,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Title
+                              Text(
+                                food['title']!,
                                 style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontSize: 10,
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 8),
 
-                            // Price Row
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: [
-                                Text(
-                                  food['price']!,
+                              // Tag (Spicy / Pure Dairy)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF5E00),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  food['tag']!,
                                   style: GoogleFonts.outfit(
-                                    color: const Color(0xFFFF5E00),
-                                    fontSize: 18,
+                                    color: Colors.white,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  food['originalPrice']!,
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 11,
-                                    decoration: TextDecoration.lineThrough,
-                                    decorationColor: const Color(0xFFA59A94),
-                                    decorationThickness: 1.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-
-                            // Rating Badge
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.star_rounded,
-                                  color: Color(0xFFFFAE00),
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${food['rating']!} (${food['reviews']!})',
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 14),
-
-                            // Description text
-                            Text(
-                              'Slow-cooked traditional Moroccan tagine with tender chicken, preserved lemons, olives, and aromatic spices. Served with a side of fluffy couscous.',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF7A6A60),
-                                fontSize: 12,
-                                height: 1.5,
-                                fontWeight: FontWeight.w500,
                               ),
-                            ),
-                            const SizedBox(height: 24),
+                              const SizedBox(height: 12),
 
-                            // Bottom Action Buttons
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: GestureDetector(
+                              // Price Row
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    food['price']!,
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFFF5E00),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    food['originalPrice']!,
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 11,
+                                      decoration: TextDecoration.lineThrough,
+                                      decorationColor: const Color(0xFFA59A94),
+                                      decorationThickness: 1.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Rating Badge
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    color: Color(0xFFFFAE00),
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${food['rating']!} (${food['reviews']!})',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+
+                              // Description text
+                              Text(
+                                'Slow-cooked traditional Moroccan tagine with tender chicken, preserved lemons, olives, and aromatic spices. Served with a side of fluffy couscous.',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF7A6A60),
+                                  fontSize: 12,
+                                  height: 1.5,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Bottom Action Buttons
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _showCustomizeBottomSheet(
+                                          context,
+                                          food,
+                                          fromBottomSheet: true,
+                                        );
+                                      },
+                                      child: Container(
+                                        height: 46,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xFFFF5E00),
+                                              Color(0xFFFFAE00),
+                                            ],
+                                            begin: Alignment.centerLeft,
+                                            end: Alignment.centerRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            23,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(
+                                                0xFFFF5E00,
+                                              ).withOpacity(0.3),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons.shopping_cart_outlined,
+                                              color: Colors.white,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'ADD',
+                                              style: GoogleFonts.outfit(
+                                                color: Colors.white,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  GestureDetector(
                                     onTap: () {
-                                      _showCustomizeBottomSheet(
-                                        context,
-                                        food,
-                                        fromBottomSheet: true,
-                                      );
+                                      setModalState(() {
+                                        isLiked = !isLiked;
+                                      });
                                     },
                                     child: Container(
+                                      width: 46,
                                       height: 46,
                                       decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFFFF5E00),
-                                            Color(0xFFFFAE00),
-                                          ],
-                                          begin: Alignment.centerLeft,
-                                          end: Alignment.centerRight,
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFFEAD8C9),
+                                          width: 0.8,
                                         ),
-                                        borderRadius: BorderRadius.circular(23),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: const Color(
-                                              0xFFFF5E00,
-                                            ).withOpacity(0.3),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.shopping_cart_outlined,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            'ADD',
-                                            style: GoogleFonts.outfit(
-                                              color: Colors.white,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold,
+                                            color: Colors.black.withOpacity(
+                                              0.04,
                                             ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 14),
-                                GestureDetector(
-                                  onTap: () {
-                                    setModalState(() {
-                                      isLiked = !isLiked;
-                                    });
-                                  },
-                                  child: Container(
-                                    width: 46,
-                                    height: 46,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: const Color(0xFFEAD8C9),
-                                        width: 0.8,
+                                      child: Icon(
+                                        isLiked
+                                            ? Icons.favorite_rounded
+                                            : Icons.favorite_border_rounded,
+                                        color: const Color(0xFFFF5E00),
+                                        size: 20,
                                       ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.04),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Icon(
-                                      isLiked
-                                          ? Icons.favorite_rounded
-                                          : Icons.favorite_border_rounded,
-                                      color: const Color(0xFFFF5E00),
-                                      size: 20,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
                 // Floating close button at top center with a clear space (gap) above the bottom sheet
                 Positioned(
@@ -1322,10 +1474,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       ),
       padding: const EdgeInsets.all(2.5),
       child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       ),
     );
   }
@@ -1766,7 +1915,12 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       ),
 
                       Container(
-                        padding: EdgeInsets.fromLTRB(20, 12, 20, 24 + MediaQuery.of(context).padding.bottom),
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          12,
+                          20,
+                          24 + MediaQuery.of(context).padding.bottom,
+                        ),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           border: Border(
@@ -1847,7 +2001,37 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             const SizedBox(width: 14),
                             Expanded(
                               child: GestureDetector(
-                                onTap: () {
+                                onTap: () async {
+                                  final homeController =
+                                      Get.isRegistered<HomeController>()
+                                      ? Get.find<HomeController>()
+                                      : null;
+                                  final newRestaurant =
+                                      (widget.restaurant['title'] ??
+                                              widget.restaurant['name'] ??
+                                              'Restaurant')
+                                          .toString();
+                                  final existingStore = homeController
+                                      ?.lastCartItem?['storeName']
+                                      ?.toString();
+                                  final needsReplace =
+                                      homeController != null &&
+                                      homeController.cartItemCount.value > 0 &&
+                                      existingStore != null &&
+                                      existingStore.isNotEmpty &&
+                                      existingStore != newRestaurant;
+
+                                  if (needsReplace) {
+                                    final replace =
+                                        await ReplaceCartItemDialog.show(
+                                          context: context,
+                                          currentCartRestaurant: existingStore,
+                                          newRestaurant: newRestaurant,
+                                        );
+                                    if (replace != true) return;
+                                  }
+
+                                  if (!context.mounted) return;
                                   Navigator.pop(context);
                                   if (fromBottomSheet) {
                                     Navigator.pop(context);
@@ -1857,15 +2041,15 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                     showCartBar = true;
                                     lastAddedFood = food;
                                   });
-                                  if (Get.isRegistered<HomeController>()) {
-                                    Get.find<HomeController>().setCartItem(
-                                      storeName: widget.restaurant['name']?.toString() ?? 'Golden Bakery',
-                                      itemName: food['title']?.toString(),
-                                      itemPortion: '1 Portion',
-                                      basePrice: _parsePrice(food['price']?.toString()),
-                                      itemImage: food['image']?.toString(),
-                                    );
-                                  }
+                                  homeController?.setCartItem(
+                                    storeName: newRestaurant,
+                                    itemName: food['title']?.toString(),
+                                    itemPortion: '1 Portion',
+                                    basePrice: _parsePrice(
+                                      food['price']?.toString(),
+                                    ),
+                                    itemImage: food['image']?.toString(),
+                                  );
 
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

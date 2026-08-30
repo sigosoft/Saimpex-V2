@@ -17,9 +17,193 @@ class GroceryDetailsScreen extends StatefulWidget {
 class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   int activeSubcategoryIndex = 0;
   final TextEditingController searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
   bool showCartBar = false;
+  bool _showStickySearch = false;
   Map<String, dynamic>? lastAddedItem;
   String? lastAddedItemPortion;
+
+  /// search(42) + gap(12) + filters(32) + bottom gap(12)
+  static const double _searchFiltersExtent = 98;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    final shouldShow = top <= topInset + 2;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
+
+  Widget _buildSearchFiltersSection() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildSearchBar(),
+        const SizedBox(height: 12),
+        _buildFiltersRow(),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        height: 42,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(23),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.search_rounded,
+              color: Color(0xFFA59A94),
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Find something from this Store',
+                  hintStyle: GoogleFonts.outfit(
+                    color: const Color(0xFFA59A94),
+                    fontSize: 12,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                ),
+              ),
+            ),
+            Container(
+              width: 26,
+              height: 26,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFF0EA),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Image.asset(
+                  "lib/assets/images/Voice.png",
+                  width: 14,
+                  height: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFiltersRow() {
+    return SizedBox(
+      height: 32,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: filters.length,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemBuilder: (context, index) {
+          final filter = filters[index];
+          final isMru = filter['isMru'] == true;
+          return GestureDetector(
+            onTap: () {
+              if (filter['label'] == 'Filter') {
+                _showFilterBottomSheet();
+              }
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: const Color(0xFFEAD8C9),
+                  width: 0.8,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isMru) ...[
+                    Image.asset(
+                      'lib/assets/images/currency.png',
+                      width: 12,
+                      height: 12,
+                      color: const Color(0xFFFF5E00),
+                      errorBuilder: (context, error, stackTrace) =>
+                          Image.asset(
+                        'lib/assets/images/Coin.png',
+                        width: 12,
+                        height: 12,
+                      ),
+                    ),
+                  ] else if (filter['icon'] != null) ...[
+                    if (filter['icon'] is IconData)
+                      Icon(
+                        filter['icon'] as IconData,
+                        color: filter['label'] == 'Rating'
+                            ? const Color(0xFFFFAE00)
+                            : const Color(0xFF7A6A60),
+                        size: 14,
+                      )
+                    else if (filter['icon'] is Widget)
+                      SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: filter['icon'] as Widget,
+                      ),
+                  ],
+                  const SizedBox(width: 6),
+                  Text(
+                    filter['label'] as String,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   int parsePrice(String priceStr) {
     final clean = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
@@ -131,470 +315,442 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Column(
-              children: [
-                Stack(
+            child: Obx(() {
+              final hasItems = controller.cartItemCount.value > 0;
+              return SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  bottom: hasItems ? bottomInset + 88 : bottomInset + 24,
+                ),
+                child: Column(
                   children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: topInset + 132,
-                      child: Image.network(
-                        widget.store['image'] ??
-                            'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: const Color(0xFFF3EFEA),
-                          child: const Icon(
-                            Icons.storefront_outlined,
-                            color: Colors.grey,
-                            size: 40,
+                    // Collapses: banner + info + categories
+                    Stack(
+                      children: [
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: topInset + 132,
+                          child: Image.network(
+                            widget.store['image'] ??
+                                'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              color: const Color(0xFFF3EFEA),
+                              child: const Icon(
+                                Icons.storefront_outlined,
+                                color: Colors.grey,
+                                size: 40,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(height: topInset + 56),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: topInset + 56),
 
-                        // Floating Info Card
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 16),
-                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
-                                blurRadius: 16,
-                                offset: const Offset(0, 8),
+                            // Floating Info Card
+                            Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.06),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      widget.store['name'] ?? 'Store',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF00B25C),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(
-                                          Icons.star_rounded,
-                                          color: Colors.white,
-                                          size: 12,
-                                        ),
-                                        const SizedBox(width: 2),
-                                        Text(
-                                          widget.store['rating'] ?? '4.6',
-                                          style: GoogleFonts.outfit(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                widget.store['category'] ?? 'Grocery',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF7A6A60),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.access_time_rounded,
-                                    color: Color(0xFFFF5E00),
-                                    size: 13,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    widget.store['time'] ?? '30-35 min',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF7A6A60),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  const Icon(
-                                    Icons.location_on_outlined,
-                                    color: Color(0xFFFF5E00),
-                                    size: 13,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    widget.store['dist'] ?? '10 Km',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF7A6A60),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFF5E00),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      widget.store['discount'] ?? '30% OFF',
-                                      style: GoogleFonts.outfit(
-                                        color: Colors.white,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              // Closed / Temporarily closed message banner
-                              if (isNotAccepting) ...[
-                                const SizedBox(height: 14),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFEE2E2),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(
-                                        Icons.error_outline_rounded,
-                                        color: Color(0xFFEF4444),
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          isTemporarilyClosed
-                                              ? 'Temporarily not accepting orders'
-                                              : 'Currently Closed',
+                                          widget.store['name'] ?? 'Store',
                                           style: GoogleFonts.outfit(
-                                            color: const Color(0xFFEF4444),
-                                            fontSize: 11,
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-
-                              const SizedBox(height: 10),
-                              // Action Buttons
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Get.to(
-                                          () => MessagesScreen(
-                                            restaurant: widget.store,
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        height: 38,
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color(0xFFFF5E00),
-                                              Color(0xFFFFAE00),
-                                            ],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            22,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: const Color(
-                                                0xFFFF5E00,
-                                              ).withOpacity(0.3),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 4),
-                                            ),
-                                          ],
+                                          color: const Color(0xFF00B25C),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Image.asset(
-                                              "lib/assets/images/Chat Details.png",
-                                              height: 18,
-                                              width: 18,
+                                            const Icon(
+                                              Icons.star_rounded,
+                                              color: Colors.white,
+                                              size: 12,
                                             ),
-                                            const SizedBox(width: 8),
+                                            const SizedBox(width: 2),
                                             Text(
-                                              'Chat with Store',
+                                              widget.store['rating'] ?? '4.6',
                                               style: GoogleFonts.outfit(
                                                 color: Colors.white,
-                                                fontSize: 13,
+                                                fontSize: 10,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    widget.store['category'] ?? 'Grocery',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF7A6A60),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  GestureDetector(
-                                    onTap: () => controller.toggleLike(
-                                      storeId,
-                                      widget.store,
-                                    ),
-                                    child: Obx(() {
-                                      final liked = controller.isLiked(storeId);
-                                      return Container(
-                                        width: 38,
-                                        height: 38,
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.access_time_rounded,
+                                        color: Color(0xFFFF5E00),
+                                        size: 13,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        widget.store['time'] ?? '30-35 min',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF7A6A60),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      const Icon(
+                                        Icons.location_on_outlined,
+                                        color: Color(0xFFFF5E00),
+                                        size: 13,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        widget.store['dist'] ?? '10 Km',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF7A6A60),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            12,
+                                          color: const Color(0xFFFF5E00),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          widget.store['discount'] ??
+                                              '30% OFF',
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.white,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          border: Border.all(
-                                            color: const Color(0xFFEAD8C9),
-                                            width: 0.8,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  // Closed / Temporarily closed message banner
+                                  if (isNotAccepting) ...[
+                                    const SizedBox(height: 14),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFEE2E2),
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.error_outline_rounded,
+                                            color: Color(0xFFEF4444),
+                                            size: 16,
                                           ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.04,
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              isTemporarilyClosed
+                                                  ? 'Temporarily not accepting orders'
+                                                  : 'Currently Closed',
+                                              style: GoogleFonts.outfit(
+                                                color: const Color(0xFFEF4444),
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                              blurRadius: 8,
-                                              offset: const Offset(0, 3),
                                             ),
-                                          ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+
+                                  const SizedBox(height: 10),
+                                  // Action Buttons
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Get.to(
+                                              () => MessagesScreen(
+                                                restaurant: widget.store,
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            height: 38,
+                                            decoration: BoxDecoration(
+                                              gradient:
+                                                  const LinearGradient(
+                                                colors: [
+                                                  Color(0xFFFF5E00),
+                                                  Color(0xFFFFAE00),
+                                                ],
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(22),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: const Color(
+                                                    0xFFFF5E00,
+                                                  ).withOpacity(0.3),
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Image.asset(
+                                                  "lib/assets/images/Chat Details.png",
+                                                  height: 18,
+                                                  width: 18,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  'Chat with Store',
+                                                  style: GoogleFonts.outfit(
+                                                    color: Colors.white,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                        child: Icon(
-                                          liked
-                                              ? Icons.favorite_rounded
-                                              : Icons.favorite_border_rounded,
-                                          color: liked
-                                              ? const Color(0xFFE03A3A)
-                                              : const Color(0xFF2C2520),
-                                          size: 18,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      GestureDetector(
+                                        onTap: () => controller.toggleLike(
+                                          storeId,
+                                          widget.store,
                                         ),
-                                      );
-                                    }),
+                                        child: Obx(() {
+                                          final liked =
+                                              controller.isLiked(storeId);
+                                          return Container(
+                                            width: 38,
+                                            height: 38,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color:
+                                                    const Color(0xFFEAD8C9),
+                                                width: 0.8,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.04),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Icon(
+                                              liked
+                                                  ? Icons.favorite_rounded
+                                                  : Icons
+                                                      .favorite_border_rounded,
+                                              color: liked
+                                                  ? const Color(0xFFE03A3A)
+                                                  : const Color(0xFF2C2520),
+                                              size: 18,
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Container(
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(23),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.search_rounded,
-                                  color: Color(0xFFA59A94),
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TextField(
-                                    controller: searchController,
-                                    decoration: InputDecoration(
-                                      hintText:
-                                          'Find something from this Store',
-                                      hintStyle: GoogleFonts.outfit(
-                                        color: const Color(0xFFA59A94),
-                                        fontSize: 12,
-                                      ),
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  width: 26,
-                                  height: 26,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFF0EA),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Image.asset(
-                                      "lib/assets/images/Voice.png",
-                                      width: 14,
-                                      height: 14,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
 
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 8, 0, 10),
-                          padding: const EdgeInsets.only(top: 4),
-                          clipBehavior: Clip.antiAlias,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(22)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0x14000000),
-                                blurRadius: 16,
-                                offset: Offset(0, 6),
+                            // Categories row (scrolls away with banner/info)
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(0, 8, 0, 10),
+                              padding: const EdgeInsets.only(top: 4),
+                              clipBehavior: Clip.antiAlias,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(22)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0x14000000),
+                                    blurRadius: 16,
+                                    offset: Offset(0, 6),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: SizedBox(
-                            height: 86,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: subcategories.length,
-                              physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
-                              itemBuilder: (context, index) {
-                                final sub = subcategories[index];
-                                final isAll = sub['isAll'] == true;
-                                final isSelected =
-                                    activeSubcategoryIndex == index;
+                              child: SizedBox(
+                                height: 86,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: subcategories.length,
+                                  physics: const BouncingScrollPhysics(),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    14,
+                                    4,
+                                    14,
+                                    0,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final sub = subcategories[index];
+                                    final isAll = sub['isAll'] == true;
+                                    final isSelected =
+                                        activeSubcategoryIndex == index;
 
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      activeSubcategoryIndex = index;
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                      right: index == subcategories.length - 1
-                                          ? 0
-                                          : 10,
-                                    ),
-                                    child: SizedBox(
-                                      width: 62,
-                                      child: Stack(
-                                        alignment: Alignment.topCenter,
-                                        children: [
-                                          Column(
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          activeSubcategoryIndex = index;
+                                        });
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          right: index ==
+                                                  subcategories.length - 1
+                                              ? 0
+                                              : 10,
+                                        ),
+                                        child: SizedBox(
+                                          width: 62,
+                                          child: Stack(
+                                            alignment: Alignment.topCenter,
                                             children: [
-                                              isAll
-                                                  ? Container(
-                                                      width: 46,
-                                                      height: 46,
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
+                                              Column(
+                                                children: [
+                                                  isAll
+                                                      ? Container(
+                                                          width: 46,
+                                                          height: 46,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            shape: BoxShape
+                                                                .circle,
                                                           ),
-                                                      child: Center(
-                                                        child: Image.asset(
-                                                          'lib/assets/images/All.png',
-                                                          width: 22,
-                                                          height: 22,
-                                                          color: const Color(
-                                                            0xFFFF5E00,
+                                                          child: Center(
+                                                            child: Image.asset(
+                                                              'lib/assets/images/All.png',
+                                                              width: 22,
+                                                              height: 22,
+                                                              color:
+                                                                  const Color(
+                                                                0xFFFF5E00,
+                                                              ),
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : Container(
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Colors.black
-                                                                .withOpacity(
+                                                        )
+                                                      : Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape: BoxShape
+                                                                .circle,
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
                                                                   0.10,
                                                                 ),
-                                                            blurRadius: 10,
-                                                            offset:
-                                                                const Offset(
+                                                                blurRadius: 10,
+                                                                offset:
+                                                                    const Offset(
                                                                   0,
                                                                   4,
                                                                 ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
-                                                      ),
-                                                      child: ClipOval(
-                                                        child: Image.network(
-                                                          sub['image']
-                                                              as String,
-                                                          width: 46,
-                                                          height: 46,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder:
-                                                              (
+                                                          child: ClipOval(
+                                                            child:
+                                                                Image.network(
+                                                              sub['image']
+                                                                  as String,
+                                                              width: 46,
+                                                              height: 46,
+                                                              fit: BoxFit
+                                                                  .cover,
+                                                              errorBuilder: (
                                                                 context,
                                                                 error,
                                                                 stackTrace,
-                                                              ) => Container(
+                                                              ) =>
+                                                                  Container(
                                                                 width: 46,
                                                                 height: 46,
                                                                 color: Colors
                                                                     .grey
                                                                     .shade300,
-                                                                child: const Icon(
+                                                                child:
+                                                                    const Icon(
                                                                   Icons
                                                                       .fastfood,
                                                                   size: 18,
@@ -602,221 +758,165 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                                       .grey,
                                                                 ),
                                                               ),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    sub['label'] as String,
+                                                    textAlign:
+                                                        TextAlign.center,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.visible,
+                                                    style: GoogleFonts.outfit(
+                                                      color: isSelected
+                                                          ? const Color(
+                                                              0xFFFF5E00)
+                                                          : const Color(
+                                                              0xFF3A312C),
+                                                      fontSize: 11,
+                                                      fontWeight: isSelected
+                                                          ? FontWeight.w700
+                                                          : FontWeight.w600,
                                                     ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                sub['label'] as String,
-                                                textAlign: TextAlign.center,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.visible,
-                                                style: GoogleFonts.outfit(
-                                                  color: isSelected
-                                                      ? const Color(0xFFFF5E00)
-                                                      : const Color(0xFF3A312C),
-                                                  fontSize: 11,
-                                                  fontWeight: isSelected
-                                                      ? FontWeight.w700
-                                                      : FontWeight.w600,
-                                                ),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                          if (isSelected)
-                                            Positioned(
-                                              bottom: 0,
-                                              child: Container(
-                                                height: 10,
-                                                width: 56,
-                                                decoration: BoxDecoration(
-                                                  gradient:
-                                                      const LinearGradient(
+                                              if (isSelected)
+                                                Positioned(
+                                                  bottom: 0,
+                                                  child: Container(
+                                                    height: 10,
+                                                    width: 56,
+                                                    decoration: BoxDecoration(
+                                                      gradient:
+                                                          const LinearGradient(
                                                         colors: [
                                                           Color(0xFFFF5E00),
                                                           Color(0xFFFFAE00),
                                                         ],
                                                       ),
-                                                  borderRadius:
-                                                      const BorderRadius.only(
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                              .only(
                                                         topLeft:
-                                                            Radius.circular(12),
+                                                            Radius.circular(
+                                                                12),
                                                         topRight:
-                                                            Radius.circular(12),
+                                                            Radius.circular(
+                                                                12),
                                                       ),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        SizedBox(
-                          height: 32,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: filters.length,
-                            physics: const BouncingScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemBuilder: (context, index) {
-                              final filter = filters[index];
-                              final isMru = filter['isMru'] == true;
-                              return GestureDetector(
-                                onTap: () {
-                                  if (filter['label'] == 'Filter') {
-                                    _showFilterBottomSheet();
-                                  }
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.only(right: 8),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: const Color(0xFFEAD8C9),
-                                      width: 0.8,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (isMru) ...[
-                                        Image.asset(
-                                          'lib/assets/images/currency.png',
-                                          width: 12,
-                                          height: 12,
-                                          color: const Color(0xFFFF5E00),
-                                          errorBuilder:
-                                              (
-                                                context,
-                                                error,
-                                                stackTrace,
-                                              ) => Image.asset(
-                                                'lib/assets/images/Coin.png',
-                                                width: 12,
-                                                height: 12,
-                                              ),
-                                        ),
-                                      ] else if (filter['icon'] != null) ...[
-                                        if (filter['icon'] is IconData)
-                                          Icon(
-                                            filter['icon'] as IconData,
-                                            color: filter['label'] == 'Rating'
-                                                ? const Color(0xFFFFAE00)
-                                                : const Color(0xFF7A6A60),
-                                            size: 14,
-                                          )
-                                        else if (filter['icon'] is Widget)
-                                          SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: filter['icon'] as Widget,
+                                            ],
                                           ),
-                                      ],
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        filter['label'] as String,
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+
+                    // Search + filters — pins when scrolled
+                    KeyedSubtree(
+                      key: _searchAnchorKey,
+                      child: _showStickySearch
+                          ? const SizedBox(height: _searchFiltersExtent)
+                          : _buildSearchFiltersSection(),
+                    ),
+
+                    // Products: Smart Bundles + All Items
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Smart Bundles',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSmartBundleCard(context, isNotAccepting),
+                    const SizedBox(height: 20),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'All Items from This Store',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: menuItems.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          mainAxisExtent: 268,
+                        ),
+                        itemBuilder: (context, index) {
+                          return _buildFoodCard(
+                            context,
+                            menuItems[index],
+                            isNotAccepting,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
-
-                Expanded(
-                  child: Obx(() {
-                    final hasItems = controller.cartItemCount.value > 0;
-                    return SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.only(
-                        bottom: hasItems ? bottomInset + 88 : 24,
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Smart Bundles',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          _buildSmartBundleCard(context, isNotAccepting),
-                          const SizedBox(height: 20),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'All Items from This Store',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: menuItems.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 12,
-                                    crossAxisSpacing: 12,
-                                    mainAxisExtent: 268,
-                                  ),
-                              itemBuilder: (context, index) {
-                                return _buildFoodCard(
-                                  context,
-                                  menuItems[index],
-                                  isNotAccepting,
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            ),
+              );
+            }),
           ),
+
+          // Sticky search + filters overlay
+          if (_showStickySearch)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Material(
+                elevation: 2,
+                color: const Color(0xFFFFEADF),
+                child: Padding(
+                  padding: EdgeInsets.only(top: topInset, bottom: 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildSearchBar(),
+                      const SizedBox(height: 12),
+                      _buildFiltersRow(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
           // 3. Floating Back Button
           Positioned(

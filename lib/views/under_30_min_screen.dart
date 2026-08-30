@@ -8,7 +8,7 @@ import 'restaurant_details_screen.dart';
 class Under30MinScreen extends StatelessWidget {
   final String title;
 
-  const Under30MinScreen({Key? key, this.title = 'Food'}) : super(key: key);
+  const Under30MinScreen({super.key, this.title = 'Food'});
 
   @override
   Widget build(BuildContext context) {

@@ -629,12 +629,14 @@ class HomeScreen extends StatelessWidget {
       {
         'id': 't1',
         'title': 'Al Fantasia',
-        'subtitle': 'Moroccan - Traditional',
-        'rating': '4.5',
+        'subtitle': 'Moroccan • Traditional',
+        'rating': '4.6',
         'time': '30-35 min',
         'dist': '10 Km',
         'discount': '50% OFF',
         'points': '200 Points Available',
+        'isClosed': true,
+        'opensAt': '10 AM',
         'isTemporarilyClosed': false,
         'image':
             'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=350&auto=format&fit=crop',
@@ -642,15 +644,30 @@ class HomeScreen extends StatelessWidget {
       {
         'id': 't2',
         'title': 'Tarif Restaurant',
-        'subtitle': 'Lebanese - Grill',
+        'subtitle': 'Lebanese • Grill',
         'rating': '4.6',
         'time': '30-35 min',
-        'dist': '12 Km',
+        'dist': '10 Km',
         'discount': '30% OFF',
         'points': '200 Points Available',
-        'isTemporarilyClosed': false,
+        'isClosed': false,
+        'isTemporarilyClosed': true,
         'image':
             'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=350&auto=format&fit=crop',
+      },
+      {
+        'id': 't3',
+        'title': 'Portuguese restaurant',
+        'subtitle': 'Lebanese • Grill',
+        'rating': '4.7',
+        'time': '30-35 min',
+        'dist': '10 Km',
+        'discount': '30% OFF',
+        'points': '200 Points Available',
+        'isClosed': false,
+        'isTemporarilyClosed': false,
+        'image':
+            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=350&auto=format&fit=crop',
       },
     ];
 
@@ -658,7 +675,14 @@ class HomeScreen extends StatelessWidget {
       children: [
         _buildSectionHeader('Trending in Nouakchott', () {
           controller.selectSubcategory(0);
-          Get.to(() => const CategoryScreen(categoryName: 'Trending'));
+          Get.to(
+            () => const CategoryScreen(
+              categoryName: 'Food',
+              showUnder30Minutes: false,
+            ),
+            preventDuplicates: false,
+            routeName: '/trending-see-all',
+          );
         }),
         const SizedBox(height: 12),
         SizedBox(
@@ -867,64 +891,69 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           // Info Details
-          Opacity(
-            opacity: (isClosed || isTemporarilyClosed) ? 0.65 : 1.0,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    (item['title'] ?? '').toString(),
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+          ColoredBox(
+            color: (isClosed || isTemporarilyClosed)
+                ? const Color(0xFFC4BBB3)
+                : Colors.white,
+            child: Opacity(
+              opacity: (isClosed || isTemporarilyClosed) ? 0.85 : 1.0,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      (item['title'] ?? '').toString(),
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    (item['subtitle'] ?? '').toString(),
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF7A6A60),
-                      fontSize: 10,
+                    const SizedBox(height: 2),
+                    Text(
+                      (item['subtitle'] ?? '').toString(),
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF7A6A60),
+                        fontSize: 10,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.timer_outlined,
-                        color: Color(0xFFFF5E00),
-                        size: 12,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        (item['time'] ?? '').toString(),
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF4A453F),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w500,
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.timer_outlined,
+                          color: Color(0xFFFF5E00),
+                          size: 12,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
-                        size: 12,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        (item['dist'] ?? '').toString(),
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF4A453F),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(width: 4),
+                        Text(
+                          (item['time'] ?? '').toString(),
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF4A453F),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 12),
+                        const Icon(
+                          Icons.location_on_outlined,
+                          color: Color(0xFFFF5E00),
+                          size: 12,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          (item['dist'] ?? '').toString(),
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF4A453F),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

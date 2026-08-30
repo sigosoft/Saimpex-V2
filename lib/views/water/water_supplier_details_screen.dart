@@ -22,7 +22,13 @@ class WaterSupplierDetailsScreen extends StatefulWidget {
 class _WaterSupplierDetailsScreenState
     extends State<WaterSupplierDetailsScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
   bool _isFavorite = false;
+  bool _showStickySearch = false;
+
+  /// search bar height (48) + small padding
+  static const double _stickyExtent = 56;
 
   final List<Map<String, dynamic>> products = [
     {
@@ -76,9 +82,106 @@ class _WaterSupplierDetailsScreenState
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
   void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    final shouldShow = top <= topInset + 2;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: const Color(0xFFEAD8C9),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.search_rounded,
+              color: Color(0xFFA59A94),
+              size: 22,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                style: GoogleFonts.outfit(
+                  color: Colors.black,
+                  fontSize: 13,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Find something from this Supplier',
+                  hintStyle: GoogleFonts.outfit(
+                    color: const Color(0xFFA59A94),
+                    fontSize: 13,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 28,
+              height: 28,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFF0E6),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Image.asset(
+                  'lib/assets/images/Voice.png',
+                  width: 14,
+                  height: 14,
+                  errorBuilder: (_, __, ___) => const Icon(
+                    Icons.mic_rounded,
+                    color: Color(0xFFFF5E00),
+                    size: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -93,6 +196,7 @@ class _WaterSupplierDetailsScreenState
     final time = widget.supplier['time'] ?? '30-35 min';
     final dist = widget.supplier['dist'] ?? '10 Km';
     final discount = widget.supplier['discount'] ?? '50% OFF';
+    final topInset = MediaQuery.paddingOf(context).top;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -103,12 +207,15 @@ class _WaterSupplierDetailsScreenState
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFFFAF6F0),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // Header Stack with Banner Image and Overlapping Details Card
               Stack(
                 clipBehavior: Clip.none,
@@ -393,78 +500,12 @@ class _WaterSupplierDetailsScreenState
 
               const SizedBox(height: 20),
 
-              // Search Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: const Color(0xFFEAD8C9),
-                      width: 1.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.search_rounded,
-                        color: Color(0xFFA59A94),
-                        size: 22,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          style: GoogleFonts.outfit(
-                            color: Colors.black,
-                            fontSize: 13,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Find something from this Supplier',
-                            hintStyle: GoogleFonts.outfit(
-                              color: const Color(0xFFA59A94),
-                              fontSize: 13,
-                            ),
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFFF0E6),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Image.asset(
-                            'lib/assets/images/Voice.png',
-                            width: 14,
-                            height: 14,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.mic_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              // Pins when scrolled: search
+              KeyedSubtree(
+                key: _searchAnchorKey,
+                child: _showStickySearch
+                    ? const SizedBox(height: _stickyExtent)
+                    : _buildSearchBar(),
               ),
 
               const SizedBox(height: 24),
@@ -505,6 +546,24 @@ class _WaterSupplierDetailsScreenState
               ),
             ],
           ),
+        ),
+
+            // Sticky search overlay
+            if (_showStickySearch)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 2,
+                  color: const Color(0xFFFAF6F0),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: topInset, bottom: 8),
+                    child: _buildSearchBar(),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

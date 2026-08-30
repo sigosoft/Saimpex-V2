@@ -17,6 +17,40 @@ class PharmacyScreen extends StatefulWidget {
 
 class _PharmacyScreenState extends State<PharmacyScreen> {
   int selectedCategoryIndex = 0; // Default to "All"
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
+  bool _showStickySearch = false;
+
+  /// search bar height (48) + small padding
+  static const double _stickyExtent = 56;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    // Pin once search reaches under the fixed location header (~56px)
+    final shouldShow = top <= topInset + 56;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
 
   final quickCategories = [
     {
@@ -198,94 +232,105 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. App Bar Header Row
-              _buildHeader(context),
+        body: Stack(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Fixed app bar (location)
+                  _buildHeader(context),
 
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title "Pharmacy"
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          'Pharmacy',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Collapses: title, promo, upload
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            child: Text(
+                              'Pharmacy',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                          _buildPromoSlider(),
+                          const SizedBox(height: 12),
+                          _buildPrescriptionUploadButton(context),
+                          const SizedBox(height: 12),
 
-                      // Green Promotional Banner Slider
-                      _buildPromoSlider(),
-
-                      const SizedBox(height: 12),
-
-                      // Upload Your Prescription Button
-                      _buildPrescriptionUploadButton(context),
-
-                      const SizedBox(height: 12),
-
-                      // Search Bar Row
-                      _buildSearchBar(),
-
-                      const SizedBox(height: 16),
-
-                      // Quick categories Grid Section
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'Quick categories',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
+                          // Pins when scrolled: search
+                          KeyedSubtree(
+                            key: _searchAnchorKey,
+                            child: _showStickySearch
+                                ? const SizedBox(height: _stickyExtent)
+                                : _buildSearchBar(),
                           ),
-                        ),
+
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'Quick categories',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          _buildQuickCategoriesGrid(),
+                          const SizedBox(height: 12),
+                          _buildSectionHeader(
+                            'Trusted Pharmacies',
+                            'See All',
+                            () {},
+                          ),
+                          _buildTrustedPharmaciesList(),
+                          const SizedBox(height: 12),
+                          _buildSectionHeader(
+                            'Nearby Pharmacies',
+                            'Store Map',
+                            () {},
+                            showMapIcon: true,
+                          ),
+                          _buildNearbyPharmaciesList(),
+                          const SizedBox(height: 36),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _buildQuickCategoriesGrid(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-                      const SizedBox(height: 12),
-
-                      // Section Header: Trusted Pharmacies
-                      _buildSectionHeader(
-                        'Trusted Pharmacies',
-                        'See All',
-                        () {},
-                      ),
-                      _buildTrustedPharmaciesList(),
-
-                      const SizedBox(height: 12),
-
-                      // Section Header: Nearby Pharmacies
-                      _buildSectionHeader(
-                        'Nearby Pharmacies',
-                        'Store Map',
-                        () {},
-                        showMapIcon: true,
-                      ),
-                      _buildNearbyPharmaciesList(),
-
-                      const SizedBox(height: 36),
-                    ],
+            // Sticky search (below fixed location header)
+            if (_showStickySearch)
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 56,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 2,
+                  color: const Color(0xFFFFF4EE),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _buildSearchBar(),
                   ),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );

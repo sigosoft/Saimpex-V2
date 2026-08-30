@@ -18,6 +18,12 @@ class WaterScreen extends StatefulWidget {
 class _WaterScreenState extends State<WaterScreen> {
   int _bannerIndex = 0;
   final PageController _bannerController = PageController();
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
+  bool _showStickySearch = false;
+
+  /// search bar height (48) + small padding
+  static const double _stickyExtent = 56;
 
   final List<Map<String, String>> categories = [
     {'label': '19L Bottle', 'image': 'lib/assets/images/19L water.png'},
@@ -93,9 +99,32 @@ class _WaterScreenState extends State<WaterScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
   void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
     _bannerController.dispose();
     super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    // Pin once search reaches under the fixed location header (~56px)
+    final shouldShow = top <= topInset + 56;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
   }
 
   @override
@@ -110,34 +139,68 @@ class _WaterScreenState extends State<WaterScreen> {
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFFFAF6F0),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                _buildHeader(context),
-                const SizedBox(height: 16),
-                _buildTitle(),
-                const SizedBox(height: 16),
-                _buildBannerSlider(),
-                const SizedBox(height: 16),
-                _buildSearchBar(),
-                const SizedBox(height: 24),
-                _buildCategoriesSection(),
-                const SizedBox(height: 24),
-                _buildTopRatedSuppliersSection(),
-                const SizedBox(height: 24),
-                _buildMidPageBanner(),
-                const SizedBox(height: 24),
-                _buildPopularProductsSection(),
-                const SizedBox(height: 24),
-                _buildNearbySuppliersSection(),
-              ],
+        body: Stack(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  _buildHeader(context),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          _buildTitle(),
+                          const SizedBox(height: 16),
+                          _buildBannerSlider(),
+                          const SizedBox(height: 16),
+                          KeyedSubtree(
+                            key: _searchAnchorKey,
+                            child: _showStickySearch
+                                ? const SizedBox(height: _stickyExtent)
+                                : _buildSearchBar(),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildCategoriesSection(),
+                          const SizedBox(height: 24),
+                          _buildTopRatedSuppliersSection(),
+                          const SizedBox(height: 24),
+                          _buildMidPageBanner(),
+                          const SizedBox(height: 24),
+                          _buildPopularProductsSection(),
+                          const SizedBox(height: 24),
+                          _buildNearbySuppliersSection(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+
+            // Sticky search (below fixed location header)
+            if (_showStickySearch)
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 56,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 2,
+                  color: const Color(0xFFFAF6F0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _buildSearchBar(),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

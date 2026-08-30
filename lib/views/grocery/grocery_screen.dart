@@ -15,6 +15,50 @@ class GroceryScreen extends StatefulWidget {
 
 class _GroceryScreenState extends State<GroceryScreen> {
   int selectedSubcategoryIndex = 0;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
+  bool _showStickySearch = false;
+
+  /// search(~62 with padding) + subcategories(~104 with margin)
+  static const double _stickyExtent = 166;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    // Pin once search reaches just under the fixed location header (~56px)
+    final shouldShow = top <= topInset + 56;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
+
+  Widget _buildStickySearchSubcatsSection() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildSearchBar(),
+        _buildSubcategoriesRow(),
+      ],
+    );
+  }
 
   final subcategories = [
     {'label': 'All', 'isAll': true},
@@ -158,85 +202,104 @@ class _GroceryScreenState extends State<GroceryScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. App Bar Header Row
-              _buildHeader(context),
+        body: Stack(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Fixed app bar (location)
+                  _buildHeader(context),
 
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title "Grocery"
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          'Grocery',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Collapses away: title + AI banners
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            child: Text(
+                              'Grocery',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ),
-                        ),
+                          _buildAIPredictiveCard(),
+                          _buildAITipRow(),
+
+                          // Pins when scrolled: search + subcategories
+                          KeyedSubtree(
+                            key: _searchAnchorKey,
+                            child: _showStickySearch
+                                ? const SizedBox(height: _stickyExtent)
+                                : _buildStickySearchSubcatsSection(),
+                          ),
+
+                          _buildSectionHeader(
+                            'Top Stores Near You',
+                            'See All',
+                            () {
+                              Get.to(() => const GroceryStoresScreen());
+                            },
+                          ),
+                          _buildTopStoresList(),
+                          _buildSectionHeader(
+                            'Recent Orders',
+                            'View Orders',
+                            () {},
+                          ),
+                          _buildRecentOrdersList(),
+                          _buildSectionHeader(
+                            '15-Min Delivery',
+                            'See All',
+                            () {},
+                          ),
+                          _buildFastDeliveryList(),
+                          _buildSectionHeader(
+                            'Frequently Bought',
+                            'See All',
+                            () {},
+                          ),
+                          _buildFrequentlyBoughtList(),
+                          const SizedBox(height: 36),
+                        ],
                       ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-                      // AI Predictive Banner (Eggs order)
-                      _buildAIPredictiveCard(),
-
-                      // AI Tip Row Banner
-                      _buildAITipRow(),
-
-                      // Search Bar Row
+            // Sticky search + subcategories (below fixed location header)
+            if (_showStickySearch)
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 56,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 2,
+                  color: const Color(0xFFFFEEE5),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       _buildSearchBar(),
-
-                      // Subcategories Horizontal Scroll Row
                       _buildSubcategoriesRow(),
-
-                      // Top Stores Section
-                      _buildSectionHeader(
-                        'Top Stores Near You',
-                        'See All',
-                        () {
-                          Get.to(() => const GroceryStoresScreen());
-                        },
-                      ),
-                      _buildTopStoresList(),
-
-                      // Recent Orders Section
-                      _buildSectionHeader(
-                        'Recent Orders',
-                        'View Orders',
-                        () {},
-                      ),
-                      _buildRecentOrdersList(),
-
-                      // 15-Min Delivery Section
-                      _buildSectionHeader('15-Min Delivery', 'See All', () {}),
-                      _buildFastDeliveryList(),
-
-                      // Frequently Bought Section
-                      _buildSectionHeader(
-                        'Frequently Bought',
-                        'See All',
-                        () {},
-                      ),
-                      _buildFrequentlyBoughtList(),
-
-                      const SizedBox(height: 36),
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
