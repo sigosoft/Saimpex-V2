@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saimpex_v2/controllers/home_controller.dart';
 
 import '../order_success_screen.dart';
 
@@ -25,13 +26,14 @@ class ExpressCartScreen extends StatefulWidget {
 }
 
 class _ExpressCartScreenState extends State<ExpressCartScreen> {
-  int quantity = 1;
+  int quantity = 0;
   bool usePoints = false;
   int? selectedPaymentIndex;
   final int redeemedPointsDiscount = 1;
   final int expressDeliveryFee = 15;
   final int tax = 2;
-  final TextEditingController _customQuantityController = TextEditingController();
+  final TextEditingController _customQuantityController =
+      TextEditingController();
   bool _syncingQuantityField = false;
 
   String get storeName => widget.storeName ?? 'Freshmart';
@@ -53,6 +55,13 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
       'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=350&auto=format&fit=crop';
 
   @override
+  void initState() {
+    super.initState();
+    quantity = (widget.itemName != null || widget.storeName != null) ? 1 : 0;
+    _syncHomeCartBadgeCount(quantity);
+  }
+
+  @override
   void dispose() {
     _customQuantityController.dispose();
     super.dispose();
@@ -65,14 +74,16 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
     if (trimmed.isEmpty) return;
 
     final parsed = int.tryParse(trimmed);
-    if (parsed != null && parsed >= 1 && parsed != quantity) {
+    if (parsed != null && parsed >= 0 && parsed != quantity) {
       setState(() => quantity = parsed);
+      _syncHomeCartBadgeCount(parsed);
     }
   }
 
   void _setQuantity(int value) {
-    final next = value < 1 ? 1 : value;
+    final next = value < 0 ? 0 : value;
     setState(() => quantity = next);
+    _syncHomeCartBadgeCount(next);
 
     _syncingQuantityField = true;
     _customQuantityController.value = TextEditingValue(
@@ -82,12 +93,28 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
     _syncingQuantityField = false;
   }
 
+  void _syncHomeCartBadgeCount(int count) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().updateCartItemCount(count);
+      }
+    });
+  }
+
   int get itemTotal => basePrice * quantity;
 
   int get pointsOff => usePoints ? 50 : 0;
 
-  int get toPay =>
-      itemTotal - redeemedPointsDiscount - pointsOff + expressDeliveryFee + tax;
+  int get toPay {
+    if (quantity == 0) return 0;
+    final total =
+        itemTotal -
+        redeemedPointsDiscount -
+        pointsOff +
+        expressDeliveryFee +
+        tax;
+    return total < 0 ? 0 : total;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,65 +178,69 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'From $storeName',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                  if (quantity > 0) ...[
+                    Text(
+                      'From $storeName',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFA59A94),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
+                  ],
                   _buildItemCard(),
-                  const SizedBox(height: 14),
-                  _buildDeliveryNote(),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Delivery Type',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                  if (quantity > 0) ...[
+                    const SizedBox(height: 14),
+                    _buildDeliveryNote(),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Delivery Type',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildExpressDeliveryCard(),
-                  const SizedBox(height: 14),
-                  _buildAddressCard(),
-                  const SizedBox(height: 18),
-                  _buildSaveMoreSection(),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Payment',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                    const SizedBox(height: 10),
+                    _buildExpressDeliveryCard(),
+                    const SizedBox(height: 14),
+                    _buildAddressCard(),
+                    const SizedBox(height: 18),
+                    _buildSaveMoreSection(),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Payment',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildPaymentOption(
-                    index: 0,
-                    icon: Icons.account_balance_wallet_outlined,
-                    title: 'SAIMPEX Wallet',
-                    subtitle: 'Balance: 2,450 MRU',
-                  ),
-                  _buildPaymentOption(
-                    index: 1,
-                    icon: Icons.credit_card_outlined,
-                    title: 'Online payment',
-                    subtitle: 'Card • Mobile money',
-                  ),
-                  _buildPaymentOption(
-                    index: 2,
-                    icon: Icons.monetization_on_outlined,
-                    title: 'Cash on Delivery',
-                    subtitle: 'Pay the SAIMPEX driver',
-                  ),
-                  const SizedBox(height: 14),
-                  _buildPaymentDetails(),
-                  const SizedBox(height: 20),
-                  _buildPayButton(),
+                    const SizedBox(height: 10),
+                    _buildPaymentOption(
+                      index: 0,
+                      icon: Icons.account_balance_wallet_outlined,
+                      title: 'SAIMPEX Wallet',
+                      subtitle: 'Balance: 2,450 MRU',
+                    ),
+                    _buildPaymentOption(
+                      index: 1,
+                      icon: Icons.credit_card_outlined,
+                      title: 'Online payment',
+                      subtitle: 'Card • Mobile money',
+                    ),
+                    _buildPaymentOption(
+                      index: 2,
+                      icon: Icons.monetization_on_outlined,
+                      title: 'Cash on Delivery',
+                      subtitle: 'Pay the SAIMPEX driver',
+                    ),
+                    const SizedBox(height: 14),
+                    _buildPaymentDetails(),
+                    const SizedBox(height: 20),
+                    _buildPayButton(),
+                  ],
                 ],
               ),
             ),
@@ -220,6 +251,48 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
   }
 
   Widget _buildItemCard() {
+    if (quantity == 0) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.shopping_cart_outlined,
+              color: Color(0xFFA59A94),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Your cart is empty',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _setQuantity(1),
+              child: Text(
+                'Add Product',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -302,7 +375,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        if (quantity > 1) _setQuantity(quantity - 1);
+                        if (quantity > 0) _setQuantity(quantity - 1);
                       },
                       child: Container(
                         width: 22,
@@ -355,10 +428,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: const Color(0xFFEAD8C9),
-                width: 0.8,
-              ),
+              border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
@@ -425,10 +495,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF0EA),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFFF5E00),
-          width: 1.5,
-        ),
+        border: Border.all(color: const Color(0xFFFF5E00), width: 1.5),
       ),
       child: Row(
         children: [
@@ -437,10 +504,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
             height: 18,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color(0xFFFF5E00),
-                width: 1.5,
-              ),
+              border: Border.all(color: const Color(0xFFFF5E00), width: 1.5),
             ),
             padding: const EdgeInsets.all(3),
             child: Container(
@@ -451,11 +515,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
             ),
           ),
           const SizedBox(width: 10),
-          const Icon(
-            Icons.bolt_rounded,
-            color: Color(0xFFFF5E00),
-            size: 18,
-          ),
+          const Icon(Icons.bolt_rounded, color: Color(0xFFFF5E00), size: 18),
           const SizedBox(width: 6),
           Expanded(
             child: RichText(
@@ -919,7 +979,10 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
 
   Widget _buildPayButton() {
     return GestureDetector(
-      onTap: () => Get.to(() => const OrderSuccessScreen()),
+      onTap: () {
+        _syncHomeCartBadgeCount(0);
+        Get.to(() => const OrderSuccessScreen());
+      },
       child: Container(
         height: 48,
         decoration: BoxDecoration(
@@ -953,10 +1016,7 @@ class _DashedBorderPainter extends CustomPainter {
   final Color color;
   final double borderRadius;
 
-  _DashedBorderPainter({
-    required this.color,
-    this.borderRadius = 20,
-  });
+  _DashedBorderPainter({required this.color, this.borderRadius = 20});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -977,10 +1037,7 @@ class _DashedBorderPainter extends CustomPainter {
     for (final metric in path.computeMetrics()) {
       var distance = 0.0;
       while (distance < metric.length) {
-        final extract = metric.extractPath(
-          distance,
-          distance + dashLength,
-        );
+        final extract = metric.extractPath(distance, distance + dashLength);
         canvas.drawPath(extract, paint);
         distance += dashLength + gap;
       }

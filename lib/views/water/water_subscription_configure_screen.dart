@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saimpex_v2/controllers/home_controller.dart';
 import 'water_cart_screen.dart';
 
 class WaterSubscriptionConfigureScreen extends StatefulWidget {
   final Map<String, dynamic>? product;
 
-  const WaterSubscriptionConfigureScreen({
-    super.key,
-    this.product,
-  });
+  const WaterSubscriptionConfigureScreen({super.key, this.product});
 
   @override
   State<WaterSubscriptionConfigureScreen> createState() =>
@@ -38,8 +36,18 @@ class _WaterSubscriptionConfigureScreenState
 
   String _formatDate(DateTime dt) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final day = dt.day.toString().padLeft(2, '0');
     final mon = months[dt.month - 1];
@@ -238,7 +246,9 @@ class _WaterSubscriptionConfigureScreenState
                                   ),
                                 ),
                                 Container(
-                                  constraints: const BoxConstraints(minWidth: 28),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 28,
+                                  ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     '$_quantity',
@@ -298,7 +308,9 @@ class _WaterSubscriptionConfigureScreenState
                               },
                               child: Container(
                                 margin: const EdgeInsets.only(right: 10),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? const Color(0xFFFF5E00)
@@ -313,11 +325,12 @@ class _WaterSubscriptionConfigureScreenState
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: const Color(0xFFFF5E00)
-                                                .withOpacity(0.25),
+                                            color: const Color(
+                                              0xFFFF5E00,
+                                            ).withOpacity(0.25),
                                             blurRadius: 6,
                                             offset: const Offset(0, 3),
-                                          )
+                                          ),
                                         ]
                                       : [],
                                 ),
@@ -519,12 +532,13 @@ class _WaterSubscriptionConfigureScreenState
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: _timeSlots.length,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 2.8,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 2.8,
+                            ),
                         itemBuilder: (context, index) {
                           final slot = _timeSlots[index];
                           final isSelected = _selectedTimeSlot == slot;
@@ -535,7 +549,9 @@ class _WaterSubscriptionConfigureScreenState
                               });
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
@@ -644,10 +660,21 @@ class _WaterSubscriptionConfigureScreenState
                 ),
                 child: GestureDetector(
                   onTap: () {
-                    Get.to(() => WaterCartScreen(
-                          product: widget.product,
-                          isSubscription: true,
-                        ));
+                    if (Get.isRegistered<HomeController>()) {
+                      Get.find<HomeController>().setCartItem(
+                        storeName: widget.product?['supplier']?.toString() ?? 'PureLife Water Co.',
+                        itemName: widget.product?['title']?.toString() ?? 'Drinking Water',
+                        itemPortion: widget.product?['size']?.toString() ?? '19L',
+                        basePrice: widget.product?['price'],
+                        itemImage: widget.product?['image']?.toString(),
+                      );
+                    }
+                    Get.to(
+                      () => WaterCartScreen(
+                        product: widget.product,
+                        isSubscription: true,
+                      ),
+                    );
                   },
                   child: Container(
                     height: 50,

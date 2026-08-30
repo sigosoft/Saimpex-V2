@@ -2,31 +2,68 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saimpex_v2/controllers/home_controller.dart';
 import 'water_subscription_success_screen.dart';
 
 class WaterCartScreen extends StatefulWidget {
   final Map<String, dynamic>? product;
   final bool isSubscription;
 
-  const WaterCartScreen({
-    super.key,
-    this.product,
-    this.isSubscription = false,
-  });
+  const WaterCartScreen({super.key, this.product, this.isSubscription = false});
 
   @override
   State<WaterCartScreen> createState() => _WaterCartScreenState();
 }
 
 class _WaterCartScreenState extends State<WaterCartScreen> {
-  bool _isDelivery = true; // true: Delivery (35 min), false: Self Pickup (15 min)
-  int _quantity = 1;
+  bool _isDelivery =
+      true; // true: Delivery (35 min), false: Self Pickup (15 min)
+  int _quantity = 0;
   bool _usePoints = false;
   int _selectedPaymentMethod = 0; // 0: Wallet, 1: Online, 2: COD
 
   final TextEditingController _customQtyController = TextEditingController();
   final TextEditingController _deliveryNoteController = TextEditingController();
   final TextEditingController _couponController = TextEditingController();
+  bool _syncingQuantityField = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _quantity = (widget.product != null) ? 1 : 0;
+    _syncHomeCartBadgeCount(_quantity);
+  }
+
+  void _syncHomeCartBadgeCount(int count) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().updateCartItemCount(count);
+      }
+    });
+  }
+
+  void _syncCustomQuantityField() {
+    _syncingQuantityField = true;
+    _customQtyController.value = TextEditingValue(
+      text: _quantity.toString(),
+      selection: TextSelection.collapsed(offset: _quantity.toString().length),
+    );
+    _syncingQuantityField = false;
+    _syncHomeCartBadgeCount(_quantity);
+  }
+
+  void _onCustomQuantityChanged(String value) {
+    if (_syncingQuantityField) return;
+
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+
+    final parsed = int.tryParse(trimmed);
+    if (parsed != null && parsed >= 0 && parsed != _quantity) {
+      setState(() => _quantity = parsed);
+      _syncHomeCartBadgeCount(parsed);
+    }
+  }
 
   @override
   void dispose() {
@@ -54,10 +91,11 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
 
     // Dynamic Price Calculations
     final int itemTotal = 50 * _quantity;
-    final int redeemedPoints = _usePoints ? 1 : 1;
-    final int deliveryFee = _isDelivery ? 5 : 0;
-    final int tax = 2;
-    final int totalToPay = itemTotal - redeemedPoints + deliveryFee + tax;
+    final int redeemedPoints = (_usePoints && _quantity > 0) ? 1 : 0;
+    final int deliveryFee = (_isDelivery && _quantity > 0) ? 5 : 0;
+    final int tax = _quantity > 0 ? 2 : 0;
+    final int rawToPay = itemTotal - redeemedPoints + deliveryFee + tax;
+    final int totalToPay = (_quantity == 0 || rawToPay < 0) ? 0 : rawToPay;
     // When _isDelivery: 50 - 1 + 5 + 2 = 56 MRU
     // When !_isDelivery: 50 - 1 + 0 + 2 = 51 MRU
 
@@ -79,20 +117,22 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
               const SizedBox(height: 4),
 
               // Supplier Subtitle
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'From $supplierName',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF8C7E75),
-                      fontSize: 11,
+              if (_quantity > 0) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'From $supplierName',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF8C7E75),
+                        fontSize: 11,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
+              ],
 
               // Main Form Content
               Expanded(
@@ -104,83 +144,93 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
                     children: [
                       // 1. Product Item Card (With quantity input box)
                       _buildRegularProductCard(title, image),
-                      const SizedBox(height: 12),
+                      if (_quantity > 0) ...[
+                        const SizedBox(height: 12),
 
-                      // 2. Delivery Note Field (Shown if Delivery selected)
-                      if (_isDelivery) ...[
-                        _buildDeliveryNoteBox(),
+                        // 2. Delivery Note Field (Shown if Delivery selected)
+                        if (_isDelivery) ...[
+                          _buildDeliveryNoteBox(),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // 3. Delivery Type Section (Delivery vs Self Pickup Toggle)
+                        _buildDeliveryTypeSection(),
                         const SizedBox(height: 16),
+
+                        // 4. Dynamic Location Card (Home vs Pickup Location)
+                        _buildDynamicLocationCard(),
+                        const SizedBox(height: 12),
+
+                        // 5. Schedule for Later Card
+                        _buildScheduleForLaterCard(),
+                        const SizedBox(height: 18),
+
+                        // 6. Save More Section
+                        _buildSaveMoreSection(),
+                        const SizedBox(height: 18),
+
+                        // 7. Payment Options
+                        _buildPaymentSection(),
+                        const SizedBox(height: 20),
+
+                        // 8. Dark Receipt Box (PAYMENT DETAILS)
+                        _buildRegularDarkReceiptBox(
+                          itemTotal,
+                          redeemedPoints,
+                          deliveryFee,
+                          tax,
+                          totalToPay,
+                        ),
+                        const SizedBox(height: 20),
                       ],
-
-                      // 3. Delivery Type Section (Delivery vs Self Pickup Toggle)
-                      _buildDeliveryTypeSection(),
-                      const SizedBox(height: 16),
-
-                      // 4. Dynamic Location Card (Home vs Pickup Location)
-                      _buildDynamicLocationCard(),
-                      const SizedBox(height: 12),
-
-                      // 5. Schedule for Later Card
-                      _buildScheduleForLaterCard(),
-                      const SizedBox(height: 18),
-
-                      // 6. Save More Section
-                      _buildSaveMoreSection(),
-                      const SizedBox(height: 18),
-
-                      // 7. Payment Options
-                      _buildPaymentSection(),
-                      const SizedBox(height: 20),
-
-                      // 8. Dark Receipt Box (PAYMENT DETAILS)
-                      _buildRegularDarkReceiptBox(itemTotal, redeemedPoints, deliveryFee, tax, totalToPay),
-                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ),
 
               // Bottom Action Button (Pay 56 MRU / Pay 51 MRU)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.to(() => const WaterSubscriptionSuccessScreen());
-                  },
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFF5E00).withOpacity(0.35),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+              if (_quantity > 0)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      _syncHomeCartBadgeCount(0);
+                      Get.to(() => const WaterSubscriptionSuccessScreen());
+                    },
+                    child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
                         ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Pay $totalToPay MRU',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF5E00).withOpacity(0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Pay $totalToPay MRU',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -190,6 +240,51 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
 
   // Regular Product Card (With Customize your quantity input box)
   Widget _buildRegularProductCard(String title, String image) {
+    if (_quantity == 0) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.shopping_cart_outlined,
+              color: Color(0xFFA59A94),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Your cart is empty',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() => _quantity = 1);
+                _syncCustomQuantityField();
+              },
+              child: Text(
+                'Add Product',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -269,10 +364,11 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        if (_quantity > 1) {
+                        if (_quantity > 0) {
                           setState(() {
                             _quantity--;
                           });
+                          _syncCustomQuantityField();
                         }
                       },
                       child: Container(
@@ -310,6 +406,7 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
                         setState(() {
                           _quantity++;
                         });
+                        _syncCustomQuantityField();
                       },
                       child: Container(
                         width: 24,
@@ -339,14 +436,15 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFFEAD8C9),
-                width: 0.8,
-              ),
+              border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
             ),
             child: TextField(
               controller: _customQtyController,
-              style: GoogleFonts.outfit(fontSize: 11, color: const Color(0xFF1A1A1A)),
+              onChanged: _onCustomQuantityChanged,
+              style: GoogleFonts.outfit(
+                fontSize: 11,
+                color: const Color(0xFF1A1A1A),
+              ),
               decoration: InputDecoration(
                 hintText: 'Customize your quantity here',
                 hintStyle: GoogleFonts.outfit(
@@ -371,17 +469,11 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFF6EFE6),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFEAD8C9),
-          width: 0.8,
-        ),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
       ),
       child: Text(
         '+ Add delivery note (Optional)',
-        style: GoogleFonts.outfit(
-          color: const Color(0xFFA59A94),
-          fontSize: 11,
-        ),
+        style: GoogleFonts.outfit(color: const Color(0xFFA59A94), fontSize: 11),
       ),
     );
   }
@@ -480,7 +572,9 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: !_isDelivery ? const Color(0xFFFFF0E6) : Colors.white,
+                    color: !_isDelivery
+                        ? const Color(0xFFFFF0E6)
+                        : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: !_isDelivery
@@ -673,10 +767,7 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFEAF9F0),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFC3EED5),
-          width: 0.8,
-        ),
+        border: Border.all(color: const Color(0xFFC3EED5), width: 0.8),
       ),
       child: Row(
         children: [
@@ -957,11 +1048,7 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
                 color: Color(0xFFFFF0E6),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: const Color(0xFFFF5E00),
-                size: 18,
-              ),
+              child: Icon(icon, color: const Color(0xFFFF5E00), size: 18),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1037,7 +1124,11 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
           const SizedBox(height: 14),
           _buildReceiptRow('Item total', '$itemTotal MRU'),
           const SizedBox(height: 8),
-          _buildReceiptRow('Redeemed points', '-$redeemedPoints MRU', isOrange: true),
+          _buildReceiptRow(
+            'Redeemed points',
+            '-$redeemedPoints MRU',
+            isOrange: true,
+          ),
           if (_isDelivery) ...[
             const SizedBox(height: 8),
             _buildReceiptRow('Delivery fee', '$deliveryFee MRU'),
@@ -1096,21 +1187,22 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
             children: [
               const SizedBox(height: 8),
               _buildHeader(context),
-              const SizedBox(height: 4),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'From $supplierName',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF8C7E75),
-                      fontSize: 11,
+              if (_quantity > 0) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'From $supplierName',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF8C7E75),
+                        fontSize: 11,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
+              ],
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
@@ -1119,63 +1211,67 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSubscriptionProductCard(title, image, price),
-                      const SizedBox(height: 12),
-                      _buildDeliveryNoteBox(),
-                      const SizedBox(height: 18),
-                      _buildSubscriptionDetailsGrid(),
-                      const SizedBox(height: 18),
-                      _buildDynamicLocationCard(),
-                      const SizedBox(height: 20),
-                      _buildSaveMoreSection(),
-                      const SizedBox(height: 20),
-                      _buildPaymentSection(),
-                      const SizedBox(height: 24),
-                      _buildSubscriptionDarkReceiptBox(),
-                      const SizedBox(height: 20),
+                      if (_quantity > 0) ...[
+                        const SizedBox(height: 12),
+                        _buildDeliveryNoteBox(),
+                        const SizedBox(height: 18),
+                        _buildSubscriptionDetailsGrid(),
+                        const SizedBox(height: 18),
+                        _buildDynamicLocationCard(),
+                        const SizedBox(height: 20),
+                        _buildSaveMoreSection(),
+                        const SizedBox(height: 20),
+                        _buildPaymentSection(),
+                        const SizedBox(height: 24),
+                        _buildSubscriptionDarkReceiptBox(),
+                        const SizedBox(height: 20),
+                      ],
                     ],
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.to(() => const WaterSubscriptionSuccessScreen());
-                  },
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFF5E00).withOpacity(0.35),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+              if (_quantity > 0)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      _syncHomeCartBadgeCount(0);
+                      Get.to(() => const WaterSubscriptionSuccessScreen());
+                    },
+                    child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
                         ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Pay 5500 MRU',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF5E00).withOpacity(0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Pay 5500 MRU',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -1183,7 +1279,55 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
     );
   }
 
-  Widget _buildSubscriptionProductCard(String title, String image, String price) {
+  Widget _buildSubscriptionProductCard(
+    String title,
+    String image,
+    String price,
+  ) {
+    if (_quantity == 0) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.shopping_cart_outlined,
+              color: Color(0xFFA59A94),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Your cart is empty',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() => _quantity = 1);
+                _syncCustomQuantityField();
+              },
+              child: Text(
+                'Add Product',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -1259,10 +1403,11 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    if (_quantity > 1) {
+                    if (_quantity > 0) {
                       setState(() {
                         _quantity--;
                       });
+                      _syncCustomQuantityField();
                     }
                   },
                   child: Container(
@@ -1300,6 +1445,7 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
                     setState(() {
                       _quantity++;
                     });
+                    _syncCustomQuantityField();
                   },
                   child: Container(
                     width: 24,
@@ -1520,11 +1666,7 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
     );
   }
 
-  Widget _buildReceiptRow(
-    String label,
-    String value, {
-    bool isOrange = false,
-  }) {
+  Widget _buildReceiptRow(String label, String value, {bool isOrange = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

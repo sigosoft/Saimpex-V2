@@ -351,11 +351,13 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                                   Get.to(
                                                     () => ChatScreen(
                                                       restaurant: {
-                                                        'title': widget.store[
-                                                                'title'] ??
+                                                        'title':
+                                                            widget
+                                                                .store['title'] ??
                                                             'Pharmacy Nasr',
-                                                        'image': widget.store[
-                                                                'image'] ??
+                                                        'image':
+                                                            widget
+                                                                .store['image'] ??
                                                             'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop',
                                                       },
                                                     ),
@@ -468,9 +470,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                       onTap: () {
                                         Get.to(
                                           () => UploadPrescriptionScreen(
-                                            initialPharmacy:
-                                                widget.store['title']
-                                                    ?.toString(),
+                                            initialPharmacy: widget
+                                                .store['title']
+                                                ?.toString(),
                                           ),
                                         );
                                       },
@@ -817,54 +819,75 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 // Bottom 50%: scrollable products
                 Expanded(
                   flex: 1,
-                  child: GridView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      4,
-                      16,
-                      showCartBar ? bottomInset + 88 : 24,
-                    ),
-                    itemCount: menuItems.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          mainAxisExtent: 220,
-                        ),
-                    itemBuilder: (context, index) {
-                      final food = menuItems[index];
-                      return PharmacyProductCard(
-                        food: food,
-                        isNotAccepting: isNotAccepting,
-                        onTap: () => showPharmacyProductDetailsSheet(
-                          context,
+                  child: Obx(() {
+                    final hasItems = controller.cartItemCount.value > 0;
+                    return GridView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        4,
+                        16,
+                        hasItems ? bottomInset + 88 : 24,
+                      ),
+                      itemCount: menuItems.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            mainAxisExtent: 220,
+                          ),
+                      itemBuilder: (context, index) {
+                        final food = menuItems[index];
+                        return PharmacyProductCard(
                           food: food,
                           isNotAccepting: isNotAccepting,
-                          onAdd: () {
-                            setState(() {
-                              showCartBar = true;
-                              lastAddedItem = food;
-                              lastAddedItemPortion = food['tag'] as String?;
-                            });
-                          },
-                        ),
-                        onAdd: () => showPharmacyCustomizeSheet(
-                          context,
-                          food: food,
-                          fromBottomSheet: false,
-                          onAdded: (item, portion) {
-                            setState(() {
-                              lastAddedItem = item;
-                              lastAddedItemPortion = portion;
-                              showCartBar = true;
-                            });
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                          onTap: () => showPharmacyProductDetailsSheet(
+                            context,
+                            food: food,
+                            isNotAccepting: isNotAccepting,
+                            onAdd: () {
+                              setState(() {
+                                showCartBar = true;
+                                lastAddedItem = food;
+                                lastAddedItemPortion = food['tag'] as String?;
+                              });
+                              if (Get.isRegistered<HomeController>()) {
+                                Get.find<HomeController>().setCartItem(
+                                  storeName: widget.store['title']?.toString() ?? 'Pharmacy Nasr',
+                                  itemName: food['title']?.toString(),
+                                  itemPortion: food['tag']?.toString() ?? '10 Tablets',
+                                  basePrice: parsePrice(food['price']?.toString() ?? '50'),
+                                  itemImage: food['image']?.toString(),
+                                );
+                              }
+                            },
+                          ),
+                          onAdd: () => showPharmacyCustomizeSheet(
+                            context,
+                            food: food,
+                            fromBottomSheet: false,
+                            onAdded: (item, portion) {
+                              setState(() {
+                                lastAddedItem = item;
+                                lastAddedItemPortion = portion;
+                                showCartBar = true;
+                              });
+                              if (Get.isRegistered<HomeController>()) {
+                                Get.find<HomeController>().setCartItem(
+                                  storeName: widget.store['title']?.toString() ?? 'Pharmacy Nasr',
+                                  itemName: item['title']?.toString() ?? food['title']?.toString(),
+                                  itemPortion: portion ?? '10 Tablets',
+                                  basePrice: parsePrice(item['price']?.toString() ?? food['price']?.toString() ?? '50'),
+                                  itemImage: item['image']?.toString() ?? food['image']?.toString(),
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  }),
                 ),
               ],
             ),
@@ -900,12 +923,14 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
           ),
 
           // 4. Floating Cart Summary Bar
-          if (showCartBar)
-            Positioned(
-              bottom: bottomInset + 16,
-              left: 16,
-              right: 16,
-              child: PharmacyCartBar(
+          Positioned(
+            bottom: bottomInset + 16,
+            left: 16,
+            right: 16,
+            child: Obx(() {
+              final hasItems = controller.cartItemCount.value > 0;
+              if (!hasItems) return const SizedBox.shrink();
+              return PharmacyCartBar(
                 price: lastAddedItem?['price'] ?? '50 MRU',
                 onTap: () {
                   Get.to(
@@ -919,8 +944,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                     ),
                   );
                 },
-              ),
-            ),
+              );
+            }),
+          ),
         ],
       ),
     );

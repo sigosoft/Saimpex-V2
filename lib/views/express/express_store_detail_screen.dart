@@ -129,7 +129,8 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
 
   String get storeRating => (widget.store['rating'] ?? '4.6').toString();
 
-  String get storeDiscount => (widget.store['discount'] ?? '50% OFF').toString();
+  String get storeDiscount =>
+      (widget.store['discount'] ?? '50% OFF').toString();
 
   String get storeId => (widget.store['id'] ?? 'express_store').toString();
 
@@ -146,6 +147,15 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
       lastAddedItemPortion = portion;
       showCartBar = true;
     });
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().setCartItem(
+        storeName: storeName,
+        itemName: product['title']?.toString(),
+        itemPortion: portion,
+        basePrice: parsePrice(price),
+        itemImage: product['image']?.toString(),
+      );
+    }
   }
 
   @override
@@ -198,47 +208,50 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
                   ],
                 ),
                 Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.only(
-                      bottom: showCartBar ? bottomInset + 88 : 24,
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'All Items from This Store',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
+                  child: Obx(() {
+                    final hasItems = controller.cartItemCount.value > 0;
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.only(
+                        bottom: hasItems ? bottomInset + 88 : 24,
+                      ),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'All Items from This Store',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: products.length,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 12,
-                              crossAxisSpacing: 12,
-                              mainAxisExtent: 248,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: products.length,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: 12,
+                                    crossAxisSpacing: 12,
+                                    mainAxisExtent: 248,
+                                  ),
+                              itemBuilder: (_, index) =>
+                                  _buildProductCard(products[index]),
                             ),
-                            itemBuilder: (_, index) =>
-                                _buildProductCard(products[index]),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -270,13 +283,16 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
               ),
             ),
           ),
-          if (showCartBar)
-            Positioned(
-              bottom: bottomInset + 16,
-              left: 16,
-              right: 16,
-              child: _buildCartBar(),
-            ),
+          Positioned(
+            bottom: bottomInset + 16,
+            left: 16,
+            right: 16,
+            child: Obx(() {
+              final hasItems = controller.cartItemCount.value > 0;
+              if (!hasItems) return const SizedBox.shrink();
+              return _buildCartBar();
+            }),
+          ),
         ],
       ),
     );
@@ -285,7 +301,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
   Widget _headerFallback() {
     return Container(
       color: const Color(0xFFF3EFEA),
-      child: const Icon(Icons.storefront_outlined, color: Colors.grey, size: 40),
+      child: const Icon(
+        Icons.storefront_outlined,
+        color: Colors.grey,
+        size: 40,
+      ),
     );
   }
 
@@ -329,7 +349,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.white, size: 12),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.white,
+                      size: 12,
+                    ),
                     const SizedBox(width: 2),
                     Text(
                       storeRating,
@@ -347,7 +371,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(Icons.access_time_rounded, color: Color(0xFFFF5E00), size: 13),
+              const Icon(
+                Icons.access_time_rounded,
+                color: Color(0xFFFF5E00),
+                size: 13,
+              ),
               const SizedBox(width: 4),
               Text(
                 storeTime,
@@ -358,7 +386,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
                 ),
               ),
               const SizedBox(width: 14),
-              const Icon(Icons.location_on_outlined, color: Color(0xFFFF5E00), size: 13),
+              const Icon(
+                Icons.location_on_outlined,
+                color: Color(0xFFFF5E00),
+                size: 13,
+              ),
               const SizedBox(width: 4),
               Text(
                 storeDist,
@@ -455,11 +487,18 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+                      border: Border.all(
+                        color: const Color(0xFFEAD8C9),
+                        width: 0.8,
+                      ),
                     ),
                     child: Icon(
-                      liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      color: liked ? const Color(0xFFE03A3A) : const Color(0xFF2C2520),
+                      liked
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      color: liked
+                          ? const Color(0xFFE03A3A)
+                          : const Color(0xFF2C2520),
                       size: 18,
                     ),
                   );
@@ -491,7 +530,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            const Icon(Icons.search_rounded, color: Color(0xFFA59A94), size: 18),
+            const Icon(
+              Icons.search_rounded,
+              color: Color(0xFFA59A94),
+              size: 18,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
@@ -612,7 +655,9 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.10),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.10,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -649,8 +694,9 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
                                   ? const Color(0xFFFF5E00)
                                   : const Color(0xFF3A312C),
                               fontSize: 11,
-                              fontWeight:
-                                  isSelected ? FontWeight.w700 : FontWeight.w600,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
                             ),
                           ),
                         ],
@@ -688,7 +734,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
       width: 46,
       height: 46,
       color: Colors.grey.shade300,
-      child: const Icon(Icons.shopping_basket_outlined, size: 18, color: Colors.grey),
+      child: const Icon(
+        Icons.shopping_basket_outlined,
+        size: 18,
+        color: Colors.grey,
+      ),
     );
   }
 
@@ -713,50 +763,54 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
               }
             },
             child: Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isMru) ...[
-                  Image.asset(
-                    'lib/assets/images/Coin.png',
-                    width: 12,
-                    height: 12,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.monetization_on_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 12,
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isMru) ...[
+                    Image.asset(
+                      'lib/assets/images/Coin.png',
+                      width: 12,
+                      height: 12,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.monetization_on_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 12,
+                      ),
+                    ),
+                  ] else if (isRating) ...[
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Color(0xFFFFAE00),
+                      size: 14,
+                    ),
+                  ] else if (iconPath != null) ...[
+                    Image.asset(
+                      iconPath,
+                      width: 14,
+                      height: 14,
+                      errorBuilder: (_, __, ___) =>
+                          const Icon(Icons.tune_rounded, size: 14),
+                    ),
+                  ],
+                  const SizedBox(width: 6),
+                  Text(
+                    filter['label'].toString(),
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ] else if (isRating) ...[
-                  const Icon(Icons.star_rounded, color: Color(0xFFFFAE00), size: 14),
-                ] else if (iconPath != null) ...[
-                  Image.asset(
-                    iconPath,
-                    width: 14,
-                    height: 14,
-                    errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.tune_rounded, size: 14),
-                  ),
                 ],
-                const SizedBox(width: 6),
-                Text(
-                  filter['label'].toString(),
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
           );
         },
       ),
@@ -773,162 +827,169 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
         );
       },
       child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 5,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Image.network(
-                    product['image'].toString(),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: const Color(0xFFF3EFEA),
-                      child: const Icon(Icons.image_not_supported_outlined),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF5E00),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      product['discount'].toString(),
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
-          ),
-          Expanded(
-            flex: 6,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Stack(
                 children: [
-                  Text(
-                    product['title'].toString(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                  Positioned.fill(
+                    child: Image.network(
+                      product['image'].toString(),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: const Color(0xFFF3EFEA),
+                        child: const Icon(Icons.image_not_supported_outlined),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      const Icon(Icons.star_rounded, color: Color(0xFFFFAE00), size: 12),
-                      const SizedBox(width: 2),
-                      Text(
-                        product['rating'].toString(),
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
                       ),
-                      const SizedBox(width: 2),
-                      Expanded(
-                        child: Text(
-                          '(${product['reviews']})',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFA59A94),
-                            fontSize: 9,
-                          ),
-                        ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF5E00),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Text(
-                        product['price'].toString(),
+                      child: Text(
+                        product['discount'].toString(),
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
-                          fontSize: 14,
+                          color: Colors.white,
+                          fontSize: 8,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () {
-                          showExpressProductCustomizeSheet(
-                            context,
-                            product: product,
-                            onAdded: _onProductAdded,
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.shopping_cart_outlined,
-                                color: Colors.white,
-                                size: 13,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'ADD',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            Expanded(
+              flex: 6,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product['title'].toString(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Color(0xFFFFAE00),
+                          size: 12,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          product['rating'].toString(),
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            '(${product['reviews']})',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Text(
+                          product['price'].toString(),
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFFF5E00),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            showExpressProductCustomizeSheet(
+                              context,
+                              product: product,
+                              onAdded: _onProductAdded,
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.shopping_cart_outlined,
+                                  color: Colors.white,
+                                  size: 13,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'ADD',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 

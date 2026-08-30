@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saimpex_v2/controllers/home_controller.dart';
 
 import 'water_subscription_cart_screen.dart';
 
@@ -176,10 +177,10 @@ class _WaterProductSubscriptionScreenState
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) =>
                               const Icon(
-                            Icons.water_drop_outlined,
-                            color: Color(0xFF2E9FE6),
-                            size: 80,
-                          ),
+                                Icons.water_drop_outlined,
+                                color: Color(0xFF2E9FE6),
+                                size: 80,
+                              ),
                         ),
                       ),
                     ),
@@ -251,8 +252,7 @@ class _WaterProductSubscriptionScreenState
                         final selected = selectedTypeIndex == i;
                         return Expanded(
                           child: GestureDetector(
-                            onTap: () =>
-                                setState(() => selectedTypeIndex = i),
+                            onTap: () => setState(() => selectedTypeIndex = i),
                             child: Container(
                               height: 38,
                               margin: EdgeInsets.only(
@@ -333,9 +333,21 @@ class _WaterProductSubscriptionScreenState
                   final slotLabel = selectedSlotIndex == null
                       ? '8:00 - 10:00 AM'
                       : (timeSlots[selectedSlotIndex!] == 'Late night'
-                          ? 'Late night'
-                          : timeSlots[selectedSlotIndex!]
-                              .replaceAll('–', ' - '));
+                            ? 'Late night'
+                            : timeSlots[selectedSlotIndex!].replaceAll(
+                                '–',
+                                ' - ',
+                              ));
+
+                  if (Get.isRegistered<HomeController>()) {
+                    Get.find<HomeController>().setCartItem(
+                      storeName: widget.supplier?['title']?.toString() ?? 'PureLife Water Co.',
+                      itemName: (product['title'] ?? 'Drinking Water').toString(),
+                      itemPortion: (product['size'] ?? '19L').toString(),
+                      basePrice: parsePrice(product['price']?.toString() ?? '50'),
+                      itemImage: product['image']?.toString(),
+                    );
+                  }
 
                   Get.to(
                     () => WaterSubscriptionCartScreen(
@@ -346,9 +358,10 @@ class _WaterProductSubscriptionScreenState
                           .toString()
                           .replaceAll(RegExp(r'\s+\d+L$'), ''),
                       itemSize: (product['size'] ?? '19L').toString(),
-                      itemImage: (product['image'] ??
-                              'lib/assets/images/19Lbottle.png')
-                          .toString(),
+                      itemImage:
+                          (product['image'] ??
+                                  'lib/assets/images/19Lbottle.png')
+                              .toString(),
                       unitPrice: parsePrice(
                         product['price']?.toString() ?? '50',
                       ),
@@ -473,11 +486,7 @@ class _WaterProductSubscriptionScreenState
             },
             child: const Padding(
               padding: EdgeInsets.all(4),
-              child: Icon(
-                Icons.remove,
-                color: Color(0xFFA59A94),
-                size: 16,
-              ),
+              child: Icon(Icons.remove, color: Color(0xFFA59A94), size: 16),
             ),
           ),
           Padding(
@@ -653,7 +662,8 @@ class _WaterProductSubscriptionScreenState
                 return GestureDetector(
                   onTap: () => setState(() => selectedSlotIndex = index),
                   child: Container(
-                    width: (MediaQuery.sizeOf(context).width - 32 - 28 - 10) / 2,
+                    width:
+                        (MediaQuery.sizeOf(context).width - 32 - 28 - 10) / 2,
                     height: 40,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(

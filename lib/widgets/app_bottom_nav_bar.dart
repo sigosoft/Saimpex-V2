@@ -113,12 +113,17 @@ class AppBottomNavBar extends StatelessWidget {
                         ),
                       ),
                       Expanded(
-                        child: _sideItem(
-                          index: HomeController.navCart,
-                          asset: 'lib/assets/images/Bottom Cart.png',
-                          label: 'Cart',
-                          badgeCount: 2,
-                        ),
+                        child: Obx(() {
+                          final controller = Get.isRegistered<HomeController>()
+                              ? Get.find<HomeController>()
+                              : Get.put(HomeController());
+                          return _sideItem(
+                            index: HomeController.navCart,
+                            asset: 'lib/assets/images/Bottom Cart.png',
+                            label: 'Cart',
+                            badgeCount: controller.cartItemCount.value,
+                          );
+                        }),
                       ),
                       Expanded(
                         child: _sideItem(

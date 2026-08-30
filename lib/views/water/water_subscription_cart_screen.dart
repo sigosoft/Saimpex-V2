@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saimpex_v2/controllers/home_controller.dart';
 
 import 'water_subscription_success_screen.dart';
 
@@ -50,15 +51,23 @@ class _WaterSubscriptionCartScreenState
   final int pointsOff = 50;
 
   int get toPay {
-    final base =
-        subscriptionAmount - subscriptionSavings + deliveryFee + tax;
+    final base = subscriptionAmount - subscriptionSavings + deliveryFee + tax;
     return usePoints ? base - pointsOff : base;
   }
 
   @override
   void initState() {
     super.initState();
-    quantity = widget.quantity < 1 ? 1 : widget.quantity;
+    quantity = widget.quantity < 1 ? 0 : widget.quantity;
+    _syncHomeCartBadgeCount(quantity);
+  }
+
+  void _syncHomeCartBadgeCount(int count) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().updateCartItemCount(count);
+      }
+    });
   }
 
   @override
@@ -90,107 +99,114 @@ class _WaterSubscriptionCartScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'From ${widget.storeName}',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF7A6A60),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                    if (quantity > 0) ...[
+                      Text(
+                        'From ${widget.storeName}',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF7A6A60),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
+                    ],
                     _buildProductCard(),
-                    const SizedBox(height: 12),
-                    _buildDeliveryNote(),
-                    const SizedBox(height: 18),
-                    _buildSubscriptionDetails(),
-                    const SizedBox(height: 14),
-                    _buildAddressCard(),
-                    const SizedBox(height: 18),
-                    Text(
-                      'Save More',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                    if (quantity > 0) ...[
+                      const SizedBox(height: 12),
+                      _buildDeliveryNote(),
+                      const SizedBox(height: 18),
+                      _buildSubscriptionDetails(),
+                      const SizedBox(height: 14),
+                      _buildAddressCard(),
+                      const SizedBox(height: 18),
+                      Text(
+                        'Save More',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildCouponCard(),
-                    const SizedBox(height: 10),
-                    _buildPointsCard(),
-                    const SizedBox(height: 18),
-                    Text(
-                      'Payment',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                      const SizedBox(height: 10),
+                      _buildCouponCard(),
+                      const SizedBox(height: 10),
+                      _buildPointsCard(),
+                      const SizedBox(height: 18),
+                      Text(
+                        'Payment',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildPaymentOption(
-                      index: 0,
-                      icon: Icons.account_balance_wallet_outlined,
-                      title: 'SAIMPEX Wallet',
-                      subtitle: 'Balance: 2,450 MRU',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildPaymentOption(
-                      index: 1,
-                      icon: Icons.credit_card_outlined,
-                      title: 'Online payment',
-                      subtitle: 'Card • Mobile money',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildPaymentOption(
-                      index: 2,
-                      icon: Icons.payments_outlined,
-                      title: 'Cash on Delivery',
-                      subtitle: 'Pay the SAIMPEX driver',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildPaymentDetails(),
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 10),
+                      _buildPaymentOption(
+                        index: 0,
+                        icon: Icons.account_balance_wallet_outlined,
+                        title: 'SAIMPEX Wallet',
+                        subtitle: 'Balance: 2,450 MRU',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPaymentOption(
+                        index: 1,
+                        icon: Icons.credit_card_outlined,
+                        title: 'Online payment',
+                        subtitle: 'Card • Mobile money',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildPaymentOption(
+                        index: 2,
+                        icon: Icons.payments_outlined,
+                        title: 'Cash on Delivery',
+                        subtitle: 'Pay the SAIMPEX driver',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildPaymentDetails(),
+                      const SizedBox(height: 8),
+                    ],
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 12),
-              child: GestureDetector(
-                onTap: () {
-                  Get.to(() => const WaterSubscriptionSuccessScreen());
-                },
-                child: Container(
-                  height: 52,
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                    ),
-                    borderRadius: BorderRadius.circular(26),
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            const Color(0xFFFF5E00).withValues(alpha: 0.28),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+            if (quantity > 0)
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 12),
+                child: GestureDetector(
+                  onTap: () {
+                    _syncHomeCartBadgeCount(0);
+                    Get.to(() => const WaterSubscriptionSuccessScreen());
+                  },
+                  child: Container(
+                    height: 52,
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                       ),
-                    ],
-                  ),
-                  child: Text(
-                    'Pay $payAmount MRU',
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+                      borderRadius: BorderRadius.circular(26),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFFFF5E00,
+                          ).withValues(alpha: 0.28),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'Pay $payAmount MRU',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -252,6 +268,51 @@ class _WaterSubscriptionCartScreenState
   }
 
   Widget _buildProductCard() {
+    if (quantity == 0) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.shopping_cart_outlined,
+              color: Color(0xFFA59A94),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Your cart is empty',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() => quantity = 1);
+                _syncHomeCartBadgeCount(1);
+              },
+              child: Text(
+                'Add Product',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     final image = widget.itemImage;
     final isAsset = !image.startsWith('http');
 
@@ -280,8 +341,7 @@ class _WaterSubscriptionCartScreenState
                   ? Image.asset(
                       image,
                       fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(
+                      errorBuilder: (context, error, stackTrace) => const Icon(
                         Icons.water_drop_outlined,
                         color: Color(0xFF2E9FE6),
                       ),
@@ -289,8 +349,7 @@ class _WaterSubscriptionCartScreenState
                   : Image.network(
                       image,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(
+                      errorBuilder: (context, error, stackTrace) => const Icon(
                         Icons.water_drop_outlined,
                         color: Color(0xFF2E9FE6),
                       ),
@@ -343,7 +402,11 @@ class _WaterSubscriptionCartScreenState
               children: [
                 GestureDetector(
                   onTap: () {
-                    if (quantity > 1) setState(() => quantity--);
+                    if (quantity > 0) {
+                      final next = quantity - 1;
+                      setState(() => quantity = next);
+                      _syncHomeCartBadgeCount(next);
+                    }
                   },
                   child: Container(
                     width: 28,
@@ -371,7 +434,11 @@ class _WaterSubscriptionCartScreenState
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => setState(() => quantity++),
+                  onTap: () {
+                    final next = quantity + 1;
+                    setState(() => quantity = next);
+                    _syncHomeCartBadgeCount(next);
+                  },
                   child: Container(
                     width: 28,
                     height: 28,
@@ -379,11 +446,7 @@ class _WaterSubscriptionCartScreenState
                       color: Color(0xFFFF5E00),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 16,
-                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 16),
                   ),
                 ),
               ],
@@ -402,10 +465,7 @@ class _WaterSubscriptionCartScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFFD9D1C9),
-          width: 1.2,
-        ),
+        border: Border.all(color: const Color(0xFFD9D1C9), width: 1.2),
       ),
       child: Text(
         '+ Add delivery note (Optional)',
@@ -465,10 +525,7 @@ class _WaterSubscriptionCartScreenState
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: _detailBox(
-                label: 'Type',
-                value: widget.subscriptionType,
-              ),
+              child: _detailBox(label: 'Type', value: widget.subscriptionType),
             ),
           ],
         ),
@@ -724,9 +781,7 @@ class _WaterSubscriptionCartScreenState
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFEAD8C9),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
             width: selected ? 1.4 : 0.8,
           ),
         ),
