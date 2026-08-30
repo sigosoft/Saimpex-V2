@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../chat_screen.dart';
 import '../cart_screen.dart';
+import '../../widgets/bottom_chat_icon.dart';
 import 'widgets/water_product_details_sheet.dart';
 import 'water_subscription_screen.dart';
 import 'water_subscription_configure_screen.dart';
@@ -335,10 +336,9 @@ class _WaterSupplierDetailsScreenState
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(
-                                        Icons.chat_bubble_outline_rounded,
-                                        color: Colors.white,
+                                      const BottomChatIcon(
                                         size: 18,
+                                        color: Colors.white,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(

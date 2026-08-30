@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../chat_screen.dart';
 import '../cart_screen.dart';
+import '../../widgets/bottom_chat_icon.dart';
 import 'local_store_cart_screen.dart';
 
 class LocalStoreDetailsScreen extends StatefulWidget {
@@ -329,10 +330,9 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        const Icon(
-                                          Icons.chat_bubble_outline_rounded,
-                                          color: Colors.white,
+                                        const BottomChatIcon(
                                           size: 18,
+                                          color: Colors.white,
                                         ),
                                         const SizedBox(width: 8),
                                         Text(

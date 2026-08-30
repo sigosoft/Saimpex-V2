@@ -551,7 +551,7 @@ class HomeScreen extends StatelessWidget {
                   child: Image.asset(
                     "lib/assets/images/FreeDelivery.png",
                     fit: BoxFit.fill,
-                    width: 220,
+                    width: 250,
                   ),
                 ),
               ),
@@ -561,7 +561,7 @@ class HomeScreen extends StatelessWidget {
                 child: Image.asset(
                   "lib/assets/images/Cashback.png",
                   fit: BoxFit.fill,
-                  width: 150,
+                  width: 170,
                 ),
               ),
             ],

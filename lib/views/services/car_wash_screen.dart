@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -8,47 +10,29 @@ import '../../controllers/select_location_controller.dart';
 import '../../navigation/bottom_nav_router.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
 import '../select_location_screen.dart';
-import 'home_cleaning_provider_detail_screen.dart';
+import 'car_wash_provider_detail_screen.dart';
 
-class HomeCleaningScreen extends StatelessWidget {
-  const HomeCleaningScreen({super.key});
+class CarWashScreen extends StatelessWidget {
+  const CarWashScreen({super.key});
 
-  static const _categories = [
+  static const _nearbyCenters = [
     {
-      'label': 'Deep\nCleaning',
-      'image': 'lib/assets/images/Deep Cleaning.png',
-    },
-    {
-      'label': 'Kitchen\nCleaning',
-      'image': 'lib/assets/images/Kitchen Cleaning.png',
-    },
-    {
-      'label': 'Bedroom\nCleaning',
-      'image': 'lib/assets/images/bedroom_cleaning.png',
-    },
-    {
-      'label': 'Sofa Care',
-      'image': 'lib/assets/images/Sofa Cleaning.png',
-    },
-  ];
-
-  static const _nearbyServices = [
-    {
-      'name': 'CleanPro Elite',
+      'name': 'CleanRide Car Wash',
       'rating': '4.8',
       'distance': '2.4 km away',
-      'price': '450',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/cleanproelitee.jpg',
-    },
-    {
-      'name': 'Elite Shine',
-      'rating': '4.6',
-      'distance': '3.1 km away',
-      'price': '450',
+      'price': '550',
       'points': '200 Points Available',
       'image':
-          'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&h=360&fit=crop',
+          'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=800&h=480&fit=crop',
+    },
+    {
+      'name': 'Desert Shine Pro',
+      'rating': '4.6',
+      'distance': '3.4 km away',
+      'price': '650',
+      'points': '200 Points Available',
+      'image':
+          'https://images.unsplash.com/photo-1486006920555-c77dcf18193c?w=800&h=480&fit=crop',
     },
   ];
 
@@ -59,8 +43,8 @@ class HomeCleaningScreen extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
         systemNavigationBarColor: Color(0xFFFAF6F0),
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
@@ -83,9 +67,7 @@ class HomeCleaningScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildPageTitle(),
-                          const SizedBox(height: 22),
-                          _buildExploreCategories(),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 16),
                           _buildSearchBar(),
                           const SizedBox(height: 22),
                           _buildNearbySection(),
@@ -115,19 +97,26 @@ class HomeCleaningScreen extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Image.asset(
-          'lib/assets/images/Home_cleaning_banner.png',
-          width: double.infinity,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            height: 240,
-            color: const Color(0xFFFF5E00),
+        ClipRect(
+          child: Align(
+            alignment: Alignment.topCenter,
+            heightFactor: 0.72,
+            child: Image.asset(
+              'lib/assets/images/carwash_banner.png',
+              width: double.infinity,
+              fit: BoxFit.cover,
+              alignment: Alignment.topCenter,
+              errorBuilder: (_, __, ___) => Container(
+                height: 240,
+                color: const Color(0xFFFF5E00),
+              ),
+            ),
           ),
         ),
         Positioned(
           left: 16,
           right: 16,
-          bottom: -30,
+          bottom: -28,
           child: _buildLocationCard(),
         ),
       ],
@@ -138,68 +127,82 @@ class HomeCleaningScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => Get.to(() => const SelectLocationScreen()),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.96),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFF2E6DC)),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 22,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF0E6),
-                borderRadius: BorderRadius.circular(12),
+                color: Colors.white.withValues(alpha: 0.72),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.55),
+                  width: 1,
+                ),
               ),
-              child: const Icon(
-                Icons.location_on_rounded,
-                color: Color(0xFFFF5E00),
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    'CURRENT LOCATION',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF9A8E86),
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.4,
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF5E00).withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.location_on_rounded,
+                      color: Color(0xFFFF5E00),
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    SelectLocationController.selectedTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'CURRENT LOCATION',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF9A8E86),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          SelectLocationController.selectedTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: Color(0xFF5A5048),
+                    size: 26,
                   ),
                 ],
               ),
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF2C2520),
-              size: 22,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -210,160 +213,53 @@ class HomeCleaningScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _buildFadeLine(fadeFromStart: true)),
+            Expanded(child: _buildFadeLine(opaqueAtStart: true)),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Home Cleaning',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Image.asset(
-                    'lib/assets/images/star_icon.png',
-                    width: 14,
-                    height: 14,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 14,
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                'Car Wash',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF1B2B4A),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
-            Expanded(child: _buildFadeLine(fadeFromStart: false)),
+            Expanded(child: _buildFadeLine(opaqueAtStart: false)),
           ],
         ),
         const SizedBox(height: 8),
         Text(
-          'Professional cleaning services at your doorstep',
+          'Choose a nearby wash center, select your service\nand reserve a time slot.',
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             color: const Color(0xFF7A6A60),
             fontSize: 12.5,
             fontWeight: FontWeight.w500,
+            height: 1.35,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildFadeLine({required bool fadeFromStart}) {
+  Widget _buildFadeLine({required bool opaqueAtStart}) {
+    const lineColor = Color(0xFFFF8A5C);
     return Container(
-      height: 1,
+      height: 1.2,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: fadeFromStart
+          colors: opaqueAtStart
               ? [
-                  Colors.transparent,
-                  const Color(0xFFEAD8C9),
+                  lineColor,
+                  lineColor.withValues(alpha: 0),
                 ]
               : [
-                  const Color(0xFFEAD8C9),
-                  Colors.transparent,
+                  lineColor.withValues(alpha: 0),
+                  lineColor,
                 ],
         ),
       ),
-    );
-  }
-
-  Widget _buildExploreCategories() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Explore Categories',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              Text(
-                'See All',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (var i = 0; i < _categories.length; i++) ...[
-                if (i > 0) const SizedBox(width: 8),
-                Expanded(child: _buildCategoryItem(_categories[i])),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryItem(Map<String, String> cat) {
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(22),
-          child: Image.asset(
-            cat['image']!,
-            width: 66,
-            height: 66,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
-              width: 58,
-              height: 58,
-              color: const Color(0xFFFFF3EB),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.cleaning_services_rounded,
-                color: Color(0xFFFF5E00),
-                size: 24,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          cat['label']!,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          style: GoogleFonts.outfit(
-            color: const Color(0xFF2C2520),
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            height: 1.2,
-          ),
-        ),
-      ],
     );
   }
 
@@ -395,7 +291,7 @@ class HomeCleaningScreen extends StatelessWidget {
             child: TextField(
               style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
               decoration: InputDecoration(
-                hintText: 'Search cleaning services...',
+                hintText: 'Search car wash services...',
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12.5,
@@ -409,16 +305,21 @@ class HomeCleaningScreen extends StatelessWidget {
           Container(
             width: 34,
             height: 34,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFFF5E00),
+              color: Color(0xFFFFF1E6),
             ),
             alignment: Alignment.center,
             child: Image.asset(
               'lib/assets/images/Voice.png',
               width: 15,
               height: 15,
-              color: Colors.white,
+              color: const Color(0xFFFF5E00),
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.mic_rounded,
+                color: Color(0xFFFF5E00),
+                size: 16,
+              ),
             ),
           ),
         ],
@@ -433,12 +334,14 @@ class HomeCleaningScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Cleaning Services Near You',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF2C2520),
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
+            Expanded(
+              child: Text(
+                'Professional Car Wash Near You',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             Text(
@@ -452,9 +355,9 @@ class HomeCleaningScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        for (var i = 0; i < _nearbyServices.length; i++) ...[
+        for (var i = 0; i < _nearbyCenters.length; i++) ...[
           if (i > 0) const SizedBox(height: 14),
-          _buildServiceCard(_nearbyServices[i]),
+          _buildServiceCard(_nearbyCenters[i]),
         ],
       ],
     );
@@ -465,7 +368,7 @@ class HomeCleaningScreen extends StatelessWidget {
       color: const Color(0xFFFFF3EB),
       alignment: Alignment.center,
       child: Image.asset(
-        'lib/assets/images/Home_cleaning.png',
+        'lib/assets/images/car_wash.png',
         height: 80,
         fit: BoxFit.contain,
       ),
@@ -475,7 +378,7 @@ class HomeCleaningScreen extends StatelessWidget {
   Widget _buildServiceCard(Map<String, String> item) {
     return GestureDetector(
       onTap: () => Get.to(
-        () => HomeCleaningProviderDetailScreen(provider: item),
+        () => CarWashProviderDetailScreen(provider: item),
       ),
       child: Container(
       decoration: BoxDecoration(
@@ -568,24 +471,34 @@ class HomeCleaningScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Color(0xFFFFB800),
-                          size: 16,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          item['rating']!,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF6E8),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFFB800),
+                            size: 14,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 2),
+                          Text(
+                            item['rating']!,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -607,6 +520,12 @@ class HomeCleaningScreen extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+                const Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: Color(0xFFF2E6DC),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -648,34 +567,34 @@ class HomeCleaningScreen extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: () => Get.to(
-                        () => HomeCleaningProviderDetailScreen(provider: item),
+                        () => CarWashProviderDetailScreen(provider: item),
                       ),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFF5E00)
-                                  .withValues(alpha: 0.25),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          'View Services',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF5E00),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF5E00)
+                                .withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
                           ),
+                        ],
+                      ),
+                      child: Text(
+                        'View Services',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
+                    ),
                     ),
                   ],
                 ),

@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
+import 'car_wash_screen.dart';
 import 'home_cleaning_screen.dart';
+import 'laundry_services_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
@@ -344,7 +346,9 @@ class ServicesScreen extends StatelessWidget {
                   titleFontSize: 16,
                   onTap: _tallCards[i].title.contains('Home')
                       ? () => Get.to(() => const HomeCleaningScreen())
-                      : null,
+                      : _tallCards[i].title.contains('Car\nWash')
+                          ? () => Get.to(() => const CarWashScreen())
+                          : null,
                 ),
               ),
               const SizedBox(width: rowGap),
@@ -356,6 +360,9 @@ class ServicesScreen extends StatelessWidget {
                       height: compactHeight,
                       borderRadius: 26,
                       titleFontSize: 14,
+                      onTap: _compactCards[i * 2].title == 'Laundry'
+                          ? () => Get.to(() => const LaundryServicesScreen())
+                          : null,
                     ),
                     const SizedBox(height: rowGap),
                     _PopularServiceCard(
@@ -363,6 +370,9 @@ class ServicesScreen extends StatelessWidget {
                       height: compactHeight,
                       borderRadius: 26,
                       titleFontSize: 14,
+                      onTap: _compactCards[i * 2 + 1].title == 'Laundry'
+                          ? () => Get.to(() => const LaundryServicesScreen())
+                          : null,
                     ),
                   ],
                 ),
@@ -382,12 +392,15 @@ class ServicesScreen extends StatelessWidget {
       runSpacing: 16,
       children: _categories.map((item) {
         final isCleaning = item.label.contains('Cleaning');
+        final isCarWash = item.label.contains('Car\nWash');
         return SizedBox(
           width: itemWidth,
           child: GestureDetector(
             onTap: isCleaning
                 ? () => Get.to(() => const HomeCleaningScreen())
-                : null,
+                : isCarWash
+                    ? () => Get.to(() => const CarWashScreen())
+                    : null,
             behavior: HitTestBehavior.opaque,
             child: Column(
             mainAxisSize: MainAxisSize.min,

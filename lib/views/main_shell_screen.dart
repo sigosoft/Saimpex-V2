@@ -7,8 +7,8 @@ import 'account_screen.dart';
 import 'cart_screen.dart';
 import 'home_screen.dart';
 import 'messages_screen.dart';
+import 'my_bookings_screen.dart';
 import 'my_orders_screen.dart';
-import 'my_schedules_screen.dart';
 import 'services/services_screen.dart';
 
 /// Root shell after login — keeps tabs alive and switches without route jank.
@@ -59,7 +59,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
                 children: const [
                   HomeScreen(showBottomNav: false),
                   MessagesScreen(showBottomNav: false),
-                  MySchedulesScreen(),
+                  MyBookingsScreen(),
                   ServicesScreen(),
                   MyOrdersScreen(showBottomNav: false),
                   CartScreen(showBottomNav: false),
