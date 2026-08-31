@@ -18,6 +18,12 @@ class ExpressScreen extends StatefulWidget {
 
 class _ExpressScreenState extends State<ExpressScreen> {
   int _bannerIndex = 0;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
+  bool _showStickySearch = false;
+
+  /// search bar (46) + padding (14 top, 8 bottom)
+  static const double _stickyExtent = 68;
 
   final categories = [
     {
@@ -152,6 +158,34 @@ class _ExpressScreenState extends State<ExpressScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    // Pin once search reaches under the fixed location header (~56px)
+    final shouldShow = top <= topInset + 56;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final controller = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>()
@@ -172,61 +206,87 @@ class _ExpressScreenState extends State<ExpressScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                        child: Text(
-                          'Express',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
+        body: Stack(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                            child: Text(
+                              'Express',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 10),
+                          _buildHeroBanner(),
+                          KeyedSubtree(
+                            key: _searchAnchorKey,
+                            child: _showStickySearch
+                                ? const SizedBox(height: _stickyExtent)
+                                : _buildSearchBar(),
+                          ),
+                          _buildShopByCategory(),
+                          _buildSectionHeader(
+                            '15-Min Delivery',
+                            'See All',
+                            () => Get.to(
+                              () => const ExpressFifteenMinDeliveryScreen(),
+                            ),
+                          ),
+                          _buildFastDeliveryList(),
+                          _buildSectionHeader(
+                            'Trending in express',
+                            'See All',
+                            () => Get.to(() => const ExpressTrendingScreen()),
+                          ),
+                          _buildTrendingList(controller),
+                          _buildSectionHeader(
+                            'Nearby Stores',
+                            'Store Map',
+                            () => Get.to(() => const ExpressStoreMapScreen()),
+                            showMapIcon: true,
+                          ),
+                          _buildNearbyStoresList(controller),
+                          const SizedBox(height: 32),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _buildHeroBanner(),
-                      _buildSearchBar(),
-                      _buildShopByCategory(),
-                      _buildSectionHeader(
-                        '15-Min Delivery',
-                        'See All',
-                        () => Get.to(
-                          () => const ExpressFifteenMinDeliveryScreen(),
-                        ),
-                      ),
-                      _buildFastDeliveryList(),
-                      _buildSectionHeader(
-                        'Trending in express',
-                        'See All',
-                        () => Get.to(() => const ExpressTrendingScreen()),
-                      ),
-                      _buildTrendingList(controller),
-                      _buildSectionHeader(
-                        'Nearby Stores',
-                        'Store Map',
-                        () => Get.to(() => const ExpressStoreMapScreen()),
-                        showMapIcon: true,
-                      ),
-                      _buildNearbyStoresList(controller),
-                      const SizedBox(height: 32),
-                    ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Sticky search (below fixed location header)
+            if (_showStickySearch)
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 56,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 2,
+                  color: const Color(0xFFFFEEE5),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _buildSearchBar(),
                   ),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );

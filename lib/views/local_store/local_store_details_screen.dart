@@ -22,6 +22,12 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
   int _selectedCategoryIndex = 0;
   bool _isFavorite = false;
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
+  bool _showStickySearch = false;
+
+  /// categories(~112) + gap(16) + search(48)
+  static const double _stickyExtent = 176;
 
   final List<Map<String, String>> categoryTabs = [
     {'label': 'All', 'icon': 'lib/assets/images/All.png'},
@@ -76,9 +82,247 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
   void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    final shouldShow = top <= topInset + 2;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
+
+  Widget _buildStickySection() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildCategoriesRow(),
+        const SizedBox(height: 16),
+        _buildSearchBar(),
+      ],
+    );
+  }
+
+  Widget _buildCategoriesRow() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+      padding: const EdgeInsets.only(top: 4),
+      clipBehavior: Clip.antiAlias,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(22)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: SizedBox(
+        height: 86,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: categoryTabs.length,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
+          itemBuilder: (context, index) {
+            final cat = categoryTabs[index];
+            final isAll = index == 0;
+            final isSelected = _selectedCategoryIndex == index;
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedCategoryIndex = index;
+                });
+              },
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: index == categoryTabs.length - 1 ? 0 : 10,
+                ),
+                child: SizedBox(
+                  width: 62,
+                  child: Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Column(
+                        children: [
+                          isAll
+                              ? Container(
+                                  width: 46,
+                                  height: 46,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      'lib/assets/images/All.png',
+                                      width: 22,
+                                      height: 22,
+                                      color: const Color(0xFFFF5E00),
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  width: 46,
+                                  height: 46,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.10),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipOval(
+                                    child: Image.asset(
+                                      cat['icon']!,
+                                      width: 46,
+                                      height: 46,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        width: 46,
+                                        height: 46,
+                                        color: Colors.grey.shade300,
+                                        child: const Icon(
+                                          Icons.storefront_rounded,
+                                          size: 18,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                          const SizedBox(height: 8),
+                          Text(
+                            cat['label']!,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              color: isSelected
+                                  ? const Color(0xFFFF5E00)
+                                  : const Color(0xFF3A312C),
+                              fontSize: 11,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (isSelected)
+                        Positioned(
+                          bottom: 0,
+                          child: Container(
+                            height: 10,
+                            width: 56,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xFFFF5E00),
+                                  Color(0xFFFFAE00),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.search_rounded,
+              color: Color(0xFFA0938A),
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Find something from this bakery',
+                  hintStyle: GoogleFonts.outfit(
+                    color: const Color(0xFFA0938A),
+                    fontSize: 13,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFDECE2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.tune_rounded,
+                color: Color(0xFFFF5E00),
+                size: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -99,70 +343,41 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFFFFF7F2),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Header Image with Back Button & Floating Store Info Card
-              Stack(
-                clipBehavior: Clip.none,
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Store Header Image (Localstore slider.png)
-                  SizedBox(
-                    height: 210,
-                    width: double.infinity,
-                    child: Image.asset(
-                      'lib/assets/images/Localstore slider.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFFFEDDC7),
-                        child: const Icon(
-                          Icons.storefront_rounded,
-                          size: 60,
-                          color: Color(0xFFFF5E00),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Floating Back Button
-                  Positioned(
-                    top: topInset + 10,
-                    left: 16,
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                  // Header image + floating store info card
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      SizedBox(
+                        height: 210,
+                        width: double.infinity,
+                        child: Image.asset(
+                          'lib/assets/images/Localstore slider.png',
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: const Color(0xFFFEDDC7),
+                            child: const Icon(
+                              Icons.storefront_rounded,
+                              size: 60,
+                              color: Color(0xFFFF5E00),
                             ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 15,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-
-                  // Floating Store Info Card Overlay
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 135,
-                      left: 16,
-                      right: 16,
-                    ),
-                    child: Container(
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 135,
+                          left: 16,
+                          right: 16,
+                        ),
+                        child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -398,208 +613,17 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
 
               const SizedBox(height: 20),
 
-              // 2. Horizontal Category Tabs Row (Grocery Screen Category Style)
-              Container(
-                margin: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-                padding: const EdgeInsets.only(top: 4),
-                clipBehavior: Clip.antiAlias,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(22)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0x14000000),
-                      blurRadius: 16,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: SizedBox(
-                  height: 86,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: categoryTabs.length,
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
-                    itemBuilder: (context, index) {
-                      final cat = categoryTabs[index];
-                      final isAll = index == 0;
-                      final isSelected = _selectedCategoryIndex == index;
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedCategoryIndex = index;
-                          });
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            right: index == categoryTabs.length - 1 ? 0 : 10,
-                          ),
-                          child: SizedBox(
-                            width: 62,
-                            child: Stack(
-                              alignment: Alignment.topCenter,
-                              children: [
-                                Column(
-                                  children: [
-                                    isAll
-                                        ? Container(
-                                            width: 46,
-                                            height: 46,
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Center(
-                                              child: Image.asset(
-                                                'lib/assets/images/All.png',
-                                                width: 22,
-                                                height: 22,
-                                                color: const Color(0xFFFF5E00),
-                                              ),
-                                            ),
-                                          )
-                                        : Container(
-                                            width: 46,
-                                            height: 46,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.10),
-                                                  blurRadius: 10,
-                                                  offset: const Offset(0, 4),
-                                                ),
-                                              ],
-                                            ),
-                                            child: ClipOval(
-                                              child: Image.asset(
-                                                cat['icon']!,
-                                                width: 46,
-                                                height: 46,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    Container(
-                                                      width: 46,
-                                                      height: 46,
-                                                      color:
-                                                          Colors.grey.shade300,
-                                                      child: const Icon(
-                                                        Icons
-                                                            .storefront_rounded,
-                                                        size: 18,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    ),
-                                              ),
-                                            ),
-                                          ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      cat['label']!,
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.outfit(
-                                        color: isSelected
-                                            ? const Color(0xFFFF5E00)
-                                            : const Color(0xFF3A312C),
-                                        fontSize: 11,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w700
-                                            : FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (isSelected)
-                                  Positioned(
-                                    bottom: 0,
-                                    child: Container(
-                                      height: 10,
-                                      width: 56,
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xFFFF5E00),
-                                            Color(0xFFFFAE00),
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(12),
-                                          topRight: Radius.circular(12),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // 3. Search Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.search_rounded,
-                        color: Color(0xFFA0938A),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Find something from this bakery',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFA0938A),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFDECE2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.tune_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              // Pins when scrolled: subcategories + search
+              KeyedSubtree(
+                key: _searchAnchorKey,
+                child: _showStickySearch
+                    ? const SizedBox(height: _stickyExtent)
+                    : _buildStickySection(),
               ),
 
               const SizedBox(height: 14),
 
-              // 4. Horizontal Filter Chips Row
+              // Horizontal filter chips
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -786,8 +810,55 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
               ),
 
               const SizedBox(height: 30),
-            ],
-          ),
+                ],
+              ),
+            ),
+
+            // Sticky subcategories + search overlay
+            if (_showStickySearch)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 2,
+                  color: const Color(0xFFFFF7F2),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: topInset, bottom: 8),
+                    child: _buildStickySection(),
+                  ),
+                ),
+              ),
+
+            // Floating back button
+            Positioned(
+              top: topInset + 10,
+              left: 16,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Color(0xFFFF5E00),
+                    size: 15,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

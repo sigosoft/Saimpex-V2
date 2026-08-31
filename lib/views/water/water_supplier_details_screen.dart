@@ -242,35 +242,6 @@ class _WaterSupplierDetailsScreenState
                     ),
                   ),
 
-                  // Back Button Overlay
-                  Positioned(
-                    top: MediaQuery.of(context).padding.top + 8,
-                    left: 16,
-                    child: GestureDetector(
-                      onTap: () => Get.back(),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.12),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.chevron_left_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 24,
-                        ),
-                      ),
-                    ),
-                  ),
-
                   // Floating Supplier Details Card
                   Container(
                     margin: const EdgeInsets.only(
@@ -563,6 +534,35 @@ class _WaterSupplierDetailsScreenState
                   ),
                 ),
               ),
+
+            // Floating back button (always visible while scrolling)
+            Positioned(
+              top: topInset + 10,
+              left: 16,
+              child: GestureDetector(
+                onTap: () => Get.back(),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Color(0xFFFF5E00),
+                    size: 15,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

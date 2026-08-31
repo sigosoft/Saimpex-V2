@@ -19,6 +19,12 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   int _bannerIndex = 0;
   final PageController _bannerController = PageController();
   int _selectedCategoryIndex = 0;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
+  bool _showStickySearch = false;
+
+  /// search bar height (48) + small padding
+  static const double _stickyExtent = 56;
 
   final List<String> banners = [
     'lib/assets/images/Local store banner.png',
@@ -150,15 +156,95 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
   void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
     _bannerController.dispose();
     super.dispose();
   }
 
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    // Pin once search reaches under the fixed location header (~56px)
+    final shouldShow = top <= topInset + 56;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.search_rounded,
+              color: Color(0xFFA0938A),
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'What do you need today?',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFA0938A),
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.qr_code_scanner_rounded,
+              color: Color(0xFFA0938A),
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFDECE2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.tune_rounded,
+                color: Color(0xFFFF5E00),
+                size: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final topInset = MediaQuery.viewPaddingOf(context).top;
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -167,301 +253,260 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFFFFF7F2),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: topInset + 10),
+        body: Stack(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
 
-              // 1. Top Header Row (Back button, Deliver To location, Wallet Points)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    // Back Button
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                  // Fixed header: back, location, wallet
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.06),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 15,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    // Deliver To Location Box
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => Get.to(() => const SelectLocationScreen()),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.home_outlined,
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
                               color: Color(0xFFFF5E00),
-                              size: 22,
+                              size: 15,
                             ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Deliver To:',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF8C7D73),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          SelectLocationController
-                                              .selectedTitle,
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF2C2520),
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 2),
-                                      const Icon(
-                                        Icons.keyboard_arrow_down_rounded,
-                                        color: Color(0xFF2C2520),
-                                        size: 16,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 8),
-
-                    // 200 MRU / Points Button
-                    GestureDetector(
-                      onTap: () => Get.to(() => const RewardsReferralScreen()),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFFFF5E00,
-                              ).withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 16,
-                              height: 16,
-                              decoration: const BoxDecoration(
-                                color: Colors.white24,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  '🪙',
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '200 MRU',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // 2. Title: Local Stores
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'Local Stores',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // 3. Banner Carousel
-              SizedBox(
-                height: 145,
-                child: PageView.builder(
-                  controller: _bannerController,
-                  itemCount: banners.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _bannerIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.asset(
-                          banners[index],
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                color: const Color(0xFFFEDDC7),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.storefront_rounded,
-                                    size: 50,
-                                    color: const Color(
-                                      0xFFFF5E00,
-                                    ).withValues(alpha: 0.5),
-                                  ),
-                                ),
-                              ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // Banner Indicator Dots
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  banners.length,
-                  (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    width: _bannerIndex == index ? 24 : 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: _bannerIndex == index
-                          ? const Color(0xFFFF5E00)
-                          : const Color(0xFFE5D5C9),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // 4. Search Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.search_rounded,
-                        color: Color(0xFFA0938A),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'What do you need today?',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFA0938A),
-                            fontSize: 13,
                           ),
                         ),
-                      ),
-                      const Icon(
-                        Icons.qr_code_scanner_rounded,
-                        color: Color(0xFFA0938A),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFDECE2),
-                          shape: BoxShape.circle,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () =>
+                                Get.to(() => const SelectLocationScreen()),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.home_outlined,
+                                  color: Color(0xFFFF5E00),
+                                  size: 22,
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Deliver To:',
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF8C7D73),
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              SelectLocationController
+                                                  .selectedTitle,
+                                              style: GoogleFonts.outfit(
+                                                color: const Color(0xFF2C2520),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 2),
+                                          const Icon(
+                                            Icons.keyboard_arrow_down_rounded,
+                                            color: Color(0xFF2C2520),
+                                            size: 16,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.tune_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 16,
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () =>
+                              Get.to(() => const RewardsReferralScreen()),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 7,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF5E00),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFFFF5E00,
+                                  ).withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white24,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      '🪙',
+                                      style: TextStyle(fontSize: 10),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '200 MRU',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ),
 
-              const SizedBox(height: 20),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+
+                          // Title: Local Stores
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'Local Stores',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // Banner carousel
+                          SizedBox(
+                            height: 145,
+                            child: PageView.builder(
+                              controller: _bannerController,
+                              itemCount: banners.length,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _bannerIndex = index;
+                                });
+                              },
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Image.asset(
+                                      banners[index],
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                color: const Color(0xFFFEDDC7),
+                                                child: Center(
+                                                  child: Icon(
+                                                    Icons.storefront_rounded,
+                                                    size: 50,
+                                                    color: const Color(
+                                                      0xFFFF5E00,
+                                                    ).withValues(alpha: 0.5),
+                                                  ),
+                                                ),
+                                              ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          // Banner indicator dots
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              banners.length,
+                              (index) => AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                ),
+                                width: _bannerIndex == index ? 24 : 7,
+                                height: 7,
+                                decoration: BoxDecoration(
+                                  color: _bannerIndex == index
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFE5D5C9),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Pins when scrolled: search
+                          KeyedSubtree(
+                            key: _searchAnchorKey,
+                            child: _showStickySearch
+                                ? const SizedBox(height: _stickyExtent)
+                                : _buildSearchBar(),
+                          ),
+
+                          const SizedBox(height: 20),
 
               // 5. Category Icons Grid matching Pharmacy screen design
               Padding(
@@ -691,8 +736,30 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               ),
 
               const SizedBox(height: 30),
-            ],
-          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Sticky search (below fixed location header)
+            if (_showStickySearch)
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 56,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 2,
+                  color: const Color(0xFFFFF7F2),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _buildSearchBar(),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

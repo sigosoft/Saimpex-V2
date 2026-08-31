@@ -23,6 +23,12 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
   bool showCartBar = false;
   Map<String, dynamic>? lastAddedItem;
   String? lastAddedItemPortion;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _searchAnchorKey = GlobalKey();
+  bool _showStickySearch = false;
+
+  /// search(42) + gap(8) + categories(~90)
+  static const double _stickyExtent = 140;
 
   int parsePrice(String priceStr) {
     final clean = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
@@ -159,6 +165,44 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!mounted) return;
+    final ctx = _searchAnchorKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final topInset = MediaQuery.paddingOf(context).top;
+    final shouldShow = top <= topInset + 2;
+    if (shouldShow != _showStickySearch) {
+      setState(() => _showStickySearch = shouldShow);
+    }
+  }
+
+  Widget _buildStickySection() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildSearchBar(),
+        const SizedBox(height: 8),
+        _buildCategoriesRow(),
+      ],
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final controller = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>()
@@ -171,91 +215,112 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Column(
-              children: [
-                Stack(
+            child: Obx(() {
+              final hasItems = controller.cartItemCount.value > 0;
+              return SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  bottom: hasItems ? bottomInset + 88 : 24,
+                ),
+                child: Column(
                   children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: topInset + 132,
-                      child: isAssetImage
-                          ? Image.asset(
-                              storeImage,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _headerFallback(),
-                            )
-                          : Image.network(
-                              storeImage,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _headerFallback(),
-                            ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
+                    // Collapses: banner + store info
+                    Stack(
                       children: [
-                        SizedBox(height: topInset + 56),
-                        _buildStoreInfoCard(controller),
-                        const SizedBox(height: 8),
-                        _buildSearchBar(),
-                        const SizedBox(height: 8),
-                        _buildCategoriesRow(),
-                        const SizedBox(height: 12),
-                        _buildFiltersRow(),
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: topInset + 132,
+                          child: isAssetImage
+                              ? Image.asset(
+                                  storeImage,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      _headerFallback(),
+                                )
+                              : Image.network(
+                                  storeImage,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      _headerFallback(),
+                                ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: topInset + 56),
+                            _buildStoreInfoCard(controller),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
                       ],
+                    ),
+
+                    // Pins when scrolled: search + subcategories
+                    KeyedSubtree(
+                      key: _searchAnchorKey,
+                      child: _showStickySearch
+                          ? const SizedBox(height: _stickyExtent)
+                          : _buildStickySection(),
+                    ),
+
+                    const SizedBox(height: 12),
+                    _buildFiltersRow(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'All Items from This Store',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: products.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              mainAxisExtent: 248,
+                            ),
+                        itemBuilder: (_, index) =>
+                            _buildProductCard(products[index]),
+                      ),
                     ),
                   ],
                 ),
-                Expanded(
-                  child: Obx(() {
-                    final hasItems = controller.cartItemCount.value > 0;
-                    return SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.only(
-                        bottom: hasItems ? bottomInset + 88 : 24,
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'All Items from This Store',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: products.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 12,
-                                    crossAxisSpacing: 12,
-                                    mainAxisExtent: 248,
-                                  ),
-                              itemBuilder: (_, index) =>
-                                  _buildProductCard(products[index]),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            ),
+              );
+            }),
           ),
+
+          // Sticky search + subcategories overlay
+          if (_showStickySearch)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Material(
+                elevation: 2,
+                color: const Color(0xFFFFEADF),
+                child: Padding(
+                  padding: EdgeInsets.only(top: topInset, bottom: 8),
+                  child: _buildStickySection(),
+                ),
+              ),
+            ),
+
           Positioned(
             top: topInset + 12,
             left: 16,
