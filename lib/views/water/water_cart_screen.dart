@@ -309,15 +309,25 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
                   height: 65,
                   color: const Color(0xFFEBF4FE),
                   padding: const EdgeInsets.all(8),
-                  child: Image.asset(
-                    image,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.water_drop,
-                      color: Color(0xFF007BFF),
-                      size: 30,
-                    ),
-                  ),
+                  child: image.startsWith('http')
+                      ? Image.network(
+                          image,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.water_drop,
+                            color: Color(0xFF007BFF),
+                            size: 30,
+                          ),
+                        )
+                      : Image.asset(
+                          image,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.water_drop,
+                            color: Color(0xFF007BFF),
+                            size: 30,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(width: 12),

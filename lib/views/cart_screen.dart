@@ -300,26 +300,47 @@ class _CartScreenState extends State<CartScreen> {
                                 // Food Image
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
-                                  child: Image.network(
-                                    itemImage,
-                                    width: 74,
-                                    height: 74,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (
-                                          context,
-                                          error,
-                                          stackTrace,
-                                        ) => Container(
+                                  child: itemImage.startsWith('http')
+                                      ? Image.network(
+                                          itemImage,
                                           width: 74,
                                           height: 74,
-                                          color: const Color(0xFFF3EFEA),
-                                          child: const Icon(
-                                            Icons.image_not_supported_outlined,
-                                            color: Colors.grey,
-                                          ),
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) => Container(
+                                                width: 74,
+                                                height: 74,
+                                                color: const Color(0xFFF3EFEA),
+                                                child: const Icon(
+                                                  Icons.image_not_supported_outlined,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                        )
+                                      : Image.asset(
+                                          itemImage,
+                                          width: 74,
+                                          height: 74,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) => Container(
+                                                width: 74,
+                                                height: 74,
+                                                color: const Color(0xFFF3EFEA),
+                                                child: const Icon(
+                                                  Icons.image_not_supported_outlined,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
                                         ),
-                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 // Text Info

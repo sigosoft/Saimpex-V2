@@ -25,6 +25,13 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
   bool _showStickySearch = false;
+  bool showCartBar = false;
+  Map<String, dynamic>? lastAddedItem;
+
+  int parsePrice(String priceStr) {
+    final clean = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.tryParse(clean) ?? 0;
+  }
 
   /// categories(~112) + gap(16) + search(48)
   static const double _stickyExtent = 176;
@@ -239,10 +246,7 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                             width: 56,
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFFFF5E00),
-                                  Color(0xFFFFAE00),
-                                ],
+                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                               ),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(12),
@@ -327,7 +331,11 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>()
+        : Get.put(HomeController());
     final topInset = MediaQuery.viewPaddingOf(context).top;
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     final storeName = widget.store['name'] ?? 'Golden Bakery';
     final subtitle = widget.store['subtitle'] ?? 'Bakery - Pastries';
     final rating = widget.store['rating'] ?? '4.6';
@@ -345,474 +353,490 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
         backgroundColor: const Color(0xFFFFF7F2),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header image + floating store info card
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      SizedBox(
-                        height: 210,
-                        width: double.infinity,
-                        child: Image.asset(
-                          'lib/assets/images/Localstore slider.png',
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: const Color(0xFFFEDDC7),
-                            child: const Icon(
-                              Icons.storefront_rounded,
-                              size: 60,
-                              color: Color(0xFFFF5E00),
+            Obx(() {
+              final hasItems =
+                  controller.cartItemCount.value > 0 || showCartBar;
+              return SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  bottom: hasItems ? bottomInset + 88 : 32,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header image + floating store info card
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        SizedBox(
+                          height: 210,
+                          width: double.infinity,
+                          child: Image.asset(
+                            'lib/assets/images/Localstore slider.png',
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: const Color(0xFFFEDDC7),
+                              child: const Icon(
+                                Icons.storefront_rounded,
+                                size: 60,
+                                color: Color(0xFFFF5E00),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 135,
-                          left: 16,
-                          right: 16,
-                        ),
-                        child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 135,
+                            left: 16,
+                            right: 16,
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Line 1: Store Name & Rating Badge
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  storeName,
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFF2C2520),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.06),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
                                 ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00875A),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Line 1: Store Name & Rating Badge
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Icon(
-                                      Icons.star_rounded,
-                                      color: Colors.white,
-                                      size: 12,
+                                    Expanded(
+                                      child: Text(
+                                        storeName,
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF2C2520),
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                    const SizedBox(width: 3),
-                                    Text(
-                                      rating,
-                                      style: GoogleFonts.outfit(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF00875A),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.star_rounded,
+                                            color: Colors.white,
+                                            size: 12,
+                                          ),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            rating,
+                                            style: GoogleFonts.outfit(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
 
-                          const SizedBox(height: 3),
+                                const SizedBox(height: 3),
 
-                          // Line 2: Subtitle / Category
-                          Text(
-                            subtitle,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF8C7D73),
-                              fontSize: 12,
-                            ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          // Line 3: Info Row (Time, Distance, Discount Tag)
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.access_time_rounded,
-                                color: Color(0xFFFF5E00),
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                time,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF6B635C),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              const Icon(
-                                Icons.location_on_outlined,
-                                color: Color(0xFFFF5E00),
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                dist,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF6B635C),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF5E00),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  discount,
+                                // Line 2: Subtitle / Category
+                                Text(
+                                  subtitle,
                                   style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF8C7D73),
+                                    fontSize: 12,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
 
-                          const SizedBox(height: 14),
+                                const SizedBox(height: 10),
 
-                          // Line 4: Action Buttons Row ("Chat with Shop" & Favorite Heart)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Get.to(
-                                      () =>
-                                          ChatScreen(restaurant: widget.store),
-                                    );
-                                  },
-                                  child: Container(
-                                    height: 46,
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xFFFF5E00),
-                                          Color(0xFFFFAE00),
-                                        ],
-                                        begin: Alignment.centerLeft,
-                                        end: Alignment.centerRight,
-                                      ),
-                                      borderRadius: BorderRadius.circular(23),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(
-                                            0xFFFF5E00,
-                                          ).withValues(alpha: 0.3),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ],
+                                // Line 3: Info Row (Time, Distance, Discount Tag)
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.access_time_rounded,
+                                      color: Color(0xFFFF5E00),
+                                      size: 14,
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const BottomChatIcon(
-                                          size: 18,
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      time,
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF6B635C),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Icon(
+                                      Icons.location_on_outlined,
+                                      color: Color(0xFFFF5E00),
+                                      size: 14,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      dist,
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF6B635C),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFF5E00),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        discount,
+                                        style: GoogleFonts.outfit(
                                           color: Colors.white,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Chat with Shop',
-                                          style: GoogleFonts.outfit(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                // Line 4: Action Buttons Row ("Chat with Shop" & Favorite Heart)
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Get.to(
+                                            () => ChatScreen(
+                                              restaurant: widget.store,
+                                            ),
+                                          );
+                                        },
+                                        child: Container(
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFFFF5E00),
+                                                Color(0xFFFFAE00),
+                                              ],
+                                              begin: Alignment.centerLeft,
+                                              end: Alignment.centerRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              23,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: const Color(
+                                                  0xFFFF5E00,
+                                                ).withValues(alpha: 0.3),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              const BottomChatIcon(
+                                                size: 18,
+                                                color: Colors.white,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                'Chat with Shop',
+                                                style: GoogleFonts.outfit(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _isFavorite = !_isFavorite;
-                                  });
-                                },
-                                child: Container(
-                                  width: 46,
-                                  height: 46,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: const Color(0xFFEAD8C9),
-                                      width: 1.0,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.04,
-                                        ),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 2),
                                       ),
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    _isFavorite
-                                        ? Icons.favorite_rounded
-                                        : Icons.favorite_border_rounded,
-                                    color: _isFavorite
-                                        ? const Color(0xFFFF5E00)
-                                        : const Color(0xFF2C2520),
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Pins when scrolled: subcategories + search
-              KeyedSubtree(
-                key: _searchAnchorKey,
-                child: _showStickySearch
-                    ? const SizedBox(height: _stickyExtent)
-                    : _buildStickySection(),
-              ),
-
-              const SizedBox(height: 14),
-
-              // Horizontal filter chips
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    _buildFilterChip('⚙️  Filter'),
-                    _buildFilterChip('🍿  Under 200 MRU'),
-                    _buildFilterChip('🏷️  Offers'),
-                    _buildFilterChip('⭐  Rating'),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // 5. "Smart Bundles" Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'Smart Bundles',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // Smart Bundle Card
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFF5E00),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.shopping_cart_outlined,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Special Bundle',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Butter Cr... • Artisan Bre... • Citrus...',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF8C7D73),
-                                fontSize: 10,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Text(
-                                  '135 MRU',
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFFFF5E00),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  '1200 MRU',
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 9,
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _isFavorite = !_isFavorite;
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 46,
+                                        height: 46,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: const Color(0xFFEAD8C9),
+                                            width: 1.0,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.04,
+                                              ),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          _isFavorite
+                                              ? Icons.favorite_rounded
+                                              : Icons.favorite_border_rounded,
+                                          color: _isFavorite
+                                              ? const Color(0xFFFF5E00)
+                                              : const Color(0xFF2C2520),
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Pins when scrolled: subcategories + search
+                    KeyedSubtree(
+                      key: _searchAnchorKey,
+                      child: _showStickySearch
+                          ? const SizedBox(height: _stickyExtent)
+                          : _buildStickySection(),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // Horizontal filter chips
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          _buildFilterChip('⚙️  Filter'),
+                          _buildFilterChip('🍿  Under 200 MRU'),
+                          _buildFilterChip('🏷️  Offers'),
+                          _buildFilterChip('⭐  Rating'),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // 5. "Smart Bundles" Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'Smart Bundles',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Smart Bundle Card
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.shopping_cart_outlined,
-                              color: Colors.white,
-                              size: 13,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'ADD',
-                              style: GoogleFonts.outfit(
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFFF5E00),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.shopping_cart_outlined,
                                 color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Special Bundle',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF2C2520),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Butter Cr... • Artisan Bre... • Citrus...',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF8C7D73),
+                                      fontSize: 10,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '135 MRU',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFFFF5E00),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        '1200 MRU',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFFA59A94),
+                                          fontSize: 9,
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFFFF5E00),
+                                    Color(0xFFFFAE00),
+                                  ],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.shopping_cart_outlined,
+                                    color: Colors.white,
+                                    size: 13,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'ADD',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // 6. "All Items from This Store" Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'All Items from This Store',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // 2-Column Product Grid
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: products.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 14,
+                              childAspectRatio: 0.72,
+                            ),
+                        itemBuilder: (context, index) {
+                          final item = products[index];
+                          return _buildProductCard(item);
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+                  ],
                 ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // 6. "All Items from This Store" Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'All Items from This Store',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // 2-Column Product Grid
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: products.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: 0.72,
-                  ),
-                  itemBuilder: (context, index) {
-                    final item = products[index];
-                    return _buildProductCard(item);
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 30),
-                ],
-              ),
-            ),
+              );
+            }),
 
             // Sticky subcategories + search overlay
             if (_showStickySearch)
@@ -858,6 +882,136 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                 ),
               ),
             ),
+
+            // Floating Cart Summary Bar
+            Positioned(
+              bottom: bottomInset + 16,
+              left: 16,
+              right: 16,
+              child: Obx(() {
+                final hasItems =
+                    controller.cartItemCount.value > 0 || showCartBar;
+                if (!hasItems) return const SizedBox.shrink();
+                return _buildCartBar();
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCartBar() {
+    final readyIn = widget.store['time']?.toString() ?? '35 min';
+    final price = lastAddedItem?['price']?.toString() ?? '50 MRU';
+    final storeName =
+        widget.store['name'] ?? widget.store['title'] ?? 'Golden Bakery';
+    final itemName = lastAddedItem?['title']?.toString();
+    final itemPortion = lastAddedItem?['portion']?.toString() ?? '1 Portion';
+    final itemImage = lastAddedItem?['image']?.toString();
+
+    return GestureDetector(
+      onTap: () {
+        Get.to(
+          () => CartScreen(
+            showBottomNav: false,
+            storeName: storeName,
+            itemName: itemName,
+            itemPortion: itemPortion,
+            basePrice: parsePrice(price),
+            itemImage: itemImage,
+          ),
+        );
+      },
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFF5E00),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Obx(() {
+                final count = Get.isRegistered<HomeController>()
+                    ? Get.find<HomeController>().cartItemCount.value
+                    : 1;
+                final displayCount = count > 0 ? count : 1;
+                return Text(
+                  '$displayCount',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Obx(() {
+                    final count = Get.isRegistered<HomeController>()
+                        ? Get.find<HomeController>().cartItemCount.value
+                        : 1;
+                    final displayCount = count > 0 ? count : 1;
+                    return Text(
+                      'View Cart • $displayCount items',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }),
+                  Text(
+                    'Ready in $readyIn',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFA59A94),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  price,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFFF5E00),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFFFF5E00),
+                  size: 20,
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -893,202 +1047,1067 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
 
   // Product Card Helper Widget
   Widget _buildProductCard(Map<String, dynamic> item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image Area with Discount Tag
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-                child: SizedBox(
-                  height: 120,
-                  width: double.infinity,
-                  child: Image.asset(
-                    item['image'],
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: const Color(0xFFF3E7DC),
-                      child: const Icon(
-                        Icons.fastfood_rounded,
-                        size: 40,
-                        color: Color(0xFFFF5E00),
+    return GestureDetector(
+      onTap: () => _showProductDetailsSheet(item),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Area with Discount Tag
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
+                  child: SizedBox(
+                    height: 120,
+                    width: double.infinity,
+                    child: Image.asset(
+                      item['image'],
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: const Color(0xFFF3E7DC),
+                        child: const Icon(
+                          Icons.fastfood_rounded,
+                          size: 40,
+                          color: Color(0xFFFF5E00),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              // Discount Tag Top Left
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF5E00),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    item['discount'],
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
+                // Discount Tag Top Left
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 3,
                     ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          // Product Details
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item['title'],
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 3),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFAE00),
-                      size: 13,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF5E00),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    const SizedBox(width: 3),
-                    Text(
-                      item['rating'],
+                    child: Text(
+                      item['discount'],
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 10,
+                        color: Colors.white,
+                        fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        item['reviews'],
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF8C7D73),
-                          fontSize: 9,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['originalPrice'],
+              ],
+            ),
+
+            // Product Details
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item['title'],
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Color(0xFFFFAE00),
+                        size: 13,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        item['rating'],
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          item['reviews'],
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFA59A94),
+                            color: const Color(0xFF8C7D73),
                             fontSize: 9,
-                            decoration: TextDecoration.lineThrough,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['originalPrice'],
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 9,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                          Text(
+                            item['price'],
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFFF5E00),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () => _showCustomizeSheet(item),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.shopping_cart_outlined,
+                                color: Colors.white,
+                                size: 11,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                'ADD',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          item['price'],
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showProductDetailsSheet(Map<String, dynamic> food) {
+    bool isLiked = false;
+    final description =
+        (food['description'] as String?) ??
+        'Freshly prepared using premium grade ingredients, baked to perfection for incredible texture and flavor everyday.';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.35),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
+            return Padding(
+              padding: EdgeInsets.only(bottom: bottomSafe),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.sizeOf(context).height * 0.68,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFF8F3),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(28),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(28),
+                                  ),
+                                  child: AspectRatio(
+                                    aspectRatio: 16 / 10,
+                                    child: Image.asset(
+                                      food['image'] as String,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: const Color(0xFFF3EFEA),
+                                        child: const Icon(
+                                          Icons.fastfood_rounded,
+                                          color: Color(0xFFFF5E00),
+                                          size: 48,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    20,
+                                    16,
+                                    20,
+                                    12,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        food['title'] as String,
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF2C2520),
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        food['portion']?.toString() ??
+                                            '1 Portion • Fresh Baked',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFFA59A94),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.baseline,
+                                        textBaseline: TextBaseline.alphabetic,
+                                        children: [
+                                          Text(
+                                            food['price'] as String,
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFFFF5E00),
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            food['originalPrice'] as String,
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFFA59A94),
+                                              fontSize: 13,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                              decorationColor: const Color(
+                                                0xFFA59A94,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.star_rounded,
+                                            color: Color(0xFFFFAE00),
+                                            size: 16,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${food['rating']} (${food['reviews']})',
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF2C2520),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        description,
+                                        textAlign: TextAlign.justify,
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF7A6A60),
+                                          fontSize: 12,
+                                          height: 1.55,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _showCustomizeSheet(
+                                      food,
+                                      fromBottomSheet: true,
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFFFF5E00),
+                                          Color(0xFFFFAE00),
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(24),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(
+                                            0xFFFF5E00,
+                                          ).withOpacity(0.28),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.shopping_cart_outlined,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'ADD',
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              GestureDetector(
+                                onTap: () {
+                                  setModalState(() {
+                                    isLiked = !isLiked;
+                                  });
+                                },
+                                child: Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: const Color(0xFFEAD8C9),
+                                      width: 0.8,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.04),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    isLiked
+                                        ? Icons.favorite_rounded
+                                        : Icons.favorite_border_rounded,
+                                    color: isLiked
+                                        ? const Color(0xFFFF5E00)
+                                        : const Color(0xFFA59A94),
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        if (Get.isRegistered<HomeController>()) {
-                          Get.find<HomeController>().setCartItem(
-                            storeName: widget.store['name']?.toString() ?? widget.store['title']?.toString() ?? 'Local Store',
-                            itemName: (item['name'] ?? item['title'])?.toString(),
-                            itemPortion: item['portion']?.toString() ?? '1 Portion',
-                            basePrice: item['price'],
-                            itemImage: item['image']?.toString(),
-                          );
-                        }
-                        Get.to(
-                          () => LocalStoreCartScreen(
-                            store: widget.store,
-                            product: item,
+                  ),
+                  Positioned(
+                    top: -52,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.12),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: Color(0xFFFF5E00),
+                            size: 22,
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showCustomizeSheet(
+    Map<String, dynamic> food, {
+    bool fromBottomSheet = false,
+  }) {
+    int selectedQuantityIndex = 0;
+    int quantity = 1;
+    final TextEditingController notesController = TextEditingController();
+
+    String qtyText1 = '1 Pack';
+    String qtyPrice1 = food['price'] ?? '50 MRU';
+    String qtyText2 = '3 Packs';
+    String qtyPrice2 = '140 MRU';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final bottomPadding = MediaQuery.viewPaddingOf(context).bottom;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.85,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFFDF9),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(32),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 16),
+                      Text(
+                        food['title'] as String,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Divider(color: Color(0xFFEAD8C9), height: 1),
+
+                      Flexible(
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
                           ),
-                          borderRadius: BorderRadius.circular(14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Quantity Section
+                              Text(
+                                'Quantity',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+
+                              Row(
+                                children: [
+                                  // Option 1
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setModalState(() {
+                                          selectedQuantityIndex = 0;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 14,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: selectedQuantityIndex == 0
+                                              ? const Color(0xFFFFF0EA)
+                                              : Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          border: Border.all(
+                                            color: selectedQuantityIndex == 0
+                                                ? const Color(0xFFFF5E00)
+                                                : const Color(0xFFEAD8C9),
+                                            width: selectedQuantityIndex == 0
+                                                ? 1.5
+                                                : 0.8,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 18,
+                                              height: 18,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color:
+                                                      selectedQuantityIndex == 0
+                                                      ? const Color(0xFFFF5E00)
+                                                      : const Color(0xFFA59A94),
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                              padding: const EdgeInsets.all(3),
+                                              child: selectedQuantityIndex == 0
+                                                  ? Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                            color: Color(
+                                                              0xFFFF5E00,
+                                                            ),
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                    )
+                                                  : null,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  qtyText1,
+                                                  style: GoogleFonts.outfit(
+                                                    color: const Color(
+                                                      0xFF2C2520,
+                                                    ),
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  qtyPrice1,
+                                                  style: GoogleFonts.outfit(
+                                                    color: const Color(
+                                                      0xFFFF5E00,
+                                                    ),
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+
+                                  // Option 2
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setModalState(() {
+                                          selectedQuantityIndex = 1;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 14,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: selectedQuantityIndex == 1
+                                              ? const Color(0xFFFFF0EA)
+                                              : Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          border: Border.all(
+                                            color: selectedQuantityIndex == 1
+                                                ? const Color(0xFFFF5E00)
+                                                : const Color(0xFFEAD8C9),
+                                            width: selectedQuantityIndex == 1
+                                                ? 1.5
+                                                : 0.8,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 18,
+                                              height: 18,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color:
+                                                      selectedQuantityIndex == 1
+                                                      ? const Color(0xFFFF5E00)
+                                                      : const Color(0xFFA59A94),
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                              padding: const EdgeInsets.all(3),
+                                              child: selectedQuantityIndex == 1
+                                                  ? Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                            color: Color(
+                                                              0xFFFF5E00,
+                                                            ),
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                    )
+                                                  : null,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  qtyText2,
+                                                  style: GoogleFonts.outfit(
+                                                    color: const Color(
+                                                      0xFF2C2520,
+                                                    ),
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  qtyPrice2,
+                                                  style: GoogleFonts.outfit(
+                                                    color: const Color(
+                                                      0xFFFF5E00,
+                                                    ),
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Customize quantity field
+                              Container(
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(
+                                    color: const Color(0xFFEAD8C9),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: TextField(
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    color: const Color(0xFF2C2520),
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: 'Customize  your quantity here',
+                                    hintStyle: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 12,
+                                    ),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Add Order Notes Section
+                              Text(
+                                'Add Order Notes',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFFEAD8C9),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: notesController,
+                                        maxLines: 1,
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 12,
+                                          color: const Color(0xFF2C2520),
+                                        ),
+                                        decoration: InputDecoration(
+                                          hintText:
+                                              'Add notes (e.g, fresh baked, extra packaging...)',
+                                          hintStyle: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 12,
+                                          ),
+                                          border: InputBorder.none,
+                                          isDense: true,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFFFFF0EA),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.mic_none_rounded,
+                                        color: Color(0xFFFF5E00),
+                                        size: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Bottom actions bar
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          12,
+                          20,
+                          24 + bottomPadding,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(
+                              color: Color(0xFFEAD8C9),
+                              width: 0.8,
+                            ),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.shopping_cart_outlined,
-                              color: Colors.white,
-                              size: 11,
+                            // Quantity Counter
+                            Container(
+                              height: 44,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF0EA),
+                                borderRadius: BorderRadius.circular(22),
+                              ),
+                              child: Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (quantity > 1) {
+                                        setModalState(() {
+                                          quantity--;
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.remove,
+                                        color: Color(0xFFFF5E00),
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    quantity.toString(),
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF2C2520),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setModalState(() {
+                                        quantity++;
+                                      });
+                                    },
+                                    child: Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.add,
+                                        color: Color(0xFFFF5E00),
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 3),
-                            Text(
-                              'ADD',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  if (fromBottomSheet) {
+                                    Navigator.pop(context);
+                                  }
+
+                                  final finalPrice = selectedQuantityIndex == 0
+                                      ? qtyPrice1
+                                      : qtyPrice2;
+                                  final finalPortion =
+                                      selectedQuantityIndex == 0
+                                      ? qtyText1
+                                      : qtyText2;
+
+                                  setState(() {
+                                    showCartBar = true;
+                                    lastAddedItem =
+                                        Map<String, dynamic>.from(food)
+                                          ..['price'] = finalPrice
+                                          ..['portion'] = finalPortion;
+                                  });
+
+                                  if (Get.isRegistered<HomeController>()) {
+                                    Get.find<HomeController>().setCartItem(
+                                      storeName:
+                                          widget.store['name']?.toString() ??
+                                          widget.store['title']?.toString() ??
+                                          'Golden Bakery',
+                                      itemName: food['title']?.toString(),
+                                      itemPortion: finalPortion,
+                                      basePrice: parsePrice(finalPrice),
+                                      itemImage: food['image']?.toString(),
+                                    );
+                                  }
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '${food['title']} added to cart!',
+                                        style: GoogleFonts.outfit(),
+                                      ),
+                                      backgroundColor: const Color(0xFFFF5E00),
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFFFF5E00),
+                                        Color(0xFFFFAE00),
+                                      ],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(22),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFFFF5E00,
+                                        ).withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.shopping_cart_outlined,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'ADD',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: -56,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          color: Color(0xFFFF5E00),
+                          size: 22,
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
+            );
+          },
+        );
+      },
     );
   }
 }

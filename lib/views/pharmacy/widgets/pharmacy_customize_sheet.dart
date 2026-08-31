@@ -52,6 +52,7 @@ void showPharmacyCustomizeSheet(
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            final bottomPadding = MediaQuery.viewPaddingOf(context).bottom;
             return Stack(
               clipBehavior: Clip.none,
               children: [
@@ -395,7 +396,12 @@ void showPharmacyCustomizeSheet(
 
                       // Bottom actions bar
                       Container(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          12,
+                          20,
+                          24 + bottomPadding,
+                        ),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           border: Border(

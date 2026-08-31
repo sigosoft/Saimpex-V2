@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/home_controller.dart';
 import '../chat_screen.dart';
 import '../cart_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
@@ -26,6 +27,13 @@ class _WaterSupplierDetailsScreenState
   final GlobalKey _searchAnchorKey = GlobalKey();
   bool _isFavorite = false;
   bool _showStickySearch = false;
+  bool showCartBar = false;
+  Map<String, dynamic>? lastAddedItem;
+
+  int parsePrice(String priceStr) {
+    final clean = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.tryParse(clean) ?? 0;
+  }
 
   /// search bar height (48) + small padding
   static const double _stickyExtent = 56;
@@ -186,6 +194,9 @@ class _WaterSupplierDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>()
+        : Get.put(HomeController());
     final supplierName =
         widget.supplier['name'] ??
         widget.supplier['title'] ??
@@ -197,6 +208,7 @@ class _WaterSupplierDetailsScreenState
     final dist = widget.supplier['dist'] ?? '10 Km';
     final discount = widget.supplier['discount'] ?? '50% OFF';
     final topInset = MediaQuery.paddingOf(context).top;
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -209,11 +221,15 @@ class _WaterSupplierDetailsScreenState
         backgroundColor: const Color(0xFFFAF6F0),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(bottom: 32),
-              child: Column(
+            Obx(() {
+              final hasItems = controller.cartItemCount.value > 0 || showCartBar;
+              return SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(
+                  bottom: hasItems ? bottomInset + 88 : 32,
+                ),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
               // Header Stack with Banner Image and Overlapping Details Card
@@ -517,7 +533,8 @@ class _WaterSupplierDetailsScreenState
               ),
             ],
           ),
-        ),
+              );
+            }),
 
             // Sticky search overlay
             if (_showStickySearch)
@@ -563,6 +580,146 @@ class _WaterSupplierDetailsScreenState
                 ),
               ),
             ),
+
+            // Floating Cart Summary Bar Popup
+            Positioned(
+              bottom: bottomInset + 16,
+              left: 16,
+              right: 16,
+              child: Obx(() {
+                final hasItems =
+                    controller.cartItemCount.value > 0 || showCartBar;
+                if (!hasItems) return const SizedBox.shrink();
+                return _buildCartBar();
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCartBar() {
+    final readyIn = widget.supplier['time']?.toString() ?? '30-35 min';
+    final lastItem = lastAddedItem ??
+        (Get.isRegistered<HomeController>()
+            ? Get.find<HomeController>().lastCartItem
+            : null);
+    final price = lastItem?['price']?.toString() ?? '50 MRU';
+    final title = lastItem?['title']?.toString() ??
+        lastItem?['itemName']?.toString() ??
+        'Drinking Water 19L';
+    final portion = lastItem?['bottleTag']?.toString() ??
+        lastItem?['sizeTag']?.toString() ??
+        lastItem?['itemPortion']?.toString() ??
+        '19L';
+    final image = lastItem?['image']?.toString() ??
+        lastItem?['itemImage']?.toString();
+
+    return GestureDetector(
+      onTap: () {
+        Get.to(
+          () => CartScreen(
+            showBottomNav: false,
+            storeName: widget.supplier['name'] ??
+                widget.supplier['title'] ??
+                'PureLife Water Co.',
+            itemName: title,
+            itemPortion: portion,
+            basePrice: parsePrice(price),
+            itemImage: image,
+          ),
+        );
+      },
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFF5E00),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Obx(() {
+                final count = Get.isRegistered<HomeController>()
+                    ? Get.find<HomeController>().cartItemCount.value
+                    : 1;
+                final displayCount = count > 0 ? count : 1;
+                return Text(
+                  '$displayCount',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Obx(() {
+                    final count = Get.isRegistered<HomeController>()
+                        ? Get.find<HomeController>().cartItemCount.value
+                        : 1;
+                    final displayCount = count > 0 ? count : 1;
+                    return Text(
+                      'View Cart • $displayCount items',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }),
+                  Text(
+                    'Ready in $readyIn',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFA59A94),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  price,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFFF5E00),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFFFF5E00),
+                  size: 20,
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -570,9 +727,39 @@ class _WaterSupplierDetailsScreenState
   }
 
   Widget _buildProductCard(Map<String, dynamic> item) {
+    void handleAdd() {
+      setState(() {
+        showCartBar = true;
+        lastAddedItem = item;
+      });
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().setCartItem(
+          storeName: widget.supplier['name'] ??
+              widget.supplier['title'] ??
+              'PureLife Water Co.',
+          itemName: item['title']?.toString(),
+          itemPortion: item['bottleTag']?.toString() ??
+              item['sizeTag']?.toString() ??
+              '19L',
+          basePrice: parsePrice(item['price']?.toString() ?? '50'),
+          itemImage: item['image']?.toString(),
+        );
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${item['title']} added to cart!',
+            style: GoogleFonts.outfit(),
+          ),
+          backgroundColor: const Color(0xFFFF5E00),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: () {
-        showWaterProductDetailsSheet(context, item);
+        showWaterProductDetailsSheet(context, item, onAdd: handleAdd);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -792,11 +979,7 @@ class _WaterSupplierDetailsScreenState
                       const SizedBox(width: 6),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () {
-                            Get.to(() => WaterSubscriptionConfigureScreen(
-                                  product: item,
-                                ));
-                          },
+                          onTap: handleAdd,
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             decoration: BoxDecoration(

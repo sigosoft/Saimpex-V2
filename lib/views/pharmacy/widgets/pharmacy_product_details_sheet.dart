@@ -21,6 +21,7 @@ void showPharmacyProductDetailsSheet(
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
             return Padding(
               padding: EdgeInsets.only(bottom: bottomSafe),
               child: Stack(

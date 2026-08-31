@@ -5,8 +5,9 @@ import '../water_subscription_configure_screen.dart';
 
 void showWaterProductDetailsSheet(
   BuildContext context,
-  Map<String, dynamic> product,
-) {
+  Map<String, dynamic> product, {
+  VoidCallback? onAdd,
+}) {
   final bottomSafe = MediaQuery.of(context).padding.bottom;
   final title = product['title'] ?? 'Drinking Water 19L';
   final image = product['image'] ?? 'lib/assets/images/19L water.png';
@@ -248,9 +249,13 @@ void showWaterProductDetailsSheet(
                               child: GestureDetector(
                                 onTap: () {
                                   Navigator.of(context).pop();
-                                  Get.to(() => WaterSubscriptionConfigureScreen(
-                                        product: product,
-                                      ));
+                                  if (onAdd != null) {
+                                    onAdd();
+                                  } else {
+                                    Get.to(() => WaterSubscriptionConfigureScreen(
+                                          product: product,
+                                        ));
+                                  }
                                 },
                                 child: Container(
                                   height: 50,
