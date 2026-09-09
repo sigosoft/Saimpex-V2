@@ -18,7 +18,15 @@ class MyBookingsScreen extends StatefulWidget {
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
   int _selectedFilter = 0;
 
-  static const _filters = ['All', 'Home Cleaning', 'Car Wash', 'Laundry'];
+  static const _filters = [
+    'All',
+    'Home Cleaning',
+    'Car Wash',
+    'Laundry',
+    'Plumbing',
+    'Carpentry',
+    'Electrical',
+  ];
 
   final List<Map<String, dynamic>> _bookings = [
     {
@@ -30,7 +38,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       'status': 'Confirmed',
       'datetime': 'Today, 15 Aug 2026, 2:00–4:00 PM',
       'slot': '15 Aug 2026, 2:00 PM – 4:00 PM',
-      'location': 'Near Marhaba Supermarket, Nouakchott',
+      'location': 'Near Marhaba Supermarket,Nouakchott',
       'locationTitle': 'Sahara View Home',
       'rooms': '2 Bedrooms · 2 Bathrooms',
       'price': '750 MRU',
@@ -52,8 +60,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       'vehicleLabel': 'Sedan',
       'vehiclePrice': '550 MRU',
       'duration': '30 min',
-      'vehicleImage':
-          'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&h=280&fit=crop',
       'image':
           'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&h=280&fit=crop',
     },
@@ -66,12 +72,70 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       'status': 'Confirmed',
       'datetime': 'Today, 15 Aug 2026, 2:00–4:00 PM',
       'slot': '15 Aug 2026, 2:00 PM – 4:00 PM',
-      'location': 'Near Marhaba Supermarket, Nouakchott',
+      'location': 'Near Marhaba Supermarket,Nouakchott',
       'locationTitle': 'Sahara View Home',
       'price': '450 MRU',
       'estimateLabel': 'Estimated 3 kg',
       'duration': '24 hour',
       'image': 'lib/assets/images/wash&fold_detail.png',
+    },
+    {
+      'id': '22789005',
+      'provider': 'CleanPro Laundry',
+      'category': 'Laundry',
+      'categoryColor': 0xFF7B5CFF,
+      'service': 'Wash & Fold',
+      'status': 'Confirmed',
+      'datetime': 'Today, 15 Aug 2026, 2:00–4:00 PM',
+      'slot': '15 Aug 2026, 2:00 PM – 4:00 PM',
+      'location': 'Near Marhaba Supermarket,Nouakchott',
+      'locationTitle': 'Sahara View Home',
+      'price': '545 MRU',
+      'estimateLabel': 'Estimated 3.0 kg',
+      'estimatedPrice': '460 MRU',
+      'actualWeight': '3.6 kg',
+      'balanceDue': '85 MRU',
+      'hasBalanceDue': true,
+      'image': 'lib/assets/images/wash&fold_detail.png',
+    },
+    {
+      'id': '22789006',
+      'provider': 'QuickFix Plumbing',
+      'category': 'Plumbing',
+      'categoryColor': 0xFF00A896,
+      'service': 'Pipe Repair & Leak Fix',
+      'status': 'Confirmed',
+      'datetime': 'Tomorrow, 16 Aug 2026, 10:00–12:00 PM',
+      'slot': '16 Aug 2026, 10:00 AM – 12:00 PM',
+      'location': 'Near Marhaba Supermarket,Nouakchott',
+      'locationTitle': 'Sahara View Home',
+      'price': '600 MRU',
+    },
+    {
+      'id': '22789007',
+      'provider': 'CraftWood Carpentry',
+      'category': 'Carpentry',
+      'categoryColor': 0xFFD97706,
+      'service': 'Custom Cabinet Repair',
+      'status': 'Confirmed',
+      'datetime': 'Tomorrow, 16 Aug 2026, 2:00–4:00 PM',
+      'slot': '16 Aug 2026, 2:00 PM – 4:00 PM',
+      'location': 'Near Marhaba Supermarket,Nouakchott',
+      'locationTitle': 'Sahara View Home',
+      'price': '850 MRU',
+    },
+    {
+      'id': '22789008',
+      'provider': 'VoltMaster Electrical',
+      'category': 'Electrical',
+      'categoryColor': 0xFFEAB308,
+      'service': 'Circuit Inspection & Wiring',
+      'status': 'Confirmed',
+      'datetime': '17 Aug 2026, 9:00–11:00 AM',
+      'slot': '17 Aug 2026, 9:00 AM – 11:00 AM',
+      'location': 'Near Marhaba Supermarket,Nouakchott',
+      'locationTitle': 'Sahara View Home',
+      'price': '500 MRU',
     },
   ];
 
@@ -81,29 +145,114 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     return _bookings.where((b) => b['category'] == key).toList();
   }
 
+  void _payBalance(Map<String, dynamic> booking) {
+    final balance = booking['balanceDue'] ?? '85 MRU';
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE0E0E0),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Pay Balance Due',
+              style: GoogleFonts.outfit(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF2C2520),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Amount due after final weighing: $balance',
+              style: GoogleFonts.outfit(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF7A6A60),
+              ),
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () {
+                Get.back();
+                setState(() {
+                  booking['hasBalanceDue'] = false;
+                  booking['price'] = booking['estimatedPrice'] != null
+                      ? '${booking['price']} (Paid)'
+                      : booking['price'];
+                });
+                Get.snackbar(
+                  'Payment Successful',
+                  'Balance of $balance paid successfully!',
+                  backgroundColor: const Color(0xFF2E7D32),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.BOTTOM,
+                  margin: const EdgeInsets.all(16),
+                  borderRadius: 12,
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                height: 48,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Text(
+                  'Confirm & Pay $balance',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
   Color _statusBg(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return const Color(0xFFE6F6EC);
+      case 'upcoming':
       case 'completed':
-        return const Color(0xFFE8F1FF);
+        return const Color(0xFFE8F8EE);
       case 'cancelled':
         return const Color(0xFFFFE8E8);
       default:
-        return const Color(0xFFFFF3EB);
+        return const Color(0xFFE8F8EE);
     }
   }
 
   Color _statusFg(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return const Color(0xFF1B7A3E);
+      case 'upcoming':
       case 'completed':
-        return const Color(0xFF2B5A9E);
+        return const Color(0xFF2E7D32);
       case 'cancelled':
         return const Color(0xFFC62828);
       default:
-        return const Color(0xFFFF5E00);
+        return const Color(0xFF2E7D32);
     }
   }
 
@@ -175,12 +324,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             alignment: Alignment.centerLeft,
             child: GestureDetector(
               onTap: () {
-                if (Get.isRegistered<HomeController>()) {
-                  Get.find<HomeController>()
-                      .selectNavigation(HomeController.navHome);
-                  return;
+                if (Navigator.of(context).canPop()) {
+                  Get.back();
+                } else if (Get.isRegistered<HomeController>()) {
+                  Get.find<HomeController>().selectNavigation(
+                    HomeController.navHome,
+                  );
                 }
-                Get.back();
               },
               child: Container(
                 width: 38,
@@ -189,12 +339,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFFFF5E00),
-                    width: 1.2,
+                    color: const Color(0xFFEAD8C9),
+                    width: 0.8,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -211,7 +361,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           Text(
             'My Bookings',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF1B2B4A),
+              color: const Color(0xFF2C2520),
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
@@ -261,14 +411,18 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   Widget _buildBookingCard(Map<String, dynamic> booking) {
-    final status = booking['status'] as String;
-    final categoryColor = Color(booking['categoryColor'] as int);
+    final statusText = booking['status'] as String? ?? '';
+    final status = statusText.toLowerCase();
+    final isCompleted = status == 'completed';
+    final category = booking['category'] as String? ?? '';
+    final categoryColor = Color(booking['categoryColor'] as int? ?? 0xFFFF5E00);
+    final hasBalanceDue = booking['hasBalanceDue'] == true;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -280,30 +434,33 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header: Provider Name & Status Badge
           Row(
             children: [
               Expanded(
                 child: Text(
-                  booking['provider'] as String,
+                  booking['provider'] as String? ?? 'CleanPro Elite',
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
-                    fontSize: 15,
+                    color: const Color(0xFF2C2520),
+                    fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
-                  color: _statusBg(status),
+                  color: _statusBg(statusText),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  status.toUpperCase(),
+                  isCompleted ? 'Completed' : statusText.toUpperCase(),
                   style: GoogleFonts.outfit(
-                    color: _statusFg(status),
-                    fontSize: 10,
+                    color: _statusFg(statusText),
+                    fontSize: 11,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.3,
                   ),
@@ -311,143 +468,385 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Row(
             children: [
               Container(
-                width: 7,
-                height: 7,
+                width: 6,
+                height: 6,
                 decoration: BoxDecoration(
                   color: categoryColor,
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 5),
               Text(
-                booking['category'] as String,
+                category,
                 style: GoogleFonts.outfit(
                   color: categoryColor,
-                  fontSize: 12.5,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, color: Color(0xFFEDE6DF)),
-          const SizedBox(height: 12),
-          Text(
-            booking['service'] as String,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF1B2B4A),
-              fontSize: 14.5,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
           const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(
-                Icons.calendar_month_rounded,
-                color: Color(0xFFFF5E00),
-                size: 16,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  booking['datetime'] as String,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF5A5048),
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(
-                Icons.location_on_outlined,
-                color: Color(0xFFFF5E00),
-                size: 16,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  booking['location'] as String,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF5A5048),
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (status.toLowerCase() != 'cancelled' &&
-              status.toLowerCase() != 'completed') ...[
-            const SizedBox(height: 14),
-            GestureDetector(
-              onTap: () {},
-              child: Container(
-                width: double.infinity,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3EBE3),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Text(
-                  'Cancel',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+          const Divider(height: 1, color: Color(0xFFEDE6DF)),
+          const SizedBox(height: 10),
+
+          if (isCompleted) ...[
+            Text(
+              '${booking['service']} · ${booking['price']} · #${booking['id']}',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF7A6A60),
+                fontSize: 12.5,
+                fontWeight: FontWeight.w500,
               ),
             ),
-          ],
-          const SizedBox(height: 12),
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                final category = booking['category'] as String?;
-                if (category == 'Car Wash') {
-                  Get.to(() => CarWashBookingDetailScreen(booking: booking));
-                } else if (category == 'Laundry') {
-                  Get.to(() => LaundryBookingDetailScreen(booking: booking));
-                } else {
-                  Get.to(
-                    () => HomeCleaningBookingDetailScreen(booking: booking),
-                  );
-                }
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'View Booking Details',
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      height: 44,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3EBE3),
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: Text(
+                        'Reorder',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      height: 44,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3EBE3),
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: Text(
+                        'Rate',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ] else ...[
+            Text(
+              booking['service'] as String? ?? 'Regular Cleaning',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF2C2520),
+                fontSize: 13.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.calendar_month_rounded,
+                  color: Color(0xFFFF5E00),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    booking['datetime'] as String? ??
+                        'Today, 15 Aug 2026, 2:00–4:00 PM',
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
-                      fontSize: 13,
+                      color: const Color(0xFF5A5048),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.location_on_outlined,
+                  color: Color(0xFFFF5E00),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    booking['location'] as String? ??
+                        'Near Marhaba Supermarket,Nouakchott',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF5A5048),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            if (hasBalanceDue) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF6F4F1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFE8DD),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 5,
+                            height: 5,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFF5E00),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'BALANCE DUE',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFFF5E00),
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Estimated Weight: 3.0 kg',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF7A6A60),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '460 MRU',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF7A6A60),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF7A6A60),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            children: [
+                              const TextSpan(text: 'Actual Scale Weight: '),
+                              TextSpan(
+                                text: '3.6 kg',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFFF5E00),
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '545 MRU',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0EA),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Balance Due',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Amount due after final weighing',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF7A6A60),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '85 MRU',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFFF5E00),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              GestureDetector(
+                onTap: () => _payBalance(booking),
+                child: Container(
+                  width: double.infinity,
+                  height: 46,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                    ),
+                    borderRadius: BorderRadius.circular(23),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'Pay ${booking['balanceDue'] ?? '85 MRU'}',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ] else ...[
+              GestureDetector(
+                onTap: () {},
+                child: Container(
+                  width: double.infinity,
+                  height: 44,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3EBE3),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 13.5,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(width: 2),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 18,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+              const SizedBox(height: 14),
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    final category = booking['category'] as String?;
+                    if (category == 'Car Wash') {
+                      Get.to(
+                        () => CarWashBookingDetailScreen(booking: booking),
+                      );
+                    } else if (category == 'Laundry') {
+                      Get.to(
+                        () => LaundryBookingDetailScreen(booking: booking),
+                      );
+                    } else {
+                      Get.to(
+                        () => HomeCleaningBookingDetailScreen(booking: booking),
+                      );
+                    }
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'View Booking Details',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 3),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
         ],
       ),
     );

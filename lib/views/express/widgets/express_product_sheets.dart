@@ -21,6 +21,7 @@ void showExpressProductDetailSheet(
 
       return StatefulBuilder(
         builder: (context, setModalState) {
+          final bottomInset = MediaQuery.paddingOf(context).bottom;
           return Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.topCenter,
@@ -56,7 +57,12 @@ void showExpressProductDetailSheet(
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        20,
+                        20,
+                        24 + (bottomInset > 0 ? bottomInset : 10),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -312,6 +318,7 @@ void showExpressProductCustomizeSheet(
     builder: (sheetContext) {
       return StatefulBuilder(
         builder: (context, setModalState) {
+          final bottomInset = MediaQuery.paddingOf(context).bottom;
           return Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.topCenter,
@@ -479,7 +486,12 @@ void showExpressProductCustomizeSheet(
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        12,
+                        20,
+                        24 + (bottomInset > 0 ? bottomInset : 10),
+                      ),
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         border: Border(

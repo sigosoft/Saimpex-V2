@@ -60,57 +60,64 @@ class LanguageSelector extends StatelessWidget {
     final List<String> languages = ['English', 'Español', 'Français', 'العربية'];
 
     Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.08),
-            width: 1,
-          ),
+      Material(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
         ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Select Language',
-                style: GoogleFonts.outfit(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ...languages.map(
-                (lang) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    lang,
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight:
-                          controller.selectedLanguage.value == lang
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                    ),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.08),
+              width: 1,
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Language',
+                  style: GoogleFonts.outfit(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  trailing: controller.selectedLanguage.value == lang
-                      ? const Icon(Icons.check, color: Color(0xFFFF7E00))
-                      : null,
-                  onTap: () {
-                    controller.setLanguage(lang);
-                    Get.back();
-                  },
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                ...languages.map(
+                  (lang) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      lang,
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight:
+                            controller.selectedLanguage.value == lang
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                      ),
+                    ),
+                    trailing: controller.selectedLanguage.value == lang
+                        ? const Icon(Icons.check, color: Color(0xFFFF7E00))
+                        : null,
+                    onTap: () {
+                      controller.setLanguage(lang);
+                      Get.back();
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

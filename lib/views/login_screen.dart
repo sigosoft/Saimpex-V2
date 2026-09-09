@@ -411,17 +411,17 @@ class LoginScreen extends StatelessWidget {
     ];
 
     Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
+      Material(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
         ),
-        child: SafeArea(
-          child: Column(
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: SafeArea(
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -475,7 +475,8 @@ class LoginScreen extends StatelessWidget {
           ),
         ),
       ),
-      backgroundColor: Colors.transparent,
-    );
+    ),
+    backgroundColor: Colors.transparent,
+  );
   }
 }

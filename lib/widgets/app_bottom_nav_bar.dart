@@ -31,10 +31,13 @@ class AppBottomNavBar extends StatelessWidget {
   /// When set, called instead of default shell tab switching (for overlay routes).
   final ValueChanged<int>? onTap;
 
+  final bool isServicesOption;
+
   const AppBottomNavBar({
     super.key,
     required this.selectedIndex,
     this.onTap,
+    this.isServicesOption = false,
   });
 
   void _handleTap(int index) {
@@ -89,21 +92,10 @@ class AppBottomNavBar extends StatelessWidget {
                       ),
                       Expanded(
                         child: _sideItem(
-                          index: HomeController.navChat,
-                          asset: null,
-                          label: 'Chat',
-                        ),
-                      ),
-                      Expanded(
-                        child: _sideItem(
                           index: HomeController.navBookings,
                           asset: null,
                           label: 'Bookings',
                         ),
-                      ),
-                      SizedBox(
-                        width: _servicesSlotWidth,
-                        child: _servicesItem(),
                       ),
                       Expanded(
                         child: _sideItem(
@@ -112,9 +104,14 @@ class AppBottomNavBar extends StatelessWidget {
                           label: 'Orders',
                         ),
                       ),
+                      SizedBox(
+                        width: _servicesSlotWidth,
+                        child: _servicesItem(),
+                      ),
                       Expanded(
                         child: Obx(() {
-                          final controller = Get.isRegistered<HomeController>()
+                          final controller =
+                              Get.isRegistered<HomeController>()
                               ? Get.find<HomeController>()
                               : Get.put(HomeController());
                           return _sideItem(
@@ -124,6 +121,13 @@ class AppBottomNavBar extends StatelessWidget {
                             badgeCount: controller.cartItemCount.value,
                           );
                         }),
+                      ),
+                      Expanded(
+                        child: _sideItem(
+                          index: HomeController.navChat,
+                          asset: null,
+                          label: 'Chat',
+                        ),
                       ),
                       Expanded(
                         child: _sideItem(
@@ -193,14 +197,10 @@ class AppBottomNavBar extends StatelessWidget {
                   child: Center(
                     child: isSelected
                         ? ShaderMask(
-                            shaderCallback: (bounds) =>
-                                const LinearGradient(
+                            shaderCallback: (bounds) => const LinearGradient(
                               begin: Alignment.bottomCenter,
                               end: Alignment.topCenter,
-                              colors: [
-                                Color(0xFFFF5E00),
-                                Color(0xFFFFAE00),
-                              ],
+                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                             ).createShader(bounds),
                             child: Text(
                               'SERVICES',
@@ -255,8 +255,9 @@ class AppBottomNavBar extends StatelessWidget {
     int badgeCount = 0,
   }) {
     final isSelected = selectedIndex == index;
-    final color =
-        isSelected ? const Color(0xFFFF5E00) : const Color(0xFFA59A94);
+    final color = isSelected
+        ? const Color(0xFFFF5E00)
+        : const Color(0xFFA59A94);
 
     return GestureDetector(
       onTap: () => _handleTap(index),
@@ -316,8 +317,7 @@ class AppBottomNavBar extends StatelessWidget {
                   style: GoogleFonts.outfit(
                     color: color,
                     fontSize: _sideLabelFontSize,
-                    fontWeight:
-                        isSelected ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     height: 1,
                   ),
                   child: Text(
@@ -415,10 +415,7 @@ class _BookingsCalendarPainter extends CustomPainter {
   final Color color;
   final double strokeFactor;
 
-  _BookingsCalendarPainter({
-    required this.color,
-    required this.strokeFactor,
-  });
+  _BookingsCalendarPainter({required this.color, required this.strokeFactor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -462,10 +459,7 @@ class _BookingsCalendarPainter extends CustomPainter {
     for (var row = 0; row < 2; row++) {
       for (var col = 0; col < 3; col++) {
         canvas.drawCircle(
-          Offset(
-            w * (0.28 + col * 0.18),
-            h * (0.48 + row * 0.16),
-          ),
+          Offset(w * (0.28 + col * 0.18), h * (0.48 + row * 0.16)),
           dotR,
           fill,
         );

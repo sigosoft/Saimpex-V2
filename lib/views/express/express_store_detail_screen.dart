@@ -293,7 +293,7 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
                               crossAxisCount: 2,
                               mainAxisSpacing: 12,
                               crossAxisSpacing: 12,
-                              mainAxisExtent: 248,
+                              mainAxisExtent: 180,
                             ),
                         itemBuilder: (_, index) =>
                             _buildProductCard(products[index]),

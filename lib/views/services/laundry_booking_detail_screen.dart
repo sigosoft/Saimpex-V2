@@ -6,10 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 class LaundryBookingDetailScreen extends StatelessWidget {
   final Map<String, dynamic> booking;
 
-  const LaundryBookingDetailScreen({
-    super.key,
-    required this.booking,
-  });
+  const LaundryBookingDetailScreen({super.key, required this.booking});
 
   String get _bookingId => (booking['id'] as String?) ?? '22789002';
   String get _service => (booking['service'] as String?) ?? 'Wash & Fold';
@@ -26,8 +23,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
   String get _image =>
       (booking['image'] as String?) ?? 'lib/assets/images/wash&fold_detail.png';
   String get _status => (booking['status'] as String?) ?? 'Confirmed';
-  String get _duration =>
-      (booking['duration'] as String?) ?? '24 hours';
+  String get _duration => (booking['duration'] as String?) ?? '24 hours';
 
   static const _statusSteps = [
     {
@@ -78,14 +74,24 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding:
-                      EdgeInsets.fromLTRB(16, 8, 16, 24 + bottomInset + 80),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    8,
+                    16,
+                    24 + bottomInset + 80,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _sectionTitle('Booking Status'),
                       const SizedBox(height: 10),
                       _buildStatusCard(),
+                      if (booking['hasBalanceDue'] == true) ...[
+                        const SizedBox(height: 16),
+                        _sectionTitle('Balance Due Breakdown'),
+                        const SizedBox(height: 10),
+                        _buildBalanceDueCard(),
+                      ],
                       const SizedBox(height: 16),
                       _buildServiceCard(),
                       const SizedBox(height: 20),
@@ -141,10 +147,14 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFFF5E00),
-                  width: 1.2,
-                ),
+                border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: const Icon(
                 Icons.arrow_back_ios_new_rounded,
@@ -480,10 +490,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _addressContent({
-    required String label,
-    required Color labelColor,
-  }) {
+  Widget _addressContent({required String label, required Color labelColor}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -782,29 +789,306 @@ class LaundryBookingDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildBalanceDueCard() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFE8DD),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 5,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF5E00),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'BALANCE DUE',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFFF5E00),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Estimated Weight: ${booking['estimateLabel'] ?? '3.0 kg'}',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF7A6A60),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    booking['estimatedPrice'] ?? '460 MRU',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF7A6A60),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF7A6A60),
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      children: [
+                        const TextSpan(text: 'Actual Scale Weight: '),
+                        TextSpan(
+                          text: booking['actualWeight'] ?? '3.6 kg',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFFF5E00),
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    booking['price'] ?? '545 MRU',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF0EA),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Balance Due',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Amount due after final weighing',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF7A6A60),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                booking['balanceDue'] ?? '85 MRU',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildCancelBar(double bottomInset) {
+    final balance = booking['balanceDue'] ?? '85 MRU';
+    final hasBalance = booking['hasBalanceDue'] == true;
+
     return Container(
       padding: EdgeInsets.fromLTRB(16, 10, 16, 12 + bottomInset),
       color: const Color(0xFFFAF6F0),
-      child: GestureDetector(
-        onTap: () {},
-        child: Container(
-          width: double.infinity,
-          height: 48,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF2ECE1),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Text(
-            'Cancel',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF1B2B4A),
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
+      child: Row(
+        children: [
+          if (hasBalance) ...[
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  Get.bottomSheet(
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(24),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE0E0E0),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Pay Balance Due',
+                            style: GoogleFonts.outfit(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF2C2520),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Amount due after final weighing: $balance',
+                            style: GoogleFonts.outfit(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF7A6A60),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          GestureDetector(
+                            onTap: () {
+                              Get.back();
+                              booking['hasBalanceDue'] = false;
+                              Get.snackbar(
+                                'Payment Successful',
+                                'Balance of $balance paid successfully!',
+                                backgroundColor: const Color(0xFF2E7D32),
+                                colorText: Colors.white,
+                                snackPosition: SnackPosition.BOTTOM,
+                                margin: const EdgeInsets.all(16),
+                                borderRadius: 12,
+                              );
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              height: 48,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFFFF5E00),
+                                    Color(0xFFFFAE00),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Text(
+                                'Confirm & Pay $balance',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 48,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'Pay $balance',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                height: 48,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2ECE1),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF1B2B4A),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

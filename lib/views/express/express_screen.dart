@@ -594,7 +594,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
               crossAxisCount: 4,
               crossAxisSpacing: 10,
               mainAxisSpacing: 14,
-              childAspectRatio: 0.78,
+              childAspectRatio: 0.88,
             ),
             itemBuilder: (context, index) {
               final cat = categories[index];
@@ -719,7 +719,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
 
   Widget _buildFastDeliveryList() {
     return SizedBox(
-      height: 210,
+      height: 172,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -835,7 +835,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
 
   Widget _buildTrendingList(HomeController controller) {
     return SizedBox(
-      height: 230,
+      height: 205,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
