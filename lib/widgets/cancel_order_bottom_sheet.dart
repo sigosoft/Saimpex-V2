@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../views/order_cancelled_success_screen.dart';
 
 void showCancelOrderBottomSheet(
   BuildContext context, {
   VoidCallback? onConfirm,
+  String? orderId,
 }) {
   int selectedReasonIndex = 0;
   final List<String> cancelReasons = [
@@ -26,7 +30,6 @@ void showCancelOrderBottomSheet(
             clipBehavior: Clip.none,
             alignment: Alignment.topCenter,
             children: [
-              // Main Modal Container
               Container(
                 margin: const EdgeInsets.only(top: 48),
                 decoration: const BoxDecoration(
@@ -38,7 +41,6 @@ void showCancelOrderBottomSheet(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Top Header Banner
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 18),
@@ -58,8 +60,6 @@ void showCancelOrderBottomSheet(
                         ),
                       ),
                     ),
-
-                    // Body Content
                     Padding(
                       padding: EdgeInsets.fromLTRB(
                         20,
@@ -87,10 +87,7 @@ void showCancelOrderBottomSheet(
                               height: 1.3,
                             ),
                           ),
-
                           const SizedBox(height: 18),
-
-                          // Reasons Radio List
                           ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -134,8 +131,6 @@ void showCancelOrderBottomSheet(
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-
-                                      // Radio selector button
                                       Container(
                                         width: 20,
                                         height: 20,
@@ -164,10 +159,7 @@ void showCancelOrderBottomSheet(
                               );
                             },
                           ),
-
                           const SizedBox(height: 24),
-
-                          // Bottom Action Buttons Row (Cancel & Continue)
                           Row(
                             children: [
                               Expanded(
@@ -196,21 +188,12 @@ void showCancelOrderBottomSheet(
                                 child: GestureDetector(
                                   onTap: () {
                                     Navigator.pop(context);
-                                    if (onConfirm != null) {
-                                      onConfirm();
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Order cancelled successfully',
-                                            style: GoogleFonts.outfit(),
-                                          ),
-                                          backgroundColor:
-                                              const Color(0xFFFF5E00),
-                                        ),
-                                      );
-                                    }
+                                    onConfirm?.call();
+                                    Get.to(
+                                      () => OrderCancelledSuccessScreen(
+                                        orderId: orderId,
+                                      ),
+                                    );
                                   },
                                   child: Container(
                                     height: 50,
@@ -253,8 +236,6 @@ void showCancelOrderBottomSheet(
                   ],
                 ),
               ),
-
-              // Floating Close Button (Top Center)
               Positioned(
                 top: 0,
                 child: GestureDetector(

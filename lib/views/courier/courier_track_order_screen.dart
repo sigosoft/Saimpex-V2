@@ -37,34 +37,6 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
   bool _updatingPins = false;
   bool _needsPinUpdate = false;
 
-  static const _steps = [
-    _TrackStep(
-      label: 'Booking\nConfirmed',
-      time: '22 Oct 2025,\n10:00 AM',
-      done: true,
-      icon: Icons.check_rounded,
-    ),
-    _TrackStep(
-      label: 'At Pickup',
-      time: '22 Oct 2025,\n10:05 AM',
-      done: true,
-      icon: Icons.location_on_outlined,
-    ),
-    _TrackStep(
-      label: 'On the way',
-      time: '22 Oct 2025,\n10:10 AM',
-      done: true,
-      icon: Icons.two_wheeler_rounded,
-      useDeliveryIcon: true,
-    ),
-    _TrackStep(
-      label: 'Delivered',
-      time: '',
-      done: false,
-      icon: Icons.check_rounded,
-    ),
-  ];
-
   static const String _lightMapStyle = '''
 [
   {"elementType":"geometry","stylers":[{"color":"#f4efe8"}]},
@@ -239,7 +211,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
       value: const SystemUiOverlayStyle(
         statusBarColor: Color(0xFFFAF6F0),
         statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.white,
+        systemNavigationBarColor: Color(0xFFFFFDF9),
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
@@ -268,7 +240,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                           style: _lightMapStyle,
                           polylines: _polylines,
                           padding: EdgeInsets.only(
-                            bottom: 340 + bottomPad,
+                            bottom: 300 + bottomPad,
                             top: 8,
                           ),
                           zoomControlsEnabled: false,
@@ -282,7 +254,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          height: 120,
+                          height: 220,
                           child: IgnorePointer(
                             child: DecoratedBox(
                               decoration: BoxDecoration(
@@ -290,11 +262,11 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    Colors.white.withValues(alpha: 0),
-                                    Colors.white.withValues(alpha: 0.65),
-                                    Colors.white,
+                                    const Color(0xFFFFFDF9).withValues(alpha: 0),
+                                    const Color(0xFFFFFDF9).withValues(alpha: 0.55),
+                                    const Color(0xFFFFFDF9),
                                   ],
-                                  stops: const [0.0, 0.55, 1.0],
+                                  stops: const [0.0, 0.45, 1.0],
                                 ),
                               ),
                             ),
@@ -325,10 +297,9 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
               right: 16,
               child: _buildHeader(),
             ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
+            // Bottom panel — same floating cream card pattern as food Track Order
+            Align(
+              alignment: Alignment.bottomCenter,
               child: _buildBottomSheet(bottomPad),
             ),
           ],
@@ -382,35 +353,36 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
 
   Widget _buildBottomSheet(double bottomPad) {
     return Container(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomPad),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      margin: EdgeInsets.fromLTRB(16, 16, 16, bottomPad + 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFDF9),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 16,
-            offset: Offset(0, -4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
+      padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: const Color(0xFFFF5E00),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               'ON THE WAY',
               style: GoogleFonts.outfit(
                 color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.4,
+                fontSize: 8.5,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -422,43 +394,43 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
               Text(
                 '12 min',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF1A1A1A),
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF2C2520),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(width: 6),
               Text(
                 'ETA',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF8C7E75),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFFA59A94),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             '${widget.vehicleLabel} • ${widget.amount} • $_displayOrderId',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF8C7E75),
+              color: const Color(0xFF7A6A60),
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 16),
           _buildProgressTracker(),
-          const SizedBox(height: 18),
+          const SizedBox(height: 20),
           Text(
             'Your Driver',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF1A1A1A),
+              color: const Color(0xFF2C2520),
               fontSize: 14,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _buildDriverCard(),
         ],
       ),
@@ -466,128 +438,162 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
   }
 
   Widget _buildProgressTracker() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const circle = 32.0;
-        final usable = constraints.maxWidth - circle;
-        final segment = usable / 3;
-
-        return Column(
-          children: [
-            SizedBox(
-              height: circle + 6,
-              child: Stack(
-                alignment: Alignment.centerLeft,
-                children: [
-                  Positioned(
-                    left: circle / 2,
-                    right: circle / 2,
-                    child: Row(
-                      children: List.generate(3, (i) {
-                        final active = i < 2;
-                        return Container(
-                          width: segment,
-                          height: 3,
-                          color: active
-                              ? const Color(0xFFFF5E00)
-                              : const Color(0xFFE5DDD4),
-                        );
-                      }),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      for (final step in _steps)
-                        Container(
-                          width: circle,
-                          height: circle,
-                          decoration: BoxDecoration(
-                            color: step.done
-                                ? const Color(0xFFFF5E00)
-                                : const Color(0xFFEFE8E1),
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: step.useDeliveryIcon && step.done
-                              ? Image.asset(
-                                  'lib/assets/images/delivery_icon.png',
-                                  width: 16,
-                                  height: 16,
-                                  color: Colors.white,
-                                  errorBuilder: (_, __, ___) => Icon(
-                                    step.icon,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                )
-                              : Icon(
-                                  step.icon,
-                                  color: step.done
-                                      ? Colors.white
-                                      : const Color(0xFFB0A59C),
-                                  size: 16,
-                                ),
-                        ),
-                    ],
-                  ),
-                ],
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Positioned(
+          top: 18,
+          left: 30,
+          right: 30,
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 2,
+                  color: const Color(0xFFFF5E00),
+                ),
               ),
+              Expanded(
+                child: Container(
+                  height: 2,
+                  color: const Color(0xFFFF5E00),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  height: 2,
+                  color: const Color(0xFFEAD8C9),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildStepperNode(
+              isActive: true,
+              icon: Icons.check_rounded,
+              title: 'Booking\nConfirmed',
+              time: '22 Oct 2023,\n10:00 AM',
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: _steps.map((step) {
-                return Expanded(
-                  child: Column(
-                    children: [
-                      Text(
-                        step.label,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
-                          color: step.done
-                              ? const Color(0xFF2C2520)
-                              : const Color(0xFFA59A94),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          height: 1.2,
-                        ),
-                      ),
-                      if (step.time.isNotEmpty) ...[
-                        const SizedBox(height: 3),
-                        Text(
-                          step.time,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFA59A94),
-                            fontSize: 7.5,
-                            fontWeight: FontWeight.w500,
-                            height: 1.2,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                );
-              }).toList(),
+            _buildStepperNode(
+              isActive: true,
+              icon: Icons.location_on_rounded,
+              title: 'At Pickup',
+              time: '22 Oct 2023,\n10:05 AM',
+            ),
+            _buildStepperNode(
+              isActive: true,
+              icon: Icons.delivery_dining_rounded,
+              title: 'On the way',
+              time: '22 Oct 2023,\n10:10 AM',
+              useDeliveryAsset: true,
+            ),
+            _buildStepperNode(
+              isActive: false,
+              icon: Icons.check_rounded,
+              title: 'Delivered',
+              time: '',
             ),
           ],
-        );
-      },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepperNode({
+    required bool isActive,
+    required IconData icon,
+    required String title,
+    required String time,
+    bool useDeliveryAsset = false,
+  }) {
+    return SizedBox(
+      width: 72,
+      child: Column(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? const Color(0xFFFF5E00)
+                  : const Color(0xFFEAD8C9),
+              shape: BoxShape.circle,
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            alignment: Alignment.center,
+            child: useDeliveryAsset && isActive
+                ? Image.asset(
+                    'lib/assets/images/delivery_icon.png',
+                    width: 18,
+                    height: 18,
+                    color: Colors.white,
+                    errorBuilder: (_, __, ___) => Icon(
+                      icon,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  )
+                : Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            title,
+            style: GoogleFonts.outfit(
+              color: isActive
+                  ? const Color(0xFF2C2520)
+                  : const Color(0xFFA59A94),
+              fontSize: 8.5,
+              fontWeight: FontWeight.bold,
+              height: 1.2,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (time.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              time,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFA59A94),
+                fontSize: 6.5,
+                fontWeight: FontWeight.w500,
+                height: 1.2,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
     );
   }
 
   Widget _buildDriverCard() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -595,19 +601,23 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
         children: [
           ClipOval(
             child: Image.network(
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop',
-              width: 52,
-              height: 52,
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop',
+              width: 64,
+              height: 64,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
-                width: 52,
-                height: 52,
-                color: const Color(0xFFF3EFEA),
-                child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
+                width: 64,
+                height: 64,
+                color: const Color(0xFFEAD8C9),
+                child: const Icon(
+                  Icons.person,
+                  color: Colors.white,
+                  size: 32,
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -616,25 +626,32 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                   'Amadou Sy',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     const Icon(
                       Icons.star_rounded,
                       color: Color(0xFFFFAE00),
-                      size: 14,
+                      size: 16,
                     ),
-                    const SizedBox(width: 3),
+                    const SizedBox(width: 2),
                     Text(
-                      '4.6 (10k + reviews)',
+                      '4.6',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      ' (10k + reviews)',
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -655,14 +672,14 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
               );
             },
             child: Container(
-              width: 42,
-              height: 42,
+              width: 44,
+              height: 44,
               decoration: const BoxDecoration(
                 color: Color(0xFFFF5E00),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.phone_rounded,
+                Icons.call,
                 color: Colors.white,
                 size: 20,
               ),
@@ -672,20 +689,4 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
       ),
     );
   }
-}
-
-class _TrackStep {
-  final String label;
-  final String time;
-  final bool done;
-  final IconData icon;
-  final bool useDeliveryIcon;
-
-  const _TrackStep({
-    required this.label,
-    required this.time,
-    required this.done,
-    required this.icon,
-    this.useDeliveryIcon = false,
-  });
 }

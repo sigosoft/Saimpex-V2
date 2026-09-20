@@ -105,12 +105,38 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   String get itemImage {
-    if (widget.itemImage != null) return widget.itemImage!;
-    if (Get.isRegistered<HomeController>()) {
+    String? raw;
+    if (widget.itemImage != null) {
+      raw = widget.itemImage;
+    } else if (Get.isRegistered<HomeController>()) {
       final saved = Get.find<HomeController>().lastCartItem;
-      if (saved?['itemImage'] != null) return saved!['itemImage'].toString();
+      if (saved?['itemImage'] != null) raw = saved!['itemImage'].toString();
     }
-    return 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop';
+    return _resolveBakeryProductImage(itemTitle, raw);
+  }
+
+  /// Maps local-store bakery products to their asset images.
+  static String _resolveBakeryProductImage(String title, String? image) {
+    if (image != null &&
+        image.isNotEmpty &&
+        (image.startsWith('lib/assets/') || image.startsWith('http'))) {
+      return image;
+    }
+    final t = title.toLowerCase();
+    if (t.contains('artisan')) {
+      return 'lib/assets/images/artisan_bread.png';
+    }
+    if (t.contains('pain') || t.contains('chocolat')) {
+      return 'lib/assets/images/pain_chocolat.png';
+    }
+    if (t.contains('citrus') || t.contains('lemon')) {
+      return 'lib/assets/images/citrus_lemon.png';
+    }
+    if (t.contains('croissant')) {
+      return 'lib/assets/images/butter_croissant.png';
+    }
+    return image ??
+        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop';
   }
 
   final int pointDiscountValue = 1;
@@ -214,35 +240,37 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: () {
-                      if (Navigator.canPop(context)) {
-                        Navigator.pop(context);
-                      } else if (Get.isRegistered<HomeController>()) {
-                        Get.find<HomeController>().selectNavigation(0);
-                      }
-                    },
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                  child: (widget.showBottomNav || canPop)
+                      ? GestureDetector(
+                          onTap: () {
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            } else if (Get.isRegistered<HomeController>()) {
+                              Get.find<HomeController>().selectNavigation(0);
+                            }
+                          },
+                          child: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: Color(0xFFFF5E00),
+                              size: 15,
+                            ),
                           ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 15,
-                      ),
-                    ),
-                  ),
+                        )
+                      : const SizedBox(width: 38),
                 ),
                 Text(
                   'Cart',
@@ -665,9 +693,10 @@ class _CartScreenState extends State<CartScreen> {
                               onTap: () {
                                 setState(() {
                                   isDelivery = false;
-                                  if (selectedPaymentIndex == 2) {
+                                  if (selectedPaymentIndex == 2 ||
+                                      selectedPaymentIndex == 3) {
                                     selectedPaymentIndex =
-                                        0; // fallback to Wallet if COD is hidden
+                                        0; // fallback when COD / Pay After Delivery hidden
                                   }
                                 });
                               },
@@ -818,11 +847,14 @@ class _CartScreenState extends State<CartScreen> {
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: const Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
+                            borderRadius: BorderRadius.circular(28),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
@@ -831,16 +863,16 @@ class _CartScreenState extends State<CartScreen> {
                           child: Row(
                             children: [
                               Container(
-                                width: 32,
-                                height: 32,
+                                width: 36,
+                                height: 36,
                                 decoration: const BoxDecoration(
                                   color: Color(0xFFFFF0EA),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
-                                  Icons.storefront_rounded,
+                                  Icons.location_on_rounded,
                                   color: Color(0xFFFF5E00),
-                                  size: 16,
+                                  size: 20,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -849,11 +881,11 @@ class _CartScreenState extends State<CartScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      storeName,
+                                      'Pickup Location',
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFF2C2520),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -861,8 +893,9 @@ class _CartScreenState extends State<CartScreen> {
                                       '$storeName, Near Nouakchott, Mauritania',
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFFA59A94),
-                                        fontSize: 10,
+                                        fontSize: 11,
                                         fontWeight: FontWeight.w500,
+                                        height: 1.25,
                                       ),
                                     ),
                                   ],
@@ -871,7 +904,7 @@ class _CartScreenState extends State<CartScreen> {
                               const Icon(
                                 Icons.chevron_right_rounded,
                                 color: Color(0xFFFF5E00),
-                                size: 20,
+                                size: 22,
                               ),
                             ],
                           ),
@@ -1146,14 +1179,13 @@ class _CartScreenState extends State<CartScreen> {
                       const SizedBox(height: 10),
 
                       // Payment Cards list
-                      if (widget.isFoodOrGrocery) ...[
-                        // Card 0: Pay After Delivery (Featured Top Option for Food & Grocery)
+                      if (widget.isFoodOrGrocery && isDelivery) ...[
+                        // Card 0: Pay After Delivery (Delivery only — select, no schedule popup)
                         GestureDetector(
                           onTap: () {
                             setState(() {
                               selectedPaymentIndex = 3;
                             });
-                            _showScheduleBottomSheet(context);
                           },
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 10),

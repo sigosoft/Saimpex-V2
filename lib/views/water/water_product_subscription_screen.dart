@@ -149,16 +149,15 @@ class _WaterProductSubscriptionScreenState
     final product = widget.product;
     final image = (product['image'] ?? 'lib/assets/images/19Lbottle.png')
         .toString();
-    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFFF9F5),
+        statusBarColor: Color(0xFFFFFBF5),
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFF9F5),
+        backgroundColor: const Color(0xFFFFFBF5),
         body: Column(
           children: [
             _buildHeader(),
@@ -254,7 +253,7 @@ class _WaterProductSubscriptionScreenState
                           child: GestureDetector(
                             onTap: () => setState(() => selectedTypeIndex = i),
                             child: Container(
-                              height: 38,
+                              height: 40,
                               margin: EdgeInsets.only(
                                 right: i == subscriptionTypes.length - 1
                                     ? 0
@@ -265,12 +264,26 @@ class _WaterProductSubscriptionScreenState
                                 color: selected
                                     ? const Color(0xFFFF5E00)
                                     : Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: selected
-                                      ? const Color(0xFFFF5E00)
-                                      : const Color(0xFFEAD8C9),
-                                ),
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: selected
+                                    ? [
+                                        BoxShadow(
+                                          color: const Color(
+                                            0xFFFF5E00,
+                                          ).withValues(alpha: 0.22),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ]
+                                    : [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.03,
+                                          ),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
                               ),
                               child: Text(
                                 subscriptionTypes[i],
@@ -278,7 +291,7 @@ class _WaterProductSubscriptionScreenState
                                   color: selected
                                       ? Colors.white
                                       : const Color(0xFF7A6A60),
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -326,87 +339,99 @@ class _WaterProductSubscriptionScreenState
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 12),
-              child: GestureDetector(
-                onTap: () {
-                  final slotLabel = selectedSlotIndex == null
-                      ? '8:00 - 10:00 AM'
-                      : (timeSlots[selectedSlotIndex!] == 'Late night'
-                            ? 'Late night'
-                            : timeSlots[selectedSlotIndex!].replaceAll(
-                                '–',
-                                ' - ',
-                              ));
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: GestureDetector(
+                  onTap: () {
+                    final slotLabel = selectedSlotIndex == null
+                        ? '8:00 - 10:00 AM'
+                        : (timeSlots[selectedSlotIndex!] == 'Late night'
+                              ? 'Late night'
+                              : timeSlots[selectedSlotIndex!].replaceAll(
+                                  '–',
+                                  ' - ',
+                                ));
 
-                  if (Get.isRegistered<HomeController>()) {
-                    Get.find<HomeController>().setCartItem(
-                      storeName: widget.supplier?['title']?.toString() ?? 'PureLife Water Co.',
-                      itemName: (product['title'] ?? 'Drinking Water').toString(),
-                      itemPortion: (product['size'] ?? '19L').toString(),
-                      basePrice: parsePrice(product['price']?.toString() ?? '50'),
-                      itemImage: product['image']?.toString(),
-                    );
-                  }
-
-                  Get.to(
-                    () => WaterSubscriptionCartScreen(
-                      storeName:
-                          widget.supplier?['title']?.toString() ??
-                          'PureLife Water Co.',
-                      itemName: (product['title'] ?? 'Drinking Water')
-                          .toString()
-                          .replaceAll(RegExp(r'\s+\d+L$'), ''),
-                      itemSize: (product['size'] ?? '19L').toString(),
-                      itemImage:
-                          (product['image'] ??
-                                  'lib/assets/images/19Lbottle.png')
-                              .toString(),
-                      unitPrice: parsePrice(
-                        product['price']?.toString() ?? '50',
-                      ),
-                      quantity: quantity,
-                      startDate: _formatCartDate(startDate),
-                      endDate: _formatCartDate(endDate),
-                      timeSlot: slotLabel,
-                      subscriptionType: subscriptionTypes[selectedTypeIndex],
-                    ),
-                  );
-                },
-                child: Container(
-                  height: 50,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                    ),
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.shopping_cart_outlined,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'ADD',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                    if (Get.isRegistered<HomeController>()) {
+                      Get.find<HomeController>().setCartItem(
+                        storeName:
+                            widget.supplier?['title']?.toString() ??
+                            'PureLife Water Co.',
+                        itemName: (product['title'] ?? 'Drinking Water')
+                            .toString(),
+                        itemPortion: (product['size'] ?? '19L').toString(),
+                        basePrice: parsePrice(
+                          product['price']?.toString() ?? '50',
                         ),
+                        itemImage: product['image']?.toString(),
+                      );
+                    }
+
+                    Get.to(
+                      () => WaterSubscriptionCartScreen(
+                        storeName:
+                            widget.supplier?['title']?.toString() ??
+                            'PureLife Water Co.',
+                        itemName: (product['title'] ?? 'Drinking Water')
+                            .toString()
+                            .replaceAll(RegExp(r'\s+\d+L$'), ''),
+                        itemSize: (product['size'] ?? '19L').toString(),
+                        itemImage:
+                            (product['image'] ??
+                                    'lib/assets/images/19Lbottle.png')
+                                .toString(),
+                        unitPrice: parsePrice(
+                          product['price']?.toString() ?? '50',
+                        ),
+                        quantity: quantity,
+                        startDate: _formatCartDate(startDate),
+                        endDate: _formatCartDate(endDate),
+                        timeSlot: slotLabel,
+                        subscriptionType: subscriptionTypes[selectedTypeIndex],
                       ),
-                    ],
+                    );
+                  },
+                  child: Container(
+                    height: 52,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(26),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFFFF5E00,
+                          ).withValues(alpha: 0.28),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.shopping_cart_outlined,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'ADD',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -435,19 +460,20 @@ class _WaterProductSubscriptionScreenState
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFEAD8C9), width: 1.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 8,
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
               alignment: Alignment.center,
               child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
+                Icons.chevron_left_rounded,
                 color: Color(0xFFFF5E00),
-                size: 16,
+                size: 24,
               ),
             ),
           ),
@@ -470,11 +496,11 @@ class _WaterProductSubscriptionScreenState
 
   Widget _buildQuantitySelector() {
     return Container(
-      height: 36,
+      height: 38,
       padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
       ),
       child: Row(
@@ -484,13 +510,22 @@ class _WaterProductSubscriptionScreenState
             onTap: () {
               if (quantity > 1) setState(() => quantity--);
             },
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(Icons.remove, color: Color(0xFFA59A94), size: 16),
+            child: Container(
+              width: 26,
+              height: 26,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFE8DC),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.remove,
+                color: Color(0xFFFF5E00),
+                size: 16,
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
               '$quantity',
               style: GoogleFonts.outfit(
@@ -503,8 +538,8 @@ class _WaterProductSubscriptionScreenState
           GestureDetector(
             onTap: () => setState(() => quantity++),
             child: Container(
-              width: 24,
-              height: 24,
+              width: 26,
+              height: 26,
               decoration: const BoxDecoration(
                 color: Color(0xFFFF5E00),
                 shape: BoxShape.circle,
@@ -529,20 +564,26 @@ class _WaterProductSubscriptionScreenState
           label,
           style: GoogleFonts.outfit(
             color: const Color(0xFF7A6A60),
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         GestureDetector(
           onTap: onTap,
           child: Container(
-            height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFEAD8C9)),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -551,7 +592,7 @@ class _WaterProductSubscriptionScreenState
                     value,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -571,12 +612,18 @@ class _WaterProductSubscriptionScreenState
 
   Widget _buildDurationDropdown() {
     return Container(
-      height: 46,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEAD8C9)),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -623,10 +670,21 @@ class _WaterProductSubscriptionScreenState
   Widget _buildDeliverySlots() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF0EA),
-        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [Colors.white, Color(0xFFFFE8DC)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -653,7 +711,7 @@ class _WaterProductSubscriptionScreenState
             ),
           ),
           if (slotsExpanded) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -663,17 +721,25 @@ class _WaterProductSubscriptionScreenState
                   onTap: () => setState(() => selectedSlotIndex = index),
                   child: Container(
                     width:
-                        (MediaQuery.sizeOf(context).width - 32 - 28 - 10) / 2,
-                    height: 40,
+                        (MediaQuery.sizeOf(context).width - 32 - 32 - 10) / 2,
+                    height: 44,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: selected
                             ? const Color(0xFFFF5E00)
-                            : const Color(0xFFEAD8C9),
+                            : Colors.transparent,
+                        width: selected ? 1.2 : 0,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -682,15 +748,17 @@ class _WaterProductSubscriptionScreenState
                           Icons.access_time_rounded,
                           color: selected
                               ? const Color(0xFFFF5E00)
-                              : const Color(0xFFFF5E00),
-                          size: 14,
+                              : const Color(0xFF8A7F77),
+                          size: 15,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           timeSlots[index],
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 11,
+                            color: selected
+                                ? const Color(0xFF2C2520)
+                                : const Color(0xFF6B5E56),
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -709,15 +777,14 @@ class _WaterProductSubscriptionScreenState
   Widget _buildReturnBottleCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
@@ -727,25 +794,17 @@ class _WaterProductSubscriptionScreenState
         children: [
           Row(
             children: [
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00B25C).withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.recycling_rounded,
-                  color: Color(0xFF00B25C),
-                  size: 16,
-                ),
+              const Icon(
+                Icons.recycling_rounded,
+                color: Color(0xFF00A859),
+                size: 22,
               ),
               const SizedBox(width: 8),
               Text(
                 'Return Empty Bottle',
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w800,
                 ),
               ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../constants/colors.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
 import 'category_screen.dart';
@@ -15,6 +14,7 @@ import 'local_store/local_store_screen.dart';
 import 'under_30_min_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'main_shell_screen.dart';
+import 'widgets/chatbot_head.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -133,6 +133,11 @@ class HomeScreen extends StatelessWidget {
                   bottom: 0,
                   child: _buildBottomNavigationBar(controller),
                 ),
+
+              // 3. AI Chatbot Head (draggable overlay)
+              const Positioned.fill(
+                child: ChatBotHead(),
+              ),
             ],
           ),
         ),
@@ -320,17 +325,20 @@ class HomeScreen extends StatelessWidget {
               height: 20,
               color: Color(0xFFA59A94),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Container(
-              padding: const EdgeInsets.all(6),
+              width: 32,
+              height: 32,
               decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 249, 210, 187),
+                color: Color(0xFFFFF0E0),
                 shape: BoxShape.circle,
               ),
+              alignment: Alignment.center,
               child: Image.asset(
                 "lib/assets/images/Voice.png",
                 width: 16,
                 height: 16,
+                color: const Color(0xFFFF5E00),
               ),
             ),
           ],

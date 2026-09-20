@@ -120,12 +120,25 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
   Widget build(BuildContext context) {
     final topInset = MediaQuery.paddingOf(context).top;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFFDF9),
-      body: Column(
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFFDE8DD),
+            Color(0xFFFFF3EC),
+            Color(0xFFFFFBF7),
+          ],
+          stops: [0.0, 0.42, 1.0],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
         children: [
           Container(
-            color: const Color(0xFFFFFDF9),
+            color: Colors.transparent,
             padding: EdgeInsets.fromLTRB(16, topInset + 10, 16, 12),
             child: Stack(
               alignment: Alignment.center,
@@ -247,6 +260,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
           ),
         ],
       ),
+      ),
     );
   }
 
@@ -256,7 +270,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(28),
           border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
         ),
         child: Row(
@@ -296,7 +310,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
         boxShadow: [
           BoxShadow(
@@ -368,7 +382,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF0EA),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(28),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -464,7 +478,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
     return CustomPaint(
       painter: _DashedBorderPainter(
         color: const Color(0xFFD9D0C8),
-        borderRadius: 20,
+        borderRadius: 18,
       ),
       child: Container(
         height: 40,
@@ -494,7 +508,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF0EA),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: const Color(0xFFFF5E00), width: 1.5),
       ),
       child: Row(
@@ -555,7 +569,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -642,7 +656,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
           height: 44,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(28),
             border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -688,7 +702,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(28),
               border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -781,7 +795,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
                 ? const Color(0xFFFF5E00)
@@ -858,7 +872,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF2C2520),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -989,7 +1003,7 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
           gradient: const LinearGradient(
             colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFFFF5E00).withValues(alpha: 0.3),
@@ -1016,7 +1030,7 @@ class _DashedBorderPainter extends CustomPainter {
   final Color color;
   final double borderRadius;
 
-  _DashedBorderPainter({required this.color, this.borderRadius = 20});
+  _DashedBorderPainter({required this.color, this.borderRadius = 18});
 
   @override
   void paint(Canvas canvas, Size size) {

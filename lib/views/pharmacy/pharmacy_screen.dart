@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
@@ -19,6 +19,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   int selectedCategoryIndex = 0; // Default to "All"
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
+  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
   /// search bar height (48) + small padding
@@ -37,6 +38,17 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     super.dispose();
   }
 
+  double _headerBottomY() {
+    final ctx = _headerKey.currentContext;
+    if (ctx != null) {
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) {
+        return box.localToGlobal(Offset.zero).dy + box.size.height;
+      }
+    }
+    return MediaQuery.paddingOf(context).top + 56;
+  }
+
   void _handleScroll() {
     if (!mounted) return;
     final ctx = _searchAnchorKey.currentContext;
@@ -44,9 +56,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final topInset = MediaQuery.paddingOf(context).top;
-    // Pin once search reaches under the fixed location header (~56px)
-    final shouldShow = top <= topInset + 56;
+    final shouldShow = top <= _headerBottomY();
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
@@ -315,10 +325,10 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
               ),
             ),
 
-            // Sticky search (below fixed location header)
+            // Sticky search (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: MediaQuery.paddingOf(context).top + 56,
+                top: _headerBottomY(),
                 left: 0,
                 right: 0,
                 child: Material(
@@ -339,6 +349,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   // Header Bar
   Widget _buildHeader(BuildContext context) {
     return Padding(
+      key: _headerKey,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -642,10 +653,30 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
           final isSelected = selectedCategoryIndex == index;
 
           return GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
+              final store = trustedPharmacies.isNotEmpty
+                  ? Map<String, dynamic>.from(trustedPharmacies.first)
+                  : <String, dynamic>{
+                      'id': 'p_trusted1',
+                      'title': 'Pharmacy Nasr',
+                      'subtitle': 'Trusted',
+                      'rating': '4.6',
+                      'time': '30-35 min',
+                      'dist': '10 Km',
+                      'discount': '50% OFF',
+                      'image':
+                          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&auto=format&fit=crop',
+                    };
               setState(() {
                 selectedCategoryIndex = index;
               });
+              Get.to(
+                () => PharmacyItemsScreen(
+                  store: store,
+                  initialSubcategoryIndex: index,
+                ),
+              );
             },
             child: Stack(
               clipBehavior: Clip.none,
@@ -774,15 +805,24 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
 
   // Horizontal Trusted Pharmacies List
   Widget _buildTrustedPharmaciesList() {
+    return _buildHorizontalPharmaciesList(trustedPharmacies);
+  }
+
+  // Horizontal Nearby Pharmacies List (same layout as Trusted)
+  Widget _buildNearbyPharmaciesList() {
+    return _buildHorizontalPharmaciesList(nearbyPharmacies);
+  }
+
+  Widget _buildHorizontalPharmaciesList(List<Map<String, dynamic>> pharmacies) {
     return SizedBox(
       height: 230,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: trustedPharmacies.length,
+        itemCount: pharmacies.length,
         itemBuilder: (context, index) {
-          final store = trustedPharmacies[index];
+          final store = pharmacies[index];
           final homeController = Get.isRegistered<HomeController>()
               ? Get.find<HomeController>()
               : Get.put(HomeController());
@@ -894,87 +934,43 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                           right: 10,
                           child: Obx(() {
                             final isLiked = homeController.isLiked(
-                              (store['id'] ?? '').toString(),
+                              store['id'] as String,
                             );
                             return GestureDetector(
-                              onTap: () => homeController.toggleLike(
-                                (store['id'] ?? '').toString(),
-                                Map<String, dynamic>.from(store),
-                              ),
+                              onTap: () {
+                                homeController.toggleLike(
+                                  store['id'] as String,
+                                );
+                              },
                               child: Container(
-                                padding: const EdgeInsets.all(5),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.9),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   isLiked
                                       ? Icons.favorite_rounded
                                       : Icons.favorite_border_rounded,
-                                  color: const Color(0xFFE03A3A),
+                                  color: const Color(0xFFFF5E00),
                                   size: 16,
                                 ),
                               ),
                             );
                           }),
                         ),
-                        // Points Badge with Coin
-                        Positioned(
-                          bottom: 8,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Image.asset(
-                                  "lib/assets/images/Coin.png",
-                                  width: 12,
-                                  height: 12,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  store['points'] as String,
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        if (isClosed) ...[
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withOpacity(0.35),
-                            ),
-                          ),
+                        if (isClosed)
                           Positioned.fill(
                             child: _buildClosedOverlay(opensAt),
                           ),
-                        ] else if (isTemporarilyClosed) ...[
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withOpacity(0.35),
-                            ),
-                          ),
+                        if (isTemporarilyClosed)
                           Positioned.fill(
                             child: _buildTemporarilyClosedOverlay(),
                           ),
-                        ],
                       ],
                     ),
                   ),
-                  // Details Info
                   Opacity(
                     opacity: (isClosed || isTemporarilyClosed) ? 0.65 : 1.0,
                     child: Padding(
@@ -985,12 +981,16 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                store['title'] as String,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
+                              Expanded(
+                                child: Text(
+                                  store['title'] as String,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                               if (store['isOpen247'] == true)
@@ -1010,19 +1010,20 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFF4CAF50),
                                         fontSize: 9,
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ],
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 4),
                           Text(
-                            store['subtitle'] as String,
+                            store['points'] as String,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFA59A94),
+                              color: const Color(0xFFFF5E00),
                               fontSize: 10,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -1071,302 +1072,6 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
       ),
     );
   }
-
-  // Vertical list for Nearby Pharmacies
-  Widget _buildNearbyPharmaciesList() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: nearbyPharmacies.length,
-        itemBuilder: (context, index) {
-          final store = nearbyPharmacies[index];
-          final homeController = Get.isRegistered<HomeController>()
-              ? Get.find<HomeController>()
-              : Get.put(HomeController());
-          final isClosed = store['isClosed'] == true;
-          final isTemporarilyClosed = store['isTemporarilyClosed'] == true;
-
-          return GestureDetector(
-            onTap: () {
-              Get.to(() => PharmacyItemsScreen(store: store));
-            },
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              height: 220,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Image with Overlays
-                  Expanded(
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Image.network(
-                            store['image'] as String,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                                  color: const Color(0xFFF3EFEA),
-                                  child: const Icon(
-                                    Icons.image_not_supported_outlined,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                          ),
-                        ),
-                        // Discount Badge
-                        Positioned(
-                          top: 10,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE03A3A),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              store['discount'] as String,
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Star Rating overlay
-                        Positioned(
-                          top: 10,
-                          left: 70,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.star_rounded,
-                                  color: Color(0xFFFFAE00),
-                                  size: 10,
-                                ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  store['rating'] as String,
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.black,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // Heart overlay
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: Obx(() {
-                            final isLiked = homeController.isLiked(
-                              (store['id'] ?? '').toString(),
-                            );
-                            return GestureDetector(
-                              onTap: () => homeController.toggleLike(
-                                (store['id'] ?? '').toString(),
-                                Map<String, dynamic>.from(store),
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(5),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  isLiked
-                                      ? Icons.favorite_rounded
-                                      : Icons.favorite_border_rounded,
-                                  color: const Color(0xFFE03A3A),
-                                  size: 16,
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                        // Coin overlay
-                        Positioned(
-                          bottom: 8,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Image.asset(
-                                  "lib/assets/images/Coin.png",
-                                  width: 12,
-                                  height: 12,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  store['points'] as String,
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // Closed / Temporarily Closed Overlay
-                        if (isClosed) ...[
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withOpacity(0.35),
-                            ),
-                          ),
-                          Positioned.fill(child: _buildClosedOverlay('9 AM')),
-                        ] else if (isTemporarilyClosed) ...[
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withOpacity(0.35),
-                            ),
-                          ),
-                          Positioned.fill(
-                            child: _buildTemporarilyClosedOverlay(),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  // Details
-                  Opacity(
-                    opacity: (isClosed || isTemporarilyClosed) ? 0.65 : 1.0,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                store['title'] as String,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (store['isOpen247'] == true)
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 5,
-                                      height: 5,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF4CAF50),
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Open 24/7',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF4CAF50),
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            store['subtitle'] as String,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF7A6A60),
-                              fontSize: 11,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.access_time_rounded,
-                                color: Color(0xFFFF5E00),
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                store['time'] as String,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF7A6A60),
-                                  fontSize: 11,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              const Icon(
-                                Icons.location_on_outlined,
-                                color: Color(0xFFFF5E00),
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                store['dist'] as String,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF7A6A60),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   // Closed overlay
   Widget _buildClosedOverlay(String opensAt) {
     return Center(

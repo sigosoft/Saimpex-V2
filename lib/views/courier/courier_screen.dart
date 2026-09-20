@@ -193,35 +193,43 @@ class _CourierScreenState extends State<CourierScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 14,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(16, 18, 14, 18),
-      child: SizedBox(
-        height: 108,
+      padding: const EdgeInsets.fromLTRB(18, 20, 14, 20),
+      child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Timeline: halo dots + dashed connector
             SizedBox(
-              width: 14,
+              width: 22,
               child: Column(
                 children: [
-                  _routeDot(const Color(0xFF2F80ED)),
+                  _routeDot(
+                    fill: const Color(0xFF2F80ED),
+                    halo: const Color(0xFFD6E6FB),
+                  ),
                   Expanded(
-                    child: CustomPaint(
-                      painter: _VerticalDashedLinePainter(
-                        color: const Color(0xFFD9D0C8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: CustomPaint(
+                        painter: _VerticalDashedLinePainter(
+                          color: const Color(0xFFD0C8C0),
+                        ),
                       ),
                     ),
                   ),
-                  _routeDot(const Color(0xFFFF5E00)),
+                  _routeDot(
+                    fill: const Color(0xFFFF5E00),
+                    halo: const Color(0xFFFFE0CC),
+                  ),
                 ],
               ),
             ),
@@ -229,27 +237,19 @@ class _CourierScreenState extends State<CourierScreen> {
             Expanded(
               child: Column(
                 children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _buildRouteRow(
-                        label: 'PICKUP',
-                        title: 'Marhaba Supermarket, Nouakchott',
-                        isPlaceholder: false,
-                      ),
-                    ),
+                  _buildRouteRow(
+                    label: 'PICKUP',
+                    title: 'Marhaba Supermarket,\nNouakchott',
+                    isPlaceholder: false,
+                    maxLines: 2,
                   ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _buildRouteRow(
-                        label: 'DROP-OFF',
-                        title: dropOffAddress ?? 'Add destination',
-                        isPlaceholder: dropOffAddress == null,
-                        onTap: _openDropOffLocation,
-                        maxLines: 2,
-                      ),
-                    ),
+                  const SizedBox(height: 18),
+                  _buildRouteRow(
+                    label: 'DROP-OFF',
+                    title: dropOffAddress ?? 'Add destination',
+                    isPlaceholder: dropOffAddress == null,
+                    onTap: _openDropOffLocation,
+                    maxLines: 2,
                   ),
                 ],
               ),
@@ -260,13 +260,22 @@ class _CourierScreenState extends State<CourierScreen> {
     );
   }
 
-  Widget _routeDot(Color color) {
+  Widget _routeDot({required Color fill, required Color halo}) {
     return Container(
-      width: 10,
-      height: 10,
+      width: 22,
+      height: 22,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: color,
+        color: halo,
         shape: BoxShape.circle,
+      ),
+      child: Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: fill,
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }
@@ -315,7 +324,7 @@ class _CourierScreenState extends State<CourierScreen> {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Column(
@@ -326,9 +335,9 @@ class _CourierScreenState extends State<CourierScreen> {
                   label,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.6,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -338,23 +347,21 @@ class _CourierScreenState extends State<CourierScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
                     color: isPlaceholder
-                        ? const Color(0xFFA59A94)
+                        ? const Color(0xFF8C7D73)
                         : const Color(0xFF2C2520),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    height: 1.25,
+                    fontSize: 14,
+                    fontWeight:
+                        isPlaceholder ? FontWeight.w500 : FontWeight.w700,
+                    height: 1.3,
                   ),
                 ),
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Icon(
-              Icons.chevron_right_rounded,
-              color: Color(0xFFA59A94),
-              size: 20,
-            ),
+          const Icon(
+            Icons.chevron_right_rounded,
+            color: Color(0xFFB8AFA8),
+            size: 22,
           ),
         ],
       ),
@@ -368,103 +375,116 @@ class _CourierScreenState extends State<CourierScreen> {
         final isSelected = selectedVehicleIndex == index;
 
         return Expanded(
-          child: GestureDetector(
-            onTap: () => setState(() => selectedVehicleIndex = index),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  height: 98,
-                  margin: EdgeInsets.only(right: index == 0 ? 10 : 0),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: isSelected
-                        ? Border.all(
-                            color: const Color(0xFFFF5E00),
-                            width: 1.5,
-                          )
-                        : null,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 72,
-                        child: Image.asset(
-                          vehicle['image']!.toString(),
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const Icon(
-                            Icons.two_wheeler_outlined,
-                            color: Color(0xFFA59A94),
+          child: Padding(
+            padding: EdgeInsets.only(right: index == 0 ? 10 : 0),
+            child: GestureDetector(
+              onTap: () => setState(() => selectedVehicleIndex = index),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    height: 98,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: isSelected
+                          ? Border.all(
+                              color: const Color(0xFFFF5E00),
+                              width: 1.5,
+                            )
+                          : null,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 72,
+                          child: Image.asset(
+                            vehicle['image']!.toString(),
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.two_wheeler_outlined,
+                              color: Color(0xFFA59A94),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              vehicle['label']!.toString(),
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                vehicle['label']!.toString(),
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              vehicle['time']!.toString(),
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                              const SizedBox(height: 3),
+                              Text(
+                                vehicle['time']!.toString(),
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFFF5E00),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              vehicle['price']!.toString(),
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFA59A94),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
+                              const SizedBox(height: 2),
+                              Text(
+                                vehicle['price']!.toString(),
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFA59A94),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isSelected)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5E00),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.12),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isSelected)
-                  Positioned(
-                    top: -4,
-                    right: -2,
-                    child: Container(
-                      width: 18,
-                      height: 18,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        color: Colors.white,
-                        size: 12,
+                        child: const Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 12,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         );

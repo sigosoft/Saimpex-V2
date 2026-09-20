@@ -194,37 +194,41 @@ class _WaterNearbySuppliersScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 48,
+        padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+          border: Border.all(color: const Color(0xFFE8E4DF), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
               offset: const Offset(0, 3),
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Row(
           children: [
             const Icon(
               Icons.search_rounded,
-              color: Color(0xFFA59A94),
-              size: 20,
+              color: Color(0xFF9A938C),
+              size: 22,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
               child: TextField(
                 controller: searchController,
                 onChanged: (_) => setState(() {}),
-                style: GoogleFonts.outfit(fontSize: 13),
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                ),
                 decoration: InputDecoration(
-                  hintText: 'Search water suppliers',
+                  hintText: 'Search water suppliers or products',
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
-                    fontSize: 12,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
                   isDense: true,
@@ -232,15 +236,22 @@ class _WaterNearbySuppliersScreenState
                 ),
               ),
             ),
-            const Icon(
-              Icons.qr_code_scanner_rounded,
-              color: Color(0xFFA59A94),
-              size: 18,
+            const SizedBox(width: 8),
+            Image.asset(
+              'lib/assets/images/Camera.png',
+              width: 20,
+              height: 20,
+              color: const Color(0xFF9A938C),
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.qr_code_scanner_rounded,
+                color: Color(0xFF9A938C),
+                size: 20,
+              ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Container(
-              width: 30,
-              height: 30,
+              width: 32,
+              height: 32,
               decoration: const BoxDecoration(
                 color: Color(0xFFFFF0EA),
                 shape: BoxShape.circle,
@@ -248,9 +259,10 @@ class _WaterNearbySuppliersScreenState
               child: Center(
                 child: Image.asset(
                   'lib/assets/images/Voice.png',
-                  width: 14,
-                  height: 14,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
+                  width: 15,
+                  height: 15,
+                  color: const Color(0xFFFF5E00),
+                  errorBuilder: (_, __, ___) => const Icon(
                     Icons.mic_none_rounded,
                     color: Color(0xFFFF5E00),
                     size: 16,

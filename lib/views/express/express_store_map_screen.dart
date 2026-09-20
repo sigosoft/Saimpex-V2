@@ -179,9 +179,22 @@ class _ExpressStoreMapScreenState extends State<ExpressStoreMapScreen> {
     final topInset = MediaQuery.paddingOf(context).top;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3ECE4),
-      body: Stack(
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFFDE8DD),
+            Color(0xFFFFF3EC),
+            Color(0xFFFFFBF7),
+          ],
+          stops: [0.0, 0.42, 1.0],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
         children: [
           Positioned.fill(
             child: CustomPaint(
@@ -304,6 +317,7 @@ class _ExpressStoreMapScreenState extends State<ExpressStoreMapScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

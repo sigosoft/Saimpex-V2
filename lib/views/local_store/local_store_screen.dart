@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -21,6 +23,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   int _selectedCategoryIndex = 0;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
+  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
   /// search bar height (48) + small padding
@@ -44,9 +47,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
     },
     {
       'label': 'Bakery',
-      'icon': 'lib/assets/images/Bakery.png',
+      'icon': 'lib/assets/images/croissant.png',
       'gradient': const LinearGradient(
-        colors: [Color(0xFFFFF5EC), Color(0xFFFEE6D6)],
+        colors: [Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -55,7 +58,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'label': 'Spice Trade',
       'icon': 'lib/assets/images/Spices.png',
       'gradient': const LinearGradient(
-        colors: [Color(0xFFFFFBE6), Color(0xFFFFF1CC)],
+        colors:[Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -64,7 +67,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'label': 'Florist',
       'icon': 'lib/assets/images/Flowers.png',
       'gradient': const LinearGradient(
-        colors: [Color(0xFFF7EBF6), Color(0xFFECD2EB)],
+        colors: [Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -73,16 +76,16 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'label': 'Fish Market',
       'icon': 'lib/assets/images/Fish.png',
       'gradient': const LinearGradient(
-        colors: [Color(0xFFE6F7FF), Color(0xFFCBEBFE)],
+        colors:[Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
     },
     {
       'label': 'Stationery',
-      'icon': 'lib/assets/images/Stationary.png',
+      'icon': 'lib/assets/images/Stationery.png',
       'gradient': const LinearGradient(
-        colors: [Color(0xFFF6F6F6), Color(0xFFE8E8E8)],
+        colors: [Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -99,7 +102,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'dist': '1.8 Km',
       'discount': '50% OFF',
       'points': '200 Points Available',
-      'image': 'lib/assets/images/Bakery.png',
+      'image': 'lib/assets/images/golden_bakery.png',
       'isFavorite': false,
     },
     {
@@ -113,6 +116,8 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'points': '200 Points Available',
       'image': 'lib/assets/images/Fish.png',
       'isFavorite': false,
+      'isClosed': true,
+      'opensAt': '10 AM',
     },
   ];
 
@@ -126,7 +131,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'dist': '1.8 Km',
       'discount': '30% OFF',
       'points': '250 Points Available',
-      'image': 'lib/assets/images/Flowers.png',
+      'image': 'lib/assets/images/city_florist.png',
       'isFavorite': false,
     },
     {
@@ -138,7 +143,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'dist': '1.8 Km',
       'discount': '30% OFF',
       'points': '200 Points Available',
-      'image': 'lib/assets/images/Stationary.png',
+      'image': 'lib/assets/images/browse_stationery.png',
       'isFavorite': false,
     },
     {
@@ -150,7 +155,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'dist': '1.8 Km',
       'discount': '30% OFF',
       'points': '250 Points Available',
-      'image': 'lib/assets/images/Bakery.png',
+      'image': 'lib/assets/images/dessert_sweet.png',
       'isFavorite': false,
     },
   ];
@@ -176,12 +181,21 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final topInset = MediaQuery.paddingOf(context).top;
-    // Pin once search reaches under the fixed location header (~56px)
-    final shouldShow = top <= topInset + 56;
+    final shouldShow = top <= _headerBottomY();
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
+  }
+
+  double _headerBottomY() {
+    final ctx = _headerKey.currentContext;
+    if (ctx != null) {
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) {
+        return box.localToGlobal(Offset.zero).dy + box.size.height;
+      }
+    }
+    return MediaQuery.paddingOf(context).top + 56;
   }
 
   Widget _buildSearchBar() {
@@ -260,95 +274,105 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 10),
+                  Column(
+                    key: _headerKey,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 10),
 
-                  // Fixed header: back, location, wallet
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.06),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                      // Fixed header: back, location, wallet
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.06),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 15,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () =>
-                                Get.to(() => const SelectLocationScreen()),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.home_outlined,
+                                child: const Icon(
+                                  Icons.arrow_back_ios_new_rounded,
                                   color: Color(0xFFFF5E00),
-                                  size: 22,
+                                  size: 15,
                                 ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Deliver To:',
-                                            style: GoogleFonts.outfit(
-                                              color: const Color(0xFF8C7D73),
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              SelectLocationController
-                                                  .selectedTitle,
-                                              style: GoogleFonts.outfit(
-                                                color: const Color(0xFF2C2520),
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 2),
-                                          const Icon(
-                                            Icons.keyboard_arrow_down_rounded,
-                                            color: Color(0xFF2C2520),
-                                            size: 16,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () =>
+                                    Get.to(() => const SelectLocationScreen()),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.home_outlined,
+                                      color: Color(0xFFFF5E00),
+                                      size: 22,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Deliver To:',
+                                                style: GoogleFonts.outfit(
+                                                  color:
+                                                      const Color(0xFF8C7D73),
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  SelectLocationController
+                                                      .selectedTitle,
+                                                  style: GoogleFonts.outfit(
+                                                    color: const Color(
+                                                      0xFF2C2520,
+                                                    ),
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 2),
+                                              const Icon(
+                                                Icons
+                                                    .keyboard_arrow_down_rounded,
+                                                color: Color(0xFF2C2520),
+                                                size: 16,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () =>
@@ -403,6 +427,8 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         ),
                       ],
                     ),
+                  ),
+                    ],
                   ),
 
                   Expanded(
@@ -552,7 +578,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                         end: Alignment.bottomRight,
                                       )
                                     : (cat['gradient'] as Gradient?),
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.04),
@@ -577,9 +603,15 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           ),
                           // 2. Overlapping Illustration Image
                           Positioned(
-                            top: (cat['label'] == 'All') ? 12 : 0,
-                            left: (cat['label'] == 'All') ? 0 : 24,
-                            right: (cat['label'] == 'All') ? 0 : 24,
+                            top: (cat['label'] == 'All')
+                                ? 12
+                                : (cat['label'] == 'Stationery' ? -2 : 0),
+                            left: (cat['label'] == 'All')
+                                ? 0
+                                : (cat['label'] == 'Stationery' ? 18 : 24),
+                            right: (cat['label'] == 'All')
+                                ? 0
+                                : (cat['label'] == 'Stationery' ? 18 : 24),
                             bottom: (cat['label'] == 'All') ? 22 : 22,
                             child: (cat['label'] == 'All')
                                 ? Center(
@@ -682,12 +714,12 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
+                        horizontal: 12,
+                        vertical: 7,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(22),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.04),
@@ -697,6 +729,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         ],
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'Store Map',
@@ -706,11 +739,15 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.location_on_rounded,
-                            color: Color(0xFFFF5E00),
-                            size: 14,
+                          const SizedBox(width: 5),
+                          const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CustomPaint(
+                              painter: _StoreMapPinPainter(
+                                color: Color(0xFFFF5E00),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -744,10 +781,10 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               ),
             ),
 
-            // Sticky search (below fixed location header)
+            // Sticky search (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: MediaQuery.paddingOf(context).top + 56,
+                top: _headerBottomY(),
                 left: 0,
                 right: 0,
                 child: Material(
@@ -767,6 +804,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
 
   // Horizontal Store Card
   Widget _buildHorizontalStoreCard(Map<String, dynamic> store) {
+    final isClosed = store['isClosed'] == true;
+    final opensAt = (store['opensAt'] ?? '10 AM').toString();
+
     return GestureDetector(
       onTap: () {
         Get.to(() => LocalStoreDetailsScreen(store: store));
@@ -775,7 +815,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
         width: 250,
         margin: const EdgeInsets.only(right: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isClosed
+              ? Colors.white.withValues(alpha: 0.72)
+              : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -785,6 +827,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
             ),
           ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -798,20 +841,61 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                   child: SizedBox(
                     height: 130,
                     width: double.infinity,
-                    child: Image.asset(
-                      store['image'],
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFFF3E7DC),
-                        child: const Icon(
-                          Icons.storefront_rounded,
-                          size: 40,
-                          color: Color(0xFFFF5E00),
+                    child: isClosed
+                        ? ImageFiltered(
+                            imageFilter: ImageFilter.blur(
+                              sigmaX: 6,
+                              sigmaY: 6,
+                              tileMode: TileMode.clamp,
+                            ),
+                            child: ColorFiltered(
+                              colorFilter: ColorFilter.mode(
+                                Colors.black.withValues(alpha: 0.22),
+                                BlendMode.darken,
+                              ),
+                              child: Image.asset(
+                                store['image'],
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  color: const Color(0xFFF3E7DC),
+                                  child: const Icon(
+                                    Icons.storefront_rounded,
+                                    size: 40,
+                                    color: Color(0xFFFF5E00),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Image.asset(
+                            store['image'],
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: const Color(0xFFF3E7DC),
+                              child: const Icon(
+                                Icons.storefront_rounded,
+                                size: 40,
+                                color: Color(0xFFFF5E00),
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+
+                if (isClosed)
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                        child: Container(
+                          color: Colors.white.withValues(alpha: 0.12),
                         ),
                       ),
                     ),
                   ),
-                ),
 
                 // Top Left Badges (Discount + Rating)
                 Positioned(
@@ -929,74 +1013,154 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     ),
                   ),
                 ),
+
+                if (isClosed)
+                  Positioned.fill(
+                    child: _buildClosedOverlay(opensAt),
+                  ),
               ],
             ),
 
             // Card Text Details
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    store['name'],
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    store['subtitle'],
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF8C7D73),
-                      fontSize: 11,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
+            ClipRect(
+              child: BackdropFilter(
+                filter: isClosed
+                    ? ImageFilter.blur(sigmaX: 12, sigmaY: 12)
+                    : ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                child: Container(
+                  width: double.infinity,
+                  color: isClosed
+                      ? const Color(0xFFE8E8E8).withValues(alpha: 0.78)
+                      : Colors.white,
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.access_time_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 13,
-                      ),
-                      const SizedBox(width: 3),
                       Text(
-                        store['time'],
+                        store['name'],
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF6B635C),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF2C2520),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 8),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
-                        size: 13,
-                      ),
-                      const SizedBox(width: 3),
+                      const SizedBox(height: 2),
                       Text(
-                        store['dist'],
+                        store['subtitle'],
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF6B635C),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF8C7D73),
+                          fontSize: 11,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time_rounded,
+                            color: Color(0xFFFF5E00),
+                            size: 13,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            store['time'],
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF6B635C),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.location_on_outlined,
+                            color: Color(0xFFFF5E00),
+                            size: 13,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            store['dist'],
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF6B635C),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildClosedOverlay(String opensAt) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD30000),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Closed',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Opens $opensAt',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Transform.translate(
+            offset: const Offset(0, -3),
+            child: Transform.rotate(
+              angle: 45 * 3.14159 / 180,
+              child: Container(
+                width: 8,
+                height: 8,
+                color: const Color(0xFFD30000),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1231,4 +1395,60 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       ),
     );
   }
+}
+
+/// Outline pin-on-map icon matching the Store Map mock.
+class _StoreMapPinPainter extends CustomPainter {
+  const _StoreMapPinPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.45
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final fill = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final w = size.width;
+    final h = size.height;
+    final cx = w * 0.5;
+
+    // Folded map base (rounded trapezoid)
+    final mapTop = h * 0.64;
+    final mapBottom = h * 0.94;
+    final map = Path()
+      ..moveTo(w * 0.12, mapBottom)
+      ..lineTo(w * 0.26, mapTop)
+      ..lineTo(w * 0.74, mapTop)
+      ..lineTo(w * 0.88, mapBottom)
+      ..close();
+    canvas.drawPath(map, stroke);
+
+    // Pin head
+    final pinCy = h * 0.28;
+    final pinR = w * 0.20;
+    canvas.drawCircle(Offset(cx, pinCy), pinR, stroke);
+
+    // Solid center dot
+    canvas.drawCircle(Offset(cx, pinCy), pinR * 0.32, fill);
+
+    // Pin tip down onto the map
+    final stemTop = pinCy + pinR * 0.72;
+    final stem = Path()
+      ..moveTo(cx - pinR * 0.50, stemTop)
+      ..lineTo(cx, mapTop)
+      ..lineTo(cx + pinR * 0.50, stemTop);
+    canvas.drawPath(stem, stroke);
+  }
+
+  @override
+  bool shouldRepaint(covariant _StoreMapPinPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../help_support_screen.dart';
+import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'courier_track_order_screen.dart';
 
 class CourierOrderDetailScreen extends StatelessWidget {
@@ -310,15 +311,15 @@ class CourierOrderDetailScreen extends StatelessWidget {
 
   Widget _buildDeliveryRouteCard() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -327,18 +328,27 @@ class CourierOrderDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              width: 14,
+              width: 22,
               child: Column(
                 children: [
-                  _routeDot(const Color(0xFF2F80ED)),
+                  _routeDot(
+                    fill: const Color(0xFF2F80ED),
+                    halo: const Color(0xFFD6E6FB),
+                  ),
                   Expanded(
-                    child: CustomPaint(
-                      painter: _VerticalDashedLinePainter(
-                        color: const Color(0xFFD9D0C8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: CustomPaint(
+                        painter: _VerticalDashedLinePainter(
+                          color: const Color(0xFFD0C8C0),
+                        ),
                       ),
                     ),
                   ),
-                  _routeDot(const Color(0xFFFF5E00)),
+                  _routeDot(
+                    fill: const Color(0xFFFF5E00),
+                    halo: const Color(0xFFFFE0CC),
+                  ),
                 ],
               ),
             ),
@@ -350,13 +360,11 @@ class CourierOrderDetailScreen extends StatelessWidget {
                   _buildRouteRow(
                     label: 'PICKUP',
                     title: pickupAddress,
-                    labelColor: const Color(0xFF2F80ED),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 18),
                   _buildRouteRow(
                     label: 'DROP-OFF',
                     title: dropOffAddress,
-                    labelColor: const Color(0xFFFF5E00),
                   ),
                 ],
               ),
@@ -367,18 +375,29 @@ class CourierOrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _routeDot(Color color) {
+  Widget _routeDot({required Color fill, required Color halo}) {
     return Container(
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      width: 22,
+      height: 22,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: halo,
+        shape: BoxShape.circle,
+      ),
+      child: Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: fill,
+          shape: BoxShape.circle,
+        ),
+      ),
     );
   }
 
   Widget _buildRouteRow({
     required String label,
     required String title,
-    required Color labelColor,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -386,10 +405,10 @@ class CourierOrderDetailScreen extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.outfit(
-            color: labelColor.withValues(alpha: 0.85),
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
+            color: const Color(0xFFA59A94),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.6,
           ),
         ),
         const SizedBox(height: 4),
@@ -397,9 +416,9 @@ class CourierOrderDetailScreen extends StatelessWidget {
           title,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w700,
-            height: 1.25,
+            height: 1.3,
           ),
         ),
       ],
@@ -582,7 +601,9 @@ class CourierOrderDetailScreen extends StatelessWidget {
 
   Widget _buildCancelButton(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.back(),
+      onTap: () {
+        showCancelOrderBottomSheet(context, orderId: orderId);
+      },
       child: Container(
         height: 48,
         decoration: BoxDecoration(

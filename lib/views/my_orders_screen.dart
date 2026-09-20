@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_detail_screen.dart';
+import 'order_updated_detail_screen.dart';
 import 'water/water_order_details_screen.dart';
 import 'water/water_track_order_screen.dart';
 import 'track_order_screen.dart';
@@ -28,9 +29,16 @@ class MyOrdersScreen extends StatefulWidget {
 }
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
-  // Matches design: Pharmacy, Water, Courier, Local Store
+  // Matches design: All, Food, Pharmacy, Water, Courier, Local Store
   late int selectedCategoryIndex;
-  final List<String> categories = ["Pharmacy", "Water", "Courier", "Local Store"];
+  final List<String> categories = [
+    "All",
+    "Food",
+    "Pharmacy",
+    "Water",
+    "Courier",
+    "Local Store",
+  ];
   Worker? _ordersCategoryWorker;
 
   @override
@@ -221,12 +229,16 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: selectedCategoryIndex == 0
-                        ? _buildPharmacyOrders()
+                        ? _buildAllOrders()
                         : selectedCategoryIndex == 1
-                            ? _buildWaterOrders()
+                            ? _buildFoodOrders()
                             : selectedCategoryIndex == 2
-                                ? _buildCourierOrders()
-                                : _buildOtherCategoryOrders(),
+                                ? _buildPharmacyOrders()
+                                : selectedCategoryIndex == 3
+                                    ? _buildWaterOrders()
+                                    : selectedCategoryIndex == 4
+                                        ? _buildCourierOrders()
+                                        : _buildOtherCategoryOrders(),
                   ),
                 ],
               ),
@@ -247,6 +259,84 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ],
       ),
     ),
+    );
+  }
+
+  Widget _buildAllOrders() {
+    return Column(
+      children: [
+        _buildOrderUpdatedCard(),
+        _buildPaymentPendingCard(),
+        _buildFoodOrders(),
+        _buildPharmacyOrders(),
+        _buildWaterOrders(),
+        _buildCourierOrders(),
+        _buildOtherCategoryOrders(),
+      ],
+    );
+  }
+
+  Widget _buildFoodOrders() {
+    return Column(
+      children: [
+        _buildOrderCard(
+          restaurantName: "Al Fantasia",
+          statusText: "ON THE WAY",
+          statusColor: const Color(0xFFFF8A00),
+          statusBgColor: const Color(0xFFFFF4EC),
+          detailsText: "Delivery • 750 MRU • 2 items • #22789000",
+          buttons: [
+            _buildOrderButton(
+              text: "Cancel",
+              onTap: () => _showCancelDialog(orderId: "#22789000"),
+            ),
+            const SizedBox(width: 12),
+            _buildGradientButton(
+              text: "Track Order",
+              onTap: () {
+                Get.to(
+                  () => const TrackOrderScreen(
+                    orderId: "#22789000",
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        _buildOrderCard(
+          restaurantName: "Tarif Restaurant",
+          statusText: "SELF PICKUP",
+          statusColor: const Color(0xFF007DFE),
+          statusBgColor: const Color(0xFFECF5FF),
+          detailsText: "Pickup • 500 MRU • 1 items • #22789001",
+          buttons: [
+            _buildOrderButton(
+              text: "Cancel",
+              onTap: () => _showCancelDialog(orderId: "#22789001"),
+            ),
+          ],
+        ),
+        _buildOrderCard(
+          restaurantName: "Portuguese restaurant",
+          statusText: "DELIVERED",
+          statusColor: const Color(0xFF00B25C),
+          statusBgColor: const Color(0xFFE8F8EE),
+          detailsText: "Delivery • 1,200 MRU • 3 items • #22789002",
+          buttons: [
+            _buildOrderButton(
+              text: "Reorder",
+              onTap: () => _showReorderSnackBar(),
+            ),
+            const SizedBox(width: 12),
+            _buildOrderButton(
+              text: "Rate",
+              onTap: () {
+                Get.to(() => const RateOrderScreen());
+              },
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -307,7 +397,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           buttons: [
             _buildOrderButton(
               text: "Cancel",
-              onTap: () => _showCancelDialog(),
+              onTap: () => _showCancelDialog(orderId: "#22789002"),
             ),
             const SizedBox(width: 12),
             _buildGradientButton(
@@ -333,7 +423,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           buttons: [
             _buildOrderButton(
               text: "Cancel",
-              onTap: () => _showCancelDialog(),
+              onTap: () => _showCancelDialog(orderId: "#22789001"),
             ),
           ],
         ),
@@ -380,17 +470,21 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Widget _buildOtherCategoryOrders() {
     return Column(
       children: [
+        if (selectedCategoryIndex != 0) ...[
+          _buildOrderUpdatedCard(),
+          _buildPaymentPendingCard(),
+        ],
         // 1. Golden Bakery - ON THE WAY (Delivery)
         _buildOrderCard(
           restaurantName: "Golden Bakery",
           statusText: "ON THE WAY",
           statusColor: const Color(0xFFFF8A00),
           statusBgColor: const Color(0xFFFFF4EC),
-          detailsText: "Delivery • 100 MRU • 2 items • #22789002",
+          detailsText: "Delivery • 200 MRU • 4 items • #22789002",
           buttons: [
             _buildOrderButton(
               text: "Cancel",
-              onTap: () => _showCancelDialog(),
+              onTap: () => _showCancelDialog(orderId: "#22789002"),
             ),
             const SizedBox(width: 12),
             _buildGradientButton(
@@ -412,11 +506,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           statusText: "SELF PICKUP",
           statusColor: const Color(0xFF007DFE),
           statusBgColor: const Color(0xFFECF5FF),
-          detailsText: "Pickup • 100 MRU • 2 items • #22789001",
+          detailsText: "Pickup • 200 MRU • 4 items • #22789001",
           buttons: [
             _buildOrderButton(
               text: "Cancel",
-              onTap: () => _showCancelDialog(),
+              onTap: () => _showCancelDialog(orderId: "#22789001"),
             ),
           ],
         ),
@@ -443,6 +537,401 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildPaymentPendingCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  'Salam Supermarket',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF4EC),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text.rich(
+                  TextSpan(
+                    style: GoogleFonts.outfit(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.2,
+                    ),
+                    children: const [
+                      TextSpan(
+                        text: 'DELIVERED',
+                        style: TextStyle(color: Color(0xFF00B25C)),
+                      ),
+                      TextSpan(
+                        text: ' • ',
+                        style: TextStyle(color: Color(0xFFFF5E00)),
+                      ),
+                      TextSpan(
+                        text: 'PAYMENT PENDING',
+                        style: TextStyle(color: Color(0xFFFF5E00)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Delivery • 1500 MRU • 10 items • #22789000',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFA59A94),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _buildOrderButton(
+                text: 'Reorder',
+                onTap: () => _showReorderSnackBar(),
+              ),
+              const SizedBox(width: 12),
+              _buildOrderButton(
+                text: 'Rate',
+                onTap: () {
+                  Get.to(() => const RateOrderScreen());
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () {},
+            child: Container(
+              width: double.infinity,
+              height: 46,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                'Pay Now',
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderUpdatedCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  'Salam Supermarket',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF0FF),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    Get.to(
+                      () => const OrderUpdatedDetailScreen(
+                        orderId: '#22789000',
+                        storeName: 'Salam Supermarket',
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'REVIEW CHANGES',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF3B6FE8),
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Delivery • 210 MRU • 4 items • #22789002',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFA59A94),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEEF2FF),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 22,
+                      height: 22,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF5E00),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.sync_problem_rounded,
+                        color: Colors.white,
+                        size: 13,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Order Updated',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Salam Supermarket adjusted unavailable items. Please review and approve the changes before your order continues.',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF5C656F),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        color: Color(0xFFFF5E00),
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Adjustment Difference:',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF0EA),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '+10 MRU Credit Due',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFFF5E00),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3EFEA),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Reject',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Get.to(
+                      () => const OrderUpdatedDetailScreen(
+                        orderId: '#22789000',
+                        storeName: 'Salam Supermarket',
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 46,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Approve Changes',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Center(
+            child: GestureDetector(
+              onTap: () {
+                Get.to(
+                  () => const OrderUpdatedDetailScreen(
+                    orderId: '#22789000',
+                    storeName: 'Salam Supermarket',
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'View Order Status & Details',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFFF5E00),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: Color(0xFFFF5E00),
+                    size: 18,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -639,8 +1128,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   // SnackBar notifications
-  void _showCancelDialog() {
-    showCancelOrderBottomSheet(context);
+  void _showCancelDialog({String? orderId}) {
+    showCancelOrderBottomSheet(context, orderId: orderId);
   }
 
   void _showTrackSnackBar() {

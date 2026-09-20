@@ -170,7 +170,7 @@ class HelpSupportScreen extends StatelessWidget {
               height: 48,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(24),
                 gradient: const LinearGradient(
                   colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,

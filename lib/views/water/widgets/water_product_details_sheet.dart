@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
-import '../water_subscription_configure_screen.dart';
+import '../water_product_subscription_screen.dart';
 
 void showWaterProductDetailsSheet(
   BuildContext context,
@@ -252,9 +252,11 @@ void showWaterProductDetailsSheet(
                                   if (onAdd != null) {
                                     onAdd();
                                   } else {
-                                    Get.to(() => WaterSubscriptionConfigureScreen(
-                                          product: product,
-                                        ));
+                                    Get.to(
+                                      () => WaterProductSubscriptionScreen(
+                                        product: product,
+                                      ),
+                                    );
                                   }
                                 },
                                 child: Container(

@@ -202,46 +202,50 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
             const SizedBox(height: 18),
 
             // 2. Tabs Horizontal selector
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(tabs.length, (index) {
-                final isSelected = activeTab == index;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      activeTab = index;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: List.generate(tabs.length, (index) {
+                  final isSelected = activeTab == index;
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      right: index == tabs.length - 1 ? 0 : 10,
                     ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFFFF5E00)
-                          : const Color(0xFFFFF0EA),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFFFF5E00)
-                            : Colors.transparent,
-                        width: 0.8,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          activeTab = index;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 11,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? const Color(0xFFFF5E00)
+                              : const Color(0xFFFFEDE6),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Text(
+                          tabs[index],
+                          style: GoogleFonts.outfit(
+                            color: isSelected
+                                ? Colors.white
+                                : const Color(0xFF5C5651),
+                            fontSize: 13,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
-                    child: Text(
-                      tabs[index],
-                      style: GoogleFonts.outfit(
-                        color: isSelected
-                            ? Colors.white
-                            : const Color(0xFFFF5E00),
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             ),
 
             const SizedBox(height: 16),

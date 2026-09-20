@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
+import '../../widgets/filter_chip_style.dart';
 import 'grocery_details_screen.dart';
 
 class GroceryStoresScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
   int selectedSubcategoryIndex = 0;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
+  final GlobalKey _headerKey = GlobalKey();
   final TextEditingController _searchController = TextEditingController();
   bool _showStickySearch = false;
 
@@ -120,11 +122,22 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final topInset = MediaQuery.paddingOf(context).top;
-    final shouldShow = top <= topInset + 2;
+    final shouldShow = top <= _headerBottomY();
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
+  }
+
+  /// Exact Y where the fixed header ends on screen.
+  double _headerBottomY() {
+    final ctx = _headerKey.currentContext;
+    if (ctx != null) {
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) {
+        return box.localToGlobal(Offset.zero).dy + box.size.height;
+      }
+    }
+    return MediaQuery.paddingOf(context).top + 56;
   }
 
   Widget _buildSearchFiltersSection() {
@@ -403,8 +416,6 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final topInset = MediaQuery.paddingOf(context).top;
-
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -422,75 +433,75 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
         backgroundColor: Colors.transparent,
         body: Stack(
           children: [
-            Positioned.fill(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFFCF8),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(22),
-                          bottomRight: Radius.circular(22),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 16,
-                            offset: Offset(0, 6),
+            SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  KeyedSubtree(
+                    key: _headerKey,
+                    child: _buildHeader(context),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            clipBehavior: Clip.antiAlias,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFFFCF8),
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(22),
+                                bottomRight: Radius.circular(22),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x14000000),
+                                  blurRadius: 16,
+                                  offset: Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: _buildSubcategoriesRow(),
+                          ),
+                          KeyedSubtree(
+                            key: _searchAnchorKey,
+                            child: _showStickySearch
+                                ? const SizedBox(height: _searchFiltersExtent)
+                                : _buildSearchFiltersSection(),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildSectionHeader(),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Column(
+                              children: groceryStores
+                                  .map((store) => _buildStoreCard(store))
+                                  .toList(),
+                            ),
                           ),
                         ],
                       ),
-                      child: SafeArea(
-                        bottom: false,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildHeader(context),
-                            _buildSubcategoriesRow(),
-                          ],
-                        ),
-                      ),
                     ),
-                    KeyedSubtree(
-                      key: _searchAnchorKey,
-                      child: _showStickySearch
-                          ? const SizedBox(height: _searchFiltersExtent)
-                          : _buildSearchFiltersSection(),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildSectionHeader(),
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: groceryStores
-                            .map((store) => _buildStoreCard(store))
-                            .toList(),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             if (_showStickySearch)
               Positioned(
-                top: 0,
+                top: _headerBottomY(),
                 left: 0,
                 right: 0,
                 child: Material(
                   elevation: 2,
                   color: const Color(0xFFFAF6F0),
-                  child: Padding(
-                    padding: EdgeInsets.only(top: topInset),
-                    child: _buildSearchFiltersSection(),
-                  ),
+                  child: _buildSearchFiltersSection(),
                 ),
               ),
           ],
@@ -738,68 +749,25 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
 
   // Filters Scroll Row
   Widget _buildFiltersRow() {
-    return SizedBox(
-      height: 34,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: filters.length,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemBuilder: (context, index) {
-          final filter = filters[index];
-          final isMru = filter['isMru'] == true;
-          return Container(
-            margin: const EdgeInsets.only(right: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Color(0xFFFFFCF8),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isMru) ...[
-                  Image.asset(
-                    "lib/assets/images/Points.png",
-                    width: 12,
-                    height: 12,
-                    errorBuilder: (context, error, stackTrace) => Image.asset(
-                      "lib/assets/images/Coin.png",
-                      width: 12,
-                      height: 12,
-                    ),
-                  ),
-                ] else if (filter['icon'] != null) ...[
-                  if (filter['icon'] is IconData)
-                    Icon(
-                      filter['icon'] as IconData,
-                      color: filter['label'] == 'Ratings 4.0+'
-                          ? const Color(0xFFFFAE00)
-                          : const Color(0xFF7A6A60),
-                      size: 14,
-                    )
-                  else if (filter['icon'] is Widget)
-                    SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: filter['icon'] as Widget,
-                    ),
-                ],
-                const SizedBox(width: 6),
-                Text(
-                  filter['label'] as String,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    return AppFilterChipsRow(
+      children: [
+        for (final filter in filters)
+          AppFilterChip(
+            label: filter['label'] as String,
+            leading: filter['isMru'] == true
+                ? AppFilterChip.mruLeading()
+                : filter['icon'] is IconData
+                    ? AppFilterChip.iconLeading(
+                        filter['icon'] as IconData,
+                        color: (filter['label'] as String).contains('Rating')
+                            ? const Color(0xFFFFAE00)
+                            : const Color(0xFF2C2520),
+                      )
+                    : filter['icon'] is Widget
+                        ? AppFilterChip.widgetLeading(filter['icon'] as Widget)
+                        : null,
+          ),
+      ],
     );
   }
 

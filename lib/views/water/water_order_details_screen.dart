@@ -147,33 +147,61 @@ class WaterOrderDetailsScreen extends StatelessWidget {
 
   // Order Status Timeline Card
   Widget _buildOrderStatusCard() {
+    final steps = [
+      (
+        icon: Icons.check_rounded,
+        title: 'Order placed',
+        subtitle: '22 Oct 2023, 10:10 AM',
+        isActive: true,
+      ),
+      (
+        icon: Icons.shopping_bag_outlined,
+        title: 'Picking items',
+        subtitle: '22 Oct 2023, 10:11 AM',
+        isActive: true,
+      ),
+      (
+        icon: isSelfPickup
+            ? Icons.storefront_outlined
+            : Icons.delivery_dining_rounded,
+        title: isSelfPickup ? 'Ready for pickup' : 'On the way',
+        subtitle: '22 Oct 2023, 10:13 AM',
+        isActive: true,
+      ),
+      (
+        icon: Icons.check_rounded,
+        title: 'Delivered',
+        subtitle: '',
+        isActive: false,
+      ),
+    ];
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Order Status',
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
+              const Spacer(),
               Text(
                 isSelfPickup ? 'Self Pickup' : 'Delivery',
                 style: GoogleFonts.outfit(
@@ -181,107 +209,121 @@ class WaterOrderDetailsScreen extends StatelessWidget {
                       ? const Color(0xFF007DFE)
                       : const Color(0xFFFF5E00),
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const circle = 36.0;
+              final usable = constraints.maxWidth - circle;
+              final segment = usable / (steps.length - 1);
 
-          // 4-Step Horizontal Timeline
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTimelineStep(
-                icon: Icons.check_rounded,
-                title: 'Order placed',
-                subtitle: '26 Jul 2026, 11:30 AM',
-                isActive: true,
-              ),
-              _buildTimelineConnector(isActive: true),
-              _buildTimelineStep(
-                icon: Icons.work_outline_rounded,
-                title: 'Packing items',
-                subtitle: '26 Jul 2026, 11:32 AM',
-                isActive: true,
-              ),
-              _buildTimelineConnector(isActive: true),
-              _buildTimelineStep(
-                icon: isSelfPickup
-                    ? Icons.local_shipping_outlined
-                    : Icons.local_shipping_outlined,
-                title: isSelfPickup ? 'Ready for pickup' : 'On the way',
-                subtitle: '26 Jul 2026, 11:45 AM',
-                isActive: true,
-              ),
-              _buildTimelineConnector(isActive: false),
-              _buildTimelineStep(
-                icon: Icons.check_rounded,
-                title: 'Delivered',
-                subtitle: '',
-                isActive: false,
-              ),
-            ],
+              return Column(
+                children: [
+                  SizedBox(
+                    height: circle,
+                    child: Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        // Line through exact vertical center of circles
+                        Positioned(
+                          left: circle / 2,
+                          right: circle / 2,
+                          top: (circle - 3) / 2,
+                          child: Row(
+                            children: List.generate(steps.length - 1, (i) {
+                              final segmentActive = steps[i].isActive &&
+                                  steps[i + 1].isActive;
+                              return Container(
+                                width: segment,
+                                height: 3,
+                                color: segmentActive
+                                    ? const Color(0xFFFF5E00)
+                                    : const Color(0xFFE8E0D8),
+                              );
+                            }),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            for (final step in steps)
+                              Container(
+                                width: circle,
+                                height: circle,
+                                decoration: BoxDecoration(
+                                  color: step.isActive
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFEFEBE7),
+                                  shape: BoxShape.circle,
+                                  boxShadow: step.isActive
+                                      ? [
+                                          BoxShadow(
+                                            color: const Color(0xFFFF5E00)
+                                                .withValues(alpha: 0.40),
+                                            blurRadius: 12,
+                                            spreadRadius: 1,
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  step.icon,
+                                  color: step.isActive
+                                      ? Colors.white
+                                      : const Color(0xFFB0A59C),
+                                  size: 18,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: steps.map((step) {
+                      return Expanded(
+                        child: Column(
+                          children: [
+                            Text(
+                              step.title,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF1A1A1A),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                height: 1.25,
+                              ),
+                            ),
+                            if (step.subtitle.isNotEmpty) ...[
+                              const SizedBox(height: 3),
+                              Text(
+                                step.subtitle,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFA59A94),
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.25,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTimelineStep({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool isActive,
-  }) {
-    return Expanded(
-      child: Column(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: isActive ? const Color(0xFFFF5E00) : const Color(0xFFEFEBE7),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: isActive ? Colors.white : const Color(0xFFA59A94),
-              size: 15,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
-              color: isActive ? const Color(0xFF1A1A1A) : const Color(0xFFA59A94),
-              fontSize: 9,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.w400,
-            ),
-          ),
-          if (subtitle.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF8C7E75),
-                fontSize: 7.5,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimelineConnector({required bool isActive}) {
-    return Container(
-      width: 20,
-      height: 2,
-      margin: const EdgeInsets.only(top: 13),
-      color: isActive ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
     );
   }
 
@@ -821,8 +863,9 @@ class WaterOrderDetailsScreen extends StatelessWidget {
   }
 
   void _showCancelDialog(BuildContext context) {
-    showCancelOrderBottomSheet(context, onConfirm: () {
-      Get.back();
-    });
+    showCancelOrderBottomSheet(
+      context,
+      orderId: orderId,
+    );
   }
 }

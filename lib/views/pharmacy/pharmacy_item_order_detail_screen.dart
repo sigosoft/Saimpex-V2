@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 
 class PharmacyItemOrderDetailScreen extends StatelessWidget {
@@ -16,8 +17,6 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
-
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -193,7 +192,7 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
             SafeArea(
               top: false,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + bottomInset * 0.2),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: isDelivery
                     ? Row(
                         children: [
@@ -213,7 +212,9 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
 
   Widget _buildCancelButton(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pop(context),
+      onTap: () {
+        showCancelOrderBottomSheet(context, orderId: orderId);
+      },
       child: Container(
         height: 48,
         decoration: BoxDecoration(

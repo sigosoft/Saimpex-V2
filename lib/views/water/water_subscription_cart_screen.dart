@@ -78,20 +78,34 @@ class _WaterSubscriptionCartScreenState
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     final payAmount = toPay;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFFF9F5),
+        statusBarColor: Color(0xFFFFFBF5),
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFF9F5),
+        backgroundColor: const Color(0xFFFFFBF5),
         body: Column(
           children: [
             _buildHeader(),
+            if (quantity > 0)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'From ${widget.storeName}',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF8C7E75),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -99,17 +113,6 @@ class _WaterSubscriptionCartScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (quantity > 0) ...[
-                      Text(
-                        'From ${widget.storeName}',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF7A6A60),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
                     _buildProductCard(),
                     if (quantity > 0) ...[
                       const SizedBox(height: 12),
@@ -170,38 +173,43 @@ class _WaterSubscriptionCartScreenState
               ),
             ),
             if (quantity > 0)
-              Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 12),
-                child: GestureDetector(
-                  onTap: () {
-                    _syncHomeCartBadgeCount(0);
-                    Get.to(() => const WaterSubscriptionSuccessScreen());
-                  },
-                  child: Container(
-                    height: 52,
-                    width: double.infinity,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                      ),
-                      borderRadius: BorderRadius.circular(26),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(
-                            0xFFFF5E00,
-                          ).withValues(alpha: 0.28),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: GestureDetector(
+                    onTap: () {
+                      _syncHomeCartBadgeCount(0);
+                      Get.to(() => const WaterSubscriptionSuccessScreen());
+                    },
+                    child: Container(
+                      height: 52,
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
                         ),
-                      ],
-                    ),
-                    child: Text(
-                      'Pay $payAmount MRU',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                        borderRadius: BorderRadius.circular(26),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFFFF5E00,
+                            ).withValues(alpha: 0.28),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'Pay $payAmount MRU',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ),
@@ -273,7 +281,7 @@ class _WaterSubscriptionCartScreenState
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
         ),
         child: Row(
@@ -317,14 +325,14 @@ class _WaterSubscriptionCartScreenState
     final isAsset = !image.startsWith('http');
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
+            blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
@@ -332,7 +340,7 @@ class _WaterSubscriptionCartScreenState
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: Container(
               width: 64,
               height: 64,
@@ -394,7 +402,7 @@ class _WaterSubscriptionCartScreenState
             height: 36,
             padding: const EdgeInsets.symmetric(horizontal: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF0EA),
+              color: const Color(0xFFF3F0EC),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -408,22 +416,18 @@ class _WaterSubscriptionCartScreenState
                       _syncHomeCartBadgeCount(next);
                     }
                   },
-                  child: Container(
+                  child: const SizedBox(
                     width: 28,
                     height: 28,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.remove,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFF2C2520),
                       size: 16,
                     ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     '$quantity',
                     style: GoogleFonts.outfit(
@@ -458,21 +462,26 @@ class _WaterSubscriptionCartScreenState
   }
 
   Widget _buildDeliveryNote() {
-    return Container(
-      height: 46,
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFD9D1C9), width: 1.2),
+    return CustomPaint(
+      painter: _DashedRRectPainter(
+        color: const Color(0xFFCABBAB),
+        radius: 24,
       ),
-      child: Text(
-        '+ Add delivery note (Optional)',
-        style: GoogleFonts.outfit(
-          color: const Color(0xFFA59A94),
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+      child: Container(
+        height: 48,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F0EC),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Text(
+          '+ Add delivery note (Optional)',
+          style: GoogleFonts.outfit(
+            color: const Color(0xFFA59A94),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );
@@ -506,28 +515,59 @@ class _WaterSubscriptionCartScreenState
           ],
         ),
         const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _detailBox(label: 'Start Date', value: widget.startDate),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _detailBox(label: 'End Date', value: widget.endDate),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _detailBox(label: 'Time Slot', value: widget.timeSlot),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _detailBox(label: 'Type', value: widget.subscriptionType),
-            ),
-          ],
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _detailBox(
+                      label: 'Start Date',
+                      value: widget.startDate,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _detailBox(
+                      label: 'End Date',
+                      value: widget.endDate,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _detailBox(
+                      label: 'Time Slot',
+                      value: widget.timeSlot,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _detailBox(
+                      label: 'Type',
+                      value: widget.subscriptionType,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -538,15 +578,8 @@ class _WaterSubscriptionCartScreenState
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFF5F7FA),
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,10 +608,10 @@ class _WaterSubscriptionCartScreenState
 
   Widget _buildAddressCard() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -593,12 +626,12 @@ class _WaterSubscriptionCartScreenState
             width: 40,
             height: 40,
             decoration: const BoxDecoration(
-              color: Color(0xFFFFF0EA),
+              color: Color(0xFFFF5E00),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.home_rounded,
-              color: Color(0xFFFF5E00),
+              color: Colors.white,
               size: 20,
             ),
           ),
@@ -642,11 +675,11 @@ class _WaterSubscriptionCartScreenState
 
   Widget _buildCouponCard() {
     return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -695,10 +728,10 @@ class _WaterSubscriptionCartScreenState
     return GestureDetector(
       onTap: () => setState(() => usePoints = !usePoints),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
@@ -721,26 +754,13 @@ class _WaterSubscriptionCartScreenState
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Use 500 points',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    '≈ 50 MRU off',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF7A6A60),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Use 500 points',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             Container(
@@ -776,13 +796,22 @@ class _WaterSubscriptionCartScreenState
     return GestureDetector(
       onTap: () => setState(() => selectedPaymentIndex = index),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
-            width: selected ? 1.4 : 0.8,
+            color: selected
+                ? const Color(0xFFFF5E00)
+                : Colors.transparent,
+            width: selected ? 1.4 : 0,
           ),
         ),
         child: Row(
@@ -846,10 +875,10 @@ class _WaterSubscriptionCartScreenState
   Widget _buildPaymentDetails() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2520),
-        borderRadius: BorderRadius.circular(18),
+        color: const Color(0xFF1B2430),
+        borderRadius: BorderRadius.circular(28),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -860,39 +889,40 @@ class _WaterSubscriptionCartScreenState
               color: const Color(0xFFFF5E00),
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              letterSpacing: 0.4,
+              letterSpacing: 0.6,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _payRow('Subscription Amount', '$subscriptionAmount MRU'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _payRow(
             'Subscription Savings',
             '-$subscriptionSavings MRU',
             valueColor: const Color(0xFFFF5E00),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _payRow('Estimated Delivery Fee', '$deliveryFee MRU'),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _payRow('Tax', '$tax MRU'),
           if (usePoints) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             _payRow(
               'Points Discount',
               '-$pointsOff MRU',
               valueColor: const Color(0xFFFF5E00),
             ),
           ],
-          const SizedBox(height: 12),
-          const Divider(color: Color(0xFF4A453F), height: 1),
-          const SizedBox(height: 12),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 14),
+            child: Divider(color: Color(0xFF3A434E), height: 1),
+          ),
           Row(
             children: [
               Text(
                 'To pay',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -901,7 +931,7 @@ class _WaterSubscriptionCartScreenState
                 '$toPay MRU',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -918,8 +948,8 @@ class _WaterSubscriptionCartScreenState
         Text(
           label,
           style: GoogleFonts.outfit(
-            color: const Color(0xFFD9D1C9),
-            fontSize: 12,
+            color: Colors.white.withValues(alpha: 0.85),
+            fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -928,11 +958,53 @@ class _WaterSubscriptionCartScreenState
           value,
           style: GoogleFonts.outfit(
             color: valueColor ?? Colors.white,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
         ),
       ],
     );
+  }
+}
+
+class _DashedRRectPainter extends CustomPainter {
+  final Color color;
+  final double radius;
+
+  _DashedRRectPainter({required this.color, required this.radius});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+
+    final rrect = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      Radius.circular(radius),
+    );
+    final path = Path()..addRRect(rrect);
+    const dashWidth = 5.0;
+    const dashSpace = 4.0;
+    final dashed = Path();
+
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final next = distance + dashWidth;
+        dashed.addPath(
+          metric.extractPath(distance, next.clamp(0, metric.length)),
+          Offset.zero,
+        );
+        distance = next + dashSpace;
+      }
+    }
+    canvas.drawPath(dashed, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.radius != radius;
   }
 }

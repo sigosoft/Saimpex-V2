@@ -4,9 +4,9 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:saimpex_v2/controllers/home_controller.dart';
 import '../chat_screen.dart';
-import '../cart_screen.dart';
-import '../../widgets/bottom_chat_icon.dart';
 import 'local_store_cart_screen.dart';
+import '../../widgets/bottom_chat_icon.dart';
+import '../../widgets/filter_chip_style.dart';
 
 class LocalStoreDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -33,15 +33,64 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
     return int.tryParse(clean) ?? 0;
   }
 
+  HomeController _homeController() {
+    return Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>()
+        : Get.put(HomeController(), permanent: true);
+  }
+
+  void _addItemToCart(
+    Map<String, dynamic> food, {
+    required String finalPrice,
+    required String finalPortion,
+    required bool fromBottomSheet,
+    required BuildContext sheetContext,
+  }) {
+    final navigator = Navigator.of(sheetContext);
+    navigator.pop(); // close customize sheet
+    if (fromBottomSheet) {
+      navigator.pop(); // close product details sheet
+    }
+    if (!mounted) return;
+
+    _homeController().setCartItem(
+      storeName: widget.store['name']?.toString() ??
+          widget.store['title']?.toString() ??
+          'Golden Bakery',
+      itemName: food['title']?.toString(),
+      itemPortion: finalPortion,
+      basePrice: parsePrice(finalPrice),
+      itemImage: food['image']?.toString(),
+    );
+
+    setState(() {
+      showCartBar = true;
+      lastAddedItem = Map<String, dynamic>.from(food)
+        ..['price'] = finalPrice
+        ..['portion'] = finalPortion;
+    });
+
+    ScaffoldMessenger.of(this.context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${food['title']} added to cart!',
+          style: GoogleFonts.outfit(),
+        ),
+        backgroundColor: const Color(0xFFFF5E00),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   /// categories(~112) + gap(16) + search(48)
   static const double _stickyExtent = 176;
 
   final List<Map<String, String>> categoryTabs = [
     {'label': 'All', 'icon': 'lib/assets/images/All.png'},
-    {'label': 'Breads', 'icon': 'lib/assets/images/Cookies.png'},
-    {'label': 'Pastries', 'icon': 'lib/assets/images/Cookies.png'},
-    {'label': 'Cakes', 'icon': 'lib/assets/images/Cookies.png'},
-    {'label': 'Savory', 'icon': 'lib/assets/images/Cookies.png'},
+    {'label': 'Breads', 'icon': 'lib/assets/images/artisan_bread.png'},
+    {'label': 'Pastries', 'icon': 'lib/assets/images/butter_croissant.png'},
+    {'label': 'Cakes', 'icon': 'lib/assets/images/citrus_lemon.png'},
+    {'label': 'Savory', 'icon': 'lib/assets/images/pain_chocolat.png'},
     {'label': 'Cookie', 'icon': 'lib/assets/images/Cookies.png'},
   ];
 
@@ -49,7 +98,7 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
     {
       'id': 'ls_prod1',
       'title': 'Butter Croissant',
-      'image': 'lib/assets/images/Bakery.png',
+      'image': 'lib/assets/images/butter_croissant.png',
       'rating': '4.6',
       'reviews': '(10k + reviews)',
       'price': '50 MRU',
@@ -59,7 +108,7 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
     {
       'id': 'ls_prod2',
       'title': 'Artisan Bread Loaf',
-      'image': 'lib/assets/images/Cookies.png',
+      'image': 'lib/assets/images/artisan_bread.png',
       'rating': '4.6',
       'reviews': '(10k + reviews)',
       'price': '50 MRU',
@@ -69,7 +118,7 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
     {
       'id': 'ls_prod3',
       'title': 'Pain Au Chocolat',
-      'image': 'lib/assets/images/Bakery.png',
+      'image': 'lib/assets/images/pain_chocolat.png',
       'rating': '4.6',
       'reviews': '(10k + reviews)',
       'price': '50 MRU',
@@ -79,7 +128,7 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
     {
       'id': 'ls_prod4',
       'title': 'Citrus Lemon Tart',
-      'image': 'lib/assets/images/Cookies.png',
+      'image': 'lib/assets/images/citrus_lemon.png',
       'rating': '4.6',
       'reviews': '(10k + reviews)',
       'price': '50 MRU',
@@ -331,9 +380,7 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.isRegistered<HomeController>()
-        ? Get.find<HomeController>()
-        : Get.put(HomeController());
+    final controller = _homeController();
     final topInset = MediaQuery.viewPaddingOf(context).top;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     final storeName = widget.store['name'] ?? 'Golden Bakery';
@@ -648,10 +695,29 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
                         children: [
-                          _buildFilterChip('⚙️  Filter'),
-                          _buildFilterChip('🍿  Under 200 MRU'),
-                          _buildFilterChip('🏷️  Offers'),
-                          _buildFilterChip('⭐  Rating'),
+                          AppFilterChip(
+                            label: 'Filter',
+                            leading: AppFilterChip.assetLeading(
+                              'lib/assets/images/Filter.png',
+                            ),
+                          ),
+                          AppFilterChip(
+                            label: 'Under 200 MRU',
+                            leading: AppFilterChip.mruLeading(),
+                          ),
+                          AppFilterChip(
+                            label: 'Offers',
+                            leading: AppFilterChip.assetLeading(
+                              'lib/assets/images/Offer.png',
+                            ),
+                          ),
+                          AppFilterChip(
+                            label: 'Rating',
+                            leading: AppFilterChip.iconLeading(
+                              Icons.star_rounded,
+                              color: const Color(0xFFFFAE00),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -680,7 +746,7 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(40),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.04),
@@ -854,34 +920,35 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                 ),
               ),
 
-            // Floating back button
-            Positioned(
-              top: topInset + 10,
-              left: 16,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 15,
+            // Floating back button (hidden while sticky is pinned)
+            if (!_showStickySearch)
+              Positioned(
+                top: topInset + 10,
+                left: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Color(0xFFFF5E00),
+                      size: 15,
+                    ),
                   ),
                 ),
               ),
-            ),
 
             // Floating Cart Summary Bar
             Positioned(
@@ -908,18 +975,39 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
         widget.store['name'] ?? widget.store['title'] ?? 'Golden Bakery';
     final itemName = lastAddedItem?['title']?.toString();
     final itemPortion = lastAddedItem?['portion']?.toString() ?? '1 Portion';
-    final itemImage = lastAddedItem?['image']?.toString();
+    final savedCart = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>().lastCartItem
+        : null;
+    final itemImage = lastAddedItem?['image']?.toString() ??
+        savedCart?['itemImage']?.toString();
+
+    String resolveImage(String? title, String? image) {
+      if (image != null && image.startsWith('lib/assets/')) return image;
+      final t = (title ?? '').toLowerCase();
+      if (t.contains('artisan')) return 'lib/assets/images/artisan_bread.png';
+      if (t.contains('pain') || t.contains('chocolat')) {
+        return 'lib/assets/images/pain_chocolat.png';
+      }
+      if (t.contains('citrus') || t.contains('lemon')) {
+        return 'lib/assets/images/citrus_lemon.png';
+      }
+      return 'lib/assets/images/butter_croissant.png';
+    }
 
     return GestureDetector(
       onTap: () {
         Get.to(
-          () => CartScreen(
-            showBottomNav: false,
-            storeName: storeName,
-            itemName: itemName,
-            itemPortion: itemPortion,
-            basePrice: parsePrice(price),
-            itemImage: itemImage,
+          () => LocalStoreCartScreen(
+            store: {
+              ...widget.store,
+              'name': storeName,
+            },
+            product: {
+              'title': itemName ?? 'Butter Croissant',
+              'portion': itemPortion,
+              'price': parsePrice(price),
+              'image': resolveImage(itemName, itemImage),
+            },
           ),
         );
       },
@@ -1019,32 +1107,6 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
   }
 
   // Filter Chip Helper Widget
-  Widget _buildFilterChip(String label) {
-    return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.outfit(
-          color: const Color(0xFF2C2520),
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
   // Product Card Helper Widget
   Widget _buildProductCard(Map<String, dynamic> item) {
     return GestureDetector(
@@ -1396,7 +1458,6 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
-                                    Navigator.pop(context);
                                     _showCustomizeSheet(
                                       food,
                                       fromBottomSheet: true,
@@ -1978,11 +2039,6 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  Navigator.pop(context);
-                                  if (fromBottomSheet) {
-                                    Navigator.pop(context);
-                                  }
-
                                   final finalPrice = selectedQuantityIndex == 0
                                       ? qtyPrice1
                                       : qtyPrice2;
@@ -1991,36 +2047,12 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                                       ? qtyText1
                                       : qtyText2;
 
-                                  setState(() {
-                                    showCartBar = true;
-                                    lastAddedItem =
-                                        Map<String, dynamic>.from(food)
-                                          ..['price'] = finalPrice
-                                          ..['portion'] = finalPortion;
-                                  });
-
-                                  if (Get.isRegistered<HomeController>()) {
-                                    Get.find<HomeController>().setCartItem(
-                                      storeName:
-                                          widget.store['name']?.toString() ??
-                                          widget.store['title']?.toString() ??
-                                          'Golden Bakery',
-                                      itemName: food['title']?.toString(),
-                                      itemPortion: finalPortion,
-                                      basePrice: parsePrice(finalPrice),
-                                      itemImage: food['image']?.toString(),
-                                    );
-                                  }
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '${food['title']} added to cart!',
-                                        style: GoogleFonts.outfit(),
-                                      ),
-                                      backgroundColor: const Color(0xFFFF5E00),
-                                      duration: const Duration(seconds: 2),
-                                    ),
+                                  _addItemToCart(
+                                    food,
+                                    finalPrice: finalPrice,
+                                    finalPortion: finalPortion,
+                                    fromBottomSheet: fromBottomSheet,
+                                    sheetContext: context,
                                   );
                                 },
                                 child: Container(

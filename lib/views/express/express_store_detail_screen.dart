@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
+import '../../widgets/filter_chip_style.dart';
 import 'express_cart_screen.dart';
 import '../messages_screen.dart';
 import 'widgets/express_filter_sheet.dart';
@@ -210,9 +211,22 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
     final topInset = MediaQuery.paddingOf(context).top;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFEADF),
-      body: Stack(
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFFDE8DD),
+            Color(0xFFFFF3EC),
+            Color(0xFFFFFBF7),
+          ],
+          stops: [0.0, 0.42, 1.0],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
         children: [
           Positioned.fill(
             child: Obx(() {
@@ -313,7 +327,7 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
               right: 0,
               child: Material(
                 elevation: 2,
-                color: const Color(0xFFFFEADF),
+                color: const Color(0xFFFFF3EC),
                 child: Padding(
                   padding: EdgeInsets.only(top: topInset, bottom: 8),
                   child: _buildStickySection(),
@@ -321,33 +335,35 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
               ),
             ),
 
-          Positioned(
-            top: topInset + 12,
-            left: 16,
-            child: GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
+          // Floating back button (hidden while sticky is pinned)
+          if (!_showStickySearch)
+            Positioned(
+              top: topInset + 12,
+              left: 16,
+              child: GestureDetector(
+                onTap: () => Get.back(),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Color(0xFFFF5E00),
+                    size: 15,
+                  ),
                 ),
               ),
             ),
-          ),
           Positioned(
             bottom: bottomInset + 16,
             left: 16,
@@ -359,6 +375,7 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
             }),
           ),
         ],
+      ),
       ),
     );
   }
@@ -808,77 +825,28 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
   }
 
   Widget _buildFiltersRow() {
-    return SizedBox(
-      height: 32,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: filters.length,
-        itemBuilder: (context, index) {
-          final filter = filters[index];
-          final isMru = filter['isMru'] == true;
-          final isRating = filter['isRating'] == true;
-          final iconPath = filter['icon'] as String?;
-
-          return GestureDetector(
+    return AppFilterChipsRow(
+      children: [
+        for (final filter in filters)
+          AppFilterChip(
+            label: filter['label'].toString(),
             onTap: () {
               if (filter['label'] == 'Filter') {
                 showExpressFilterSheet(context);
               }
             },
-            child: Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isMru) ...[
-                    Image.asset(
-                      'lib/assets/images/Coin.png',
-                      width: 12,
-                      height: 12,
-                      errorBuilder: (_, __, ___) => const Icon(
-                        Icons.monetization_on_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 12,
-                      ),
-                    ),
-                  ] else if (isRating) ...[
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFAE00),
-                      size: 14,
-                    ),
-                  ] else if (iconPath != null) ...[
-                    Image.asset(
-                      iconPath,
-                      width: 14,
-                      height: 14,
-                      errorBuilder: (_, __, ___) =>
-                          const Icon(Icons.tune_rounded, size: 14),
-                    ),
-                  ],
-                  const SizedBox(width: 6),
-                  Text(
-                    filter['label'].toString(),
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+            leading: filter['isMru'] == true
+                ? AppFilterChip.mruLeading()
+                : filter['isRating'] == true
+                    ? AppFilterChip.iconLeading(
+                        Icons.star_rounded,
+                        color: const Color(0xFFFFAE00),
+                      )
+                    : filter['icon'] is String
+                        ? AppFilterChip.assetLeading(filter['icon'] as String)
+                        : null,
+          ),
+      ],
     );
   }
 

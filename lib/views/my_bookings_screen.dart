@@ -9,7 +9,9 @@ import 'services/home_cleaning_booking_detail_screen.dart';
 import 'services/laundry_booking_detail_screen.dart';
 
 class MyBookingsScreen extends StatefulWidget {
-  const MyBookingsScreen({super.key});
+  final bool showBottomNav;
+
+  const MyBookingsScreen({super.key, this.showBottomNav = true});
 
   @override
   State<MyBookingsScreen> createState() => _MyBookingsScreenState();
@@ -322,41 +324,43 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () {
-                if (Navigator.of(context).canPop()) {
-                  Get.back();
-                } else if (Get.isRegistered<HomeController>()) {
-                  Get.find<HomeController>().selectNavigation(
-                    HomeController.navHome,
-                  );
-                }
-              },
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFEAD8C9),
-                    width: 0.8,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+            child: widget.showBottomNav
+                ? GestureDetector(
+                    onTap: () {
+                      if (Navigator.of(context).canPop()) {
+                        Get.back();
+                      } else if (Get.isRegistered<HomeController>()) {
+                        Get.find<HomeController>().selectNavigation(
+                          HomeController.navHome,
+                        );
+                      }
+                    },
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFEAD8C9),
+                          width: 0.8,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 15,
+                      ),
                     ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox(width: 38),
           ),
           Text(
             'My Bookings',

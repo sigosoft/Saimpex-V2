@@ -12,6 +12,7 @@ import 'my_schedules_screen.dart';
 import 'app_preferences_screen.dart';
 import 'help_support_screen.dart';
 import 'terms_conditions_screen.dart';
+import 'login_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
@@ -226,29 +227,41 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 15,
+              // Hide back when Profile is opened from bottom nav (MainShell tab).
+              if (!widget.showBottomNav)
+                const SizedBox(width: 38, height: 38)
+              else
+                GestureDetector(
+                  onTap: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      BottomNavRouter.returnToShell(
+                        tabIndex: HomeController.navHome,
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Color(0xFFFF5E00),
+                      size: 15,
+                    ),
                   ),
                 ),
-              ),
               Expanded(
                 child: Text(
                   'Account',
@@ -891,7 +904,7 @@ class _DeleteAccountSheet extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
-                    Get.back();
+                    Get.offAll(() => const LoginScreen());
                   },
                   child: Container(
                     height: 48,
@@ -1013,7 +1026,7 @@ class _LogoutSheet extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
-                    Get.back();
+                    Get.offAll(() => const LoginScreen());
                   },
                   child: Container(
                     height: 48,

@@ -731,21 +731,23 @@ class _HomeCleaningProviderDetailScreenState
               onTap: () => setState(() => _reviewFilter = i),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
                 decoration: BoxDecoration(
                   color: _reviewFilter == i
                       ? const Color(0xFFFF5E00)
-                      : const Color(0xFFFFF0E6),
-                  borderRadius: BorderRadius.circular(20),
+                      : const Color(0xFFFFEDE6),
+                  borderRadius: BorderRadius.circular(50),
                 ),
                 child: Text(
                   _reviewFilters[i],
                   style: GoogleFonts.outfit(
                     color: _reviewFilter == i
                         ? Colors.white
-                        : const Color(0xFFFF5E00),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                        : const Color(0xFF5C5651),
+                    fontSize: 13,
+                    fontWeight: _reviewFilter == i
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                   ),
                 ),
               ),

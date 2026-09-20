@@ -13,15 +13,20 @@ import 'widgets/pharmacy_subcategory_icon.dart';
 
 class PharmacyItemsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
+  final int initialSubcategoryIndex;
 
-  const PharmacyItemsScreen({super.key, required this.store});
+  const PharmacyItemsScreen({
+    super.key,
+    required this.store,
+    this.initialSubcategoryIndex = 0,
+  });
 
   @override
   State<PharmacyItemsScreen> createState() => _PharmacyItemsScreenState();
 }
 
 class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
-  int activeSubcategoryIndex = 0;
+  late int activeSubcategoryIndex;
   final TextEditingController searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
@@ -30,12 +35,13 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   Map<String, dynamic>? lastAddedItem;
   String? lastAddedItemPortion;
 
-  /// categories(~80) + gap(6) + search(40) + padding ≈ 130
-  static const double _searchFiltersExtent = 130;
+  /// categories(~86) + gap(8) + search(40) + padding ≈ 144
+  static const double _searchFiltersExtent = 144;
 
   @override
   void initState() {
     super.initState();
+    activeSubcategoryIndex = widget.initialSubcategoryIndex;
     _scrollController.addListener(_handleScroll);
   }
 
@@ -68,27 +74,27 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
 
   Widget _buildSubcategoriesRow() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.only(top: 2),
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      padding: const EdgeInsets.only(top: 4),
       clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(
         color: Color(0xFFFFFCF8),
-        borderRadius: BorderRadius.all(Radius.circular(18)),
+        borderRadius: BorderRadius.all(Radius.circular(22)),
         boxShadow: [
           BoxShadow(
             color: Color(0x14000000),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+            blurRadius: 16,
+            offset: Offset(0, 6),
           ),
         ],
       ),
       child: SizedBox(
-        height: 72,
+        height: 86,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: subcategories.length,
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+          padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
           itemBuilder: (context, index) {
             final sub = subcategories[index];
             final isAll = sub['isAll'] == true;
@@ -96,6 +102,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
             final iconPath = sub['icon'] as String?;
 
             return GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 setState(() {
                   activeSubcategoryIndex = index;
@@ -103,71 +110,76 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
               },
               child: Padding(
                 padding: EdgeInsets.only(
-                  right: index == subcategories.length - 1 ? 0 : 8,
+                  right: index == subcategories.length - 1 ? 0 : 10,
                 ),
                 child: SizedBox(
-                  width: 56,
+                  width: 62,
                   child: Stack(
                     alignment: Alignment.topCenter,
                     children: [
                       Column(
                         children: [
                           isAll
-                              ? SizedBox(
-                                  width: 40,
-                                  height: 40,
+                              ? Container(
+                                  width: 46,
+                                  height: 46,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
                                   child: Center(
                                     child: Image.asset(
                                       'lib/assets/images/All.png',
-                                      width: 20,
-                                      height: 20,
+                                      width: 22,
+                                      height: 22,
                                       color: const Color(0xFFFF5E00),
                                     ),
                                   ),
                                 )
                               : Container(
-                                  width: 40,
-                                  height: 40,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.white,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.08),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 2),
+                                        color: Colors.black.withOpacity(0.10),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: iconPath != null
-                                      ? Center(
-                                          child: Image.asset(
-                                            iconPath,
-                                            width: 24,
-                                            height: 24,
-                                            fit: BoxFit.contain,
-                                          ),
-                                        )
-                                      : Icon(
-                                          pharmacySubcategoryIcon(
-                                            sub['label'] as String,
-                                          ),
-                                          color: const Color(0xFF00ACC1),
-                                          size: 16,
-                                        ),
+                                  child: ClipOval(
+                                    child: Container(
+                                      width: 46,
+                                      height: 46,
+                                      color: Colors.white,
+                                      child: iconPath != null
+                                          ? Padding(
+                                              padding: const EdgeInsets.all(6),
+                                              child: Image.asset(
+                                                iconPath,
+                                                fit: BoxFit.contain,
+                                              ),
+                                            )
+                                          : Icon(
+                                              pharmacySubcategoryIcon(
+                                                sub['label'] as String,
+                                              ),
+                                              color: const Color(0xFF00ACC1),
+                                              size: 22,
+                                            ),
+                                    ),
+                                  ),
                                 ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 8),
                           Text(
                             sub['label'] as String,
                             textAlign: TextAlign.center,
                             maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            overflow: TextOverflow.visible,
                             style: GoogleFonts.outfit(
                               color: isSelected
                                   ? const Color(0xFFFF5E00)
                                   : const Color(0xFF3A312C),
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: isSelected
                                   ? FontWeight.w700
                                   : FontWeight.w600,
@@ -179,15 +191,15 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                         Positioned(
                           bottom: 0,
                           child: Container(
-                            height: 8,
-                            width: 44,
+                            height: 10,
+                            width: 56,
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                               ),
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
                               ),
                             ),
                           ),
@@ -237,17 +249,22 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
               ),
             ),
             Container(
-              width: 24,
-              height: 24,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFF0EA),
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF0EA),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFFFF5E00).withOpacity(0.35),
+                  width: 1,
+                ),
               ),
               child: Center(
                 child: Image.asset(
                   'lib/assets/images/Voice.png',
                   width: 12,
                   height: 12,
+                  color: const Color(0xFFFF5E00),
                 ),
               ),
             ),
@@ -261,8 +278,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildSubcategoriesRow(),
-        const SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0),
+          child: _buildSubcategoriesRow(),
+        ),
+        const SizedBox(height: 10),
         _buildSearchBar(),
       ],
     );
@@ -270,7 +290,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
 
   final List<Map<String, dynamic>> subcategories = [
     {'label': 'All', 'isAll': true},
-    {'label': 'OTC', 'icon': 'lib/assets/images/pill.png'},
+    {'label': 'OTC', 'icon': 'lib/assets/images/OTC.png'},
     {'label': 'Baby Care', 'icon': 'lib/assets/images/BabyCare.png'},
     {'label': 'Personal Care', 'icon': 'lib/assets/images/PersonalCare.png'},
     {'label': 'Dental Care', 'icon': 'lib/assets/images/DentalCare.png'},
@@ -288,8 +308,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'tag': '10 Tablets',
       'rating': '4.6',
       'reviews': '10k + reviews',
-      'price': '500 MRU',
-      'originalPrice': '1,000 MRU',
+      'price': '50 MRU',
+      'originalPrice': '100 MRU',
       'discount': '50% OFF',
       'description':
           'Paracetamol is commonly used to reduce fever and relieve mild to moderate pain such as headaches, muscle aches, toothache, and cold-related discomfort. It works by blocking pain signals in the brain and helping regulate body temperature.',
@@ -301,8 +321,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'tag': '20 Pieces • Waterproof',
       'rating': '4.6',
       'reviews': '10k + reviews',
-      'price': '500 MRU',
-      'originalPrice': '1,000 MRU',
+      'price': '50 MRU',
+      'originalPrice': '100 MRU',
       'discount': '50% OFF',
       'description':
           'Flexible waterproof adhesive bandages that protect minor cuts and scrapes. Soft padding cushions the wound while the adhesive stays secure during daily activity.',
@@ -311,11 +331,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'title': 'Digital Thermometer',
       'image':
           'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=350&auto=format&fit=crop',
-      'tag': 'Accurate Reading',
+      'tag': 'Fast Reading • Waterproof',
       'rating': '4.6',
       'reviews': '10k + reviews',
-      'price': '500 MRU',
-      'originalPrice': '1,000 MRU',
+      'price': '50 MRU',
+      'originalPrice': '100 MRU',
       'discount': '50% OFF',
       'description':
           'Fast and accurate digital thermometer for home use. Easy-read display and reliable temperature measurement for adults and children.',
@@ -328,8 +348,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'tag': 'Soft & Absorbent',
       'rating': '4.6',
       'reviews': '10k + reviews',
-      'price': '500 MRU',
-      'originalPrice': '1,000 MRU',
+      'price': '50 MRU',
+      'originalPrice': '100 MRU',
       'discount': '50% OFF',
       'description':
           'Soft, highly absorbent baby diapers designed for all-day comfort. Leak-lock core keeps baby dry while gentle materials protect sensitive skin.',
@@ -421,11 +441,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                       Expanded(
                                         child: Text(
                                           widget.store['title'] ??
-                                              'Pharmacy Store',
+                                              'Pharmacy Nasr',
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFF2C2520),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
                                       ),
@@ -435,9 +455,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                           vertical: 3,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF00B25C),
+                                          color: const Color(0xFF22C55E),
                                           borderRadius: BorderRadius.circular(
-                                            10,
+                                            12,
                                           ),
                                         ),
                                         child: Row(
@@ -445,7 +465,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                           children: [
                                             const Icon(
                                               Icons.star_rounded,
-                                              color: Color(0xFFFFAE00),
+                                              color: Colors.white,
                                               size: 12,
                                             ),
                                             const SizedBox(width: 2),
@@ -464,8 +484,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    widget.store['subtitle'] ??
-                                        'Trusted Pharmacy',
+                                    widget.store['subtitle'] ?? 'Trusted',
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF7A6A60),
                                       fontSize: 11,
@@ -633,12 +652,19 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                             height: 38,
                                             decoration: BoxDecoration(
                                               color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
+                                              shape: BoxShape.circle,
                                               border: Border.all(
                                                 color: const Color(0xFFEAD8C9),
                                                 width: 0.8,
                                               ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.04),
+                                                  blurRadius: 6,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
                                             ),
                                             child: Icon(
                                               liked
@@ -705,9 +731,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                       Text(
                                         'Upload Your Prescription',
                                         style: GoogleFonts.outfit(
-                                          color: const Color(0xFF006064),
+                                          color: const Color(0xFF3A312C),
                                           fontSize: 12,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                     ],
@@ -741,13 +767,12 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                           'All Items from This Pharmacy',
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
 
                     // Products grid
                     Padding(
@@ -761,7 +786,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                               crossAxisCount: 2,
                               mainAxisSpacing: 12,
                               crossAxisSpacing: 12,
-                              mainAxisExtent: 220,
+                              mainAxisExtent: 248,
                             ),
                         itemBuilder: (context, index) {
                           final food = menuItems[index];
@@ -850,34 +875,35 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 ),
               ),
             ),
-          // 3. Floating Back Button
-          Positioned(
-            top: topInset + 10,
-            left: 16,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
+          // Floating Back Button (hidden while sticky is pinned)
+          if (!_showStickySearch)
+            Positioned(
+              top: topInset + 10,
+              left: 16,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Color(0xFFFF5E00),
+                    size: 15,
+                  ),
                 ),
               ),
             ),
-          ),
 
           // 4. Floating Cart Summary Bar
           Positioned(

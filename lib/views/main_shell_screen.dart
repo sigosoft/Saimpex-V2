@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';
@@ -49,31 +50,43 @@ class _MainShellScreenState extends State<MainShellScreen> {
       final index =
           _controller.currentNavIndex.value.clamp(0, HomeController.navMaxIndex);
 
-      return Scaffold(
-        backgroundColor: const Color(0xFFFAF6F0),
-        body: Stack(
-          children: [
-            Positioned.fill(
-              child: IndexedStack(
-                index: index,
-                children: const [
-                  HomeScreen(showBottomNav: false),
-                  MessagesScreen(showBottomNav: false),
-                  MyBookingsScreen(),
-                  ServicesScreen(),
-                  MyOrdersScreen(showBottomNav: false),
-                  CartScreen(showBottomNav: false),
-                  AccountScreen(showBottomNav: false),
-                ],
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) return;
+          // System back: other tabs → Home; Home → exit app (never blank stack).
+          if (index != HomeController.navHome) {
+            _controller.selectNavigation(HomeController.navHome);
+          } else {
+            SystemNavigator.pop();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFFAF6F0),
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: IndexedStack(
+                  index: index,
+                  children: const [
+                    HomeScreen(showBottomNav: false),
+                    MessagesScreen(showBottomNav: false),
+                    MyBookingsScreen(showBottomNav: false),
+                    ServicesScreen(showBottomNav: false),
+                    MyOrdersScreen(showBottomNav: false),
+                    CartScreen(showBottomNav: false),
+                    AccountScreen(showBottomNav: false),
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: AppBottomNavBar(selectedIndex: index),
-            ),
-          ],
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: AppBottomNavBar(selectedIndex: index),
+              ),
+            ],
+          ),
         ),
       );
     });

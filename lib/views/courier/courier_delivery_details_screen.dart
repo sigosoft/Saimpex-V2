@@ -169,34 +169,42 @@ class _CourierDeliveryDetailsScreenState
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 14,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(16, 18, 14, 18),
+      padding: const EdgeInsets.fromLTRB(18, 20, 14, 20),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              width: 14,
+              width: 22,
               child: Column(
                 children: [
-                  _routeDot(const Color(0xFF2F80ED)),
+                  _routeDot(
+                    fill: const Color(0xFF2F80ED),
+                    halo: const Color(0xFFD6E6FB),
+                  ),
                   Expanded(
-                    child: CustomPaint(
-                      painter: _VerticalDashedLinePainter(
-                        color: const Color(0xFFD9D0C8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: CustomPaint(
+                        painter: _VerticalDashedLinePainter(
+                          color: const Color(0xFFD0C8C0),
+                        ),
                       ),
                     ),
                   ),
-                  _routeDot(const Color(0xFFFF5E00)),
+                  _routeDot(
+                    fill: const Color(0xFFFF5E00),
+                    halo: const Color(0xFFFFE0CC),
+                  ),
                 ],
               ),
             ),
@@ -208,7 +216,7 @@ class _CourierDeliveryDetailsScreenState
                     label: 'PICKUP',
                     title: widget.pickupAddress,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 18),
                   _buildRouteRow(
                     label: 'DROP-OFF',
                     title: _displayDropOff,
@@ -222,17 +230,29 @@ class _CourierDeliveryDetailsScreenState
     );
   }
 
-  Widget _routeDot(Color color) {
+  Widget _routeDot({required Color fill, required Color halo}) {
     return Container(
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      width: 22,
+      height: 22,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: halo,
+        shape: BoxShape.circle,
+      ),
+      child: Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: fill,
+          shape: BoxShape.circle,
+        ),
+      ),
     );
   }
 
   Widget _buildRouteRow({required String label, required String title}) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Column(
@@ -243,9 +263,9 @@ class _CourierDeliveryDetailsScreenState
                 label,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.6,
                 ),
               ),
               const SizedBox(height: 4),
@@ -255,21 +275,18 @@ class _CourierDeliveryDetailsScreenState
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  height: 1.25,
+                  height: 1.3,
                 ),
               ),
             ],
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(top: 10),
-          child: Icon(
-            Icons.chevron_right_rounded,
-            color: Color(0xFFA59A94),
-            size: 20,
-          ),
+        const Icon(
+          Icons.chevron_right_rounded,
+          color: Color(0xFFB8AFA8),
+          size: 22,
         ),
       ],
     );

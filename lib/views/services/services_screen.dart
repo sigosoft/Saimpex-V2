@@ -9,7 +9,9 @@ import 'home_cleaning_screen.dart';
 import 'laundry_services_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
-  const ServicesScreen({super.key});
+  final bool showBottomNav;
+
+  const ServicesScreen({super.key, this.showBottomNav = true});
 
   static const _tallCards = [
     _PopularCardData(
@@ -214,33 +216,38 @@ class ServicesScreen extends StatelessWidget {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () {
-                final controller = Get.find<HomeController>();
-                controller.selectNavigation(HomeController.navHome);
-              },
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFF2D4C4), width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+            child: showBottomNav
+                ? GestureDetector(
+                    onTap: () {
+                      final controller = Get.find<HomeController>();
+                      controller.selectNavigation(HomeController.navHome);
+                    },
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFF2D4C4),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 15,
+                      ),
                     ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox(width: 38),
           ),
           Text(
             'Services',

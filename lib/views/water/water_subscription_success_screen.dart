@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../home_screen.dart';
-import '../account_screen.dart';
+import '../my_subscriptions_screen.dart';
 
 class WaterSubscriptionSuccessScreen extends StatelessWidget {
   const WaterSubscriptionSuccessScreen({super.key});
@@ -157,7 +157,7 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Get.offAll(() => const AccountScreen());
+                          Get.offAll(() => const MySubscriptionsScreen());
                         },
                         child: Container(
                           height: 50,

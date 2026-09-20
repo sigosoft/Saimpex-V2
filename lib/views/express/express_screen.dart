@@ -20,6 +20,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
   int _bannerIndex = 0;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
+  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
   /// search bar (46) + padding (14 top, 8 bottom)
@@ -177,12 +178,21 @@ class _ExpressScreenState extends State<ExpressScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final topInset = MediaQuery.paddingOf(context).top;
-    // Pin once search reaches under the fixed location header (~56px)
-    final shouldShow = top <= topInset + 56;
+    final shouldShow = top <= _headerBottomY();
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
+  }
+
+  double _headerBottomY() {
+    final ctx = _headerKey.currentContext;
+    if (ctx != null) {
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) {
+        return box.localToGlobal(Offset.zero).dy + box.size.height;
+      }
+    }
+    return MediaQuery.paddingOf(context).top + 56;
   }
 
   @override
@@ -195,11 +205,11 @@ class _ExpressScreenState extends State<ExpressScreen> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFFFDDCF),
-            Color(0xFFFFEEE5),
-            Color(0xFFFAF6F0),
+            Color(0xFFFDE8DD),
+            Color(0xFFFFF3EC),
+            Color(0xFFFFFBF7),
           ],
-          stops: [0.0, 0.38, 1.0],
+          stops: [0.0, 0.42, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -271,15 +281,15 @@ class _ExpressScreenState extends State<ExpressScreen> {
               ),
             ),
 
-            // Sticky search (below fixed location header)
+            // Sticky search (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: MediaQuery.paddingOf(context).top + 56,
+                top: _headerBottomY(),
                 left: 0,
                 right: 0,
                 child: Material(
                   elevation: 2,
-                  color: const Color(0xFFFFEEE5),
+                  color: const Color(0xFFFFF3EC),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: _buildSearchBar(),
@@ -294,6 +304,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
 
   Widget _buildHeader() {
     return Padding(
+      key: _headerKey,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
@@ -683,34 +694,58 @@ class _ExpressScreenState extends State<ExpressScreen> {
           ),
           GestureDetector(
             onTap: onTap,
-            child: Row(
-              children: [
-                if (showMapIcon) ...[
-                  const Icon(
-                    Icons.map_outlined,
-                    color: Color(0xFFFF5E00),
-                    size: 13,
+            child: showMapIcon
+                ? Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          actionText,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFE65C34),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CustomPaint(
+                            painter: _StoreMapPinPainter(
+                              color: Color(0xFFE65C34),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Row(
+                    children: [
+                      Text(
+                        actionText,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 9,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                ],
-                Text(
-                  actionText,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                if (!showMapIcon) ...[
-                  const SizedBox(width: 2),
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 9,
-                  ),
-                ],
-              ],
-            ),
           ),
         ],
       ),
@@ -835,7 +870,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
 
   Widget _buildTrendingList(HomeController controller) {
     return SizedBox(
-      height: 205,
+      height: 210,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -897,6 +932,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
@@ -1116,4 +1152,56 @@ class _ExpressScreenState extends State<ExpressScreen> {
       ),
     );
   }
+}
+
+/// Outline pin-on-map icon matching the Store Map mock.
+class _StoreMapPinPainter extends CustomPainter {
+  const _StoreMapPinPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final w = size.width;
+    final h = size.height;
+    final cx = w * 0.5;
+
+    // Map base – shallow trapezoid / folded plane
+    final mapTop = h * 0.62;
+    final mapBottom = h * 0.92;
+    final map = Path()
+      ..moveTo(w * 0.10, mapBottom)
+      ..lineTo(w * 0.26, mapTop)
+      ..lineTo(w * 0.74, mapTop)
+      ..lineTo(w * 0.90, mapBottom)
+      ..close();
+    canvas.drawPath(map, stroke);
+
+    // Pin head circle
+    final pinCy = h * 0.26;
+    final pinR = w * 0.195;
+    canvas.drawCircle(Offset(cx, pinCy), pinR, stroke);
+
+    // Center hole
+    canvas.drawCircle(Offset(cx, pinCy), pinR * 0.36, stroke);
+
+    // Pin stem / tip into the map
+    final stemTop = pinCy + pinR * 0.75;
+    final stem = Path()
+      ..moveTo(cx - pinR * 0.48, stemTop)
+      ..lineTo(cx, mapTop)
+      ..lineTo(cx + pinR * 0.48, stemTop);
+    canvas.drawPath(stem, stroke);
+  }
+
+  @override
+  bool shouldRepaint(covariant _StoreMapPinPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

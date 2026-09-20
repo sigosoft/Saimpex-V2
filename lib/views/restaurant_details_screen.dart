@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/filter_chip_style.dart';
 import '../widgets/replace_cart_item_dialog.dart';
+import 'widgets/food_item_sheets.dart';
 import 'chat_screen.dart';
-import 'messages_screen.dart';
 import 'cart_screen.dart';
 
 class RestaurantDetailsScreen extends StatefulWidget {
@@ -117,78 +118,25 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   }
 
   Widget _buildFiltersRow() {
-    return SizedBox(
-      height: 32,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: filters.length,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemBuilder: (context, index) {
-          final filter = filters[index];
-          final isVeg = filter['isVeg'] == true;
-          return Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: const Color(0xFFEAD8C9),
-                width: 0.8,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isVeg) ...[
-                  Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.green,
-                        width: 1.5,
-                      ),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    padding: const EdgeInsets.all(2),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ] else if (filter['icon'] is IconData) ...[
-                  Icon(
-                    filter['icon'] as IconData,
-                    color: filter['label'] == 'Ratings 4.0+'
-                        ? const Color(0xFFFFAE00)
-                        : const Color(0xFF7A6A60),
-                    size: 14,
-                  ),
-                ] else if (filter['asset'] is String) ...[
-                  SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: Image.asset(filter['asset'] as String),
-                  ),
-                ],
-                const SizedBox(width: 6),
-                Text(
-                  filter['label'] as String,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    return AppFilterChipsRow(
+      children: [
+        for (final filter in filters)
+          AppFilterChip(
+            label: filter['label'] as String,
+            leading: filter['isVeg'] == true
+                ? AppFilterChip.vegLeading()
+                : filter['icon'] is IconData
+                    ? AppFilterChip.iconLeading(
+                        filter['icon'] as IconData,
+                        color: (filter['label'] as String).contains('Rating')
+                            ? const Color(0xFFFFAE00)
+                            : const Color(0xFF2C2520),
+                      )
+                    : filter['asset'] is String
+                        ? AppFilterChip.assetLeading(filter['asset'] as String)
+                        : null,
+          ),
+      ],
     );
   }
 
@@ -201,6 +149,104 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         _buildFiltersRow(),
         const SizedBox(height: 12),
       ],
+    );
+  }
+
+  HomeController _homeController() {
+    return Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>()
+        : Get.put(HomeController(), permanent: true);
+  }
+
+  String _currentRestaurantName() {
+    return (widget.restaurant['title'] ??
+            widget.restaurant['name'] ??
+            'Restaurant')
+        .toString()
+        .trim();
+  }
+
+  String _normalizeRestaurantName(String name) {
+    var normalized = name.trim().toLowerCase();
+    if (normalized.endsWith(' restaurant')) {
+      normalized = normalized.substring(0, normalized.length - 11).trim();
+    }
+    return normalized;
+  }
+
+  bool _isDifferentRestaurant(String existing, String incoming) {
+    return _normalizeRestaurantName(existing) !=
+        _normalizeRestaurantName(incoming);
+  }
+
+  Future<bool> _confirmReplaceCartIfNeeded(BuildContext context) async {
+    final controller = _homeController();
+    final newRestaurant = _currentRestaurantName();
+    final existingStore =
+        controller.lastCartItem?['storeName']?.toString().trim();
+
+    if (controller.cartItemCount.value <= 0 ||
+        existingStore == null ||
+        existingStore.isEmpty ||
+        !_isDifferentRestaurant(existingStore, newRestaurant)) {
+      return true;
+    }
+
+    final replace = await ReplaceCartItemDialog.show(
+      context: context,
+      currentCartRestaurant: existingStore,
+      newRestaurant: newRestaurant,
+    );
+    return replace == true;
+  }
+
+  Future<void> _addFoodToCart(
+    BuildContext context,
+    Map<String, dynamic> food, {
+    bool fromBottomSheet = false,
+  }) async {
+    final canAdd = await _confirmReplaceCartIfNeeded(context);
+    if (!canAdd || !context.mounted) return;
+
+    Navigator.pop(context);
+    if (fromBottomSheet && context.mounted) {
+      Navigator.pop(context);
+    }
+    if (!mounted) return;
+
+    final controller = _homeController();
+    if (controller.cartItemCount.value > 0) {
+      final existingStore =
+          controller.lastCartItem?['storeName']?.toString().trim();
+      if (existingStore != null &&
+          _isDifferentRestaurant(existingStore, _currentRestaurantName())) {
+        controller.clearCart();
+      }
+    }
+
+    controller.setCartItem(
+      storeName: _currentRestaurantName(),
+      itemName: food['title']?.toString(),
+      itemPortion: '1 Portion',
+      basePrice: _parsePrice(food['price']?.toString()),
+      itemImage: food['image']?.toString(),
+    );
+
+    setState(() {
+      showCartBar = true;
+      lastAddedFood = food;
+    });
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${food['title']} added to cart!',
+          style: GoogleFonts.outfit(),
+        ),
+        backgroundColor: const Color(0xFFFF5E00),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 
@@ -299,7 +345,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<HomeController>();
+    final controller = _homeController();
     final restaurantId = widget.restaurant['id']?.toString() ?? 'r1';
     final topInset = MediaQuery.paddingOf(context).top;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
@@ -487,7 +533,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                         child: GestureDetector(
                                           onTap: () {
                                             Get.to(
-                                              () => MessagesScreen(
+                                              () => ChatScreen(
                                                 restaurant: widget.restaurant,
                                               ),
                                             );
@@ -839,12 +885,13 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
               ),
             ),
 
-          // Floating Back Button (App Bar overlay)
-          Positioned(
-            top: topInset + 10,
-            left: 16,
-            child: const CustomBackButton(),
-          ),
+          // Floating Back Button (hidden while sticky search is pinned)
+          if (!_showStickySearch)
+            Positioned(
+              top: topInset + 10,
+              left: 16,
+              child: const CustomBackButton(),
+            ),
 
           // Floating Cart Summary Bar
           Positioned(
@@ -1110,11 +1157,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            _showCustomizeBottomSheet(
-                              context,
-                              food,
-                              fromBottomSheet: false,
-                            );
+                            _showFoodDetailsBottomSheet(context, food);
                           },
                           child: Container(
                             height: 28,
@@ -1173,293 +1216,33 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     BuildContext context,
     Map<String, dynamic> food,
   ) {
-    bool isLiked = false;
-
-    showModalBottomSheet(
+    showFoodItemDetailSheet(
       context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        final bottomInset = MediaQuery.of(context).padding.bottom;
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.85,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFFDF9),
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(32),
-                    ),
-                  ),
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header image
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(32),
-                          ),
-                          child: Image.network(
-                            food['image']!,
-                            height: 240,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            20,
-                            20,
-                            20,
-                            24 + bottomInset,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Title
-                              Text(
-                                food['title']!,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-
-                              // Tag (Spicy / Pure Dairy)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF5E00),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  food['tag']!,
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-
-                              // Price Row
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Text(
-                                    food['price']!,
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFFFF5E00),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    food['originalPrice']!,
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFFA59A94),
-                                      fontSize: 11,
-                                      decoration: TextDecoration.lineThrough,
-                                      decorationColor: const Color(0xFFA59A94),
-                                      decorationThickness: 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-
-                              // Rating Badge
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: Color(0xFFFFAE00),
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${food['rating']!} (${food['reviews']!})',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFFA59A94),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 14),
-
-                              // Description text
-                              Text(
-                                'Slow-cooked traditional Moroccan tagine with tender chicken, preserved lemons, olives, and aromatic spices. Served with a side of fluffy couscous.',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF7A6A60),
-                                  fontSize: 12,
-                                  height: 1.5,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Bottom Action Buttons
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        _showCustomizeBottomSheet(
-                                          context,
-                                          food,
-                                          fromBottomSheet: true,
-                                        );
-                                      },
-                                      child: Container(
-                                        height: 46,
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color(0xFFFF5E00),
-                                              Color(0xFFFFAE00),
-                                            ],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            23,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: const Color(
-                                                0xFFFF5E00,
-                                              ).withOpacity(0.3),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 4),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(
-                                              Icons.shopping_cart_outlined,
-                                              color: Colors.white,
-                                              size: 16,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              'ADD',
-                                              style: GoogleFonts.outfit(
-                                                color: Colors.white,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setModalState(() {
-                                        isLiked = !isLiked;
-                                      });
-                                    },
-                                    child: Container(
-                                      width: 46,
-                                      height: 46,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: const Color(0xFFEAD8C9),
-                                          width: 0.8,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.04,
-                                            ),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Icon(
-                                        isLiked
-                                            ? Icons.favorite_rounded
-                                            : Icons.favorite_border_rounded,
-                                        color: const Color(0xFFFF5E00),
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Floating close button at top center with a clear space (gap) above the bottom sheet
-                Positioned(
-                  top: -56,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.close_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 22,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
+      food: food,
+      onOpenCustomize: () {
+        // Opens on top of detail — swipe down returns to detail
+        return _showCustomizeBottomSheet(
+          context,
+          food,
+          fromBottomSheet: true,
         );
       },
+    );
+  }
+
+  Future<void> _showCustomizeBottomSheet(
+    BuildContext context,
+    Map<String, dynamic> food, {
+    required bool fromBottomSheet,
+  }) {
+    return showFoodItemCustomizeSheet(
+      context: context,
+      food: food,
+      onAddToCart: (sheetContext) => _addFoodToCart(
+        sheetContext,
+        food,
+        fromBottomSheet: fromBottomSheet,
+      ),
     );
   }
 
@@ -1476,678 +1259,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       child: Container(
         decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       ),
-    );
-  }
-
-  void _showCustomizeBottomSheet(
-    BuildContext context,
-    Map<String, dynamic> food, {
-    required bool fromBottomSheet,
-  }) {
-    int selectedQuantityIndex = 0; // 0 for Half, 1 for Full
-    int quantity = 1;
-    Set<int> selectedExtras = {};
-    final TextEditingController notesController = TextEditingController();
-
-    final extras = [
-      {'name': 'Extra Olives', 'price': 50},
-      {'name': 'Preserved Lemons', 'price': 30},
-      {'name': 'Coca-Cola (330 ml)', 'price': 50},
-    ];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.85,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFFDF9),
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(32),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16),
-                      Text(
-                        food['title']!,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Divider(color: Color(0xFFEAD8C9), height: 1),
-
-                      Expanded(
-                        child: SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Quantity',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setModalState(() {
-                                          selectedQuantityIndex = 0;
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          border: Border.all(
-                                            color: selectedQuantityIndex == 0
-                                                ? const Color(0xFFFF5E00)
-                                                : const Color(0xFFEAD8C9),
-                                            width: selectedQuantityIndex == 0
-                                                ? 1.5
-                                                : 0.8,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: 18,
-                                              height: 18,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color:
-                                                      selectedQuantityIndex == 0
-                                                      ? const Color(0xFFFF5E00)
-                                                      : const Color(0xFFA59A94),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              padding: const EdgeInsets.all(3),
-                                              child: selectedQuantityIndex == 0
-                                                  ? Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                            color: Color(
-                                                              0xFFFF5E00,
-                                                            ),
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                    )
-                                                  : null,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Half',
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFF2C2520,
-                                                    ),
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  '375 MRU',
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFFFF5E00,
-                                                    ),
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setModalState(() {
-                                          selectedQuantityIndex = 1;
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          border: Border.all(
-                                            color: selectedQuantityIndex == 1
-                                                ? const Color(0xFFFF5E00)
-                                                : const Color(0xFFEAD8C9),
-                                            width: selectedQuantityIndex == 1
-                                                ? 1.5
-                                                : 0.8,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: 18,
-                                              height: 18,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color:
-                                                      selectedQuantityIndex == 1
-                                                      ? const Color(0xFFFF5E00)
-                                                      : const Color(0xFFA59A94),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              padding: const EdgeInsets.all(3),
-                                              child: selectedQuantityIndex == 1
-                                                  ? Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                            color: Color(
-                                                              0xFFFF5E00,
-                                                            ),
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                    )
-                                                  : null,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Full',
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFF2C2520,
-                                                    ),
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  '750 MRU',
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFFFF5E00,
-                                                    ),
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(22),
-                                  border: Border.all(
-                                    color: const Color(0xFFEAD8C9),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                alignment: Alignment.centerLeft,
-                                child: TextField(
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 12,
-                                    color: const Color(0xFF2C2520),
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'Customize your quantity here',
-                                    hintStyle: GoogleFonts.outfit(
-                                      color: const Color(0xFFA59A94),
-                                      fontSize: 12,
-                                    ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              Text(
-                                'Extras & Drinks (Optional)',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Column(
-                                children: List.generate(extras.length, (idx) {
-                                  final extra = extras[idx];
-                                  final isChecked = selectedExtras.contains(
-                                    idx,
-                                  );
-                                  return GestureDetector(
-                                    onTap: () {
-                                      setModalState(() {
-                                        if (isChecked) {
-                                          selectedExtras.remove(idx);
-                                        } else {
-                                          selectedExtras.add(idx);
-                                        }
-                                      });
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color: const Color(0xFFEAD8C9),
-                                          width: 0.8,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            width: 18,
-                                            height: 18,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: isChecked
-                                                    ? const Color(0xFFFF5E00)
-                                                    : const Color(0xFFA59A94),
-                                                width: 1.5,
-                                              ),
-                                            ),
-                                            padding: const EdgeInsets.all(3),
-                                            child: isChecked
-                                                ? Container(
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                          color: Color(
-                                                            0xFFFF5E00,
-                                                          ),
-                                                          shape:
-                                                              BoxShape.circle,
-                                                        ),
-                                                  )
-                                                : null,
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Text(
-                                              extra['name'] as String,
-                                              style: GoogleFonts.outfit(
-                                                color: const Color(0xFF2C2520),
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            '+${extra['price']} MRU',
-                                            style: GoogleFonts.outfit(
-                                              color: const Color(0xFFFF5E00),
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              Text(
-                                'Add Order Notes',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: const Color(0xFFEAD8C9),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: notesController,
-                                        maxLines: 3,
-                                        style: GoogleFonts.outfit(
-                                          fontSize: 12,
-                                          color: const Color(0xFF2C2520),
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText:
-                                              'Add notes (e.g., no onions, extra spicy...)',
-                                          hintStyle: GoogleFonts.outfit(
-                                            color: const Color(0xFFA59A94),
-                                            fontSize: 12,
-                                          ),
-                                          border: InputBorder.none,
-                                          isDense: true,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      width: 26,
-                                      height: 26,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFFFF0EA),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.mic_none_rounded,
-                                        color: Color(0xFFFF5E00),
-                                        size: 15,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      Container(
-                        padding: EdgeInsets.fromLTRB(
-                          20,
-                          12,
-                          20,
-                          24 + MediaQuery.of(context).padding.bottom,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(
-                              color: Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              height: 44,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF0EA),
-                                borderRadius: BorderRadius.circular(22),
-                              ),
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      if (quantity > 1) {
-                                        setModalState(() {
-                                          quantity--;
-                                        });
-                                      }
-                                    },
-                                    child: Container(
-                                      width: 28,
-                                      height: 28,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.remove,
-                                        color: Color(0xFFFF5E00),
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    quantity.toString(),
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF2C2520),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setModalState(() {
-                                        quantity++;
-                                      });
-                                    },
-                                    child: Container(
-                                      width: 28,
-                                      height: 28,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFFF5E00),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  final homeController =
-                                      Get.isRegistered<HomeController>()
-                                      ? Get.find<HomeController>()
-                                      : null;
-                                  final newRestaurant =
-                                      (widget.restaurant['title'] ??
-                                              widget.restaurant['name'] ??
-                                              'Restaurant')
-                                          .toString();
-                                  final existingStore = homeController
-                                      ?.lastCartItem?['storeName']
-                                      ?.toString();
-                                  final needsReplace =
-                                      homeController != null &&
-                                      homeController.cartItemCount.value > 0 &&
-                                      existingStore != null &&
-                                      existingStore.isNotEmpty &&
-                                      existingStore != newRestaurant;
-
-                                  if (needsReplace) {
-                                    final replace =
-                                        await ReplaceCartItemDialog.show(
-                                          context: context,
-                                          currentCartRestaurant: existingStore,
-                                          newRestaurant: newRestaurant,
-                                        );
-                                    if (replace != true) return;
-                                  }
-
-                                  if (!context.mounted) return;
-                                  Navigator.pop(context);
-                                  if (fromBottomSheet) {
-                                    Navigator.pop(context);
-                                  }
-
-                                  setState(() {
-                                    showCartBar = true;
-                                    lastAddedFood = food;
-                                  });
-                                  homeController?.setCartItem(
-                                    storeName: newRestaurant,
-                                    itemName: food['title']?.toString(),
-                                    itemPortion: '1 Portion',
-                                    basePrice: _parsePrice(
-                                      food['price']?.toString(),
-                                    ),
-                                    itemImage: food['image']?.toString(),
-                                  );
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '${food['title']} added to cart!',
-                                        style: GoogleFonts.outfit(),
-                                      ),
-                                      backgroundColor: const Color(0xFFFF5E00),
-                                      duration: const Duration(seconds: 2),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFFF5E00),
-                                        Color(0xFFFFAE00),
-                                      ],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(22),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(
-                                          0xFFFF5E00,
-                                        ).withOpacity(0.3),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.shopping_cart_outlined,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'ADD',
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Positioned(
-                  top: -56,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.close_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 22,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
     );
   }
 }

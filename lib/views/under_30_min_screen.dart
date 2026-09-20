@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/filter_chip_style.dart';
 import 'coupons_screen.dart';
 import 'restaurant_details_screen.dart';
 
@@ -185,11 +186,21 @@ class Under30MinScreen extends StatelessWidget {
                       width: 20,
                       height: 20,
                     ),
-                    const SizedBox(width: 12),
-                    Image.asset(
-                      "lib/assets/images/Voice.png",
-                      width: 20,
-                      height: 20,
+                    const SizedBox(width: 10),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFF0E0),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        "lib/assets/images/Voice.png",
+                        width: 16,
+                        height: 16,
+                        color: const Color(0xFFFF5E00),
+                      ),
                     ),
                   ],
                 ),
@@ -198,17 +209,11 @@ class Under30MinScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // 3. Filters Horizontal Scroll Row
-            SizedBox(
-              height: 34,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: filters.length,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemBuilder: (context, index) {
-                  final filter = filters[index];
-                  final isVeg = filter['isVeg'] == true;
-                  return GestureDetector(
+            AppFilterChipsRow(
+              children: [
+                for (final filter in filters)
+                  AppFilterChip(
+                    label: filter['label'] as String,
                     onTap: () {
                       if (filter['label'] == 'Filter') {
                         _showFilterBottomSheet(context);
@@ -216,70 +221,23 @@ class Under30MinScreen extends StatelessWidget {
                         Get.to(() => const CouponsScreen());
                       }
                     },
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: const Color(0xFFEAD8C9),
-                          width: 0.8,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (isVeg) ...[
-                            Container(
-                              width: 14,
-                              height: 14,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.green,
-                                  width: 1.5,
-                                ),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              padding: const EdgeInsets.all(2),
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                          ] else if (filter['icon'] != null) ...[
-                            if (filter['icon'] is IconData)
-                              Icon(
+                    leading: filter['isVeg'] == true
+                        ? AppFilterChip.vegLeading()
+                        : filter['icon'] is IconData
+                            ? AppFilterChip.iconLeading(
                                 filter['icon'] as IconData,
-                                color: filter['label'] == 'Ratings 4.0+'
+                                color: (filter['label'] as String)
+                                        .contains('Rating')
                                     ? const Color(0xFFFFAE00)
-                                    : const Color(0xFF7A6A60),
-                                size: 14,
+                                    : const Color(0xFF2C2520),
                               )
-                            else if (filter['icon'] is Widget)
-                              SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: filter['icon'] as Widget,
-                              ),
-                          ],
-                          const SizedBox(width: 6),
-                          Text(
-                            filter['label'] as String,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF2C2520),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+                            : filter['icon'] is Widget
+                                ? AppFilterChip.widgetLeading(
+                                    filter['icon'] as Widget,
+                                  )
+                                : null,
+                  ),
+              ],
             ),
             const SizedBox(height: 20),
 

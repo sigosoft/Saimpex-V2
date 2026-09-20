@@ -130,7 +130,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () => BottomNavRouter.returnToShell(
                           tabIndex: HomeController.navOrders,
-                          ordersCategoryIndex: 2,
+                          ordersCategoryIndex: 4,
                         ),
                         child: Container(
                           height: 50,

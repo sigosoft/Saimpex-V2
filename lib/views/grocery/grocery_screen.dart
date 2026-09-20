@@ -17,9 +17,10 @@ class _GroceryScreenState extends State<GroceryScreen> {
   int selectedSubcategoryIndex = 0;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
+  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
-  /// search(~62 with padding) + subcategories(~104 with margin)
+  /// search bar + subcategories row
   static const double _stickyExtent = 166;
 
   @override
@@ -35,6 +36,19 @@ class _GroceryScreenState extends State<GroceryScreen> {
     super.dispose();
   }
 
+  /// Exact Y where the location header ends on screen (status bar + real header).
+  double _headerBottomY() {
+    final ctx = _headerKey.currentContext;
+    if (ctx != null) {
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) {
+        return box.localToGlobal(Offset.zero).dy + box.size.height;
+      }
+    }
+    // Fallback only before first layout
+    return MediaQuery.paddingOf(context).top + 56;
+  }
+
   void _handleScroll() {
     if (!mounted) return;
     final ctx = _searchAnchorKey.currentContext;
@@ -42,9 +56,8 @@ class _GroceryScreenState extends State<GroceryScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final topInset = MediaQuery.paddingOf(context).top;
-    // Pin once search reaches just under the fixed location header (~56px)
-    final shouldShow = top <= topInset + 56;
+    // Pin search + subcategories once they reach the measured header
+    final shouldShow = top <= _headerBottomY();
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
@@ -183,6 +196,24 @@ class _GroceryScreenState extends State<GroceryScreen> {
       'image':
           'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=200&auto=format&fit=crop',
     },
+    {
+      'id': 'fb3',
+      'name': 'Fresh Bread',
+      'store': 'Marhaba Market',
+      'rating': '4.7',
+      'price': '40 MRU',
+      'image':
+          'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&auto=format&fit=crop',
+    },
+    {
+      'id': 'fb4',
+      'name': 'Banana Bunch',
+      'store': 'City Mart',
+      'rating': '4.5',
+      'price': '55 MRU',
+      'image':
+          'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&auto=format&fit=crop',
+    },
   ];
 
   @override
@@ -280,23 +311,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
               ),
             ),
 
-            // Sticky search + subcategories (below fixed location header)
+            // Sticky search + subcategories (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: MediaQuery.paddingOf(context).top + 56,
+                top: _headerBottomY(),
                 left: 0,
                 right: 0,
                 child: Material(
                   elevation: 2,
                   color: const Color(0xFFFFEEE5),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildSearchBar(),
-                      _buildSubcategoriesRow(),
-                      const SizedBox(height: 4),
-                    ],
-                  ),
+                  child: _buildStickySearchSubcatsSection(),
                 ),
               ),
           ],
@@ -308,6 +332,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
   // Header Bar
   Widget _buildHeader(BuildContext context) {
     return Padding(
+      key: _headerKey,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -443,16 +468,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
   // AI Predictive Card
   Widget _buildAIPredictiveCard() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -462,85 +487,89 @@ class _GroceryScreenState extends State<GroceryScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                width: 40,
+                height: 40,
                 decoration: const BoxDecoration(
                   color: Color(0xFFFF5E00),
                   shape: BoxShape.circle,
                 ),
+                alignment: Alignment.center,
                 child: const Icon(
-                  Icons.auto_awesome_rounded,
+                  Icons.auto_awesome,
                   color: Colors.white,
-                  size: 14,
+                  size: 16,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Text(
-                "SAIMPEX AI - PREDICTIVE",
+                'SAIMPEX AI • PREDICTIVE',
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 0.8,
+                  letterSpacing: 0.6,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
-            "Your weekly eggs order is due tomorrow",
+            'Your weekly eggs order is due tomorrow',
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              height: 1.25,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
-            "Farm Fresh brown eggs (12) – you saved 18% last time with the breakfast bundle.",
+            'Farm Fresh brown eggs (12) — you saved 18% last time with the breakfast bundle.',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF7A6A60),
-              fontSize: 12,
+              color: const Color(0xFF6F655C),
+              fontSize: 13,
               fontWeight: FontWeight.w400,
-              height: 1.3,
+              height: 1.4,
             ),
           ),
-          const SizedBox(height: 14),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFF5E00).withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () {},
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                 ),
-              ],
-            ),
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF5E00),
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 10,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                    blurRadius: 12,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
-              icon: const Icon(
-                Icons.shopping_cart_outlined,
-                color: Colors.white,
-                size: 16,
-              ),
-              label: Text(
-                "Add bundle",
-                style: GoogleFonts.outfit(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.shopping_cart_outlined,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Add bundle',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -553,17 +582,24 @@ class _GroceryScreenState extends State<GroceryScreen> {
   Widget _buildAITipRow() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       decoration: BoxDecoration(
-        color: const Color(0xFFE6F5EE), // Soft green background
-        borderRadius: BorderRadius.circular(30),
+        color: const Color(0xFFEAF7F0),
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         children: [
           const Icon(
-            Icons.auto_awesome_rounded,
-            color: Color(0xFF10B981),
-            size: 16,
+            Icons.auto_awesome,
+            color: Color(0xFFFF5E00),
+            size: 18,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -572,44 +608,63 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 12,
+                  height: 1.3,
+                  fontWeight: FontWeight.w500,
                 ),
                 children: [
                   TextSpan(
-                    text: "AI tip: ",
+                    text: 'AI tip: ',
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFF10B981),
-                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF0B7A4B),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12,
                     ),
                   ),
                   const TextSpan(
-                    text: "Your usual milk + bread is ready in one tap",
+                    text: 'Your usual milk + bread is ready in one tap',
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(width: 8),
-          ElevatedButton.icon(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF5E00),
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+          GestureDetector(
+            onTap: () {},
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ),
-            icon: const Icon(
-              Icons.shopping_cart_outlined,
-              color: Colors.white,
-              size: 12,
-            ),
-            label: Text(
-              "Add",
-              style: GoogleFonts.outfit(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.shopping_cart_outlined,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Add',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

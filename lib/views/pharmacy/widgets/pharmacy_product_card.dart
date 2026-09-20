@@ -25,9 +25,9 @@ class PharmacyProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -53,23 +53,26 @@ class PharmacyProductCard extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    top: 8,
-                    left: 8,
+                    top: 0,
+                    left: 0,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
-                        vertical: 3,
+                        vertical: 4,
                       ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
-                        borderRadius: BorderRadius.circular(8),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF5E00),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(18),
+                          bottomRight: Radius.circular(10),
+                        ),
                       ),
                       child: Text(
                         food['discount']!,
                         style: GoogleFonts.outfit(
                           color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -120,9 +123,9 @@ class PharmacyProductCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFF2C2520),
+                              color: const Color(0xFF6B5E56),
                               fontSize: 10,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -171,7 +174,7 @@ class PharmacyProductCard extends StatelessWidget {
                                 }
                               : onAdd,
                           child: Container(
-                            height: 32,
+                            height: 30,
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             decoration: BoxDecoration(
                               gradient: isNotAccepting
@@ -187,16 +190,16 @@ class PharmacyProductCard extends StatelessWidget {
                               color: isNotAccepting
                                   ? const Color(0xFFA59A94)
                                   : null,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(15),
                               boxShadow: isNotAccepting
                                   ? null
                                   : [
                                       BoxShadow(
                                         color: const Color(
                                           0xFFFF5E00,
-                                        ).withOpacity(0.2),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 2),
+                                        ).withOpacity(0.30),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                             ),

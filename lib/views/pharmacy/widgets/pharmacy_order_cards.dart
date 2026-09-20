@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../chat_screen.dart';
+import '../../../widgets/cancel_order_bottom_sheet.dart';
 import '../pharmacy_track_order_screen.dart';
 import '../quotation_detail_screen.dart';
 import '../pharmacy_paid_order_detail_screen.dart';
@@ -472,7 +473,12 @@ class PharmacyActiveOrderCard extends StatelessWidget {
               Expanded(
                 child: _SoftButton(
                   label: 'Cancel',
-                  onTap: () {},
+                  onTap: () {
+                    showCancelOrderBottomSheet(
+                      context,
+                      orderId: orderId,
+                    );
+                  },
                 ),
               ),
               if (showTrack) ...[

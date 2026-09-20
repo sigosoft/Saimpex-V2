@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../widgets/cancel_order_bottom_sheet.dart';
 import '../courier_order_detail_screen.dart';
 import '../courier_track_order_screen.dart';
 
@@ -160,7 +161,12 @@ class CourierActiveOrderCard extends StatelessWidget {
               Expanded(
                 child: _SoftButton(
                   label: 'Cancel',
-                  onTap: () {},
+                  onTap: () {
+                    showCancelOrderBottomSheet(
+                      context,
+                      orderId: orderId,
+                    );
+                  },
                 ),
               ),
               if (showTrack) ...[

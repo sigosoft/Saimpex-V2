@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -7,6 +9,7 @@ import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
 import 'water_supplier_details_screen.dart';
 import 'water_see_all_screen.dart';
+import 'water_subscription_screen.dart';
 
 class WaterScreen extends StatefulWidget {
   const WaterScreen({super.key});
@@ -20,6 +23,7 @@ class _WaterScreenState extends State<WaterScreen> {
   final PageController _bannerController = PageController();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
+  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
   /// search bar height (48) + small padding
@@ -44,6 +48,8 @@ class _WaterScreenState extends State<WaterScreen> {
       'points': '200 Points Available',
       'image': 'lib/assets/images/Water.png',
       'isFavorite': false,
+      'isClosed': false,
+      'isTemporarilyClosed': false,
     },
     {
       'id': 'w_supp2',
@@ -56,9 +62,53 @@ class _WaterScreenState extends State<WaterScreen> {
       'points': '200 Points Available',
       'image': 'lib/assets/images/19L water.png',
       'isFavorite': false,
+      'isClosed': true,
+      'opensAt': '10 AM',
+      'isTemporarilyClosed': false,
     },
     {
       'id': 'w_supp3',
+      'name': 'HydroPlus Waters',
+      'subtitle': 'Bulk water for home & office',
+      'rating': '4.5',
+      'time': '35-40 min',
+      'dist': '12 Km',
+      'discount': '20% OFF',
+      'points': '150 Points Available',
+      'image': 'lib/assets/images/set of water.png',
+      'isFavorite': false,
+      'isClosed': false,
+      'isTemporarilyClosed': true,
+    },
+  ];
+
+  final List<Map<String, dynamic>> nearbySuppliers = [
+    {
+      'id': 'w_near1',
+      'name': 'PureLife Water Co.',
+      'subtitle': 'Premium purified drinking water',
+      'rating': '4.6',
+      'time': '30-35 min',
+      'dist': '10 Km',
+      'discount': '50% OFF',
+      'points': '200 Points Available',
+      'image': 'lib/assets/images/Water.png',
+      'isFavorite': false,
+    },
+    {
+      'id': 'w_near2',
+      'name': 'AquaPure',
+      'subtitle': 'Natural spring water delivery',
+      'rating': '4.8',
+      'time': '25-30 min',
+      'dist': '8 Km',
+      'discount': '50% OFF',
+      'points': '200 Points Available',
+      'image': 'lib/assets/images/19L water.png',
+      'isFavorite': false,
+    },
+    {
+      'id': 'w_near3',
       'name': 'HydroPlus Waters',
       'subtitle': 'Bulk water for home & office',
       'rating': '4.5',
@@ -119,12 +169,21 @@ class _WaterScreenState extends State<WaterScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final topInset = MediaQuery.paddingOf(context).top;
-    // Pin once search reaches under the fixed location header (~56px)
-    final shouldShow = top <= topInset + 56;
+    final shouldShow = top <= _headerBottomY();
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
+  }
+
+  double _headerBottomY() {
+    final ctx = _headerKey.currentContext;
+    if (ctx != null) {
+      final box = ctx.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) {
+        return box.localToGlobal(Offset.zero).dy + box.size.height;
+      }
+    }
+    return MediaQuery.paddingOf(context).top + 56;
   }
 
   @override
@@ -146,8 +205,14 @@ class _WaterScreenState extends State<WaterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
-                  _buildHeader(context),
+                  Column(
+                    key: _headerKey,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 8),
+                      _buildHeader(context),
+                    ],
+                  ),
                   Expanded(
                     child: SingleChildScrollView(
                       controller: _scrollController,
@@ -185,10 +250,10 @@ class _WaterScreenState extends State<WaterScreen> {
               ),
             ),
 
-            // Sticky search (below fixed location header)
+            // Sticky search (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: MediaQuery.paddingOf(context).top + 56,
+                top: _headerBottomY(),
                 left: 0,
                 right: 0,
                 child: Material(
@@ -510,16 +575,16 @@ class _WaterScreenState extends State<WaterScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 1.2),
+          border: Border.all(color: const Color(0xFFE8E4DF), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -527,18 +592,22 @@ class _WaterScreenState extends State<WaterScreen> {
           children: [
             const Icon(
               Icons.search_rounded,
-              color: Color(0xFFA59A94),
+              color: Color(0xFF9A938C),
               size: 22,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
               child: TextField(
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Search water suppliers or products',
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
+                    fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
                   isDense: true,
@@ -547,26 +616,33 @@ class _WaterScreenState extends State<WaterScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(
-              Icons.qr_code_scanner_rounded,
-              color: Color(0xFFA59A94),
-              size: 20,
+            Image.asset(
+              'lib/assets/images/Camera.png',
+              width: 20,
+              height: 20,
+              color: const Color(0xFF9A938C),
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.qr_code_scanner_rounded,
+                color: Color(0xFF9A938C),
+                size: 20,
+              ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Container(
-              width: 28,
-              height: 28,
+              width: 32,
+              height: 32,
               decoration: const BoxDecoration(
-                color: Color(0xFFFFF0E6),
+                color: Color(0xFFFFF0EA),
                 shape: BoxShape.circle,
               ),
               child: Center(
                 child: Image.asset(
                   'lib/assets/images/Voice.png',
-                  width: 14,
-                  height: 14,
+                  width: 15,
+                  height: 15,
+                  color: const Color(0xFFFF5E00),
                   errorBuilder: (_, __, ___) => const Icon(
-                    Icons.mic_rounded,
+                    Icons.mic_none_rounded,
                     color: Color(0xFFFF5E00),
                     size: 16,
                   ),
@@ -745,6 +821,11 @@ class _WaterScreenState extends State<WaterScreen> {
   }
 
   Widget _buildSupplierCard(Map<String, dynamic> item) {
+    final isClosed = item['isClosed'] == true;
+    final isTemporarilyClosed = item['isTemporarilyClosed'] == true;
+    final isUnavailable = isClosed || isTemporarilyClosed;
+    final opensAt = (item['opensAt'] ?? '10 AM').toString();
+
     return GestureDetector(
       onTap: () {
         Get.to(() => WaterSupplierDetailsScreen(supplier: item));
@@ -752,222 +833,268 @@ class _WaterScreenState extends State<WaterScreen> {
       child: Container(
         width: 230,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isUnavailable
+              ? Colors.white.withValues(alpha: 0.72)
+              : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image with overlay tags
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
+            SizedBox(
+              height: 120,
+              width: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Blurred image when closed / temporarily unavailable
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                    child: isUnavailable
+                        ? ImageFiltered(
+                            imageFilter: ImageFilter.blur(
+                              sigmaX: 6,
+                              sigmaY: 6,
+                              tileMode: TileMode.clamp,
+                            ),
+                            child: ColorFiltered(
+                              colorFilter: ColorFilter.mode(
+                                Colors.black.withValues(alpha: 0.22),
+                                BlendMode.darken,
+                              ),
+                              child: _buildSupplierImage(item),
+                            ),
+                          )
+                        : _buildSupplierImage(item),
                   ),
-                  child: Container(
-                    height: 120,
-                    width: double.infinity,
-                    color: const Color(0xFFEBF5FF),
-                    child: Image.asset(
-                      item['image'] as String,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(
-                        Icons.water_drop,
-                        size: 50,
-                        color: Color(0xFF007BFF),
+
+                  if (isUnavailable)
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                          child: Container(
+                            color: Colors.white.withValues(alpha: 0.12),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  // Discount Tag (Top-left)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF5E00),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        item['discount'] as String,
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Discount Tag (Top-left)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF5E00),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      item['discount'] as String,
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                  // Rating Tag
+                  Positioned(
+                    top: 8,
+                    left: 72,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFFB800),
+                            size: 14,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            item['rating'] as String,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF1A1A1A),
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
 
-                // Rating Tag
-                Positioned(
-                  top: 8,
-                  left: 72,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Color(0xFFFFB800),
-                          size: 14,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          item['rating'] as String,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF1A1A1A),
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                  // Favorite Icon (Top-right)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.favorite_border_rounded,
+                        color: Color(0xFF2C2520),
+                        size: 16,
+                      ),
                     ),
                   ),
-                ),
 
-                // Favorite Icon (Top-right)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.favorite_border_rounded,
-                      color: Color(0xFF2C2520),
-                      size: 16,
+                  // Points Available Pill (Bottom-left overlay on image)
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'lib/assets/images/Coin.png',
+                            width: 12,
+                            height: 12,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.monetization_on,
+                              color: Color(0xFFFFAE00),
+                              size: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            item['points'] as String,
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                // Points Available Pill (Bottom-left overlay on image)
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                  if (isClosed)
+                    Positioned.fill(
+                      child: _buildClosedOverlay(opensAt),
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.65),
-                      borderRadius: BorderRadius.circular(12),
+                  if (isTemporarilyClosed)
+                    Positioned.fill(
+                      child: _buildTemporarilyClosedOverlay(),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          'lib/assets/images/Coin.png',
-                          width: 12,
-                          height: 12,
-                          errorBuilder: (_, __, ___) => const Icon(
-                            Icons.monetization_on,
-                            color: Color(0xFFFFAE00),
-                            size: 12,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          item['points'] as String,
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
 
-            // Details below image
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item['name'] as String,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1A1A1A),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item['subtitle'] as String,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF7A6A60),
-                      fontSize: 11,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
+            // Frosted details below image
+            ClipRect(
+              child: BackdropFilter(
+                filter: isUnavailable
+                    ? ImageFilter.blur(sigmaX: 12, sigmaY: 12)
+                    : ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                child: Container(
+                  width: double.infinity,
+                  color: isUnavailable
+                      ? const Color(0xFFE8E8E8).withValues(alpha: 0.78)
+                      : Colors.white,
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.access_time_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 14,
-                      ),
-                      const SizedBox(width: 4),
                       Text(
-                        item['time'] as String,
+                        item['name'] as String,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF1A1A1A),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 10),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
-                        size: 14,
-                      ),
-                      const SizedBox(width: 4),
+                      const SizedBox(height: 2),
                       Text(
-                        item['dist'] as String,
+                        item['subtitle'] as String,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
+                          color: const Color(0xFF7A6A60),
                           fontSize: 11,
-                          fontWeight: FontWeight.w500,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time_rounded,
+                            color: Color(0xFFFF5E00),
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            item['time'] as String,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          const Icon(
+                            Icons.location_on_outlined,
+                            color: Color(0xFFFF5E00),
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            item['dist'] as String,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ],
@@ -976,88 +1103,186 @@ class _WaterScreenState extends State<WaterScreen> {
     );
   }
 
+  Widget _buildSupplierImage(Map<String, dynamic> item) {
+    return Container(
+      height: 120,
+      width: double.infinity,
+      color: const Color(0xFFEBF5FF),
+      child: Image.asset(
+        item['image'] as String,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const Icon(
+          Icons.water_drop,
+          size: 50,
+          color: Color(0xFF007BFF),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClosedOverlay(String opensAt) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD30000),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Closed',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Opens $opensAt',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Transform.translate(
+            offset: const Offset(0, -3),
+            child: Transform.rotate(
+              angle: 45 * 3.14159 / 180,
+              child: Container(
+                width: 8,
+                height: 8,
+                color: const Color(0xFFD30000),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTemporarilyClosedOverlay() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF8A00),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Temporarily not accepting',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  'orders',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Transform.translate(
+            offset: const Offset(0, -3),
+            child: Transform.rotate(
+              angle: 45 * 3.14159 / 180,
+              child: Container(
+                width: 8,
+                height: 8,
+                color: const Color(0xFFFF8A00),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 7. Mid-Page Banner
   Widget _buildMidPageBanner() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.asset(
-          'lib/assets/images/water banner.png',
-          width: double.infinity,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              height: 120,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0052D4), Color(0xFF4364F7)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
+      child: GestureDetector(
+        onTap: () => Get.to(() => const WaterSubscriptionScreen()),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.asset(
+            'lib/assets/images/water_banner.png',
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 140,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF001F54), Color(0xFF003366)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Choose Your Water Supplier',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Automatic Deliveries, Zero Hassle',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white.withOpacity(0.85),
-                            fontSize: 11,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF00D2FF),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            'EXPLORE PLANS',
-                            style: GoogleFonts.outfit(
-                              color: Colors.black,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                alignment: Alignment.center,
+                child: Text(
+                  'Choose Your Water Supplier',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Image.asset(
-                    'lib/assets/images/19L water.png',
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.water_drop,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -1318,7 +1543,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   GestureDetector(
                     onTap: () => Get.to(() => WaterSeeAllScreen(
                           title: 'Nearby Suppliers',
-                          items: topSuppliers,
+                          items: nearbySuppliers,
                         )),
                     child: Row(
                       children: [
@@ -1384,9 +1609,9 @@ class _WaterScreenState extends State<WaterScreen> {
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: topSuppliers.length,
+            itemCount: nearbySuppliers.length,
             itemBuilder: (context, index) {
-              final item = topSuppliers[index];
+              final item = nearbySuppliers[index];
               return Padding(
                 padding: const EdgeInsets.only(right: 14),
                 child: _buildSupplierCard(item),

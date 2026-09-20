@@ -512,22 +512,46 @@ class OrderDetailScreen extends StatelessWidget {
                           // Item 1: Butter Croissant
                           _buildSummaryItem(
                             title: 'Butter Croissant',
-                            weight: '1Kg',
+                            weight: '1 Portion',
                             quantity: 'x1',
                             price: '50 MRU',
-                            assetPath: 'lib/assets/images/Bakery.png',
+                            assetPath: 'lib/assets/images/butter_croissant.png',
                           ),
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 10),
                             child: Divider(color: Color(0xFFF3E7DC), height: 1),
                           ),
-                          // Item 2: Citrus Lemon Tart
+                          // Item 2: Artisan Bread Loaf
                           _buildSummaryItem(
-                            title: 'Citrus Lemon Tart',
-                            weight: '2 Kg',
+                            title: 'Artisan Bread Loaf',
+                            weight: '1 Loaf',
                             quantity: 'x1',
                             price: '50 MRU',
-                            assetPath: 'lib/assets/images/Cookies.png',
+                            assetPath: 'lib/assets/images/artisan_bread.png',
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: Divider(color: Color(0xFFF3E7DC), height: 1),
+                          ),
+                          // Item 3: Pain Au Chocolat
+                          _buildSummaryItem(
+                            title: 'Pain Au Chocolat',
+                            weight: '1 Portion',
+                            quantity: 'x1',
+                            price: '50 MRU',
+                            assetPath: 'lib/assets/images/pain_chocolat.png',
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: Divider(color: Color(0xFFF3E7DC), height: 1),
+                          ),
+                          // Item 4: Citrus Lemon Tart
+                          _buildSummaryItem(
+                            title: 'Citrus Lemon Tart',
+                            weight: '1 Portion',
+                            quantity: 'x1',
+                            price: '50 MRU',
+                            assetPath: 'lib/assets/images/citrus_lemon.png',
                           ),
                         ],
                       ),
@@ -555,7 +579,7 @@ class OrderDetailScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 14),
-                          _buildPaymentRow('Item total', '100 MRU'),
+                          _buildPaymentRow('Item total', '200 MRU'),
                           const SizedBox(height: 8),
                           _buildPaymentRow(
                             'Redeemed points',
@@ -583,7 +607,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                '57 MRU',
+                                '157 MRU',
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -598,74 +622,106 @@ class OrderDetailScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // 6. Action Buttons Row (Cancel & Track Order)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              showCancelOrderBottomSheet(context);
-                            },
-                            child: Container(
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF6ECE5),
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Cancel',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                    // 6. Action Buttons — Cancel only for self pickup; Cancel + Track for delivery
+                    if (isSelfPickup)
+                      GestureDetector(
+                        onTap: () {
+                          showCancelOrderBottomSheet(
+                            context,
+                            orderId: orderId,
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF6ECE5),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Get.to(() => TrackOrderScreen(orderId: orderId));
-                            },
-                            child: Container(
-                              height: 48,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFFF5E00),
-                                    Color(0xFFFFAE00),
-                                  ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                showCancelOrderBottomSheet(
+                                  context,
+                                  orderId: orderId,
+                                );
+                              },
+                              child: Container(
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF6ECE5),
+                                  borderRadius: BorderRadius.circular(24),
                                 ),
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFFFF5E00,
-                                    ).withValues(alpha: 0.3),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Cancel',
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Track Order',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.to(
+                                  () => TrackOrderScreen(orderId: orderId),
+                                );
+                              },
+                              child: Container(
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFFF5E00),
+                                      Color(0xFFFFAE00),
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFFFF5E00,
+                                      ).withValues(alpha: 0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Track Order',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
 
                     const SizedBox(height: 30),
                   ],

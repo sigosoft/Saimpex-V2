@@ -149,13 +149,12 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                           product,
                         ),
                         onSubscribe: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Subscription setup for ${product['title']}',
-                                style: GoogleFonts.outfit(),
+                          Get.to(
+                            () => WaterProductSubscriptionScreen(
+                              product: Map<String, dynamic>.from(product),
+                              supplier: Map<String, dynamic>.from(
+                                widget.supplier,
                               ),
-                              backgroundColor: const Color(0xFFFF5E00),
                             ),
                           );
                         },
