@@ -29,14 +29,14 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFAF6F0),
+        statusBarColor: Color(0xFFFAF9F6),
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFFFAF6F0),
+        systemNavigationBarColor: Color(0xFFFAF9F6),
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFAF6F0),
+        backgroundColor: const Color(0xFFFAF9F6),
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.fromLTRB(20, 8, 20, 20 + bottomInset),
@@ -53,9 +53,16 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFFFFD4B8),
-                          width: 1.2,
+                          color: const Color(0xFFE8E4E0),
+                          width: 1,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.arrow_back_ios_new_rounded,
@@ -65,14 +72,15 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Spacer(),
+                const Spacer(flex: 2),
                 Image.asset(
                   'lib/assets/images/Success.png',
-                  width: 110,
-                  height: 110,
+                  width: 108,
+                  height: 108,
+                  fit: BoxFit.contain,
                   errorBuilder: (_, __, ___) => Container(
-                    width: 110,
-                    height: 110,
+                    width: 108,
+                    height: 108,
                     decoration: const BoxDecoration(
                       color: Color(0xFFFF5E00),
                       shape: BoxShape.circle,
@@ -80,16 +88,16 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                     child: const Icon(
                       Icons.check_rounded,
                       color: Colors.white,
-                      size: 58,
+                      size: 56,
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 22),
                 Text(
                   'Booking Confirmed',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                   ),
@@ -104,7 +112,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const Spacer(),
+                const Spacer(flex: 3),
                 Row(
                   children: [
                     Expanded(
@@ -117,14 +125,15 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(
-                              color: const Color(0xFFE8DFD6),
+                              color: const Color(0xFFE8E4E0),
+                              width: 1.2,
                             ),
                           ),
                           child: Text(
                             'Back to Home',
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
-                              fontSize: 13.5,
+                              fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -158,7 +167,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                             'View Bookings',
                             style: GoogleFonts.outfit(
                               color: Colors.white,
-                              fontSize: 13.5,
+                              fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

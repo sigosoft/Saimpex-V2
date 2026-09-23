@@ -161,7 +161,7 @@ class CarWashScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.location_on_rounded,
+                      Icons.location_on_outlined,
                       color: Color(0xFFFF5E00),
                       size: 22,
                     ),
@@ -269,7 +269,6 @@ class CarWashScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),

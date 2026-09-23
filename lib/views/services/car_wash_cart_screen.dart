@@ -5,30 +5,47 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'car_wash_choose_slot_sheet.dart';
 import 'car_wash_booking_success_screen.dart';
+import '../../controllers/car_wash_bookings_store.dart';
 
 class CarWashCartScreen extends StatefulWidget {
   final String providerName;
   final String serviceTitle;
+  final String serviceDescription;
+  final String serviceImage;
   final String vehicleLabel;
   final String vehicleImage;
+  final String plateNumber;
+  final int servicePrice;
   final int basePrice;
   final int baseDurationMin;
   final DateTime slotDate;
   final String slotLabel;
-  final Set<String> initialAddonIds;
+  final List<Map<String, dynamic>> selectedAddons;
+  final int selectedLocation;
+  final String serviceAddress;
+  final int homeServiceFee;
 
   const CarWashCartScreen({
     super.key,
     this.providerName = 'CleanRide Car Wash',
-    this.serviceTitle = 'Basic Wash',
+    this.serviceTitle = 'Exterior Wash',
+    this.serviceDescription =
+        'High pressure snow foam, detailed rim cleaning & streak-free hand dry',
+    this.serviceImage =
+        'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=300&h=300&fit=crop',
     this.vehicleLabel = 'Sedan',
-    this.vehicleImage =
-        'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&h=280&fit=crop',
+    this.vehicleImage = 'lib/assets/images/Sedan.png',
+    this.plateNumber = '1234 AB 01',
+    this.servicePrice = 550,
     this.basePrice = 550,
     this.baseDurationMin = 30,
     required this.slotDate,
     required this.slotLabel,
-    this.initialAddonIds = const {},
+    this.selectedAddons = const [],
+    this.selectedLocation = 0,
+    this.serviceAddress = '',
+    this.homeServiceFee = 0,
+    Set<String>? initialAddonIds,
   });
 
   @override
@@ -38,7 +55,6 @@ class CarWashCartScreen extends StatefulWidget {
 class _CarWashCartScreenState extends State<CarWashCartScreen> {
   late DateTime _slotDate;
   late String _slotLabel;
-  late final Set<String> _addonIds;
   bool _usePoints = false;
   int _paymentIndex = -1;
   final _couponController = TextEditingController();
@@ -46,31 +62,11 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   static const _tax = 10;
   static const _pointsOff = 50;
 
-  static const _addons = [
-    {
-      'id': 'vacuum',
-      'title': 'Interior Vaccum',
-      'price': 50,
-      'durationMin': 15,
-      'image':
-          'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200&h=200&fit=crop',
-    },
-    {
-      'id': 'tire',
-      'title': 'Tire Shine',
-      'price': 50,
-      'durationMin': 90,
-      'image':
-          'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop',
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
     _slotDate = widget.slotDate;
     _slotLabel = widget.slotLabel;
-    _addonIds = {...widget.initialAddonIds};
   }
 
   @override
@@ -79,26 +75,10 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
     super.dispose();
   }
 
-  int get _addonsTotal => _addons
-      .where((a) => _addonIds.contains(a['id']))
-      .fold(0, (sum, a) => sum + (a['price'] as int));
+  int get _subtotal => widget.basePrice;
 
-  int get _addonsDuration => _addons
-      .where((a) => _addonIds.contains(a['id']))
-      .fold(0, (sum, a) => sum + (a['durationMin'] as int));
-
-  int get _subtotal => widget.basePrice + _addonsTotal;
   int get _pointsDiscount => _usePoints ? _pointsOff : 0;
   int get _toPay => _subtotal - _pointsDiscount + _tax;
-  int get _totalDurationMin => widget.baseDurationMin + _addonsDuration;
-
-  static String _formatDuration(int totalMin) {
-    final h = totalMin ~/ 60;
-    final m = totalMin % 60;
-    if (h > 0 && m > 0) return '$h hr $m min';
-    if (h > 0) return '$h hr';
-    return '$m min';
-  }
 
   static const _months = [
     'Jan',
@@ -120,16 +100,34 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
     return '${d.day} ${_months[d.month - 1]} ${d.year}, $_slotLabel';
   }
 
+  String get _locationText {
+    if (widget.selectedLocation == 1) {
+      final addr = widget.serviceAddress.trim();
+      if (addr.isNotEmpty) return addr;
+      return 'At Home Service';
+    }
+    return '${widget.providerName}, Near Nouakchott, Mauritania';
+  }
+
   String _slotRangeFromLabel(String label) {
-    final match = RegExp(
+    final full = RegExp(
+      r'(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)',
+      caseSensitive: false,
+    ).firstMatch(label);
+    if (full != null) {
+      final startH = full.group(1)!;
+      final startM = full.group(2)!;
+      final endH = full.group(3)!;
+      final endM = full.group(4)!;
+      final period = full.group(5)!.toUpperCase();
+      return '$startH:$startM $period - $endH:$endM $period';
+    }
+    final short = RegExp(
       r'(\d+)\s*[–-]\s*(\d+)\s*(AM|PM)',
       caseSensitive: false,
     ).firstMatch(label);
-    if (match == null) return label;
-    final start = match.group(1)!;
-    final end = match.group(2)!;
-    final period = match.group(3)!.toUpperCase();
-    return '$start:00 $period - $end:00 $period';
+    if (short == null) return label;
+    return '${short.group(1)}:00 ${short.group(3)!.toUpperCase()} - ${short.group(2)}:00 ${short.group(3)!.toUpperCase()}';
   }
 
   Future<void> _changeSlot() async {
@@ -141,20 +139,99 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
     });
   }
 
+  void _pay() {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final d = _slotDate;
+    final slotDisplay =
+        '${d.day} ${months[d.month - 1]} ${d.year}, $_slotLabel';
+    final bookingId =
+        '22789${(100 + CarWashBookingsStore.instance.bookings.length).toString().padLeft(3, '0')}';
+
+    final washServices = <Map<String, dynamic>>[
+      {
+        'title': widget.serviceTitle,
+        'description': widget.serviceDescription,
+        'price': '${widget.servicePrice} MRU',
+        'image': widget.serviceImage,
+      },
+      ...widget.selectedAddons.map(
+        (a) => {
+          'title': a['title'],
+          'description': a['description'],
+          'price': '+${a['price'] ?? 0} MRU',
+          'image': a['image'],
+          'isAddon': true,
+        },
+      ),
+    ];
+
+    CarWashBookingsStore.instance.add({
+      'id': bookingId,
+      'provider': widget.providerName,
+      'category': 'Car Wash',
+      'categoryColor': 0xFF2B7DE9,
+      'service': widget.serviceTitle,
+      'serviceTitle': widget.serviceTitle,
+      'serviceDescription': widget.serviceDescription,
+      'serviceImage': widget.serviceImage,
+      'servicePrice': '${widget.servicePrice} MRU',
+      'status': 'Confirmed',
+      'datetime': slotDisplay,
+      'slot': slotDisplay,
+      'location': _locationText,
+      'locationTitle': widget.providerName,
+      'price': '$_toPay MRU',
+      'vehicleLabel': widget.vehicleLabel,
+      'vehicleImage': widget.vehicleImage,
+      'plateNumber': widget.plateNumber,
+      'image': widget.vehicleImage,
+      'washServices': washServices,
+      'addons': widget.selectedAddons
+          .map(
+            (a) => {
+              'title': a['title'],
+              'description': a['description'],
+              'price': '+${a['price'] ?? 0} MRU',
+              'image': a['image'],
+            },
+          )
+          .toList(),
+      'total': '$_subtotal MRU',
+      'redeemed': '-$_pointsDiscount MRU',
+      'tax': '$_tax MRU',
+      'totalPaid': '$_toPay MRU',
+    });
+
+    Get.to(() => const CarWashBookingSuccessScreen());
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFAF6F0),
+        statusBarColor: Color(0xFFFDF9F5),
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFAF6F0),
+        backgroundColor: const Color(0xFFFDF9F5),
         body: SafeArea(
           bottom: false,
           child: Column(
@@ -163,7 +240,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -176,17 +253,8 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                         ),
                       ),
                       const SizedBox(height: 14),
-                      _sectionTitle('Vehicles'),
-                      const SizedBox(height: 12),
-                      _buildVehicleCard(),
+                      _buildOrderCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Make it extra clean'),
-                      const SizedBox(height: 12),
-                      for (final addon in _addons) ...[
-                        _buildAddonCard(addon),
-                        const SizedBox(height: 10),
-                      ],
-                      const SizedBox(height: 12),
                       _sectionTitle('Washing Details'),
                       const SizedBox(height: 12),
                       _buildLocationCard(),
@@ -212,7 +280,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                         index: 1,
                         imageAsset: 'lib/assets/images/currency.png',
                         title: 'Online payment',
-                        subtitle: 'Card • Mobile money',
+                        subtitle: 'Card - Mobile money',
                       ),
                       const SizedBox(height: 22),
                       _buildPaymentDetailsCard(),
@@ -245,9 +313,15 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFFFF5E00),
-                    width: 1.2,
+                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: const Icon(
                   Icons.arrow_back_ios_new_rounded,
@@ -260,7 +334,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           Text(
             'Cart',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF1B2B4A),
+              color: const Color(0xFF1A1A1A),
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
@@ -274,19 +348,20 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
     return Text(
       title,
       style: GoogleFonts.outfit(
-        color: const Color(0xFF1B2B4A),
+        color: const Color(0xFF1A1A1A),
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
       ),
     );
   }
 
-  Widget _buildVehicleCard() {
+  Widget _buildOrderCard() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -296,34 +371,36 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 child: SizedBox(
-                  width: 78,
-                  height: 78,
+                  width: 72,
+                  height: 72,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.network(
-                        widget.vehicleImage,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: const Color(0xFFF5F0EB),
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.directions_car_rounded,
-                            color: Color(0xFFFF5E00),
+                      ColoredBox(
+                        color: const Color(0xFFF0F0F0),
+                        child: Image.asset(
+                          widget.vehicleImage,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Center(
+                            child: Icon(
+                              Icons.directions_car_rounded,
+                              color: Color(0xFFFF5E00),
+                            ),
                           ),
                         ),
                       ),
                       Positioned(
-                        left: 8,
-                        right: 8,
-                        bottom: 8,
+                        left: 6,
+                        right: 6,
+                        bottom: 6,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -336,6 +413,8 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                           alignment: Alignment.center,
                           child: Text(
                             widget.vehicleLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 10,
@@ -353,220 +432,177 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Vehicle 1',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF1B2B4A),
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '${widget.basePrice} MRU',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      widget.plateNumber,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF1A1A1A),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.3,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       widget.serviceTitle,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFF9A8E86),
-                        fontSize: 12.5,
+                        color: const Color(0xFF6B6560),
+                        fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          color: Color(0xFF9A8E86),
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _formatDuration(widget.baseDurationMin),
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF9A8E86),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
               ),
+              Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => Get.back(),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Colors.red,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () => Get.back(),
+                    child: Text(
+                      'Edit',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFFF5E00),
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 14),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0E7DF)),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    height: 42,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: const Color(0xFFE03A3A),
-                        width: 1.3,
-                      ),
-                    ),
-                    child: Text(
-                      'Remove',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFE03A3A),
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
+          _buildNestedServiceRow(
+            image: widget.serviceImage,
+            title: widget.serviceTitle,
+            description: widget.serviceDescription,
+            priceLabel: '${widget.servicePrice} MRU',
+          ),
+          if (widget.selectedAddons.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Text(
+              'Add-On Services',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF5C6578),
+                fontSize: 13.5,
+                fontWeight: FontWeight.w700,
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    height: 42,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF5E00),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Text(
-                      'Change',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
+            ),
+            const SizedBox(height: 10),
+            for (var i = 0; i < widget.selectedAddons.length; i++) ...[
+              if (i > 0) const SizedBox(height: 10),
+              _buildNestedServiceRow(
+                image: widget.selectedAddons[i]['image'] as String? ??
+                    widget.serviceImage,
+                title: widget.selectedAddons[i]['title'] as String? ?? 'Add-On',
+                description:
+                    widget.selectedAddons[i]['description'] as String? ?? '',
+                priceLabel:
+                    '+${widget.selectedAddons[i]['price'] ?? 0} MRU',
               ),
             ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNestedServiceRow({
+    required String image,
+    required String title,
+    required String description,
+    required String priceLabel,
+  }) {
+    final isNetwork = image.startsWith('http');
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F4F1),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: isNetwork
+                ? Image.network(
+                    image,
+                    width: 52,
+                    height: 52,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _imageFallback(),
+                  )
+                : Image.asset(
+                    image,
+                    width: 52,
+                    height: 52,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _imageFallback(),
+                  ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF1A1A1A),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                if (description.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF8A7E76),
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w400,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            priceLabel,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFFF5E00),
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAddonCard(Map<String, dynamic> addon) {
-    final id = addon['id'] as String;
-    final selected = _addonIds.contains(id);
-    final price = addon['price'] as int;
-    final durationMin = addon['durationMin'] as int;
-
+  Widget _imageFallback() {
     return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: const Color(0xFFE8DFD6)),
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Image.network(
-              addon['image'] as String,
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 56,
-                height: 56,
-                color: const Color(0xFFFFF3EB),
-                child: const Icon(
-                  Icons.local_car_wash_rounded,
-                  color: Color(0xFFFF5E00),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  addon['title'] as String,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '+$price MRU',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  '+${_formatDuration(durationMin)}',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF9A8E86),
-                    fontSize: 11.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: () => setState(() {
-              if (selected) {
-                _addonIds.remove(id);
-              } else {
-                _addonIds.add(id);
-              }
-            }),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                gradient: selected
-                    ? null
-                    : const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                      ),
-                color: selected ? const Color(0xFFFFF0E6) : null,
-                border: selected
-                    ? Border.all(color: const Color(0xFFFF5E00), width: 1.2)
-                    : null,
-              ),
-              child: Text(
-                selected ? 'ADDED' : 'ADD',
-                style: GoogleFonts.outfit(
-                  color:
-                      selected ? const Color(0xFFFF5E00) : Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ),
-        ],
+      width: 52,
+      height: 52,
+      color: const Color(0xFFFFF3EB),
+      child: const Icon(
+        Icons.local_car_wash_rounded,
+        color: Color(0xFFFF5E00),
+        size: 22,
       ),
     );
   }
@@ -576,20 +612,29 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 42,
+            height: 42,
             decoration: const BoxDecoration(
               color: Color(0xFFFFF0E6),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.location_on_rounded,
-              color: Color(0xFFFF5E00),
+            child: Icon(
+              widget.selectedLocation == 1
+                  ? Icons.home_rounded
+                  : Icons.storefront_rounded,
+              color: const Color(0xFFFF5E00),
               size: 20,
             ),
           ),
@@ -601,19 +646,20 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 Text(
                   'Location',
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${widget.providerName}, Near Nouakchott, Mauritania',
+                  _locationText,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF8A7E76),
-                    fontSize: 11.5,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -636,17 +682,17 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: const Color(0xFFFFF3EB),
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
         ),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: const Color(0xFFFF5E00).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.calendar_month_rounded,
@@ -663,7 +709,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                     'Your Slot',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
-                      fontSize: 13,
+                      fontSize: 13.5,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -671,7 +717,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   Text(
                     _slotDisplay,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
+                      color: const Color(0xFF1A1A1A),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -708,10 +754,17 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
 
   Widget _buildCouponField() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -720,12 +773,12 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             color: Color(0xFFFF5E00),
             size: 20,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: TextField(
               controller: _couponController,
               style: GoogleFonts.outfit(
-                color: const Color(0xFF1B2B4A),
+                color: const Color(0xFF1A1A1A),
                 fontSize: 13.5,
               ),
               decoration: InputDecoration(
@@ -743,7 +796,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             'Apply',
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
-              fontSize: 13.5,
+              fontSize: 14,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -759,7 +812,14 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -770,7 +830,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 color: Color(0xFFFFF0E6),
                 shape: BoxShape.circle,
               ),
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(7),
               child: Image.asset(
                 'lib/assets/images/Coin.png',
                 errorBuilder: (_, __, ___) => const Icon(
@@ -787,28 +847,45 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   Text(
                     'Use 500 points',
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
+                      color: const Color(0xFF1A1A1A),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
-                    '= $_pointsOff MRU off',
+                    '+ $_pointsOff MRU off',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(
-              _usePoints
-                  ? Icons.radio_button_checked_rounded
-                  : Icons.radio_button_off_rounded,
-              color: _usePoints
-                  ? const Color(0xFFFF5E00)
-                  : const Color(0xFFB0A59C),
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: _usePoints
+                      ? const Color(0xFFFF5E00)
+                      : const Color(0xFFC4B8AF),
+                  width: 1.8,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: _usePoints
+                  ? Container(
+                      width: 12,
+                      height: 12,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF5E00),
+                        shape: BoxShape.circle,
+                      ),
+                    )
+                  : null,
             ),
           ],
         ),
@@ -829,36 +906,31 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: selected
                 ? const Color(0xFFFF5E00)
-                : const Color(0xFFE8DFD6),
-            width: selected ? 1.3 : 1,
+                : Colors.transparent,
+            width: 1.2,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFF0E6),
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Image.asset(
-                imageAsset,
-                width: 20,
-                height: 20,
-                color: const Color(0xFFFF5E00),
-                errorBuilder: (_, __, ___) => Icon(
-                  index == 0
-                      ? Icons.account_balance_wallet_outlined
-                      : Icons.credit_card_rounded,
-                  color: const Color(0xFFFF5E00),
-                  size: 20,
-                ),
+            Image.asset(
+              imageAsset,
+              width: 36,
+              height: 36,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.account_balance_wallet_rounded,
+                color: Color(0xFFFF5E00),
+                size: 28,
               ),
             ),
             const SizedBox(width: 12),
@@ -869,28 +941,46 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   Text(
                     title,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
+                      color: const Color(0xFF1A1A1A),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(
-              selected
-                  ? Icons.radio_button_checked_rounded
-                  : Icons.radio_button_off_rounded,
-              color: selected
-                  ? const Color(0xFFFF5E00)
-                  : const Color(0xFFB0A59C),
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected
+                      ? const Color(0xFFFF5E00)
+                      : const Color(0xFFC4B8AF),
+                  width: 1.8,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: selected
+                  ? Container(
+                      width: 12,
+                      height: 12,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF5E00),
+                        shape: BoxShape.circle,
+                      ),
+                    )
+                  : null,
             ),
           ],
         ),
@@ -901,10 +991,10 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   Widget _buildPaymentDetailsCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2520),
-        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xFF2C2C2C),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -913,23 +1003,23 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             'PAYMENT DETAILS',
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.6,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Total', '$_subtotal MRU'),
+          _paymentRow('Total', '$_subtotal MRU'),
           const SizedBox(height: 10),
-          _payRow(
+          _paymentRow(
             'Redeemed points',
-            _usePoints ? '-$_pointsOff MRU' : '0 MRU',
+            '-$_pointsDiscount MRU',
             valueColor: const Color(0xFFFF5E00),
           ),
           const SizedBox(height: 10),
-          _payRow('Tax', '$_tax MRU'),
+          _paymentRow('Tax', '$_tax MRU'),
           const SizedBox(height: 14),
-          const Divider(color: Color(0xFF4A4038), height: 1),
+          const Divider(height: 1, thickness: 1, color: Color(0xFF4A4A4A)),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -937,7 +1027,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 'To Pay',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -946,7 +1036,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 '$_toPay MRU',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -957,13 +1047,13 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
     );
   }
 
-  Widget _payRow(String label, String value, {Color? valueColor}) {
+  Widget _paymentRow(String label, String value, {Color? valueColor}) {
     return Row(
       children: [
         Text(
           label,
           style: GoogleFonts.outfit(
-            color: const Color(0xFFD4CBC3),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
           ),
@@ -983,85 +1073,49 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
 
   Widget _buildBottomBar(double bottomInset) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 14, 16, 12 + bottomInset),
+      padding: EdgeInsets.fromLTRB(20, 16, 20, 14 + bottomInset),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
+            blurRadius: 14,
             offset: const Offset(0, -3),
           ),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'TOTAL',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF9A8E86),
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '$_toPay MRU',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'DURATION',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF9A8E86),
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.4,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _formatDuration(_totalDurationMin),
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          Text(
+            'TOTAL',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF2E3A59),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 2),
+          Text(
+            '$_toPay MRU',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFFF5E00),
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 14),
           GestureDetector(
-            onTap: () => Get.off(() => const CarWashBookingSuccessScreen()),
+            onTap: _pay,
             child: Container(
               width: double.infinity,
               height: 52,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(28),
                 gradient: const LinearGradient(
                   colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
@@ -1079,7 +1133,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 'Pay $_toPay MRU',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
-                  fontSize: 15.5,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                 ),
               ),

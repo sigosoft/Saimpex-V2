@@ -2,25 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../views/order_cancelled_success_screen.dart';
+import '../views/booking_cancelled_success_screen.dart';
 
-void showCancelOrderBottomSheet(
+void showCancelBookingBottomSheet(
   BuildContext context, {
   VoidCallback? onConfirm,
-  String? orderId,
+  String? bookingId,
 }) {
   int selectedReasonIndex = -1;
-  final List<String> cancelReasons = [
+  const cancelReasons = [
     'Changed my mind',
     'Found a better price',
     'Wait time too long',
     'Other',
   ];
 
+  const closeSize = 44.0;
+  const closeGap = 12.0;
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withValues(alpha: 0.45),
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setModalState) {
@@ -31,9 +35,9 @@ void showCancelOrderBottomSheet(
             alignment: Alignment.topCenter,
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 48),
+                margin: const EdgeInsets.only(top: closeSize + closeGap),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFFF7F2),
+                  color: Color(0xFFFAF6F0),
                   borderRadius: BorderRadius.vertical(
                     top: Radius.circular(32),
                   ),
@@ -43,7 +47,7 @@ void showCancelOrderBottomSheet(
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
                       decoration: const BoxDecoration(
                         color: Color(0xFFFFF0EA),
                         borderRadius: BorderRadius.vertical(
@@ -51,7 +55,7 @@ void showCancelOrderBottomSheet(
                         ),
                       ),
                       child: Text(
-                        'Cancel Order',
+                        'Cancel Booking',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
@@ -61,104 +65,98 @@ void showCancelOrderBottomSheet(
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        20,
-                        20,
-                        20,
-                        20 + bottomPad,
-                      ),
+                      padding: EdgeInsets.fromLTRB(24, 20, 24, 20 + bottomPad),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Why are you cancelling?',
+                            'Are you sure you want to cancel this booking?',
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFF2C2520),
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Please let us know why you need to cancel this order. Your feedback helps us improve',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF8C7D73),
-                              fontSize: 11,
+                              color: const Color(0xFF1A1A1A),
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w800,
                               height: 1.3,
                             ),
                           ),
-                          const SizedBox(height: 18),
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: cancelReasons.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final isSelected = selectedReasonIndex == index;
-                              return GestureDetector(
-                                onTap: () {
-                                  setModalState(() {
-                                    selectedReasonIndex = index;
-                                  });
-                                },
-                                child: Container(
-                                  height: 52,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 18,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(26),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black
-                                            .withValues(alpha: 0.03),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        cancelReasons[index],
+                          const SizedBox(height: 8),
+                          Text(
+                            'Please let us know why you need to cancel this booking. Your feedback helps us improve',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF8C7D73),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          for (var i = 0; i < cancelReasons.length; i++) ...[
+                            if (i > 0) const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: () {
+                                setModalState(() {
+                                  selectedReasonIndex = i;
+                                });
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                height: 52,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.03),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        cancelReasons[i],
                                         style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 13,
+                                          color: const Color(0xFF1A1A1A),
+                                          fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      Container(
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: isSelected
-                                                ? const Color(0xFFFF5E00)
-                                                : const Color(0xFFEAD8C9),
-                                            width: isSelected ? 2 : 1.5,
-                                          ),
+                                    ),
+                                    Container(
+                                      width: 22,
+                                      height: 22,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: selectedReasonIndex == i
+                                              ? const Color(0xFFFF5E00)
+                                              : const Color(0xFFC4B8AF),
+                                          width: selectedReasonIndex == i
+                                              ? 1.8
+                                              : 1.5,
                                         ),
-                                        padding: const EdgeInsets.all(3),
-                                        child: isSelected
-                                            ? Container(
-                                                decoration: const BoxDecoration(
-                                                  color: Color(0xFFFF5E00),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                              )
-                                            : null,
                                       ),
-                                    ],
-                                  ),
+                                      alignment: Alignment.center,
+                                      child: selectedReasonIndex == i
+                                          ? Container(
+                                              width: 12,
+                                              height: 12,
+                                              decoration: const BoxDecoration(
+                                                color: Color(0xFFFF5E00),
+                                                shape: BoxShape.circle,
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 24),
                           Row(
                             children: [
@@ -166,25 +164,26 @@ void showCancelOrderBottomSheet(
                                 child: GestureDetector(
                                   onTap: () => Navigator.pop(context),
                                   child: Container(
-                                    height: 50,
+                                    height: 52,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF6ECE5),
-                                      borderRadius: BorderRadius.circular(25),
+                                      color: const Color(0xFFEDE6DE),
+                                      borderRadius: BorderRadius.circular(28),
                                     ),
                                     alignment: Alignment.center,
                                     child: Text(
-                                      'Cancel',
+                                      'No',
                                       style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF1A1A1A),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 14),
+                              const SizedBox(width: 12),
                               Expanded(
+                                flex: 2,
                                 child: Builder(
                                   builder: (context) {
                                     final canConfirm =
@@ -218,15 +217,15 @@ void showCancelOrderBottomSheet(
                                         Navigator.pop(context);
                                         onConfirm?.call();
                                         Get.to(
-                                          () => OrderCancelledSuccessScreen(
-                                            orderId: orderId,
+                                          () => BookingCancelledSuccessScreen(
+                                            bookingId: bookingId,
                                           ),
                                         );
                                       },
                                       child: Opacity(
                                         opacity: canConfirm ? 1 : 0.45,
                                         child: Container(
-                                          height: 50,
+                                          height: 52,
                                           decoration: BoxDecoration(
                                             gradient: const LinearGradient(
                                               colors: [
@@ -237,14 +236,14 @@ void showCancelOrderBottomSheet(
                                               end: Alignment.centerRight,
                                             ),
                                             borderRadius:
-                                                BorderRadius.circular(25),
+                                                BorderRadius.circular(28),
                                             boxShadow: canConfirm
                                                 ? [
                                                     BoxShadow(
                                                       color: const Color(
                                                               0xFFFF5E00)
                                                           .withValues(
-                                                              alpha: 0.35),
+                                                              alpha: 0.28),
                                                       blurRadius: 10,
                                                       offset:
                                                           const Offset(0, 4),
@@ -254,11 +253,11 @@ void showCancelOrderBottomSheet(
                                           ),
                                           alignment: Alignment.center,
                                           child: Text(
-                                            'Continue',
+                                            'Cancel Booking',
                                             style: GoogleFonts.outfit(
                                               color: Colors.white,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w800,
                                             ),
                                           ),
                                         ),
@@ -280,15 +279,15 @@ void showCancelOrderBottomSheet(
                 child: GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    width: 44,
-                    height: 44,
+                    width: closeSize,
+                    height: closeSize,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.12),
-                          blurRadius: 8,
+                          color: const Color(0xFFFF5E00).withValues(alpha: 0.18),
+                          blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
                       ],

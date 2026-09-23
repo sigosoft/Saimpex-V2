@@ -60,29 +60,21 @@ class _HomeCleaningProviderDetailScreenState
     {
       'title': 'Regular Cleaning',
       'description':
-          'Standard cleaning for bedrooms, bathrooms, living...',
-      'price': '550 MRU',
+          'Professional cleaning with flexible space-based pricing',
+      'price': '100 MRU',
       'duration': '1 hr 30 min',
       'image': 'lib/assets/images/regular_cleaning.jpg',
       'isNetwork': 'false',
     },
     {
-      'title': 'Deep Cleaning',
+      'title': 'Pest Control & Disinfection',
       'description':
-          'Thorough cleaning including inside cabinets, appliances,...',
-      'price': '550 MRU',
-      'duration': '5 hr 30 min',
-      'image': 'lib/assets/images/Deep Cleaning.png',
-      'isNetwork': 'false',
-    },
-    {
-      'title': 'Kitchen Cleaning',
-      'description':
-          'Focused degreasing and sanitizing of all kitchen...',
-      'price': '550 MRU',
-      'duration': '1 hr 30 min',
-      'image': 'lib/assets/images/Kitchen Cleaning.png',
-      'isNetwork': 'false',
+          'Pest control & disinfection handled by a specialized team',
+      'price': '100 MRU',
+      'duration': '2 hr',
+      'image':
+          'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&h=400&fit=crop',
+      'isNetwork': 'true',
     },
   ];
 
@@ -299,7 +291,7 @@ class _HomeCleaningProviderDetailScreenState
               width: double.infinity,
               height: 46,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(24),
                 gradient: const LinearGradient(
                   colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
@@ -317,7 +309,7 @@ class _HomeCleaningProviderDetailScreenState
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(
-                    Icons.chat_bubble_outline_rounded,
+                    Icons.chat_outlined,
                     color: Colors.white,
                     size: 18,
                   ),
@@ -396,17 +388,12 @@ class _HomeCleaningProviderDetailScreenState
 
   Widget _buildServicesList() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: Column(
         children: [
           for (var i = 0; i < _services.length; i++) ...[
+            if (i > 0) const SizedBox(height: 14),
             _buildServiceItem(_services[i]),
-            if (i < _services.length - 1)
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: Color(0xFFEDE4DA),
-              ),
           ],
         ],
       ),
@@ -414,107 +401,125 @@ class _HomeCleaningProviderDetailScreenState
   }
 
   Widget _buildServiceItem(Map<String, String> item) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: item['isNetwork'] == 'true'
-                ? Image.network(
-                    item['image']!,
-                    width: 72,
-                    height: 72,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _serviceImageFallback(),
-                  )
-                : Image.asset(
-                    item['image']!,
-                    width: 72,
-                    height: 72,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _serviceImageFallback(),
-                  ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
+    return GestureDetector(
+      onTap: () => Get.to(
+        () => HomeCleaningServiceConfigureScreen(
+          service: item,
+          providerName: _name,
+        ),
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item['title']!,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
-                  ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: item['isNetwork'] == 'true'
+                      ? Image.network(
+                          item['image']!,
+                          width: 72,
+                          height: 72,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _serviceImageFallback(),
+                        )
+                      : Image.asset(
+                          item['image']!,
+                          width: 72,
+                          height: 72,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _serviceImageFallback(),
+                        ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  item['description']!,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF8A7E76),
-                    fontSize: 11.5,
-                    height: 1.3,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Starting from',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF9A8E86),
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Text(
-                      item['price']!,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title']!,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1A1A1A),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          height: 1.25,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    const Icon(
-                      Icons.access_time_rounded,
-                      size: 13,
-                      color: Color(0xFF9A8E86),
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      item['duration']!,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF9A8E86),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(height: 6),
+                      Text(
+                        item['description']!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF8A7E76),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w400,
+                          height: 1.35,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Padding(
-            padding: const EdgeInsets.only(top: 18),
-            child: GestureDetector(
-              onTap: () => Get.to(
-                () => HomeCleaningServiceConfigureScreen(
-                  service: item,
-                  providerName: _name,
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Starting from',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF9A8E86),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        item['price']!,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              child: _buildAddButton(),
+                GestureDetector(
+                  onTap: () => Get.to(
+                    () => HomeCleaningServiceConfigureScreen(
+                      service: item,
+                      providerName: _name,
+                    ),
+                  ),
+                  child: _buildAddButton(),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -534,9 +539,9 @@ class _HomeCleaningProviderDetailScreenState
 
   Widget _buildAddButton() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
           colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
           begin: Alignment.centerLeft,
@@ -544,9 +549,9 @@ class _HomeCleaningProviderDetailScreenState
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF5E00).withValues(alpha: 0.22),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -554,9 +559,9 @@ class _HomeCleaningProviderDetailScreenState
         'ADD',
         style: GoogleFonts.outfit(
           color: Colors.white,
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: FontWeight.w800,
-          letterSpacing: 0.3,
+          letterSpacing: 0.4,
         ),
       ),
     );

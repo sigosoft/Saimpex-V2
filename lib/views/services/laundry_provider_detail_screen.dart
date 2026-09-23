@@ -61,35 +61,47 @@ class _LaundryProviderDetailScreenState
   static const _services = [
     {
       'title': 'Wash & Fold',
-      'description': 'Fresh washing, drying and folding',
-      'price': '150 MRU/kg',
-      'duration': '1 Day',
+      'description': 'Professional washing and neatly folded clothes',
+      'price': '100 MRU/Kg',
+      'duration': '24 hours',
       'action': 'ADD',
       'image': 'lib/assets/images/wash&fold_detail.png',
     },
     {
       'title': 'Wash & Iron',
-      'description': 'Clean, pressed and ready to wear',
-      'price': '200 MRU/kg',
-      'duration': '1 Day',
+      'description':
+          'Washed and neatly pressed for a fresh, wrinkle-free finish',
+      'price': '200 MRU/Kg',
+      'duration': '24 hours',
       'action': 'ADD',
       'image': 'lib/assets/images/Wash & Iron.png',
     },
     {
       'title': 'Dry Cleaning',
-      'description': 'Professional care for delicate garments',
-      'price': 'Starting from 30 MRU',
+      'description':
+          'Gentle cleaning for delicate garments with a fresh finish',
+      'price': '30 MRU',
       'duration': '',
       'action': 'View Prices',
       'image': 'lib/assets/images/drycleaning_detail.png',
     },
     {
       'title': 'Ironing',
-      'description': 'Professional ironing service',
-      'price': '150 MRU/kg',
-      'duration': '1 Day',
+      'description': 'Neatly pressed clothes with a smooth, wrinkle-free finish',
+      'price': '150 MRU/Kg',
+      'duration': '24 hours',
       'action': 'ADD',
       'image': 'lib/assets/images/Ironing.png',
+    },
+    {
+      'title': 'Carpet',
+      'description':
+          'Deep carpet cleaning for a fresh, clean, and renewed finish',
+      'price': '150 MRU/Metre',
+      'duration': '24 hours',
+      'action': 'ADD',
+      'image':
+          'https://images.unsplash.com/photo-1600166898405-da9535204843?w=200&h=200&fit=crop',
     },
   ];
 
@@ -409,29 +421,56 @@ class _LaundryProviderDetailScreenState
 
   Widget _buildServicesList() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: Column(
         children: [
           for (var i = 0; i < _services.length; i++) ...[
+            if (i > 0) const SizedBox(height: 14),
             _buildServiceItem(_services[i]),
-            if (i < _services.length - 1)
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: Color(0xFFEDE4DA),
-              ),
           ],
         ],
       ),
     );
   }
 
+  Widget _buildServiceImage(String path) {
+    final isAsset = path.startsWith('lib/');
+    final fallback = Container(
+      width: 72,
+      height: 72,
+      color: const Color(0xFFFFF3EB),
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.local_laundry_service_rounded,
+        color: Color(0xFFFF5E00),
+      ),
+    );
+
+    if (isAsset) {
+      return Image.asset(
+        path,
+        width: 72,
+        height: 72,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    }
+    return Image.network(
+      path,
+      width: 72,
+      height: 72,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => fallback,
+    );
+  }
+
   Widget _buildServiceItem(Map<String, String> item) {
     final isViewPrices = item['action'] == 'View Prices';
     final duration = item['duration'] ?? '';
+    final isDryCleaning = item['title'] == 'Dry Cleaning';
 
     void openConfigure() {
-      if (isViewPrices || item['title'] == 'Dry Cleaning') {
+      if (isViewPrices || isDryCleaning) {
         Get.to(
           () => LaundryDryCleaningScreen(
             service: {
@@ -454,142 +493,201 @@ class _LaundryProviderDetailScreenState
     return GestureDetector(
       onTap: openConfigure,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Image.asset(
-              item['image']!,
-              width: 72,
-              height: 72,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 72,
-                height: 72,
-                color: const Color(0xFFFFF3EB),
-                alignment: Alignment.center,
-                child: const Icon(
-                  Icons.local_laundry_service_rounded,
-                  color: Color(0xFFFF5E00),
-                ),
-              ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item['title']!,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
-                  ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: _buildServiceImage(item['image']!),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  item['description']!,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF8A7E76),
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  item['price']!,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                if (duration.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.access_time_rounded,
-                        color: Color(0xFF9A8E86),
-                        size: 13,
-                      ),
-                      const SizedBox(width: 3),
                       Text(
-                        duration,
+                        item['title']!,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF9A8E86),
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF1A1A1A),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          height: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        item['description']!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF8A7E76),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w400,
+                          height: 1.35,
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          if (isViewPrices)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(
-                  color: const Color(0xFFFF5E00),
-                  width: 1.3,
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: isDryCleaning
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Starting from',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF9A8E86),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item['price']!,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFFF5E00),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Text(
+                              item['price']!,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFFF5E00),
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            if (duration.isNotEmpty) ...[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6),
+                                child: Text(
+                                  '·',
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFFB0A59C),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const Icon(
+                                Icons.access_time_rounded,
+                                color: Color(0xFF9A8E86),
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  duration,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF9A8E86),
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
                 ),
-              ),
-              child: Text(
-                'View Prices',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            )
-          else
-            GestureDetector(
-              onTap: openConfigure,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
+                const SizedBox(width: 8),
+                if (isViewPrices)
+                  GestureDetector(
+                    onTap: openConfigure,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: const Color(0xFFFF5E00),
+                          width: 1.4,
+                        ),
+                      ),
+                      child: Text(
+                        'View Prices',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-                child: Text(
-                  'ADD',
-                  style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
+                  )
+                else
+                  GestureDetector(
+                    onTap: openConfigure,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF5E00)
+                                .withValues(alpha: 0.28),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'ADD',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+              ],
             ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 

@@ -354,9 +354,6 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
         decoration: BoxDecoration(
           color: filled ? const Color(0xFFFF5E00) : Colors.white,
           shape: BoxShape.circle,
-          border: filled
-              ? null
-              : Border.all(color: const Color(0xFFFF5E00), width: 1.2),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),

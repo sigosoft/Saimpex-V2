@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../widgets/cancel_booking_bottom_sheet.dart';
+import '../help_support_screen.dart';
+
 class HomeCleaningBookingDetailScreen extends StatelessWidget {
   final Map<String, dynamic> booking;
 
@@ -11,67 +14,55 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
     required this.booking,
   });
 
-  String get _bookingId =>
-      (booking['id'] as String?) ?? '22789002';
-  String get _service =>
-      (booking['service'] as String?) ?? 'Regular Cleaning';
-  String get _status =>
-      (booking['status'] as String?) ?? 'Confirmed';
-  String get _rooms =>
-      (booking['rooms'] as String?) ?? '2 Bedrooms · 2 Bathrooms';
-  String get _price =>
-      (booking['price'] as String?) ?? '750 MRU';
+  String get _bookingId => (booking['id'] as String?) ?? '22789002';
   String get _slot =>
       (booking['slot'] as String?) ??
       (booking['datetime'] as String?) ??
-      '15 Aug 2026, 2:00 PM – 4:00 PM';
+      '15 Aug 2024, 2:00 – 4:00 PM';
   String get _locationTitle =>
       (booking['locationTitle'] as String?) ?? 'Sahara View Home';
   String get _locationSubtitle =>
       (booking['location'] as String?) ??
       'Near Marhaba Supermarket, Nouakchott';
-  String get _serviceImage =>
-      (booking['image'] as String?) ??
-      'lib/assets/images/regular_cleaning.jpg';
 
   static const _statusSteps = [
     {
       'label': 'Booking\nConfirmed',
       'time': '15 Aug 2026,\n10:00 AM',
       'icon': Icons.check_rounded,
+      'custom': null,
       'done': true,
     },
     {
       'label': 'Cleaner\nAssigned',
       'time': '15 Aug 2026,\n10:05 AM',
       'icon': Icons.person_rounded,
+      'custom': 'person',
       'done': true,
     },
     {
       'label': 'Cleaner\nArriving',
       'time': '15 Aug 2026,\n10:10 AM',
       'icon': Icons.directions_car_filled_rounded,
+      'custom': null,
       'done': true,
     },
     {
       'label': 'Completed',
       'time': '',
       'icon': Icons.check_rounded,
+      'custom': null,
       'done': false,
     },
   ];
 
-  static const _addons = [
-    {
-      'title': 'Window Cleaning',
-      'price': '+50 MRU',
-      'image': 'lib/assets/images/Kitchen Cleaning.png',
-    },
-    {
-      'title': 'Sofa Cleaning',
-      'price': '+50 MRU',
-      'image': 'lib/assets/images/Sofa Cleaning.png',
-    },
+  static const _spaces = [
+    {'label': 'Bedrooms', 'detail': '100 MRU x 4', 'total': '400 MRU'},
+    {'label': 'Kitchens', 'detail': '150 MRU x 1', 'total': '150 MRU'},
+  ];
+
+  static const _extras = [
+    {'label': 'Fridge Cleaning', 'detail': '100 MRU x 1', 'total': '100 MRU'},
   ];
 
   @override
@@ -96,28 +87,33 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 24 + bottomInset + 80),
+                  padding:
+                      EdgeInsets.fromLTRB(16, 8, 16, 24 + bottomInset + 80),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStatusCard(),
-                      const SizedBox(height: 14),
-                      _buildServiceCard(),
-                      const SizedBox(height: 20),
-                      _sectionTitle('Additional Services'),
-                      const SizedBox(height: 10),
-                      _buildAddonsCard(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 22),
+                      _sectionTitle('Spaces'),
+                      const SizedBox(height: 12),
+                      _buildLineItemsCard(_spaces),
+                      const SizedBox(height: 22),
+                      _sectionTitle('Make it extra clean'),
+                      const SizedBox(height: 12),
+                      _buildLineItemsCard(_extras),
+                      const SizedBox(height: 22),
+                      _buildCleaningProductsSection(),
+                      const SizedBox(height: 22),
                       _sectionTitle('Cleaning Details'),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       _buildAddressCard(),
                       const SizedBox(height: 10),
                       _buildSlotCard(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 22),
                       _sectionTitle('Assigned Cleaner'),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       _buildCleanerCard(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 22),
                       _buildPaymentDetails(),
                     ],
                   ),
@@ -148,13 +144,6 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                   color: const Color(0xFFEAD8C9),
                   width: 0.8,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               child: const Icon(
                 Icons.arrow_back_ios_new_rounded,
@@ -168,20 +157,20 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               'Booking #$_bookingId',
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
-                color: const Color(0xFF1B2B4A),
+                color: const Color(0xFF1A1A1A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
               ),
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () => Get.to(() => const HelpSupportScreen()),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFE0D6CC), width: 1),
               ),
               child: Text(
                 'Help',
@@ -202,15 +191,15 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
     return Text(
       title,
       style: GoogleFonts.outfit(
-        color: const Color(0xFF1B2B4A),
-        fontSize: 15.5,
+        color: const Color(0xFF1A1A1A),
+        fontSize: 16,
         fontWeight: FontWeight.w800,
       ),
     );
   }
 
   Widget _buildStatusCard() {
-    const circleSize = 36.0;
+    const circleSize = 38.0;
     const lineTop = circleSize / 2;
 
     return Container(
@@ -218,7 +207,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(12, 16, 12, 18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -230,28 +219,28 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Booking Status',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF1B2B4A),
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 18),
+            child: Text(
+              'Booking Status',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF1A1A1A),
+                fontSize: 15.5,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
-          const SizedBox(height: 20),
           LayoutBuilder(
             builder: (context, constraints) {
               final count = _statusSteps.length;
               final stepWidth = constraints.maxWidth / count;
-              // Line runs from center of first circle to center of last
               final lineLeft = stepWidth / 2;
               final lineWidth = constraints.maxWidth - stepWidth;
 
               return SizedBox(
-                height: 118,
+                height: 120,
                 child: Stack(
                   children: [
-                    // Base grey track
                     Positioned(
                       top: lineTop - 1.5,
                       left: lineLeft,
@@ -264,7 +253,6 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Orange progress (through first 3 of 4 steps = 2/3 of line)
                     Positioned(
                       top: lineTop - 1.5,
                       left: lineLeft,
@@ -277,7 +265,6 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Steps
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -298,6 +285,8 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
   Widget _statusStep(Map<String, dynamic> step, double circleSize) {
     final done = step['done'] as bool;
     final time = step['time'] as String;
+    final custom = step['custom'] as String?;
+    final iconColor = done ? Colors.white : const Color(0xFFB0A8A0);
 
     return Column(
       children: [
@@ -310,26 +299,32 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             boxShadow: done
                 ? [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
-                      blurRadius: 10,
+                      color: const Color(0xFFFF5E00).withValues(alpha: 0.38),
+                      blurRadius: 12,
                       spreadRadius: 1,
                       offset: const Offset(0, 2),
                     ),
                   ]
                 : null,
           ),
-          child: Icon(
-            step['icon'] as IconData,
-            color: done ? Colors.white : const Color(0xFFB0A8A0),
-            size: 18,
-          ),
+          alignment: Alignment.center,
+          child: custom == 'person'
+              ? CustomPaint(
+                  size: const Size(16, 18),
+                  painter: _PersonStatusIconPainter(color: iconColor),
+                )
+              : Icon(
+                  step['icon'] as IconData,
+                  color: iconColor,
+                  size: 19,
+                ),
         ),
         const SizedBox(height: 10),
         Text(
           step['label'] as String,
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
-            color: const Color(0xFF1B2B4A),
+            color: const Color(0xFF1A1A1A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             height: 1.2,
@@ -352,150 +347,62 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceCard() {
+  Widget _buildLineItemsCard(List<Map<String, String>> rows) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              _serviceImage,
-              width: 68,
-              height: 68,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 68,
-                height: 68,
-                color: const Color(0xFFFFF3EB),
-                child: const Icon(
-                  Icons.cleaning_services_rounded,
-                  color: Color(0xFFFF5E00),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        _service,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF1B2B4A),
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE6F6EC),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        _status.toUpperCase(),
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF1B7A3E),
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _rooms,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF8A7E76),
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _price,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAddonsCard() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE8DFD6)),
-      ),
       child: Column(
         children: [
-          for (var i = 0; i < _addons.length; i++) ...[
-            if (i > 0)
-              const Divider(height: 1, color: Color(0xFFEDE6DF)),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F3F0),
+                borderRadius: BorderRadius.circular(28),
+              ),
               child: Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      _addons[i]['image']!,
-                      width: 44,
-                      height: 44,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 44,
-                        height: 44,
-                        color: const Color(0xFFFFF3EB),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      _addons[i]['title']!,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF1B2B4A),
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          rows[i]['label']!,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF1A1A1A),
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          rows[i]['detail']!,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF8A7E76),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Text(
-                    _addons[i]['price']!,
+                    rows[i]['total']!,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
-                      fontSize: 13,
+                      fontSize: 14.5,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -508,26 +415,100 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildCleaningProductsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(child: _sectionTitle('Cleaning Products')),
+            Text(
+              '+120 MRU',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFFF5E00),
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF3EB),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Provider will provide products',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF1A1A1A),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Cleaning products will be provided by the service provider',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF8A7E76),
+                    fontSize: 12,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAddressCard() {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFF0E6),
-              shape: BoxShape.circle,
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF0E6),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.home_rounded,
               color: Color(0xFFFF5E00),
-              size: 20,
+              size: 22,
             ),
           ),
           const SizedBox(width: 12),
@@ -538,7 +519,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 Text(
                   _locationTitle,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
@@ -546,9 +527,11 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _locationSubtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF8A7E76),
-                    fontSize: 12,
+                    fontSize: 11.5,
                   ),
                 ),
               ],
@@ -564,14 +547,14 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF3EB),
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               color: const Color(0xFFFFE8DC),
               borderRadius: BorderRadius.circular(12),
@@ -579,7 +562,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             child: const Icon(
               Icons.calendar_month_rounded,
               color: Color(0xFFFF5E00),
-              size: 20,
+              size: 22,
             ),
           ),
           const SizedBox(width: 12),
@@ -591,7 +574,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                   'Your Slot',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
-                    fontSize: 13,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -599,9 +582,9 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 Text(
                   _slot,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -617,20 +600,27 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           ClipOval(
             child: Image.network(
               'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
-              width: 48,
-              height: 48,
+              width: 52,
+              height: 52,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
-                width: 48,
-                height: 48,
-                color: const Color(0xFFFFF3EB),
+                width: 52,
+                height: 52,
+                color: const Color(0xFFFFF0E6),
                 child: const Icon(
                   Icons.person_rounded,
                   color: Color(0xFFFF5E00),
@@ -646,8 +636,8 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 Text(
                   'Amadou Sy',
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
-                    fontSize: 14.5,
+                    color: const Color(0xFF1A1A1A),
+                    fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -657,19 +647,20 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                     const Icon(
                       Icons.star_rounded,
                       color: Color(0xFFFFB800),
-                      size: 15,
+                      size: 16,
                     ),
-                    const SizedBox(width: 3),
+                    const SizedBox(width: 4),
                     Text(
-                      '4.6',
+                      '4.8',
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFF1B2B4A),
-                        fontSize: 12,
+                        color: const Color(0xFF1A1A1A),
+                        fontSize: 12.5,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                    const SizedBox(width: 4),
                     Text(
-                      ' (10k + reviews)',
+                      '(10k + reviews)',
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 12,
@@ -703,8 +694,8 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2520),
-        borderRadius: BorderRadius.circular(22),
+        color: const Color(0xFF2C2C2C),
+        borderRadius: BorderRadius.circular(32),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -713,23 +704,23 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             'PAYMENT DETAILS',
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Total', '850 MRU'),
+          _detailRow('Total', '770 MRU'),
           const SizedBox(height: 10),
-          _payRow(
+          _detailRow(
             'Redeemed points',
             '-50 MRU',
             valueColor: const Color(0xFFFF5E00),
           ),
           const SizedBox(height: 10),
-          _payRow('Tax', '10 MRU'),
+          _detailRow('Tax', '10 MRU'),
           const SizedBox(height: 14),
-          const Divider(color: Color(0xFF4A4038), height: 1),
+          const Divider(color: Color(0xFF4A4A4A), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -737,16 +728,16 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 'Total paid',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const Spacer(),
               Text(
-                '810 MRU',
+                '730 MRU',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -757,13 +748,13 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _payRow(String label, String value, {Color? valueColor}) {
+  Widget _detailRow(String label, String value, {Color? valueColor}) {
     return Row(
       children: [
         Text(
           label,
           style: GoogleFonts.outfit(
-            color: const Color(0xFFD4CBC3),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
           ),
@@ -774,7 +765,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
           style: GoogleFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -783,23 +774,26 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
 
   Widget _buildCancelBar(double bottomInset) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 10, 16, 12 + bottomInset),
+      padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomInset),
       color: const Color(0xFFFAF6F0),
       child: GestureDetector(
-        onTap: () {},
+        onTap: () => showCancelBookingBottomSheet(
+          Get.context!,
+          bookingId: _bookingId,
+        ),
         child: Container(
           width: double.infinity,
-          height: 48,
+          height: 52,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: const Color(0xFFF3EBE3),
+            color: const Color(0xFFEDE6DE),
             borderRadius: BorderRadius.circular(28),
           ),
           child: Text(
             'Cancel',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF1B2B4A),
-              fontSize: 15,
+              color: const Color(0xFF2C2520),
+              fontSize: 15.5,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -807,4 +801,68 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+/// White person icon: head + torso + two legs (matches booking status mock).
+class _PersonStatusIconPainter extends CustomPainter {
+  final Color color;
+
+  const _PersonStatusIconPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    final w = size.width;
+    final h = size.height;
+
+    // Head
+    final headRadius = w * 0.22;
+    final headCenter = Offset(w / 2, headRadius);
+    canvas.drawCircle(headCenter, headRadius, paint);
+
+    // Torso (rounded top capsule)
+    final torsoTop = headRadius * 2 + h * 0.06;
+    final torsoWidth = w * 0.52;
+    final torsoHeight = h * 0.42;
+    final torsoLeft = (w - torsoWidth) / 2;
+    final torsoRect = RRect.fromRectAndCorners(
+      Rect.fromLTWH(torsoLeft, torsoTop, torsoWidth, torsoHeight),
+      topLeft: Radius.circular(torsoWidth / 2),
+      topRight: Radius.circular(torsoWidth / 2),
+      bottomLeft: Radius.circular(torsoWidth * 0.18),
+      bottomRight: Radius.circular(torsoWidth * 0.18),
+    );
+    canvas.drawRRect(torsoRect, paint);
+
+    // Legs
+    final legWidth = w * 0.16;
+    final legHeight = h * 0.28;
+    final legTop = torsoTop + torsoHeight - h * 0.02;
+    final gap = w * 0.08;
+    final leftLegX = w / 2 - gap / 2 - legWidth;
+    final rightLegX = w / 2 + gap / 2;
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(leftLegX, legTop, legWidth, legHeight),
+        Radius.circular(legWidth / 2),
+      ),
+      paint,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(rightLegX, legTop, legWidth, legHeight),
+        Radius.circular(legWidth / 2),
+      ),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _PersonStatusIconPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

@@ -33,10 +33,8 @@ class _CarWashSelectedVehiclesScreenState
     extends State<CarWashSelectedVehiclesScreen> {
   late List<_SelectedVehicle> _vehicles;
 
-  static const _suvImage =
-      'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&h=280&fit=crop';
-  static const _sedanImage =
-      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&h=280&fit=crop';
+  static const _suvImage = 'lib/assets/images/SUV.png';
+  static const _sedanImage = 'lib/assets/images/Sedan.png';
 
   @override
   void initState() {
@@ -258,9 +256,9 @@ class _CarWashSelectedVehiclesScreenState
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.network(
+                      Image.asset(
                         vehicle.image,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) => Container(
                           color: const Color(0xFFF5F0EB),
                           alignment: Alignment.center,

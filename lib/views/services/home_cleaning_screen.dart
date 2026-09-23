@@ -141,7 +141,7 @@ class HomeCleaningScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.96),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(30),
           border: Border.all(color: const Color(0xFFF2E6DC)),
           boxShadow: [
             BoxShadow(
@@ -161,7 +161,7 @@ class HomeCleaningScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
-                Icons.location_on_rounded,
+                Icons.location_on_outlined,
                 color: Color(0xFFFF5E00),
                 size: 20,
               ),
@@ -206,70 +206,70 @@ class HomeCleaningScreen extends StatelessWidget {
   }
 
   Widget _buildPageTitle() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(child: _buildFadeLine(fadeFromStart: true)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Home Cleaning',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Title + small orange star as superscript on "Cleaning"
+          Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Text(
+                  'Home Cleaning',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF1A202C),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    height: 1.2,
                   ),
-                  const SizedBox(width: 4),
-                  Image.asset(
-                    'lib/assets/images/star_icon.png',
-                    width: 14,
-                    height: 14,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 14,
-                    ),
-                  ),
-                ],
+                ),
+              ),
+              const Positioned(
+                top: -1,
+                right: -2,
+                child: Icon(
+                  Icons.star_rounded,
+                  color: Color(0xFFFF8A65),
+                  size: 11,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Soft peach line under title — full width, fades at both edges
+          SizedBox(
+            width: double.infinity,
+            height: 1,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFFFA07A).withValues(alpha: 0),
+                    const Color(0xFFFFA07A),
+                    const Color(0xFFFFA07A).withValues(alpha: 0),
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
+                ),
               ),
             ),
-            Expanded(child: _buildFadeLine(fadeFromStart: false)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Professional cleaning services at your doorstep',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
-            color: const Color(0xFF7A6A60),
-            fontSize: 12.5,
-            fontWeight: FontWeight.w500,
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFadeLine({required bool fadeFromStart}) {
-    return Container(
-      height: 1,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: fadeFromStart
-              ? [
-                  Colors.transparent,
-                  const Color(0xFFEAD8C9),
-                ]
-              : [
-                  const Color(0xFFEAD8C9),
-                  Colors.transparent,
-                ],
-        ),
+          const SizedBox(height: 10),
+          Text(
+            'Professional cleaning services at your doorstep',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF718096),
+              fontSize: 13.5,
+              fontWeight: FontWeight.w400,
+              height: 1.35,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -369,36 +369,36 @@ class HomeCleaningScreen extends StatelessWidget {
 
   Widget _buildSearchBar() {
     return Container(
-      height: 48,
+      height: 52,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 1.2),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
       child: Row(
         children: [
           const Icon(
             Icons.search_rounded,
-            color: Color(0xFFA59A94),
+            color: Color(0xFF9A8E86),
             size: 22,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: TextField(
-              style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+              style: GoogleFonts.outfit(color: Colors.black, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Search cleaning services...',
                 hintStyle: GoogleFonts.outfit(
-                  color: const Color(0xFFA59A94),
-                  fontSize: 12.5,
+                  color: const Color(0xFF9A8E86),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -407,18 +407,23 @@ class HomeCleaningScreen extends StatelessWidget {
             ),
           ),
           Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFFF5E00),
+              color: Color(0xFFFFF0E6),
             ),
             alignment: Alignment.center,
             child: Image.asset(
               'lib/assets/images/Voice.png',
-              width: 15,
-              height: 15,
-              color: Colors.white,
+              width: 16,
+              height: 16,
+              color: const Color(0xFFFF5E00),
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.settings_voice_rounded,
+                color: Color(0xFFFF5E00),
+                size: 18,
+              ),
             ),
           ),
         ],

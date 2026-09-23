@@ -143,14 +143,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'From ${widget.providerName}',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF9A8E86),
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      _buildFromClearRow(),
                       const SizedBox(height: 12),
                       _buildServiceCard(),
                       const SizedBox(height: 22),
@@ -160,7 +153,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                         index: 0,
                         icon: Icons.local_shipping_outlined,
                         iconColor: const Color(0xFFFF5E00),
-                        title: 'Standard Delivery',
+                        title: 'Standard',
                         subtitle: 'Within 24 hours',
                         feeLabel: null,
                       ),
@@ -169,18 +162,18 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                         index: 1,
                         icon: Icons.bolt_rounded,
                         iconColor: const Color(0xFFFFB800),
-                        title: 'Same-day Express',
-                        subtitle: '1–3 hours',
+                        title: 'Express',
+                        subtitle: '5-6 hours',
                         feeLabel: '+$_expressFee MRU',
                       ),
-                      const SizedBox(height: 12),
-                      _buildEstimatedDeliveryBanner(),
+                      const SizedBox(height: 14),
+                      _buildPickupSlotCard(),
+                      const SizedBox(height: 10),
+                      _buildEstimatedDeliveryCard(),
                       const SizedBox(height: 22),
                       _sectionTitle('Pickup & Delivery'),
                       const SizedBox(height: 12),
                       _buildPickupDeliveryCard(),
-                      const SizedBox(height: 10),
-                      _buildPickupSlotCard(),
                       const SizedBox(height: 22),
                       _buildSaveMoreHeader(),
                       const SizedBox(height: 12),
@@ -259,11 +252,54 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
     );
   }
 
+  void _clearAll() {
+    Get.back();
+  }
+
+  Widget _buildFromClearRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            'From ${widget.providerName}',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF9A8E86),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: _clearAll,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.delete_outline_rounded,
+                color: Color(0xFFE53935),
+                size: 18,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'Clear All',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFE53935),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _sectionTitle(String title) {
     return Text(
       title,
       style: GoogleFonts.outfit(
-        color: const Color(0xFF1B2B4A),
+        color: const Color(0xFF1A1A1A),
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
       ),
@@ -272,9 +308,10 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
 
   Widget _buildServiceCard() {
     return Container(
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -283,58 +320,76 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Image.asset(
-                    widget.serviceImage,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  widget.serviceImage,
+                  width: 56,
+                  height: 56,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
                     width: 56,
                     height: 56,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      width: 56,
-                      height: 56,
-                      color: const Color(0xFFFFF3EB),
-                      child: const Icon(
-                        Icons.local_laundry_service_rounded,
-                        color: Color(0xFFFF5E00),
+                    color: const Color(0xFFFFF3EB),
+                    child: const Icon(
+                      Icons.local_laundry_service_rounded,
+                      color: Color(0xFFFF5E00),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 56,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.serviceTitle,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF1A1A1A),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    widget.serviceTitle,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
+              ),
+              GestureDetector(
+                onTap: () => Get.back(),
+                child: Text(
+                  'Edit',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFFF5E00),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+          const SizedBox(height: 12),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            color: const Color(0xFFEAF2F8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAF2F8),
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
                     widget.estimateLabel,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
+                      color: const Color(0xFF5A6A7A),
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -366,13 +421,22 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
     return GestureDetector(
       onTap: () => setState(() => _deliverySpeed = index),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFFFF6F0) : Colors.white,
-          borderRadius: BorderRadius.circular(22),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
           border: selected
               ? Border.all(color: const Color(0xFFFF5E00), width: 1.4)
-              : null,
+              : Border.all(color: Colors.transparent, width: 1.4),
+          boxShadow: selected
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -385,34 +449,39 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   Text(
                     title,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
+                      color: const Color(0xFF1A1A1A),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF8A7E76),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  if (feeLabel != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      feeLabel,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                  Row(
+                    children: [
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF8A7E76),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
+                      if (feeLabel != null) ...[
+                        const Spacer(),
+                        Text(
+                          feeLabel,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFFF5E00),
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),
+            const SizedBox(width: 10),
             Icon(
               selected
                   ? Icons.radio_button_checked_rounded
@@ -420,6 +489,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               color: selected
                   ? const Color(0xFFFF5E00)
                   : const Color(0xFFB0A59C),
+              size: 22,
             ),
           ],
         ),
@@ -427,48 +497,44 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
     );
   }
 
-  Widget _buildEstimatedDeliveryBanner() {
+  Widget _buildEstimatedDeliveryCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
         color: const Color(0xFFEAF2F8),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.calendar_month_rounded,
-            color: Color(0xFF1A6BB5),
-            size: 18,
+          const _CalendarClockIcon(
+            size: 24,
+            color: Color(0xFF007AFF),
+            cutoutColor: Color(0xFFEAF2F8),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: GoogleFonts.outfit(
-                  fontSize: 12.5,
-                  height: 1.35,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Estimated Delivery',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF1A1A1A),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-                children: [
-                  TextSpan(
-                    text: 'Estimated Delivery: ',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1A6BB5),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12.5,
-                    ),
+                const SizedBox(height: 2),
+                Text(
+                  _estimatedDelivery,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF5A6A7A),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
                   ),
-                  TextSpan(
-                    text: _estimatedDelivery,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF5A6A7A),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12.5,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -605,10 +671,10 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
     return GestureDetector(
       onTap: _changeSlot,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
           color: const Color(0xFFFFF3EB),
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
         ),
         child: Row(
@@ -617,7 +683,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               width: 40,
               height: 40,
               decoration: const BoxDecoration(
-                color: Color(0xFFFFE8DC),
+                color: Color(0xFFFFE0CC),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -643,9 +709,9 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   Text(
                     _slotDisplay,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
+                      color: const Color(0xFF5A5A5A),
                       fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -654,6 +720,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             const Icon(
               Icons.chevron_right_rounded,
               color: Color(0xFFFF5E00),
+              size: 22,
             ),
           ],
         ),
@@ -1046,4 +1113,83 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       ),
     );
   }
+}
+
+/// Calendar with clock overlay matching the Estimated Delivery mock icon.
+class _CalendarClockIcon extends StatelessWidget {
+  final double size;
+  final Color color;
+  final Color cutoutColor;
+
+  const _CalendarClockIcon({
+    required this.size,
+    required this.color,
+    required this.cutoutColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final clockSize = size * 0.46;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: 0,
+            top: size * 0.02,
+            child: Icon(
+              Icons.calendar_today_outlined,
+              size: size * 0.88,
+              color: color,
+            ),
+          ),
+          Positioned(
+            right: -1.5,
+            bottom: -1.5,
+            child: Container(
+              width: clockSize,
+              height: clockSize,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                border: Border.all(color: cutoutColor, width: 1.5),
+              ),
+              child: CustomPaint(
+                painter: _ClockHandsPainter(color: cutoutColor),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ClockHandsPainter extends CustomPainter {
+  final Color color;
+
+  _ClockHandsPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final handLen = size.width * 0.28;
+
+    // 12 o'clock
+    canvas.drawLine(center, Offset(center.dx, center.dy - handLen), paint);
+    // 3 o'clock
+    canvas.drawLine(center, Offset(center.dx + handLen, center.dy), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ClockHandsPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

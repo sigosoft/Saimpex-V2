@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
+import '../controllers/car_wash_bookings_store.dart';
+import '../widgets/cancel_booking_bottom_sheet.dart';
 import 'services/car_wash_booking_detail_screen.dart';
 import 'services/home_cleaning_booking_detail_screen.dart';
 import 'services/laundry_booking_detail_screen.dart';
@@ -51,19 +53,49 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       'provider': 'CleanRide Car Wash',
       'category': 'Car Wash',
       'categoryColor': 0xFF2B7DE9,
-      'service': 'Basic Wash x2',
+      'service': 'Full Wash',
       'status': 'Confirmed',
       'datetime': 'Today, 15 Aug 2026, 2:00–4:00 PM',
-      'slot': '15 Aug 2026, 2:00 PM – 4:00 PM',
+      'slot': '15 Aug 2026, 2:00 - 4:00 PM',
       'location': 'CleanRide Car Wash, Near Nouakchott, Mauritania',
       'locationTitle': 'CleanRide Car Wash',
-      'rooms': 'Sedan · SUV',
-      'price': '550 MRU',
+      'rooms': 'Sedan',
+      'price': '510 MRU',
       'vehicleLabel': 'Sedan',
-      'vehiclePrice': '550 MRU',
-      'duration': '30 min',
-      'image':
-          'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&h=280&fit=crop',
+      'vehicleImage': 'lib/assets/images/Sedan.png',
+      'plateNumber': '1234 AB 01',
+      'vehiclePrice': '1000 MRU',
+      'servicePrice': '1000 MRU',
+      'serviceDescription':
+          'Complete interior & exterior detailing with premium ceramic tire gloss',
+      'serviceImage':
+          'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop',
+      'duration': '45 min',
+      'image': 'lib/assets/images/Sedan.png',
+      'washServices': [
+        {
+          'title': 'Full Wash',
+          'description':
+              'Complete interior & exterior detailing with premium ceramic tire gloss',
+          'price': '1000 MRU',
+          'image':
+              'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop',
+        },
+      ],
+      'addons': [
+        {
+          'title': 'Engine Wash',
+          'description':
+              'Safe hydraulic degreasing and rinse for bay components without water damage.',
+          'price': '+50 MRU',
+          'image':
+              'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=200&h=200&fit=crop',
+        },
+      ],
+      'total': '1050 MRU',
+      'redeemed': '-50 MRU',
+      'tax': '10 MRU',
+      'totalPaid': '1010 MRU',
     },
     {
       'id': '22789004',
@@ -141,10 +173,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     },
   ];
 
+  List<Map<String, dynamic>> get _allBookings => [
+        ...CarWashBookingsStore.instance.bookings,
+        ..._bookings,
+      ];
+
   List<Map<String, dynamic>> get _filtered {
-    if (_selectedFilter == 0) return _bookings;
+    if (_selectedFilter == 0) return _allBookings;
     final key = _filters[_selectedFilter];
-    return _bookings.where((b) => b['category'] == key).toList();
+    return _allBookings.where((b) => b['category'] == key).toList();
   }
 
   void _payBalance(Map<String, dynamic> booking) {
@@ -790,7 +827,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               ),
             ] else ...[
               GestureDetector(
-                onTap: () {},
+                onTap: () => showCancelBookingBottomSheet(
+                  context,
+                  bookingId: booking['id'] as String?,
+                ),
                 child: Container(
                   width: double.infinity,
                   height: 44,

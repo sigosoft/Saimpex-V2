@@ -217,19 +217,20 @@ class OrderUpdatedDetailScreen extends StatelessWidget {
               onTap: () => Get.to(() => const HelpSupportScreen()),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                    color: const Color(0xFFE0D6CC),
+                    width: 1,
                   ),
                 ),
                 child: Text(
                   'Help',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

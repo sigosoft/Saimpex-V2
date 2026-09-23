@@ -45,6 +45,8 @@ class LaundryServicesScreen extends StatelessWidget {
       'price1': '150 MRU/kg',
       'tag2': 'Wash & Iron',
       'price2': '200 MRU/kg',
+      'tag3': 'Ironing',
+      'price3': '120 MRU/kg',
       'image':
           'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=800&h=480&fit=crop',
     },
@@ -58,6 +60,8 @@ class LaundryServicesScreen extends StatelessWidget {
       'price1': '180 MRU/kg',
       'tag2': 'Ironing',
       'price2': '120 MRU/kg',
+      'tag3': 'Wash & Fold',
+      'price3': '150 MRU/kg',
       'image':
           'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=800&h=480&fit=crop',
     },
@@ -190,7 +194,7 @@ class LaundryServicesScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.location_on_rounded,
+                      Icons.location_on_outlined,
                       color: Color(0xFFFF5E00),
                       size: 22,
                     ),
@@ -241,33 +245,19 @@ class LaundryServicesScreen extends StatelessWidget {
     return Column(
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(child: _buildFadeLine(fadeTowardStart: true)),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Laundry Services',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Image.asset(
-                    'lib/assets/images/star_icon.png',
-                    width: 14,
-                    height: 14,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.auto_awesome_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 14,
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                'Laundry Services',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF1D2635),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                ),
               ),
             ),
             Expanded(child: _buildFadeLine(fadeTowardStart: false)),
@@ -289,20 +279,24 @@ class LaundryServicesScreen extends StatelessWidget {
   }
 
   Widget _buildFadeLine({required bool fadeTowardStart}) {
-    const lineColor = Color(0xFFFF8A5C);
+    const lineColor = Color(0xFFF4A696);
     return Container(
-      height: 1.2,
+      height: 1.5,
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(1),
         gradient: LinearGradient(
           colors: fadeTowardStart
               ? [
                   lineColor.withValues(alpha: 0),
+                  lineColor.withValues(alpha: 0.55),
                   lineColor,
                 ]
               : [
                   lineColor,
+                  lineColor.withValues(alpha: 0.55),
                   lineColor.withValues(alpha: 0),
                 ],
+          stops: const [0.0, 0.4, 1.0],
         ),
       ),
     );
@@ -442,13 +436,12 @@ class LaundryServicesScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Text(
                 'Laundry Services Near You',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
+                  color: const Color(0xFF122037),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
@@ -464,7 +457,7 @@ class LaundryServicesScreen extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         for (var i = 0; i < _nearbyServices.length; i++) ...[
           if (i > 0) const SizedBox(height: 14),
           _buildProviderCard(_nearbyServices[i]),
@@ -491,230 +484,224 @@ class LaundryServicesScreen extends StatelessWidget {
         () => LaundryProviderDetailScreen(provider: item),
       ),
       child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              SizedBox(
-                height: 150,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: SizedBox(
+                height: 148,
                 width: double.infinity,
-                child: Image.network(
-                  item['image']!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _providerImageFallback(),
-                ),
-              ),
-              Positioned(
-                left: 10,
-                bottom: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        'lib/assets/images/Coin.png',
-                        width: 12,
-                        height: 12,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.monetization_on,
-                          color: Color(0xFFFFAE00),
-                          size: 12,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
+                      item['image']!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _providerImageFallback(),
+                    ),
+                    Positioned(
+                      left: 10,
+                      bottom: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.55),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'lib/assets/images/Coin.png',
+                              width: 14,
+                              height: 14,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.monetization_on,
+                                color: Color(0xFFFFAE00),
+                                size: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              item['points']!,
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        item['points']!,
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              item['name']!,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF122037),
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item['name']!,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Color(0xFFFFB800),
-                          size: 16,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          item['rating']!,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                const Icon(
+                  Icons.location_on_rounded,
+                  color: Color(0xFFFF5E00),
+                  size: 15,
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      color: Color(0xFFFF5E00),
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      item['distance']!,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF7A6A60),
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Icon(
-                      Icons.access_time_rounded,
-                      color: Color(0xFF9A8E86),
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        item['ready']!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF7A6A60),
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: 4),
+                Text(
+                  item['distance']!,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF5C6779),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _serviceTag(item['tag1']!, item['price1']!),
-                    _serviceTag(item['tag2']!, item['price2']!),
-                  ],
+                const SizedBox(width: 14),
+                const Icon(
+                  Icons.access_time_rounded,
+                  color: Color(0xFF9AA3B2),
+                  size: 15,
                 ),
-                const SizedBox(height: 14),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () => Get.to(
-                      () => LaundryProviderDetailScreen(provider: item),
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFFF5E00)
-                                .withValues(alpha: 0.25),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'View Services',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    item['ready']!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF5C6779),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Color(0xFFEDE8E2),
+            ),
+            const SizedBox(height: 12),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  _serviceTag(item['tag1']!, item['price1']!),
+                  const SizedBox(width: 10),
+                  _serviceTag(item['tag2']!, item['price2']!),
+                  if (item['tag3'] != null) ...[
+                    const SizedBox(width: 10),
+                    _serviceTag(item['tag3']!, item['price3']!),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () => Get.to(
+                  () => LaundryProviderDetailScreen(provider: item),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF5E00),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'View Services',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 
   Widget _serviceTag(String label, String price) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F0EB),
-        borderRadius: BorderRadius.circular(20),
+        color: const Color(0xFFF8F4EF),
+        borderRadius: BorderRadius.circular(30),
       ),
-      child: RichText(
-        text: TextSpan(
-          style: GoogleFonts.outfit(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF2D2D2D),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          children: [
-            TextSpan(
-              text: label,
-              style: const TextStyle(color: Color(0xFF5A5048)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            child: Container(
+              width: 5,
+              height: 5,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFF5E00),
+                shape: BoxShape.circle,
+              ),
             ),
-            const TextSpan(
-              text: '  •  ',
-              style: TextStyle(color: Color(0xFFFF5E00)),
+          ),
+          Text(
+            price,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF555555),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
             ),
-            TextSpan(
-              text: price,
-              style: const TextStyle(color: Color(0xFF5A5048)),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../chat_screen.dart';
-import 'car_wash_service_configure_screen.dart';
+import 'car_wash_service_location_screen.dart';
 
 class CarWashProviderDetailScreen extends StatefulWidget {
   final Map<String, String> provider;
@@ -58,26 +58,29 @@ class _CarWashProviderDetailScreenState
 
   static const _services = [
     {
-      'title': 'Basic Wash',
-      'description': 'Exterior wash & rinse',
-      'price': '550 MRU',
+      'title': 'Exterior Wash',
+      'description':
+          'High pressure snow foam, detailed rim cleaning & streak-free hand dry',
+      'price': '350 MRU',
       'duration': '30 min',
       'image':
           'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=300&h=300&fit=crop',
     },
     {
-      'title': 'Premium Wash',
-      'description': 'Exterior + interior cleaning',
-      'price': '700 MRU',
-      'duration': '60 min',
+      'title': 'Interior Wash',
+      'description':
+          'Deep antimicrobial vacuum, UV dashboard polish & crystal glass cleaning',
+      'price': '350 MRU',
+      'duration': '30 min',
       'image':
           'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=300&h=300&fit=crop',
     },
     {
-      'title': 'Full Detailing',
-      'description': 'Deep interior & exterior detailing',
-      'price': '900 MRU',
-      'duration': '60 min',
+      'title': 'Full Wash',
+      'description':
+          'Complete interior & exterior detailing with premium ceramic tire gloss',
+      'price': '690 MRU',
+      'duration': '30 min',
       'image':
           'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop',
     },
@@ -439,17 +442,12 @@ class _CarWashProviderDetailScreenState
 
   Widget _buildServicesList() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: Column(
         children: [
           for (var i = 0; i < _services.length; i++) ...[
+            if (i > 0) const SizedBox(height: 14),
             _buildServiceItem(_services[i]),
-            if (i < _services.length - 1)
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: Color(0xFFEDE4DA),
-              ),
           ],
         ],
       ),
@@ -459,7 +457,7 @@ class _CarWashProviderDetailScreenState
   Widget _buildServiceItem(Map<String, String> item) {
     void openConfigure() {
       Get.to(
-        () => CarWashServiceConfigureScreen(
+        () => CarWashServiceLocationScreen(
           service: item,
           providerName: _name,
         ),
@@ -469,119 +467,144 @@ class _CarWashProviderDetailScreenState
     return GestureDetector(
       onTap: openConfigure,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Image.network(
-              item['image']!,
-              width: 72,
-              height: 72,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 72,
-                height: 72,
-                color: const Color(0xFFFFF3EB),
-                alignment: Alignment.center,
-                child: Image.asset(
-                  'lib/assets/images/car_wash.png',
-                  width: 36,
-                  height: 36,
-                ),
-              ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item['title']!,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    item['image']!,
+                    width: 72,
+                    height: 72,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 72,
+                      height: 72,
+                      color: const Color(0xFFFFF3EB),
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'lib/assets/images/car_wash.png',
+                        width: 36,
+                        height: 36,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  item['description']!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF8A7E76),
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w500,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title']!,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1A1A1A),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          height: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        item['description']!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF8A7E76),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w400,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(
-                      item['price']!,
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Starting from',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF9A8E86),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        item['price']!,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: openConfigure,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'ADD',
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 13.5,
+                        color: Colors.white,
+                        fontSize: 13,
                         fontWeight: FontWeight.w800,
+                        letterSpacing: 0.4,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    const Icon(
-                      Icons.access_time_rounded,
-                      color: Color(0xFF9A8E86),
-                      size: 13,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      item['duration']!,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF9A8E86),
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: openConfigure,
-            child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Text(
-              'ADD',
-              style: GoogleFonts.outfit(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
