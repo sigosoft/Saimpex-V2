@@ -239,36 +239,40 @@ class ServicesScreen extends StatelessWidget {
 
   Widget _buildSearchBar() {
     return Container(
-      height: 48,
+      height: 52,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 1.2),
+        borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
       child: Row(
         children: [
           const Icon(
             Icons.search_rounded,
-            color: Color(0xFFA59A94),
+            color: Color(0xFF7A6A60),
             size: 22,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: TextField(
-              style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF2C2520),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
               decoration: InputDecoration(
                 hintText: 'Search for services...',
                 hintStyle: GoogleFonts.outfit(
-                  color: const Color(0xFFA59A94),
-                  fontSize: 12.5,
+                  color: const Color(0xFF8A8078),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -277,18 +281,17 @@ class ServicesScreen extends StatelessWidget {
             ),
           ),
           Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFFFF0E6),
-              border: Border.all(color: const Color(0xFFFF5E00), width: 1.4),
+              color: Color(0xFFFFEBE2),
             ),
             alignment: Alignment.center,
             child: Image.asset(
               'lib/assets/images/Voice.png',
-              width: 15,
-              height: 15,
+              width: 16,
+              height: 16,
               color: const Color(0xFFFF5E00),
             ),
           ),

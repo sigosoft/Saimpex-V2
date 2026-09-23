@@ -568,7 +568,7 @@ class HomeScreen extends StatelessWidget {
                 child: Image.asset(
                   "lib/assets/images/Cashback.png",
                   fit: BoxFit.fill,
-                  width: 170,
+                
                 ),
               ),
             ],
