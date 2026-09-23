@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
-import '../coupons_screen.dart';
-import '../cart_screen.dart';
 import 'pharmacy_items_screen.dart';
 import 'upload_prescription_screen.dart';
 
@@ -226,7 +224,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<HomeController>();
+    Get.find<HomeController>();
 
     return Container(
       decoration: const BoxDecoration(
@@ -1203,203 +1201,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   }
 
   // Prescription Upload bottom sheet
-  void _showPrescriptionUploadSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFFDF9),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-              ),
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Upload Prescription',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Please upload a clear picture or PDF of your doctor\'s prescription. Our pharmacist will verify and confirm your order shortly.',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 11,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildUploadOption(
-                          icon: Icons.camera_alt_outlined,
-                          title: 'Take Photo',
-                          onTap: () {
-                            Navigator.pop(context);
-                            _showUploadSuccessToast(
-                              context,
-                              'Prescription captured successfully!',
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: _buildUploadOption(
-                          icon: Icons.photo_library_outlined,
-                          title: 'Upload Gallery',
-                          onTap: () {
-                            Navigator.pop(context);
-                            _showUploadSuccessToast(
-                              context,
-                              'Prescription uploaded from gallery!',
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  _buildUploadOptionRow(
-                    icon: Icons.picture_as_pdf_outlined,
-                    title: 'Select PDF / Document',
-                    onTap: () {
-                      Navigator.pop(context);
-                      _showUploadSuccessToast(
-                        context,
-                        'Prescription PDF uploaded successfully!',
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-            // Float Close Button
-            Positioned(
-              top: -56,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.close_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 22,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
-  Widget _buildUploadOption({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 90,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: const Color(0xFFFF5E00), size: 24),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF2C2520),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildUploadOptionRow({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: const Color(0xFFFF5E00), size: 20),
-            const SizedBox(width: 10),
-            Text(
-              title,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF2C2520),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  void _showUploadSuccessToast(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: GoogleFonts.outfit()),
-        backgroundColor: const Color(0xFF00B25C),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
 }

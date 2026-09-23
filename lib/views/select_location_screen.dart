@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../constants/colors.dart';
 import '../../controllers/select_location_controller.dart';
 
 class SelectLocationScreen extends StatelessWidget {

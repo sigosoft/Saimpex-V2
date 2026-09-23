@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
-import '../restaurant_details_screen.dart';
 import 'local_store_details_screen.dart';
 
 class LocalStoreScreen extends StatefulWidget {

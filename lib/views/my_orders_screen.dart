@@ -47,17 +47,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _applyInitialCategory();
     if (Get.isRegistered<HomeController>()) {
       final home = Get.find<HomeController>();
-      _ordersCategoryWorker = ever<int>(
-        home.pendingOrdersCategoryIndex,
-        (pending) {
-          if (pending < 0 || !mounted) return;
-          setState(() {
-            selectedCategoryIndex =
-                pending.clamp(0, categories.length - 1);
-          });
-          home.pendingOrdersCategoryIndex.value = -1;
-        },
-      );
+      _ordersCategoryWorker = ever<int>(home.pendingOrdersCategoryIndex, (
+        pending,
+      ) {
+        if (pending < 0 || !mounted) return;
+        setState(() {
+          selectedCategoryIndex = pending.clamp(0, categories.length - 1);
+        });
+        home.pendingOrdersCategoryIndex.value = -1;
+      });
     }
   }
 
@@ -95,11 +93,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFFFAF6F0),
-            Color(0xFFFFEEE5),
-            Color(0xFFFFDDCF),
-          ],
+          colors: [Color(0xFFFAF6F0), Color(0xFFFFEEE5), Color(0xFFFFDDCF)],
           stops: [0.0, 0.55, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -107,158 +101,160 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: Container(
-          color: Colors.transparent,
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 10,
-            left: 16,
-            right: 16,
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: widget.showBottomNav
-                    ? GestureDetector(
-                        onTap: () => _handleBack(context),
-                        child: Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.white,
-                            border: Border.all(
-                              color: const Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Color(0xFFFF5E00),
-                            size: 15,
-                          ),
-                        ),
-                      )
-                    : const SizedBox(width: 38),
-              ),
-              Text(
-                'My Orders',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          // Scrollable content
-          Positioned.fill(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(
-                bottom: 110,
-              ), // extra padding for bottom nav bar
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 12),
-                  // Horizontal Category Pills
-                  SizedBox(
-                    height: 38,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final isSelected = selectedCategoryIndex == index;
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedCategoryIndex = index;
-                            });
-                          },
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Container(
+            color: Colors.transparent,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 16,
+              right: 16,
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: widget.showBottomNav
+                      ? GestureDetector(
+                          onTap: () => _handleBack(context),
                           child: Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            padding: const EdgeInsets.symmetric(horizontal: 22),
+                            width: 38,
+                            height: 38,
                             decoration: BoxDecoration(
-                              color: isSelected
-                                  ? const Color(0xFFFF5E00)
-                                  : Colors.white,
                               borderRadius: BorderRadius.circular(30),
+                              color: Colors.white,
                               border: Border.all(
-                                color: isSelected
-                                    ? const Color(0xFFFF5E00)
-                                    : const Color(0xFFEAD8C9),
+                                color: const Color(0xFFEAD8C9),
                                 width: 0.8,
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              categories[index],
-                              style: GoogleFonts.outfit(
-                                color: isSelected
-                                    ? Colors.white
-                                    : const Color(0xFF8A7F77),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: Color(0xFFFF5E00),
+                              size: 15,
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        )
+                      : const SizedBox(width: 38),
+                ),
+                Text(
+                  'My Orders',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Orders Cards List
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: selectedCategoryIndex == 0
-                        ? _buildAllOrders()
-                        : selectedCategoryIndex == 1
-                            ? _buildFoodOrders()
-                            : selectedCategoryIndex == 2
-                                ? _buildPharmacyOrders()
-                                : selectedCategoryIndex == 3
-                                    ? _buildWaterOrders()
-                                    : selectedCategoryIndex == 4
-                                        ? _buildCourierOrders()
-                                        : _buildOtherCategoryOrders(),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
+        ),
+        body: Stack(
+          children: [
+            // Scrollable content
+            Positioned.fill(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(
+                  bottom: 110,
+                ), // extra padding for bottom nav bar
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    // Horizontal Category Pills
+                    SizedBox(
+                      height: 38,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          final isSelected = selectedCategoryIndex == index;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedCategoryIndex = index;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 10),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 22,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? const Color(0xFFFF5E00)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFEAD8C9),
+                                  width: 0.8,
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                categories[index],
+                                style: GoogleFonts.outfit(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFF8A7F77),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
 
-          // Floating Bottom Navigation Bar
-          if (widget.showBottomNav)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: AppBottomNavBar(
-                selectedIndex: HomeController.navOrders,
-                onTap: BottomNavRouter.go,
+                    const SizedBox(height: 16),
+
+                    // Orders Cards List
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: selectedCategoryIndex == 0
+                          ? _buildAllOrders()
+                          : selectedCategoryIndex == 1
+                          ? _buildFoodOrders()
+                          : selectedCategoryIndex == 2
+                          ? _buildPharmacyOrders()
+                          : selectedCategoryIndex == 3
+                          ? _buildWaterOrders()
+                          : selectedCategoryIndex == 4
+                          ? _buildCourierOrders()
+                          : _buildOtherCategoryOrders(),
+                    ),
+                  ],
+                ),
               ),
             ),
-        ],
+
+            // Floating Bottom Navigation Bar
+            if (widget.showBottomNav)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: AppBottomNavBar(
+                  selectedIndex: HomeController.navOrders,
+                  onTap: BottomNavRouter.go,
+                ),
+              ),
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -294,11 +290,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             _buildGradientButton(
               text: "Track Order",
               onTap: () {
-                Get.to(
-                  () => const TrackOrderScreen(
-                    orderId: "#22789000",
-                  ),
-                );
+                Get.to(() => const TrackOrderScreen(orderId: "#22789000"));
               },
             ),
           ],
@@ -403,11 +395,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             _buildGradientButton(
               text: "Track Order",
               onTap: () {
-                Get.to(
-                  () => const WaterTrackOrderScreen(
-                    orderId: "#22789002",
-                  ),
-                );
+                Get.to(() => const WaterTrackOrderScreen(orderId: "#22789002"));
               },
             ),
           ],
@@ -490,11 +478,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             _buildGradientButton(
               text: "Track Order",
               onTap: () {
-                Get.to(
-                  () => const TrackOrderScreen(
-                    orderId: "#22789002",
-                  ),
-                );
+                Get.to(() => const TrackOrderScreen(orderId: "#22789002"));
               },
             ),
           ],
@@ -572,7 +556,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF4EC),
                   borderRadius: BorderRadius.circular(20),
@@ -697,7 +684,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEAF0FF),
                   borderRadius: BorderRadius.circular(20),
@@ -878,7 +868,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                          color: const Color(
+                            0xFFFF5E00,
+                          ).withValues(alpha: 0.28),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
@@ -1022,10 +1014,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                       ? '#${parts[1]}'
                       : '#22789002';
                   if (restaurantName.contains('Water')) {
-                    Get.to(() => WaterOrderDetailsScreen(
-                          orderId: orderId,
-                          isSelfPickup: statusText == "SELF PICKUP",
-                        ));
+                    Get.to(
+                      () => WaterOrderDetailsScreen(
+                        orderId: orderId,
+                        isSelfPickup: statusText == "SELF PICKUP",
+                      ),
+                    );
                   } else {
                     Get.to(
                       () => OrderDetailScreen(
@@ -1132,38 +1126,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     showCancelOrderBottomSheet(context, orderId: orderId);
   }
 
-  void _showTrackSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Tracking order route...', style: GoogleFonts.outfit()),
-        backgroundColor: const Color(0xFFFF5E00),
-      ),
-    );
-  }
 
   void _showReorderSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Items added for reorder!', style: GoogleFonts.outfit()),
         backgroundColor: const Color(0xFF00B25C),
-      ),
-    );
-  }
-
-  void _showRateSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening rating window...', style: GoogleFonts.outfit()),
-        backgroundColor: const Color(0xFFFF5E00),
-      ),
-    );
-  }
-
-  void _showDetailsSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening order details...', style: GoogleFonts.outfit()),
-        backgroundColor: const Color(0xFFFF5E00),
       ),
     );
   }

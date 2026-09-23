@@ -35,7 +35,6 @@ class OtpScreen extends StatelessWidget {
   }
 
   Widget _buildPortraitLayout(BuildContext context, OtpController controller) {
-    final size = MediaQuery.of(context).size;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),

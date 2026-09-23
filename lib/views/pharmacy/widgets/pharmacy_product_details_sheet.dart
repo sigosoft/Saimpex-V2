@@ -8,7 +8,6 @@ void showPharmacyProductDetailsSheet(
   required VoidCallback onAdd,
 }) {
   bool isLiked = false;
-    final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
     final description =
         (food['description'] as String?) ??
         'Premium quality medical grade products sourced directly from licensed distributors, ensuring safety, effectiveness, and clean packaging.';

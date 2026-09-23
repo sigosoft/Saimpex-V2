@@ -797,7 +797,6 @@ class _PopularCardData {
     required this.imageHeight,
     required this.imageRight,
     required this.imageBottom,
-    this.imageFit = BoxFit.contain,
     this.imageAlignment = Alignment.center,
     this.clipBottomFraction = 0,
     this.ghostSize = 0,
@@ -806,7 +805,7 @@ class _PopularCardData {
     this.ghostClipBottomFraction = 0,
     this.showGhost = true,
     this.imageScale = 1,
-  });
+  }) : imageFit = BoxFit.contain;
 }
 
 class _CategoryData {
@@ -821,10 +820,7 @@ class _CategoryData {
     this.label,
     this.image, {
     this.imageSize = 44,
-    this.clipBottomFraction = 0,
-    this.imageAlignment = Alignment.center,
-    this.imageScale = 1,
-  });
+  }) : imageScale = 1, imageAlignment = Alignment.center, clipBottomFraction = 0;
 }
 
 class _CategoryImage extends StatelessWidget {

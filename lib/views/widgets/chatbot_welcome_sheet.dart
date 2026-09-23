@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../constants/colors.dart';
 
 /// Shows the AI chatbot welcome / language bottom sheet.
 /// Returns the selected language code (`EN`, `FR`, `AR`) or `null` if closed.

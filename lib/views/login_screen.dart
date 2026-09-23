@@ -182,7 +182,6 @@ class LoginScreen extends StatelessWidget {
     BuildContext context,
     LoginController controller,
   ) {
-    final size = MediaQuery.of(context).size;
     final padding = MediaQuery.of(context).padding;
 
     return Row(

@@ -1694,21 +1694,6 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     );
   }
 
-  Widget _buildVegIndicator(bool isVeg) {
-    final color = isVeg ? const Color(0xFF00B25C) : const Color(0xFFFF3E3E);
-    return Container(
-      width: 14,
-      height: 14,
-      decoration: BoxDecoration(
-        border: Border.all(color: color, width: 1.5),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      padding: const EdgeInsets.all(2.5),
-      child: Container(
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      ),
-    );
-  }
 
   void _showCustomizeBottomSheet(
     BuildContext context,
