@@ -6,6 +6,7 @@ import 'package:saimpex_v2/controllers/home_controller.dart';
 import '../order_success_screen.dart';
 import '../coupons_screen.dart';
 import '../saved_addresses_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class LocalStoreCartScreen extends StatefulWidget {
   final Map<String, dynamic>? store;
@@ -168,33 +169,7 @@ class _LocalStoreCartScreenState extends State<LocalStoreCartScreen> {
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFFFF5E00),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 15,
-                        ),
-                      ),
-                    ),
+                    child: AppBackButton(onTap: () => Navigator.pop(context)),
                   ),
                   Text(
                     'Cart',

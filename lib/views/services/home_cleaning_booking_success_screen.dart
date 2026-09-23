@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
 import '../main_shell_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class HomeCleaningBookingSuccessScreen extends StatelessWidget {
   const HomeCleaningBookingSuccessScreen({super.key});
@@ -44,23 +45,7 @@ class HomeCleaningBookingSuccessScreen extends StatelessWidget {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE8DFD6)),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 15,
-                      ),
-                    ),
-                  ),
+                  child: AppBackButton(onTap: () => Get.back()),
                 ),
                 const Spacer(),
                 Image.asset(

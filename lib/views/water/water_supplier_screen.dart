@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../widgets/app_back_button.dart';
 
 import '../../controllers/home_controller.dart';
 import '../cart_screen.dart';
@@ -185,29 +186,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
           Positioned(
             top: topInset + 10,
             left: 16,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
-                ),
-              ),
-            ),
+            child: AppBackButton(onTap: () => Navigator.pop(context),),
           ),
           Positioned(
             bottom: bottomInset + 16,

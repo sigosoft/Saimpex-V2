@@ -8,6 +8,7 @@ import '../../controllers/select_location_controller.dart';
 import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
 import 'local_store_details_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class LocalStoreScreen extends StatefulWidget {
   const LocalStoreScreen({super.key});
@@ -284,29 +285,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           children: [
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                width: 38,
-                                height: 38,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.06),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.arrow_back_ios_new_rounded,
-                                  color: Color(0xFFFF5E00),
-                                  size: 15,
-                                ),
-                              ),
-                            ),
+                            AppBackButton(onTap: () => Navigator.pop(context)),
                             const SizedBox(width: 12),
                             Expanded(
                               child: GestureDetector(

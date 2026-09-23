@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:saimpex_v2/controllers/home_controller.dart';
+import '../../widgets/app_back_button.dart';
 
 import 'water_subscription_success_screen.dart';
 
@@ -231,33 +232,7 @@ class _WaterSubscriptionCartScreenState
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFFF5E00).withValues(alpha: 0.2),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 16,
-              ),
-            ),
-          ),
+          AppBackButton(onTap: () => Get.back(),),
           Expanded(
             child: Text(
               'Cart',

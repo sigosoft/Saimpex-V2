@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/app_back_button.dart';
+
 class RatingReviewsScreen extends StatefulWidget {
   const RatingReviewsScreen({Key? key}) : super(key: key);
 
@@ -51,28 +53,8 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: GestureDetector(
+                child: AppBackButton(
                   onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
                 ),
               ),
               Text(

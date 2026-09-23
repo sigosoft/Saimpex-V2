@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../chat_screen.dart';
 import 'car_wash_service_location_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class CarWashProviderDetailScreen extends StatefulWidget {
   final Map<String, String> provider;
@@ -139,29 +140,7 @@ class _CarWashProviderDetailScreenState
         Positioned(
           top: topInset + 8,
           left: 16,
-          child: GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 15,
-              ),
-            ),
-          ),
+          child: AppBackButton(onTap: () => Get.back()),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 105, 16, 0),

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
@@ -241,7 +242,7 @@ class _CartScreenState extends State<CartScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: (widget.showBottomNav || canPop)
-                      ? GestureDetector(
+                      ? AppBackButton(
                           onTap: () {
                             if (Navigator.canPop(context)) {
                               Navigator.pop(context);
@@ -249,26 +250,6 @@ class _CartScreenState extends State<CartScreen> {
                               Get.find<HomeController>().selectNavigation(0);
                             }
                           },
-                          child: Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 15,
-                            ),
-                          ),
                         )
                       : const SizedBox(width: 38),
                 ),

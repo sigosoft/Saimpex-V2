@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../widgets/app_back_button.dart';
 
 import '../../controllers/home_controller.dart';
 import 'water_product_subscription_screen.dart';
@@ -148,30 +149,7 @@ class _WaterNearbySuppliersScreenState
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 16,
-              ),
-            ),
-          ),
+          AppBackButton(onTap: () => Get.back(),),
           Expanded(
             child: Text(
               'Nearby Suppliers',

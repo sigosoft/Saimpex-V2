@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/app_back_button.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/car_wash_bookings_store.dart';
 import '../widgets/cancel_booking_bottom_sheet.dart';
@@ -362,7 +363,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: widget.showBottomNav
-                ? GestureDetector(
+                ? AppBackButton(
                     onTap: () {
                       if (Navigator.of(context).canPop()) {
                         Get.back();
@@ -372,30 +373,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         );
                       }
                     },
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFEAD8C9),
-                          width: 0.8,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 15,
-                      ),
-                    ),
                   )
                 : const SizedBox(width: 38),
           ),

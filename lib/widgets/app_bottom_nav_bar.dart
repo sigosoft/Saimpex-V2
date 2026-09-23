@@ -6,25 +6,22 @@ import '../controllers/home_controller.dart';
 import 'bottom_chat_icon.dart';
 
 /// Shared floating bottom navigation used by [MainShellScreen] and standalone pages.
+///
+/// App-themed pill bar: inactive items are muted circles; the selected item expands
+/// into a peach capsule with an orange icon circle and label.
 class AppBottomNavBar extends StatelessWidget {
-  static const double _barHeight = 76;
-  static const double _servicesFabSize = 58;
-  static const double _servicesSlotWidth = 76;
-
-  // Side items (Home, Chat, Bookings, Orders, Cart, Profile)
-  static const double _sideIconBoxSize = 28;
-  static const double _sideIconSize = 26;
-  static const double _sideLabelFontSize = 11;
-  static const double _sideLabelHeight = 14;
-  static const double _sideDotSlotHeight = 7;
-  static const double _sideIconGap = 5;
-  static const double _sideDotSize = 5;
+  static const double _barHeight = 78;
+  static const double _iconCircleSize = 34;
+  static const double _iconSize = 18;
   static const double _iconStrokeFactor = 0.075;
 
-  // Services FAB (label uses same slot metrics as side items)
-  static const double _servicesGridIconSize = 24;
-
-  double get _stackHeight => _barHeight + (_servicesFabSize / 2) + 4;
+  static const Color _outerBg = Color(0xFFFAF6F0);
+  static const Color _barColor = Colors.white;
+  static const Color _inactiveCircle = Color(0xFFFFF3EB);
+  static const Color _activeCapsule = Color(0xFFFFE4CC);
+  static const Color _orange = Color(0xFFFF5E00);
+  static const Color _inactiveIcon = Color.fromARGB(255, 123, 123, 123);
+  static const Color _activeLabel = Color(0xFF1A1A1A);
 
   final int selectedIndex;
 
@@ -52,314 +49,215 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 2, right: 2, bottom: 10),
-        child: SizedBox(
-          height: _stackHeight,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.bottomCenter,
-            children: [
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: _barHeight,
-                child: Container(
-                  clipBehavior: Clip.none,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(38),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: _sideItem(
-                          index: HomeController.navHome,
-                          asset: 'lib/assets/images/Bottom Home.png',
-                          label: 'Home',
-                        ),
-                      ),
-                      Expanded(
-                        child: _sideItem(
-                          index: HomeController.navBookings,
-                          asset: null,
-                          label: 'Bookings',
-                        ),
-                      ),
-                      Expanded(
-                        child: _sideItem(
-                          index: HomeController.navOrders,
-                          asset: 'lib/assets/images/Bottom Order.png',
-                          label: 'Orders',
-                        ),
-                      ),
-                      SizedBox(
-                        width: _servicesSlotWidth,
-                        child: _servicesItem(),
-                      ),
-                      Expanded(
-                        child: Obx(() {
-                          final controller =
-                              Get.isRegistered<HomeController>()
-                              ? Get.find<HomeController>()
-                              : Get.put(HomeController());
-                          return _sideItem(
-                            index: HomeController.navCart,
-                            asset: 'lib/assets/images/Bottom Cart.png',
-                            label: 'Cart',
-                            badgeCount: controller.cartItemCount.value,
-                          );
-                        }),
-                      ),
-                      Expanded(
-                        child: _sideItem(
-                          index: HomeController.navChat,
-                          asset: null,
-                          label: 'Chat',
-                        ),
-                      ),
-                      Expanded(
-                        child: _sideItem(
-                          index: HomeController.navProfile,
-                          asset: 'lib/assets/images/Bottom Profile.png',
-                          label: 'Profile',
-                        ),
-                      ),
-                    ],
-                  ),
+    return Container(
+      width: double.infinity,
+      color: _outerBg,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(2, 8, 2, 10),
+          child: Container(
+            width: double.infinity,
+            height: _barHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            decoration: BoxDecoration(
+              color: _barColor,
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Row(
+              children: [
+                _navItem(
+                  index: HomeController.navHome,
+                  label: 'Home',
+                  asset: 'lib/assets/images/Bottom Home.png',
+                ),
+                _navItem(
+                  index: HomeController.navBookings,
+                  label: 'Bookings',
+                  asset: null,
+                ),
+                _navItem(
+                  index: HomeController.navOrders,
+                  label: 'Orders',
+                  asset: 'lib/assets/images/Bottom Order.png',
+                ),
+                _navItem(
+                  index: HomeController.navServices,
+                  label: 'Services',
+                  asset: null,
+                ),
+                _navItem(
+                  index: HomeController.navCart,
+                  label: 'Cart',
+                  asset: 'lib/assets/images/Bottom Cart.png',
+                  observeCartBadge: true,
+                ),
+                _navItem(
+                  index: HomeController.navChat,
+                  label: 'Chat',
+                  asset: null,
+                ),
+                _navItem(
+                  index: HomeController.navProfile,
+                  label: 'Profile',
+                  asset: 'lib/assets/images/Bottom Profile.png',
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _servicesItem() {
-    final isSelected = selectedIndex == HomeController.navServices;
-
-    return GestureDetector(
-      onTap: () => _handleTap(HomeController.navServices),
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        height: _barHeight,
-        child: Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.topCenter,
-          children: [
-            Positioned(
-              top: -_servicesFabSize / 2,
-              child: Container(
-                width: _servicesFabSize,
-                height: _servicesFabSize,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF5E00),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.38),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: const _ServicesGridIcon(
-                  color: Colors.white,
-                  size: _servicesGridIconSize,
-                  outlined: true,
-                ),
-              ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  width: _sideIconBoxSize,
-                  height: _sideIconBoxSize,
-                ),
-                const SizedBox(height: _sideIconGap),
-                SizedBox(
-                  height: _sideLabelHeight,
-                  child: Center(
-                    child: isSelected
-                        ? ShaderMask(
-                            shaderCallback: (bounds) => const LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                            ).createShader(bounds),
-                            child: Text(
-                              'SERVICES',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: _sideLabelFontSize,
-                                fontWeight: FontWeight.w800,
-                                height: 1,
-                                letterSpacing: 0.35,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            'SERVICES',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFFA59A94),
-                              fontSize: _sideLabelFontSize,
-                              fontWeight: FontWeight.w800,
-                              height: 1,
-                              letterSpacing: 0.35,
-                            ),
-                          ),
-                  ),
-                ),
-                SizedBox(
-                  height: _sideDotSlotHeight,
-                  child: Center(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOutCubic,
-                      width: isSelected ? _sideDotSize : 0,
-                      height: isSelected ? _sideDotSize : 0,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _sideItem({
+  Widget _navItem({
     required int index,
-    required String? asset,
     required String label,
-    int badgeCount = 0,
+    required String? asset,
+    bool observeCartBadge = false,
   }) {
     final isSelected = selectedIndex == index;
-    final color = isSelected
-        ? const Color(0xFFFF5E00)
-        : const Color(0xFFA59A94);
 
-    return GestureDetector(
+    final content = GestureDetector(
       onTap: () => _handleTap(index),
       behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        height: _barHeight,
-        child: Column(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        height: double.infinity,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 10 : 4,
+          vertical: 4,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? _activeCapsule : Colors.transparent,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: isSelected ? MainAxisSize.max : MainAxisSize.min,
           children: [
-            SizedBox(
-              width: _sideIconBoxSize,
-              height: _sideIconBoxSize,
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  _buildSideIcon(
-                    label: label,
-                    asset: asset,
-                    color: color,
-                    isSelected: isSelected,
-                  ),
-                  if (badgeCount > 0)
-                    Positioned(
-                      top: -3,
-                      right: -7,
-                      child: Container(
-                        width: 17,
-                        height: 17,
-                        decoration: BoxDecoration(
-                          color: label == 'Cart'
-                              ? const Color(0xFFE53935)
-                              : const Color(0xFFFF5E00),
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '$badgeCount',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+            if (observeCartBadge)
+              Obx(() {
+                final controller = Get.isRegistered<HomeController>()
+                    ? Get.find<HomeController>()
+                    : Get.put(HomeController());
+                return _iconWithBadge(
+                  label: label,
+                  asset: asset,
+                  isSelected: isSelected,
+                  badgeCount: controller.cartItemCount.value,
+                );
+              })
+            else
+              _iconWithBadge(
+                label: label,
+                asset: asset,
+                isSelected: isSelected,
+                badgeCount: 0,
               ),
-            ),
-            SizedBox(height: _sideIconGap),
-            SizedBox(
-              height: _sideLabelHeight,
-              child: Center(
-                child: AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 180),
-                  style: GoogleFonts.outfit(
-                    color: color,
-                    fontSize: _sideLabelFontSize,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    height: 1,
-                  ),
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
                   child: Text(
                     label,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
+                    softWrap: false,
+                    style: GoogleFonts.outfit(
+                      color: _activeLabel,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      height: 1,
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(
-              height: _sideDotSlotHeight,
-              child: Center(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutCubic,
-                  width: isSelected ? _sideDotSize : 0,
-                  height: isSelected ? _sideDotSize : 0,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFF5E00),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
+            ],
           ],
         ),
       ),
     );
+
+    // Selected takes leftover width; inactive stays circle-sized only.
+    if (isSelected) {
+      return Expanded(child: content);
+    }
+    return content;
   }
 
-  Widget _buildSideIcon({
+  Widget _iconWithBadge({
     required String label,
     required String? asset,
-    required Color color,
+    required bool isSelected,
+    required int badgeCount,
+  }) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 260),
+          curve: Curves.easeOutCubic,
+          width: _iconCircleSize,
+          height: _iconCircleSize,
+          decoration: BoxDecoration(
+            color: isSelected ? _orange : _inactiveCircle,
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: _buildIcon(
+            label: label,
+            asset: asset,
+            isSelected: isSelected,
+          ),
+        ),
+        if (badgeCount > 0)
+          Positioned(
+            top: -2,
+            right: -2,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: const BoxDecoration(
+                color: Color(0xFFE53935),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '$badgeCount',
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildIcon({
+    required String label,
+    required String? asset,
     required bool isSelected,
   }) {
+    final color = isSelected ? Colors.white : _inactiveIcon;
+
     if (label == 'Chat') {
       return BottomChatIcon(
         key: ValueKey('chat-$isSelected'),
-        size: _sideIconSize,
+        size: _iconSize,
         color: color,
         strokeFactor: _iconStrokeFactor,
       );
@@ -367,16 +265,24 @@ class AppBottomNavBar extends StatelessWidget {
     if (label == 'Bookings') {
       return _BookingsCalendarIcon(
         key: ValueKey('bookings-$isSelected'),
-        size: _sideIconSize,
+        size: _iconSize,
         color: color,
         strokeFactor: _iconStrokeFactor,
+      );
+    }
+    if (label == 'Services') {
+      return _ServicesGridIcon(
+        key: ValueKey('services-$isSelected'),
+        color: color,
+        size: _iconSize,
+        outlined: true,
       );
     }
     return Image.asset(
       asset!,
       key: ValueKey('$label-$isSelected'),
-      width: _sideIconSize,
-      height: _sideIconSize,
+      width: _iconSize,
+      height: _iconSize,
       fit: BoxFit.contain,
       color: color,
       filterQuality: FilterQuality.high,
@@ -480,6 +386,7 @@ class _ServicesGridIcon extends StatelessWidget {
   final bool outlined;
 
   const _ServicesGridIcon({
+    super.key,
     required this.color,
     required this.size,
     this.outlined = false,

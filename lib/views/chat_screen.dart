@@ -7,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
+import '../widgets/app_back_button.dart';
+
 enum _ChatMessageType { text, voice }
 
 class _ChatMessage {
@@ -291,7 +293,7 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Row(
                 children: [
-                  const CustomBackButton(),
+                  const AppBackButton(),
                   const SizedBox(width: 12),
                   ClipOval(
                     child: Image.network(
@@ -855,43 +857,6 @@ class WaveformBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(1.5),
-      ),
-    );
-  }
-}
-
-class CustomBackButton extends StatelessWidget {
-  final VoidCallback? onTap;
-
-  const CustomBackButton({super.key, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap ?? () => Navigator.pop(context),
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: const Color(0xFFFFD4B8),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          color: Color(0xFFFF5E00),
-          size: 15,
-        ),
       ),
     );
   }

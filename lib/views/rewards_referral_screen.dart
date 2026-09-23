@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/app_back_button.dart';
 import 'redeem_detail_sheet.dart';
 
 class RewardsReferralScreen extends StatelessWidget {
@@ -98,30 +99,7 @@ class RewardsReferralScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE8DFD6)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 16,
-              ),
-            ),
-          ),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
               'Rewards & Referral',

@@ -8,6 +8,7 @@ import 'express_cart_screen.dart';
 import '../messages_screen.dart';
 import 'widgets/express_filter_sheet.dart';
 import 'widgets/express_product_sheets.dart';
+import '../../widgets/app_back_button.dart';
 
 class ExpressStoreDetailScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -340,29 +341,7 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
             Positioned(
               top: topInset + 12,
               left: 16,
-              child: GestureDetector(
-                onTap: () => Get.back(),
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 15,
-                  ),
-                ),
-              ),
+              child: AppBackButton(onTap: () => Get.back()),
             ),
           Positioned(
             bottom: bottomInset + 16,

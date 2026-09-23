@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/app_back_button.dart';
 import 'rating_reviews_screen.dart';
 
 class RateOrderScreen extends StatefulWidget {
@@ -56,25 +57,8 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: GestureDetector(
+                child: AppBackButton(
                   onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFFE0D6CE),
-                        width: 1,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
                 ),
               ),
               Text(

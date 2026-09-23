@@ -8,6 +8,7 @@ import '../cart_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
 import 'widgets/water_product_details_sheet.dart';
 import 'water_subscription_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class WaterSupplierDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> supplier;
@@ -556,29 +557,7 @@ class _WaterSupplierDetailsScreenState
               Positioned(
                 top: topInset + 10,
                 left: 16,
-                child: GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
-                ),
+                child: AppBackButton(onTap: () => Get.back(),),
               ),
 
             // Floating Cart Summary Bar Popup

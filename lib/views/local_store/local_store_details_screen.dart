@@ -7,6 +7,7 @@ import '../chat_screen.dart';
 import 'local_store_cart_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
 import '../../widgets/filter_chip_style.dart';
+import '../../widgets/app_back_button.dart';
 
 class LocalStoreDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -925,29 +926,7 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
               Positioned(
                 top: topInset + 10,
                 left: 16,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
-                ),
+                child: AppBackButton(onTap: () => Navigator.pop(context)),
               ),
 
             // Floating Cart Summary Bar

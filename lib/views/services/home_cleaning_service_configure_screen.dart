@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'home_cleaning_cart_screen.dart';
 import 'home_cleaning_choose_slot_sheet.dart';
+import '../../widgets/app_back_button.dart';
 
 class HomeCleaningServiceConfigureScreen extends StatefulWidget {
   final Map<String, String> service;
@@ -331,29 +332,7 @@ class _HomeCleaningServiceConfigureScreenState
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
-                ),
-              ),
-            ),
+            child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
             _title,

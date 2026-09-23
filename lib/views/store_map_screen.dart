@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/app_back_button.dart';
 import 'restaurant_details_screen.dart';
 
 class StoreMapScreen extends StatefulWidget {
@@ -229,33 +230,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
             right: 16,
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFFFF5E00),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
-                ),
+                AppBackButton(onTap: () => Get.back()),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Container(

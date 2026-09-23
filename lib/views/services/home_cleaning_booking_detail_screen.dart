@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../help_support_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class HomeCleaningBookingDetailScreen extends StatelessWidget {
   final Map<String, dynamic> booking;
@@ -132,26 +133,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFEAD8C9),
-                  width: 0.8,
-                ),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 15,
-              ),
-            ),
-          ),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
               'Booking #$_bookingId',

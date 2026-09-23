@@ -7,6 +7,7 @@ import '../chat_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
 import 'laundry_dry_cleaning_screen.dart';
 import 'laundry_service_configure_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class LaundryProviderDetailScreen extends StatefulWidget {
   final Map<String, String> provider;
@@ -158,29 +159,7 @@ class _LaundryProviderDetailScreenState
         Positioned(
           top: topInset + 8,
           left: 16,
-          child: GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 15,
-              ),
-            ),
-          ),
+          child: AppBackButton(onTap: () => Get.back()),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 105, 16, 0),

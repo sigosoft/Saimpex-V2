@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/filter_chip_style.dart';
 import '../widgets/replace_cart_item_dialog.dart';
 import 'widgets/food_item_sheets.dart';
@@ -890,7 +891,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             Positioned(
               top: topInset + 10,
               left: 16,
-              child: const CustomBackButton(),
+              child: const AppBackButton(),
             ),
 
           // Floating Cart Summary Bar
@@ -1258,39 +1259,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       padding: const EdgeInsets.all(2.5),
       child: Container(
         decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      ),
-    );
-  }
-}
-
-class CustomBackButton extends StatelessWidget {
-  final VoidCallback? onTap;
-
-  const CustomBackButton({Key? key, this.onTap}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap ?? () => Navigator.pop(context),
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          color: Color(0xFFFF5E00),
-          size: 15,
-        ),
       ),
     );
   }

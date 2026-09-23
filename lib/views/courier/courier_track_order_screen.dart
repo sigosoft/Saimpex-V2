@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import '../../widgets/app_back_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -311,30 +312,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        GestureDetector(
-          onTap: () => Get.back(),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFEAD8C9)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.chevron_left_rounded,
-              color: Color(0xFFFF5E00),
-              size: 24,
-            ),
-          ),
-        ),
+        AppBackButton(onTap: () => Get.back(),),
         Expanded(
           child: Text(
             'Track Order $_displayOrderId',

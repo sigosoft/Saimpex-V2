@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'laundry_cart_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
+import '../../widgets/app_back_button.dart';
 
 class LaundryServiceConfigureScreen extends StatefulWidget {
   final Map<String, String> service;
@@ -129,26 +130,7 @@ class _LaundryServiceConfigureScreenState
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFFF5E00),
-                  width: 1.2,
-                ),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 15,
-              ),
-            ),
-          ),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
               _title,

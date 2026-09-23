@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/app_back_button.dart';
 import '../controllers/home_controller.dart';
 import 'restaurant_details_screen.dart';
 
@@ -72,26 +73,7 @@ class MyFavouritesScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFE8DFD6),
-                  width: 1,
-                ),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 16,
-              ),
-            ),
-          ),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Obx(() {
               final count = controller.favouritesCount;

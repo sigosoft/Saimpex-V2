@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import '../../widgets/app_back_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -235,29 +236,7 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen> {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: _orange,
-                        size: 15,
-                      ),
-                    ),
-                  ),
+                  child: AppBackButton(onTap: () => Get.back(),),
                 ),
                 Text(
                   'Track Order $_displayId',

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../constants/colors.dart';
 import '../../controllers/otp_controller.dart';
+import '../widgets/app_back_button.dart';
 import 'widgets/otp_input_box.dart';
 
 class OtpScreen extends StatelessWidget {
@@ -152,29 +153,7 @@ class OtpScreen extends StatelessWidget {
   }
 
   Widget _buildBackButton() {
-    return GestureDetector(
-      onTap: () => Get.back(),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.inputBorder, width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.keyboard_arrow_left,
-          color: AppColors.primaryOrange,
-          size: 20,
-        ),
-      ),
-    );
+    return AppBackButton(onTap: () => Get.back());
   }
 
   Widget _buildShieldGraphic({double size = 110}) {

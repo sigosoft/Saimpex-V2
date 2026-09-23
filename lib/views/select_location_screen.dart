@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../controllers/select_location_controller.dart';
+import '../widgets/app_back_button.dart';
 
 class SelectLocationScreen extends StatelessWidget {
   const SelectLocationScreen({super.key});
@@ -253,29 +254,7 @@ class SelectLocationScreen extends StatelessWidget {
   }
 
   Widget _buildBackButton() {
-    return GestureDetector(
-      onTap: () => Get.back(),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 1.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.chevron_left_rounded,
-          color: Color(0xFFFF5E00),
-          size: 24,
-        ),
-      ),
-    );
+    return AppBackButton(onTap: () => Get.back());
   }
 
   Widget _buildSearchBox(SelectLocationController controller) {

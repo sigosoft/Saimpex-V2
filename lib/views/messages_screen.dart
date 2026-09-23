@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
 import 'chat_screen.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
@@ -119,7 +120,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: widget.showBottomNav
-                        ? CustomBackButton(
+                        ? AppBackButton(
                             onTap: () => Navigator.pop(context),
                           )
                         : const SizedBox(width: 38),
@@ -397,43 +398,6 @@ class _MessageCard extends StatelessWidget {
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class CustomBackButton extends StatelessWidget {
-  final VoidCallback? onTap;
-
-  const CustomBackButton({super.key, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap ?? () => Navigator.pop(context),
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: const Color(0xFFFFD4B8),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          color: Color(0xFFFF5E00),
-          size: 15,
         ),
       ),
     );

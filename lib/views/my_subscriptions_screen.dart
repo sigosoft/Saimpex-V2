@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/app_back_button.dart';
 import 'home_screen.dart';
 
 class MySubscriptionsScreen extends StatefulWidget {
@@ -138,7 +139,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
       ),
       child: Row(
         children: [
-          GestureDetector(
+          AppBackButton(
             onTap: () {
               if (Navigator.of(context).canPop()) {
                 Get.back();
@@ -146,31 +147,6 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                 Get.offAll(() => const HomeScreen());
               }
             },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFFF5E00),
-                  width: 1.2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.chevron_left_rounded,
-                color: Color(0xFFFF5E00),
-                size: 24,
-              ),
-            ),
           ),
           Expanded(
             child: Text(

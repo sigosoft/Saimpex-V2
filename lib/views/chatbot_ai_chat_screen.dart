@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/colors.dart';
+import '../widgets/app_back_button.dart';
 
 class ChatBotAiChatScreen extends StatefulWidget {
   final String languageCode;
@@ -362,25 +363,8 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
             ),
             Row(
               children: [
-                GestureDetector(
+                AppBackButton(
                   onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primaryOrange.withOpacity(0.45),
-                        width: 1.2,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: AppColors.primaryOrange,
-                      size: 16,
-                    ),
-                  ),
                 ),
                 const Spacer(),
                 GestureDetector(

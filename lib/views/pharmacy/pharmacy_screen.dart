@@ -1,10 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import 'pharmacy_items_screen.dart';
 import 'upload_prescription_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class PharmacyScreen extends StatefulWidget {
   const PharmacyScreen({Key? key}) : super(key: key);
@@ -353,28 +354,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Back button
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
-                size: 16,
-              ),
-            ),
-          ),
+          AppBackButton(onTap: () => Get.back(),),
           const SizedBox(width: 12),
 
           // Location details

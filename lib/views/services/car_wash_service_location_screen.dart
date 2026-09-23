@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'car_wash_select_vehicles_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class CarWashServiceLocationScreen extends StatefulWidget {
   final Map<String, String> service;
@@ -159,32 +160,7 @@ class _CarWashServiceLocationScreenState
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.25),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
-                ),
-              ),
-            ),
+            child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
             'Service Location',

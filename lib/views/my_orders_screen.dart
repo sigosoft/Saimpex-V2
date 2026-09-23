@@ -10,6 +10,7 @@ import 'rate_order_screen.dart';
 import 'pharmacy/widgets/pharmacy_order_cards.dart';
 import 'courier/widgets/courier_order_cards.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 import '../widgets/cancel_order_bottom_sheet.dart';
@@ -116,33 +117,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: widget.showBottomNav
-                      ? GestureDetector(
-                          onTap: () => _handleBack(context),
-                          child: Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              color: Colors.white,
-                              border: Border.all(
-                                color: const Color(0xFFEAD8C9),
-                                width: 0.8,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 15,
-                            ),
-                          ),
-                        )
+                      ? AppBackButton(onTap: () => _handleBack(context))
                       : const SizedBox(width: 38),
                 ),
                 Text(

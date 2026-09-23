@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'car_wash_add_vehicles_sheet.dart';
 import 'car_wash_cart_screen.dart';
 import 'car_wash_choose_slot_sheet.dart';
+import '../../widgets/app_back_button.dart';
 
 class _VehicleWashConfig {
   int selectedService = 0;
@@ -310,25 +311,7 @@ class _CarWashChooseWashServicesScreenState
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
-                  ),
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
-                ),
-              ),
-            ),
+            child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
             'Choose Wash Services',

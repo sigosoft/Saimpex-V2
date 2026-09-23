@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
+import '../widgets/app_back_button.dart';
 import '../navigation/bottom_nav_router.dart';
 
 /// Shown after a user confirms cancelling a booking (e.g. car wash).
@@ -36,32 +37,8 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: GestureDetector(
+                  child: AppBackButton(
                     onTap: () => _goHome(context),
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFE8E4E0),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 15,
-                      ),
-                    ),
                   ),
                 ),
                 const Spacer(flex: 2),

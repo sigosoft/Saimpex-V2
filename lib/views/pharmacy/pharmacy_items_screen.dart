@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../../controllers/home_controller.dart';
@@ -10,6 +10,7 @@ import 'widgets/pharmacy_customize_sheet.dart';
 import 'widgets/pharmacy_product_card.dart';
 import 'widgets/pharmacy_product_details_sheet.dart';
 import 'widgets/pharmacy_subcategory_icon.dart';
+import '../../widgets/app_back_button.dart';
 
 class PharmacyItemsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -880,29 +881,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
             Positioned(
               top: topInset + 10,
               left: 16,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 15,
-                  ),
-                ),
-              ),
+              child: AppBackButton(onTap: () => Navigator.pop(context),),
             ),
 
           // 4. Floating Cart Summary Bar

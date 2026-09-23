@@ -5,6 +5,7 @@ import '../../controllers/home_controller.dart';
 import '../../widgets/filter_chip_style.dart';
 import '../messages_screen.dart';
 import '../cart_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class GroceryDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -870,29 +871,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
             Positioned(
               top: topInset + 12,
               left: 16,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 15,
-                  ),
-                ),
-              ),
+              child: AppBackButton(onTap: () => Navigator.pop(context)),
             ),
 
           // 4. Floating Cart Summary Bar

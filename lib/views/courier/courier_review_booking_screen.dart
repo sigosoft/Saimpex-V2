@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../widgets/app_back_button.dart';
 
 import 'courier_booking_success_screen.dart';
 
@@ -189,29 +190,7 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
-                ),
-              ),
-            ),
+            child: AppBackButton(onTap: () => Get.back(),),
           ),
           Text(
             'Review Booking',

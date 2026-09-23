@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'water_track_order_screen.dart';
 import '../help_support_screen.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
+import '../../widgets/app_back_button.dart';
 
 class WaterOrderDetailsScreen extends StatelessWidget {
   final String orderId;
@@ -84,30 +85,7 @@ class WaterOrderDetailsScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFEAD8C9), width: 1.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.chevron_left_rounded,
-                color: Color(0xFFFF5E00),
-                size: 24,
-              ),
-            ),
-          ),
+          AppBackButton(onTap: () => Get.back(),),
           Text(
             'Order $orderId',
             style: GoogleFonts.outfit(

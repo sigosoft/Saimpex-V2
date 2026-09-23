@@ -6,6 +6,7 @@ import '../../controllers/home_controller.dart';
 import '../../widgets/filter_chip_style.dart';
 import '../coupons_screen.dart';
 import 'express_store_detail_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class ExpressTrendingScreen extends StatelessWidget {
   const ExpressTrendingScreen({super.key});
@@ -83,29 +84,7 @@ class ExpressTrendingScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      GestureDetector(
-                        onTap: () => Get.back(),
-                        child: Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Color(0xFFFF5E00),
-                            size: 15,
-                          ),
-                        ),
-                      ),
+                      AppBackButton(onTap: () => Get.back()),
                       Expanded(
                         child: Text(
                           '15-Min Delivery',

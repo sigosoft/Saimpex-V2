@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../restaurant_details_screen.dart';
+import '../../widgets/app_back_button.dart';
 
 class ExpressStoreMapScreen extends StatefulWidget {
   const ExpressStoreMapScreen({super.key});
@@ -228,29 +229,7 @@ class _ExpressStoreMapScreenState extends State<ExpressStoreMapScreen> {
             right: 16,
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
-                ),
+                AppBackButton(onTap: () => Get.back()),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Container(

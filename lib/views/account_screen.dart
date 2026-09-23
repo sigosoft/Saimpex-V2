@@ -13,7 +13,10 @@ import 'app_preferences_screen.dart';
 import 'help_support_screen.dart';
 import 'terms_conditions_screen.dart';
 import 'login_screen.dart';
+import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
+import '../widgets/animated_coin.dart';
+import '../widgets/animated_wallet.dart';
 import '../navigation/bottom_nav_router.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -231,7 +234,7 @@ class _AccountScreenState extends State<AccountScreen> {
               if (!widget.showBottomNav)
                 const SizedBox(width: 38, height: 38)
               else
-                GestureDetector(
+                AppBackButton(
                   onTap: () {
                     if (Navigator.of(context).canPop()) {
                       Navigator.of(context).pop();
@@ -241,26 +244,6 @@ class _AccountScreenState extends State<AccountScreen> {
                       );
                     }
                   },
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 15,
-                    ),
-                  ),
                 ),
               Expanded(
                 child: Text(
@@ -366,6 +349,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   label: 'WALLET',
                   value: '2,450',
                   unit: 'MRU',
+                  animateIcon: true,
                 ),
               ),
               const SizedBox(width: 14),
@@ -374,6 +358,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   iconAsset: 'lib/assets/images/Coin.png',
                   label: 'REWARD POINTS',
                   value: '1,820',
+                  animateIcon: true,
                   onTap: () => Get.to(() => const RewardsReferralScreen()),
                 ),
               ),
@@ -390,6 +375,7 @@ class _AccountScreenState extends State<AccountScreen> {
     required String value,
     String? unit,
     VoidCallback? onTap,
+    bool animateIcon = false,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -433,21 +419,26 @@ class _AccountScreenState extends State<AccountScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF0E6),
-                    borderRadius: BorderRadius.circular(10),
+                if (animateIcon)
+                  iconAsset.contains('wallet')
+                      ? AnimatedWallet(size: 28, asset: iconAsset)
+                      : AnimatedCoin(size: 28, asset: iconAsset)
+                else
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF0E6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: Image.asset(
+                      iconAsset,
+                      width: 17,
+                      height: 17,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    iconAsset,
-                    width: 17,
-                    height: 17,
-                    fit: BoxFit.contain,
-                  ),
-                ),
                 const SizedBox(height: 12),
                 Text(
                   label,

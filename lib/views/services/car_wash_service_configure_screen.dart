@@ -7,6 +7,7 @@ import 'car_wash_cart_screen.dart';
 import 'car_wash_choose_slot_sheet.dart';
 import 'car_wash_no_vehicle_warning_dialog.dart';
 import 'car_wash_selected_vehicle_sheet.dart';
+import '../../widgets/app_back_button.dart';
 
 class _ConfirmedVehicle {
   final String label;
@@ -324,32 +325,7 @@ class _CarWashServiceConfigureScreenState
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.2),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 15,
-                ),
-              ),
-            ),
+            child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
             _title,
