@@ -24,6 +24,7 @@ class _HomeCleaningChooseSlotSheetState
   late final List<DateTime> _dates;
   int _selectedDateIndex = 0;
   int? _selectedSlotIndex;
+  String? _warningMessage;
 
   static const _slots = [
     '8-10 AM',
@@ -172,6 +173,10 @@ class _HomeCleaningChooseSlotSheetState
                     ),
                     const SizedBox(height: 12),
                     _buildTimeSlots(),
+                    if (_warningMessage != null) ...[
+                      const SizedBox(height: 14),
+                      _buildWarning(),
+                    ],
                     const SizedBox(height: 24),
                     _buildContinueButton(),
                   ],
@@ -233,6 +238,7 @@ class _HomeCleaningChooseSlotSheetState
                 _selectedDateIndex = _dates.indexOf(normalized);
               }
               _selectedSlotIndex = null;
+              _warningMessage = null;
             });
           },
           child: Row(
@@ -273,6 +279,7 @@ class _HomeCleaningChooseSlotSheetState
             onTap: () => setState(() {
               _selectedDateIndex = index;
               _selectedSlotIndex = null;
+              _warningMessage = null;
             }),
             child: Container(
               width: 62,
@@ -359,7 +366,10 @@ class _HomeCleaningChooseSlotSheetState
   Widget _timeChip(int index) {
     final selected = _selectedSlotIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _selectedSlotIndex = index),
+      onTap: () => setState(() {
+        _selectedSlotIndex = index;
+        _warningMessage = null;
+      }),
       child: Container(
         height: 46,
         decoration: BoxDecoration(
@@ -395,10 +405,49 @@ class _HomeCleaningChooseSlotSheetState
     );
   }
 
+  Widget _buildWarning() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFEBEE),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFFFCDD2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            color: Color(0xFFE53935),
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _warningMessage!,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFE53935),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildContinueButton() {
     return GestureDetector(
       onTap: () {
-        if (_selectedSlotIndex == null) return;
+        if (_selectedSlotIndex == null) {
+          setState(() {
+            _warningMessage = 'Please select a date and time slot to continue';
+          });
+          return;
+        }
         Navigator.of(context).pop({
           'date': _dates[_selectedDateIndex],
           'slot': _slots[_selectedSlotIndex!],

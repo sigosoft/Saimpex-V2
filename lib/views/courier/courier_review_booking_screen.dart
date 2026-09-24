@@ -37,7 +37,7 @@ class CourierReviewBookingScreen extends StatefulWidget {
 
 class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen> {
   bool usePoints = false;
-  int? selectedPaymentIndex;
+  int selectedPaymentIndex = 0; // mandatory — Wallet selected by default
   final int redeemedPointsDiscount = 1;
   final int tax = 2;
 
@@ -781,7 +781,10 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
     final isSelected = selectedPaymentIndex == index;
 
     return GestureDetector(
-      onTap: () => setState(() => selectedPaymentIndex = index),
+      onTap: () => setState(() {
+        // Payment type is mandatory — switch between options, never clear.
+        selectedPaymentIndex = index;
+      }),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(

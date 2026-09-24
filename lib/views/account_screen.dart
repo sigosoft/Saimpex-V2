@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/colors.dart';
+import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
 import 'my_favourites_screen.dart';
 import 'rewards_referral_screen.dart';
@@ -78,21 +79,13 @@ class _AccountScreenState extends State<AccountScreen> {
                     children: [
                       Text(
                         'Quick Actions',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: AppTextStyles.title(),
                       ),
                       _buildQuickActions(),
                       const SizedBox(height: 24),
                       Text(
                         'Settings',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: AppTextStyles.title(),
                       ),
                       const SizedBox(height: 12),
                       _buildSettingsCard(context),
@@ -250,11 +243,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 child: Text(
                   'Account',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.heading(color: Colors.white),
                 ),
               ),
               GestureDetector(
@@ -295,19 +284,13 @@ class _AccountScreenState extends State<AccountScreen> {
                   children: [
                     Text(
                       'Ahmed Ould Salem',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.title(color: Colors.white),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '+222 45 12 34 56',
-                      style: GoogleFonts.outfit(
+                      style: AppTextStyles.subtitle(
                         color: Colors.white.withOpacity(0.95),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],

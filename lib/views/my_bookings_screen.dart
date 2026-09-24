@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/app_back_button.dart';
+import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/car_wash_bookings_store.dart';
 import '../widgets/cancel_booking_bottom_sheet.dart';
@@ -378,11 +379,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           ),
           Text(
             'My Bookings',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-            ),
+            style: AppTextStyles.heading(),
           ),
         ],
       ),
@@ -458,11 +455,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               Expanded(
                 child: Text(
                   booking['provider'] as String? ?? 'CleanPro Elite',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.title(),
                 ),
               ),
               Container(
@@ -515,11 +508,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           if (isCompleted) ...[
             Text(
               '${booking['service']} · ${booking['price']} · #${booking['id']}',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF7A6A60),
-                fontSize: 12.5,
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTextStyles.subtitle().copyWith(fontSize: 12.5),
             ),
             const SizedBox(height: 16),
             Row(

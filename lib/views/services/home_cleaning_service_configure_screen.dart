@@ -24,7 +24,7 @@ class HomeCleaningServiceConfigureScreen extends StatefulWidget {
 
 class _HomeCleaningServiceConfigureScreenState
     extends State<HomeCleaningServiceConfigureScreen> {
-  String? _propertyType = 'Apartment';
+  String _propertyType = 'Apartment';
   int _bedrooms = 4;
   int _kitchens = 1;
   int _bathrooms = 0;
@@ -496,7 +496,8 @@ class _HomeCleaningServiceConfigureScreenState
     final selected = _propertyType == type;
     return GestureDetector(
       onTap: () => setState(() {
-        _propertyType = selected ? null : type;
+        // Property type is mandatory — switch between options, never clear.
+        _propertyType = type;
       }),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),

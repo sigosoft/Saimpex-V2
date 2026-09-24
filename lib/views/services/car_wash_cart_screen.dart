@@ -57,7 +57,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   late DateTime _slotDate;
   late String _slotLabel;
   bool _usePoints = false;
-  int _paymentIndex = -1;
+  int _paymentIndex = 0; // mandatory — Wallet selected by default
   final _couponController = TextEditingController();
 
   static const _tax = 10;
@@ -877,7 +877,10 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   }) {
     final selected = _paymentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _paymentIndex = index),
+      onTap: () => setState(() {
+        // Payment type is mandatory — switch between options, never clear.
+        _paymentIndex = index;
+      }),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
+import '../../constants/text_styles.dart';
 import 'car_wash_screen.dart';
 import 'home_cleaning_screen.dart';
 import 'laundry_services_screen.dart';
@@ -226,11 +227,7 @@ class ServicesScreen extends StatelessWidget {
           ),
           Text(
             'Services',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-            ),
+            style: AppTextStyles.heading(),
           ),
         ],
       ),
@@ -303,11 +300,7 @@ class ServicesScreen extends StatelessWidget {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
-        color: const Color(0xFF2C2520),
-        fontSize: 16,
-        fontWeight: FontWeight.w800,
-      ),
+      style: AppTextStyles.title(),
     );
   }
 
@@ -446,11 +439,7 @@ class ServicesScreen extends StatelessWidget {
         Expanded(
           child: Text(
             'Emergency Services',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-            ),
+            style: AppTextStyles.title(),
           ),
         ),
         Container(
@@ -523,10 +512,8 @@ class ServicesScreen extends StatelessWidget {
                   children: [
                     Text(
                       data.title,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
+                      style: AppTextStyles.title().copyWith(
                         fontSize: 13,
-                        fontWeight: FontWeight.w800,
                         height: 1.12,
                       ),
                     ),
@@ -658,10 +645,8 @@ class _PopularServiceCard extends StatelessWidget {
                       right: 56,
                       child: Text(
                         data.title,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
+                        style: AppTextStyles.title().copyWith(
                           fontSize: titleFontSize,
-                          fontWeight: FontWeight.w800,
                           height: 1.1,
                         ),
                       ),

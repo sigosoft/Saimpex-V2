@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
 import '../controllers/home_controller.dart';
+import '../constants/text_styles.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
@@ -232,7 +233,7 @@ class _CartScreenState extends State<CartScreen> {
           child: Container(
             color: const Color(0xFFFFFDF9),
             padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 10,
+              top: MediaQuery.of(context).padding.top + 8,
               left: 16,
               right: 16,
             ),
@@ -255,11 +256,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 Text(
                   'Cart',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.heading(),
                 ),
               ],
             ),
@@ -967,11 +964,7 @@ class _CartScreenState extends State<CartScreen> {
                         children: [
                           Text(
                             'Save More',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF2C2520),
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: AppTextStyles.title(),
                           ),
                           GestureDetector(
                             onTap: () {

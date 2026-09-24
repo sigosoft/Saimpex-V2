@@ -256,7 +256,7 @@ class HomeScreen extends StatelessWidget {
               border: Border.all(color: const Color(0xFFFF5E00), width: 1.5),
               image: const DecorationImage(
                 image: NetworkImage(
-                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop',
+                  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop',
                 ),
                 fit: BoxFit.cover,
               ),
@@ -558,7 +558,6 @@ class HomeScreen extends StatelessWidget {
                   child: Image.asset(
                     "lib/assets/images/FreeDelivery.png",
                     fit: BoxFit.fill,
-                    width: 250,
                   ),
                 ),
               ),

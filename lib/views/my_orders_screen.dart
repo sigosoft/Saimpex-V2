@@ -10,6 +10,7 @@ import 'rate_order_screen.dart';
 import 'pharmacy/widgets/pharmacy_order_cards.dart';
 import 'courier/widgets/courier_order_cards.dart';
 import '../controllers/home_controller.dart';
+import '../constants/text_styles.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
@@ -107,7 +108,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           child: Container(
             color: Colors.transparent,
             padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 10,
+              top: MediaQuery.of(context).padding.top + 8,
               left: 16,
               right: 16,
             ),
@@ -122,11 +123,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
                 Text(
                   'My Orders',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.heading(),
                 ),
               ],
             ),
@@ -523,11 +520,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               Expanded(
                 child: Text(
                   'Salam Supermarket',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.title(),
                 ),
               ),
               Container(
@@ -651,11 +644,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               Expanded(
                 child: Text(
                   'Salam Supermarket',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: AppTextStyles.title(),
                 ),
               ),
               Container(

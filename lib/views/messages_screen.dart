@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
 import 'chat_screen.dart';
+import '../constants/text_styles.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
@@ -127,11 +128,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ),
                   Text(
                     'Messages',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    style: AppTextStyles.heading(),
                   ),
                 ],
               ),
@@ -325,22 +322,16 @@ class _MessageCard extends StatelessWidget {
                     chat['title'] as String,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    style: AppTextStyles.title(),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     chat['subtitle'] as String,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppTextStyles.subtitle(
                       color: const Color(0xFF8A7F77),
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    ).copyWith(fontSize: 12),
                   ),
                 ],
               ),

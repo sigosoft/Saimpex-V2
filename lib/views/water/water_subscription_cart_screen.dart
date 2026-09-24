@@ -42,7 +42,7 @@ class _WaterSubscriptionCartScreenState
     extends State<WaterSubscriptionCartScreen> {
   late int quantity;
   bool usePoints = false;
-  int selectedPaymentIndex = -1;
+  int selectedPaymentIndex = 0; // mandatory — Wallet selected by default
   final couponController = TextEditingController();
 
   final int subscriptionAmount = 9000;
@@ -769,7 +769,10 @@ class _WaterSubscriptionCartScreenState
   }) {
     final selected = selectedPaymentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => selectedPaymentIndex = index),
+      onTap: () => setState(() {
+        // Payment type is mandatory — switch between options, never clear.
+        selectedPaymentIndex = index;
+      }),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(

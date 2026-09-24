@@ -29,7 +29,7 @@ class ExpressCartScreen extends StatefulWidget {
 class _ExpressCartScreenState extends State<ExpressCartScreen> {
   int quantity = 0;
   bool usePoints = false;
-  int? selectedPaymentIndex;
+  int selectedPaymentIndex = 0; // mandatory — Wallet selected by default
   final int redeemedPointsDiscount = 1;
   final int expressDeliveryFee = 15;
   final int tax = 2;
@@ -765,7 +765,10 @@ class _ExpressCartScreenState extends State<ExpressCartScreen> {
     final isSelected = selectedPaymentIndex == index;
 
     return GestureDetector(
-      onTap: () => setState(() => selectedPaymentIndex = index),
+      onTap: () => setState(() {
+        // Payment type is mandatory — switch between options, never clear.
+        selectedPaymentIndex = index;
+      }),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(

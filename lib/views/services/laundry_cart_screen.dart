@@ -38,7 +38,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
   late String _slotLabel;
   int _deliverySpeed = 0; // 0 standard, 1 express
   bool _usePoints = true;
-  int _paymentIndex = -1;
+  int _paymentIndex = 0; // mandatory — Wallet selected by default
   final _couponController = TextEditingController();
 
   static const _tax = 10;
@@ -842,7 +842,10 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
   }) {
     final selected = _paymentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _paymentIndex = index),
+      onTap: () => setState(() {
+        // Payment type is mandatory — switch between options, never clear.
+        _paymentIndex = index;
+      }),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
