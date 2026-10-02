@@ -37,17 +37,19 @@ class OtpInputBox extends StatelessWidget {
           ),
         ],
       ),
-      child: KeyboardListener(
-        focusNode: focusNode,
-        onKeyEvent: (KeyEvent event) {
+      child: Focus(
+        onKeyEvent: (FocusNode node, KeyEvent event) {
           if (event is KeyDownEvent &&
               event.logicalKey == LogicalKeyboardKey.backspace) {
             if (controller.text.isEmpty && prevFocusNode != null) {
               prevFocusNode!.requestFocus();
+              return KeyEventResult.handled;
             }
           }
+          return KeyEventResult.ignored;
         },
         child: TextField(
+          focusNode: focusNode,
           controller: controller,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
@@ -65,6 +67,14 @@ class OtpInputBox extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             counterText: "",
           ),
+          onTap: () {
+            if (controller.text.isNotEmpty) {
+              controller.selection = TextSelection(
+                baseOffset: 0,
+                extentOffset: controller.text.length,
+              );
+            }
+          },
           onChanged: (value) {
             if (value.isNotEmpty) {
               if (nextFocusNode != null) {

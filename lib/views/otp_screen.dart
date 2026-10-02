@@ -36,54 +36,66 @@ class OtpScreen extends StatelessWidget {
   }
 
   Widget _buildPortraitLayout(BuildContext context, OtpController controller) {
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Back Button top left
-          Align(alignment: Alignment.centerLeft, child: _buildBackButton()),
-          const Spacer(flex: 1),
-          // Shield graphic
-          _buildShieldGraphic(),
-          const SizedBox(height: 36),
-          // Heading
-          Text(
-            'OTP Verification',
-            style: GoogleFonts.playfairDisplay(
-              color: const Color(0xFF2C2520),
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
             ),
-          ),
-          const SizedBox(height: 12),
-          // Subtitle description
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              "We've sent a 6-digit verification code to your WhatsApp number ${controller.phoneNumber}",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                color: AppColors.textMuted,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                height: 1.4,
+            child: IntrinsicHeight(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Back Button top left
+                    Align(alignment: Alignment.centerLeft, child: _buildBackButton()),
+                    const Spacer(flex: 1),
+                    // Shield graphic
+                    _buildShieldGraphic(),
+                    const SizedBox(height: 36),
+                    // Heading
+                    Text(
+                      'OTP Verification',
+                      style: GoogleFonts.playfairDisplay(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Subtitle description
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        "We've sent a 6-digit verification code to your WhatsApp number ${controller.phoneNumber}",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.outfit(
+                          color: AppColors.textMuted,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 36),
+                    // Row of 6 OTP input boxes
+                    _buildOtpInputs(controller),
+                    const SizedBox(height: 24),
+                    // Resend Timer Row
+                    _buildResendTimer(controller),
+                    const Spacer(flex: 3),
+                    // Action button
+                    _buildContinueButton(controller),
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 36),
-          // Row of 6 OTP input boxes
-          _buildOtpInputs(controller),
-          const SizedBox(height: 24),
-          // Resend Timer Row
-          _buildResendTimer(controller),
-          const Spacer(flex: 3),
-          // Action button
-          _buildContinueButton(controller),
-          const SizedBox(height: 8),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -3,9 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../widgets/cancel_booking_bottom_sheet.dart';
-import '../../widgets/app_back_button.dart';
-
 class LaundryBookingDetailScreen extends StatelessWidget {
   final Map<String, dynamic> booking;
 
@@ -105,23 +102,19 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                       _buildPickupSlotCard(),
                       const SizedBox(height: 10),
                       _buildInfoCard(
-                        iconBg: const Color(0xFFE8F1FB),
-                        label: 'Estimated Delivery',
-                        value: 'Tomorrow, 2:00 PM – 4:00 PM',
-                        iconWidget: const _CalendarClockIcon(
-                          size: 22,
-                          color: Color(0xFF007AFF),
-                          cutoutColor: Color(0xFFE8F1FB),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      _buildInfoCard(
                         icon: Icons.local_shipping_outlined,
                         iconBg: const Color(0xFFFFF0E6),
                         iconColor: const Color(0xFFFF5E00),
                         label: 'Delivery Speed',
-                        value: 'Standard Delivery',
-                        valueSuffix: ' (Ready in $_duration)',
+                        value: 'Standard Delivery (Ready in $_duration)',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildInfoCard(
+                        icon: Icons.calendar_month_rounded,
+                        iconBg: const Color(0xFFEAF2F8),
+                        iconColor: const Color(0xFF1A6BB5),
+                        label: 'Estimated Delivery',
+                        value: 'Tomorrow, 2:00 PM – 4:00 PM',
                       ),
                       const SizedBox(height: 20),
                       _sectionTitle('Pickup by'),
@@ -146,7 +139,30 @@ class LaundryBookingDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Row(
         children: [
-          AppBackButton(onTap: () => Get.back()),
+          GestureDetector(
+            onTap: () => Get.back(),
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Color(0xFFFF5E00),
+                size: 15,
+              ),
+            ),
+          ),
           Expanded(
             child: Text(
               'Booking #$_bookingId',
@@ -161,11 +177,11 @@ class LaundryBookingDetailScreen extends StatelessWidget {
           GestureDetector(
             onTap: () {},
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFE0D6CC), width: 1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE8DFD6)),
               ),
               child: Text(
                 'Help',
@@ -561,46 +577,30 @@ class LaundryBookingDetailScreen extends StatelessWidget {
   }
 
   Widget _buildInfoCard({
-    IconData? icon,
+    required IconData icon,
     required Color iconBg,
-    Color? iconColor,
+    required Color iconColor,
     required String label,
     required String value,
-    String? valueSuffix,
-    Widget? iconWidget,
   }) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Row(
         children: [
           Container(
-            width: 46,
-            height: 46,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: iconBg,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(12),
             ),
-            alignment: Alignment.center,
-            child: iconWidget ??
-                Icon(
-                  icon ?? Icons.info_outline_rounded,
-                  color: iconColor ?? const Color(0xFFFF5E00),
-                  size: 22,
-                ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -608,47 +608,20 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 Text(
                   label,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF6E5A52),
-                    fontSize: 13,
+                    color: const Color(0xFF9A8E86),
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
-                if (valueSuffix == null)
-                  Text(
-                    value,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1A1A1A),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      height: 1.3,
-                    ),
-                  )
-                else
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: value,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF1A1A1A),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            height: 1.3,
-                          ),
-                        ),
-                        TextSpan(
-                          text: valueSuffix,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF1A1A1A),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            height: 1.3,
-                          ),
-                        ),
-                      ],
-                    ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF1B2B4A),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
                   ),
+                ),
               ],
             ),
           ),
@@ -1096,10 +1069,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
           ],
           Expanded(
             child: GestureDetector(
-              onTap: () => showCancelBookingBottomSheet(
-                Get.context!,
-                bookingId: _bookingId,
-              ),
+              onTap: () {},
               child: Container(
                 height: 48,
                 alignment: Alignment.center,
@@ -1122,80 +1092,4 @@ class LaundryBookingDetailScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _CalendarClockIcon extends StatelessWidget {
-  final double size;
-  final Color color;
-  final Color cutoutColor;
-
-  const _CalendarClockIcon({
-    required this.size,
-    required this.color,
-    required this.cutoutColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final clockSize = size * 0.46;
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            left: 0,
-            top: size * 0.02,
-            child: Icon(
-              Icons.calendar_today_outlined,
-              size: size * 0.88,
-              color: color,
-            ),
-          ),
-          Positioned(
-            right: -1.5,
-            bottom: -1.5,
-            child: Container(
-              width: clockSize,
-              height: clockSize,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                border: Border.all(color: cutoutColor, width: 1.5),
-              ),
-              child: CustomPaint(
-                painter: _ClockHandsPainter(color: cutoutColor),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ClockHandsPainter extends CustomPainter {
-  final Color color;
-
-  _ClockHandsPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    final center = Offset(size.width / 2, size.height / 2);
-    final handLen = size.width * 0.28;
-
-    canvas.drawLine(center, Offset(center.dx, center.dy - handLen), paint);
-    canvas.drawLine(center, Offset(center.dx + handLen, center.dy), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _ClockHandsPainter oldDelegate) =>
-      oldDelegate.color != color;
 }
