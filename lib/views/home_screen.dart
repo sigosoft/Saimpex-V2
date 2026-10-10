@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFFE6DC),
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
         systemNavigationBarColor: Color(0xFFFAF6F0),
@@ -35,49 +35,25 @@ class HomeScreen extends StatelessWidget {
         systemNavigationBarContrastEnforced: false,
       ),
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFFFE6DC), // Top peach gradient
-              Color(0xFFFFF4EE), // Middle soft peach
-              Color(0xFFFAF6F0), // Base color at the bottom
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: const Color(0xFFFAF6F0),
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: Stack(
             children: [
               // 1. Scrollable Content Layer
-              SafeArea(
-                bottom: false,
-                child: Column(
-                  children: [
-                    // Top Header Row
-                    _buildTopHeader(context),
+              Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 120),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildTopBlendContainer(context, controller),
 
-                    // Scrollable Body
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 120),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 12),
-                            // Banner Carousel (Iftar in 25 min)
-                            _buildTopBannerCarousel(controller),
-                            const SizedBox(height: 16),
-
-                            // Search Box
-                            _buildSearchBox(),
-                            const SizedBox(height: 20),
-
-                            // Category Selector Grid
-                            _buildCategoryGrid(controller),
-                            const SizedBox(height: 24),
+                          // Category Selector Grid
+                          _buildCategoryGrid(controller),
 
                             // Save More Today Section
                             _buildSaveMoreToday(),
@@ -123,7 +99,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
               // 2. Floating Bottom Navigation Bar Layer
               if (showBottomNav)
                 Positioned(
@@ -144,6 +119,91 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Header through search, with orange in the top-right and bottom-left.
+  Widget _buildTopBlendContainer(
+    BuildContext context,
+    HomeController controller,
+  ) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(32),
+        bottomRight: Radius.circular(32),
+      ),
+      child: Stack(
+        children: [
+          const Positioned.fill(
+            child: ColoredBox(color: Color.fromARGB(255, 255, 214, 189)),
+          ),
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(0.05, -0.2),
+                  radius: 1.15,
+                  colors: [
+                    Color(0xF2FFFFFF),
+                    Color(0x00FFFFFF),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -110,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color.fromARGB(255, 255, 172, 124).withValues(alpha: 0.95),
+                    const Color.fromARGB(255, 255, 102, 0).withValues(alpha: 0.42),
+                    const Color.fromARGB(255, 255, 191, 148).withValues(alpha: 0),
+                  ],
+                  stops: const [0.0, 0.42, 1.0],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -100,
+            left: -90,
+            child: Container(
+              width: 280,
+              height: 280,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFFFF5E00).withValues(alpha: 0.92),
+                    const Color(0xFFFF8A3D).withValues(alpha: 0.4),
+                    const Color(0xFFFF8A3D).withValues(alpha: 0),
+                  ],
+                  stops: const [0.0, 0.46, 1.0],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+            child: Column(
+              children: [
+                _buildTopHeader(context),
+                const SizedBox(height: 4),
+                _buildTopBannerCarousel(controller),
+                const SizedBox(height: 16),
+                _buildSearchBox(),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Top Header Row
   Widget _buildTopHeader(BuildContext context) {
     return Padding(
@@ -158,16 +218,16 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Deliver To',
+                  'Deliver To:',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF7A6A60),
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Row(
                   children: [
-                    Expanded(
+                    Flexible(
                       child: Text(
                         SelectLocationController.selectedTitle,
                         overflow: TextOverflow.ellipsis,
@@ -182,7 +242,7 @@ class HomeScreen extends StatelessWidget {
                     const Icon(
                       Icons.keyboard_arrow_down_rounded,
                       color: Color(0xFF2C2520),
-                      size: 16,
+                      size: 18,
                     ),
                   ],
                 ),
@@ -191,25 +251,36 @@ class HomeScreen extends StatelessWidget {
           ),
           // Wallet pill badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            height: 36,
+            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
             decoration: BoxDecoration(
               color: const Color(0xFFFF5E00),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.account_balance_wallet_rounded,
-                  color: Colors.white,
-                  size: 14,
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'lib/assets/images/wallet_home.png',
+                    width: 16,
+                    height: 16,
+                  ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width:3),
                 Text(
                   '300 MRU',
                   style: GoogleFonts.outfit(
                     color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -218,32 +289,18 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(width: 10),
           // Notification Bell
           Container(
-            padding: const EdgeInsets.all(8),
+            width: 36,
+            height: 36,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
               border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
             ),
-            child: Stack(
-              children: [
-                const Icon(
-                  Icons.notifications_none_rounded,
-                  color: Color(0xFF2C2520),
-                  size: 20,
-                ),
-                Positioned(
-                  top: 2,
-                  right: 2,
-                  child: Container(
-                    width: 6,
-                    height: 6,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
+            child: const Icon(
+              Icons.notifications_none_rounded,
+              color: Color(0xFF2C2520),
+              size: 24,
             ),
           ),
           const SizedBox(width: 10),
@@ -542,7 +599,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         SizedBox(
           height: 150,
           child: ListView(
