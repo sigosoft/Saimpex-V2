@@ -1,19 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../constants/colors.dart';
 import '../../controllers/onboarding_controller.dart';
+
+class AppLanguage {
+  final String code;
+  final String label;
+
+  const AppLanguage({required this.code, required this.label});
+}
+
+const List<AppLanguage> appLanguages = [
+  AppLanguage(code: 'EN', label: 'English'),
+  AppLanguage(code: 'FR', label: 'Français'),
+  AppLanguage(code: 'AR', label: 'العربية'),
+];
+
+OnboardingController languageController() {
+  if (Get.isRegistered<OnboardingController>()) {
+    return Get.find<OnboardingController>();
+  }
+  return Get.put(OnboardingController());
+}
+
+Future<void> openLanguageSelection(BuildContext context) async {
+  final controller = languageController();
+  final selected = await showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withOpacity(0.45),
+    builder: (context) => LanguageSelectionSheet(
+      currentLanguage: controller.selectedLanguage.value,
+    ),
+  );
+
+  if (selected != null && selected != controller.selectedLanguage.value) {
+    controller.setLanguage(selected);
+  }
+}
 
 class LanguageSelector extends StatelessWidget {
   const LanguageSelector({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<OnboardingController>();
+    final controller = languageController();
 
     return GestureDetector(
-      onTap: () {
-        _showLanguageBottomSheet(context, controller);
-      },
+      onTap: () => openLanguageSelection(context),
       child: Obx(
         () => Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -54,74 +90,225 @@ class LanguageSelector extends StatelessWidget {
       ),
     );
   }
+}
 
-  void _showLanguageBottomSheet(
-      BuildContext context, OnboardingController controller) {
-    final List<String> languages = ['English', 'Español', 'Français', 'العربية'];
+class LanguageSelectionSheet extends StatefulWidget {
+  final String currentLanguage;
 
-    Get.bottomSheet(
-      Material(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+  const LanguageSelectionSheet({
+    super.key,
+    required this.currentLanguage,
+  });
+
+  @override
+  State<LanguageSelectionSheet> createState() => _LanguageSelectionSheetState();
+}
+
+class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    final index = appLanguages.indexWhere(
+      (lang) => lang.label == widget.currentLanguage,
+    );
+    _selectedIndex = index < 0 ? 0 : index;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPad = MediaQuery.viewPaddingOf(context).bottom;
+
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20, 28, 20, 8 + bottomPad),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Select Language',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF2C2520),
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Choose your preferred language for the best experience.',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF8A7E76),
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                height: 1.45,
+              ),
+            ),
+            const SizedBox(height: 22),
+            for (var i = 0; i < appLanguages.length; i++) ...[
+              _LanguageOptionCard(
+                language: appLanguages[i],
+                selected: _selectedIndex == i,
+                onTap: () => setState(() => _selectedIndex = i),
+              ),
+              if (i < appLanguages.length - 1) const SizedBox(height: 12),
+            ],
+            const SizedBox(height: 28),
+            _SheetActionButton(
+              label: 'Continue',
+              onTap: () {
+                Navigator.of(context).pop(appLanguages[_selectedIndex].label);
+              },
+            ),
+            const SizedBox(height: 12),
+            _SheetActionButton(
+              label: 'Cancel',
+              onTap: () => Navigator.of(context).pop(),
+            ),
+          ],
         ),
-        clipBehavior: Clip.antiAlias,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.08),
-              width: 1,
-            ),
+      ),
+    );
+  }
+}
+
+class _SheetActionButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _SheetActionButton({
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 54,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          gradient: const LinearGradient(
+            colors: [
+              AppColors.primaryOrange,
+              AppColors.gradientYellow,
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Select Language',
-                  style: GoogleFonts.outfit(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ...languages.map(
-                  (lang) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      lang,
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight:
-                            controller.selectedLanguage.value == lang
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                      ),
-                    ),
-                    trailing: controller.selectedLanguage.value == lang
-                        ? const Icon(Icons.check, color: Color(0xFFFF7E00))
-                        : null,
-                    onTap: () {
-                      controller.setLanguage(lang);
-                      Get.back();
-                    },
-                  ),
-                ),
-              ],
-            ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.outfit(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
-      isScrollControlled: true,
+    );
+  }
+}
+
+class _LanguageOptionCard extends StatelessWidget {
+  final AppLanguage language;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _LanguageOptionCard({
+    required this.language,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        height: 68,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF4EF),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected
+                ? const Color(0xFFFF5E00)
+                : const Color(0xFFF3DDD2),
+            width: selected ? 1.6 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                language.code,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                language.label,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (selected)
+              Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFF5E00),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              )
+            else
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFD5CDC6),
+                    width: 1.6,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/app_back_button.dart';
+import 'widgets/language_selector.dart';
 
 class AppPreferencesScreen extends StatefulWidget {
   const AppPreferencesScreen({super.key});
@@ -87,8 +88,9 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                         _buildNavRow(
                           icon: Icons.translate_rounded,
                           title: 'Language',
-                          value: 'English',
+                          value: languageController().selectedLanguage.value,
                           showChevron: true,
+                          onTap: () => openLanguageSelection(context),
                         ),
                         const SizedBox(height: 18),
                         _buildNavRow(
@@ -232,8 +234,9 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
     required String title,
     required String value,
     required bool showChevron,
+    VoidCallback? onTap,
   }) {
-    return Row(
+    final row = Row(
       children: [
         Container(
           width: 42,
@@ -264,14 +267,25 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
             ),
           ),
         ),
-        Text(
-          value,
-          style: GoogleFonts.outfit(
-            color: const Color(0xFFFF5E00),
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        onTap == null
+            ? Text(
+                value,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+            : Obx(
+                () => Text(
+                  languageController().selectedLanguage.value,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFFF5E00),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
         const SizedBox(width: 4),
         SizedBox(
           width: 22,
@@ -284,6 +298,14 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
               : null,
         ),
       ],
+    );
+
+    if (onTap == null) return row;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: row,
     );
   }
 }

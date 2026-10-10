@@ -15,6 +15,7 @@ import 'help_support_screen.dart';
 import 'terms_conditions_screen.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
+import 'widgets/language_selector.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/animated_coin.dart';
@@ -624,7 +625,6 @@ class _AccountScreenState extends State<AccountScreen> {
       {
         'label': 'Language',
         'icon': Icons.language_rounded,
-        'trailing': 'English',
         'isLogout': false,
       },
       {
@@ -676,6 +676,8 @@ class _AccountScreenState extends State<AccountScreen> {
                 onTap: () {
                   if (isLogout) {
                     _openLogoutConfirmSheet();
+                  } else if (item['label'] == 'Language') {
+                    openLanguageSelection(context);
                   } else if (item['label'] == 'App Preferences') {
                     Get.to(() => const AppPreferencesScreen());
                   } else if (item['label'] == 'Help & Support') {
@@ -735,7 +737,19 @@ class _AccountScreenState extends State<AccountScreen> {
                           ),
                         ),
                       ),
-                      if (item['trailing'] != null) ...[
+                      if (item['label'] == 'Language') ...[
+                        Obx(
+                          () => Text(
+                            languageController().selectedLanguage.value,
+                            style: GoogleFonts.outfit(
+                              color: AppColors.primaryOrange,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                      ] else if (item['trailing'] != null) ...[
                         Text(
                           item['trailing'] as String,
                           style: GoogleFonts.outfit(
