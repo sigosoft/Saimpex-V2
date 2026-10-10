@@ -362,7 +362,7 @@ class HomeScreen extends StatelessWidget {
         'label': 'Food',
         'icon': "lib/assets/images/Food.png",
         'gradient': const LinearGradient(
-          colors: [Color(0xFFFFF5EC), Color(0xFFFEE6D6)],
+          colors: [Color.fromARGB(255, 247, 176, 114), Color.fromARGB(255, 255, 255, 255)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -371,7 +371,7 @@ class HomeScreen extends StatelessWidget {
         'label': 'Grocery',
         'icon': "lib/assets/images/Grocery.png",
         'gradient': const LinearGradient(
-          colors: [Color(0xFFEBF6EE), Color(0xFFD4EBD9)],
+          colors: [Color.fromARGB(255, 161, 229, 82), Color.fromARGB(255, 255, 255, 255)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -380,7 +380,7 @@ class HomeScreen extends StatelessWidget {
         'label': 'Pharmacy',
         'icon': "lib/assets/images/Pharmacy.png",
         'gradient': const LinearGradient(
-          colors: [Color(0xFFEEF5FC), Color(0xFFD3E5F6)],
+          colors: [Color.fromARGB(255, 184, 235, 255), Color.fromARGB(255, 255, 255, 255)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -389,7 +389,7 @@ class HomeScreen extends StatelessWidget {
         'label': 'Water',
         'icon': "lib/assets/images/Water.png",
         'gradient': const LinearGradient(
-          colors: [Color(0xFFE6F7FF), Color(0xFFCBEBFE)],
+          colors: [Color.fromARGB(255, 118, 212, 255), Color.fromARGB(255, 255, 255, 255)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -398,7 +398,7 @@ class HomeScreen extends StatelessWidget {
         'label': 'Courier',
         'icon': "lib/assets/images/Courier.png",
         'gradient': const LinearGradient(
-          colors: [Color(0xFFF7EBF6), Color(0xFFECD2EB)],
+          colors: [Color.fromARGB(255, 245, 173, 239), Color.fromARGB(255, 255, 255, 255)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -407,7 +407,7 @@ class HomeScreen extends StatelessWidget {
         'label': 'Express',
         'icon': "lib/assets/images/Express.png",
         'gradient': const LinearGradient(
-          colors: [Color(0xFFFFFBE6), Color(0xFFFFF1CC)],
+          colors: [Color.fromARGB(255, 255, 165, 10), Color.fromARGB(255, 255, 255, 255)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -416,7 +416,7 @@ class HomeScreen extends StatelessWidget {
         'label': 'Local Store',
         'icon': "lib/assets/images/Local Store.png",
         'gradient': const LinearGradient(
-          colors: [Color(0xFFF6F6F6), Color(0xFFE8E8E8)],
+          colors: [Color.fromARGB(255, 177, 159, 137), Color.fromARGB(255, 255, 255, 255)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -463,7 +463,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 // 1. Card Background (Starts 16px from top)
                 Positioned(
-                  top: 16,
+                  top: 21,
                   left: 0,
                   right: 0,
                   bottom: 0,
