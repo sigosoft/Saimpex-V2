@@ -170,6 +170,7 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
             const SizedBox(height: 12),
             _SheetActionButton(
               label: 'Cancel',
+              filled: false,
               onTap: () => Navigator.of(context).pop(),
             ),
           ],
@@ -182,10 +183,12 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
 class _SheetActionButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+  final bool filled;
 
   const _SheetActionButton({
     required this.label,
     required this.onTap,
+    this.filled = true,
   });
 
   @override
@@ -198,19 +201,22 @@ class _SheetActionButton extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
-          gradient: const LinearGradient(
-            colors: [
-              AppColors.primaryOrange,
-              AppColors.gradientYellow,
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
+          color: filled ? null : const Color(0xFFE8E8E8),
+          gradient: filled
+              ? const LinearGradient(
+                  colors: [
+                    AppColors.primaryOrange,
+                    AppColors.gradientYellow,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
+              : null,
         ),
         child: Text(
           label,
           style: GoogleFonts.outfit(
-            color: Colors.white,
+            color: filled ? Colors.white : Colors.black,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
