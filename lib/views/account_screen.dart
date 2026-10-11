@@ -19,7 +19,6 @@ import 'widgets/language_selector.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/animated_coin.dart';
-import '../widgets/animated_wallet.dart';
 import '../navigation/bottom_nav_router.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -332,7 +331,7 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               Expanded(
                 child: _buildStatCard(
-                  iconAsset: 'lib/assets/images/wallet.png',
+                  iconAsset: 'lib/assets/images/wallet_profile.png',
                   label: 'WALLET',
                   value: '2,450',
                   unit: 'MRU',
@@ -408,7 +407,12 @@ class _AccountScreenState extends State<AccountScreen> {
               children: [
                 if (animateIcon)
                   iconAsset.contains('wallet')
-                      ? AnimatedWallet(size: 28, asset: iconAsset)
+                      ? Image.asset(
+                          iconAsset,
+                          width: 28,
+                          height: 28,
+                          fit: BoxFit.contain,
+                        )
                       : AnimatedCoin(size: 28, asset: iconAsset)
                 else
                   Container(

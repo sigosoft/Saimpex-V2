@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -150,8 +152,8 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: -110,
-            right: -100,
+            top: -100,
+            right: -90,
             child: Container(
               width: 300,
               height: 300,
@@ -159,11 +161,11 @@ class HomeScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    const Color.fromARGB(255, 255, 172, 124).withValues(alpha: 0.95),
+                    const Color.fromARGB(255, 255, 133, 62).withValues(alpha: 0.95),
                     const Color.fromARGB(255, 255, 102, 0).withValues(alpha: 0.42),
-                    const Color.fromARGB(255, 255, 191, 148).withValues(alpha: 0),
+                    const Color.fromARGB(255, 255, 137, 58).withValues(alpha: 0),
                   ],
-                  stops: const [0.0, 0.42, 1.0],
+                  stops: const [0.0, 0.46, 1.0],
                 ),
               ),
             ),
@@ -192,8 +194,8 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 _buildTopHeader(context),
-                const SizedBox(height: 4),
-                _buildTopBannerCarousel(controller),
+                const SizedBox(height: 10),
+                const _HomeTopBannerCarousel(),
                 const SizedBox(height: 16),
                 _buildSearchBox(),
                 const SizedBox(height: 20),
@@ -231,8 +233,9 @@ class HomeScreen extends StatelessWidget {
                     Flexible(
                       child: Text(
                         SelectLocationController.selectedTitle,
-                        overflow: TextOverflow.ellipsis,
                         maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13,
@@ -325,21 +328,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Top Banner Slider
-  Widget _buildTopBannerCarousel(HomeController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.asset(
-          "lib/assets/images/Slider.png",
-          fit: BoxFit.fill,
-          width: double.infinity,
-          height: 140,
-        ),
-      ),
-    );
-  }
 
   // Search Box
   Widget _buildSearchBox() {
@@ -463,7 +451,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 // 1. Card Background (Starts 16px from top)
                 Positioned(
-                  top: 21,
+                  top: 22,
                   left: 0,
                   right: 0,
                   bottom: 0,
@@ -2048,6 +2036,98 @@ class HomeScreen extends StatelessWidget {
             curve: Curves.easeOutCubic,
           );
         },
+      ),
+    );
+  }
+}
+
+class _HomeTopBannerCarousel extends StatefulWidget {
+  const _HomeTopBannerCarousel();
+
+  @override
+  State<_HomeTopBannerCarousel> createState() => _HomeTopBannerCarouselState();
+}
+
+class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
+  static const _dotCount = 4;
+  static const _imagePath = 'lib/assets/images/Slider.png';
+
+  final PageController _pageController = PageController();
+  Timer? _timer;
+  int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoScroll();
+  }
+
+  void _startAutoScroll() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted || !_pageController.hasClients) return;
+      _pageController.animateToPage(
+        _index + 1,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 140,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: 10000,
+                physics: const ClampingScrollPhysics(),
+                onPageChanged: (index) {
+                  setState(() => _index = index);
+                  _startAutoScroll();
+                },
+                itemBuilder: (context, index) {
+                  return Image.asset(
+                    _imagePath,
+                    fit: BoxFit.fill,
+                    width: double.infinity,
+                    height: 140,
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_dotCount, (dot) {
+              final isActive = _index % _dotCount == dot;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                height: 6,
+                width: isActive ? 18 : 6,
+                decoration: BoxDecoration(
+                  color: isActive ? const Color(0xFFFF5E00) : Colors.white,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              );
+            }),
+          ),
+        ],
       ),
     );
   }
