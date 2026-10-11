@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -14,6 +15,10 @@ class AppBottomNavBar extends StatelessWidget {
   static const double _iconCircleSize = 34;
   static const double _iconSize = 18;
   static const double _iconStrokeFactor = 0.075;
+  static const double _inactiveItemWidth = 44;
+  static const int _itemCount = 7;
+  static const Duration _moveDuration = Duration(milliseconds: 360);
+  static const Curve _moveCurve = Curves.easeInOutCubic;
 
   static const Color _outerBg = Color(0xFFFAF6F0);
   static const Color _barColor = Colors.white;
@@ -38,6 +43,8 @@ class AppBottomNavBar extends StatelessWidget {
   });
 
   void _handleTap(int index) {
+    if (index == selectedIndex) return;
+    HapticFeedback.selectionClick();
     if (onTap != null) {
       onTap!(index);
       return;
@@ -71,45 +78,73 @@ class AppBottomNavBar extends StatelessWidget {
                 ),
               ],
             ),
-            child: Row(
-              children: [
-                _navItem(
-                  index: HomeController.navHome,
-                  label: 'Home',
-                  asset: 'lib/assets/images/Bottom Home.png',
-                ),
-                _navItem(
-                  index: HomeController.navBookings,
-                  label: 'Bookings',
-                  asset: null,
-                ),
-                _navItem(
-                  index: HomeController.navOrders,
-                  label: 'Orders',
-                  asset: 'lib/assets/images/Bottom Order.png',
-                ),
-                _navItem(
-                  index: HomeController.navServices,
-                  label: 'Services',
-                  asset: null,
-                ),
-                _navItem(
-                  index: HomeController.navCart,
-                  label: 'Cart',
-                  asset: 'lib/assets/images/Bottom Cart.png',
-                  observeCartBadge: true,
-                ),
-                _navItem(
-                  index: HomeController.navChat,
-                  label: 'Chat',
-                  asset: null,
-                ),
-                _navItem(
-                  index: HomeController.navProfile,
-                  label: 'Profile',
-                  asset: 'lib/assets/images/Bottom Profile.png',
-                ),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final selectedWidth =
+                    constraints.maxWidth -
+                    _inactiveItemWidth * (_itemCount - 1);
+                return Row(
+                  children: [
+                    _navItem(
+                      index: HomeController.navHome,
+                      label: 'Home',
+                      asset: 'lib/assets/images/Bottom Home.png',
+                      width: selectedIndex == HomeController.navHome
+                          ? selectedWidth
+                          : _inactiveItemWidth,
+                    ),
+                    _navItem(
+                      index: HomeController.navBookings,
+                      label: 'Bookings',
+                      asset: null,
+                      width: selectedIndex == HomeController.navBookings
+                          ? selectedWidth
+                          : _inactiveItemWidth,
+                    ),
+                    _navItem(
+                      index: HomeController.navOrders,
+                      label: 'Orders',
+                      asset: 'lib/assets/images/Bottom Order.png',
+                      width: selectedIndex == HomeController.navOrders
+                          ? selectedWidth
+                          : _inactiveItemWidth,
+                    ),
+                    _navItem(
+                      index: HomeController.navServices,
+                      label: 'Services',
+                      asset: null,
+                      width: selectedIndex == HomeController.navServices
+                          ? selectedWidth
+                          : _inactiveItemWidth,
+                    ),
+                    _navItem(
+                      index: HomeController.navCart,
+                      label: 'Cart',
+                      asset: 'lib/assets/images/Bottom Cart.png',
+                      observeCartBadge: true,
+                      width: selectedIndex == HomeController.navCart
+                          ? selectedWidth
+                          : _inactiveItemWidth,
+                    ),
+                    _navItem(
+                      index: HomeController.navChat,
+                      label: 'Chat',
+                      asset: null,
+                      width: selectedIndex == HomeController.navChat
+                          ? selectedWidth
+                          : _inactiveItemWidth,
+                    ),
+                    _navItem(
+                      index: HomeController.navProfile,
+                      label: 'Profile',
+                      asset: 'lib/assets/images/Bottom Profile.png',
+                      width: selectedIndex == HomeController.navProfile
+                          ? selectedWidth
+                          : _inactiveItemWidth,
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -121,29 +156,28 @@ class AppBottomNavBar extends StatelessWidget {
     required int index,
     required String label,
     required String? asset,
+    required double width,
     bool observeCartBadge = false,
   }) {
     final isSelected = selectedIndex == index;
 
-    final content = GestureDetector(
+    return GestureDetector(
       onTap: () => _handleTap(index),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 260),
-        curve: Curves.easeOutCubic,
+        duration: _moveDuration,
+        curve: _moveCurve,
+        width: width,
         height: double.infinity,
+        clipBehavior: Clip.hardEdge,
         alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 10 : 4,
-          vertical: 4,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
         decoration: BoxDecoration(
           color: isSelected ? _activeCapsule : Colors.transparent,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: isSelected ? MainAxisSize.max : MainAxisSize.min,
           children: [
             if (observeCartBadge)
               Obx(() {
@@ -164,36 +198,36 @@ class AppBottomNavBar extends StatelessWidget {
                 isSelected: isSelected,
                 badgeCount: 0,
               ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: GoogleFonts.outfit(
-                      color: _activeLabel,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      height: 1,
+            Flexible(
+              child: AnimatedAlign(
+                duration: _moveDuration,
+                curve: _moveCurve,
+                alignment: Alignment.centerLeft,
+                widthFactor: isSelected ? 1 : 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: GoogleFonts.outfit(
+                        color: _activeLabel,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        height: 1,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
     );
-
-    // Selected takes leftover width; inactive stays circle-sized only.
-    if (isSelected) {
-      return Expanded(child: content);
-    }
-    return content;
   }
 
   Widget _iconWithBadge({
@@ -206,8 +240,8 @@ class AppBottomNavBar extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         AnimatedContainer(
-          duration: const Duration(milliseconds: 260),
-          curve: Curves.easeOutCubic,
+          duration: _moveDuration,
+          curve: _moveCurve,
           width: _iconCircleSize,
           height: _iconCircleSize,
           decoration: BoxDecoration(

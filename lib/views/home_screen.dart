@@ -668,7 +668,7 @@ class HomeScreen extends StatelessWidget {
                   'See All',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -747,7 +747,7 @@ class HomeScreen extends StatelessWidget {
             routeName: '/trending-see-all',
           );
         }),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         SizedBox(
           height: 240,
           child: ListView.builder(
