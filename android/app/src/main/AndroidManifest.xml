@@ -61,5 +61,8 @@
         <intent>
             <action android:name="android.intent.action.OPEN_DOCUMENT"/>
         </intent>
+        <intent>
+            <action android:name="android.speech.RecognitionService"/>
+        </intent>
     </queries>
 </manifest>

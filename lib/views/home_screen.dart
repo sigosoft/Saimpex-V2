@@ -15,6 +15,7 @@ import 'under_30_min_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'main_shell_screen.dart';
 import 'widgets/chatbot_head.dart';
+import 'widgets/home_search_box.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -342,65 +343,7 @@ class HomeScreen extends StatelessWidget {
 
   // Search Box
   Widget _buildSearchBox() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 1.5),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.search_rounded,
-              color: Color(0xFFA59A94),
-              size: 22,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
-                decoration: InputDecoration(
-                  hintText: 'What do you need today?',
-                  hintStyle: GoogleFonts.outfit(
-                    color: const Color(0xFFA59A94),
-                    fontSize: 12.5,
-                  ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ),
-            Image.asset(
-              "lib/assets/images/Camera.png",
-              width: 20,
-              height: 20,
-              color: Color(0xFFA59A94),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFF0E0),
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Image.asset(
-                "lib/assets/images/Voice.png",
-                width: 16,
-                height: 16,
-                color: const Color(0xFFFF5E00),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return const HomeSearchBox();
   }
 
   // Category Selector Grid

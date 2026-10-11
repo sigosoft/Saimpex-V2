@@ -71,10 +71,12 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app requires access to your location to find nearby delivery addresses.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs camera access to capture your prescription photo.</string>
+	<string>This app needs camera access to scan items and capture photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs photo library access to upload your prescription images.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs microphone access to record voice messages in chat.</string>
+	<string>This app needs microphone access for voice search and voice messages.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app uses speech recognition to turn your voice into a search.</string>
 </dict>
 </plist>
