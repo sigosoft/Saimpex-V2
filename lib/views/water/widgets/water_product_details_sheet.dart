@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../water_product_subscription_screen.dart';
+import '../../widgets/auto_slide_network_images.dart';
 
 void showWaterProductDetailsSheet(
   BuildContext context,
@@ -10,7 +11,6 @@ void showWaterProductDetailsSheet(
 }) {
   final bottomSafe = MediaQuery.of(context).padding.bottom;
   final title = product['title'] ?? 'Drinking Water 19L';
-  final image = product['image'] ?? 'lib/assets/images/19L water.png';
   final rating = product['rating'] ?? '4.6';
   final reviews = product['reviews'] ?? '(10k + reviews)';
   final price = product['price'] ?? '50 MRU';
@@ -58,16 +58,12 @@ void showWaterProductDetailsSheet(
                             children: [
                               const SizedBox(height: 8),
                               // 1. Centered Product Bottle Image
-                              Center(
-                                child: Image.asset(
-                                  image,
-                                  height: 170,
+                              SizedBox(
+                                height: 170,
+                                width: double.infinity,
+                                child: AutoSlideNetworkImages(
+                                  images: foodGalleryImages(product),
                                   fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) => const Icon(
-                                    Icons.water_drop_rounded,
-                                    size: 100,
-                                    color: Color(0xFF007BFF),
-                                  ),
                                 ),
                               ),
                               const SizedBox(height: 16),

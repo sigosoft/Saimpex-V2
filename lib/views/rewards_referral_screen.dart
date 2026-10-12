@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/app_back_button.dart';
+import '../widgets/see_all_button.dart';
 import 'redeem_detail_sheet.dart';
 
 class RewardsReferralScreen extends StatelessWidget {
@@ -144,14 +145,7 @@ class RewardsReferralScreen extends StatelessWidget {
           ),
         ),
         if (trailing)
-          Text(
-            'See All >',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          const SeeAllButton(),
       ],
     );
   }

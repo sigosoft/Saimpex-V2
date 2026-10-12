@@ -6,6 +6,7 @@ import '../../widgets/filter_chip_style.dart';
 import '../messages_screen.dart';
 import '../cart_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/auto_slide_network_images.dart';
 
 class GroceryDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -199,6 +200,11 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
       'title': 'Whole Milk 1L',
       'image':
           'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1517448931760-9bf4414148c5?w=350&auto=format&fit=crop',
+      ],
       'isVeg': true,
       'tag': 'Dairy',
       'rating': '4.6',
@@ -211,6 +217,11 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
       'title': 'Tomato',
       'image':
           'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1561136594-7f68413baa99?w=350&auto=format&fit=crop',
+      ],
       'isVeg': true,
       'tag': 'Veg',
       'rating': '4.6',
@@ -223,6 +234,11 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
       'title': 'Potato',
       'image':
           'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500&auto=format&fit=crop',
+      ],
       'isVeg': true,
       'tag': 'Veg',
       'rating': '4.6',
@@ -235,6 +251,11 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
       'title': 'Banana',
       'image':
           'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=350&auto=format&fit=crop',
+      ],
       'isVeg': true,
       'tag': 'Fruits',
       'rating': '4.6',
@@ -1172,16 +1193,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Image.network(
-                      food['image']!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: const Color(0xFFF3EFEA),
-                        child: const Icon(
-                          Icons.image_not_supported_outlined,
-                          color: Colors.grey,
-                        ),
-                      ),
+                    child: AutoSlideNetworkImages(
+                      images: foodGalleryImages(food),
                     ),
                   ),
                   Positioned(
@@ -1386,21 +1399,12 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(32),
                           ),
-                          child: Image.network(
-                            food['image']!,
+                          child: SizedBox(
                             height: 240,
                             width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                                  height: 240,
-                                  color: const Color(0xFFF3EFEA),
-                                  child: const Icon(
-                                    Icons.image_not_supported_outlined,
-                                    color: Colors.grey,
-                                    size: 48,
-                                  ),
-                                ),
+                            child: AutoSlideNetworkImages(
+                              images: foodGalleryImages(food),
+                            ),
                           ),
                         ),
 

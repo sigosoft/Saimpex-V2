@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../widgets/auto_slide_network_images.dart';
+
 class WaterProductCard extends StatelessWidget {
   final Map<String, dynamic> product;
   final bool isNotAccepting;
@@ -19,9 +21,6 @@ class WaterProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final image = (product['image'] ?? '').toString();
-    final isAsset = !image.startsWith('http');
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -58,29 +57,11 @@ class WaterProductCard extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(8, 24, 8, 28),
-                      child: isAsset
-                          ? Image.asset(
-                              image,
-                              fit: BoxFit.contain,
-                              alignment: Alignment.bottomCenter,
-                              filterQuality: FilterQuality.medium,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(
-                                Icons.water_drop_outlined,
-                                color: Color(0xFF2E9FE6),
-                                size: 40,
-                              ),
-                            )
-                          : Image.network(
-                              image,
-                              fit: BoxFit.contain,
-                              alignment: Alignment.bottomCenter,
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                Icons.water_drop_outlined,
-                                color: Color(0xFF2E9FE6),
-                                size: 40,
-                              ),
-                            ),
+                      child: AutoSlideNetworkImages(
+                        images: foodGalleryImages(product),
+                        fit: BoxFit.contain,
+                        alignment: Alignment.bottomCenter,
+                      ),
                     ),
                   ),
                 ),

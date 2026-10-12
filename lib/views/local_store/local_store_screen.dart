@@ -9,6 +9,8 @@ import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
 import 'local_store_details_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/store_map_button.dart';
+import '../../widgets/see_all_button.dart';
 import '../widgets/search_camera_button.dart';
 
 class LocalStoreScreen extends StatefulWidget {
@@ -619,24 +621,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          'See All',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        const Icon(
-                          Icons.chevron_right_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 16,
-                        ),
-                      ],
-                    ),
+                    const SeeAllButton(),
                   ],
                 ),
               ),
@@ -674,46 +659,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(22),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Store Map',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CustomPaint(
-                              painter: _StoreMapPinPainter(
-                                color: Color(0xFFFF5E00),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    const StoreMapButton(),
                   ],
                 ),
               ),
@@ -1355,60 +1301,4 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       ),
     );
   }
-}
-
-/// Outline pin-on-map icon matching the Store Map mock.
-class _StoreMapPinPainter extends CustomPainter {
-  const _StoreMapPinPainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.45
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final fill = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final w = size.width;
-    final h = size.height;
-    final cx = w * 0.5;
-
-    // Folded map base (rounded trapezoid)
-    final mapTop = h * 0.64;
-    final mapBottom = h * 0.94;
-    final map = Path()
-      ..moveTo(w * 0.12, mapBottom)
-      ..lineTo(w * 0.26, mapTop)
-      ..lineTo(w * 0.74, mapTop)
-      ..lineTo(w * 0.88, mapBottom)
-      ..close();
-    canvas.drawPath(map, stroke);
-
-    // Pin head
-    final pinCy = h * 0.28;
-    final pinR = w * 0.20;
-    canvas.drawCircle(Offset(cx, pinCy), pinR, stroke);
-
-    // Solid center dot
-    canvas.drawCircle(Offset(cx, pinCy), pinR * 0.32, fill);
-
-    // Pin tip down onto the map
-    final stemTop = pinCy + pinR * 0.72;
-    final stem = Path()
-      ..moveTo(cx - pinR * 0.50, stemTop)
-      ..lineTo(cx, mapTop)
-      ..lineTo(cx + pinR * 0.50, stemTop);
-    canvas.drawPath(stem, stroke);
-  }
-
-  @override
-  bool shouldRepaint(covariant _StoreMapPinPainter oldDelegate) =>
-      oldDelegate.color != color;
 }

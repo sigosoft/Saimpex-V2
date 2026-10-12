@@ -220,7 +220,7 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
                           'lib/assets/images/Camera.png',
                           width: 20,
                           height: 20,
-                          color: const Color.fromARGB(255, 49, 46, 44),
+                          color: Colors.black,
                         ),
                 ),
               ),

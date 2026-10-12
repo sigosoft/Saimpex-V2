@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../widgets/auto_slide_network_images.dart';
+
 typedef ExpressProductAddedCallback = void Function(
   Map<String, dynamic> product,
   String portion,
@@ -40,19 +42,11 @@ void showExpressProductDetailSheet(
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(32),
                       ),
-                      child: Image.network(
-                        product['image'].toString(),
+                      child: SizedBox(
                         height: 240,
                         width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          height: 240,
-                          color: const Color(0xFFF3EFEA),
-                          child: const Icon(
-                            Icons.image_not_supported_outlined,
-                            color: Colors.grey,
-                            size: 48,
-                          ),
+                        child: AutoSlideNetworkImages(
+                          images: foodGalleryImages(product),
                         ),
                       ),
                     ),

@@ -10,6 +10,7 @@ import 'widgets/express_filter_sheet.dart';
 import 'widgets/express_product_sheets.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/search_camera_button.dart';
+import '../widgets/auto_slide_network_images.dart';
 
 class ExpressStoreDetailScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -75,6 +76,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
       'title': 'Whole Milk 1L',
       'image':
           'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1517448931760-9bf4414148c5?w=350&auto=format&fit=crop',
+      ],
       'rating': '4.6',
       'reviews': '10k + reviews',
       'price': '50 MRU',
@@ -88,6 +94,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
       'title': 'Tomato 1Kg',
       'image':
           'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1561136594-7f68413baa99?w=350&auto=format&fit=crop',
+      ],
       'rating': '4.6',
       'reviews': '10k + reviews',
       'price': '50 MRU',
@@ -101,6 +112,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
       'title': 'Potato 1Kg',
       'image':
           'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500&auto=format&fit=crop',
+      ],
       'rating': '4.6',
       'reviews': '10k + reviews',
       'price': '50 MRU',
@@ -114,6 +130,11 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
       'title': 'Banana 1Kg',
       'image':
           'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=350&auto=format&fit=crop',
+      ],
       'rating': '4.6',
       'reviews': '10k + reviews',
       'price': '50 MRU',
@@ -866,13 +887,8 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Image.network(
-                      product['image'].toString(),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFFF3EFEA),
-                        child: const Icon(Icons.image_not_supported_outlined),
-                      ),
+                    child: AutoSlideNetworkImages(
+                      images: foodGalleryImages(product),
                     ),
                   ),
                   Positioned(

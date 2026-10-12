@@ -6,6 +6,8 @@ import '../../controllers/select_location_controller.dart';
 import 'pharmacy_items_screen.dart';
 import 'upload_prescription_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/store_map_button.dart';
+import '../../widgets/see_all_button.dart';
 import '../widgets/search_camera_button.dart';
 
 class PharmacyScreen extends StatefulWidget {
@@ -333,9 +335,8 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                 top: _headerBottomY(),
                 left: 0,
                 right: 0,
-                child: Material(
-                  elevation: 2,
-                  color: const Color(0xFFFFF4EE),
+                child: ColoredBox(
+                  color: const Color(0xFFFFE6DC),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: _buildSearchBar(),
@@ -350,8 +351,10 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
 
   // Header Bar
   Widget _buildHeader(BuildContext context) {
-    return Padding(
+    return ColoredBox(
       key: _headerKey,
+      color: const Color(0xFFFFE6DC),
+      child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -450,6 +453,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -633,7 +637,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         ),
         itemBuilder: (context, index) {
           final cat = quickCategories[index];
+          final isAll = cat['label'] == 'All';
           final isSelected = selectedCategoryIndex == index;
+          final highlight = isAll || isSelected;
 
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -651,9 +657,6 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                       'image':
                           'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&auto=format&fit=crop',
                     };
-              setState(() {
-                selectedCategoryIndex = index;
-              });
               Get.to(
                 () => PharmacyItemsScreen(
                   store: store,
@@ -672,7 +675,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                   bottom: 0,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: isSelected
+                      gradient: highlight
                           ? const LinearGradient(
                               colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
                               begin: Alignment.topLeft,
@@ -693,7 +696,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                     child: Text(
                       cat['label'] as String,
                       style: GoogleFonts.outfit(
-                        color: isSelected
+                        color: highlight
                             ? Colors.white
                             : const Color(0xFF2C2520),
                         fontSize: 10,
@@ -704,19 +707,17 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                 ),
                 // 2. Overlapping Illustration Image
                 Positioned(
-                  top: (cat['label'] == 'All') ? 12 : 0,
-                  left: (cat['label'] == 'All') ? 0 : 24,
-                  right: (cat['label'] == 'All') ? 0 : 24,
-                  bottom: (cat['label'] == 'All') ? 22 : 22,
-                  child: (cat['label'] == 'All')
+                  top: isAll ? 12 : 0,
+                  left: isAll ? 0 : 24,
+                  right: isAll ? 0 : 24,
+                  bottom: 22,
+                  child: isAll
                       ? Center(
                           child: Image.asset(
                             cat['icon'] as String,
                             width: 28,
                             height: 28,
-                            color: isSelected
-                                ? Colors.white
-                                : const Color(0xFFFF5E00),
+                            color: Colors.white,
                           ),
                         )
                       : Image.asset(cat['icon'] as String, fit: BoxFit.contain),
@@ -749,38 +750,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
               fontWeight: FontWeight.w700,
             ),
           ),
-          GestureDetector(
-            onTap: onTap,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFF5E00), width: 0.8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    actionText,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (showMapIcon) ...[
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.location_on_outlined,
-                      color: Color(0xFFFF5E00),
-                      size: 11,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
+          showMapIcon
+              ? StoreMapButton(onTap: onTap)
+              : SeeAllButton(onTap: onTap),
         ],
       ),
     );

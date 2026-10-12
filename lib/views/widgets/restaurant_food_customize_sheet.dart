@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'auto_slide_network_images.dart';
+
 typedef RestaurantAddToCartCallback = Future<void> Function(
   BuildContext context,
   Map<String, dynamic> food, {
@@ -162,11 +164,12 @@ class _RestaurantFoodCustomizeSheetState
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(32),
                           ),
-                          child: Image.network(
-                            imageUrl,
+                          child: SizedBox(
                             height: 200,
                             width: double.infinity,
-                            fit: BoxFit.cover,
+                            child: AutoSlideNetworkImages(
+                              images: foodGalleryImages(food),
+                            ),
                           ),
                         ),
                         Transform.translate(

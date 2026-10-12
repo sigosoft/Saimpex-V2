@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/app_back_button.dart';
+import '../widgets/store_map_button.dart';
+import '../widgets/see_all_button.dart';
 import 'widgets/search_camera_button.dart';
 import '../widgets/filter_chip_style.dart';
 import 'coupons_screen.dart';
@@ -581,64 +583,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ],
           ),
           if (showSeeAll)
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: onSeeAll,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                child: Row(
-                  children: [
-                    Text(
-                      'See All',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            )
+            SeeAllButton(onTap: onSeeAll)
           else
-            GestureDetector(
+            StoreMapButton(
               onTap: () => Get.to(() => const StoreMapScreen()),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFFF5E00),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Store Map',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.location_on,
-                      color: Color(0xFFFF5E00),
-                      size: 11,
-                    ),
-                  ],
-                ),
-              ),
             ),
         ],
       ),
@@ -947,26 +895,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              GestureDetector(
+              SeeAllButton(
                 onTap: () => Get.to(() => const Under30MinScreen()),
-                child: Row(
-                  children: [
-                    Text(
-                      'See All',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 14,
-                    ),
-                  ],
-                ),
               ),
             ],
           ),

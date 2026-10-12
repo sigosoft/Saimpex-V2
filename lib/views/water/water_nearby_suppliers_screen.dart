@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/store_map_button.dart';
 import '../widgets/search_camera_button.dart';
 
 import '../../controllers/home_controller.dart';
@@ -260,42 +261,7 @@ class _WaterNearbySuppliersScreenState
   }
 
   Widget _buildStoreMapButton() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Store Map',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(width: 6),
-            const Icon(
-              Icons.location_on_rounded,
-              color: Color(0xFFFF5E00),
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
+    return const Center(child: StoreMapButton());
   }
 
   Widget _buildSupplierCard(

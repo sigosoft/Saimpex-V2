@@ -5,6 +5,7 @@ import '../controllers/home_controller.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/filter_chip_style.dart';
 import '../widgets/replace_cart_item_dialog.dart';
+import 'widgets/auto_slide_network_images.dart';
 import 'widgets/food_item_sheets.dart';
 import 'chat_screen.dart';
 import 'cart_screen.dart';
@@ -303,6 +304,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       'title': 'Chiken Pasta',
       'image':
           'https://quickhomemaderecipes.com/wp-content/uploads/2024/04/Cajun-Chicken-Pasta-Recipe-1.jpg',
+      'images': [
+        'https://quickhomemaderecipes.com/wp-content/uploads/2024/04/Cajun-Chicken-Pasta-Recipe-1.jpg',
+        'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=400&q=80',
+      ],
       'isVeg': false,
       'tag': 'Spicy',
       'rating': '4.6',
@@ -315,6 +321,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       'title': 'Chiken Tagine',
       'image':
           'https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg',
+      'images': [
+        'https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg',
+        'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=400&q=80',
+      ],
       'isVeg': false,
       'tag': 'Spicy',
       'rating': '4.6',
@@ -327,6 +338,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       'title': 'Milk Dessert',
       'image':
           'https://myminichefs.com/wp-content/uploads/2022/09/vanilla-almond-milk-pudding-image.jpg',
+      'images': [
+        'https://myminichefs.com/wp-content/uploads/2022/09/vanilla-almond-milk-pudding-image.jpg',
+        'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=400&q=80',
+      ],
       'isVeg': true,
       'tag': 'Pure Dairy',
       'rating': '4.6',
@@ -339,6 +355,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       'title': 'Thieboudienne',
       'image':
           'https://img.cuisineaz.com/660x660/2016/07/17/i19848-thieboudienne.jpeg',
+      'images': [
+        'https://img.cuisineaz.com/660x660/2016/07/17/i19848-thieboudienne.jpeg',
+        'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=400&q=80',
+      ],
       'isVeg': false,
       'tag': 'Spicy',
       'rating': '4.6',
@@ -1039,11 +1060,12 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     alignment: Alignment.center,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        food['image']!,
+                      child: SizedBox(
                         width: 84,
                         height: 84,
-                        fit: BoxFit.cover,
+                        child: AutoSlideNetworkImages(
+                          images: foodGalleryImages(food),
+                        ),
                       ),
                     ),
                   ),

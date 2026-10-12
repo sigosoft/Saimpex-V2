@@ -109,7 +109,13 @@ class _SearchCameraButtonState extends State<SearchCameraButton> {
                 color: Color(0xFFFF5E00),
               ),
             )
-          : widget.child,
+          : ColorFiltered(
+              colorFilter: const ColorFilter.mode(
+                Colors.black,
+                BlendMode.srcIn,
+              ),
+              child: widget.child,
+            ),
     );
   }
 }

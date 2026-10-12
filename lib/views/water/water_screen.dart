@@ -1,5 +1,7 @@
 import 'dart:ui';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/store_map_button.dart';
+import '../../widgets/see_all_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,11 +28,10 @@ class _WaterScreenState extends State<WaterScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey _searchAnchorKey = GlobalKey();
-  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
-  /// search bar height (48) + small padding
-  static const double _stickyExtent = 56;
+  /// search bar height
+  static const double _stickyExtent = 48;
 
   final List<Map<String, String>> categories = [
     {'label': '19L Bottle', 'image': 'lib/assets/images/19L water.png'},
@@ -173,21 +174,10 @@ class _WaterScreenState extends State<WaterScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final shouldShow = top <= _headerBottomY();
+    final shouldShow = top <= MediaQuery.paddingOf(context).top;
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
-  }
-
-  double _headerBottomY() {
-    final ctx = _headerKey.currentContext;
-    if (ctx != null) {
-      final box = ctx.findRenderObject() as RenderBox?;
-      if (box != null && box.hasSize) {
-        return box.localToGlobal(Offset.zero).dy + box.size.height;
-      }
-    }
-    return MediaQuery.paddingOf(context).top + 56;
   }
 
   @override
@@ -219,26 +209,16 @@ class _WaterScreenState extends State<WaterScreen> {
           children: [
             SafeArea(
               bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    key: _headerKey,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 8),
-                      _buildHeader(context),
-                    ],
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 32),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    _buildHeader(context),
+                    const SizedBox(height: 16),
                           _buildTitle(),
                           const SizedBox(height: 16),
                           _buildBannerSlider(),
@@ -262,22 +242,17 @@ class _WaterScreenState extends State<WaterScreen> {
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
             ),
 
-            // Sticky search (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: _headerBottomY(),
+                top: MediaQuery.paddingOf(context).top,
                 left: 0,
                 right: 0,
-                child: Material(
-                  elevation: 2,
-                  color: const Color(0xFFFAF6F0),
+                child: ColoredBox(
+                  color: const Color(0xFFFFDDCF),
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
                     child: _buildSearchBar(),
                   ),
                 ),
@@ -762,29 +737,11 @@ class _WaterScreenState extends State<WaterScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              GestureDetector(
+              SeeAllButton(
                 onTap: () => Get.to(() => WaterSeeAllScreen(
                       title: 'Top Rated Suppliers',
                       items: topSuppliers,
                     )),
-                child: Row(
-                  children: [
-                    Text(
-                      'See All',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 18,
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
@@ -1296,29 +1253,11 @@ class _WaterScreenState extends State<WaterScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              GestureDetector(
+              SeeAllButton(
                 onTap: () => Get.to(() => WaterSeeAllScreen(
                       title: 'Popular Products',
                       items: popularProducts,
                     )),
-                child: Row(
-                  children: [
-                    Text(
-                      'See All',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 18,
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
@@ -1530,63 +1469,14 @@ class _WaterScreenState extends State<WaterScreen> {
               ),
               Row(
                 children: [
-                  GestureDetector(
+                  SeeAllButton(
                     onTap: () => Get.to(() => WaterSeeAllScreen(
                           title: 'Nearby Suppliers',
                           items: nearbySuppliers,
                         )),
-                    child: Row(
-                      children: [
-                        Text(
-                          'See All',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        const Icon(
-                          Icons.chevron_right_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 18,
-                        ),
-                      ],
-                    ),
                   ),
                   const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: const Color(0xFFEAD8C9),
-                        width: 1.0,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Store Map',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.location_on_outlined,
-                          color: Color(0xFFFF5E00),
-                          size: 14,
-                        ),
-                      ],
-                    ),
-                  ),
+                  const StoreMapButton(),
                 ],
               ),
             ],

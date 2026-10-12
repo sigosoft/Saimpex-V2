@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'auto_slide_network_images.dart';
+
 const String _kFoodDescription =
     'Slow-cooked traditional Moroccan tagine with tender chicken, preserved lemons, olives, and aromatic spices. Served with a side of fluffy couscous.';
 
@@ -147,18 +149,8 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                             SizedBox(
                               width: double.infinity,
                               height: 220,
-                              child: Image.network(
-                                food['image']?.toString() ?? '',
-                                fit: BoxFit.cover,
-                                alignment: Alignment.center,
-                                errorBuilder: (_, __, ___) => Container(
-                                  color: const Color(0xFFFFE8DC),
-                                  child: const Icon(
-                                    Icons.restaurant,
-                                    color: Color(0xFFFF5E00),
-                                    size: 48,
-                                  ),
-                                ),
+                              child: AutoSlideNetworkImages(
+                                images: foodGalleryImages(food),
                               ),
                             ),
                             Padding(

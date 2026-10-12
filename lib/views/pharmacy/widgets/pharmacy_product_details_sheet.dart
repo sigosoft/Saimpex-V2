@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../widgets/auto_slide_network_images.dart';
+
 void showPharmacyProductDetailsSheet(
   BuildContext context, {
   required Map<String, dynamic> food,
@@ -51,20 +53,8 @@ void showPharmacyProductDetailsSheet(
                                   ),
                                   child: AspectRatio(
                                     aspectRatio: 16 / 10,
-                                    child: Image.network(
-                                      food['image']!,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              Container(
-                                        color: const Color(0xFFF3EFEA),
-                                        child: const Icon(
-                                          Icons.image_not_supported_outlined,
-                                          color: Colors.grey,
-                                          size: 48,
-                                        ),
-                                      ),
+                                    child: AutoSlideNetworkImages(
+                                      images: foodGalleryImages(food),
                                     ),
                                   ),
                                 ),

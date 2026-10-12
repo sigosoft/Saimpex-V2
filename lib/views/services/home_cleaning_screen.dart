@@ -7,6 +7,7 @@ import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../navigation/bottom_nav_router.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
+import '../../widgets/see_all_button.dart';
 import '../select_location_screen.dart';
 import 'home_cleaning_provider_detail_screen.dart';
 
@@ -303,14 +304,7 @@ class HomeCleaningScreen extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              Text(
-                'See All',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              const SeeAllButton(),
             ],
           ),
           const SizedBox(height: 14),
@@ -446,14 +440,7 @@ class HomeCleaningScreen extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            Text(
-              'See All',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            const SeeAllButton(),
           ],
         ),
         const SizedBox(height: 12),

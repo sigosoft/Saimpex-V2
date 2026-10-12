@@ -8,6 +8,7 @@ import 'local_store_cart_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
 import '../../widgets/filter_chip_style.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/auto_slide_network_images.dart';
 
 class LocalStoreDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -100,6 +101,11 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
       'id': 'ls_prod1',
       'title': 'Butter Croissant',
       'image': 'lib/assets/images/butter_croissant.png',
+      'images': [
+        'lib/assets/images/butter_croissant.png',
+        'lib/assets/images/pain_chocolat.png',
+        'lib/assets/images/artisan_bread.png',
+      ],
       'rating': '4.6',
       'reviews': '(10k + reviews)',
       'price': '50 MRU',
@@ -110,6 +116,11 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
       'id': 'ls_prod2',
       'title': 'Artisan Bread Loaf',
       'image': 'lib/assets/images/artisan_bread.png',
+      'images': [
+        'lib/assets/images/artisan_bread.png',
+        'lib/assets/images/butter_croissant.png',
+        'lib/assets/images/citrus_lemon.png',
+      ],
       'rating': '4.6',
       'reviews': '(10k + reviews)',
       'price': '50 MRU',
@@ -120,6 +131,11 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
       'id': 'ls_prod3',
       'title': 'Pain Au Chocolat',
       'image': 'lib/assets/images/pain_chocolat.png',
+      'images': [
+        'lib/assets/images/pain_chocolat.png',
+        'lib/assets/images/butter_croissant.png',
+        'lib/assets/images/artisan_bread.png',
+      ],
       'rating': '4.6',
       'reviews': '(10k + reviews)',
       'price': '50 MRU',
@@ -130,6 +146,11 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
       'id': 'ls_prod4',
       'title': 'Citrus Lemon Tart',
       'image': 'lib/assets/images/citrus_lemon.png',
+      'images': [
+        'lib/assets/images/citrus_lemon.png',
+        'lib/assets/images/pain_chocolat.png',
+        'lib/assets/images/butter_croissant.png',
+      ],
       'rating': '4.6',
       'reviews': '(10k + reviews)',
       'price': '50 MRU',
@@ -1115,17 +1136,8 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                   child: SizedBox(
                     height: 120,
                     width: double.infinity,
-                    child: Image.asset(
-                      item['image'],
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFFF3E7DC),
-                        child: const Icon(
-                          Icons.fastfood_rounded,
-                          size: 40,
-                          color: Color(0xFFFF5E00),
-                        ),
-                      ),
+                    child: AutoSlideNetworkImages(
+                      images: foodGalleryImages(item),
                     ),
                   ),
                 ),
@@ -1319,18 +1331,8 @@ class _LocalStoreDetailsScreenState extends State<LocalStoreDetailsScreen> {
                                   ),
                                   child: AspectRatio(
                                     aspectRatio: 16 / 10,
-                                    child: Image.asset(
-                                      food['image'] as String,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Container(
-                                        color: const Color(0xFFF3EFEA),
-                                        child: const Icon(
-                                          Icons.fastfood_rounded,
-                                          color: Color(0xFFFF5E00),
-                                          size: 48,
-                                        ),
-                                      ),
+                                    child: AutoSlideNetworkImages(
+                                      images: foodGalleryImages(food),
                                     ),
                                   ),
                                 ),

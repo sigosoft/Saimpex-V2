@@ -28,6 +28,11 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
     {
       'title': 'Drinking Water 19L',
       'image': 'lib/assets/images/19Lbottle.png',
+      'images': [
+        'lib/assets/images/19Lbottle.png',
+        'lib/assets/images/Bottle water.png',
+        'lib/assets/images/set of water.png',
+      ],
       'size': '19L',
       'quantity': '1 BOTTLE',
       'rating': '4.6',
@@ -41,6 +46,11 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
     {
       'title': 'Drinking Water 10L',
       'image': 'lib/assets/images/10Lbottle.png',
+      'images': [
+        'lib/assets/images/10Lbottle.png',
+        'lib/assets/images/Bottle water.png',
+        'lib/assets/images/10L water.png',
+      ],
       'size': '10L',
       'quantity': '1 BOTTLE',
       'rating': '4.6',
@@ -54,6 +64,11 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
     {
       'title': 'Drinking Water 19L',
       'image': 'lib/assets/images/19Lbottle.png',
+      'images': [
+        'lib/assets/images/19Lbottle.png',
+        'lib/assets/images/Bottle water.png',
+        'lib/assets/images/set of water.png',
+      ],
       'size': '19L',
       'quantity': '1 BOTTLE',
       'rating': '4.6',
@@ -67,6 +82,11 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
     {
       'title': 'Drinking Water 10L',
       'image': 'lib/assets/images/10Lbottle.png',
+      'images': [
+        'lib/assets/images/10Lbottle.png',
+        'lib/assets/images/Bottle water.png',
+        'lib/assets/images/10L water.png',
+      ],
       'size': '10L',
       'quantity': '1 BOTTLE',
       'rating': '4.6',

@@ -9,6 +9,8 @@ import 'express_trending_screen.dart';
 import 'express_store_detail_screen.dart';
 import 'express_store_map_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/store_map_button.dart';
+import '../../widgets/see_all_button.dart';
 import '../widgets/search_camera_button.dart';
 
 class ExpressScreen extends StatefulWidget {
@@ -540,24 +542,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              Row(
-                children: [
-                  Text(
-                    'See All',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 9,
-                  ),
-                ],
-              ),
+              const SeeAllButton(),
             ],
           ),
           const SizedBox(height: 14),
@@ -656,61 +641,9 @@ class _ExpressScreenState extends State<ExpressScreen> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          GestureDetector(
-            onTap: onTap,
-            child: showMapIcon
-                ? Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 7,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          actionText,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFE65C34),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CustomPaint(
-                            painter: _StoreMapPinPainter(
-                              color: Color(0xFFE65C34),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : Row(
-                    children: [
-                      Text(
-                        actionText,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 9,
-                      ),
-                    ],
-                  ),
-          ),
+          showMapIcon
+              ? StoreMapButton(onTap: onTap)
+              : SeeAllButton(onTap: onTap),
         ],
       ),
     );
@@ -1116,56 +1049,4 @@ class _ExpressScreenState extends State<ExpressScreen> {
       ),
     );
   }
-}
-
-/// Outline pin-on-map icon matching the Store Map mock.
-class _StoreMapPinPainter extends CustomPainter {
-  const _StoreMapPinPainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final w = size.width;
-    final h = size.height;
-    final cx = w * 0.5;
-
-    // Map base – shallow trapezoid / folded plane
-    final mapTop = h * 0.62;
-    final mapBottom = h * 0.92;
-    final map = Path()
-      ..moveTo(w * 0.10, mapBottom)
-      ..lineTo(w * 0.26, mapTop)
-      ..lineTo(w * 0.74, mapTop)
-      ..lineTo(w * 0.90, mapBottom)
-      ..close();
-    canvas.drawPath(map, stroke);
-
-    // Pin head circle
-    final pinCy = h * 0.26;
-    final pinR = w * 0.195;
-    canvas.drawCircle(Offset(cx, pinCy), pinR, stroke);
-
-    // Center hole
-    canvas.drawCircle(Offset(cx, pinCy), pinR * 0.36, stroke);
-
-    // Pin stem / tip into the map
-    final stemTop = pinCy + pinR * 0.75;
-    final stem = Path()
-      ..moveTo(cx - pinR * 0.48, stemTop)
-      ..lineTo(cx, mapTop)
-      ..lineTo(cx + pinR * 0.48, stemTop);
-    canvas.drawPath(stem, stroke);
-  }
-
-  @override
-  bool shouldRepaint(covariant _StoreMapPinPainter oldDelegate) =>
-      oldDelegate.color != color;
 }

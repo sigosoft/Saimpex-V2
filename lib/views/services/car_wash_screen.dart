@@ -9,6 +9,7 @@ import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../navigation/bottom_nav_router.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
+import '../../widgets/see_all_button.dart';
 import '../select_location_screen.dart';
 import 'car_wash_provider_detail_screen.dart';
 
@@ -343,14 +344,7 @@ class CarWashScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              'See All',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            const SeeAllButton(),
           ],
         ),
         const SizedBox(height: 12),

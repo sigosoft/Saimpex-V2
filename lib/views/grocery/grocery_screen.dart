@@ -6,6 +6,7 @@ import '../../controllers/select_location_controller.dart';
 import 'grocery_stores_screen.dart';
 import 'grocery_details_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/see_all_button.dart';
 import '../widgets/search_camera_button.dart';
 
 class GroceryScreen extends StatefulWidget {
@@ -667,7 +668,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 "lib/assets/images/Camera.png",
                 width: 18,
                 height: 18,
-                color: const Color(0xFFA59A94),
+                color: Colors.black,
               ),
             ),
             const SizedBox(width: 12),
@@ -1726,27 +1727,29 @@ class _GroceryScreenState extends State<GroceryScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          GestureDetector(
-            onTap: onTap,
-            child: Row(
-              children: [
-                Text(
-                  actionText,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+          actionText == 'See All'
+              ? SeeAllButton(onTap: onTap)
+              : GestureDetector(
+                  onTap: onTap,
+                  child: Row(
+                    children: [
+                      Text(
+                        actionText,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: Color(0xFFFF5E00),
+                        size: 16,
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 2),
-                const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 9,
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

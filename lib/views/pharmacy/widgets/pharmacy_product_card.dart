@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../widgets/auto_slide_network_images.dart';
+
 class PharmacyProductCard extends StatelessWidget {
   final Map<String, dynamic> food;
   final bool isNotAccepting;
@@ -14,6 +16,8 @@ class PharmacyProductCard extends StatelessWidget {
     required this.onTap,
     required this.onAdd,
   });
+
+  bool get _needsPrescription => food['prescriptionRequired'] == true;
 
   @override
   Widget build(BuildContext context) {
@@ -31,27 +35,50 @@ class PharmacyProductCard extends StatelessWidget {
             ),
           ],
         ),
-        clipBehavior: Clip.antiAlias,
+        clipBehavior: _needsPrescription ? Clip.none : Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 5,
               child: Stack(
+                clipBehavior: Clip.none,
                 children: [
                   Positioned.fill(
-                    child: Image.network(
-                      food['image']!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: const Color(0xFFF3EFEA),
-                        child: const Icon(
-                          Icons.image_not_supported_outlined,
-                          color: Colors.grey,
-                        ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(18),
+                      ),
+                      child: AutoSlideNetworkImages(
+                        images: foodGalleryImages(food),
+                        blurSigma: _needsPrescription ? 4 : 0,
+                        showDots: !_needsPrescription,
                       ),
                     ),
                   ),
+                  if (_needsPrescription)
+                    Positioned(
+                      left: 10,
+                      right: 10,
+                      bottom: -13,
+                      child: Container(
+                        height: 28,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF008282),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Text(
+                          'Prescription Required',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            height: 1,
+                          ),
+                        ),
+                      ),
+                    ),
                   Positioned(
                     top: 0,
                     left: 0,
@@ -83,7 +110,12 @@ class PharmacyProductCard extends StatelessWidget {
             Expanded(
               flex: 6,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                padding: EdgeInsets.fromLTRB(
+                  10,
+                  _needsPrescription ? 18 : 8,
+                  10,
+                  10,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -235,4 +267,5 @@ class PharmacyProductCard extends StatelessWidget {
       ),
     );
   }
+
 }

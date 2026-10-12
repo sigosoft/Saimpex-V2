@@ -306,6 +306,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'title': 'Paracetamol 500 Mg',
       'image':
           'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=350&auto=format&fit=crop',
+      ],
       'tag': '10 Tablets',
       'rating': '4.6',
       'reviews': '10k + reviews',
@@ -319,6 +324,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'title': 'Adhesive Bandages',
       'image':
           'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=350&auto=format&fit=crop',
+      ],
       'tag': '20 Pieces • Waterproof',
       'rating': '4.6',
       'reviews': '10k + reviews',
@@ -332,6 +342,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'title': 'Digital Thermometer',
       'image':
           'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=350&auto=format&fit=crop',
+      ],
       'tag': 'Fast Reading • Waterproof',
       'rating': '4.6',
       'reviews': '10k + reviews',
@@ -345,6 +360,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'title': 'Baby Diapers',
       'image':
           'https://images.unsplash.com/photo-1716972065448-e08a46809530?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1716972065448-e08a46809530?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1544126592-807ade215a0b?w=350&auto=format&fit=crop',
+      ],
       'isVeg': true,
       'tag': 'Soft & Absorbent',
       'rating': '4.6',
@@ -354,6 +374,44 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       'discount': '50% OFF',
       'description':
           'Soft, highly absorbent baby diapers designed for all-day comfort. Leak-lock core keeps baby dry while gentle materials protect sensitive skin.',
+    },
+    {
+      'title': 'Amoxicillin 500 Mg',
+      'image':
+          'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=350&auto=format&fit=crop',
+      ],
+      'tag': '20 Pieces • Waterproof',
+      'rating': '4.6',
+      'reviews': '10k + reviews',
+      'price': '50 MRU',
+      'originalPrice': '100 MRU',
+      'discount': '50% OFF',
+      'prescriptionRequired': true,
+      'description':
+          'Amoxicillin is a prescription antibiotic used to treat bacterial infections. A valid prescription is required before this medicine can be added to your order.',
+    },
+    {
+      'title': 'Amoxicillin 500 Mg',
+      'image':
+          'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=350&auto=format&fit=crop',
+      'images': [
+        'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=350&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=350&auto=format&fit=crop',
+      ],
+      'tag': '20 Pieces • Waterproof',
+      'rating': '4.6',
+      'reviews': '10k + reviews',
+      'price': '50 MRU',
+      'originalPrice': '100 MRU',
+      'discount': '50% OFF',
+      'prescriptionRequired': true,
+      'description':
+          'Amoxicillin is a prescription antibiotic used to treat bacterial infections. A valid prescription is required before this medicine can be added to your order.',
     },
   ];
 

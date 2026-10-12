@@ -9,6 +9,7 @@ import '../../widgets/bottom_chat_icon.dart';
 import 'widgets/water_product_details_sheet.dart';
 import 'water_subscription_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/auto_slide_network_images.dart';
 
 class WaterSupplierDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> supplier;
@@ -43,6 +44,11 @@ class _WaterSupplierDetailsScreenState
       'id': 'w_prod1',
       'title': 'Drinking Water 19L',
       'image': 'lib/assets/images/19L water.png',
+      'images': [
+        'lib/assets/images/19L water.png',
+        'lib/assets/images/Bottle water.png',
+        'lib/assets/images/set of water.png',
+      ],
       'bottleTag': '1 BOTTLE',
       'sizeTag': '19L',
       'rating': '4.6',
@@ -55,6 +61,11 @@ class _WaterSupplierDetailsScreenState
       'id': 'w_prod2',
       'title': 'Drinking Water 10L',
       'image': 'lib/assets/images/10L water.png',
+      'images': [
+        'lib/assets/images/10L water.png',
+        'lib/assets/images/Bottle water.png',
+        'lib/assets/images/10Lbottle.png',
+      ],
       'bottleTag': '1 BOTTLE',
       'sizeTag': '10L',
       'rating': '4.6',
@@ -67,6 +78,11 @@ class _WaterSupplierDetailsScreenState
       'id': 'w_prod3',
       'title': 'Drinking Water 19L',
       'image': 'lib/assets/images/19L water.png',
+      'images': [
+        'lib/assets/images/19L water.png',
+        'lib/assets/images/Bottle water.png',
+        'lib/assets/images/set of water.png',
+      ],
       'bottleTag': '1 BOTTLE',
       'sizeTag': '19L',
       'rating': '4.6',
@@ -79,6 +95,11 @@ class _WaterSupplierDetailsScreenState
       'id': 'w_prod4',
       'title': 'Drinking Water 10L',
       'image': 'lib/assets/images/10L water.png',
+      'images': [
+        'lib/assets/images/10L water.png',
+        'lib/assets/images/Bottle water.png',
+        'lib/assets/images/10Lbottle.png',
+      ],
       'bottleTag': '1 BOTTLE',
       'sizeTag': '10L',
       'rating': '4.6',
@@ -767,14 +788,9 @@ class _WaterSupplierDetailsScreenState
                     width: double.infinity,
                     color: const Color(0xFFEBF4FE),
                     padding: const EdgeInsets.all(12),
-                    child: Image.asset(
-                      item['image'] as String,
+                    child: AutoSlideNetworkImages(
+                      images: foodGalleryImages(item),
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const Icon(
-                        Icons.water_drop,
-                        size: 50,
-                        color: Color(0xFF007BFF),
-                      ),
                     ),
                   ),
                 ),

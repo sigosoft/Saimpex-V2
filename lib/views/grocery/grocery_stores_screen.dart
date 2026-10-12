@@ -5,6 +5,7 @@ import '../../controllers/home_controller.dart';
 import '../../widgets/filter_chip_style.dart';
 import 'grocery_details_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/store_map_button.dart';
 import '../widgets/search_camera_button.dart';
 
 class GroceryStoresScreen extends StatefulWidget {
@@ -770,34 +771,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
               fontWeight: FontWeight.w700,
             ),
           ),
-          // Store Map button
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Color(0xFFFFFCF8),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFFF5E00), width: 1),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Store Map',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.map_outlined,
-                  color: Color(0xFFFF5E00),
-                  size: 11,
-                ),
-              ],
-            ),
-          ),
+          const StoreMapButton(),
         ],
       ),
     );

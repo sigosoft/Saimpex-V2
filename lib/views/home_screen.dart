@@ -15,6 +15,7 @@ import 'courier/courier_screen.dart';
 import 'local_store/local_store_screen.dart';
 import 'under_30_min_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
+import '../widgets/see_all_button.dart';
 import 'main_shell_screen.dart';
 import 'widgets/chatbot_head.dart';
 import 'widgets/home_search_box.dart';
@@ -607,27 +608,7 @@ class HomeScreen extends StatelessWidget {
                 ),
             ],
           ),
-          GestureDetector(
-            onTap: onSeeAll,
-            child: Row(
-              children: [
-                Text(
-                  'See All',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 2),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 14,
-                ),
-              ],
-            ),
-          ),
+          SeeAllButton(onTap: onSeeAll),
         ],
       ),
     );
