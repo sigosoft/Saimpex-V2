@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'chat_screen.dart';
 import '../constants/text_styles.dart';
 import '../widgets/app_back_button.dart';
+import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
@@ -94,19 +95,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Widget build(BuildContext context) {
     final chats = _filteredChats;
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFFAF6F0),
-            Color(0xFFFFEEE5),
-            Color(0xFFFFDDCF),
-          ],
-          stops: [0.0, 0.55, 1.0],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
+    return HomeBackgroundBlend(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: PreferredSize(

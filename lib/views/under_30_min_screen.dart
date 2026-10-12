@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/app_back_button.dart';
+import 'widgets/search_camera_button.dart';
 import '../widgets/filter_chip_style.dart';
 import 'coupons_screen.dart';
 import 'restaurant_details_screen.dart';
@@ -124,7 +125,9 @@ class Under30MinScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // 2. Search Field Row
-            Padding(
+            ScanSearchHost(
+              builder: (controller) {
+                return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
                 height: 48,
@@ -150,6 +153,7 @@ class Under30MinScreen extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
+                        controller: controller,
                         decoration: InputDecoration(
                           hintText: 'What do you need today?',
                           hintStyle: GoogleFonts.outfit(
@@ -161,10 +165,13 @@ class Under30MinScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Image.asset(
-                      "lib/assets/images/Camera.png",
-                      width: 20,
-                      height: 20,
+                    SearchCameraButton(
+                      controller: controller,
+                      child: Image.asset(
+                        "lib/assets/images/Camera.png",
+                        width: 20,
+                        height: 20,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Container(
@@ -185,6 +192,8 @@ class Under30MinScreen extends StatelessWidget {
                   ],
                 ),
               ),
+            );
+              },
             ),
             const SizedBox(height: 16),
 

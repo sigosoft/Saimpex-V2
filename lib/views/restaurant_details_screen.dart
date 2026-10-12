@@ -205,6 +205,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     BuildContext context,
     Map<String, dynamic> food, {
     bool fromBottomSheet = false,
+    String portion = 'Full portion',
+    int? price,
+    int quantity = 1,
   }) async {
     final canAdd = await _confirmReplaceCartIfNeeded(context);
     if (!canAdd || !context.mounted) return;
@@ -225,12 +228,14 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       }
     }
 
+    final selectedPrice = price ?? _parsePrice(food['price']?.toString());
     controller.setCartItem(
       storeName: _currentRestaurantName(),
       itemName: food['title']?.toString(),
-      itemPortion: '1 Portion',
-      basePrice: _parsePrice(food['price']?.toString()),
+      itemPortion: portion,
+      basePrice: selectedPrice,
       itemImage: food['image']?.toString(),
+      quantity: quantity,
     );
 
     setState(() {
@@ -911,12 +916,20 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           widget.restaurant['name']?.toString() ??
                           'Golden Bakery',
                       itemName:
+                          controller.lastCartItem?['itemName']?.toString() ??
                           lastAddedFood?['title']?.toString() ??
                           'Chicken Tagine',
-                      itemPortion: '1 Portion',
-                      basePrice: _parsePrice(
-                        lastAddedFood?['price']?.toString(),
-                      ),
+                      itemPortion:
+                          controller.lastCartItem?['itemPortion']
+                              ?.toString() ??
+                          'Full portion',
+                      basePrice: () {
+                        final saved = controller.lastCartItem?['basePrice'];
+                        if (saved is num) return saved.toInt();
+                        return _parsePrice(
+                          lastAddedFood?['price']?.toString(),
+                        );
+                      }(),
                       itemImage: lastAddedFood?['image']?.toString(),
                     ),
                   );
@@ -1239,11 +1252,15 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     return showFoodItemCustomizeSheet(
       context: context,
       food: food,
-      onAddToCart: (sheetContext) => _addFoodToCart(
-        sheetContext,
-        food,
-        fromBottomSheet: fromBottomSheet,
-      ),
+      onAddToCart: (sheetContext, {required portion, required price, required quantity}) =>
+          _addFoodToCart(
+            sheetContext,
+            food,
+            fromBottomSheet: fromBottomSheet,
+            portion: portion,
+            price: price,
+            quantity: quantity,
+          ),
     );
   }
 

@@ -5,6 +5,7 @@ import 'order_success_screen.dart';
 import '../controllers/home_controller.dart';
 import '../constants/text_styles.dart';
 import '../widgets/app_back_button.dart';
+import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
@@ -36,6 +37,7 @@ class _CartScreenState extends State<CartScreen> {
   bool isDelivery = true; // default to Delivery as in reference image 2
   int quantity = 0;
   bool usePoints = true;
+  bool _minimumReminderScheduled = false;
   late int selectedPaymentIndex;
   String scheduleText = "Pick a delivery time";
 
@@ -54,7 +56,8 @@ class _CartScreenState extends State<CartScreen> {
         (savedItem['itemName'] != null || savedItem['storeName'] != null);
 
     if (hasDirectParams) {
-      quantity = 1;
+      final saved = controller?.cartItemCount.value ?? 0;
+      quantity = saved > 0 ? saved : 1;
     } else if (hasSavedItem) {
       quantity = (controller?.cartItemCount.value ?? 0) > 0
           ? (controller?.cartItemCount.value ?? 1)
@@ -224,14 +227,28 @@ class _CartScreenState extends State<CartScreen> {
       final rawPay = itemTotal - pointsOff + currentDeliveryFee + currentTax;
       final toPay = (quantity == 0 || rawPay < 0) ? 0 : rawPay;
 
+      if (quantity > 0 && itemTotal < 500) {
+        if (!_minimumReminderScheduled) {
+          _minimumReminderScheduled = true;
+          final amount = itemTotal;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _showMinimumOrderReminder(context, amount);
+          });
+        }
+      } else {
+        _minimumReminderScheduled = false;
+      }
+
       final canPop = Navigator.canPop(context);
 
-      return Scaffold(
-        backgroundColor: const Color(0xFFFFFDF9),
+      return HomeBackgroundBlend(
+        child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Container(
-            color: const Color(0xFFFFFDF9),
+            color: Colors.transparent,
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 8,
               left: 16,
@@ -1673,6 +1690,10 @@ class _CartScreenState extends State<CartScreen> {
                       // 9. Gradient Pay Button
                       GestureDetector(
                         onTap: () {
+                          if (itemTotal < 500) {
+                            _showMinimumOrderReminder(context, itemTotal);
+                            return;
+                          }
                           _syncHomeCartBadgeCount(0);
                           Get.to(() => const OrderSuccessScreen());
                         },
@@ -1725,8 +1746,185 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ],
         ),
+        ),
       );
     });
+  }
+
+  void _showMinimumOrderReminder(BuildContext context, int orderValue) {
+    const minimum = 500;
+    final current = orderValue < 0 ? 0 : orderValue;
+    final remaining = minimum - current;
+    final progress = (current / minimum).clamp(0.0, 1.0);
+
+    showDialog<void>(
+      context: context,
+      barrierColor: const Color(0x8A2A241F),
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(dialogContext),
+                child: Container(
+                  width: 34,
+                  height: 34,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFE8DC),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Color(0xFFFF5E00),
+                    size: 18,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  gradient: const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Color(0xFFFFF8F2),
+                      Color(0xFFFFF4EA),
+                      Color(0xFFFFE7C2),
+                    ],
+                    stops: [0.0, 0.62, 1.0],
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.06),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.shopping_cart,
+                            color: Color(0xFFFF5E00),
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Minimum order: 500 MRU',
+                            maxLines: 1,
+                            softWrap: false,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2118),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              height: 1.15,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text.rich(
+                      TextSpan(
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF3D2C22),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        children: [
+                          const TextSpan(text: 'Add '),
+                          TextSpan(
+                            text: '$remaining MRU',
+                            style: const TextStyle(
+                              color: Color(0xFFAB2F00),
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const TextSpan(
+                            text: ' more to place your order',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      height: 8,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE6E2DE),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      child: FractionallySizedBox(
+                        widthFactor: progress == 0 ? 0.001 : progress,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFFFF5E00),
+                                Color(0xFFFFC14D),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(dialogContext),
+                      child: Container(
+                        height: 52,
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        child: Text(
+                          'Continue to Shoping',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showScheduleBottomSheet(BuildContext context) {

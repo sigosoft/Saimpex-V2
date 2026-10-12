@@ -9,6 +9,7 @@ import 'express_trending_screen.dart';
 import 'express_store_detail_screen.dart';
 import 'express_store_map_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 class ExpressScreen extends StatefulWidget {
   const ExpressScreen({super.key});
@@ -20,8 +21,8 @@ class ExpressScreen extends StatefulWidget {
 class _ExpressScreenState extends State<ExpressScreen> {
   int _bannerIndex = 0;
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   final GlobalKey _searchAnchorKey = GlobalKey();
-  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
   /// search bar (46) + padding (14 top, 8 bottom)
@@ -169,6 +170,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
   void dispose() {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -179,21 +181,10 @@ class _ExpressScreenState extends State<ExpressScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final shouldShow = top <= _headerBottomY();
+    final shouldShow = top <= MediaQuery.paddingOf(context).top;
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
-  }
-
-  double _headerBottomY() {
-    final ctx = _headerKey.currentContext;
-    if (ctx != null) {
-      final box = ctx.findRenderObject() as RenderBox?;
-      if (box != null && box.hasSize) {
-        return box.localToGlobal(Offset.zero).dy + box.size.height;
-      }
-    }
-    return MediaQuery.paddingOf(context).top + 56;
   }
 
   @override
@@ -221,18 +212,14 @@ class _ExpressScreenState extends State<ExpressScreen> {
           children: [
             SafeArea(
               bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    Padding(
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                             child: Text(
                               'Express',
@@ -277,24 +264,16 @@ class _ExpressScreenState extends State<ExpressScreen> {
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
             ),
 
-            // Sticky search (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: _headerBottomY(),
+                top: MediaQuery.paddingOf(context).top,
                 left: 0,
                 right: 0,
-                child: Material(
-                  elevation: 2,
+                child: ColoredBox(
                   color: const Color(0xFFFFF3EC),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: _buildSearchBar(),
-                  ),
+                  child: _buildSearchBar(),
                 ),
               ),
           ],
@@ -305,7 +284,6 @@ class _ExpressScreenState extends State<ExpressScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      key: _headerKey,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
@@ -364,33 +342,36 @@ class _ExpressScreenState extends State<ExpressScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            height: 36,
+            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
-              ),
+              color: const Color(0xFFFF5E00),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  'lib/assets/images/Coin.png',
-                  width: 16,
-                  height: 16,
-                  errorBuilder: (_, __, ___) => const Icon(
-                    Icons.monetization_on_rounded,
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
                     color: Colors.white,
-                    size: 16,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'lib/assets/images/wallet_home.png',
+                    width: 16,
+                    height: 16,
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 3),
                 Text(
                   '300 MRU',
                   style: GoogleFonts.outfit(
                     color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -487,6 +468,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
+                controller: _searchController,
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'What do you need today?',
@@ -500,15 +482,18 @@ class _ExpressScreenState extends State<ExpressScreen> {
                 ),
               ),
             ),
-            Image.asset(
-              'lib/assets/images/Camera.png',
-              width: 18,
-              height: 18,
-              color: const Color(0xFFA59A94),
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.camera_alt_outlined,
-                color: Color(0xFFA59A94),
-                size: 18,
+            SearchCameraButton(
+              controller: _searchController,
+              child: Image.asset(
+                'lib/assets/images/Camera.png',
+                width: 18,
+                height: 18,
+                color: const Color(0xFFA59A94),
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.camera_alt_outlined,
+                  color: Color(0xFFA59A94),
+                  size: 18,
+                ),
               ),
             ),
             const SizedBox(width: 12),

@@ -12,6 +12,7 @@ import 'courier/widgets/courier_order_cards.dart';
 import '../controllers/home_controller.dart';
 import '../constants/text_styles.dart';
 import '../widgets/app_back_button.dart';
+import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 import '../widgets/cancel_order_bottom_sheet.dart';
@@ -92,15 +93,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFFAF6F0), Color(0xFFFFEEE5), Color(0xFFFFDDCF)],
-          stops: [0.0, 0.55, 1.0],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
+    return HomeBackgroundBlend(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: PreferredSize(

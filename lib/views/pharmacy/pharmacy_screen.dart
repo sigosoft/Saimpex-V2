@@ -6,6 +6,7 @@ import '../../controllers/select_location_controller.dart';
 import 'pharmacy_items_screen.dart';
 import 'upload_prescription_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 class PharmacyScreen extends StatefulWidget {
   const PharmacyScreen({Key? key}) : super(key: key);
@@ -17,6 +18,7 @@ class PharmacyScreen extends StatefulWidget {
 class _PharmacyScreenState extends State<PharmacyScreen> {
   int selectedCategoryIndex = 0; // Default to "All"
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   final GlobalKey _searchAnchorKey = GlobalKey();
   final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
@@ -34,6 +36,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   void dispose() {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -410,39 +413,37 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
           ),
           const SizedBox(width: 8),
 
-          // Points indicator pill
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            height: 36,
+            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: const Color(0xFFFF5E00),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFF5E00).withOpacity(0.2),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  "lib/assets/images/Coin.png",
-                  width: 16,
-                  height: 16,
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'lib/assets/images/wallet_home.png',
+                    width: 16,
+                    height: 16,
+                  ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 3),
                 Text(
-                  "300 MRU",
+                  '300 MRU',
                   style: GoogleFonts.outfit(
                     color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -574,6 +575,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
+                controller: _searchController,
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'What do you need today?',
@@ -587,11 +589,14 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                 ),
               ),
             ),
-            Image.asset(
-              "lib/assets/images/Camera.png",
-              width: 20,
-              height: 20,
-              color: const Color(0xFFA59A94),
+            SearchCameraButton(
+              controller: _searchController,
+              child: Image.asset(
+                "lib/assets/images/Camera.png",
+                width: 20,
+                height: 20,
+                color: const Color(0xFFA59A94),
+              ),
             ),
             const SizedBox(width: 12),
             Container(

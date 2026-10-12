@@ -9,6 +9,7 @@ import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
 import 'local_store_details_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 class LocalStoreScreen extends StatefulWidget {
   const LocalStoreScreen({super.key});
@@ -22,8 +23,8 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   final PageController _bannerController = PageController();
   int _selectedCategoryIndex = 0;
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   final GlobalKey _searchAnchorKey = GlobalKey();
-  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
   /// search bar height (48) + small padding
@@ -49,7 +50,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'label': 'Bakery',
       'icon': 'lib/assets/images/croissant.png',
       'gradient': const LinearGradient(
-        colors: [Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
+        colors: [Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -58,7 +59,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'label': 'Spice Trade',
       'icon': 'lib/assets/images/Spices.png',
       'gradient': const LinearGradient(
-        colors:[Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
+        colors:[Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -67,7 +68,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'label': 'Florist',
       'icon': 'lib/assets/images/Flowers.png',
       'gradient': const LinearGradient(
-        colors: [Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
+        colors: [Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -76,7 +77,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'label': 'Fish Market',
       'icon': 'lib/assets/images/Fish.png',
       'gradient': const LinearGradient(
-        colors:[Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
+        colors:[Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -85,7 +86,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
       'label': 'Stationery',
       'icon': 'lib/assets/images/Stationery.png',
       'gradient': const LinearGradient(
-        colors: [Color.fromARGB(255, 183, 180, 177), Color(0xFFFFFFFF)],
+        colors: [Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
@@ -170,6 +171,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   void dispose() {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     _bannerController.dispose();
     super.dispose();
   }
@@ -181,21 +183,10 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    final shouldShow = top <= _headerBottomY();
+    final shouldShow = top <= MediaQuery.paddingOf(context).top;
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
-  }
-
-  double _headerBottomY() {
-    final ctx = _headerKey.currentContext;
-    if (ctx != null) {
-      final box = ctx.findRenderObject() as RenderBox?;
-      if (box != null && box.hasSize) {
-        return box.localToGlobal(Offset.zero).dy + box.size.height;
-      }
-    }
-    return MediaQuery.paddingOf(context).top + 56;
   }
 
   Widget _buildSearchBar() {
@@ -224,18 +215,31 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                'What do you need today?',
+              child: TextField(
+                controller: _searchController,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFA0938A),
+                  color: const Color(0xFF2C2520),
                   fontSize: 13,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'What do you need today?',
+                  hintStyle: GoogleFonts.outfit(
+                    color: const Color(0xFFA0938A),
+                    fontSize: 13,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
               ),
             ),
-            const Icon(
-              Icons.qr_code_scanner_rounded,
-              color: Color(0xFFA0938A),
-              size: 20,
+            SearchCameraButton(
+              controller: _searchController,
+              child: const Icon(
+                Icons.qr_code_scanner_rounded,
+                color: Color(0xFFA0938A),
+                size: 20,
+              ),
             ),
             const SizedBox(width: 10),
             Container(
@@ -274,14 +278,15 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    key: _headerKey,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 10),
-
-                      // Fixed header: back, location, wallet
-                      Padding(
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 10),
+                          Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           children: [
@@ -356,47 +361,36 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           onTap: () =>
                               Get.to(() => const RewardsReferralScreen()),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 7,
-                            ),
+                            height: 36,
+                            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFF5E00),
                               borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFFFF5E00,
-                                  ).withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Container(
-                                  width: 16,
-                                  height: 16,
+                                  width: 28,
+                                  height: 28,
                                   decoration: const BoxDecoration(
-                                    color: Colors.white24,
+                                    color: Colors.white,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Center(
-                                    child: Text(
-                                      '🪙',
-                                      style: TextStyle(fontSize: 10),
-                                    ),
+                                  alignment: Alignment.center,
+                                  child: Image.asset(
+                                    'lib/assets/images/wallet_home.png',
+                                    width: 16,
+                                    height: 16,
                                   ),
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 3),
                                 Text(
-                                  '200 MRU',
+                                  '300 MRU',
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ],
@@ -406,16 +400,6 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                       ],
                     ),
                   ),
-                    ],
-                  ),
-
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
                           const SizedBox(height: 16),
 
                           // Title: Local Stores
@@ -759,17 +743,15 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               ),
             ),
 
-            // Sticky search (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: _headerBottomY(),
+                top: MediaQuery.paddingOf(context).top,
                 left: 0,
                 right: 0,
-                child: Material(
-                  elevation: 2,
+                child: ColoredBox(
                   color: const Color(0xFFFFF7F2),
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
                     child: _buildSearchBar(),
                   ),
                 ),

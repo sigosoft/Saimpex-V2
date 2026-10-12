@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'water_supplier_details_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 class WaterSeeAllScreen extends StatefulWidget {
   final String title;
@@ -27,6 +28,12 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
   void initState() {
     super.initState();
     _filteredItems = List.from(widget.items);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _onSearchChanged(String query) {
@@ -200,10 +207,14 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.qr_code_scanner_rounded,
-                color: Color(0xFFA59A94),
-                size: 20,
+              SearchCameraButton(
+                controller: _searchController,
+                onFilled: _onSearchChanged,
+                child: const Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Color(0xFFA59A94),
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 8),
               Container(

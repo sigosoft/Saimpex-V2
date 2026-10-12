@@ -8,6 +8,7 @@ import '../coupons_screen.dart';
 import 'express_store_detail_screen.dart';
 import 'widgets/express_filter_sheet.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
   const ExpressFifteenMinDeliveryScreen({super.key});
@@ -144,7 +145,9 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
   }
 
   Widget _buildSearchBar() {
-    return Padding(
+    return ScanSearchHost(
+      builder: (controller) {
+        return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 46,
@@ -170,6 +173,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
+                controller: controller,
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'What do you need today?',
@@ -183,15 +187,18 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Image.asset(
-              'lib/assets/images/Camera.png',
-              width: 18,
-              height: 18,
-              color: const Color(0xFFA59A94),
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.camera_alt_outlined,
-                color: Color(0xFFA59A94),
-                size: 18,
+            SearchCameraButton(
+              controller: controller,
+              child: Image.asset(
+                'lib/assets/images/Camera.png',
+                width: 18,
+                height: 18,
+                color: const Color(0xFFA59A94),
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.camera_alt_outlined,
+                  color: Color(0xFFA59A94),
+                  size: 18,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -218,6 +225,8 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+      },
     );
   }
 

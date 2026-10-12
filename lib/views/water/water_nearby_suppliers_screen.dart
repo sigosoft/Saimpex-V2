@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 import '../../controllers/home_controller.dart';
 import 'water_product_subscription_screen.dart';
@@ -215,15 +216,19 @@ class _WaterNearbySuppliersScreenState
               ),
             ),
             const SizedBox(width: 8),
-            Image.asset(
-              'lib/assets/images/Camera.png',
-              width: 20,
-              height: 20,
-              color: const Color(0xFF9A938C),
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.qr_code_scanner_rounded,
-                color: Color(0xFF9A938C),
-                size: 20,
+            SearchCameraButton(
+              controller: searchController,
+              onFilled: (_) => setState(() {}),
+              child: Image.asset(
+                'lib/assets/images/Camera.png',
+                width: 20,
+                height: 20,
+                color: const Color(0xFF9A938C),
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Color(0xFF9A938C),
+                  size: 20,
+                ),
               ),
             ),
             const SizedBox(width: 12),

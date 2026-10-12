@@ -9,6 +9,7 @@ import 'car_wash_screen.dart';
 import 'home_cleaning_screen.dart';
 import 'laundry_services_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/home_background_blend.dart';
 
 class ServicesScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -150,25 +151,14 @@ class ServicesScreen extends StatelessWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFFE6DC),
+        statusBarColor: Color(0xFFFDDCC9),
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
         systemNavigationBarColor: Color(0xFFFAF6F0),
         systemNavigationBarIconBrightness: Brightness.dark,
         systemNavigationBarContrastEnforced: false,
       ),
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFFFE6DC),
-              Color(0xFFFFF4EE),
-              Color(0xFFFAF6F0),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      child: HomeBackgroundBlend(
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(

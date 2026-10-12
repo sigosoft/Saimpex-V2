@@ -11,6 +11,7 @@ import '../rewards_referral_screen.dart';
 import 'water_supplier_details_screen.dart';
 import 'water_see_all_screen.dart';
 import 'water_subscription_screen.dart';
+import '../widgets/search_camera_button.dart';
 
 class WaterScreen extends StatefulWidget {
   const WaterScreen({super.key});
@@ -23,6 +24,7 @@ class _WaterScreenState extends State<WaterScreen> {
   int _bannerIndex = 0;
   final PageController _bannerController = PageController();
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   final GlobalKey _searchAnchorKey = GlobalKey();
   final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
@@ -159,6 +161,7 @@ class _WaterScreenState extends State<WaterScreen> {
   void dispose() {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     _bannerController.dispose();
     super.dispose();
   }
@@ -191,14 +194,27 @@ class _WaterScreenState extends State<WaterScreen> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFAF6F0),
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
         systemNavigationBarColor: Color(0xFFFAF6F0),
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFAF6F0),
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFFFDDCF),
+              Color(0xFFFFEEE5),
+              Color(0xFFFAF6F0),
+            ],
+            stops: [0.0, 0.38, 1.0],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
         body: Stack(
           children: [
             SafeArea(
@@ -269,7 +285,8 @@ class _WaterScreenState extends State<WaterScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   // 1. Header Bar
@@ -345,48 +362,39 @@ class _WaterScreenState extends State<WaterScreen> {
 
           const SizedBox(width: 8),
 
-          // Points/Coins Pill Button
           GestureDetector(
             onTap: () => Get.to(() => const RewardsReferralScreen()),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              height: 36,
+              padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+                color: const Color(0xFFFF5E00),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFF5E00).withOpacity(0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
-                    'lib/assets/images/Coin.png',
-                    width: 18,
-                    height: 18,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.monetization_on_rounded,
-                        color: Colors.white,
-                        size: 16,
-                      );
-                    },
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Image.asset(
+                      'lib/assets/images/wallet_home.png',
+                      width: 16,
+                      height: 16,
+                    ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 3),
                   Text(
                     '300 MRU',
                     style: GoogleFonts.outfit(
                       color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -576,6 +584,7 @@ class _WaterScreenState extends State<WaterScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: TextField(
+                controller: _searchController,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
@@ -594,15 +603,18 @@ class _WaterScreenState extends State<WaterScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            Image.asset(
-              'lib/assets/images/Camera.png',
-              width: 20,
-              height: 20,
-              color: const Color(0xFF9A938C),
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.qr_code_scanner_rounded,
-                color: Color(0xFF9A938C),
-                size: 20,
+            SearchCameraButton(
+              controller: _searchController,
+              child: Image.asset(
+                'lib/assets/images/Camera.png',
+                width: 20,
+                height: 20,
+                color: const Color(0xFF9A938C),
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Color(0xFF9A938C),
+                  size: 20,
+                ),
               ),
             ),
             const SizedBox(width: 12),

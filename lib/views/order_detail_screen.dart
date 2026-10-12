@@ -187,37 +187,67 @@ class OrderDetailScreen extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildStepperNode(
-                                    isActive: true,
-                                    icon: Icons.check,
-                                    title: 'Order placed',
-                                    time: '22 Oct 2023, 10:00 AM',
-                                  ),
-                                  _buildStepperNode(
-                                    isActive: true,
-                                    icon: Icons.shopping_bag_outlined,
-                                    title: 'Picking Items',
-                                    time: '22 Oct 2023, 10:05 AM',
-                                  ),
-                                  _buildStepperNode(
-                                    isActive: true,
-                                    showGlow: true,
-                                    icon: isSelfPickup
-                                        ? Icons.inventory_2_outlined
-                                        : Icons.two_wheeler_rounded,
-                                    title: isSelfPickup
-                                        ? 'Ready for pickup'
-                                        : 'On the way',
-                                    time: '22 Oct 2023, 10:15 AM',
-                                  ),
-                                  _buildStepperNode(
-                                    isActive: false,
-                                    icon: Icons.check,
-                                    title: 'Delivered',
-                                    time: '',
-                                  ),
-                                ],
+                                children: isSelfPickup
+                                    ? [
+                                        _buildStepperNode(
+                                          isActive: true,
+                                          icon: Icons.check,
+                                          title: 'Order placed',
+                                          time: '22 Oct 2025, 10:00 AM',
+                                        ),
+                                        _buildStepperNode(
+                                          isActive: true,
+                                          icon: Icons.check,
+                                          iconAsset:
+                                              'lib/assets/images/preparingfood.png',
+                                          title: 'Preparing food',
+                                          time: '22 Oct 2025, 10:05 AM',
+                                        ),
+                                        _buildStepperNode(
+                                          isActive: true,
+                                          icon: Icons.check,
+                                          iconAsset:
+                                              'lib/assets/images/readyforpickup.png',
+                                          title: 'Ready for pickup',
+                                          time: '22 Oct 2025, 10:10 AM',
+                                        ),
+                                        _buildStepperNode(
+                                          isActive: false,
+                                          icon: Icons.check,
+                                          title: 'Delivered',
+                                          time: '',
+                                        ),
+                                      ]
+                                    : [
+                                        _buildStepperNode(
+                                          isActive: true,
+                                          icon: Icons.check,
+                                          title: 'Order placed',
+                                          time: '22 Oct 2025, 10:00 AM',
+                                        ),
+                                        _buildStepperNode(
+                                          isActive: true,
+                                          icon: Icons.check,
+                                          iconAsset:
+                                              'lib/assets/images/preparingfood.png',
+                                          title: 'Preparing food',
+                                          time: '22 Oct 2025, 10:05 AM',
+                                        ),
+                                        _buildStepperNode(
+                                          isActive: true,
+                                          icon: Icons.check,
+                                          iconAsset:
+                                              'lib/assets/images/ontheway.png',
+                                          title: 'On the way',
+                                          time: '22 Oct 2025, 10:10 AM',
+                                        ),
+                                        _buildStepperNode(
+                                          isActive: false,
+                                          icon: Icons.check,
+                                          title: 'Delivered',
+                                          time: '',
+                                        ),
+                                      ],
                               ),
                             ],
                           ),
@@ -715,6 +745,7 @@ class OrderDetailScreen extends StatelessWidget {
     required IconData icon,
     required String title,
     required String time,
+    String? iconAsset,
     bool showGlow = false,
   }) {
     return SizedBox(
@@ -739,11 +770,19 @@ class OrderDetailScreen extends StatelessWidget {
                     ]
                   : null,
             ),
-            child: Icon(
-              icon,
-              color: isActive ? Colors.white : const Color(0xFFC4B8B0),
-              size: 18,
-            ),
+            alignment: Alignment.center,
+            child: iconAsset != null
+                ? Image.asset(
+                    iconAsset,
+                    width: 18,
+                    height: 18,
+                    fit: BoxFit.contain,
+                  )
+                : Icon(
+                    icon,
+                    color: isActive ? Colors.white : const Color(0xFFC4B8B0),
+                    size: 18,
+                  ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -759,13 +798,18 @@ class OrderDetailScreen extends StatelessWidget {
           ),
           if (time.isNotEmpty) ...[
             const SizedBox(height: 2),
-            Text(
-              time,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF8C7D73),
-                fontSize: 7,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                time,
+                maxLines: 1,
+                softWrap: false,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF8C7D73),
+                  fontSize: 8,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ],

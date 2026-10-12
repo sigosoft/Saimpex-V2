@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/app_back_button.dart';
+import '../widgets/home_background_blend.dart';
 import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/car_wash_bookings_store.dart';
@@ -304,14 +305,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFAF6F0),
+        statusBarColor: Color(0xFFFDDCC9),
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
         systemNavigationBarColor: Color(0xFFFAF6F0),
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFAF6F0),
+      child: HomeBackgroundBlend(
+        child: Scaffold(
+        backgroundColor: Colors.transparent,
         body: SafeArea(
           bottom: false,
           child: Column(
@@ -351,6 +353,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

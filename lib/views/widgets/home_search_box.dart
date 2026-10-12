@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../utils/toast_helper.dart';
+import '../home_scanner_screen.dart';
+import 'search_camera_button.dart';
 
 class HomeSearchBox extends StatefulWidget {
   const HomeSearchBox({super.key});
@@ -17,7 +18,6 @@ class HomeSearchBox extends StatefulWidget {
 class _HomeSearchBoxState extends State<HomeSearchBox> {
   final TextEditingController _controller = TextEditingController();
   final SpeechToText _speech = SpeechToText();
-  final ImagePicker _picker = ImagePicker();
 
   bool _listening = false;
   bool _scanning = false;
@@ -122,35 +122,18 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
 
   Future<void> _scanImage() async {
     if (_scanning) return;
-    final photo = await _picker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 85,
-    );
-    if (photo == null || !mounted) return;
+    final path = await Get.to<String>(() => const HomeScannerScreen());
+    if (path == null || !mounted) return;
 
     setState(() => _scanning = true);
-    final labeler = ImageLabeler(
-      options: ImageLabelerOptions(confidenceThreshold: 0.4),
-    );
     try {
-      final labels = await labeler.processImage(
-        InputImage.fromFilePath(photo.path),
-      );
-      if (!mounted) return;
-      if (labels.isEmpty) {
-        showAppToast('Could not identify that image.');
-        return;
-      }
-      labels.sort((a, b) => b.confidence.compareTo(a.confidence));
-      final text = _titleCase(labels.first.label);
+      final text = await labelScannedImage(path);
+      if (!mounted || text == null) return;
       _controller.value = TextEditingValue(
         text: text,
         selection: TextSelection.collapsed(offset: text.length),
       );
-    } catch (_) {
-      if (mounted) showAppToast('Could not scan that image.');
     } finally {
-      await labeler.close();
       if (mounted) setState(() => _scanning = false);
     }
   }

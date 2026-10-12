@@ -6,6 +6,7 @@ import '../../controllers/select_location_controller.dart';
 import 'grocery_stores_screen.dart';
 import 'grocery_details_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 class GroceryScreen extends StatefulWidget {
   const GroceryScreen({super.key});
@@ -17,8 +18,8 @@ class GroceryScreen extends StatefulWidget {
 class _GroceryScreenState extends State<GroceryScreen> {
   int selectedSubcategoryIndex = 0;
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   final GlobalKey _searchAnchorKey = GlobalKey();
-  final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
 
   /// search bar + subcategories row
@@ -34,20 +35,8 @@ class _GroceryScreenState extends State<GroceryScreen> {
   void dispose() {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
-  }
-
-  /// Exact Y where the location header ends on screen (status bar + real header).
-  double _headerBottomY() {
-    final ctx = _headerKey.currentContext;
-    if (ctx != null) {
-      final box = ctx.findRenderObject() as RenderBox?;
-      if (box != null && box.hasSize) {
-        return box.localToGlobal(Offset.zero).dy + box.size.height;
-      }
-    }
-    // Fallback only before first layout
-    return MediaQuery.paddingOf(context).top + 56;
   }
 
   void _handleScroll() {
@@ -57,8 +46,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
     final box = ctx.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final top = box.localToGlobal(Offset.zero).dy;
-    // Pin search + subcategories once they reach the measured header
-    final shouldShow = top <= _headerBottomY();
+    final shouldShow = top <= MediaQuery.paddingOf(context).top;
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
     }
@@ -238,21 +226,14 @@ class _GroceryScreenState extends State<GroceryScreen> {
           children: [
             SafeArea(
               bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Fixed app bar (location)
-                  _buildHeader(context),
-
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Collapses away: title + AI banners
-                          Padding(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(context),
+                    Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
@@ -307,19 +288,14 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
             ),
 
-            // Sticky search + subcategories (flush under measured location header)
             if (_showStickySearch)
               Positioned(
-                top: _headerBottomY(),
+                top: MediaQuery.paddingOf(context).top,
                 left: 0,
                 right: 0,
-                child: Material(
-                  elevation: 2,
+                child: ColoredBox(
                   color: const Color(0xFFFFEEE5),
                   child: _buildStickySearchSubcatsSection(),
                 ),
@@ -333,7 +309,6 @@ class _GroceryScreenState extends State<GroceryScreen> {
   // Header Bar
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      key: _headerKey,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -395,46 +370,37 @@ class _GroceryScreenState extends State<GroceryScreen> {
           ),
           const SizedBox(width: 8),
 
-          // Points indicator pill
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            height: 36,
+            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: const Color(0xFFFF5E00),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFF5E00).withOpacity(0.2),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  "lib/assets/images/Points.png",
-                  width: 16,
-                  height: 16,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      "lib/assets/images/Coin.png",
-                      width: 16,
-                      height: 16,
-                    );
-                  },
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'lib/assets/images/wallet_home.png',
+                    width: 16,
+                    height: 16,
+                  ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 3),
                 Text(
-                  "200 MRU",
+                  '300 MRU',
                   style: GoogleFonts.outfit(
                     color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -681,6 +647,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
+                controller: _searchController,
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'What do you need today?',
@@ -694,11 +661,14 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 ),
               ),
             ),
-            Image.asset(
-              "lib/assets/images/Camera.png",
-              width: 18,
-              height: 18,
-              color: const Color(0xFFA59A94),
+            SearchCameraButton(
+              controller: _searchController,
+              child: Image.asset(
+                "lib/assets/images/Camera.png",
+                width: 18,
+                height: 18,
+                color: const Color(0xFFA59A94),
+              ),
             ),
             const SizedBox(width: 12),
             Container(

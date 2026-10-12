@@ -9,6 +9,7 @@ import '../messages_screen.dart';
 import 'widgets/express_filter_sheet.dart';
 import 'widgets/express_product_sheets.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 class ExpressStoreDetailScreen extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -26,6 +27,7 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
   Map<String, dynamic>? lastAddedItem;
   String? lastAddedItemPortion;
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   final GlobalKey _searchAnchorKey = GlobalKey();
   bool _showStickySearch = false;
 
@@ -176,6 +178,7 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
   void dispose() {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -599,6 +602,7 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
+                controller: _searchController,
                 decoration: InputDecoration(
                   hintText: 'Find something from this Store',
                   hintStyle: GoogleFonts.outfit(
@@ -610,15 +614,18 @@ class _ExpressStoreDetailScreenState extends State<ExpressStoreDetailScreen> {
                 ),
               ),
             ),
-            Image.asset(
-              'lib/assets/images/Camera.png',
-              width: 18,
-              height: 18,
-              color: const Color(0xFFA59A94),
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.qr_code_scanner_rounded,
-                color: Color(0xFFA59A94),
-                size: 18,
+            SearchCameraButton(
+              controller: _searchController,
+              child: Image.asset(
+                'lib/assets/images/Camera.png',
+                width: 18,
+                height: 18,
+                color: const Color(0xFFA59A94),
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.qr_code_scanner_rounded,
+                  color: Color(0xFFA59A94),
+                  size: 18,
+                ),
               ),
             ),
             const SizedBox(width: 12),

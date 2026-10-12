@@ -86,12 +86,13 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     return '$hour:$minute $period';
   }
 
-  void _sendMessage([String? preset, IconData? icon]) {
+  void _sendMessage([String? preset, IconData? icon, String? iconAsset]) {
     final text = (preset ?? _messageController.text).trim();
     if (text.isEmpty) return;
 
     _resetIdleTimer();
     final now = DateTime.now();
+    final asset = iconAsset ?? _assetForUserText(text);
 
     setState(() {
       _messages.add(
@@ -99,7 +100,8 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           text: text,
           isUser: true,
           time: now,
-          icon: icon ?? _iconForUserText(text),
+          icon: asset == null ? icon : null,
+          iconAsset: asset,
         ),
       );
       _messageController.clear();
@@ -112,11 +114,11 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     });
   }
 
-  IconData? _iconForUserText(String text) {
+  String? _assetForUserText(String text) {
     final lower = text.toLowerCase();
-    if (lower.contains('track')) return Icons.delivery_dining_rounded;
-    if (lower.contains('cancel')) return Icons.cancel_outlined;
-    if (lower.contains('offer')) return Icons.percent_rounded;
+    if (lower.contains('track')) return 'lib/assets/images/track_order.png';
+    if (lower.contains('cancel')) return 'lib/assets/images/close.png';
+    if (lower.contains('offer')) return 'lib/assets/images/offers.png';
     return null;
   }
 
@@ -477,21 +479,30 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     final actions = [
       _QuickAction(
         label: 'Track my order',
-        icon: Icons.delivery_dining_rounded,
+        iconAsset: 'lib/assets/images/track_order.png',
         onTap: () => _sendMessage(
           'Track my order',
-          Icons.delivery_dining_rounded,
+          null,
+          'lib/assets/images/track_order.png',
         ),
       ),
       _QuickAction(
         label: 'Cancel order',
-        icon: Icons.cancel_outlined,
-        onTap: () => _sendMessage('Cancel order', Icons.cancel_outlined),
+        iconAsset: 'lib/assets/images/close.png',
+        onTap: () => _sendMessage(
+          'Cancel order',
+          null,
+          'lib/assets/images/close.png',
+        ),
       ),
       _QuickAction(
         label: 'Offers',
-        icon: Icons.percent_rounded,
-        onTap: () => _sendMessage('Offers', Icons.percent_rounded),
+        iconAsset: 'lib/assets/images/offers.png',
+        onTap: () => _sendMessage(
+          'Offers',
+          null,
+          'lib/assets/images/offers.png',
+        ),
       ),
     ];
 
@@ -503,7 +514,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
         child: Row(
           children: [
             for (var i = 0; i < actions.length; i++) ...[
-              if (i > 0) const SizedBox(width: 8),
+              if (i > 0) const SizedBox(width: 10),
               _QuickActionChip(action: actions[i]),
             ],
           ],
@@ -598,6 +609,7 @@ class _ChatItem {
   final bool isUser;
   final DateTime time;
   final IconData? icon;
+  final String? iconAsset;
 
   const _ChatItem._({
     required this.type,
@@ -605,6 +617,7 @@ class _ChatItem {
     required this.isUser,
     required this.time,
     this.icon,
+    this.iconAsset,
   });
 
   factory _ChatItem.text({
@@ -612,6 +625,7 @@ class _ChatItem {
     required bool isUser,
     required DateTime time,
     IconData? icon,
+    String? iconAsset,
   }) {
     return _ChatItem._(
       type: _ChatItemType.text,
@@ -619,6 +633,7 @@ class _ChatItem {
       isUser: isUser,
       time: time,
       icon: icon,
+      iconAsset: iconAsset,
     );
   }
 
@@ -640,11 +655,13 @@ class _LangOption {
 
 class _QuickAction {
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsset;
   final VoidCallback onTap;
   const _QuickAction({
     required this.label,
-    required this.icon,
+    this.icon,
+    this.iconAsset,
     required this.onTap,
   });
 }
@@ -658,16 +675,13 @@ class _QuickActionChip extends StatelessWidget {
     return GestureDetector(
       onTap: action.onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.fromLTRB(6, 6, 14, 6),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: AppColors.primaryOrange.withOpacity(0.2),
-          ),
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primaryOrange.withOpacity(0.1),
+              color: const Color(0xFFFF5E00).withValues(alpha: 0.08),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -676,14 +690,38 @@ class _QuickActionChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(action.icon, color: AppColors.primaryOrange, size: 16),
-            const SizedBox(width: 6),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFF1E8),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: action.iconAsset != null
+                  ? Image.asset(
+                      action.iconAsset!,
+                      width: action.iconAsset == 'lib/assets/images/close.png'
+                          ? 20
+                          : 16,
+                      height: action.iconAsset == 'lib/assets/images/close.png'
+                          ? 20
+                          : 16,
+                      fit: BoxFit.contain,
+                    )
+                  : Icon(
+                      action.icon,
+                      color: const Color(0xFFFF5E00),
+                      size: 16,
+                    ),
+            ),
+            const SizedBox(width: 8),
             Text(
               action.label,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
-                fontSize: 12.5,
-                fontWeight: FontWeight.w500,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -734,12 +772,27 @@ class _MessageBubble extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (isUser && message.icon != null) ...[
-                    Icon(
-                      message.icon,
-                      color: AppColors.primaryOrange,
-                      size: 18,
-                    ),
+                  if (isUser &&
+                      (message.iconAsset != null || message.icon != null)) ...[
+                    if (message.iconAsset != null)
+                      Image.asset(
+                        message.iconAsset!,
+                        width: message.iconAsset ==
+                                'lib/assets/images/close.png'
+                            ? 22
+                            : 18,
+                        height: message.iconAsset ==
+                                'lib/assets/images/close.png'
+                            ? 22
+                            : 18,
+                        fit: BoxFit.contain,
+                      )
+                    else
+                      Icon(
+                        message.icon,
+                        color: AppColors.primaryOrange,
+                        size: 18,
+                      ),
                     const SizedBox(width: 8),
                   ],
                   Flexible(

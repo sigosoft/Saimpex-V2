@@ -5,8 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
-
+import '../home_scanner_screen.dart';
 import 'prescription_success_screen.dart';
 
 class UploadPrescriptionScreen extends StatefulWidget {
@@ -28,7 +27,6 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
   bool uploadedIsImage = false;
   final TextEditingController contactController = TextEditingController();
   final FocusNode contactFocus = FocusNode();
-  final ImagePicker _imagePicker = ImagePicker();
 
   final List<Map<String, String>> pharmacies = const [
     {
@@ -618,29 +616,15 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
   }
 
   Future<void> _takePhoto() async {
-    setState(() => isPickingFile = true);
-    try {
-      final photo = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 85,
-        maxWidth: 2000,
-      );
-      if (photo == null) return;
+    final path = await Get.to<String>(() => const HomeScannerScreen());
+    if (path == null || !mounted) return;
 
-      setState(() {
-        uploadedPath = photo.path;
-        uploadedLabel = photo.name;
-        uploadedIsImage = true;
-      });
-      _showToast('Prescription photo captured');
-    } catch (_) {
-      _showToast(
-        'Unable to open camera. Please allow camera permission and fully restart the app.',
-        isError: true,
-      );
-    } finally {
-      if (mounted) setState(() => isPickingFile = false);
-    }
+    setState(() {
+      uploadedPath = path;
+      uploadedLabel = path.split(Platform.pathSeparator).last;
+      uploadedIsImage = true;
+    });
+    _showToast('Prescription photo captured');
   }
 
   Future<void> _uploadFile() async {

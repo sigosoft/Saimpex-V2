@@ -53,10 +53,26 @@ class HomeScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildTopBlendContainer(context, controller),
-
-                          // Category Selector Grid
-                          _buildCategoryGrid(controller),
+                          DecoratedBox(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Color(0xFFFDDCC9),
+                                  Color(0xFFFDDCC9),
+                                  Color(0xFFFAF6F0),
+                                ],
+                                stops: [0.0, 0.62, 1.0],
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                _buildTopBlendContainer(context, controller),
+                                _buildCategoryGrid(controller),
+                              ],
+                            ),
+                          ),
 
                             // Save More Today Section
                             _buildSaveMoreToday(),
@@ -135,7 +151,7 @@ class HomeScreen extends StatelessWidget {
       child: Stack(
         children: [
           const Positioned.fill(
-            child: ColoredBox(color: Color.fromARGB(255, 255, 214, 189)),
+            child: ColoredBox(color: Color(0xFFFDDCC9)),
           ),
           const Positioned.fill(
             child: DecoratedBox(

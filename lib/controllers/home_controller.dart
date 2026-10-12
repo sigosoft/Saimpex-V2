@@ -61,6 +61,7 @@ class HomeController extends GetxController {
     String? itemPortion,
     dynamic basePrice,
     String? itemImage,
+    int quantity = 1,
   }) {
     int parsedPrice = 50;
     if (basePrice is num) {
@@ -70,6 +71,7 @@ class HomeController extends GetxController {
           int.tryParse(basePrice.replaceAll(RegExp(r'[^0-9]'), '')) ?? 50;
     }
 
+    final count = quantity < 1 ? 1 : quantity;
     lastCartItem = {
       'storeName': storeName,
       'itemName': itemName,
@@ -77,7 +79,7 @@ class HomeController extends GetxController {
       'basePrice': parsedPrice,
       'itemImage': itemImage,
     };
-    cartItemCount.value = 1;
+    cartItemCount.value = count;
   }
 
   void clearCart() {

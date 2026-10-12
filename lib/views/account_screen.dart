@@ -17,6 +17,7 @@ import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'widgets/language_selector.dart';
 import '../widgets/app_back_button.dart';
+import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/animated_coin.dart';
 import '../navigation/bottom_nav_router.dart';
@@ -63,8 +64,9 @@ class _AccountScreenState extends State<AccountScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
         systemNavigationBarContrastEnforced: false,
       ),
-      child: Scaffold(
-      backgroundColor: const Color(0xFFFAF6F0),
+      child: HomeBackgroundBlend(
+        child: Scaffold(
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           Column(
@@ -147,6 +149,7 @@ class _AccountScreenState extends State<AccountScreen> {
           ],
         ],
       ),
+        ),
       ),
     );
   }

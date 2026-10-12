@@ -5,6 +5,7 @@ import '../../controllers/home_controller.dart';
 import '../../widgets/filter_chip_style.dart';
 import 'grocery_details_screen.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/search_camera_button.dart';
 
 class GroceryStoresScreen extends StatefulWidget {
   const GroceryStoresScreen({super.key});
@@ -699,11 +700,14 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                 ),
               ),
             ),
-            Image.asset(
-              "lib/assets/images/Camera.png",
-              width: 18,
-              height: 18,
-              color: const Color(0xFFA59A94),
+            SearchCameraButton(
+              controller: _searchController,
+              child: Image.asset(
+                "lib/assets/images/Camera.png",
+                width: 18,
+                height: 18,
+                color: const Color(0xFFA59A94),
+              ),
             ),
             const SizedBox(width: 12),
             Container(

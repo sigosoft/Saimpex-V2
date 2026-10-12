@@ -26,7 +26,12 @@ Future<void> showFoodItemDetailSheet({
 Future<void> showFoodItemCustomizeSheet({
   required BuildContext context,
   required Map<String, dynamic> food,
-  required Future<void> Function(BuildContext sheetContext) onAddToCart,
+  required Future<void> Function(
+    BuildContext sheetContext, {
+    required String portion,
+    required int price,
+    required int quantity,
+  }) onAddToCart,
 }) {
   return showModalBottomSheet(
     context: context,
@@ -436,7 +441,12 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
 
 class _FoodItemCustomizeSheet extends StatefulWidget {
   final Map<String, dynamic> food;
-  final Future<void> Function(BuildContext sheetContext) onAddToCart;
+  final Future<void> Function(
+    BuildContext sheetContext, {
+    required String portion,
+    required int price,
+    required int quantity,
+  }) onAddToCart;
 
   const _FoodItemCustomizeSheet({
     required this.food,
@@ -1060,7 +1070,17 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: GestureDetector(
-                            onTap: () => widget.onAddToCart(context),
+                            onTap: () {
+                              final isHalf = _portionIndex == 0;
+                              widget.onAddToCart(
+                                context,
+                                portion: isHalf
+                                    ? 'Half portion'
+                                    : 'Full portion',
+                                price: isHalf ? 375 : 750,
+                                quantity: _quantity,
+                              );
+                            },
                             child: Container(
                               height: 48,
                               decoration: BoxDecoration(

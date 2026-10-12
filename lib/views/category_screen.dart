@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/app_back_button.dart';
+import 'widgets/search_camera_button.dart';
 import '../widgets/filter_chip_style.dart';
 import 'coupons_screen.dart';
 import 'restaurant_details_screen.dart';
@@ -193,10 +194,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 ),
               ),
             ),
-            Image.asset(
-              "lib/assets/images/Camera.png",
-              width: 20,
-              height: 20,
+            SearchCameraButton(
+              controller: _searchController,
+              child: Image.asset(
+                "lib/assets/images/Camera.png",
+                width: 20,
+                height: 20,
+              ),
             ),
             const SizedBox(width: 10),
             Container(
@@ -1582,7 +1586,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         inactiveTrackColor: const Color(0xFFF3EFEA),
                         activeTickMarkColor: Colors.transparent,
                         inactiveTickMarkColor: Colors.transparent,
-                        overlayColor: const Color(0xFFFF5E00).withOpacity(0.12),
+                        overlayColor: Colors.transparent,
                         valueIndicatorColor: const Color(0xFFFF5E00),
                         rangeValueIndicatorShape:
                             const RectangularRangeSliderValueIndicatorShape(),
@@ -1635,9 +1639,9 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                   Center(
                     child: Text(
                       'Sort by',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.instrumentSans(
                         color: const Color(0xFF2C2520),
-                        fontSize: 14,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1794,12 +1798,6 @@ class CustomRangeThumbShape extends RangeSliderThumbShape {
     Thumb thumb = Thumb.start,
   }) {
     final Canvas canvas = context.canvas;
-
-    // Draw shadow
-    final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.15)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
-    canvas.drawCircle(center, enabledThumbRadius, shadowPaint);
 
     // Draw white background
     final fillPaint = Paint()

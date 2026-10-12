@@ -148,20 +148,21 @@ void showWaterProductDetailsSheet(
                               ),
                               const SizedBox(height: 20),
 
-                              // 6. Features Row (Contactless Production, 15 Steps Purification, Quality Checked)
+                              // 6. Features Row (Contactless Production, 10 Stage Purification, Quality Checked)
                               SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 physics: const BouncingScrollPhysics(),
                                 child: Row(
                                   children: [
                                     _buildFeatureCard(
-                                      icon: Icons.all_inbox_rounded,
+                                      iconAsset:
+                                          'lib/assets/images/contactless.png',
                                       title: 'Contactless\nProduction',
                                     ),
                                     const SizedBox(width: 12),
                                     _buildFeatureCard(
                                       icon: Icons.water_drop_outlined,
-                                      title: '15 Steps\nPurification',
+                                      title: '10 Stage\nPurification',
                                     ),
                                     const SizedBox(width: 12),
                                     _buildFeatureCard(
@@ -382,7 +383,11 @@ void showWaterProductDetailsSheet(
   );
 }
 
-Widget _buildFeatureCard({required IconData icon, required String title}) {
+Widget _buildFeatureCard({
+  IconData? icon,
+  String? iconAsset,
+  required String title,
+}) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     decoration: BoxDecoration(
@@ -406,7 +411,15 @@ Widget _buildFeatureCard({required IconData icon, required String title}) {
             color: Color(0xFFFFF0E6),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: const Color(0xFFFF5E00), size: 18),
+          alignment: Alignment.center,
+          child: iconAsset != null
+              ? Image.asset(
+                  iconAsset,
+                  width: 18,
+                  height: 18,
+                  fit: BoxFit.contain,
+                )
+              : Icon(icon, color: const Color(0xFFFF5E00), size: 18),
         ),
         const SizedBox(width: 10),
         Text(
