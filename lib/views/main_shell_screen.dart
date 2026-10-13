@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';
+import '../core/storage/session_store.dart';
+import '../models/profile_repository.dart';
+import '../utils/api_language.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'account_screen.dart';
+import 'login_screen.dart';
 import 'cart_screen.dart';
 import 'home_screen.dart';
 import 'messages_screen.dart';
@@ -90,6 +96,29 @@ class _MainShellScreenState extends State<MainShellScreen>
     _to = initial;
 
     _navWorker = ever<int>(_controller.currentNavIndex, _onNavIndex);
+    unawaited(_loadSavedProfile());
+  }
+
+  Future<void> _loadSavedProfile() async {
+    if (!Get.isRegistered<SessionStore>() ||
+        !Get.isRegistered<ProfileRepository>()) {
+      return;
+    }
+    final session = Get.find<SessionStore>();
+    final token = session.token;
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final profile = await Get.find<ProfileRepository>().fetchProfile(
+        apiLanguageCode(),
+      );
+      final currentToken = session.token;
+      if (!mounted || currentToken == null || currentToken.isEmpty) return;
+      await session.saveSession(
+        token: currentToken,
+        user: profile.mergedWith(session.readUser()),
+      );
+    } catch (_) {}
   }
 
   void _onNavIndex(int index) {
@@ -117,6 +146,15 @@ class _MainShellScreenState extends State<MainShellScreen>
 
   @override
   Widget build(BuildContext context) {
+    return Obx(() {
+      if (!Get.find<SessionStore>().isLoggedIn.value) {
+        return const LoginScreen();
+      }
+      return _buildShell(context);
+    });
+  }
+
+  Widget _buildShell(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {

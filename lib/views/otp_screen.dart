@@ -258,37 +258,49 @@ class OtpScreen extends StatelessWidget {
   }
 
   Widget _buildContinueButton(OtpController controller) {
-    return GestureDetector(
-      onTap: controller.verifyOtp,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
-          gradient: const LinearGradient(
-            colors: [AppColors.primaryOrange, AppColors.gradientYellow],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryOrange.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+    return Obx(() {
+      final loading = controller.isLoading.value;
+      return GestureDetector(
+        onTap: loading ? null : controller.verifyOtp,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            gradient: const LinearGradient(
+              colors: [AppColors.primaryOrange, AppColors.gradientYellow],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            'Continue',
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primaryOrange.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Center(
+            child: loading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    'Continue',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

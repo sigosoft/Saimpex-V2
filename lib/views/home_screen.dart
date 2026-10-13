@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
+import '../widgets/profile_image_view.dart';
 import 'category_screen.dart';
 import 'water/water_screen.dart';
 import 'grocery/grocery_screen.dart';
@@ -326,20 +327,7 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           // Profile Avatar
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFFF5E00), width: 1.5),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop',
-                ),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          const _HomeAvatar(),
         ],
       ),
     );
@@ -2125,6 +2113,32 @@ class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
             }),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _HomeAvatar extends StatelessWidget {
+  const _HomeAvatar();
+
+  static const _fallback =
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop';
+
+  @override
+  Widget build(BuildContext context) {
+    return ProfileImageView(
+      size: 36,
+      placeholder: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFFF5E00), width: 1.5),
+          image: const DecorationImage(
+            image: NetworkImage(_fallback),
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
     );
   }

@@ -5,6 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../constants/colors.dart';
 import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
+import '../core/network/api_exception.dart';
+import '../core/storage/session_store.dart';
+import '../models/auth_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
+import '../widgets/profile_image_view.dart';
 import 'my_favourites_screen.dart';
 import 'rewards_referral_screen.dart';
 import 'saved_addresses_screen.dart';
@@ -50,6 +56,40 @@ class _AccountScreenState extends State<AccountScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => const _LogoutSheet(),
+    );
+  }
+
+  String _accountName() {
+    final name = Get.find<SessionStore>().readUser()?.name.trim() ?? '';
+    return name.isEmpty ? 'Ahmed Ould Salem' : name;
+  }
+
+  String _accountPhone() {
+    final user = Get.find<SessionStore>().readUser();
+    if (user == null || user.mobile.trim().isEmpty) {
+      return '+222 45 12 34 56';
+    }
+    final code = user.countryCode?.trim() ?? '';
+    if (code.isEmpty) return user.mobile;
+    return '$code ${user.mobile}';
+  }
+
+  Widget _buildAccountAvatar() {
+    const fallback =
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop';
+    return ProfileImageView(
+      size: 62,
+      placeholder: Container(
+        width: 62,
+        height: 62,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            image: NetworkImage(fallback),
+            fit: BoxFit.cover,
+          ),
+        ),
+      ),
     );
   }
 
@@ -266,41 +306,34 @@ class _AccountScreenState extends State<AccountScreen> {
           const SizedBox(height: 22),
           Row(
             children: [
-              Container(
-                width: 62,
-                height: 62,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+              _buildAccountAvatar(),
               const SizedBox(width: 14),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Ahmed Ould Salem',
-                      style: AppTextStyles.title(color: Colors.white),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '+222 45 12 34 56',
-                      style: AppTextStyles.subtitle(
-                        color: Colors.white.withOpacity(0.95),
+                child: Obx(() {
+                  Get.find<SessionStore>().profileRevision.value;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _accountName(),
+                        style: AppTextStyles.title(color: Colors.white),
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _accountPhone(),
+                        style: AppTextStyles.subtitle(
+                          color: Colors.white.withOpacity(0.95),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
               ),
               GestureDetector(
-                onTap: () => Get.to(() => const EditProfileScreen()),
+                onTap: () async {
+                  await Get.to(() => const EditProfileScreen());
+                  if (mounted) setState(() {});
+                },
                 child: Container(
                   width: 34,
                   height: 34,
@@ -902,6 +935,7 @@ class _DeleteAccountSheet extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
+                    Get.find<SessionStore>().clear();
                     Get.offAll(() => const LoginScreen());
                   },
                   child: Container(
@@ -1024,7 +1058,7 @@ class _LogoutSheet extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
-                    Get.offAll(() => const LoginScreen());
+                    _logout();
                   },
                   child: Container(
                     height: 48,
@@ -1053,5 +1087,39 @@ class _LogoutSheet extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+bool _logoutInProgress = false;
+
+Future<void> _logout() async {
+  if (_logoutInProgress) return;
+  _logoutInProgress = true;
+
+  final session = Get.find<SessionStore>();
+  if (session.token == null || session.token!.isEmpty) {
+    await session.clear();
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().selectNavigation(HomeController.navHome);
+    }
+    _logoutInProgress = false;
+    return;
+  }
+
+  try {
+    final message = await Get.find<AuthRepository>().logout(apiLanguageCode());
+    await session.clear();
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().selectNavigation(HomeController.navHome);
+    }
+    if (message.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showAppToast(message, backgroundColor: AppColors.primaryOrange);
+      });
+    }
+  } on ApiException catch (error) {
+    showAppToast(error.message);
+  } finally {
+    _logoutInProgress = false;
   }
 }

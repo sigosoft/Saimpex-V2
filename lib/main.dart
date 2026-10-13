@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'core/app_dependencies.dart';
+import 'core/storage/session_store.dart';
+import 'views/main_shell_screen.dart';
 import 'views/onboarding_screen.dart';
 import 'widgets/no_internet_guard.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppDependencies.init();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -47,7 +51,18 @@ class MyApp extends StatelessWidget {
           child: child ?? const SizedBox.shrink(),
         );
       },
-      home: const OnboardingScreen(),
+      home: _startScreen(),
     );
   }
+}
+
+Widget _startScreen() {
+  if (!Get.isRegistered<SessionStore>()) {
+    return const OnboardingScreen();
+  }
+  final token = Get.find<SessionStore>().token;
+  if (token != null && token.isNotEmpty) {
+    return const MainShellScreen();
+  }
+  return const OnboardingScreen();
 }

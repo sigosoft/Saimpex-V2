@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 
+import '../constants/country_codes.dart';
+import '../controllers/edit_profile_controller.dart';
+import '../core/network/api_constants.dart';
 import '../widgets/app_back_button.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -16,67 +18,13 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  static const _defaultAvatar =
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop';
-
-  final _nameController = TextEditingController(text: 'John Doe');
-  final _phoneController = TextEditingController(text: '45 12 34 56');
-  final _nameFocus = FocusNode();
-  final _phoneFocus = FocusNode();
-
-  bool _editingName = false;
-  bool _editingPhone = false;
-  File? _avatarFile;
+  late final EditProfileController controller;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _nameFocus.dispose();
-    _phoneFocus.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickAvatar() async {
-    final picker = ImagePicker();
-    final photo = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
-    if (photo == null) return;
-    setState(() => _avatarFile = File(photo.path));
-  }
-
-  void _startEditName() {
-    setState(() => _editingName = true);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _nameFocus.requestFocus();
-    });
-  }
-
-  void _startEditPhone() {
-    setState(() => _editingPhone = true);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _phoneFocus.requestFocus();
-    });
-  }
-
-  void _onUpdate() {
-    FocusScope.of(context).unfocus();
-    setState(() {
-      _editingName = false;
-      _editingPhone = false;
-    });
-    Get.back();
-    Get.snackbar(
-      'Profile Updated',
-      'Your changes have been saved.',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
-      colorText: const Color(0xFF2C2520),
-      margin: const EdgeInsets.all(16),
-      borderRadius: 14,
-    );
+  void initState() {
+    super.initState();
+    controller = Get.put(EditProfileController());
+    controller.loadProfile();
   }
 
   @override
@@ -163,23 +111,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               color: const Color(0xFFF0EBE6),
             ),
             clipBehavior: Clip.antiAlias,
-            child: _avatarFile != null
-                ? Image.file(_avatarFile!, fit: BoxFit.cover)
-                : Image.network(
-                    _defaultAvatar,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.person_rounded,
-                      size: 56,
-                      color: Color(0xFFA59A94),
-                    ),
-                  ),
+            child: Obx(() => _buildAvatarImage(controller)),
           ),
           Positioned(
             right: 2,
             bottom: 2,
             child: GestureDetector(
-              onTap: _pickAvatar,
+              onTap: controller.pickAvatar,
               child: Container(
                 width: 34,
                 height: 34,
@@ -230,35 +168,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Row(
             children: [
               Expanded(
-                child: _editingName
-                    ? TextField(
-                        controller: _nameController,
-                        focusNode: _nameFocus,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        cursorColor: const Color(0xFFFF5E00),
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) =>
-                            setState(() => _editingName = false),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      )
-                    : Text(
-                        _nameController.text,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
+                child: Obx(() {
+                  if (controller.editingName.value) {
+                    return TextField(
+                      controller: controller.nameController,
+                      focusNode: controller.nameFocus,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
                       ),
+                      cursorColor: const Color(0xFFFF5E00),
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => controller.finishNameEdit(),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    );
+                  }
+                  return Text(
+                    controller.nameText.value,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  );
+                }),
               ),
-              _buildEditAction(onTap: _startEditName),
+              _buildEditAction(onTap: controller.startEditName),
             ],
           ),
         ),
@@ -283,14 +223,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _buildPillField(
           child: Row(
             children: [
-              const Text('🇲🇷', style: TextStyle(fontSize: 18)),
-              const SizedBox(width: 8),
-              Text(
-                '+222',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+              GestureDetector(
+                onTap: () => _showCountryPicker(context),
+                child: Obx(
+                  () => Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        controller.countryFlag.value,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        controller.countryCode.value,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Container(
@@ -300,36 +253,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 color: const Color(0xFFD9CEC4),
               ),
               Expanded(
-                child: _editingPhone
-                    ? TextField(
-                        controller: _phoneController,
-                        focusNode: _phoneFocus,
-                        keyboardType: TextInputType.phone,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        cursorColor: const Color(0xFFFF5E00),
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) =>
-                            setState(() => _editingPhone = false),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      )
-                    : Text(
-                        _phoneController.text,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
+                child: Obx(() {
+                  if (controller.editingPhone.value) {
+                    return TextField(
+                      controller: controller.phoneController,
+                      focusNode: controller.phoneFocus,
+                      keyboardType: TextInputType.phone,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
                       ),
+                      cursorColor: const Color(0xFFFF5E00),
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => controller.finishPhoneEdit(),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    );
+                  }
+                  return Text(
+                    controller.phoneText.value,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  );
+                }),
               ),
-              _buildEditAction(onTap: _startEditPhone),
+              _buildEditAction(onTap: controller.startEditPhone),
             ],
           ),
         ),
@@ -379,36 +334,147 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildUpdateButton() {
-    return GestureDetector(
-      onTap: _onUpdate,
-      child: Container(
-        width: double.infinity,
-        height: 54,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(27),
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFFF5E00).withOpacity(0.40),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
+    return Obx(() {
+      final saving = controller.isSaving.value;
+      return GestureDetector(
+        onTap: saving
+            ? null
+            : () {
+                FocusScope.of(context).unfocus();
+                controller.updateProfile();
+              },
+        child: Container(
+          width: double.infinity,
+          height: 54,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(27),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
-          ],
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFF5E00).withOpacity(0.40),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: saving
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  'Update',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
         ),
-        child: Text(
-          'Update',
-          style: GoogleFonts.outfit(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
+      );
+    });
+  }
+
+  Widget _buildAvatarImage(EditProfileController controller) {
+    final localPath = controller.localImagePath.value;
+    if (localPath != null && localPath.isNotEmpty) {
+      return Image.file(File(localPath), fit: BoxFit.cover);
+    }
+
+    final remote = ApiConstants.mediaUrl(controller.remoteImage.value);
+    if (remote == null) {
+      return const Icon(
+        Icons.person_rounded,
+        size: 56,
+        color: Color(0xFFA59A94),
+      );
+    }
+
+    return Image.network(
+      remote,
+      fit: BoxFit.cover,
+      errorBuilder: (_, _, _) => const Icon(
+        Icons.person_rounded,
+        size: 56,
+        color: Color(0xFFA59A94),
+      ),
+    );
+  }
+
+  void _showCountryPicker(BuildContext context) {
+    Get.bottomSheet(
+      Material(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Country',
+                  style: GoogleFonts.outfit(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: appCountries.length,
+                    itemBuilder: (context, index) {
+                      final country = appCountries[index];
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Text(
+                          country.flag,
+                          style: const TextStyle(fontSize: 22),
+                        ),
+                        title: Text(
+                          country.name,
+                          style: GoogleFonts.outfit(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        trailing: Text(
+                          country.code,
+                          style: GoogleFonts.outfit(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onTap: () {
+                          controller.setCountry(country.code, country.flag);
+                          Get.back();
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
+      backgroundColor: Colors.transparent,
     );
   }
 }
