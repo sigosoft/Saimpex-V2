@@ -1,8 +1,11 @@
 import 'package:get/get.dart';
 
+import '../controllers/select_location_controller.dart';
 import 'network/dio_client.dart';
 import 'storage/session_store.dart';
 import '../models/auth_repository.dart';
+import '../models/cart_repository.dart';
+import '../models/pharmacy_repository.dart';
 import '../models/profile_repository.dart';
 
 class AppDependencies {
@@ -15,5 +18,8 @@ class AppDependencies {
     Get.put<DioClient>(client, permanent: true);
     Get.put<AuthRepository>(AuthRepository(client), permanent: true);
     Get.put<ProfileRepository>(ProfileRepository(client), permanent: true);
+    Get.put<PharmacyRepository>(PharmacyRepository(client), permanent: true);
+    Get.put<CartRepository>(CartRepository(client), permanent: true);
+    await SelectLocationController.loadSaved();
   }
 }

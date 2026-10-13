@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../chat_screen.dart';
 import 'prescription_checkout_screen.dart';
+import 'widgets/pharmacy_background.dart';
 
 class QuotationDetailScreen extends StatefulWidget {
   final String orderId;
@@ -59,19 +60,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFFAF6F0),
-            Color(0xFFFFEEE5),
-            Color(0xFFFFDDCF),
-          ],
-          stops: [0.0, 0.55, 1.0],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
+    return PharmacyBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: PreferredSize(

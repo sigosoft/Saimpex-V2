@@ -1,9 +1,20 @@
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../core/network/dio_client.dart';
+import '../../models/pharmacy_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import 'pharmacy_items_screen.dart';
+import 'widgets/pharmacy_background.dart';
+import 'pharmacy_stores_screen.dart';
 import 'upload_prescription_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/store_map_button.dart';
@@ -21,9 +32,18 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   int selectedCategoryIndex = 0; // Default to "All"
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  final PageController _sliderController = PageController();
   final GlobalKey _searchAnchorKey = GlobalKey();
   final GlobalKey _headerKey = GlobalKey();
   bool _showStickySearch = false;
+  List<String> _sliderImages = const [];
+  List<Map<String, dynamic>> _quickCategories = const [];
+  List<Map<String, dynamic>> _trustedPharmacies = const [];
+  List<Map<String, dynamic>> _nearbyPharmacies = const [];
+  List<Map<String, dynamic>> _pharmacies = const [];
+  List<Map<String, dynamic>> _sections = const [];
+  int _sliderIndex = 0;
+  Timer? _sliderTimer;
 
   /// search bar height (48) + small padding
   static const double _stickyExtent = 56;
@@ -32,6 +52,32 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadSliders();
+  }
+
+  Future<void> _loadSliders() async {
+    if (!Get.isRegistered<PharmacyRepository>()) return;
+    try {
+      final home = await Get.find<PharmacyRepository>().fetchHome(
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _sliderImages = home.sliders;
+        _quickCategories = home.categories;
+        _trustedPharmacies = home.trustedPharmacies;
+        _nearbyPharmacies = home.nearbyPharmacies;
+        _pharmacies = home.pharmacies;
+        _sections = home.sections;
+        _sliderIndex = 0;
+      });
+      _startSliderAutoScroll();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message);
+    }
   }
 
   @override
@@ -39,7 +85,22 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
     _searchController.dispose();
+    _sliderTimer?.cancel();
+    _sliderController.dispose();
     super.dispose();
+  }
+
+  void _startSliderAutoScroll() {
+    _sliderTimer?.cancel();
+    if (_sliderImages.length < 2) return;
+    _sliderTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted || !_sliderController.hasClients) return;
+      _sliderController.animateToPage(
+        _sliderIndex + 1,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeInOut,
+      );
+    });
   }
 
   double _headerBottomY() {
@@ -66,184 +127,11 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     }
   }
 
-  final quickCategories = [
-    {
-      'label': 'All',
-      'icon': 'lib/assets/images/All.png',
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'label': 'OTC',
-      'icon': 'lib/assets/images/OTC.png',
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFEEF5FC), Color(0xFFD3E5F6)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    },
-    {
-      'label': 'Baby Care',
-      'icon': 'lib/assets/images/BabyCare.png',
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFFFF5EC), Color(0xFFFEE6D6)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    },
-    {
-      'label': 'Personal Care',
-      'icon': 'lib/assets/images/PersonalCare.png',
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFEBF6EE), Color(0xFFD4EBD9)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    },
-    {
-      'label': 'Dental Care',
-      'icon': 'lib/assets/images/DentalCare.png',
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFE6F7FF), Color(0xFFCBEBFE)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    },
-    {
-      'label': 'Wellness',
-      'icon':
-          'lib/assets/images/Welness.png', // Spelled as Welness.png in assets
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFF7EBF6), Color(0xFFECD2EB)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    },
-    {
-      'label': 'Vitamins',
-      'icon': 'lib/assets/images/Vitamins.png',
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFFFFBE6), Color(0xFFFFF1CC)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    },
-    {
-      'label': 'First Aid',
-      'icon': 'lib/assets/images/FirstAid.png',
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFFEE2E2), Color(0xFFFCA5A5)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    },
-    {
-      'label': 'Device',
-      'icon': 'lib/assets/images/Device.png',
-      'gradient': const LinearGradient(
-        colors: [Color(0xFFF6F6F6), Color(0xFFE8E8E8)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    },
-  ];
-
-  final trustedPharmacies = [
-    {
-      'id': 'p_trusted1',
-      'title': 'Pharmacy Nasr',
-      'subtitle': 'Trusted',
-      'rating': '4.6',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'isClosed': false,
-      'isOpen247': true,
-      'image':
-          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&auto=format&fit=crop',
-    },
-    {
-      'id': 'p_trusted2',
-      'title': 'Pharmacy Mauritanie',
-      'subtitle': 'Trusted',
-      'rating': '4.5',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'isTemporarilyClosed': true,
-      'isOpen247': false,
-      'image':
-          'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=400&auto=format&fit=crop',
-    },
-    {
-      'id': 'p_trusted3',
-      'title': 'Pharmacy El Amal',
-      'subtitle': 'Trusted',
-      'rating': '4.7',
-      'time': '25-30 min',
-      'dist': '8 Km',
-      'discount': '40% OFF',
-      'points': '200 Points Available',
-      'isClosed': true,
-      'opensAt': '10 AM',
-      'isOpen247': true,
-      'image':
-          'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=400&auto=format&fit=crop',
-    },
-  ];
-
-  final nearbyPharmacies = [
-    {
-      'id': 'p_nearby1',
-      'title': 'Pharmacie Ibn Sina',
-      'subtitle': 'Trusted',
-      'rating': '4.7',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'isClosed': false,
-      'isOpen247': true,
-      'image':
-          'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=400&auto=format&fit=crop',
-    },
-    {
-      'id': 'p_nearby2',
-      'title': 'Pharmacy Safa',
-      'subtitle': 'Trusted',
-      'rating': '4.3',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'isTemporarilyClosed': true,
-      'isOpen247': false,
-      'image':
-          'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=400&auto=format&fit=crop',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     Get.find<HomeController>();
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFFFE6DC), // Top peach gradient
-            Color(0xFFFFF4EE), // Middle soft peach
-            Color(0xFFFAF6F0), // Base color at the bottom
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
+    return PharmacyBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Stack(
@@ -270,11 +158,11 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                               vertical: 8,
                             ),
                             child: Text(
-                              'Pharmacy',
+                              'Pharmacy', 
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -292,34 +180,65 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                           ),
 
                           const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'Quick categories',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
+                          if (_sectionTitle('categories', '').isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                              child: Text(
+                                _sectionTitle('categories', ''),
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
                           _buildQuickCategoriesGrid(),
                           const SizedBox(height: 12),
-                          _buildSectionHeader(
-                            'Trusted Pharmacies',
-                            'See All',
-                            () {},
-                          ),
-                          _buildTrustedPharmaciesList(),
-                          const SizedBox(height: 12),
-                          _buildSectionHeader(
-                            'Nearby Pharmacies',
-                            'Store Map',
-                            () {},
-                            showMapIcon: true,
-                          ),
-                          _buildNearbyPharmaciesList(),
+                          if (_sectionTitle('trusted_pharmacies', '').isNotEmpty ||
+                              _trustedPharmacies.isNotEmpty) ...[
+                            _buildSectionHeader(
+                              _sectionTitle('trusted_pharmacies', ''),
+                              onSeeAll: _showsSeeAll('trusted_pharmacies')
+                                  ? () => _openPharmacyList(
+                                      _sectionTitle('trusted_pharmacies', ''),
+                                      _trustedPharmacies,
+                                    )
+                                  : null,
+                            ),
+                            _buildTrustedPharmaciesList(),
+                            const SizedBox(height: 12),
+                          ],
+                          if (_sectionTitle('nearby_pharmacies', '').isNotEmpty ||
+                              _nearbyPharmacies.isNotEmpty) ...[
+                            _buildSectionHeader(
+                              _sectionTitle('nearby_pharmacies', ''),
+                              onMap: _showsMap('nearby_pharmacies')
+                                  ? () => _openPharmacyMap(
+                                      _sectionTitle('nearby_pharmacies', ''),
+                                      _nearbyPharmacies,
+                                    )
+                                  : null,
+                            ),
+                            _buildNearbyPharmaciesList(),
+                          ],
+                          if (_pharmacies.isNotEmpty) ...[
+                            _buildSectionHeader(
+                              _sectionTitle('pharmacies', 'Pharmacies'),
+                              onSeeAll: _showsSeeAll('pharmacies')
+                                  ? () => _openPharmacyList(
+                                      _sectionTitle('pharmacies', 'Pharmacies'),
+                                      _pharmacies,
+                                    )
+                                  : null,
+                              onMap: _showsMap('pharmacies')
+                                  ? () => _openPharmacyMap(
+                                      _sectionTitle('pharmacies', 'Pharmacies'),
+                                      _pharmacies,
+                                    )
+                                  : null,
+                            ),
+                            _buildHorizontalPharmaciesList(_pharmacies),
+                          ],
                           const SizedBox(height: 36),
                         ],
                       ),
@@ -336,7 +255,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                 left: 0,
                 right: 0,
                 child: ColoredBox(
-                  color: const Color(0xFFFFE6DC),
+                  color: PharmacyBackground.top,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: _buildSearchBar(),
@@ -353,7 +272,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   Widget _buildHeader(BuildContext context) {
     return ColoredBox(
       key: _headerKey,
-      color: const Color(0xFFFFE6DC),
+      color: PharmacyBackground.top,
       child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -460,6 +379,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
 
   // Promotional Banner Slider with indicators
   Widget _buildPromoSlider() {
+    final images = _sliderImages;
+    final count = images.isEmpty ? 1 : images.length;
+
     return Column(
       children: [
         Container(
@@ -467,45 +389,44 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
           height: 130,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: Image.asset(
-              "lib/assets/images/Pharmacy slider.png",
-              fit: BoxFit.fill,
-              width: double.infinity,
-            ),
+            child: images.isEmpty
+                ? const _PharmacySliderFallback()
+                : PageView.builder(
+                    controller: _sliderController,
+                    itemCount: images.length < 2 ? images.length : 10000,
+                    onPageChanged: (index) {
+                      setState(() => _sliderIndex = index);
+                      _startSliderAutoScroll();
+                    },
+                    itemBuilder: (context, index) {
+                      return _PharmacySliderImage(
+                        url: images[index % images.length],
+                      );
+                    },
+                  ),
           ),
         ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 18,
-              height: 4,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFF5E00),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 4),
-            Container(
-              width: 4,
-              height: 4,
-              decoration: const BoxDecoration(
-                color: Color(0xFFDCD6CF),
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Container(
-              width: 4,
-              height: 4,
-              decoration: const BoxDecoration(
-                color: Color(0xFFDCD6CF),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-        ),
+        if (images.length > 1) ...[
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (var index = 0; index < count; index++) ...[
+                if (index > 0) const SizedBox(width: 4),
+                Container(
+                  width: _sliderIndex % count == index ? 18 : 4,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: _sliderIndex % count == index
+                        ? const Color(0xFFFF5E00)
+                        : const Color(0xFFDCD6CF),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -621,12 +542,42 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     );
   }
 
+  Widget _quickCategoryArt(Map<String, dynamic> category, bool isAll) {
+    final image = category['image']?.toString() ?? '';
+    if (isAll && image.isEmpty) {
+      return Center(
+        child: Image.asset(
+          'lib/assets/images/All.png',
+          width: 28,
+          height: 28,
+          color: Colors.white,
+        ),
+      );
+    }
+    if (image.startsWith('http')) {
+      return Image.network(
+        image,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => const Icon(
+          Icons.medication_outlined,
+          color: Color(0xFFFF5E00),
+          size: 36,
+        ),
+      );
+    }
+    return const Icon(
+      Icons.medication_outlined,
+      color: Color(0xFFFF5E00),
+      size: 36,
+    );
+  }
+
   // Quick categories Grid View matching home screen stack design
   Widget _buildQuickCategoriesGrid() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
-        itemCount: quickCategories.length,
+        itemCount: _quickCategories.length,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -636,31 +587,28 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
           childAspectRatio: 1.30,
         ),
         itemBuilder: (context, index) {
-          final cat = quickCategories[index];
-          final isAll = cat['label'] == 'All';
+          final cat = _quickCategories[index];
+          final isAll = cat['isAll'] == true;
           final isSelected = selectedCategoryIndex == index;
           final highlight = isAll || isSelected;
+          final categoryId = cat['id'] is int
+              ? cat['id'] as int
+              : int.tryParse('${cat['id']}');
 
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              final store = trustedPharmacies.isNotEmpty
-                  ? Map<String, dynamic>.from(trustedPharmacies.first)
-                  : <String, dynamic>{
-                      'id': 'p_trusted1',
-                      'title': 'Pharmacy Nasr',
-                      'subtitle': 'Trusted',
-                      'rating': '4.6',
-                      'time': '30-35 min',
-                      'dist': '10 Km',
-                      'discount': '50% OFF',
-                      'image':
-                          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&auto=format&fit=crop',
-                    };
+              setState(() => selectedCategoryIndex = index);
+              final store = _nearbyPharmacies.isNotEmpty
+                  ? Map<String, dynamic>.from(_nearbyPharmacies.first)
+                  : _trustedPharmacies.isNotEmpty
+                  ? Map<String, dynamic>.from(_trustedPharmacies.first)
+                  : null;
+              if (store == null) return;
               Get.to(
                 () => PharmacyItemsScreen(
                   store: store,
-                  initialSubcategoryIndex: index,
+                  initialCategoryId: categoryId,
                 ),
               );
             },
@@ -681,7 +629,11 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             )
-                          : (cat['gradient'] as Gradient?),
+                          : const LinearGradient(
+                              colors: [Color(0xFFF6F6F6), Color(0xFFE8E8E8)],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
@@ -694,7 +646,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                     padding: const EdgeInsets.only(bottom: 8),
                     alignment: Alignment.bottomCenter,
                     child: Text(
-                      cat['label'] as String,
+                      cat['label']?.toString() ?? '',
                       style: GoogleFonts.outfit(
                         color: highlight
                             ? Colors.white
@@ -711,16 +663,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                   left: isAll ? 0 : 24,
                   right: isAll ? 0 : 24,
                   bottom: 22,
-                  child: isAll
-                      ? Center(
-                          child: Image.asset(
-                            cat['icon'] as String,
-                            width: 28,
-                            height: 28,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Image.asset(cat['icon'] as String, fit: BoxFit.contain),
+                  child: _quickCategoryArt(cat, isAll),
                 ),
               ],
             ),
@@ -730,29 +673,71 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     );
   }
 
+  Map<String, dynamic>? _section(String key) {
+    for (final section in _sections) {
+      if (section['key'] == key) return section;
+    }
+    return null;
+  }
+
+  String _sectionTitle(String key, String fallback) {
+    final title = _section(key)?['title']?.toString().trim() ?? '';
+    return title.isEmpty ? fallback : title;
+  }
+
+  bool _showsSeeAll(String key) {
+    if (_sections.isEmpty) return key == 'trusted_pharmacies';
+    final value = _section(key)?['seeAll'];
+    return value == true || value == 1 || value == 'true' || value == '1';
+  }
+
+  bool _showsMap(String key) {
+    if (_sections.isEmpty) return key == 'nearby_pharmacies';
+    return _section(key)?['seeAll']?.toString() == 'map';
+  }
+
+  void _openPharmacyList(String title, List<Map<String, dynamic>> stores) {
+    if (stores.isEmpty) return;
+    Get.to(() => PharmacyStoresScreen(title: title, stores: stores));
+  }
+
+  void _openPharmacyMap(String title, List<Map<String, dynamic>> stores) {
+    final mapped = stores
+        .where(
+          (store) => store['latitude'] is num && store['longitude'] is num,
+        )
+        .toList();
+    if (mapped.isEmpty) return;
+    Get.to(() => PharmacyMapScreen(title: title, stores: mapped));
+  }
+
   // Section header
   Widget _buildSectionHeader(
-    String title,
-    String actionText,
-    VoidCallback onTap, {
-    bool showMapIcon = false,
+    String title, {
+    VoidCallback? onSeeAll,
+    VoidCallback? onMap,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF2C2520),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-          showMapIcon
-              ? StoreMapButton(onTap: onTap)
-              : SeeAllButton(onTap: onTap),
+          if (onMap != null)
+            StoreMapButton(onTap: onMap)
+          else if (onSeeAll != null)
+            SeeAllButton(onTap: onSeeAll),
         ],
       ),
     );
@@ -760,12 +745,14 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
 
   // Horizontal Trusted Pharmacies List
   Widget _buildTrustedPharmaciesList() {
-    return _buildHorizontalPharmaciesList(trustedPharmacies);
+    if (_trustedPharmacies.isEmpty) return const SizedBox.shrink();
+    return _buildHorizontalPharmaciesList(_trustedPharmacies);
   }
 
   // Horizontal Nearby Pharmacies List (same layout as Trusted)
   Widget _buildNearbyPharmaciesList() {
-    return _buildHorizontalPharmaciesList(nearbyPharmacies);
+    if (_nearbyPharmacies.isEmpty) return const SizedBox.shrink();
+    return _buildHorizontalPharmaciesList(_nearbyPharmacies);
   }
 
   Widget _buildHorizontalPharmaciesList(List<Map<String, dynamic>> pharmacies) {
@@ -783,7 +770,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
               : Get.put(HomeController());
           final isClosed = store['isClosed'] == true;
           final isTemporarilyClosed = store['isTemporarilyClosed'] == true;
-          final opensAt = (store['opensAt'] ?? '10 AM').toString();
+          final opensAt = (store['opensAt'] ?? '').toString();
+          final discount = (store['discount'] ?? '').toString();
+          final points = (store['points'] ?? '').toString();
 
           return GestureDetector(
             onTap: () {
@@ -813,21 +802,20 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                     child: Stack(
                       children: [
                         Positioned.fill(
-                          child: Image.network(
-                            store['image'] as String,
+                          child: _PharmacySliderImage(
+                            url: (store['image'] ?? '').toString(),
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                                  color: const Color(0xFFF3EFEA),
-                                  child: const Icon(
-                                    Icons.image_not_supported_outlined,
-                                    color: Colors.grey,
-                                  ),
-                                ),
+                            fallback: const ColoredBox(
+                              color: Color(0xFFF3EFEA),
+                              child: Icon(
+                                Icons.image_not_supported_outlined,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ),
                         ),
-                        // Discount Badge
-                        Positioned(
+                        if (discount.isNotEmpty)
+                          Positioned(
                           top: 10,
                           left: 10,
                           child: Container(
@@ -840,7 +828,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              store['discount'] as String,
+                              discount,
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 9,
@@ -849,10 +837,9 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                             ),
                           ),
                         ),
-                        // Star Rating Badge
                         Positioned(
                           top: 10,
-                          left: 70,
+                          left: discount.isEmpty ? 10 : 70,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -973,15 +960,16 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            store['points'] as String,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
+                          if (points.isNotEmpty)
+                            Text(
+                              points,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFFF5E00),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
+                          if (points.isNotEmpty) const SizedBox(height: 6),
                           Row(
                             children: [
                               const Icon(
@@ -1157,8 +1145,88 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     );
   }
 
-  // Prescription Upload bottom sheet
+}
 
+class _PharmacySliderFallback extends StatelessWidget {
+  const _PharmacySliderFallback();
 
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      'lib/assets/images/Pharmacy slider.png',
+      fit: BoxFit.fill,
+      width: double.infinity,
+    );
+  }
+}
 
+class _PharmacySliderImage extends StatefulWidget {
+  const _PharmacySliderImage({
+    required this.url,
+    this.fit = BoxFit.fill,
+    this.fallback = const _PharmacySliderFallback(),
+  });
+
+  final String url;
+  final BoxFit fit;
+  final Widget fallback;
+
+  @override
+  State<_PharmacySliderImage> createState() => _PharmacySliderImageState();
+}
+
+class _PharmacySliderImageState extends State<_PharmacySliderImage> {
+  Uint8List? _bytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (widget.url.isEmpty || !Get.isRegistered<DioClient>()) return;
+    try {
+      final response = await Get.find<DioClient>().dio.get<List<int>>(
+        widget.url,
+        options: Options(
+          responseType: ResponseType.bytes,
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      final data = response.data;
+      final loaded =
+          response.statusCode == 200 && data != null && _isImageBytes(data);
+      if (!mounted) return;
+      setState(() {
+        _bytes = loaded
+            ? (data is Uint8List ? data : Uint8List.fromList(data))
+            : null;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _bytes = null);
+    }
+  }
+
+  bool _isImageBytes(List<int> data) {
+    if (data.length < 8) return false;
+    final jpeg = data[0] == 0xFF && data[1] == 0xD8;
+    final png = data[0] == 0x89 && data[1] == 0x50;
+    final gif = data[0] == 0x47 && data[1] == 0x49;
+    final webp = data[0] == 0x52 && data[1] == 0x49;
+    return jpeg || png || gif || webp;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bytes = _bytes;
+    if (bytes == null) return widget.fallback;
+    return Image.memory(
+      bytes,
+      fit: widget.fit,
+      width: double.infinity,
+      gaplessPlayback: true,
+    );
+  }
 }

@@ -249,15 +249,17 @@ class HomeScreen extends StatelessWidget {
                 Row(
                   children: [
                     Flexible(
-                      child: Text(
-                        SelectLocationController.selectedTitle,
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                      child: Obx(
+                        () => Text(
+                          SelectLocationController.deliveryLabel.value,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),

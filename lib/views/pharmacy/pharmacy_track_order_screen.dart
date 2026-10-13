@@ -4,6 +4,7 @@ import '../../widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'widgets/pharmacy_background.dart';
 
 class PharmacyTrackOrderScreen extends StatefulWidget {
   final String orderId;
@@ -208,12 +209,13 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
         ? widget.orderId
         : '#${widget.orderId}';
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFFDF9),
+    return PharmacyBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: Container(
-          color: const Color(0xFFFFFDF9),
+          color: Colors.transparent,
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top + 8,
             left: 16,
@@ -401,6 +403,7 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

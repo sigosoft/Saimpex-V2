@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
+import 'dart:async';
 import '../../controllers/home_controller.dart';
+import '../../controllers/select_location_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/pharmacy_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../chat_screen.dart';
 import '../cart_screen.dart';
 import 'upload_prescription_screen.dart';
+import 'widgets/pharmacy_background.dart';
 import 'widgets/pharmacy_cart_bar.dart';
 import 'widgets/pharmacy_customize_sheet.dart';
 import 'widgets/pharmacy_product_card.dart';
@@ -12,14 +19,16 @@ import 'widgets/pharmacy_product_details_sheet.dart';
 import 'widgets/pharmacy_subcategory_icon.dart';
 import '../../widgets/app_back_button.dart';
 
-class PharmacyItemsScreen extends StatefulWidget {
+  class PharmacyItemsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
   final int initialSubcategoryIndex;
+  final int? initialCategoryId;
 
   const PharmacyItemsScreen({
     super.key,
     required this.store,
     this.initialSubcategoryIndex = 0,
+    this.initialCategoryId,
   });
 
   @override
@@ -33,6 +42,14 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   final GlobalKey _searchAnchorKey = GlobalKey();
   bool showCartBar = false;
   bool _showStickySearch = false;
+  bool _loadingStore = false;
+  bool _loadingMore = false;
+  int _page = 1;
+  int _lastPage = 1;
+  int _requestId = 0;
+  int? _selectedCategoryId;
+  Timer? _searchDebounce;
+  Map<String, dynamic>? _apiPharmacy;
   Map<String, dynamic>? lastAddedItem;
   String? lastAddedItemPortion;
 
@@ -43,11 +60,98 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   void initState() {
     super.initState();
     activeSubcategoryIndex = widget.initialSubcategoryIndex;
+    final initialCategory = widget.initialCategoryId;
+    if (initialCategory != null && initialCategory != 0) {
+      _selectedCategoryId = initialCategory;
+    }
     _scrollController.addListener(_handleScroll);
+    if (_pharmacyId != null) {
+      subcategories = [];
+      menuItems = [];
+      _loadingStore = true;
+      searchController.addListener(_onSearchChanged);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadStore(reset: true);
+      });
+    }
+  }
+
+  int? get _pharmacyId => int.tryParse('${widget.store['id']}');
+
+  Map<String, dynamic> get _store => _apiPharmacy ?? widget.store;
+
+  bool get _usesApi => _pharmacyId != null;
+
+  String _storeText(String key, String fallback) {
+    final value = _store[key]?.toString().trim() ?? '';
+    if (value.isNotEmpty) return value;
+    return _usesApi ? '' : fallback;
+  }
+
+  void _onSearchChanged() {
+    if (_pharmacyId == null) return;
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 450), () {
+      _loadStore(reset: true);
+    });
+  }
+
+  Future<void> _loadStore({required bool reset}) async {
+    final pharmacyId = _pharmacyId;
+    if (pharmacyId == null || !Get.isRegistered<PharmacyRepository>()) return;
+    if (!reset) {
+      if (_loadingStore || _loadingMore || _page >= _lastPage) return;
+    }
+
+    final requestId = ++_requestId;
+    final nextPage = reset ? 1 : _page + 1;
+    setState(() {
+      if (reset) {
+        menuItems = [];
+        _loadingStore = true;
+      } else {
+        _loadingMore = true;
+      }
+    });
+
+    try {
+      final result = await Get.find<PharmacyRepository>().fetchStore(
+        pharmacyId: pharmacyId,
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: apiLanguageCode(),
+        categoryId: _selectedCategoryId,
+        keyword: searchController.text,
+        page: nextPage,
+      );
+      if (!mounted || requestId != _requestId) return;
+      final selectedIndex = result.categories.indexWhere(
+        (category) => category['id'] == result.selectedCategoryId,
+      );
+      setState(() {
+        _apiPharmacy = {...widget.store, ...result.pharmacy};
+        subcategories = result.categories;
+        menuItems = reset ? result.items : [...menuItems, ...result.items];
+        _page = result.currentPage;
+        _lastPage = result.lastPage;
+        if (selectedIndex >= 0) activeSubcategoryIndex = selectedIndex;
+        _loadingStore = false;
+        _loadingMore = false;
+      });
+    } on ApiException catch (error) {
+      if (!mounted || requestId != _requestId) return;
+      setState(() {
+        _loadingStore = false;
+        _loadingMore = false;
+      });
+      showAppToast(error.message);
+    }
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    searchController.removeListener(_onSearchChanged);
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
     searchController.dispose();
@@ -65,6 +169,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     final shouldShow = top <= topInset + 2;
     if (shouldShow != _showStickySearch) {
       setState(() => _showStickySearch = shouldShow);
+    }
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 240) {
+      _loadStore(reset: false);
     }
   }
 
@@ -108,6 +217,11 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 setState(() {
                   activeSubcategoryIndex = index;
                 });
+                if (_pharmacyId == null) return;
+                final raw = sub['id'];
+                final id = raw is int ? raw : int.tryParse('$raw');
+                _selectedCategoryId = id == null || id == 0 ? null : id;
+                _loadStore(reset: true);
               },
               child: Padding(
                 padding: EdgeInsets.only(
@@ -152,21 +266,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                       width: 46,
                                       height: 46,
                                       color: Colors.white,
-                                      child: iconPath != null
-                                          ? Padding(
-                                              padding: const EdgeInsets.all(6),
-                                              child: Image.asset(
-                                                iconPath,
-                                                fit: BoxFit.contain,
-                                              ),
-                                            )
-                                          : Icon(
-                                              pharmacySubcategoryIcon(
-                                                sub['label'] as String,
-                                              ),
-                                              color: const Color(0xFF00ACC1),
-                                              size: 22,
-                                            ),
+                                      child: _categoryIcon(sub, iconPath),
                                     ),
                                   ),
                                 ),
@@ -289,7 +389,35 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     );
   }
 
-  final List<Map<String, dynamic>> subcategories = [
+  Widget _categoryIcon(Map<String, dynamic> sub, String? iconPath) {
+    final image = sub['image']?.toString() ?? '';
+    if (image.startsWith('http')) {
+      return Image.network(
+        image,
+        width: 46,
+        height: 46,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => Icon(
+          pharmacySubcategoryIcon(sub['label']?.toString() ?? ''),
+          color: const Color(0xFF00ACC1),
+          size: 22,
+        ),
+      );
+    }
+    if (iconPath != null) {
+      return Padding(
+        padding: const EdgeInsets.all(6),
+        child: Image.asset(iconPath, fit: BoxFit.contain),
+      );
+    }
+    return Icon(
+      pharmacySubcategoryIcon(sub['label']?.toString() ?? ''),
+      color: const Color(0xFF00ACC1),
+      size: 22,
+    );
+  }
+
+  List<Map<String, dynamic>> subcategories = [
     {'label': 'All', 'isAll': true},
     {'label': 'OTC', 'icon': 'lib/assets/images/OTC.png'},
     {'label': 'Baby Care', 'icon': 'lib/assets/images/BabyCare.png'},
@@ -301,7 +429,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     {'label': 'Device', 'icon': 'lib/assets/images/Device.png'},
   ];
 
-  final List<Map<String, dynamic>> menuItems = [
+  List<Map<String, dynamic>> menuItems = [
     {
       'title': 'Paracetamol 500 Mg',
       'image':
@@ -418,15 +546,24 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
-    final storeId = widget.store['id']?.toString() ?? 'p1';
+    final storeId = _storeText('id', 'p1');
+    final storeTitle = _storeText('title', 'Pharmacy Nasr');
+    final storeImage = _storeText(
+      'image',
+      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop',
+    );
+    final storeTime = _storeText('time', '30-35 min');
+    final storeDistance = _storeText('dist', '10 Km');
+    final storeDiscount = _storeText('discount', '50% OFF');
     final isClosed = widget.store['isClosed'] == true;
     final isTemporarilyClosed = widget.store['isTemporarilyClosed'] == true;
     final isNotAccepting = isClosed || isTemporarilyClosed;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     final topInset = MediaQuery.viewPaddingOf(context).top;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFEADF),
+    return PharmacyBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           // Single scroll + sticky subcategories/search
@@ -449,21 +586,29 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                           left: 0,
                           right: 0,
                           height: topInset + 96,
-                          child: Image.network(
-                            widget.store['image'] ??
-                                'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop',
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
+                          child: storeImage.isEmpty
+                              ? Container(
                                   color: const Color(0xFFF3EFEA),
                                   child: const Icon(
                                     Icons.storefront_outlined,
                                     color: Colors.grey,
                                     size: 40,
                                   ),
+                                )
+                              : Image.network(
+                                  storeImage,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                        color: const Color(0xFFF3EFEA),
+                                        child: const Icon(
+                                          Icons.storefront_outlined,
+                                          color: Colors.grey,
+                                          size: 40,
+                                        ),
+                                      ),
                                 ),
-                          ),
                         ),
                         Column(
                           children: [
@@ -499,8 +644,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          widget.store['title'] ??
-                                              'Pharmacy Nasr',
+                                          storeTitle,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 17,
@@ -529,7 +673,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                             ),
                                             const SizedBox(width: 2),
                                             Text(
-                                              widget.store['rating'] ?? '4.6',
+                                              _storeText('rating', '4.6'),
                                               style: GoogleFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 10,
@@ -543,7 +687,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    widget.store['subtitle'] ?? 'Trusted',
+                                    _storeText('subtitle', 'Trusted'),
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF7A6A60),
                                       fontSize: 11,
@@ -553,56 +697,62 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      const Icon(
-                                        Icons.access_time_rounded,
-                                        color: Color(0xFFFF5E00),
-                                        size: 12,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        widget.store['time'] ?? '30-35 min',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF7A6A60),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
+                                      if (storeTime.isNotEmpty) ...[
+                                        const Icon(
+                                          Icons.access_time_rounded,
+                                          color: Color(0xFFFF5E00),
+                                          size: 12,
                                         ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      const Icon(
-                                        Icons.location_on_outlined,
-                                        color: Color(0xFFFF5E00),
-                                        size: 12,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        widget.store['dist'] ?? '10 Km',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF7A6A60),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 7,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFF5E00),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          widget.store['discount'] ?? '50% OFF',
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          storeTime,
                                           style: GoogleFonts.outfit(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF7A6A60),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                      ),
+                                        const SizedBox(width: 10),
+                                      ],
+                                      if (storeDistance.isNotEmpty) ...[
+                                        const Icon(
+                                          Icons.location_on_outlined,
+                                          color: Color(0xFFFF5E00),
+                                          size: 12,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          storeDistance,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF7A6A60),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                      if (storeDiscount.isNotEmpty) ...[
+                                        const SizedBox(width: 10),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 7,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFF5E00),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            storeDiscount,
+                                            style: GoogleFonts.outfit(
+                                              color: Colors.white,
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                   if (isNotAccepting) ...[
@@ -649,12 +799,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                             Get.to(
                                               () => ChatScreen(
                                                 restaurant: {
-                                                  'title':
-                                                      widget.store['title'] ??
-                                                      'Pharmacy Nasr',
-                                                  'image':
-                                                      widget.store['image'] ??
-                                                      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop',
+                                                  'title': storeTitle,
+                                                  'image': storeImage,
                                                 },
                                               ),
                                             );
@@ -700,7 +846,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                       GestureDetector(
                                         onTap: () => controller.toggleLike(
                                           storeId,
-                                          widget.store,
+                                          _store,
                                         ),
                                         child: Obx(() {
                                           final liked = controller.isLiked(
@@ -755,8 +901,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                 onTap: () {
                                   Get.to(
                                     () => UploadPrescriptionScreen(
-                                      initialPharmacy: widget.store['title']
-                                          ?.toString(),
+                                      initialPharmacy: storeTitle,
+                                      initialPharmacyId: _pharmacyId,
                                     ),
                                   );
                                 },
@@ -855,6 +1001,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                             onTap: () => showPharmacyProductDetailsSheet(
                               context,
                               food: food,
+                              menuId: int.tryParse('${food['id']}'),
+                              pharmacyId: _pharmacyId,
                               isNotAccepting: isNotAccepting,
                               onAdd: () {
                                 setState(() {
@@ -864,9 +1012,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                 });
                                 if (Get.isRegistered<HomeController>()) {
                                   Get.find<HomeController>().setCartItem(
-                                    storeName:
-                                        widget.store['title']?.toString() ??
-                                        'Pharmacy Nasr',
+                                    storeName: storeTitle,
                                     itemName: food['title']?.toString(),
                                     itemPortion:
                                         food['tag']?.toString() ?? '10 Tablets',
@@ -890,9 +1036,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                 });
                                 if (Get.isRegistered<HomeController>()) {
                                   Get.find<HomeController>().setCartItem(
-                                    storeName:
-                                        widget.store['title']?.toString() ??
-                                        'Pharmacy Nasr',
+                                        storeName: storeTitle,
                                     itemName:
                                         item['title']?.toString() ??
                                         food['title']?.toString(),
@@ -913,6 +1057,37 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                         },
                       ),
                     ),
+                    if (_loadingStore && menuItems.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 28),
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFFF5E00),
+                        ),
+                      ),
+                    if (!_loadingStore && _usesApi && menuItems.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 28),
+                        child: Text(
+                          'No items',
+                          style: GoogleFonts.outfit(
+                            color: Color(0xFF7A6A60),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    if (_loadingMore)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: Color(0xFFFF5E00),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               );
@@ -927,7 +1102,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
               right: 0,
               child: Material(
                 elevation: 2,
-                color: const Color(0xFFFFEADF),
+                color: PharmacyBackground.top,
                 child: Padding(
                   padding: EdgeInsets.only(top: topInset, bottom: 8),
                   child: _buildStickySection(),
@@ -956,7 +1131,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                   Get.to(
                     () => CartScreen(
                       showBottomNav: false,
-                      storeName: widget.store['title'],
+                      storeName: storeTitle,
                       itemName: lastAddedItem?['title'],
                       itemPortion: lastAddedItemPortion,
                       basePrice: parsePrice(lastAddedItem?['price'] ?? '50'),
@@ -968,6 +1143,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
             }),
           ),
         ],
+      ),
       ),
     );
   }

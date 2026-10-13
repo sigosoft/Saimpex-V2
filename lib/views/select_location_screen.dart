@@ -258,45 +258,140 @@ class SelectLocationScreen extends StatelessWidget {
   }
 
   Widget _buildSearchBox(SelectLocationController controller) {
+    return Column(
+      children: [
+        Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFEAD8C9), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.search, color: Color(0xFFA59A94), size: 22),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: controller.searchController,
+                  style: GoogleFonts.outfit(color: Colors.black, fontSize: 14),
+                  textInputAction: TextInputAction.search,
+                  onChanged: controller.onSearchQueryChanged,
+                  onSubmitted: controller.searchAddress,
+                  decoration: InputDecoration(
+                    hintText: 'Search for area, street name.....',
+                    hintStyle: GoogleFonts.outfit(
+                      color: const Color(0xFFA59A94),
+                      fontSize: 13,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              Obx(() {
+                if (controller.isSearching.value) {
+                  return const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFFFF5E00),
+                    ),
+                  );
+                }
+                if (controller.searchText.value.isEmpty &&
+                    !controller.showSearchResults.value) {
+                  return const SizedBox.shrink();
+                }
+                return GestureDetector(
+                  onTap: controller.clearSearch,
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Color(0xFFA59A94),
+                    size: 18,
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        Obx(() {
+          if (!controller.showSearchResults.value) {
+            return const SizedBox.shrink();
+          }
+          return _buildSearchResults(controller);
+        }),
+      ],
+    );
+  }
+
+  Widget _buildSearchResults(SelectLocationController controller) {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.only(top: 8),
+      constraints: const BoxConstraints(maxHeight: 220),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          const Icon(Icons.search, color: Color(0xFFA59A94), size: 22),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: controller.searchController,
-              style: GoogleFonts.outfit(color: Colors.black, fontSize: 14),
-              textInputAction: TextInputAction.search,
-              onChanged: controller.onSearchQueryChanged,
-              onSubmitted: controller.searchAddress,
-              decoration: InputDecoration(
-                hintText: 'Search for area, street name.....',
-                hintStyle: GoogleFonts.outfit(
-                  color: const Color(0xFFA59A94),
-                  fontSize: 13,
-                ),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
+      child: ListView.separated(
+        shrinkWrap: true,
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        itemCount: controller.searchResults.length,
+        separatorBuilder: (_, _) => const Divider(
+          height: 1,
+          indent: 44,
+          color: Color(0xFFF0E8E0),
+        ),
+        itemBuilder: (context, index) {
+          final result = controller.searchResults[index];
+          final label = result['label']?.toString() ?? '';
+          return InkWell(
+            onTap: () => controller.selectSearchResult(result),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    color: Color(0xFFFF5E00),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -542,37 +637,49 @@ class SelectLocationScreen extends StatelessWidget {
   }
 
   Widget _buildBottomContinueBtn(SelectLocationController controller) {
-    return GestureDetector(
-      onTap: controller.onContinuePressed,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFFF5E00).withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+    return Obx(() {
+      final isUpdating = controller.isUpdatingLocation.value;
+      return GestureDetector(
+        onTap: isUpdating ? null : controller.onContinuePressed,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            'Continue',
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFF5E00).withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Center(
+            child: isUpdating
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    'Continue',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

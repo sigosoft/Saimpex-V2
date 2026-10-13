@@ -79,31 +79,32 @@ class PharmacyProductCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(18),
-                          bottomRight: Radius.circular(10),
+                  if ((food['discount']?.toString() ?? '').isNotEmpty)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                      ),
-                      child: Text(
-                        food['discount']!,
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFF5E00),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(18),
+                            bottomRight: Radius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          food['discount'].toString(),
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

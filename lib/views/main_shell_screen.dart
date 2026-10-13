@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';
+import '../controllers/select_location_controller.dart';
 import '../core/storage/session_store.dart';
 import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
@@ -97,6 +98,29 @@ class _MainShellScreenState extends State<MainShellScreen>
 
     _navWorker = ever<int>(_controller.currentNavIndex, _onNavIndex);
     unawaited(_loadSavedProfile());
+    unawaited(_loadDeliveryLocation());
+  }
+
+  Future<void> _loadDeliveryLocation() async {
+    if (!Get.isRegistered<SessionStore>() ||
+        !Get.isRegistered<ProfileRepository>()) {
+      return;
+    }
+    final session = Get.find<SessionStore>();
+    final token = session.token;
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final location = await Get.find<ProfileRepository>().fetchLocation(
+        apiLanguageCode(),
+      );
+      if (!mounted || session.token == null || session.token!.isEmpty) return;
+      SelectLocationController.applyFetchedLocation(
+        address: location.address,
+        latitude: location.latitude,
+        longitude: location.longitude,
+      );
+    } catch (_) {}
   }
 
   Future<void> _loadSavedProfile() async {

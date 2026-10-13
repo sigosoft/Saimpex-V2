@@ -5,6 +5,7 @@ import '../../widgets/app_back_button.dart';
 
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
+import 'widgets/pharmacy_background.dart';
 
 class PharmacyItemOrderDetailScreen extends StatelessWidget {
   final String orderId;
@@ -18,19 +19,7 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFFAF6F0),
-            Color(0xFFFFEEE5),
-            Color(0xFFFFDDCF),
-          ],
-          stops: [0.0, 0.55, 1.0],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
+    return PharmacyBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: PreferredSize(

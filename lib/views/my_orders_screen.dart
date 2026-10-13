@@ -8,6 +8,10 @@ import 'water/water_track_order_screen.dart';
 import 'track_order_screen.dart';
 import 'rate_order_screen.dart';
 import 'pharmacy/widgets/pharmacy_order_cards.dart';
+import '../core/network/api_exception.dart';
+import '../models/pharmacy_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import 'courier/widgets/courier_order_cards.dart';
 import '../controllers/home_controller.dart';
 import '../constants/text_styles.dart';
@@ -43,11 +47,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     "Local Store",
   ];
   Worker? _ordersCategoryWorker;
+  List<Map<String, dynamic>> _pharmacyOrders = const [];
+  bool _pharmacyOrdersLoading = false;
 
   @override
   void initState() {
     super.initState();
     _applyInitialCategory();
+    _loadPharmacyOrders();
     if (Get.isRegistered<HomeController>()) {
       final home = Get.find<HomeController>();
       _ordersCategoryWorker = ever<int>(home.pendingOrdersCategoryIndex, (
@@ -297,48 +304,122 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
+  Future<void> _loadPharmacyOrders() async {
+    if (!Get.isRegistered<PharmacyRepository>()) return;
+    setState(() => _pharmacyOrdersLoading = true);
+    try {
+      final repository = Get.find<PharmacyRepository>();
+      final language = apiLanguageCode();
+      final first = await repository.fetchOrders(language: language);
+      final orders = [...first.orders];
+      var page = first.currentPage;
+      var lastPage = first.lastPage;
+      while (page < lastPage && page < 5) {
+        page += 1;
+        final next = await repository.fetchOrders(
+          language: language,
+          page: page,
+        );
+        orders.addAll(next.orders);
+        lastPage = next.lastPage;
+      }
+      if (!mounted) return;
+      setState(() => _pharmacyOrders = orders);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _pharmacyOrdersLoading = false);
+    }
+  }
+
   Widget _buildPharmacyOrders() {
+    if (_pharmacyOrdersLoading && _pharmacyOrders.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 28),
+        child: Center(
+          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+        ),
+      );
+    }
+    if (_pharmacyOrders.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 28),
+        child: Center(
+          child: Text(
+            'No orders',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFA59A94),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
     return Column(
       children: [
-        const PharmacyQuotationReadyCard(),
-        PharmacyActiveOrderCard(
-          statusText: 'ON THE WAY',
-          statusColor: const Color(0xFFFF8A00),
-          statusBgColor: const Color(0xFFFFF4EC),
-          detailsText: 'Delivery • 50 MRU • #22789007',
-          orderId: '#22789007',
-          showPrescription: true,
-          showTrack: true,
-        ),
-        PharmacyActiveOrderCard(
-          statusText: 'SELF PICKUP',
-          statusColor: const Color(0xFF007DFE),
-          statusBgColor: const Color(0xFFECF5FF),
-          detailsText: 'Delivery • 50 MRU • #22789007',
-          orderId: '#22789007',
-          showPrescription: true,
-          showTrack: true,
-        ),
-        PharmacyActiveOrderCard(
-          statusText: 'ON THE WAY',
-          statusColor: const Color(0xFFFF8A00),
-          statusBgColor: const Color(0xFFFFF4EC),
-          detailsText: 'Delivery • 100 MRU • 2 items • #22789009',
-          orderId: '#22789009',
-          showPrescription: false,
-          showTrack: true,
-        ),
-        PharmacyActiveOrderCard(
-          statusText: 'SELF PICKUP',
-          statusColor: const Color(0xFF007DFE),
-          statusBgColor: const Color(0xFFECF5FF),
-          detailsText: 'Self Pickup • 60 MRU • 2 items • #22789010',
-          orderId: '#22789010',
-          showPrescription: false,
-          showTrack: false,
-        ),
+        for (final order in _pharmacyOrders) _pharmacyOrderCard(order),
       ],
     );
+  }
+
+  Widget _pharmacyOrderCard(Map<String, dynamic> order) {
+    final pharmacyName = '${order['pharmacyName'] ?? 'Pharmacy'}';
+    final orderId = '${order['orderId'] ?? ''}';
+    final statusText = '${order['statusText'] ?? ''}';
+    if (order['isQuotation'] == true) {
+      final seconds = order['expiresInSeconds'];
+      return PharmacyQuotationReadyCard(
+        pharmacyName: pharmacyName,
+        orderId: orderId.isEmpty ? 'Prescription' : orderId,
+        amount: '${order['amount'] ?? ''}'.isEmpty
+            ? '0 MRU'
+            : '${order['amount']}',
+        expiresIn: Duration(seconds: seconds is int ? seconds : 0),
+      );
+    }
+    final badge = _pharmacyStatusColors(statusText, order['isCancelled'] == true);
+    return PharmacyActiveOrderCard(
+      pharmacyName: pharmacyName,
+      statusText: statusText,
+      statusColor: badge.$1,
+      statusBgColor: badge.$2,
+      detailsText: _pharmacyDetails(order),
+      orderId: orderId,
+      showPrescription:
+          order['isPrescription'] == true &&
+          '${order['fileName'] ?? ''}'.isNotEmpty,
+      prescriptionName: '${order['fileName'] ?? ''}',
+      showTrack: order['isCancelled'] != true && order['isPrescription'] != true,
+    );
+  }
+
+  String _pharmacyDetails(Map<String, dynamic> order) {
+    if (order['isPrescription'] == true) {
+      final orderId = '${order['orderId'] ?? ''}';
+      return orderId.isEmpty ? 'Prescription' : 'Prescription • $orderId';
+    }
+    final total = '${order['totalText'] ?? ''}';
+    final items = order['itemsCount'];
+    final orderId = '${order['orderId'] ?? ''}';
+    return [
+      order['isSelfPickup'] == true ? 'Self Pickup' : 'Delivery',
+      if (total.isNotEmpty) total,
+      if (items is int && items > 0) '$items items',
+      if (orderId.isNotEmpty) orderId,
+    ].join(' • ');
+  }
+
+  (Color, Color) _pharmacyStatusColors(String status, bool cancelled) {
+    final value = status.toLowerCase();
+    if (cancelled || value.contains('cancel')) {
+      return (const Color(0xFFE03A3A), const Color(0xFFFFECEC));
+    }
+    if (value.contains('pickup')) {
+      return (const Color(0xFF007DFE), const Color(0xFFECF5FF));
+    }
+    return (const Color(0xFFFF8A00), const Color(0xFFFFF4EC));
   }
 
   Widget _buildWaterOrders() {

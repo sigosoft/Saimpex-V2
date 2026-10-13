@@ -7,6 +7,14 @@ class ApiConstants {
   static const String logout = 'customer/logout';
   static const String profile = 'customer/profile';
   static const String updateProfile = 'customer/updateProfile';
+  static const String updateLocation = 'customer/updateLocation';
+  static const String fetchLocation = 'customer/fetchLocation';
+  static const String pharmacyHome = 'customer/pharmacyHome';
+  static const String pharmacyStore = 'customer/pharmacy/store';
+  static const String pharmacyItemDetail = 'customer/pharmacy/item/detail';
+  static const String prescriptionUpload = 'customer/prescription/upload';
+  static const String pharmacyOrders = 'customer/orders/pharmacy';
+  static const String cartList = 'customer/cart/list';
 
   static String? mediaUrl(String? path) {
     if (path == null) return null;

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../my_orders_screen.dart';
+import 'widgets/pharmacy_background.dart';
 
 class PrescriptionSuccessScreen extends StatelessWidget {
   final String fileName;
@@ -46,8 +47,9 @@ class PrescriptionSuccessScreen extends StatelessWidget {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     final submittedAt = _formatSubmittedAt(DateTime.now());
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF6F0),
+    return PharmacyBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       body: Column(
         children: [
           SizedBox(height: topInset + 10),
@@ -151,6 +153,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

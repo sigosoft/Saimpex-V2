@@ -5,6 +5,7 @@ import '../../widgets/app_back_button.dart';
 
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
+import 'widgets/pharmacy_background.dart';
 
 class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   final String orderId;
@@ -28,8 +29,9 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
     final imageUrl = prescriptionImageUrl ?? _samplePrescription;
     final displayId = orderId.startsWith('#') ? orderId : '#$orderId';
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F3),
+    return PharmacyBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       body: Column(
         children: [
           SafeArea(
@@ -120,7 +122,7 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
             top: false,
             child: Container(
               width: double.infinity,
-              color: const Color(0xFFFFF8F3),
+              color: PharmacyBackground.bottom,
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
               child: isDelivery
                   ? Row(
@@ -134,6 +136,7 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

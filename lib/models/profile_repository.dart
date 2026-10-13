@@ -72,6 +72,49 @@ class ProfileRepository {
     );
   }
 
+  Future<String> updateLocation({
+    required double latitude,
+    required double longitude,
+    required String address,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.updateLocation,
+        data: {
+          'latitude': latitude.toString(),
+          'longitude': longitude.toString(),
+          'address': address,
+        },
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  Future<({String address, double? latitude, double? longitude})> fetchLocation(
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.fetchLocation),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    final location = asJsonMap(data?['location']) ?? data ?? <String, dynamic>{};
+    return (
+      address: location['address']?.toString().trim() ?? '',
+      latitude: _asDouble(location['latitude'] ?? location['lat']),
+      longitude: _asDouble(
+        location['longitude'] ?? location['long'] ?? location['lng'],
+      ),
+    );
+  }
+
+  double? _asDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse('${value ?? ''}'.trim());
+  }
+
   Future<ApiEnvelope> _send(
     Future<Response<dynamic>> Function() call,
     String language,

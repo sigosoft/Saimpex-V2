@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../core/network/api_exception.dart';
+import '../../../models/pharmacy_repository.dart';
+import '../../../utils/api_language.dart';
+import '../../../utils/toast_helper.dart';
 import '../../widgets/auto_slide_network_images.dart';
 
 void showPharmacyProductDetailsSheet(
@@ -8,13 +13,13 @@ void showPharmacyProductDetailsSheet(
   required Map<String, dynamic> food,
   required bool isNotAccepting,
   required VoidCallback onAdd,
+  int? menuId,
+  int? pharmacyId,
 }) {
-  bool isLiked = false;
-    final description =
-        (food['description'] as String?) ??
-        'Premium quality medical grade products sourced directly from licensed distributors, ensuring safety, effectiveness, and clean packaging.';
+  var requested = false;
+  var isLiked = false;
 
-    showModalBottomSheet(
+  showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -22,6 +27,35 @@ void showPharmacyProductDetailsSheet(
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            if (!requested &&
+                menuId != null &&
+                pharmacyId != null &&
+                Get.isRegistered<PharmacyRepository>()) {
+              requested = true;
+              final sheetContext = context;
+              Future<void>(() async {
+                try {
+                  final detail = await Get.find<PharmacyRepository>()
+                      .fetchItemDetail(
+                        menuId: menuId,
+                        pharmacyId: pharmacyId,
+                        language: apiLanguageCode(),
+                      );
+                  if (!sheetContext.mounted) return;
+                  food.addAll(detail);
+                  setModalState(() {});
+                } on ApiException catch (error) {
+                  if (!sheetContext.mounted) return;
+                  showAppToast(error.message);
+                }
+              });
+            }
+            final description =
+                (food['description'] as String?)?.trim().isNotEmpty == true
+                ? food['description'].toString()
+                : 'Premium quality medical grade products sourced directly from licensed distributors, ensuring safety, effectiveness, and clean packaging.';
+            final discount = food['discount']?.toString() ?? '';
+            final needsPrescription = food['prescriptionRequired'] == true;
             final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
             return Padding(
               padding: EdgeInsets.only(bottom: bottomSafe),
@@ -86,6 +120,29 @@ void showPharmacyProductDetailsSheet(
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
+                                      if (needsPrescription) ...[
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF008282),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Prescription Required',
+                                            style: GoogleFonts.outfit(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                       const SizedBox(height: 10),
                                       Row(
                                         crossAxisAlignment:
@@ -113,6 +170,17 @@ void showPharmacyProductDetailsSheet(
                                               ),
                                             ),
                                           ),
+                                          if (discount.isNotEmpty) ...[
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              discount,
+                                              style: GoogleFonts.outfit(
+                                                color: const Color(0xFFFF5E00),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
                                         ],
                                       ),
                                       const SizedBox(height: 8),

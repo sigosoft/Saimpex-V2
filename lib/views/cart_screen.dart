@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
 import '../controllers/home_controller.dart';
+import '../core/network/api_exception.dart';
+import '../models/cart_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../constants/text_styles.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/home_background_blend.dart';
@@ -38,6 +42,11 @@ class _CartScreenState extends State<CartScreen> {
   int quantity = 0;
   bool usePoints = true;
   bool _minimumReminderScheduled = false;
+  bool _cartLoading = true;
+  bool _cartLoaded = false;
+  String _apiVendorName = '';
+  List<Map<String, dynamic>> _apiItems = const [];
+  Worker? _cartTabWorker;
   late int selectedPaymentIndex;
   String scheduleText = "Pick a delivery time";
 
@@ -67,9 +76,47 @@ class _CartScreenState extends State<CartScreen> {
     }
 
     _syncHomeCartBadgeCount(quantity);
+    _loadCart();
+    if (Get.isRegistered<HomeController>()) {
+      _cartTabWorker = ever<int>(Get.find<HomeController>().currentNavIndex, (
+        index,
+      ) {
+        if (index == HomeController.navCart) _loadCart();
+      });
+    }
+  }
+
+  Future<void> _loadCart() async {
+    if (!Get.isRegistered<CartRepository>()) {
+      if (mounted) setState(() => _cartLoading = false);
+      return;
+    }
+    try {
+      final cart = await Get.find<CartRepository>().fetchList(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      final count = cart.items.fold<int>(
+        0,
+        (sum, item) => sum + ((item['quantity'] as int?) ?? 0),
+      );
+      setState(() {
+        _cartLoaded = true;
+        _apiVendorName = cart.vendorName;
+        _apiItems = cart.items;
+        quantity = count;
+      });
+      _syncHomeCartBadgeCount(count);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _cartLoading = false);
+    }
   }
 
   String get storeName {
+    if (_cartLoaded) return _apiVendorName;
     if (widget.storeName != null) return widget.storeName!;
     if (Get.isRegistered<HomeController>()) {
       final saved = Get.find<HomeController>().lastCartItem;
@@ -79,6 +126,10 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   String get itemTitle {
+    if (_cartLoaded) {
+      if (_apiItems.isEmpty) return '';
+      return '${_apiItems.first['name'] ?? ''}';
+    }
     if (widget.itemName != null) return widget.itemName!;
     if (Get.isRegistered<HomeController>()) {
       final saved = Get.find<HomeController>().lastCartItem;
@@ -98,6 +149,12 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   int get basePrice {
+    if (_cartLoaded) {
+      if (_apiItems.isEmpty) return 0;
+      final price = _apiItems.first['unitPrice'];
+      if (price is num) return price.round();
+      return 0;
+    }
     if (widget.basePrice != null) return widget.basePrice!;
     if (Get.isRegistered<HomeController>()) {
       final saved = Get.find<HomeController>().lastCartItem;
@@ -153,6 +210,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   void dispose() {
+    _cartTabWorker?.dispose();
     _customQuantityController.dispose();
     super.dispose();
   }
@@ -183,6 +241,81 @@ class _CartScreenState extends State<CartScreen> {
     _syncingQuantityField = false;
   }
 
+  Widget _buildApiCartItem(Map<String, dynamic> item) {
+    final name = '${item['name'] ?? ''}';
+    final count = item['quantity'] is int ? item['quantity'] as int : 0;
+    final total = ((item['lineTotal'] as num?) ?? 0).round();
+    final image = '${item['image'] ?? ''}';
+    const fallback = ColoredBox(
+      color: Color(0xFFF3EFEA),
+      child: SizedBox(
+        width: 74,
+        height: 74,
+        child: Icon(Icons.shopping_bag_outlined, color: Color(0xFFA59A94)),
+      ),
+    );
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: image.startsWith('http')
+                ? Image.network(
+                    image,
+                    width: 74,
+                    height: 74,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => fallback,
+                  )
+                : fallback,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Qty $count',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFA59A94),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '$total MRU',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFFF5E00),
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _syncHomeCartBadgeCount(int count) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (Get.isRegistered<HomeController>()) {
@@ -210,7 +343,9 @@ class _CartScreenState extends State<CartScreen> {
           savedItem != null &&
           (savedItem['itemName'] != null || savedItem['storeName'] != null);
 
-      if (!hasDirectParams &&
+      if (_cartLoaded) {
+        if (_apiItems.isEmpty) quantity = 0;
+      } else if (!hasDirectParams &&
           hasSavedItem &&
           savedCount > 0 &&
           quantity != savedCount) {
@@ -220,14 +355,18 @@ class _CartScreenState extends State<CartScreen> {
       }
 
       // Dynamic calculations
-      final itemTotal = basePrice * quantity;
+      final apiTotal = _apiItems.fold<int>(
+        0,
+        (sum, item) => sum + (((item['lineTotal'] as num?) ?? 0).round()),
+      );
+      final itemTotal = _cartLoaded ? apiTotal : basePrice * quantity;
       final pointsOff = (usePoints && quantity > 0) ? pointDiscountValue : 0;
       final currentDeliveryFee = (isDelivery && quantity > 0) ? deliveryFee : 0;
       final currentTax = quantity > 0 ? tax : 0;
       final rawPay = itemTotal - pointsOff + currentDeliveryFee + currentTax;
       final toPay = (quantity == 0 || rawPay < 0) ? 0 : rawPay;
 
-      if (quantity > 0 && itemTotal < 500) {
+      if (!_cartLoading && quantity > 0 && itemTotal < 500) {
         if (!_minimumReminderScheduled) {
           _minimumReminderScheduled = true;
           final amount = itemTotal;
@@ -288,7 +427,29 @@ class _CartScreenState extends State<CartScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (quantity > 0) ...[
+                    if (_cartLoading) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 28),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFFF5E00),
+                          ),
+                        ),
+                      ),
+                    ] else if (_cartLoaded && _apiItems.isNotEmpty) ...[
+                      if (storeName.isNotEmpty) ...[
+                        Text(
+                          'From $storeName',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFA59A94),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      for (final item in _apiItems) _buildApiCartItem(item),
+                    ] else if (quantity > 0) ...[
                       Text(
                         'From $storeName',
                         style: GoogleFonts.outfit(
@@ -538,24 +699,25 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () => _setQuantity(1),
-                              child: Text(
-                                'Add Product',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                            if (!_cartLoaded)
+                              GestureDetector(
+                                onTap: () => _setQuantity(1),
+                                child: Text(
+                                  'Add Product',
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFFFF5E00),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 14),
                     ],
 
-                    if (quantity > 0) ...[
+                    if (!_cartLoading && quantity > 0) ...[
                       if (isDelivery) ...[
                         // Add Delivery Note — delivery only
                         Container(

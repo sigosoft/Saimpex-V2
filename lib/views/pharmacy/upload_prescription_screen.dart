@@ -5,13 +5,24 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/select_location_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/pharmacy_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../home_scanner_screen.dart';
+import 'widgets/pharmacy_background.dart';
 import 'prescription_success_screen.dart';
 
 class UploadPrescriptionScreen extends StatefulWidget {
   final String? initialPharmacy;
+  final int? initialPharmacyId;
 
-  const UploadPrescriptionScreen({super.key, this.initialPharmacy});
+  const UploadPrescriptionScreen({
+    super.key,
+    this.initialPharmacy,
+    this.initialPharmacyId,
+  });
 
   @override
   State<UploadPrescriptionScreen> createState() =>
@@ -21,65 +32,23 @@ class UploadPrescriptionScreen extends StatefulWidget {
 class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
   bool callBeforeAlternative = true;
   bool isPickingFile = false;
+  bool isLoadingPharmacies = false;
+  bool isSubmitting = false;
   String? selectedPharmacy;
+  int? selectedPharmacyId;
   String? uploadedLabel;
   String? uploadedPath;
   bool uploadedIsImage = false;
   final TextEditingController contactController = TextEditingController();
   final FocusNode contactFocus = FocusNode();
-
-  final List<Map<String, String>> pharmacies = const [
-    {
-      'title': 'Pharmacie Nasr',
-      'rating': '4.6',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'image':
-          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&auto=format&fit=crop',
-      'status': 'OPEN',
-    },
-    {
-      'title': 'Pharmacy Mauritanie',
-      'rating': '4.5',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'image':
-          'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=400&auto=format&fit=crop',
-      'status': 'OPEN',
-    },
-    {
-      'title': 'Pharmacy El Amal',
-      'rating': '4.7',
-      'time': '25-30 min',
-      'dist': '8 Km',
-      'image':
-          'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=400&auto=format&fit=crop',
-      'status': 'OPEN',
-    },
-    {
-      'title': 'Pharmacie Ibn Sina',
-      'rating': '4.7',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'image':
-          'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=400&auto=format&fit=crop',
-      'status': 'OPEN',
-    },
-    {
-      'title': 'Pharmacy Safa',
-      'rating': '4.3',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'image':
-          'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=400&auto=format&fit=crop',
-      'status': 'OPEN',
-    },
-  ];
+  List<Map<String, String>> pharmacies = [];
 
   @override
   void initState() {
     super.initState();
     selectedPharmacy = widget.initialPharmacy;
+    selectedPharmacyId = widget.initialPharmacyId;
+    _loadPharmacies();
   }
 
   @override
@@ -94,8 +63,9 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
     final topInset = MediaQuery.viewPaddingOf(context).top;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF6F0),
+    return PharmacyBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       body: Column(
         children: [
           SizedBox(height: topInset + 10),
@@ -169,7 +139,9 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   _buildContactField(),
                   const SizedBox(height: 24),
                   GestureDetector(
-                    onTap: isPickingFile ? null : _submitQuotation,
+                    onTap: isPickingFile || isSubmitting
+                        ? null
+                        : _submitQuotation,
                     child: Container(
                       height: 52,
                       alignment: Alignment.center,
@@ -190,14 +162,23 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           ),
                         ],
                       ),
-                      child: Text(
-                        'Submit for Quotation',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
+                      child: isSubmitting
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.4,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              'Submit for Quotation',
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -205,6 +186,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -534,7 +516,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
 
   Widget _buildPharmacyDropdown() {
     return GestureDetector(
-      onTap: _showPharmacyPicker,
+      onTap: isLoadingPharmacies ? null : _showPharmacyPicker,
       child: Container(
         height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -557,11 +539,21 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 ),
               ),
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFFA59A94),
-              size: 22,
-            ),
+            if (isLoadingPharmacies)
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFFFF5E00),
+                ),
+              )
+            else
+              const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Color(0xFFA59A94),
+                size: 22,
+              ),
           ],
         ),
       ),
@@ -803,10 +795,13 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                                       return _buildPharmacyPickerCard(
                                         pharmacy: pharmacy,
                                         onTap: () {
-                                          setState(
-                                            () => selectedPharmacy =
-                                                pharmacy['title'],
-                                          );
+                                          setState(() {
+                                            selectedPharmacy =
+                                                pharmacy['title'];
+                                            selectedPharmacyId = int.tryParse(
+                                              pharmacy['id'] ?? '',
+                                            );
+                                          });
                                           Navigator.pop(context);
                                         },
                                       );
@@ -894,19 +889,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                     children: [
                       Positioned.fill(
                         child: ClipOval(
-                          child: Image.network(
-                            pharmacy['image']!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              color: const Color(0xFFF3EFEA),
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.local_pharmacy_outlined,
-                                color: Color(0xFFA59A94),
-                                size: 24,
-                              ),
-                            ),
-                          ),
+                          child: _pharmacyImage(pharmacy['image'] ?? ''),
                         ),
                       ),
                       Positioned(
@@ -1043,27 +1026,137 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
     );
   }
 
-  void _submitQuotation() {
+  Widget _pharmacyImage(String image) {
+    if (!image.startsWith('http')) {
+      return Container(
+        color: const Color(0xFFF3EFEA),
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.local_pharmacy_outlined,
+          color: Color(0xFFA59A94),
+          size: 24,
+        ),
+      );
+    }
+    return Image.network(
+      image,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Container(
+        color: const Color(0xFFF3EFEA),
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.local_pharmacy_outlined,
+          color: Color(0xFFA59A94),
+          size: 24,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _loadPharmacies() async {
+    setState(() => isLoadingPharmacies = true);
+    try {
+      final cards = await Get.find<PharmacyRepository>()
+          .fetchSelectablePharmacies(
+            latitude: SelectLocationController.selectedLatitude,
+            longitude: SelectLocationController.selectedLongitude,
+            language: apiLanguageCode(),
+          );
+      if (!mounted) return;
+      final loaded = cards.map(_pickerPharmacy).toList();
+      final initialId = widget.initialPharmacyId;
+      if (initialId != null &&
+          loaded.every((pharmacy) => pharmacy['id'] != '$initialId')) {
+        loaded.insert(0, {
+          'id': '$initialId',
+          'title': widget.initialPharmacy ?? 'Pharmacy',
+          'rating': '',
+          'time': '',
+          'dist': '',
+          'image': '',
+          'status': 'OPEN',
+        });
+      }
+      String? matchedTitle;
+      if (initialId != null) {
+        for (final pharmacy in loaded) {
+          if (pharmacy['id'] == '$initialId') {
+            matchedTitle = pharmacy['title'];
+            break;
+          }
+        }
+      }
+      setState(() {
+        pharmacies = loaded;
+        if (matchedTitle != null) {
+          selectedPharmacyId = initialId;
+          selectedPharmacy = matchedTitle;
+        }
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => isLoadingPharmacies = false);
+    }
+  }
+
+  Map<String, String> _pickerPharmacy(Map<String, dynamic> card) {
+    return {
+      'id': '${card['id'] ?? ''}',
+      'title': '${card['title'] ?? 'Pharmacy'}',
+      'rating': '${card['rating'] ?? ''}',
+      'time': '${card['time'] ?? ''}',
+      'dist': '${card['dist'] ?? ''}',
+      'image': '${card['image'] ?? ''}',
+      'status': card['isClosed'] == true ? 'CLOSED' : 'OPEN',
+    };
+  }
+
+  Future<void> _submitQuotation() async {
+    if (isSubmitting) return;
     if (uploadedPath == null) {
       _showToast('Please add your prescription first', isError: true);
       return;
     }
-    if (selectedPharmacy == null) {
+    if (selectedPharmacyId == null) {
       _showToast('Please choose a pharmacy', isError: true);
       return;
     }
-    if (contactController.text.trim().isEmpty) {
+    final contactNumber = contactController.text.trim();
+    if (contactNumber.isEmpty) {
       _showToast('Please enter your contact number', isError: true);
       return;
     }
+    if (!File(uploadedPath!).existsSync()) {
+      _showToast('Could not read selected file', isError: true);
+      return;
+    }
 
-    Get.to(
-      () => PrescriptionSuccessScreen(
-        fileName: uploadedLabel ?? 'Prescription.pdf',
-        filePath: uploadedPath,
-        isImage: uploadedIsImage,
-      ),
-    );
+    setState(() => isSubmitting = true);
+    try {
+      final message = await Get.find<PharmacyRepository>().uploadPrescription(
+        pharmacyId: selectedPharmacyId!,
+        contactNumber: contactNumber,
+        callBeforeAlternative: callBeforeAlternative,
+        filePath: uploadedPath!,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      Get.to(
+        () => PrescriptionSuccessScreen(
+          fileName: uploadedLabel ?? 'Prescription.pdf',
+          filePath: uploadedPath,
+          isImage: uploadedIsImage,
+        ),
+      );
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => isSubmitting = false);
+    }
   }
 
   void _showToast(String message, {bool isError = false}) {
