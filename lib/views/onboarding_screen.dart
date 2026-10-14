@@ -41,12 +41,10 @@ class OnboardingScreen extends StatelessWidget {
     return Stack(
       children: [
         // PageView for screens content
-        PageView.builder(
-          controller: controller.pageController,
-          onPageChanged: controller.onPageChanged,
-          itemCount: controller.onboardingPages.length,
+        _OnboardingPageView(
+          controller: controller,
           itemBuilder: (context, index) {
-            final page = controller.onboardingPages[index];
+            final page = controller.pageAt(index);
             return Stack(
               children: [
                 // Top Collage Image
@@ -55,7 +53,7 @@ class OnboardingScreen extends StatelessWidget {
                   left: 0,
                   right: 0,
                   height: size.height * 0.66,
-                  child: Image.asset(page.imagePath, fit: BoxFit.cover),
+                  child: _OnboardingImage(path: page.imagePath, index: index),
                 ),
                 // Premium gradient overlay to blend image into the dark bottom area
                 Positioned(
@@ -180,12 +178,10 @@ class OnboardingScreen extends StatelessWidget {
     return Stack(
       children: [
         // PageView with landscape row adaptation
-        PageView.builder(
-          controller: controller.pageController,
-          onPageChanged: controller.onPageChanged,
-          itemCount: controller.onboardingPages.length,
+        _OnboardingPageView(
+          controller: controller,
           itemBuilder: (context, index) {
-            final page = controller.onboardingPages[index];
+            final page = controller.pageAt(index);
             return Row(
               children: [
                 // Left Collage Column
@@ -194,7 +190,7 @@ class OnboardingScreen extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(page.imagePath, fit: BoxFit.cover),
+                      _OnboardingImage(path: page.imagePath, index: index),
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -304,6 +300,76 @@ class OnboardingScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _OnboardingPageView extends StatefulWidget {
+  const _OnboardingPageView({
+    required this.controller,
+    required this.itemBuilder,
+  });
+
+  final OnboardingController controller;
+  final Widget Function(BuildContext context, int index) itemBuilder;
+
+  @override
+  State<_OnboardingPageView> createState() => _OnboardingPageViewState();
+}
+
+class _OnboardingPageViewState extends State<_OnboardingPageView> {
+  Worker? _slidesWorker;
+  Worker? _languageWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    _slidesWorker = ever(widget.controller.splashSlides, (_) {
+      if (mounted) setState(() {});
+    });
+    _languageWorker = ever(widget.controller.selectedLanguage, (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _slidesWorker?.dispose();
+    _languageWorker?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageView.builder(
+      controller: widget.controller.pageController,
+      onPageChanged: widget.controller.onPageChanged,
+      itemCount: widget.controller.pageCount,
+      itemBuilder: widget.itemBuilder,
+    );
+  }
+}
+
+class _OnboardingImage extends StatelessWidget {
+  const _OnboardingImage({required this.path, required this.index});
+
+  final String path;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback =
+        'lib/assets/images/Onboard${(index % 3) + 1}.png';
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => Image.asset(fallback, fit: BoxFit.cover),
+      );
+    }
+    return Image.asset(
+      path.isEmpty ? fallback : path,
+      fit: BoxFit.cover,
     );
   }
 }

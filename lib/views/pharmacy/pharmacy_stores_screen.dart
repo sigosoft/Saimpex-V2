@@ -12,10 +12,12 @@ class PharmacyStoresScreen extends StatelessWidget {
     super.key,
     required this.title,
     required this.stores,
+    this.categoryId,
   });
 
   final String title;
   final List<Map<String, dynamic>> stores;
+  final int? categoryId;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,12 @@ class PharmacyStoresScreen extends StatelessWidget {
                 final store = stores[index];
                 return _PharmacyStoreTile(
                   store: store,
-                  onTap: () => Get.to(() => PharmacyItemsScreen(store: store)),
+                  onTap: () => Get.to(
+                    () => PharmacyItemsScreen(
+                      store: store,
+                      initialCategoryId: categoryId,
+                    ),
+                  ),
                 );
               },
             ),

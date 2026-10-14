@@ -29,7 +29,6 @@ class PharmacyScreen extends StatefulWidget {
 }
 
 class _PharmacyScreenState extends State<PharmacyScreen> {
-  int selectedCategoryIndex = 0; // Default to "All"
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final PageController _sliderController = PageController();
@@ -38,9 +37,10 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   bool _showStickySearch = false;
   List<String> _sliderImages = const [];
   List<Map<String, dynamic>> _quickCategories = const [];
+  bool _categoriesLoading = true;
+  bool _openingCategory = false;
   List<Map<String, dynamic>> _trustedPharmacies = const [];
   List<Map<String, dynamic>> _nearbyPharmacies = const [];
-  List<Map<String, dynamic>> _pharmacies = const [];
   List<Map<String, dynamic>> _sections = const [];
   int _sliderIndex = 0;
   Timer? _sliderTimer;
@@ -56,26 +56,47 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   }
 
   Future<void> _loadSliders() async {
-    if (!Get.isRegistered<PharmacyRepository>()) return;
+    if (!Get.isRegistered<PharmacyRepository>()) {
+      _categoriesLoading = false;
+      return;
+    }
+    final repository = Get.find<PharmacyRepository>();
+    final latitude = SelectLocationController.selectedLatitude;
+    final longitude = SelectLocationController.selectedLongitude;
+    final language = apiLanguageCode();
     try {
-      final home = await Get.find<PharmacyRepository>().fetchHome(
-        latitude: SelectLocationController.selectedLatitude,
-        longitude: SelectLocationController.selectedLongitude,
-        language: apiLanguageCode(),
+      final home = await repository.fetchHome(
+        latitude: latitude,
+        longitude: longitude,
+        language: language,
       );
       if (!mounted) return;
       setState(() {
         _sliderImages = home.sliders;
-        _quickCategories = home.categories;
         _trustedPharmacies = home.trustedPharmacies;
         _nearbyPharmacies = home.nearbyPharmacies;
-        _pharmacies = home.pharmacies;
         _sections = home.sections;
         _sliderIndex = 0;
       });
       _startSliderAutoScroll();
     } on ApiException catch (error) {
       if (!mounted) return;
+      showAppToast(error.message);
+    }
+    try {
+      final categories = await repository.fetchHomeCategories(
+        latitude: latitude,
+        longitude: longitude,
+        language: language,
+      );
+      if (!mounted) return;
+      setState(() {
+        _quickCategories = categories;
+        _categoriesLoading = false;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _categoriesLoading = false);
       showAppToast(error.message);
     }
   }
@@ -220,24 +241,6 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                                   : null,
                             ),
                             _buildNearbyPharmaciesList(),
-                          ],
-                          if (_pharmacies.isNotEmpty) ...[
-                            _buildSectionHeader(
-                              _sectionTitle('pharmacies', 'Pharmacies'),
-                              onSeeAll: _showsSeeAll('pharmacies')
-                                  ? () => _openPharmacyList(
-                                      _sectionTitle('pharmacies', 'Pharmacies'),
-                                      _pharmacies,
-                                    )
-                                  : null,
-                              onMap: _showsMap('pharmacies')
-                                  ? () => _openPharmacyMap(
-                                      _sectionTitle('pharmacies', 'Pharmacies'),
-                                      _pharmacies,
-                                    )
-                                  : null,
-                            ),
-                            _buildHorizontalPharmaciesList(_pharmacies),
                           ],
                           const SizedBox(height: 36),
                         ],
@@ -542,6 +545,47 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     );
   }
 
+  Future<void> _openQuickCategory(
+    Map<String, dynamic> category,
+    bool isAll,
+    int? categoryId,
+  ) async {
+    if (isAll || categoryId == null || categoryId == 0) {
+      final store = _nearbyPharmacies.isNotEmpty
+          ? Map<String, dynamic>.from(_nearbyPharmacies.first)
+          : _trustedPharmacies.isNotEmpty
+          ? Map<String, dynamic>.from(_trustedPharmacies.first)
+          : null;
+      if (store == null) return;
+      Get.to(() => PharmacyItemsScreen(store: store));
+      return;
+    }
+    if (_openingCategory || !Get.isRegistered<PharmacyRepository>()) return;
+    _openingCategory = true;
+    try {
+      final stores = await Get.find<PharmacyRepository>()
+          .fetchCategoryPharmacies(
+            categoryId: categoryId,
+            latitude: SelectLocationController.selectedLatitude,
+            longitude: SelectLocationController.selectedLongitude,
+            language: apiLanguageCode(),
+          );
+      if (!mounted) return;
+      Get.to(
+        () => PharmacyStoresScreen(
+          title: category['label']?.toString() ?? '',
+          stores: stores,
+          categoryId: categoryId,
+        ),
+      );
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message);
+    } finally {
+      _openingCategory = false;
+    }
+  }
+
   Widget _quickCategoryArt(Map<String, dynamic> category, bool isAll) {
     final image = category['image']?.toString() ?? '';
     if (isAll && image.isEmpty) {
@@ -574,6 +618,21 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
 
   // Quick categories Grid View matching home screen stack design
   Widget _buildQuickCategoriesGrid() {
+    if (_categoriesLoading) {
+      return const SizedBox(
+        height: 120,
+        child: Center(
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Color(0xFFFF5E00),
+            ),
+          ),
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
@@ -589,29 +648,13 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         itemBuilder: (context, index) {
           final cat = _quickCategories[index];
           final isAll = cat['isAll'] == true;
-          final isSelected = selectedCategoryIndex == index;
-          final highlight = isAll || isSelected;
           final categoryId = cat['id'] is int
               ? cat['id'] as int
               : int.tryParse('${cat['id']}');
 
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () {
-              setState(() => selectedCategoryIndex = index);
-              final store = _nearbyPharmacies.isNotEmpty
-                  ? Map<String, dynamic>.from(_nearbyPharmacies.first)
-                  : _trustedPharmacies.isNotEmpty
-                  ? Map<String, dynamic>.from(_trustedPharmacies.first)
-                  : null;
-              if (store == null) return;
-              Get.to(
-                () => PharmacyItemsScreen(
-                  store: store,
-                  initialCategoryId: categoryId,
-                ),
-              );
-            },
+            onTap: () => _openQuickCategory(cat, isAll, categoryId),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -623,7 +666,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                   bottom: 0,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: highlight
+                      gradient: isAll
                           ? const LinearGradient(
                               colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
                               begin: Alignment.topLeft,
@@ -648,7 +691,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                     child: Text(
                       cat['label']?.toString() ?? '',
                       style: GoogleFonts.outfit(
-                        color: highlight
+                        color: isAll
                             ? Colors.white
                             : const Color(0xFF2C2520),
                         fontSize: 10,

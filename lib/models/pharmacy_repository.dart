@@ -13,10 +13,8 @@ class PharmacyRepository {
   Future<
     ({
       List<String> sliders,
-      List<Map<String, dynamic>> categories,
       List<Map<String, dynamic>> trustedPharmacies,
       List<Map<String, dynamic>> nearbyPharmacies,
-      List<Map<String, dynamic>> pharmacies,
       List<Map<String, dynamic>> sections,
     })
   >
@@ -34,12 +32,31 @@ class PharmacyRepository {
     );
     return (
       sliders: _sliderImages(data),
-      categories: _homeCategories(data['categories'], language),
       trustedPharmacies: _pharmacyCards(data['trusted_pharmacies'], language),
       nearbyPharmacies: _pharmacyCards(data['nearby_pharmacies'], language),
-      pharmacies: _pharmacyCards(data['pharmacies'], language),
       sections: _homeSections(data['sections'], language),
     );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchHomeCategories({
+    required double latitude,
+    required double longitude,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.pharmacyHomeCategories,
+        data: {
+          'latitude': latitude.toString(),
+          'longitude': longitude.toString(),
+          'featured_only': '',
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    return _homeCategories(data['categories'], language);
   }
 
   List<String> _sliderImages(Map<String, dynamic> data) {
@@ -57,10 +74,23 @@ class PharmacyRepository {
 
   List<Map<String, dynamic>> _homeCategories(dynamic raw, String language) {
     if (raw is! List) return const [];
-    final categories = <Map<String, dynamic>>[];
-    for (final item in raw) {
-      final category = asJsonMap(item);
+    final entries = <({int order, int index, Map<String, dynamic> category})>[];
+    for (var index = 0; index < raw.length; index++) {
+      final category = asJsonMap(raw[index]);
       if (category == null) continue;
+      entries.add((
+        order: _asInt(category['sort_order']),
+        index: index,
+        category: category,
+      ));
+    }
+    entries.sort((a, b) {
+      final byOrder = a.order.compareTo(b.order);
+      return byOrder != 0 ? byOrder : a.index.compareTo(b.index);
+    });
+    final categories = <Map<String, dynamic>>[];
+    for (final entry in entries) {
+      final category = entry.category;
       final id = _asInt(category['category_id']);
       final name = _localized(category, 'name', language);
       categories.add({
@@ -155,6 +185,163 @@ class PharmacyRepository {
     );
   }
 
+  Future<List<Map<String, dynamic>>> fetchPharmacyCategories({
+    required int pharmacyId,
+    required String language,
+    String keyword = '',
+  }) async {
+    final query = <String, dynamic>{'pharmacy_id': pharmacyId};
+    final search = keyword.trim();
+    if (search.isNotEmpty) query['keyword'] = search;
+
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.pharmacyCategories,
+        queryParameters: query,
+      ),
+      language,
+    );
+    final data = envelope.data;
+    return _storeCategories(
+      data is List ? data : asJsonMap(data)?['categories'],
+      language,
+    );
+  }
+
+  Future<
+    ({
+      List<Map<String, dynamic>> items,
+      int currentPage,
+      int lastPage,
+    })
+  >
+  fetchPharmacyItems({
+    required int pharmacyId,
+    required String language,
+    int? categoryId,
+    String keyword = '',
+    int limit = 20,
+    int page = 1,
+  }) async {
+    final body = <String, dynamic>{
+      'pharmacy_id': pharmacyId.toString(),
+      'keyword': keyword.trim(),
+      'limit': limit.toString(),
+      'page': page.toString(),
+    };
+    if (categoryId != null && categoryId != 0) {
+      body['category_id'] = categoryId.toString();
+    }
+
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.pharmacyItems,
+        data: body,
+        queryParameters: {'page': page},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    return (
+      items: _storeItems(data['data'], language),
+      currentPage: _asInt(data['current_page'], fallback: page),
+      lastPage: _asInt(data['last_page'], fallback: page),
+    );
+  }
+
+  Future<
+    ({
+      List<Map<String, dynamic>> items,
+      int currentPage,
+      int lastPage,
+    })
+  >
+  fetchCategoryItems({
+    required int pharmacyId,
+    required int categoryId,
+    required String language,
+    int page = 1,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.pharmacyCategoryItems,
+        data: {
+          'pharmacy_id': pharmacyId.toString(),
+          'category_id': categoryId.toString(),
+        },
+        queryParameters: {'page': page},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final items = asJsonMap(data['items']);
+    return (
+      items: _storeItems(items?['data'], language),
+      currentPage: _asInt(items?['current_page'], fallback: page),
+      lastPage: _asInt(items?['last_page'], fallback: page),
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCategoryPharmacies({
+    required int categoryId,
+    required double latitude,
+    required double longitude,
+    required String language,
+    String keyword = '',
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.pharmacyCategoryPharmacies,
+        data: {
+          'skip_radius': '',
+          'keyword': keyword.trim(),
+          'latitude': latitude.toString(),
+          'longitude': longitude.toString(),
+          'category_id': categoryId.toString(),
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    return _pharmacyCards(data['pharmacies'], language);
+  }
+
+  Future<Map<String, dynamic>> fetchDetails({
+    required int pharmacyId,
+    required double latitude,
+    required double longitude,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.pharmacyDetails,
+        queryParameters: {
+          'pharmacy_id': pharmacyId,
+          'lat': latitude.toString(),
+          'long': longitude.toString(),
+        },
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    return _pharmacyDetails(data, language);
+  }
+
+  Map<String, dynamic> _pharmacyDetails(
+    Map<String, dynamic> item,
+    String language,
+  ) {
+    final header = _storeHeader(item, language);
+    header['latitude'] = double.tryParse('${item['latitude']}');
+    header['longitude'] = double.tryParse('${item['longitude']}');
+    header['deliveryRadius'] = item['delivery_radius_km'];
+    header['ratingCount'] = _asInt(item['rating_count']);
+    return header;
+  }
+
   Future<Map<String, dynamic>> fetchItemDetail({
     required int menuId,
     required int pharmacyId,
@@ -183,30 +370,26 @@ class PharmacyRepository {
     return _itemDetail(menu, variant, language);
   }
 
-  Future<List<Map<String, dynamic>>> fetchSelectablePharmacies({
+  Future<List<Map<String, dynamic>>> fetchPrescriptionPharmacies({
     required double latitude,
     required double longitude,
     required String language,
+    String keyword = '',
   }) async {
-    final data = await _postHome(
-      latitude: latitude,
-      longitude: longitude,
-      language: language,
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.prescriptionPharmacies,
+        data: {
+          'keyword': keyword.trim(),
+          'latitude': latitude.toString(),
+          'longitude': longitude.toString(),
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
     );
-    final pharmacies = <Map<String, dynamic>>[];
-    final seen = <String>{};
-    for (final source in [
-      data['nearby_pharmacies'],
-      data['trusted_pharmacies'],
-      data['pharmacies'],
-    ]) {
-      for (final card in _pharmacyCards(source, language)) {
-        final id = '${card['id'] ?? ''}';
-        if (id.isEmpty || !seen.add(id)) continue;
-        pharmacies.add(card);
-      }
-    }
-    return pharmacies;
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    return _pharmacyCards(data['pharmacies'], language);
   }
 
   Future<String> uploadPrescription({
@@ -438,15 +621,24 @@ class PharmacyRepository {
 
   List<String> _itemImages(Map<String, dynamic> item) {
     final images = <String>[];
-    final raw = item['images'];
-    if (raw is List) {
-      for (final entry in raw) {
-        final url = ApiConstants.mediaUrl(entry?.toString());
-        if (url != null && !images.contains(url)) images.add(url);
+    void add(dynamic value) {
+      if (value is List) {
+        for (final entry in value) {
+          add(entry);
+        }
+        return;
       }
+      if (value is Map) {
+        final map = asJsonMap(value);
+        add(map?['url'] ?? map?['path'] ?? map?['image']);
+        return;
+      }
+      final url = ApiConstants.mediaUrl(value?.toString());
+      if (url != null && !images.contains(url)) images.add(url);
     }
-    final single = ApiConstants.mediaUrl(item['image']?.toString());
-    if (single != null && !images.contains(single)) images.insert(0, single);
+
+    add(item['images']);
+    add(item['image']);
     return images;
   }
 

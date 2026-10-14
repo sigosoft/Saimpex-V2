@@ -13,7 +13,7 @@ class PageIndicator extends StatelessWidget {
       () => Row(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(
-          controller.onboardingPages.length,
+          controller.pageCount,
           (index) {
             final isActive = controller.currentIndex.value == index;
             return AnimatedContainer(

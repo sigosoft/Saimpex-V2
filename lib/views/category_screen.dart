@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
+import '../controllers/select_location_controller.dart';
+import '../core/network/api_exception.dart';
+import '../models/food_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/store_map_button.dart';
 import '../widgets/see_all_button.dart';
@@ -35,7 +40,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
   /// search(48) + gap(16) + filters(34) + bottom gap(12)
   static const double _searchFiltersExtent = 110;
 
-  final subcategories = [
+  bool _foodCategoriesLoaded = false;
+  bool _foodCategoriesLoading = false;
+  static final List<Map<String, dynamic>> _fallbackSubcategories = [
     {'label': 'All', 'isAll': true},
     {
       'label': 'Meals',
@@ -63,6 +70,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=100&auto=format&fit=crop',
     },
   ];
+  late List<Map<String, dynamic>> subcategories = _fallbackSubcategories;
 
   final List<Map<String, dynamic>> items = [
     {
@@ -110,10 +118,59 @@ class _CategoryScreenState extends State<CategoryScreen> {
     },
   ];
 
+  bool get _isFoodCategory {
+    final name = widget.categoryName.trim().toLowerCase();
+    return name == 'food' || name == 'trending';
+  }
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    if (_isFoodCategory) {
+      subcategories = const [];
+      _foodCategoriesLoading = true;
+      _loadFoodCategories();
+    }
+  }
+
+  Future<void> _loadFoodCategories() async {
+    if (!Get.isRegistered<FoodRepository>()) {
+      if (!mounted) return;
+      setState(() {
+        _foodCategoriesLoading = false;
+        subcategories = _fallbackSubcategories;
+      });
+      return;
+    }
+    try {
+      final categories = await Get.find<FoodRepository>()
+          .fetchVendorCategories(
+            latitude: SelectLocationController.selectedLatitude,
+            longitude: SelectLocationController.selectedLongitude,
+            language: apiLanguageCode(),
+          );
+      if (!mounted) return;
+      setState(() {
+        _foodCategoriesLoading = false;
+        if (categories.isEmpty) {
+          subcategories = _fallbackSubcategories;
+          return;
+        }
+        subcategories = categories;
+        _foodCategoriesLoaded = true;
+      });
+      if (categories.isNotEmpty && Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().selectSubcategory(0);
+      }
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _foodCategoriesLoading = false;
+        subcategories = _fallbackSubcategories;
+      });
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
   }
 
   @override
@@ -122,6 +179,29 @@ class _CategoryScreenState extends State<CategoryScreen> {
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  Widget _categoryImage(String image) {
+    if (!image.startsWith('http')) {
+      return Container(
+        width: 46,
+        height: 46,
+        color: const Color(0xFFEAD8C9),
+        child: const Icon(Icons.fastfood, color: Colors.grey, size: 18),
+      );
+    }
+    return Image.network(
+      image,
+      width: 46,
+      height: 46,
+      fit: BoxFit.cover,
+      errorBuilder: (_, _, _) => Container(
+        width: 46,
+        height: 46,
+        color: const Color(0xFFEAD8C9),
+        child: const Icon(Icons.fastfood, color: Colors.grey, size: 18),
+      ),
+    );
   }
 
   void _handleScroll() {
@@ -306,7 +386,18 @@ class _CategoryScreenState extends State<CategoryScreen> {
             ),
             SizedBox(
               height: 86,
-              child: Obx(() {
+              child: _foodCategoriesLoading
+                  ? const Center(
+                      child: SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFFFF5E00),
+                        ),
+                      ),
+                    )
+                  : Obx(() {
                 final selectedIndex =
                     controller.selectedSubcategoryIndex.value;
                 return ListView.builder(
@@ -360,26 +451,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                             ],
                                           ),
                                           child: ClipOval(
-                                            child: Image.network(
-                                              sub['image'] as String,
-                                              width: 46,
-                                              height: 46,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (
-                                                context,
-                                                error,
-                                                stackTrace,
-                                              ) =>
-                                                  Container(
-                                                width: 46,
-                                                height: 46,
-                                                color: const Color(0xFFEAD8C9),
-                                                child: const Icon(
-                                                  Icons.fastfood,
-                                                  color: Colors.grey,
-                                                  size: 18,
-                                                ),
-                                              ),
+                                            child: _categoryImage(
+                                              sub['image']?.toString() ?? '',
                                             ),
                                           ),
                                         ),
@@ -464,7 +537,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
               child: Obx(() {
                 final selectedSubIndex =
                     controller.selectedSubcategoryIndex.value;
-                final filteredItems = selectedSubIndex == 0
+                final filteredItems = _foodCategoriesLoaded ||
+                        selectedSubIndex == 0
                     ? items
                     : (selectedSubIndex == 1
                           ? [items[0]]

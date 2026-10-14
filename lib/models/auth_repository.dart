@@ -70,6 +70,22 @@ class AuthRepository {
     );
   }
 
+  /// False when the stored token is rejected. A connection problem keeps the
+  /// session so the user is not logged out while offline.
+  Future<bool> customerCheck() async {
+    try {
+      final response = await _client.dio.get(ApiConstants.customerCheck);
+      final body = asJsonMap(response.data);
+      return body?['status'] == true;
+    } on DioException catch (error) {
+      final code = error.response?.statusCode;
+      if (code == 401 || code == 403) return false;
+      return true;
+    } catch (_) {
+      return true;
+    }
+  }
+
   Future<String> logout(String language) async {
     try {
       final response = await _client.dio.post(

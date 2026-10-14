@@ -120,6 +120,7 @@ class _MainShellScreenState extends State<MainShellScreen>
         latitude: location.latitude,
         longitude: location.longitude,
       );
+      await _controller.loadHome();
     } catch (_) {}
   }
 

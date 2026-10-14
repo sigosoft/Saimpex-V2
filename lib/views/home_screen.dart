@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
-import '../widgets/profile_image_view.dart';
+import '../core/network/api_constants.dart';
 import 'category_screen.dart';
 import 'water/water_screen.dart';
 import 'grocery/grocery_screen.dart';
@@ -299,14 +299,19 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width:3),
-                Text(
-                  '300 MRU',
-                  style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                Obx(() {
+                  final home = Get.find<HomeController>();
+                  final label = home.homeLoaded.value ? home.walletLabel : '';
+                  if (label.isEmpty) return const SizedBox.shrink();
+                  return Text(
+                    label,
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -321,11 +326,33 @@ class HomeScreen extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
             ),
-            child: const Icon(
-              Icons.notifications_none_rounded,
-              color: Color(0xFF2C2520),
-              size: 24,
-            ),
+            child: Obx(() {
+              final count = Get.find<HomeController>().unreadNotifications.value;
+              final loaded = Get.find<HomeController>().homeLoaded.value;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Color(0xFF2C2520),
+                    size: 24,
+                  ),
+                  if (loaded && count > 0)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFF5E00),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }),
           ),
           const SizedBox(width: 10),
           // Profile Avatar
@@ -343,9 +370,34 @@ class HomeScreen extends StatelessWidget {
 
   // Category Selector Grid
   Widget _buildCategoryGrid(HomeController controller) {
-    final categories = [
+    return Obx(() {
+      if (controller.homeLoading.value && !controller.homeLoaded.value) {
+        return const SizedBox(
+          height: 120,
+          child: Center(
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Color(0xFFFF5E00),
+              ),
+            ),
+          ),
+        );
+      }
+      final categories = controller.homeLoaded.value
+          ? _verticalTiles(controller)
+          : _fallbackCategoryTiles();
+      return _categoryGrid(controller, categories);
+    });
+  }
+
+  List<Map<String, dynamic>> _fallbackCategoryTiles() {
+    return [
       {
         'label': 'All',
+        'slug': 'all',
         'icon': "lib/assets/images/All.png",
         'gradient': const LinearGradient(
           colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
@@ -355,6 +407,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'label': 'Food',
+        'slug': 'food',
         'icon': "lib/assets/images/Food.png",
         'gradient': const LinearGradient(
           colors: [Color.fromARGB(255, 247, 176, 114), Color.fromARGB(255, 255, 255, 255)],
@@ -364,6 +417,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'label': 'Grocery',
+        'slug': 'grocery',
         'icon': "lib/assets/images/Grocery.png",
         'gradient': const LinearGradient(
           colors: [Color.fromARGB(255, 161, 229, 82), Color.fromARGB(255, 255, 255, 255)],
@@ -373,6 +427,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'label': 'Pharmacy',
+        'slug': 'pharmacy',
         'icon': "lib/assets/images/Pharmacy.png",
         'gradient': const LinearGradient(
           colors: [Color.fromARGB(255, 184, 235, 255), Color.fromARGB(255, 255, 255, 255)],
@@ -382,6 +437,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'label': 'Water',
+        'slug': 'water',
         'icon': "lib/assets/images/Water.png",
         'gradient': const LinearGradient(
           colors: [Color.fromARGB(255, 118, 212, 255), Color.fromARGB(255, 255, 255, 255)],
@@ -391,6 +447,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'label': 'Courier',
+        'slug': 'courier',
         'icon': "lib/assets/images/Courier.png",
         'gradient': const LinearGradient(
           colors: [Color.fromARGB(255, 245, 173, 239), Color.fromARGB(255, 255, 255, 255)],
@@ -400,6 +457,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'label': 'Express',
+        'slug': 'express',
         'icon': "lib/assets/images/Express.png",
         'gradient': const LinearGradient(
           colors: [Color.fromARGB(255, 255, 165, 10), Color.fromARGB(255, 255, 255, 255)],
@@ -409,6 +467,7 @@ class HomeScreen extends StatelessWidget {
       },
       {
         'label': 'Local Store',
+        'slug': 'local_store',
         'icon': "lib/assets/images/Local Store.png",
         'gradient': const LinearGradient(
           colors: [Color.fromARGB(255, 177, 159, 137), Color.fromARGB(255, 255, 255, 255)],
@@ -417,7 +476,12 @@ class HomeScreen extends StatelessWidget {
         ),
       },
     ];
+  }
 
+  Widget _categoryGrid(
+    HomeController controller,
+    List<Map<String, dynamic>> categories,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
@@ -432,27 +496,13 @@ class HomeScreen extends StatelessWidget {
         ),
         itemBuilder: (context, index) {
           final cat = categories[index];
-          final isSelected = index == 0;
+          final slug = (cat['slug'] ?? '').toString();
+          final isSelected = slug == 'all';
           return GestureDetector(
-            onTap: () {
-              if (cat['label'] == 'Grocery') {
-                Get.to(() => const GroceryScreen());
-              } else if (cat['label'] == 'Pharmacy') {
-                Get.to(() => const PharmacyScreen());
-              } else if (cat['label'] == 'Water') {
-                Get.to(() => const WaterScreen());
-              } else if (cat['label'] == 'Express') {
-                Get.to(() => const ExpressScreen());
-              } else if (cat['label'] == 'Courier') {
-                Get.to(() => const CourierScreen());
-              } else if (cat['label'] == 'Local Store') {
-                Get.to(() => const LocalStoreScreen());
-              } else {
-                Get.to(
-                  () => CategoryScreen(categoryName: cat['label'] as String),
-                );
-              }
-            },
+            onTap: () => _openHomeVertical(
+              slug,
+              (cat['label'] ?? '').toString(),
+            ),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -487,9 +537,7 @@ class HomeScreen extends StatelessWidget {
                       style: GoogleFonts.outfit(
                         color: isSelected
                             ? Colors.white
-                            : (index == 0
-                                  ? Colors.white
-                                  : const Color(0xFF2C2520)),
+                            : const Color(0xFF2C2520),
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
@@ -498,11 +546,11 @@ class HomeScreen extends StatelessWidget {
                 ),
                 // 2. Overlapping Illustration Image
                 Positioned(
-                  top: index == 0 ? 22 : 0,
+                  top: isSelected ? 22 : 0,
                   left: 4,
                   right: 4,
-                  bottom: index == 0 ? 28 : 22,
-                  child: index == 0
+                  bottom: isSelected ? 28 : 22,
+                  child: isSelected
                       ? Center(
                           child: Image.asset(
                             cat['icon'] as String,
@@ -511,7 +559,7 @@ class HomeScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                         )
-                      : Image.asset(cat['icon'] as String, fit: BoxFit.contain),
+                      : _verticalIcon(cat),
                 ),
               ],
             ),
@@ -521,9 +569,296 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  bool _homeBusy(HomeController controller) =>
+      controller.homeLoading.value && !controller.homeLoaded.value;
+
+  List<Map<String, dynamic>> _verticalTiles(HomeController controller) {
+    const icons = <String, String>{
+      'all': 'lib/assets/images/All.png',
+      'food': 'lib/assets/images/Food.png',
+      'grocery': 'lib/assets/images/Grocery.png',
+      'pharmacy': 'lib/assets/images/Pharmacy.png',
+      'water': 'lib/assets/images/Water.png',
+      'courier': 'lib/assets/images/Courier.png',
+      'express': 'lib/assets/images/Express.png',
+      'local_store': 'lib/assets/images/Local Store.png',
+      'services': 'lib/assets/images/cleaning_services.png',
+    };
+    final tiles = <Map<String, dynamic>>[];
+    for (final vertical in controller.homeVerticals) {
+      final slug = vertical['slug']?.toString() ?? '';
+      if (vertical['parentId'] != null && slug != 'local_store') continue;
+      final remote = vertical['icon']?.toString() ?? '';
+      tiles.add({
+        'label': (vertical['label']?.toString().isNotEmpty ?? false)
+            ? vertical['label'].toString()
+            : slug,
+        'slug': slug,
+        'icon': remote.startsWith('http')
+            ? remote
+            : (icons[slug] ?? 'lib/assets/images/All.png'),
+        'gradient': _verticalGradient(slug),
+      });
+    }
+    final expressIndex = tiles.indexWhere((tile) => tile['slug'] == 'express');
+    final localIndex = tiles.indexWhere(
+      (tile) => tile['slug'] == 'local_store',
+    );
+    if (expressIndex >= 0 && localIndex >= 0 && localIndex != expressIndex + 1) {
+      final local = tiles.removeAt(localIndex);
+      final insertAt = tiles.indexWhere((tile) => tile['slug'] == 'express');
+      tiles.insert(insertAt + 1, local);
+    }
+    return tiles;
+  }
+
+  LinearGradient _verticalGradient(String slug) {
+    const soft = <String, Color>{
+      'food': Color.fromARGB(255, 247, 176, 114),
+      'grocery': Color.fromARGB(255, 161, 229, 82),
+      'pharmacy': Color.fromARGB(255, 184, 235, 255),
+      'water': Color.fromARGB(255, 118, 212, 255),
+      'courier': Color.fromARGB(255, 245, 173, 239),
+      'express': Color.fromARGB(255, 255, 165, 10),
+      'local_store': Color.fromARGB(255, 177, 159, 137),
+      'services': Color.fromARGB(255, 196, 176, 245),
+    };
+    if (slug == 'all') {
+      return const LinearGradient(
+        colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    }
+    return LinearGradient(
+      colors: [soft[slug] ?? const Color(0xFFE7DDD4), Colors.white],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    );
+  }
+
+  Widget _verticalIcon(Map<String, dynamic> cat) {
+    final icon = (cat['icon'] ?? '').toString();
+    if (icon.startsWith('http')) {
+      return Image.network(
+        icon,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => const Icon(Icons.category_outlined),
+      );
+    }
+    return Image.asset(icon, fit: BoxFit.contain);
+  }
+
+  void _openHomeVertical(String slug, String label) {
+    final controller = Get.find<HomeController>();
+    switch (slug) {
+      case 'grocery':
+        Get.to(() => const GroceryScreen());
+      case 'pharmacy':
+        Get.to(() => const PharmacyScreen());
+      case 'water':
+        Get.to(() => const WaterScreen());
+      case 'express':
+        Get.to(() => const ExpressScreen());
+      case 'courier':
+        Get.to(() => const CourierScreen());
+      case 'local_store':
+        Get.to(() => const LocalStoreScreen());
+      case 'services':
+        controller.selectNavigation(HomeController.navServices);
+      case 'food':
+        controller.selectSubcategory(0);
+        Get.to(() => const CategoryScreen(categoryName: 'Food'));
+      case 'all':
+        Get.to(() => const CategoryScreen(categoryName: 'All'));
+      default:
+        if (label.isEmpty) return;
+        Get.to(() => CategoryScreen(categoryName: label));
+    }
+  }
+
+  void _openSeeAll(HomeController controller, String target) {
+    switch (target) {
+      case 'orders':
+        controller.goToOrdersTab();
+      case 'grocery':
+        Get.to(() => const GroceryScreen());
+      case 'pharmacy':
+        Get.to(() => const PharmacyScreen());
+      case 'water':
+        Get.to(() => const WaterScreen());
+      case 'food':
+        controller.selectSubcategory(0);
+        Get.to(
+          () => const CategoryScreen(
+            categoryName: 'Food',
+            showUnder30Minutes: false,
+          ),
+        );
+      default:
+        break;
+    }
+  }
+
+  Widget _vendorSection(
+    HomeController controller, {
+    required String sectionKey,
+    required List<Map<String, dynamic>> items,
+    bool under30 = false,
+  }) {
+    final title = controller.sectionTitle(sectionKey);
+    final seeAll = controller.sectionSeeAll(sectionKey);
+    if (title.isEmpty && items.isEmpty) return const SizedBox.shrink();
+    return Column(
+      children: [
+        if (title.isNotEmpty)
+          _buildSectionHeader(
+            title,
+            seeAll.isEmpty ? null : () => _openSeeAll(controller, seeAll),
+          ),
+        if (items.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          SizedBox(
+            height: under30 ? 230 : 240,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return under30
+                    ? _buildUnder30MinCard(controller, item)
+                    : _buildRestaurantCard(controller, item);
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _apiBanner(HomeController controller, String section) {
+    final banner = controller.bannerFor(section);
+    if (banner == null) return const SizedBox.shrink();
+    final title = (banner['title'] ?? '').toString();
+    final subtitle = (banner['subtitle'] ?? '').toString();
+    final cta = (banner['cta'] ?? '').toString();
+    final image = banner['image']?.toString() ?? '';
+    return GestureDetector(
+      onTap: () => _openHomeVertical((banner['link'] ?? '').toString(), ''),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        height: 140,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFF8A3D), Color(0xFFFF5E00)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (image.startsWith('http'))
+              Image.network(
+                image,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (title.isNotEmpty)
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                  if (cta.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        cta,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // Save More Today Section
   Widget _buildSaveMoreToday() {
-    return Column(
+    return Obx(() {
+      final home = Get.find<HomeController>();
+      if (_homeBusy(home)) return const SizedBox.shrink();
+      if (home.homeLoaded.value) {
+        if (home.homePromos.isEmpty) return const SizedBox.shrink();
+        return SizedBox(
+          height: 150,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: home.homePromos.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final image = (home.homePromos[index]['image'] ?? '').toString();
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  image,
+                  height: 150,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
+              );
+            },
+          ),
+        );
+      }
+      return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -570,10 +905,11 @@ class HomeScreen extends StatelessWidget {
         ),
       ],
     );
+    });
   }
 
   // Section header builder utility
-  Widget _buildSectionHeader(String title, VoidCallback onSeeAll) {
+  Widget _buildSectionHeader(String title, VoidCallback? onSeeAll) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -598,7 +934,7 @@ class HomeScreen extends StatelessWidget {
                 ),
             ],
           ),
-          SeeAllButton(onTap: onSeeAll),
+          if (onSeeAll != null) SeeAllButton(onTap: onSeeAll),
         ],
       ),
     );
@@ -606,7 +942,16 @@ class HomeScreen extends StatelessWidget {
 
   // Trending Section
   Widget _buildTrendingSection(HomeController controller) {
-    final trending = [
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        return _vendorSection(
+          controller,
+          sectionKey: 'trending',
+          items: controller.homeTrending.toList(),
+        );
+      }
+      final trending = [
       {
         'id': 't1',
         'title': 'Al Fantasia',
@@ -681,6 +1026,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ],
     );
+    });
   }
 
   // Card view builder for food/restaurants
@@ -734,7 +1080,7 @@ class HomeScreen extends StatelessWidget {
                           fit: BoxFit.cover,
                         ),
                 ),
-                // Discount Overlay
+                if ((item['discount'] ?? '').toString().trim().isNotEmpty)
                 Positioned(
                   top: 10,
                   left: 10,
@@ -820,7 +1166,7 @@ class HomeScreen extends StatelessWidget {
                     );
                   }),
                 ),
-                // Gold points tag overlay at bottom of image
+                if ((item['points'] ?? '').toString().trim().isNotEmpty)
                 Positioned(
                   bottom: 8,
                   left: 10,
@@ -1087,7 +1433,75 @@ class HomeScreen extends StatelessWidget {
 
   // Recent Orders Section
   Widget _buildRecentOrdersSection() {
-    final orders = [
+    final controller = Get.find<HomeController>();
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        final title = controller.sectionTitle('recent_orders');
+        final orders = controller.homeRecentOrders.toList();
+        final seeAll = controller.sectionSeeAll('recent_orders');
+        if (title.isEmpty && orders.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (seeAll.isNotEmpty)
+                      GestureDetector(
+                        onTap: () => _openSeeAll(controller, seeAll),
+                        child: Row(
+                          children: [
+                            Text(
+                              'View Orders',
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFFF5E00),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            const Icon(
+                              Icons.chevron_right_rounded,
+                              color: Color(0xFFFF5E00),
+                              size: 14,
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            if (orders.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 120,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: orders.length,
+                  itemBuilder: (context, index) {
+                    return _buildRecentOrderCard(orders[index]);
+                  },
+                ),
+              ),
+            ],
+          ],
+        );
+      }
+      final orders = [
       {
         'title': 'Al Fantasia',
         'rating': '4.6',
@@ -1189,9 +1603,12 @@ class HomeScreen extends StatelessWidget {
         ),
       ],
     );
+    });
   }
 
-  Widget _buildRecentOrderCard(Map<String, String> order) {
+  Widget _buildRecentOrderCard(Map order) {
+    String textOf(String key) => (order[key] ?? '').toString();
+    final image = textOf('image');
     return Container(
       width: 250,
       margin: const EdgeInsets.only(right: 12),
@@ -1215,22 +1632,28 @@ class HomeScreen extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  order['image']!,
-                  width: 54,
-                  height: 54,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 54,
-                    height: 54,
-                    color: const Color(0xFFF3EFEA),
-                    child: const Icon(
-                      Icons.image_not_supported_outlined,
-                      color: Colors.grey,
-                      size: 16,
-                    ),
-                  ),
-                ),
+                child: image.startsWith('http')
+                    ? Image.network(
+                        image,
+                        width: 54,
+                        height: 54,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 54,
+                          height: 54,
+                          color: const Color(0xFFF3EFEA),
+                          child: const Icon(
+                            Icons.image_not_supported_outlined,
+                            color: Colors.grey,
+                            size: 16,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        width: 54,
+                        height: 54,
+                        color: const Color(0xFFF3EFEA),
+                      ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -1241,7 +1664,7 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            order['title']!,
+                            textOf('title'),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 14,
@@ -1256,7 +1679,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 2),
                         Text(
-                          order['rating']!,
+                          textOf('rating'),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 12,
@@ -1270,14 +1693,14 @@ class HomeScreen extends StatelessWidget {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: order['itemPrefix'],
+                            text: textOf('itemPrefix'),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 10,
                             ),
                           ),
                           TextSpan(
-                            text: order['qty'],
+                            text: textOf('qty'),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 10,
@@ -1285,7 +1708,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                            text: order['itemSuffix'],
+                            text: textOf('itemSuffix'),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 10,
@@ -1306,7 +1729,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          order['date']!,
+                          textOf('date'),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 10,
@@ -1324,7 +1747,7 @@ class HomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                order['itemsCount']!,
+                textOf('itemsCount'),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 11,
@@ -1375,7 +1798,17 @@ class HomeScreen extends StatelessWidget {
 
   // Under 30 Minutes
   Widget _buildUnder30MinSection(HomeController controller) {
-    final items = [
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        return _vendorSection(
+          controller,
+          sectionKey: 'under_30_minutes',
+          items: controller.homeUnder30.toList(),
+          under30: true,
+        );
+      }
+      final items = [
       {
         'id': 'u1',
         'title': 'Al Fantasia',
@@ -1423,6 +1856,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ],
     );
+    });
   }
 
   // Custom Card for Under 30 Minutes Items
@@ -1476,7 +1910,7 @@ class HomeScreen extends StatelessWidget {
                           fit: BoxFit.cover,
                         ),
                 ),
-                // Discount Overlay
+                if ((item['discount'] ?? '').toString().trim().isNotEmpty)
                 Positioned(
                   top: 10,
                   left: 10,
@@ -1541,7 +1975,7 @@ class HomeScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Points Badge with Coin.png
+                      if ((item['points'] ?? '').toString().trim().isNotEmpty)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 6,
@@ -1657,7 +2091,12 @@ class HomeScreen extends StatelessWidget {
 
   // Mid-page Grocery Promo Banner (slider)
   Widget _buildGroceryPromoBanner(HomeController controller) {
-    const slideCount = 4;
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        return _apiBanner(controller, 'grocery');
+      }
+      const slideCount = 4;
     const imagePath = 'lib/assets/images/Grocery slider.png';
 
     return Column(
@@ -1705,11 +2144,21 @@ class HomeScreen extends StatelessWidget {
         ),
       ],
     );
+    });
   }
 
   // Top Grocery Stores
   Widget _buildTopGroceryStores(HomeController controller) {
-    final stores = [
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        return _vendorSection(
+          controller,
+          sectionKey: 'top_grocery',
+          items: controller.homeTopGrocery.toList(),
+        );
+      }
+      final stores = [
       {
         'id': 'g1',
         'title': 'Salam Supermarket',
@@ -1753,11 +2202,17 @@ class HomeScreen extends StatelessWidget {
         ),
       ],
     );
+    });
   }
 
   // Mid-page Pharmacy Promo Banner (slider)
   Widget _buildPharmacyPromoBanner(HomeController controller) {
-    const slideCount = 4;
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        return _apiBanner(controller, 'pharmacy');
+      }
+      const slideCount = 4;
     const imagePath = 'lib/assets/images/Pharmacy slider.png';
 
     return Column(
@@ -1805,10 +2260,21 @@ class HomeScreen extends StatelessWidget {
         ),
       ],
     );
+    });
   }
 
   // Mid-page Water Promo Banner (slider)
   Widget _buildWaterPromoBanner(HomeController controller) {
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        return _apiBanner(controller, 'water');
+      }
+      return _waterBannerFallback(controller);
+    });
+  }
+
+  Widget _waterBannerFallback(HomeController controller) {
     const slideCount = 4;
     const imagePath = 'lib/assets/images/Water slider.png';
 
@@ -1863,6 +2329,20 @@ class HomeScreen extends StatelessWidget {
 
   // Trusted Pharmacies
   Widget _buildTrustedPharmacies(HomeController controller) {
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        return _vendorSection(
+          controller,
+          sectionKey: 'trusted_pharmacies',
+          items: controller.homeTrusted.toList(),
+        );
+      }
+      return _trustedPharmacyFallback(controller);
+    });
+  }
+
+  Widget _trustedPharmacyFallback(HomeController controller) {
     const pharmacyImage =
         'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop';
     final pharmacies = [
@@ -1934,7 +2414,16 @@ class HomeScreen extends StatelessWidget {
 
   // Top Rated Suppliers (Water)
   Widget _buildTopRatedSuppliers(HomeController controller) {
-    final suppliers = [
+    return Obx(() {
+      if (_homeBusy(controller)) return const SizedBox.shrink();
+      if (controller.homeLoaded.value) {
+        return _vendorSection(
+          controller,
+          sectionKey: 'top_rated_suppliers',
+          items: controller.homeSuppliers.toList(),
+        );
+      }
+      final suppliers = [
       {
         'id': 'w1',
         'title': 'PureLife Water Co.',
@@ -2002,6 +2491,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ],
     );
+    });
   }
 
   // Bottom Navigation Bar
@@ -2070,7 +2560,31 @@ class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final home = Get.find<HomeController>();
+    return Obx(() {
+      if (home.homeLoading.value && !home.homeLoaded.value) {
+        return const SizedBox.shrink();
+      }
+      if (home.homeLoaded.value) {
+        final slides = home.homeSliders;
+        if (slides.isEmpty) return const SizedBox.shrink();
+        if (slides.length == 1) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.network(
+                (slides.first['image'] ?? '').toString(),
+                height: 140,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => const SizedBox(height: 140),
+              ),
+            ),
+          );
+        }
+      }
+      return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
@@ -2087,6 +2601,19 @@ class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
                   _startAutoScroll();
                 },
                 itemBuilder: (context, index) {
+                  if (home.homeLoaded.value && home.homeSliders.isNotEmpty) {
+                    final slides = home.homeSliders;
+                    final image =
+                        (slides[index % slides.length]['image'] ?? '')
+                            .toString();
+                    return Image.network(
+                      image,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: 140,
+                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                    );
+                  }
                   return Image.asset(
                     _imagePath,
                     fit: BoxFit.fill,
@@ -2100,8 +2627,15 @@ class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(_dotCount, (dot) {
-              final isActive = _index % _dotCount == dot;
+            children: List.generate(
+              home.homeLoaded.value && home.homeSliders.length > 1
+                  ? home.homeSliders.length
+                  : _dotCount,
+              (dot) {
+              final count = home.homeLoaded.value && home.homeSliders.length > 1
+                  ? home.homeSliders.length
+                  : _dotCount;
+              final isActive = _index % count == dot;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -2117,30 +2651,50 @@ class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
         ],
       ),
     );
+    });
   }
 }
 
 class _HomeAvatar extends StatelessWidget {
   const _HomeAvatar();
 
-  static const _fallback =
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop';
+  @override
+  Widget build(BuildContext context) {
+    final home = Get.find<HomeController>();
+    return Obx(() {
+      final imageUrl = ApiConstants.mediaUrl(home.profileImage.value);
+      if (imageUrl == null) return const _HomePersonIcon();
+      return ClipOval(
+        child: Image.network(
+          imageUrl,
+          width: 36,
+          height: 36,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => const _HomePersonIcon(),
+        ),
+      );
+    });
+  }
+}
+
+class _HomePersonIcon extends StatelessWidget {
+  const _HomePersonIcon();
 
   @override
   Widget build(BuildContext context) {
-    return ProfileImageView(
-      size: 36,
-      placeholder: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFFF5E00), width: 1.5),
-          image: const DecorationImage(
-            image: NetworkImage(_fallback),
-            fit: BoxFit.cover,
-          ),
-        ),
+    return Container(
+      width: 36,
+      height: 36,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFFF5E00), width: 1.5),
+      ),
+      child: const Icon(
+        Icons.person_rounded,
+        color: Color(0xFFFF5E00),
+        size: 22,
       ),
     );
   }

@@ -13,10 +13,14 @@ class ProfileImageView extends StatefulWidget {
     super.key,
     required this.size,
     required this.placeholder,
+    this.imagePath,
+    this.useSessionImage = true,
   });
 
   final double size;
   final Widget placeholder;
+  final String? imagePath;
+  final bool useSessionImage;
 
   @override
   State<ProfileImageView> createState() => _ProfileImageViewState();
@@ -29,7 +33,7 @@ class _ProfileImageViewState extends State<ProfileImageView> {
   @override
   void initState() {
     super.initState();
-    if (Get.isRegistered<SessionStore>()) {
+    if (widget.useSessionImage && Get.isRegistered<SessionStore>()) {
       _profileWorker = ever<int>(
         Get.find<SessionStore>().profileRevision,
         (_) => _loadPhoto(),
@@ -38,10 +42,18 @@ class _ProfileImageViewState extends State<ProfileImageView> {
     _loadPhoto();
   }
 
+  @override
+  void didUpdateWidget(ProfileImageView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imagePath != widget.imagePath) _loadPhoto();
+  }
+
   Future<void> _loadPhoto() async {
-    final imageUrl = Get.isRegistered<SessionStore>()
-        ? ApiConstants.mediaUrl(Get.find<SessionStore>().readUser()?.image)
-        : null;
+    final imageUrl = widget.useSessionImage
+        ? (Get.isRegistered<SessionStore>()
+              ? ApiConstants.mediaUrl(Get.find<SessionStore>().readUser()?.image)
+              : null)
+        : ApiConstants.mediaUrl(widget.imagePath);
     if (imageUrl == null || !Get.isRegistered<DioClient>()) {
       if (mounted) setState(() => _bytes = null);
       return;

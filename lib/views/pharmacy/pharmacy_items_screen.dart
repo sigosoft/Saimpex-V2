@@ -47,9 +47,10 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   int _page = 1;
   int _lastPage = 1;
   int _requestId = 0;
+  int _categoriesRequest = 0;
   int? _selectedCategoryId;
   Timer? _searchDebounce;
-  Map<String, dynamic>? _apiPharmacy;
+  Map<String, dynamic>? _pharmacyDetails;
   Map<String, dynamic>? lastAddedItem;
   String? lastAddedItemPortion;
 
@@ -71,14 +72,38 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       _loadingStore = true;
       searchController.addListener(_onSearchChanged);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _loadStore(reset: true);
+        if (!mounted) return;
+        _loadDetails();
+        _loadCategories();
+        _loadStore(reset: true);
       });
     }
   }
 
   int? get _pharmacyId => int.tryParse('${widget.store['id']}');
 
-  Map<String, dynamic> get _store => _apiPharmacy ?? widget.store;
+  Map<String, dynamic> get _store => {
+    ...widget.store,
+    ...?_pharmacyDetails,
+  };
+
+  Future<void> _loadDetails() async {
+    final pharmacyId = _pharmacyId;
+    if (pharmacyId == null || !Get.isRegistered<PharmacyRepository>()) return;
+    try {
+      final details = await Get.find<PharmacyRepository>().fetchDetails(
+        pharmacyId: pharmacyId,
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() => _pharmacyDetails = details);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message);
+    }
+  }
 
   bool get _usesApi => _pharmacyId != null;
 
@@ -92,6 +117,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     if (_pharmacyId == null) return;
     _searchDebounce?.cancel();
     _searchDebounce = Timer(const Duration(milliseconds: 450), () {
+      _loadCategories();
       _loadStore(reset: true);
     });
   }
@@ -115,26 +141,30 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     });
 
     try {
-      final result = await Get.find<PharmacyRepository>().fetchStore(
-        pharmacyId: pharmacyId,
-        latitude: SelectLocationController.selectedLatitude,
-        longitude: SelectLocationController.selectedLongitude,
-        language: apiLanguageCode(),
-        categoryId: _selectedCategoryId,
-        keyword: searchController.text,
-        page: nextPage,
-      );
+      final repository = Get.find<PharmacyRepository>();
+      final language = apiLanguageCode();
+      final categoryId = _selectedCategoryId;
+      final keyword = searchController.text.trim();
+      final result =
+          categoryId != null && categoryId != 0 && keyword.isEmpty
+          ? await repository.fetchCategoryItems(
+              pharmacyId: pharmacyId,
+              categoryId: categoryId,
+              language: language,
+              page: nextPage,
+            )
+          : await repository.fetchPharmacyItems(
+              pharmacyId: pharmacyId,
+              language: language,
+              categoryId: categoryId,
+              keyword: searchController.text,
+              page: nextPage,
+            );
       if (!mounted || requestId != _requestId) return;
-      final selectedIndex = result.categories.indexWhere(
-        (category) => category['id'] == result.selectedCategoryId,
-      );
       setState(() {
-        _apiPharmacy = {...widget.store, ...result.pharmacy};
-        subcategories = result.categories;
         menuItems = reset ? result.items : [...menuItems, ...result.items];
         _page = result.currentPage;
         _lastPage = result.lastPage;
-        if (selectedIndex >= 0) activeSubcategoryIndex = selectedIndex;
         _loadingStore = false;
         _loadingMore = false;
       });
@@ -144,6 +174,45 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
         _loadingStore = false;
         _loadingMore = false;
       });
+      showAppToast(error.message);
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    final pharmacyId = _pharmacyId;
+    if (pharmacyId == null || !Get.isRegistered<PharmacyRepository>()) return;
+    final requestId = ++_categoriesRequest;
+    try {
+      final categoriesFromApi = await Get.find<PharmacyRepository>()
+          .fetchPharmacyCategories(
+            pharmacyId: pharmacyId,
+            language: apiLanguageCode(),
+            keyword: searchController.text,
+          );
+      if (!mounted || requestId != _categoriesRequest) return;
+      final categories = [
+        if (!categoriesFromApi.any((category) => category['id'] == 0))
+          {
+            'id': 0,
+            'label': switch (apiLanguageCode()) {
+              'ar' => 'الكل',
+              'fr' => 'Tous',
+              _ => 'All',
+            },
+            'isAll': true,
+          },
+        ...categoriesFromApi,
+      ];
+      final selectedId = _selectedCategoryId ?? 0;
+      final selectedIndex = categories.indexWhere(
+        (category) => category['id'] == selectedId,
+      );
+      setState(() {
+        subcategories = categories;
+        activeSubcategoryIndex = selectedIndex < 0 ? 0 : selectedIndex;
+      });
+    } on ApiException catch (error) {
+      if (!mounted || requestId != _categoriesRequest) return;
       showAppToast(error.message);
     }
   }

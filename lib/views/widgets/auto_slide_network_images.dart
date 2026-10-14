@@ -4,16 +4,26 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 List<String> foodGalleryImages(Map<String, dynamic> food) {
-  final raw = food['images'];
-  if (raw is List) {
-    final urls = raw
-        .map((image) => image.toString())
-        .where((image) => image.isNotEmpty)
-        .toList();
-    if (urls.isNotEmpty) return urls;
+  final urls = <String>[];
+  void add(dynamic value) {
+    if (value is List) {
+      for (final entry in value) {
+        add(entry);
+      }
+      return;
+    }
+    if (value is Map) {
+      add(value['url'] ?? value['path'] ?? value['image']);
+      return;
+    }
+    final text = value?.toString().trim() ?? '';
+    if (text.isEmpty || text == 'null' || urls.contains(text)) return;
+    urls.add(text);
   }
-  final single = food['image']?.toString() ?? '';
-  return single.isEmpty ? const [] : [single];
+
+  add(food['images']);
+  add(food['image']);
+  return urls;
 }
 
 class AutoSlideNetworkImages extends StatefulWidget {
@@ -66,9 +76,27 @@ class _AutoSlideNetworkImagesState extends State<AutoSlideNetworkImages> {
     final count = widget.images.length;
     _page = count > 1 ? _loopBase * count : 0;
     _controller = PageController(initialPage: _page);
-    if (count > 1) {
-      _timer = Timer.periodic(widget.interval, (_) => _advance());
+    _syncTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant AutoSlideNetworkImages oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.images.length < 2) {
+      _page = 0;
+    } else if (oldWidget.images.length < 2) {
+      _page = _controller.hasClients ? (_controller.page?.round() ?? 0) : 0;
     }
+    _syncTimer();
+  }
+
+  void _syncTimer() {
+    if (widget.images.length < 2) {
+      _timer?.cancel();
+      _timer = null;
+      return;
+    }
+    _timer ??= Timer.periodic(widget.interval, (_) => _advance());
   }
 
   void _advance() {
@@ -140,6 +168,10 @@ class _AutoSlideNetworkImagesState extends State<AutoSlideNetworkImages> {
           child: Icon(Icons.restaurant, color: Color(0xFFFF5E00)),
         ),
       );
+    }
+
+    if (widget.images.length == 1) {
+      return _galleryImage(widget.images.first);
     }
 
     return Stack(

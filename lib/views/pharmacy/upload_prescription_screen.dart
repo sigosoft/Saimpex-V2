@@ -1057,7 +1057,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
     setState(() => isLoadingPharmacies = true);
     try {
       final cards = await Get.find<PharmacyRepository>()
-          .fetchSelectablePharmacies(
+          .fetchPrescriptionPharmacies(
             latitude: SelectLocationController.selectedLatitude,
             longitude: SelectLocationController.selectedLongitude,
             language: apiLanguageCode(),
