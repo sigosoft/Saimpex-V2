@@ -152,23 +152,20 @@ class PharmacyRepository {
     int limit = 20,
     int page = 1,
   }) async {
-    final query = <String, dynamic>{
-      'pharmacy_id': pharmacyId,
-      'lat': latitude.toString(),
-      'long': longitude.toString(),
-      'limit': limit,
-      'page': page,
-    };
-    if (categoryId != null && categoryId != 0) {
-      query['category_id'] = categoryId;
-    }
-    final search = keyword.trim();
-    if (search.isNotEmpty) query['keyword'] = search;
-
     final envelope = await _send(
       () => _client.dio.get(
         ApiConstants.pharmacyStore,
-        queryParameters: query,
+        queryParameters: {
+          'pharmacy_id': pharmacyId,
+          'lat': latitude.toString(),
+          'long': longitude.toString(),
+          'category_id': categoryId == null || categoryId == 0
+              ? ''
+              : '$categoryId',
+          'keyword': keyword.trim(),
+          'limit': limit,
+          'page': page,
+        },
       ),
       language,
     );
@@ -426,6 +423,193 @@ class PharmacyRepository {
 
   Future<
     ({
+      List<Map<String, dynamic>> prescriptions,
+      int currentPage,
+      int lastPage,
+    })
+  >
+  fetchPrescriptionsList({
+    required String language,
+    String? status,
+    String? flowType,
+    int limit = 10,
+    int page = 1,
+  }) async {
+    final query = <String, dynamic>{'limit': limit, 'page': page};
+    final trimmedStatus = status?.trim() ?? '';
+    if (trimmedStatus.isNotEmpty) query['status'] = trimmedStatus;
+    final trimmedFlow = flowType?.trim() ?? '';
+    if (trimmedFlow.isNotEmpty) query['flow_type'] = trimmedFlow;
+
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.prescriptions, queryParameters: query),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final paged = asJsonMap(data['prescriptions']) ?? <String, dynamic>{};
+    final raw = paged['data'];
+    final items = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final entry in raw) {
+        final item = asJsonMap(entry);
+        if (item != null) items.add(_prescriptionListItem(item));
+      }
+    }
+    return (
+      prescriptions: items,
+      currentPage: _asInt(paged['current_page'], fallback: page),
+      lastPage: _asInt(paged['last_page'], fallback: page),
+    );
+  }
+
+  Map<String, dynamic> _prescriptionListItem(Map<String, dynamic> item) {
+    return {
+      'prescriptionId': _asInt(item['prescription_id']),
+      'pharmacyId': _asInt(item['pharmacy_id']),
+      'pharmacyName': '${item['pharmacy_name'] ?? ''}'.trim(),
+      'flowType': '${item['flow_type'] ?? ''}'.trim(),
+      'status': '${item['status'] ?? ''}'.trim(),
+      'statusLabel': '${item['status_label'] ?? ''}'.trim(),
+      'quoteAmountText': item['quote_amount'] == null
+          ? ''
+          : _moneyText(item['quote_amount']),
+      'quoteExpiresAt': '${item['quote_expires_at'] ?? ''}'.trim(),
+      'paymentRequestedAt': '${item['payment_requested_at'] ?? ''}'.trim(),
+      'createdAt': '${item['created_at'] ?? ''}'.trim(),
+      'contactNumber': '${item['contact_number'] ?? ''}'.trim(),
+      'callBeforeAlternative': item['call_before_alternative'] == 1 ||
+          item['call_before_alternative'] == true,
+    };
+  }
+
+  Future<Map<String, dynamic>> fetchPrescription({
+    required int prescriptionId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.prescriptionById(prescriptionId)),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final files = data['files'];
+    Map<String, dynamic>? file;
+    if (files is List && files.isNotEmpty) {
+      file = asJsonMap(files.first);
+    }
+    final fileMap = file ?? asJsonMap(data['file']);
+    var fileUrl = '${fileMap?['url'] ?? ''}'.trim();
+    final images = data['images'];
+    if (fileUrl.isEmpty && images is List && images.isNotEmpty) {
+      fileUrl = '${images.first}'.trim();
+    }
+    final pathName = '${fileMap?['path'] ?? fileMap?['name'] ?? ''}'
+        .split(RegExp(r'[/\\]'))
+        .last;
+    final rawItems = data['items'] ?? data['quoted_items'] ?? data['medicines'];
+    final items = <Map<String, dynamic>>[];
+    if (rawItems is List) {
+      for (final entry in rawItems) {
+        final item = asJsonMap(entry);
+        if (item != null) items.add(_prescriptionItem(item, language));
+      }
+    }
+    data['message'] = envelope.message;
+    data['mapped_pharmacy_name'] =
+        '${data['pharmacy_name'] ?? data['vendor_name'] ?? ''}'.trim();
+    data['mapped_items'] = items;
+    data['mapped_file_name'] = pathName;
+    data['mapped_file_url'] = fileUrl;
+    return data;
+  }
+
+  Future<Map<String, dynamic>> payPrescription({
+    required int prescriptionId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.prescriptionPay(prescriptionId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    data['message'] = envelope.message;
+    return data;
+  }
+
+  Future<String> acceptPrescription({
+    required int prescriptionId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.prescriptionAccept(prescriptionId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  Map<String, dynamic> _prescriptionItem(
+    Map<String, dynamic> item,
+    String language,
+  ) {
+    var name = _localized(item, 'name', language);
+    if (name.isEmpty) {
+      name =
+          '${item['menu_name'] ?? item['product_name'] ?? item['title'] ?? ''}'
+              .trim();
+    }
+    final alternative = asJsonMap(
+      item['alternative'] ?? item['suggested_alternative'],
+    );
+    var alternativeName = '';
+    if (alternative != null) {
+      alternativeName = _localized(alternative, 'name', language);
+      if (alternativeName.isEmpty) {
+        alternativeName =
+            '${alternative['menu_name'] ?? alternative['product_name'] ?? ''}'
+                .trim();
+      }
+    }
+    return {
+      'name': name.isEmpty ? 'Item' : name,
+      'qty': _asInt(item['quantity'], fallback: 1),
+      'unitText': _moneyText(item['unit_price'] ?? item['price']),
+      'totalText': _moneyText(
+        item['total_price'] ?? item['total'] ?? item['line_total'],
+      ),
+      'isAlternative': item['is_alternative'] == true ||
+          item['is_alternative'] == 1 ||
+          alternative != null,
+      'originalName':
+          '${item['original_name'] ?? item['requested_name'] ?? ''}'.trim(),
+      'outOfStock': item['out_of_stock'] == true ||
+          item['in_stock'] == false ||
+          (item['stock'] != null && _asInt(item['stock']) == 0),
+      'alternativeName': alternativeName,
+      'alternativeQty': alternative == null
+          ? _asInt(item['quantity'], fallback: 1)
+          : _asInt(alternative['quantity'], fallback: 1),
+      'alternativeUnitText': alternative == null
+          ? _moneyText(item['unit_price'] ?? item['price'])
+          : _moneyText(alternative['unit_price'] ?? alternative['price']),
+      'alternativeTotalText': alternative == null
+          ? _moneyText(item['total_price'] ?? item['total'])
+          : _moneyText(
+              alternative['total_price'] ??
+                  alternative['total'] ??
+                  alternative['line_total'],
+            ),
+    };
+  }
+
+  Future<
+    ({
       List<Map<String, dynamic>> orders,
       int currentPage,
       int lastPage,
@@ -489,6 +673,9 @@ class PharmacyRepository {
       'isSelfPickup': selfPickup,
       'isCancelled': statusText.toLowerCase().contains('cancel'),
       'orderId': orderId,
+      'numericOrderId': _asInt(item['order_id'] ?? item['id']),
+      'vendorId': _asInt(item['vendor_id']),
+      'prescriptionId': _asInt(prescriptionId),
       'amount': _moneyText(item['quote_amount'] ?? item['total']),
       'totalText': _moneyText(item['total']),
       'expiresInSeconds': _asInt(item['quote_expires_in_seconds']),
@@ -532,6 +719,7 @@ class PharmacyRepository {
     final mrp = detail['mrp_amount'] ?? detail['mrp'] ?? menu['mrp'];
     return {
       'id': '${menu['menu_id'] ?? ''}',
+      'productId': _productId(variant ?? menu),
       'title': name,
       'image': images.isEmpty ? '' : images.first,
       'images': images,
@@ -547,8 +735,8 @@ class PharmacyRepository {
           detail['prescription_required'] == 1 ||
           detail['prescription_required'] == true,
       'description': description,
-      'stock': variant?['stock'],
-      'quantityAllowed': variant?['quantity_allowed'],
+      'quantityAllowed': _positiveInt(variant?['quantity_allowed']),
+      'stock': _positiveInt(variant?['stock']),
     };
   }
 
@@ -601,6 +789,7 @@ class PharmacyRepository {
       final selling = item['selling_price'] ?? item['discount_price'];
       items.add({
         'id': '${item['menu_id'] ?? ''}',
+        'productId': _productId(item),
         'title': name,
         'image': images.isEmpty ? '' : images.first,
         'images': images,
@@ -613,6 +802,8 @@ class PharmacyRepository {
         'prescriptionRequired':
             item['prescription_required'] == 1 ||
             item['prescription_required'] == true,
+        'quantityAllowed': _quantityAllowed(item),
+        'stock': _stockCount(item),
         'description': description.isNotEmpty ? description : subtitle,
       });
     }
@@ -640,6 +831,51 @@ class PharmacyRepository {
     add(item['images']);
     add(item['image']);
     return images;
+  }
+
+  int? _positiveInt(dynamic value) {
+    final number = _asInt(value);
+    return number > 0 ? number : null;
+  }
+
+  int? _quantityAllowed(Map<String, dynamic> item) {
+    final direct = _positiveInt(item['quantity_allowed']);
+    if (direct != null) return direct;
+    final variants = item['variants'];
+    if (variants is! List) return null;
+    for (final entry in variants) {
+      final variant = asJsonMap(entry);
+      final allowed = _positiveInt(variant?['quantity_allowed']);
+      if (allowed != null) return allowed;
+    }
+    return null;
+  }
+
+  int? _stockCount(Map<String, dynamic> item) {
+    final direct = _positiveInt(item['stock']);
+    if (direct != null) return direct;
+    final variants = item['variants'];
+    if (variants is! List) return null;
+    for (final entry in variants) {
+      final variant = asJsonMap(entry);
+      final stock = _positiveInt(variant?['stock']);
+      if (stock != null) return stock;
+    }
+    return null;
+  }
+
+  int? _productId(Map<String, dynamic> item) {
+    final direct = _asInt(item['product_id']);
+    if (direct > 0) return direct;
+    final variants = item['variants'];
+    if (variants is! List) return null;
+    for (final entry in variants) {
+      final variant = asJsonMap(entry);
+      if (variant == null) continue;
+      final id = _asInt(variant['product_id'] ?? variant['item_id']);
+      if (id > 0) return id;
+    }
+    return null;
   }
 
   String _itemTag(Map<String, dynamic> item) {
@@ -713,7 +949,7 @@ class PharmacyRepository {
       'subtitle': item['address']?.toString() ?? '',
       'rating': '${item['rating'] ?? 0}',
       'time': '${item['delivery_time_text'] ?? item['estimated_time'] ?? ''}',
-      'dist': '${item['distance'] ?? ''}',
+      'dist': _distanceLabel(item),
       'discount': offer,
       'points': points,
       'isClosed': !isOpen,
@@ -724,6 +960,134 @@ class PharmacyRepository {
       'latitude': double.tryParse('${item['latitude']}'),
       'longitude': double.tryParse('${item['longitude']}'),
     };
+  }
+
+  String _distanceLabel(Map<String, dynamic> item) {
+    final distance = item['distance']?.toString().trim() ?? '';
+    if (distance.isNotEmpty && distance != 'null') {
+      return distance.toLowerCase().contains('km') ? distance : '$distance Km';
+    }
+    return _distanceText(item['distance_km']);
+  }
+
+  Future<List<Map<String, dynamic>>> searchPharmacies({
+    required double latitude,
+    required double longitude,
+    required String language,
+    int limit = 20,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.pharmacySearch,
+        data: {
+          'latitude': latitude.toString(),
+          'longitude': longitude.toString(),
+          'limit': '$limit',
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    return _pharmacyCards(data['pharmacies'], language);
+  }
+
+  Future<
+    ({
+      List<Map<String, dynamic>> pharmacies,
+      List<Map<String, dynamic>> products,
+      List<Map<String, dynamic>> filters,
+    })
+  >
+  searchPharmaciesV2({
+    required double latitude,
+    required double longitude,
+    required String language,
+    String keyword = '',
+    Map<String, String> filters = const {},
+    int limit = 20,
+  }) async {
+    String field(String key) => filters[key]?.trim() ?? '';
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.pharmacySearchV2,
+        data: {
+          'latitude': latitude.toString(),
+          'longitude': longitude.toString(),
+          'keyword': keyword.trim(),
+          'limit': '$limit',
+          'products_limit': '$limit',
+          'sort_by': field('sort_by'),
+          'rating': field('rating'),
+          'offers': field('offers'),
+          'open_now': field('open_now'),
+          'trusted': field('trusted'),
+          'under_30': field('under_30'),
+          'price_range': field('price_range'),
+          'category_id': field('category_id'),
+          'category_ids': field('category_ids'),
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final products = data['products'];
+    return (
+      pharmacies: _pharmacyCards(data['pharmacies'], language),
+      products: _searchProducts(
+        products is List && products.isNotEmpty ? products : data['items'],
+        language,
+      ),
+      filters: _searchFilters(asJsonMap(data['filters'])?['quick'], language),
+    );
+  }
+
+  List<Map<String, dynamic>> _searchFilters(dynamic raw, String language) {
+    if (raw is! List) return const [];
+    final filters = <Map<String, dynamic>>[];
+    for (final entry in raw) {
+      final filter = asJsonMap(entry);
+      if (filter == null) continue;
+      final param = filter['param']?.toString().trim() ?? '';
+      final value = filter['value']?.toString().trim() ?? '';
+      if (param.isEmpty || value.isEmpty) continue;
+      final label = _localized(filter, 'label', language);
+      filters.add({
+        'param': param,
+        'value': value,
+        'label': label.isEmpty ? param : label,
+      });
+    }
+    return filters;
+  }
+
+  List<Map<String, dynamic>> _searchProducts(dynamic raw, String language) {
+    if (raw is! List) return const [];
+    final products = <Map<String, dynamic>>[];
+    for (final entry in raw) {
+      final item = asJsonMap(entry);
+      if (item == null) continue;
+      final name = _localized(item, 'name', language);
+      final pharmacyName = _localized(item, 'pharmacy_name', language);
+      final selling = item['selling_price'] ?? item['discount_price'];
+      products.add({
+        'id': '${item['menu_id'] ?? ''}',
+        'productId': _productId(item),
+        'pharmacyId': '${item['pharmacy_id'] ?? ''}',
+        'pharmacyName': pharmacyName,
+        'pharmacyImage':
+            ApiConstants.mediaUrl(item['pharmacy_image']?.toString()) ?? '',
+        'title': name,
+        'image': ApiConstants.mediaUrl(item['image']?.toString()) ?? '',
+        'tag': _itemTag(item),
+        'price': _moneyText(selling ?? item['price']),
+        'prescriptionRequired':
+            item['prescription_required'] == 1 ||
+            item['prescription_required'] == true,
+      });
+    }
+    return products;
   }
 
   String _localized(Map<String, dynamic> item, String key, String language) {

@@ -2,18 +2,25 @@ import 'dart:math' as math;
 import '../../widgets/app_back_button.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/order_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import 'widgets/pharmacy_background.dart';
 
 class PharmacyTrackOrderScreen extends StatefulWidget {
   final String orderId;
   final String merchantName;
+  final int? apiOrderId;
 
   const PharmacyTrackOrderScreen({
     super.key,
     this.orderId = '#22789002',
     this.merchantName = 'Pharmacy Nasr',
+    this.apiOrderId,
   });
 
   @override
@@ -24,9 +31,9 @@ class PharmacyTrackOrderScreen extends StatefulWidget {
 class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
   GoogleMapController? _mapController;
 
-  final LatLng pharmacyLoc = const LatLng(18.0836, -15.9802);
-  final LatLng riderLoc = const LatLng(18.0858, -15.9768);
-  final LatLng homeLoc = const LatLng(18.0884, -15.9746);
+  LatLng pharmacyLoc = const LatLng(18.0836, -15.9802);
+  LatLng riderLoc = const LatLng(18.0858, -15.9768);
+  LatLng homeLoc = const LatLng(18.0884, -15.9746);
 
   Set<Polyline> _polylines = {};
   Offset? _storeScreen;
@@ -55,7 +62,58 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initMapData());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initMapData();
+      _loadTracking();
+    });
+  }
+
+  Future<void> _loadTracking() async {
+    final id = widget.apiOrderId;
+    if (id == null || id < 1 || !Get.isRegistered<OrderRepository>()) return;
+    try {
+      final data = await Get.find<OrderRepository>().trackOrder(
+        orderId: id,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      LatLng? readPoint(List<String> latKeys, List<String> lngKeys) {
+        double? number(dynamic value) =>
+            value is num ? value.toDouble() : double.tryParse('$value');
+        for (final key in latKeys) {
+          final lat = number(data[key]);
+          if (lat == null) continue;
+          for (final lngKey in lngKeys) {
+            final lng = number(data[lngKey]);
+            if (lng != null) return LatLng(lat, lng);
+          }
+        }
+        return null;
+      }
+
+      final pharmacy = readPoint(
+        ['pharmacy_lat', 'vendor_lat', 'store_lat'],
+        ['pharmacy_lng', 'vendor_lng', 'store_lng'],
+      );
+      final rider = readPoint(
+        ['driver_lat', 'rider_lat'],
+        ['driver_lng', 'rider_lng'],
+      );
+      final home = readPoint(
+        ['customer_lat', 'delivery_lat', 'lat'],
+        ['customer_lng', 'delivery_lng', 'lng'],
+      );
+      if (pharmacy == null && rider == null && home == null) return;
+      setState(() {
+        if (pharmacy != null) pharmacyLoc = pharmacy;
+        if (rider != null) riderLoc = rider;
+        if (home != null) homeLoc = home;
+      });
+      _initMapData();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
   }
 
   Future<void> _initMapData() async {
@@ -564,20 +622,14 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
       child: Row(
         children: [
           ClipOval(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop',
+            child: Container(
               width: 64,
               height: 64,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 64,
-                height: 64,
-                color: const Color(0xFFEAD8C9),
-                child: const Icon(
-                  Icons.person,
-                  color: Colors.white,
-                  size: 32,
-                ),
+              color: const Color(0xFFEAD8C9),
+              child: const Icon(
+                Icons.person,
+                color: Colors.white,
+                size: 32,
               ),
             ),
           ),

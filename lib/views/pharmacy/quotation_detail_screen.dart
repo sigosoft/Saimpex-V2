@@ -5,20 +5,30 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/network/api_exception.dart';
+import '../../models/order_repository.dart';
+import '../../models/pharmacy_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../chat_screen.dart';
-import 'prescription_checkout_screen.dart';
+import '../order_success_screen.dart';
+import '../payment_webview_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
 class QuotationDetailScreen extends StatefulWidget {
   final String orderId;
   final String pharmacyName;
   final Duration expiresIn;
+  final int? prescriptionId;
+  final String amount;
 
   const QuotationDetailScreen({
     super.key,
     this.orderId = '#22789007',
     this.pharmacyName = 'Pharmacy Nasr',
     this.expiresIn = const Duration(hours: 2, minutes: 45, seconds: 9),
+    this.prescriptionId,
+    this.amount = '150 MRU',
   });
 
   @override
@@ -28,10 +38,20 @@ class QuotationDetailScreen extends StatefulWidget {
 class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   late Duration _remaining;
   Timer? _timer;
+  var _loading = false;
+  var _paying = false;
+  String _pharmacyName = '';
+  String _fileName = '';
+  String _amountText = '';
+  num _quoteAmount = 0;
+  final _availableItems = <Map<String, dynamic>>[];
+  final _alternativeItems = <Map<String, dynamic>>[];
 
   @override
   void initState() {
     super.initState();
+    _pharmacyName = widget.pharmacyName;
+    _amountText = widget.amount;
     _remaining = widget.expiresIn;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
@@ -41,12 +61,222 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       }
       setState(() => _remaining -= const Duration(seconds: 1));
     });
+    _loadPrescription();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _loadPrescription() async {
+    final id = widget.prescriptionId;
+    if (id == null ||
+        id < 1 ||
+        !Get.isRegistered<PharmacyRepository>()) {
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      final data = await Get.find<PharmacyRepository>().fetchPrescription(
+        prescriptionId: id,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      final pharmacy = '${data['mapped_pharmacy_name'] ?? ''}'.trim();
+      final fileName = '${data['mapped_file_name'] ?? ''}'.trim();
+      final quote = data['quote_amount'] ?? data['total'] ?? data['payable'];
+      final quoteNumber = quote is num ? quote : num.tryParse('$quote');
+      final seconds = data['quote_expires_in_seconds'];
+      final items = data['mapped_items'];
+      _availableItems.clear();
+      _alternativeItems.clear();
+      if (items is List) {
+        for (final entry in items) {
+          final item = entry is Map<String, dynamic> ? entry : null;
+          if (item == null) continue;
+          if (item['isAlternative'] == true) {
+            _alternativeItems.add(item);
+          } else {
+            _availableItems.add(item);
+          }
+        }
+      }
+      setState(() {
+        if (pharmacy.isNotEmpty) _pharmacyName = pharmacy;
+        if (fileName.isNotEmpty) _fileName = fileName;
+        if (quoteNumber != null) {
+          _quoteAmount = quoteNumber;
+          _amountText = _moneyText(quoteNumber);
+        }
+        if (seconds is int && seconds > 0) {
+          _remaining = Duration(seconds: seconds);
+        }
+        _loading = false;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  Future<void> _payPrescription() async {
+    final id = widget.prescriptionId;
+    if (_paying) return;
+    if (id == null || id < 1 || !Get.isRegistered<PharmacyRepository>()) {
+      return;
+    }
+    _paying = true;
+    try {
+      final repository = Get.find<PharmacyRepository>();
+      final language = apiLanguageCode();
+      await repository.acceptPrescription(
+        prescriptionId: id,
+        language: language,
+      );
+      final placed = await repository.payPrescription(
+        prescriptionId: id,
+        language: language,
+      );
+      if (!mounted) return;
+      await _finishPaidPrescription(placed);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      _paying = false;
+    }
+  }
+
+  Future<void> _finishPaidPrescription(Map<String, dynamic> placed) async {
+    final message = '${placed['message'] ?? ''}'.trim();
+    if (message.isNotEmpty) {
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+    }
+    var paymentUrl = _paymentPageUrlFrom(placed);
+    final payable = placed['payable'] ??
+        placed['to_pay'] ??
+        placed['quote_amount'] ??
+        _quoteAmount;
+    final orderId = _positiveId(placed['order_id'] ?? placed['id']);
+    if (orderId != null && Get.isRegistered<OrderRepository>()) {
+      final startedUrl = await _startMasrviPayment(orderId, payable);
+      if (startedUrl != null) paymentUrl = startedUrl;
+    }
+    if (!mounted) return;
+    final needsOnlinePayment = placed['payment_required'] == true ||
+        placed['payment_required'] == 1 ||
+        paymentUrl != null ||
+        message.toLowerCase().contains('complete online payment');
+    final url = paymentUrl ??
+        (needsOnlinePayment && orderId != null
+            ? _paymentPageUrl(
+                'https://dev.saimpexenterprise.com/pay/masrvi/payment/session?order_id=$orderId',
+              )
+            : null);
+    if (needsOnlinePayment) {
+      if (url == null) return;
+      Get.closeAllSnackbars();
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      final paid = await Get.to<bool>(
+        () => PaymentWebViewScreen(url: url),
+      );
+      if (!mounted || paid != true) return;
+    }
+    Get.to(() => const OrderSuccessScreen());
+  }
+
+  Future<String?> _startMasrviPayment(int orderId, dynamic payable) async {
+    final orders = Get.find<OrderRepository>();
+    final language = apiLanguageCode();
+    try {
+      await orders.masrviSession(language);
+    } on ApiException catch (error) {
+      if (!mounted) return null;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return null;
+    }
+    try {
+      final started = await orders.masrviInit(
+        orderId: orderId,
+        amount: _moneyArgument(payable),
+        language: language,
+      );
+      if (!mounted) return null;
+      final message = '${started['message'] ?? ''}'.trim();
+      if (message.isNotEmpty) {
+        showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      }
+      return _paymentPageUrlFrom(started);
+    } on ApiException catch (error) {
+      if (!mounted) return null;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return null;
+    }
+  }
+
+  String? _paymentPageUrlFrom(Map<String, dynamic> data) {
+    for (final key in [
+      'payment_url',
+      'url',
+      'redirect_url',
+      'checkout_url',
+      'session_url',
+    ]) {
+      final url = _paymentPageUrl(data[key]);
+      if (url != null) return url;
+    }
+    return null;
+  }
+
+  String? _paymentPageUrl(dynamic value) {
+    final raw = '$value'.trim();
+    if (raw.isEmpty || raw == 'null') return null;
+    final uri = Uri.tryParse(raw);
+    if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) {
+      return null;
+    }
+    final wrongHost = uri.host == 'localhost' ||
+        uri.host == '127.0.0.1' ||
+        uri.host == 'api.saimpexenterprise.com';
+    if (wrongHost && uri.path.contains('/pay/')) {
+      return Uri(
+        scheme: 'https',
+        host: 'dev.saimpexenterprise.com',
+        path: uri.path,
+        query: uri.hasQuery ? uri.query : null,
+      ).toString();
+    }
+    return uri.toString();
+  }
+
+  int? _positiveId(dynamic value) {
+    final number = value is int ? value : int.tryParse('$value');
+    if (number == null || number < 1) return null;
+    return number;
+  }
+
+  String _moneyArgument(dynamic value) {
+    final number = value is num ? value : num.tryParse('$value');
+    if (number == null) return '0';
+    if (number == number.roundToDouble()) return '${number.toInt()}';
+    return '$number';
+  }
+
+  String _moneyText(dynamic value) {
+    final number = value is num ? value : num.tryParse('$value');
+    if (number == null) {
+      final text = '$value'.trim();
+      if (text.isEmpty || text == 'null') return widget.amount;
+      return text.toUpperCase().contains('MRU') ? text : '$text MRU';
+    }
+    final text = number == number.roundToDouble()
+        ? '${number.toInt()}'
+        : number.toStringAsFixed(2);
+    return '$text MRU';
   }
 
   String get _timerText {
@@ -89,50 +319,59 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             ),
           ),
         ),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(16, 8, 16, 24 + bottomInset),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPharmacyCard(),
-              const SizedBox(height: 12),
-              _buildExpiryBanner(),
-              const SizedBox(height: 12),
-              _buildPrescriptionCard(),
-              const SizedBox(height: 20),
-              Text(
-                'Medicines In Your Quotation',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+        body: _loading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              )
+            : SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 24 + bottomInset),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildPharmacyCard(),
+                    const SizedBox(height: 12),
+                    _buildExpiryBanner(),
+                    const SizedBox(height: 12),
+                    _buildPrescriptionCard(),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Medicines In Your Quotation',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildAvailableItemsCard(),
+                    if (_alternativeItems.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      for (var i = 0; i < _alternativeItems.length; i++) ...[
+                        if (i > 0) const SizedBox(height: 12),
+                        _buildAlternativeCard(_alternativeItems[i]),
+                      ],
+                    ],
+                    const SizedBox(height: 20),
+                    Text(
+                      'Order Status',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildOrderStatusCard(),
+                    const SizedBox(height: 16),
+                    _buildSummaryCard(),
+                    const SizedBox(height: 16),
+                    _buildActionButtons(),
+                    const SizedBox(height: 12),
+                    _buildPayButton(),
+                  ],
                 ),
               ),
-              const SizedBox(height: 12),
-              _buildAvailableItemsCard(),
-              const SizedBox(height: 12),
-              _buildAlternativeCard(),
-              const SizedBox(height: 20),
-              Text(
-                'Order Status',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildOrderStatusCard(),
-              const SizedBox(height: 16),
-              _buildSummaryCard(),
-              const SizedBox(height: 16),
-              _buildActionButtons(),
-              const SizedBox(height: 12),
-              _buildPayButton(),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -159,7 +398,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.pharmacyName,
+                  _pharmacyName,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 15,
@@ -274,7 +513,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Prescription_Jun25.jpg',
+                  _fileName.isEmpty ? 'Prescription' : _fileName,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 12,
@@ -309,6 +548,24 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   }
 
   Widget _buildAvailableItemsCard() {
+    if (_availableItems.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Text(
+          'No quoted items yet',
+          style: GoogleFonts.outfit(
+            color: const Color(0xFFA59A94),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       decoration: BoxDecoration(
@@ -324,20 +581,19 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       ),
       child: Column(
         children: [
-          _medicineRow(
-            title: 'Paracetamol 500 mg',
-            meta: 'Qty: 2 • Unit Price: 25 MRU',
-            price: '50 MRU',
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Divider(height: 1, color: Color(0xFFEFE8E1)),
-          ),
-          _medicineRow(
-            title: 'Baby Diapers',
-            meta: 'Qty: 2 • Unit Price: 25 MRU',
-            price: '50 MRU',
-          ),
+          for (var i = 0; i < _availableItems.length; i++) ...[
+            if (i > 0)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Divider(height: 1, color: Color(0xFFEFE8E1)),
+              ),
+            _medicineRow(
+              title: '${_availableItems[i]['name']}',
+              meta:
+                  'Qty: ${_availableItems[i]['qty']} • Unit Price: ${_availableItems[i]['unitText']}',
+              price: '${_availableItems[i]['totalText']}',
+            ),
+          ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(height: 1, color: Color(0xFFEFE8E1)),
@@ -345,7 +601,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              '100 MRU',
+              _amountText,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 14,
@@ -402,7 +658,10 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
     );
   }
 
-  Widget _buildAlternativeCard() {
+  Widget _buildAlternativeCard(Map<String, dynamic> item) {
+    final originalName = '${item['originalName'] ?? ''}'.trim();
+    final alternativeName = '${item['alternativeName'] ?? ''}'.trim();
+    final title = alternativeName.isEmpty ? '${item['name']}' : alternativeName;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -424,7 +683,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    'Amoxicillin 500 mg',
+                    originalName.isEmpty ? '${item['name']}' : originalName,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 13,
@@ -508,7 +767,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Amoxiclav 625 mg',
+                            title,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 13,
@@ -517,7 +776,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Qty: 2 • Unit Price: 25 MRU',
+                            'Qty: ${item['alternativeQty']} • Unit Price: ${item['alternativeUnitText']}',
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 11,
@@ -528,7 +787,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                       ),
                     ),
                     Text(
-                      '50 MRU',
+                      '${item['alternativeTotalText']}',
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
@@ -541,7 +800,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    '50 MRU',
+                    '${item['alternativeTotalText']}',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 14,
@@ -726,7 +985,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               ),
               const Spacer(),
               Text(
-                '150 MRU',
+                _amountText,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 13,
@@ -751,7 +1010,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               ),
               const Spacer(),
               Text(
-                '150 MRU',
+                _amountText,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -796,9 +1055,8 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               Get.to(
                 () => ChatScreen(
                   restaurant: {
-                    'title': widget.pharmacyName,
-                    'image':
-                        'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop',
+                    'title': _pharmacyName,
+                    'image': '',
                   },
                 ),
               );
@@ -838,14 +1096,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
 
   Widget _buildPayButton() {
     return GestureDetector(
-      onTap: () {
-        Get.to(
-          () => PrescriptionCheckoutScreen(
-            pharmacyName: widget.pharmacyName,
-            itemTotal: 150,
-          ),
-        );
-      },
+      onTap: _paying ? null : _payPrescription,
       child: Container(
         height: 52,
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -876,7 +1127,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             ),
             const Spacer(),
             Text(
-              '150 MRU',
+              _amountText,
               style: GoogleFonts.outfit(
                 color: Colors.white,
                 fontSize: 14,

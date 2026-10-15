@@ -3,19 +3,39 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../core/network/api_exception.dart';
+import '../../models/order_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
 class PharmacyItemOrderDetailScreen extends StatelessWidget {
   final String orderId;
+  final int? apiOrderId;
   final bool isDelivery;
 
   const PharmacyItemOrderDetailScreen({
     super.key,
     this.orderId = '#22789009',
+    this.apiOrderId,
     this.isDelivery = true,
   });
+
+  Future<void> _cancelOrder() async {
+    final id = apiOrderId;
+    if (id == null || id < 1 || !Get.isRegistered<OrderRepository>()) return;
+    try {
+      final message = await Get.find<OrderRepository>().cancelOrder(
+        orderId: id,
+        language: apiLanguageCode(),
+      );
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +197,11 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
   Widget _buildCancelButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        showCancelOrderBottomSheet(context, orderId: orderId);
+        showCancelOrderBottomSheet(
+          context,
+          orderId: orderId,
+          onConfirm: () => _cancelOrder(),
+        );
       },
       child: Container(
         height: 48,
@@ -201,7 +225,12 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
   Widget _buildTrackButton() {
     return GestureDetector(
       onTap: () {
-          Get.to(() => PharmacyTrackOrderScreen(orderId: orderId));
+          Get.to(
+            () => PharmacyTrackOrderScreen(
+              orderId: orderId,
+              apiOrderId: apiOrderId,
+            ),
+          );
       },
       child: Container(
         height: 48,
@@ -554,18 +583,12 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
       child: Row(
         children: [
           ClipOval(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop',
-              width: 46,
-              height: 46,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+            child: Container(
                 width: 46,
                 height: 46,
                 color: const Color(0xFFF3EFEA),
                 child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
               ),
-            ),
           ),
           const SizedBox(width: 12),
           Expanded(

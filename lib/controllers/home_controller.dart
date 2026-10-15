@@ -161,11 +161,7 @@ class HomeController extends GetxController {
       data.putIfAbsent('dist', () => '10 Km');
       data.putIfAbsent('discount', () => '50% OFF');
       data.putIfAbsent('points', () => '200 Points Available');
-      data.putIfAbsent(
-        'image',
-        () =>
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop',
-      );
+      data.putIfAbsent('image', () => '');
       favourites.add(data);
       if (!likedItems.contains(itemId)) {
         likedItems.add(itemId);

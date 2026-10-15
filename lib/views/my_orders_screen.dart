@@ -7,6 +7,7 @@ import 'water/water_order_details_screen.dart';
 import 'water/water_track_order_screen.dart';
 import 'track_order_screen.dart';
 import 'rate_order_screen.dart';
+import 'pharmacy/my_prescriptions_screen.dart';
 import 'pharmacy/widgets/pharmacy_order_cards.dart';
 import '../core/network/api_exception.dart';
 import '../models/pharmacy_repository.dart';
@@ -334,6 +335,35 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Widget _buildPharmacyOrders() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GestureDetector(
+          onTap: () => Get.to(() => const MyPrescriptionsScreen()),
+          child: Container(
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEDE6),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              'My Prescriptions  ›',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFFF5E00),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildPharmacyOrderList(),
+      ],
+    );
+  }
+
+  Widget _buildPharmacyOrderList() {
     if (_pharmacyOrdersLoading && _pharmacyOrders.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 28),
@@ -377,6 +407,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ? '0 MRU'
             : '${order['amount']}',
         expiresIn: Duration(seconds: seconds is int ? seconds : 0),
+        prescriptionId: order['prescriptionId'] is int &&
+                (order['prescriptionId'] as int) > 0
+            ? order['prescriptionId'] as int
+            : null,
       );
     }
     final badge = _pharmacyStatusColors(statusText, order['isCancelled'] == true);
@@ -387,6 +421,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       statusBgColor: badge.$2,
       detailsText: _pharmacyDetails(order),
       orderId: orderId,
+      apiOrderId: order['numericOrderId'] is int &&
+              (order['numericOrderId'] as int) > 0
+          ? order['numericOrderId'] as int
+          : null,
+      vendorId: order['vendorId'] is int && (order['vendorId'] as int) > 0
+          ? order['vendorId'] as int
+          : null,
       showPrescription:
           order['isPrescription'] == true &&
           '${order['fileName'] ?? ''}'.isNotEmpty,

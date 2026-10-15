@@ -88,6 +88,84 @@ class GeneralRepository {
     };
   }
 
+  Future<
+    ({
+      String subjectType,
+      double averageRating,
+      int totalReviews,
+      Map<String, int> ratingBreakdown,
+      List<Map<String, dynamic>> reviews,
+      int currentPage,
+      int totalPages,
+    })
+  >
+  fetchReviews({
+    required String type,
+    required String language,
+    int? vendorId,
+    int? vendorType,
+    int? productId,
+    int? productType,
+    String filter = '',
+    int page = 1,
+    int perPage = 10,
+    int limit = 10,
+  }) async {
+    final query = <String, dynamic>{
+      'type': type,
+      'limit': limit,
+      'page': page,
+      'per_page': perPage,
+    };
+    if (vendorId != null) query['vendor_id'] = vendorId;
+    if (vendorType != null) query['vendor_type'] = vendorType;
+    if (productId != null) query['product_id'] = productId;
+    if (productType != null) query['product_type'] = productType;
+    final trimmedFilter = filter.trim();
+    if (trimmedFilter.isNotEmpty) query['filter'] = trimmedFilter;
+
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.reviews, queryParameters: query),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final breakdownRaw =
+        asJsonMap(data['rating_breakdown']) ?? <String, dynamic>{};
+    final breakdown = <String, int>{
+      for (final key in ['5', '4', '3', '2', '1'])
+        key: _asInt(breakdownRaw[key]),
+    };
+    final pagination = asJsonMap(data['pagination']) ?? <String, dynamic>{};
+    final rawReviews = data['reviews'];
+    final reviews = <Map<String, dynamic>>[];
+    if (rawReviews is List) {
+      for (final entry in rawReviews) {
+        final review = asJsonMap(entry);
+        if (review == null) continue;
+        final user = asJsonMap(review['user']) ?? <String, dynamic>{};
+        reviews.add({
+          'id': _asInt(review['id']),
+          'userName': _cleanText(user['name']),
+          'userImage': ApiConstants.mediaUrl(user['image']?.toString()) ?? '',
+          'rating': _asInt(review['rating']),
+          'comment': _cleanText(review['comment']),
+          'date': _cleanText(review['date']),
+          'timeAgo': _cleanText(review['time_ago']),
+        });
+      }
+    }
+    final subject = asJsonMap(data['subject']) ?? <String, dynamic>{};
+    return (
+      subjectType: _cleanText(subject['type']),
+      averageRating: _asNum(data['average_rating']),
+      totalReviews: _asInt(data['total_reviews']),
+      ratingBreakdown: breakdown,
+      reviews: reviews,
+      currentPage: _asInt(pagination['page']),
+      totalPages: _asInt(pagination['total_pages']),
+    );
+  }
+
   List<Map<String, dynamic>> _verticals(dynamic raw, String language) {
     if (raw is! List) return const [];
     final verticals = <Map<String, dynamic>>[];

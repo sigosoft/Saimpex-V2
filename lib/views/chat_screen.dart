@@ -296,22 +296,33 @@ class _ChatScreenState extends State<ChatScreen> {
                   const AppBackButton(),
                   const SizedBox(width: 12),
                   ClipOval(
-                    child: Image.network(
-                      image,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 40,
-                        height: 40,
-                        color: const Color(0xFFF3EFEA),
-                        child: const Icon(
-                          Icons.local_pharmacy_rounded,
-                          color: Color(0xFFFF5E00),
-                          size: 22,
-                        ),
-                      ),
-                    ),
+                    child: image.isEmpty
+                        ? Container(
+                            width: 40,
+                            height: 40,
+                            color: const Color(0xFFF3EFEA),
+                            child: const Icon(
+                              Icons.local_pharmacy_rounded,
+                              color: Color(0xFFFF5E00),
+                              size: 22,
+                            ),
+                          )
+                        : Image.network(
+                            image,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              width: 40,
+                              height: 40,
+                              color: const Color(0xFFF3EFEA),
+                              child: const Icon(
+                                Icons.local_pharmacy_rounded,
+                                color: Color(0xFFFF5E00),
+                                size: 22,
+                              ),
+                            ),
+                          ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

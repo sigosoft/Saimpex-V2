@@ -5,12 +5,14 @@ import 'dart:async';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
+import '../../models/cart_repository.dart';
 import '../../models/pharmacy_repository.dart';
 import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
 import '../chat_screen.dart';
 import '../cart_screen.dart';
 import 'upload_prescription_screen.dart';
+import 'widgets/attach_prescription_sheet.dart';
 import 'widgets/pharmacy_background.dart';
 import 'widgets/pharmacy_cart_bar.dart';
 import 'widgets/pharmacy_customize_sheet.dart';
@@ -47,7 +49,6 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   int _page = 1;
   int _lastPage = 1;
   int _requestId = 0;
-  int _categoriesRequest = 0;
   int? _selectedCategoryId;
   Timer? _searchDebounce;
   Map<String, dynamic>? _pharmacyDetails;
@@ -71,10 +72,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       menuItems = [];
       _loadingStore = true;
       searchController.addListener(_onSearchChanged);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        _loadDetails();
-        _loadCategories();
         _loadStore(reset: true);
       });
     }
@@ -87,25 +86,61 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     ...?_pharmacyDetails,
   };
 
-  Future<void> _loadDetails() async {
+  bool get _usesApi => _pharmacyId != null;
+
+  Future<bool> _addPharmacyItem(
+    Map<String, dynamic> item, {
+    String? portion,
+    int quantity = 1,
+  }) async {
     final pharmacyId = _pharmacyId;
-    if (pharmacyId == null || !Get.isRegistered<PharmacyRepository>()) return;
+    final productId = int.tryParse('${item['productId'] ?? ''}');
+    if (pharmacyId == null || productId == null || productId < 1) {
+      showAppToast('Unable to add this item');
+      return false;
+    }
     try {
-      final details = await Get.find<PharmacyRepository>().fetchDetails(
+      final added = await Get.find<CartRepository>().addPharmacyItem(
         pharmacyId: pharmacyId,
-        latitude: SelectLocationController.selectedLatitude,
-        longitude: SelectLocationController.selectedLongitude,
+        productId: productId,
+        quantity: quantity,
         language: apiLanguageCode(),
       );
-      if (!mounted) return;
-      setState(() => _pharmacyDetails = details);
+      if (!mounted) return false;
+      setState(() {
+        lastAddedItem = item;
+        lastAddedItemPortion = portion;
+        showCartBar = true;
+      });
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().setCartItem(
+          storeName: _storeText('title', 'Pharmacy Nasr'),
+          itemName: item['title']?.toString(),
+          itemPortion: portion ?? item['tag']?.toString() ?? '10 Tablets',
+          basePrice: parsePrice(item['price']?.toString() ?? '50'),
+          itemImage: item['image']?.toString(),
+          quantity: quantity,
+        );
+      }
+      showAppToast(added.message, backgroundColor: const Color(0xFFFF5E00));
+      if (added.needsPrescription) {
+        await _attachPrescription(pharmacyId);
+      }
+      return true;
     } on ApiException catch (error) {
-      if (!mounted) return;
-      showAppToast(error.message);
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return false;
     }
   }
 
-  bool get _usesApi => _pharmacyId != null;
+  Future<void> _attachPrescription(int pharmacyId) async {
+    await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AttachPrescriptionSheet(pharmacyId: pharmacyId),
+    );
+  }
 
   String _storeText(String key, String fallback) {
     final value = _store[key]?.toString().trim() ?? '';
@@ -117,7 +152,6 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     if (_pharmacyId == null) return;
     _searchDebounce?.cancel();
     _searchDebounce = Timer(const Duration(milliseconds: 450), () {
-      _loadCategories();
       _loadStore(reset: true);
     });
   }
@@ -141,27 +175,21 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     });
 
     try {
-      final repository = Get.find<PharmacyRepository>();
-      final language = apiLanguageCode();
-      final categoryId = _selectedCategoryId;
-      final keyword = searchController.text.trim();
-      final result =
-          categoryId != null && categoryId != 0 && keyword.isEmpty
-          ? await repository.fetchCategoryItems(
-              pharmacyId: pharmacyId,
-              categoryId: categoryId,
-              language: language,
-              page: nextPage,
-            )
-          : await repository.fetchPharmacyItems(
-              pharmacyId: pharmacyId,
-              language: language,
-              categoryId: categoryId,
-              keyword: searchController.text,
-              page: nextPage,
-            );
+      final result = await Get.find<PharmacyRepository>().fetchStore(
+        pharmacyId: pharmacyId,
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: apiLanguageCode(),
+        categoryId: _selectedCategoryId,
+        keyword: searchController.text,
+        page: nextPage,
+      );
       if (!mounted || requestId != _requestId) return;
       setState(() {
+        if (reset) {
+          _pharmacyDetails = result.pharmacy;
+          _applyCategories(result.categories, result.selectedCategoryId);
+        }
         menuItems = reset ? result.items : [...menuItems, ...result.items];
         _page = result.currentPage;
         _lastPage = result.lastPage;
@@ -178,43 +206,29 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     }
   }
 
-  Future<void> _loadCategories() async {
-    final pharmacyId = _pharmacyId;
-    if (pharmacyId == null || !Get.isRegistered<PharmacyRepository>()) return;
-    final requestId = ++_categoriesRequest;
-    try {
-      final categoriesFromApi = await Get.find<PharmacyRepository>()
-          .fetchPharmacyCategories(
-            pharmacyId: pharmacyId,
-            language: apiLanguageCode(),
-            keyword: searchController.text,
-          );
-      if (!mounted || requestId != _categoriesRequest) return;
-      final categories = [
-        if (!categoriesFromApi.any((category) => category['id'] == 0))
-          {
-            'id': 0,
-            'label': switch (apiLanguageCode()) {
-              'ar' => 'الكل',
-              'fr' => 'Tous',
-              _ => 'All',
-            },
-            'isAll': true,
+  void _applyCategories(
+    List<Map<String, dynamic>> categoriesFromApi,
+    int selectedCategoryId,
+  ) {
+    final categories = [
+      if (!categoriesFromApi.any((category) => category['id'] == 0))
+        {
+          'id': 0,
+          'label': switch (apiLanguageCode()) {
+            'ar' => 'الكل',
+            'fr' => 'Tous',
+            _ => 'All',
           },
-        ...categoriesFromApi,
-      ];
-      final selectedId = _selectedCategoryId ?? 0;
-      final selectedIndex = categories.indexWhere(
-        (category) => category['id'] == selectedId,
-      );
-      setState(() {
-        subcategories = categories;
-        activeSubcategoryIndex = selectedIndex < 0 ? 0 : selectedIndex;
-      });
-    } on ApiException catch (error) {
-      if (!mounted || requestId != _categoriesRequest) return;
-      showAppToast(error.message);
-    }
+          'isAll': true,
+        },
+      ...categoriesFromApi,
+    ];
+    final selectedId = _selectedCategoryId ?? selectedCategoryId;
+    final selectedIndex = categories.indexWhere(
+      (category) => category['id'] == selectedId,
+    );
+    subcategories = categories;
+    activeSubcategoryIndex = selectedIndex < 0 ? 0 : selectedIndex;
   }
 
   @override
@@ -486,141 +500,16 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     );
   }
 
-  List<Map<String, dynamic>> subcategories = [
-    {'label': 'All', 'isAll': true},
-    {'label': 'OTC', 'icon': 'lib/assets/images/OTC.png'},
-    {'label': 'Baby Care', 'icon': 'lib/assets/images/BabyCare.png'},
-    {'label': 'Personal Care', 'icon': 'lib/assets/images/PersonalCare.png'},
-    {'label': 'Dental Care', 'icon': 'lib/assets/images/DentalCare.png'},
-    {'label': 'Wellness', 'icon': 'lib/assets/images/Welness.png'},
-    {'label': 'Vitamins', 'icon': 'lib/assets/images/Vitamins.png'},
-    {'label': 'First Aid', 'icon': 'lib/assets/images/FirstAid.png'},
-    {'label': 'Device', 'icon': 'lib/assets/images/Device.png'},
-  ];
-
-  List<Map<String, dynamic>> menuItems = [
-    {
-      'title': 'Paracetamol 500 Mg',
-      'image':
-          'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=350&auto=format&fit=crop',
-      ],
-      'tag': '10 Tablets',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-      'description':
-          'Paracetamol is commonly used to reduce fever and relieve mild to moderate pain such as headaches, muscle aches, toothache, and cold-related discomfort. It works by blocking pain signals in the brain and helping regulate body temperature.',
-    },
-    {
-      'title': 'Adhesive Bandages',
-      'image':
-          'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=350&auto=format&fit=crop',
-      ],
-      'tag': '20 Pieces • Waterproof',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-      'description':
-          'Flexible waterproof adhesive bandages that protect minor cuts and scrapes. Soft padding cushions the wound while the adhesive stays secure during daily activity.',
-    },
-    {
-      'title': 'Digital Thermometer',
-      'image':
-          'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=350&auto=format&fit=crop',
-      ],
-      'tag': 'Fast Reading • Waterproof',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-      'description':
-          'Fast and accurate digital thermometer for home use. Easy-read display and reliable temperature measurement for adults and children.',
-    },
-    {
-      'title': 'Baby Diapers',
-      'image':
-          'https://images.unsplash.com/photo-1716972065448-e08a46809530?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1716972065448-e08a46809530?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1544126592-807ade215a0b?w=350&auto=format&fit=crop',
-      ],
-      'isVeg': true,
-      'tag': 'Soft & Absorbent',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-      'description':
-          'Soft, highly absorbent baby diapers designed for all-day comfort. Leak-lock core keeps baby dry while gentle materials protect sensitive skin.',
-    },
-    {
-      'title': 'Amoxicillin 500 Mg',
-      'image':
-          'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=350&auto=format&fit=crop',
-      ],
-      'tag': '20 Pieces • Waterproof',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-      'prescriptionRequired': true,
-      'description':
-          'Amoxicillin is a prescription antibiotic used to treat bacterial infections. A valid prescription is required before this medicine can be added to your order.',
-    },
-    {
-      'title': 'Amoxicillin 500 Mg',
-      'image':
-          'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=350&auto=format&fit=crop',
-      ],
-      'tag': '20 Pieces • Waterproof',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-      'prescriptionRequired': true,
-      'description':
-          'Amoxicillin is a prescription antibiotic used to treat bacterial infections. A valid prescription is required before this medicine can be added to your order.',
-    },
-  ];
+  // Subcategories and products come only from the store API.
+  List<Map<String, dynamic>> subcategories = [];
+  List<Map<String, dynamic>> menuItems = [];
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     final storeId = _storeText('id', 'p1');
     final storeTitle = _storeText('title', 'Pharmacy Nasr');
-    final storeImage = _storeText(
-      'image',
-      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&auto=format&fit=crop',
-    );
+    final storeImage = _storeText('image', '');
     final storeTime = _storeText('time', '30-35 min');
     final storeDistance = _storeText('dist', '10 Km');
     final storeDiscount = _storeText('discount', '50% OFF');
@@ -1073,54 +962,21 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                               menuId: int.tryParse('${food['id']}'),
                               pharmacyId: _pharmacyId,
                               isNotAccepting: isNotAccepting,
-                              onAdd: () {
-                                setState(() {
-                                  showCartBar = true;
-                                  lastAddedItem = food;
-                                  lastAddedItemPortion = food['tag'] as String?;
-                                });
-                                if (Get.isRegistered<HomeController>()) {
-                                  Get.find<HomeController>().setCartItem(
-                                    storeName: storeTitle,
-                                    itemName: food['title']?.toString(),
-                                    itemPortion:
-                                        food['tag']?.toString() ?? '10 Tablets',
-                                    basePrice: parsePrice(
-                                      food['price']?.toString() ?? '50',
-                                    ),
-                                    itemImage: food['image']?.toString(),
-                                  );
-                                }
-                              },
+                              onAdd: () => _addPharmacyItem(
+                                food,
+                                portion: food['tag']?.toString(),
+                              ),
                             ),
                             onAdd: () => showPharmacyCustomizeSheet(
                               context,
                               food: food,
                               fromBottomSheet: false,
-                              onAdded: (item, portion) {
-                                setState(() {
-                                  lastAddedItem = item;
-                                  lastAddedItemPortion = portion;
-                                  showCartBar = true;
-                                });
-                                if (Get.isRegistered<HomeController>()) {
-                                  Get.find<HomeController>().setCartItem(
-                                        storeName: storeTitle,
-                                    itemName:
-                                        item['title']?.toString() ??
-                                        food['title']?.toString(),
-                                    itemPortion: portion,
-                                    basePrice: parsePrice(
-                                      item['price']?.toString() ??
-                                          food['price']?.toString() ??
-                                          '50',
-                                    ),
-                                    itemImage:
-                                        item['image']?.toString() ??
-                                        food['image']?.toString(),
-                                  );
-                                }
-                              },
+                              onAdded: (item, portion, quantity) =>
+                                  _addPharmacyItem(
+                                    item,
+                                    portion: portion,
+                                    quantity: quantity,
+                                  ),
                             ),
                           );
                         },
@@ -1133,7 +989,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                           color: Color(0xFFFF5E00),
                         ),
                       ),
-                    if (!_loadingStore && _usesApi && menuItems.isEmpty)
+                    if (!_loadingStore && menuItems.isEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 28),
                         child: Text(

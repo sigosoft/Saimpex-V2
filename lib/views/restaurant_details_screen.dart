@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import '../core/network/api_exception.dart';
+import '../models/cart_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/filter_chip_style.dart';
 import '../widgets/replace_cart_item_dialog.dart';
@@ -199,6 +203,20 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       currentCartRestaurant: existingStore,
       newRestaurant: newRestaurant,
     );
+    if (replace == true && Get.isRegistered<CartRepository>()) {
+      try {
+        final message = await Get.find<CartRepository>().replaceCart(
+          apiLanguageCode(),
+        );
+        final text = message.trim();
+        if (text.isNotEmpty) {
+          showAppToast(text, backgroundColor: const Color(0xFFFF5E00));
+        }
+      } on ApiException catch (error) {
+        showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+        return false;
+      }
+    }
     return replace == true;
   }
 

@@ -5,11 +5,27 @@ void showPharmacyCustomizeSheet(
   BuildContext context, {
   required Map<String, dynamic> food,
   required bool fromBottomSheet,
-  required void Function(Map<String, dynamic> item, String portion) onAdded,
+  required Future<bool> Function(
+    Map<String, dynamic> item,
+    String portion,
+    int quantity,
+  )
+  onAdded,
 }) {
     int selectedQuantityIndex = 0; // Default to option 1
     int quantity = 1;
+    var adding = false;
+    final quantityController = TextEditingController();
     final TextEditingController notesController = TextEditingController();
+
+    int? readLimit(dynamic value) {
+      final number = value is int ? value : int.tryParse('$value');
+      if (number == null || number < 1) return null;
+      return number;
+    }
+
+    final maxQuantity =
+        readLimit(food['quantityAllowed']) ?? readLimit(food['stock']);
 
     // Determine quantity text and price options based on clicked item
     String qtyText1 = '1 Pack';
@@ -310,6 +326,8 @@ void showPharmacyCustomizeSheet(
                                 ),
                                 alignment: Alignment.centerLeft,
                                 child: TextField(
+                                  controller: quantityController,
+                                  keyboardType: TextInputType.number,
                                   style: GoogleFonts.outfit(
                                     fontSize: 12,
                                     color: const Color(0xFF2C2520),
@@ -323,6 +341,22 @@ void showPharmacyCustomizeSheet(
                                     border: InputBorder.none,
                                     isDense: true,
                                   ),
+                                  onChanged: (value) {
+                                    final parsed = int.tryParse(value.trim());
+                                    if (parsed == null || parsed < 1) return;
+                                    final next = maxQuantity != null &&
+                                            parsed > maxQuantity
+                                        ? maxQuantity
+                                        : parsed;
+                                    setModalState(() => quantity = next);
+                                    if (next == parsed) return;
+                                    quantityController.value = TextEditingValue(
+                                      text: '$next',
+                                      selection: TextSelection.collapsed(
+                                        offset: '$next'.length,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
 
@@ -431,6 +465,7 @@ void showPharmacyCustomizeSheet(
                                         setModalState(() {
                                           quantity--;
                                         });
+                                        quantityController.text = '$quantity';
                                       }
                                     },
                                     child: Container(
@@ -459,9 +494,14 @@ void showPharmacyCustomizeSheet(
                                   const SizedBox(width: 12),
                                   GestureDetector(
                                     onTap: () {
+                                      if (maxQuantity != null &&
+                                          quantity >= maxQuantity) {
+                                        return;
+                                      }
                                       setModalState(() {
                                         quantity++;
                                       });
+                                      quantityController.text = '$quantity';
                                     },
                                     child: Container(
                                       width: 28,
@@ -483,32 +523,30 @@ void showPharmacyCustomizeSheet(
                             const SizedBox(width: 14),
                             Expanded(
                               child: GestureDetector(
-                                onTap: () {
+                                onTap: () async {
+                                  if (adding) return;
+                                  adding = true;
+                                  var added = false;
+                                  try {
+                                    added = await onAdded(
+                                      Map<String, dynamic>.from(food)
+                                        ..['price'] =
+                                            (selectedQuantityIndex == 0)
+                                            ? qtyPrice1
+                                            : qtyPrice2,
+                                      (selectedQuantityIndex == 0)
+                                          ? qtyText1
+                                          : qtyText2,
+                                      quantity,
+                                    );
+                                  } finally {
+                                    adding = false;
+                                  }
+                                  if (!context.mounted || !added) return;
                                   Navigator.pop(context);
-                                  if (fromBottomSheet) {
+                                  if (fromBottomSheet && context.mounted) {
                                     Navigator.pop(context);
                                   }
-
-                                  onAdded(
-                                    Map<String, dynamic>.from(food)
-                                      ..['price'] = (selectedQuantityIndex == 0)
-                                          ? qtyPrice1
-                                          : qtyPrice2,
-                                    (selectedQuantityIndex == 0)
-                                        ? qtyText1
-                                        : qtyText2,
-                                  );
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '${food['title']} added to cart!',
-                                        style: GoogleFonts.outfit(),
-                                      ),
-                                      backgroundColor: const Color(0xFFFF5E00),
-                                      duration: const Duration(seconds: 2),
-                                    ),
-                                  );
                                 },
                                 child: Container(
                                   height: 44,

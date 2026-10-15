@@ -386,97 +386,11 @@ class HomeScreen extends StatelessWidget {
           ),
         );
       }
-      final categories = controller.homeLoaded.value
-          ? _verticalTiles(controller)
-          : _fallbackCategoryTiles();
-      return _categoryGrid(controller, categories);
+      if (!controller.homeLoaded.value) return const SizedBox.shrink();
+      return _categoryGrid(controller, _verticalTiles(controller));
     });
   }
 
-  List<Map<String, dynamic>> _fallbackCategoryTiles() {
-    return [
-      {
-        'label': 'All',
-        'slug': 'all',
-        'icon': "lib/assets/images/All.png",
-        'gradient': const LinearGradient(
-          colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      },
-      {
-        'label': 'Food',
-        'slug': 'food',
-        'icon': "lib/assets/images/Food.png",
-        'gradient': const LinearGradient(
-          colors: [Color.fromARGB(255, 247, 176, 114), Color.fromARGB(255, 255, 255, 255)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      },
-      {
-        'label': 'Grocery',
-        'slug': 'grocery',
-        'icon': "lib/assets/images/Grocery.png",
-        'gradient': const LinearGradient(
-          colors: [Color.fromARGB(255, 161, 229, 82), Color.fromARGB(255, 255, 255, 255)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      },
-      {
-        'label': 'Pharmacy',
-        'slug': 'pharmacy',
-        'icon': "lib/assets/images/Pharmacy.png",
-        'gradient': const LinearGradient(
-          colors: [Color.fromARGB(255, 184, 235, 255), Color.fromARGB(255, 255, 255, 255)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      },
-      {
-        'label': 'Water',
-        'slug': 'water',
-        'icon': "lib/assets/images/Water.png",
-        'gradient': const LinearGradient(
-          colors: [Color.fromARGB(255, 118, 212, 255), Color.fromARGB(255, 255, 255, 255)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      },
-      {
-        'label': 'Courier',
-        'slug': 'courier',
-        'icon': "lib/assets/images/Courier.png",
-        'gradient': const LinearGradient(
-          colors: [Color.fromARGB(255, 245, 173, 239), Color.fromARGB(255, 255, 255, 255)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      },
-      {
-        'label': 'Express',
-        'slug': 'express',
-        'icon': "lib/assets/images/Express.png",
-        'gradient': const LinearGradient(
-          colors: [Color.fromARGB(255, 255, 165, 10), Color.fromARGB(255, 255, 255, 255)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      },
-      {
-        'label': 'Local Store',
-        'slug': 'local_store',
-        'icon': "lib/assets/images/Local Store.png",
-        'gradient': const LinearGradient(
-          colors: [Color.fromARGB(255, 177, 159, 137), Color.fromARGB(255, 255, 255, 255)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      },
-    ];
-  }
 
   Widget _categoryGrid(
     HomeController controller,
@@ -858,53 +772,7 @@ class HomeScreen extends StatelessWidget {
           ),
         );
       }
-      return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Save More Today',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-        const SizedBox(height: 14),
-        SizedBox(
-          height: 150,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: [
-              // Free Delivery
-              Container(
-                margin: const EdgeInsets.only(right: 12),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.asset(
-                    "lib/assets/images/FreeDelivery.png",
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              // Cashback banner
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  "lib/assets/images/Cashback.png",
-                  fit: BoxFit.fill,
-                
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+      return const SizedBox.shrink();
     });
   }
 
@@ -951,81 +819,7 @@ class HomeScreen extends StatelessWidget {
           items: controller.homeTrending.toList(),
         );
       }
-      final trending = [
-      {
-        'id': 't1',
-        'title': 'Al Fantasia',
-        'subtitle': 'Moroccan • Traditional',
-        'rating': '4.6',
-        'time': '30-35 min',
-        'dist': '10 Km',
-        'discount': '50% OFF',
-        'points': '200 Points Available',
-        'isClosed': true,
-        'opensAt': '10 AM',
-        'isTemporarilyClosed': false,
-        'image':
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=350&auto=format&fit=crop',
-      },
-      {
-        'id': 't2',
-        'title': 'Tarif Restaurant',
-        'subtitle': 'Lebanese • Grill',
-        'rating': '4.6',
-        'time': '30-35 min',
-        'dist': '10 Km',
-        'discount': '30% OFF',
-        'points': '200 Points Available',
-        'isClosed': false,
-        'isTemporarilyClosed': true,
-        'image':
-            'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=350&auto=format&fit=crop',
-      },
-      {
-        'id': 't3',
-        'title': 'Portuguese restaurant',
-        'subtitle': 'Lebanese • Grill',
-        'rating': '4.7',
-        'time': '30-35 min',
-        'dist': '10 Km',
-        'discount': '30% OFF',
-        'points': '200 Points Available',
-        'isClosed': false,
-        'isTemporarilyClosed': false,
-        'image':
-            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=350&auto=format&fit=crop',
-      },
-    ];
-
-    return Column(
-      children: [
-        _buildSectionHeader('Trending in Nouakchott', () {
-          controller.selectSubcategory(0);
-          Get.to(
-            () => const CategoryScreen(
-              categoryName: 'Food',
-              showUnder30Minutes: false,
-            ),
-            preventDuplicates: false,
-            routeName: '/trending-see-all',
-          );
-        }),
-        const SizedBox(height: 14),
-        SizedBox(
-          height: 240,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: trending.length,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              final item = trending[index];
-              return _buildRestaurantCard(controller, item);
-            },
-          ),
-        ),
-      ],
-    );
+      return const SizedBox.shrink();
     });
   }
 
@@ -1501,108 +1295,7 @@ class HomeScreen extends StatelessWidget {
           ],
         );
       }
-      final orders = [
-      {
-        'title': 'Al Fantasia',
-        'rating': '4.6',
-        'itemPrefix': 'Chiken Tagine (Half) ',
-        'qty': 'x2',
-        'itemSuffix': ' • Chick.....',
-        'date': 'Yesterday',
-        'itemsCount': '2 Items',
-        'image':
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
-      },
-      {
-        'title': 'Al Fantasia',
-        'rating': '4.6',
-        'itemPrefix': 'Chiken Tagine (Half) ',
-        'qty': 'x2',
-        'itemSuffix': ' • Chick.....',
-        'date': 'Yesterday',
-        'itemsCount': '2 Items',
-        'image':
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
-      },
-      {
-        'title': 'Al Fantasia',
-        'rating': '4.6',
-        'itemPrefix': 'Chiken Tagine (Half) ',
-        'qty': 'x2',
-        'itemSuffix': ' • Chick.....',
-        'date': '2 days ago',
-        'itemsCount': '2 Items',
-        'image':
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
-      },
-      {
-        'title': 'Al Fantasia',
-        'rating': '4.6',
-        'itemPrefix': 'Chiken Tagine (Half) ',
-        'qty': 'x2',
-        'itemSuffix': ' • Chick.....',
-        'date': '3 days ago',
-        'itemsCount': '2 Items',
-        'image':
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=120&auto=format&fit=crop',
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Recent Orders',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: Row(
-                  children: [
-                    Text(
-                      'View Orders',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: Color(0xFFFF5E00),
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              return _buildRecentOrderCard(orders[index]);
-            },
-          ),
-        ),
-      ],
-    );
+      return const SizedBox.shrink();
     });
   }
 
@@ -1808,54 +1501,7 @@ class HomeScreen extends StatelessWidget {
           under30: true,
         );
       }
-      final items = [
-      {
-        'id': 'u1',
-        'title': 'Al Fantasia',
-        'subtitle': 'Moroccan • Traditional',
-        'rating': '4.6',
-        'time': '30m',
-        'discount': '50% OFF',
-        'points': '200 Points Available',
-        'isTemporarilyClosed': false,
-        'image':
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=350&auto=format&fit=crop',
-      },
-      {
-        'id': 'u2',
-        'title': 'Tarif Restaurant',
-        'subtitle': 'Lebanese • Grill',
-        'rating': '4.6',
-        'time': '30m',
-        'discount': '50% OFF',
-        'points': '200 Points Available',
-        'isTemporarilyClosed': false,
-        'image':
-            'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=350&auto=format&fit=crop',
-      },
-    ];
-
-    return Column(
-      children: [
-        _buildSectionHeader(
-          'Under 30 Minutes',
-          () => Get.to(() => const Under30MinScreen()),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 230,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: items.length,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              return _buildUnder30MinCard(controller, items[index]);
-            },
-          ),
-        ),
-      ],
-    );
+      return const SizedBox.shrink();
     });
   }
 
@@ -2096,54 +1742,7 @@ class HomeScreen extends StatelessWidget {
       if (controller.homeLoaded.value) {
         return _apiBanner(controller, 'grocery');
       }
-      const slideCount = 4;
-    const imagePath = 'lib/assets/images/Grocery slider.png';
-
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          height: 140,
-          child: PageView.builder(
-            itemCount: slideCount,
-            physics: const BouncingScrollPhysics(),
-            onPageChanged: controller.updateGroceryBannerIndex,
-            itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.fill,
-                  width: double.infinity,
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
-        Obx(
-          () => Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(slideCount, (index) {
-              final isActive =
-                  controller.groceryBannerSliderIndex.value == index;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                height: 6,
-                width: isActive ? 22 : 6,
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? const Color(0xFFFF5E00)
-                      : const Color(0xFFD9D1C9),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              );
-            }),
-          ),
-        ),
-      ],
-    );
+      return const SizedBox.shrink();
     });
   }
 
@@ -2158,50 +1757,7 @@ class HomeScreen extends StatelessWidget {
           items: controller.homeTopGrocery.toList(),
         );
       }
-      final stores = [
-      {
-        'id': 'g1',
-        'title': 'Salam Supermarket',
-        'subtitle': 'Hypermarket',
-        'rating': '4.6',
-        'time': '35 min',
-        'dist': '10 Km',
-        'discount': '50% OFF',
-        'points': '200 Points Available',
-        'image': 'lib/assets/images/Grocery.png',
-      },
-      {
-        'id': 'g2',
-        'title': 'Good Choice',
-        'subtitle': 'Fruits & Vegetables',
-        'rating': '4.5',
-        'time': '35 min',
-        'dist': '10 Km',
-        'discount': '30% OFF',
-        'points': '200 Points Available',
-        'image':
-            'https://images.unsplash.com/photo-1542838132-92c53300491e?w=350&auto=format&fit=crop',
-      },
-    ];
-
-    return Column(
-      children: [
-        _buildSectionHeader('Top Grocery Stores Near You', () {}),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 240,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: stores.length,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              return _buildRestaurantCard(controller, stores[index]);
-            },
-          ),
-        ),
-      ],
-    );
+      return const SizedBox.shrink();
     });
   }
 
@@ -2212,54 +1768,7 @@ class HomeScreen extends StatelessWidget {
       if (controller.homeLoaded.value) {
         return _apiBanner(controller, 'pharmacy');
       }
-      const slideCount = 4;
-    const imagePath = 'lib/assets/images/Pharmacy slider.png';
-
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          height: 140,
-          child: PageView.builder(
-            itemCount: slideCount,
-            physics: const BouncingScrollPhysics(),
-            onPageChanged: controller.updatePharmacyBannerIndex,
-            itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.fill,
-                  width: double.infinity,
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
-        Obx(
-          () => Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(slideCount, (index) {
-              final isActive =
-                  controller.pharmacyBannerSliderIndex.value == index;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                height: 6,
-                width: isActive ? 22 : 6,
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? const Color(0xFFFF5E00)
-                      : const Color(0xFFD9D1C9),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              );
-            }),
-          ),
-        ),
-      ],
-    );
+      return const SizedBox.shrink();
     });
   }
 
@@ -2270,62 +1779,10 @@ class HomeScreen extends StatelessWidget {
       if (controller.homeLoaded.value) {
         return _apiBanner(controller, 'water');
       }
-      return _waterBannerFallback(controller);
+      return const SizedBox.shrink();
     });
   }
 
-  Widget _waterBannerFallback(HomeController controller) {
-    const slideCount = 4;
-    const imagePath = 'lib/assets/images/Water slider.png';
-
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          height: 140,
-          child: PageView.builder(
-            itemCount: slideCount,
-            physics: const BouncingScrollPhysics(),
-            onPageChanged: controller.updateWaterBannerIndex,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () => Get.to(() => const WaterScreen()),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    imagePath,
-                    fit: BoxFit.fill,
-                    width: double.infinity,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
-        Obx(
-          () => Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(slideCount, (index) {
-              final isActive = controller.waterBannerSliderIndex.value == index;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                height: 6,
-                width: isActive ? 22 : 6,
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? const Color(0xFFFF5E00)
-                      : const Color(0xFFD9D1C9),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              );
-            }),
-          ),
-        ),
-      ],
-    );
-  }
 
   // Trusted Pharmacies
   Widget _buildTrustedPharmacies(HomeController controller) {
@@ -2338,79 +1795,10 @@ class HomeScreen extends StatelessWidget {
           items: controller.homeTrusted.toList(),
         );
       }
-      return _trustedPharmacyFallback(controller);
+      return const SizedBox.shrink();
     });
   }
 
-  Widget _trustedPharmacyFallback(HomeController controller) {
-    const pharmacyImage =
-        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop';
-    final pharmacies = [
-      {
-        'id': 'p1',
-        'title': 'Pharmacy Nasr',
-        'subtitle': 'Trusted',
-        'rating': '4.6',
-        'time': '30-35 min',
-        'dist': '10 Km',
-        'discount': '50% OFF',
-        'points': '200 Points Available',
-        'image': pharmacyImage,
-      },
-      {
-        'id': 'p2',
-        'title': 'City Care Pharmacy',
-        'subtitle': 'Trusted',
-        'rating': '4.5',
-        'time': '25-30 min',
-        'dist': '8 Km',
-        'discount': '30% OFF',
-        'points': '180 Points Available',
-        'image': pharmacyImage,
-      },
-      {
-        'id': 'p3',
-        'title': 'Al Shifa Pharmacy',
-        'subtitle': 'Trusted',
-        'rating': '4.7',
-        'time': '30-35 min',
-        'dist': '12 Km',
-        'discount': '40% OFF',
-        'points': '200 Points Available',
-        'image': pharmacyImage,
-      },
-      {
-        'id': 'p4',
-        'title': 'Wellness Plus',
-        'subtitle': 'Trusted',
-        'rating': '4.4',
-        'time': '20-25 min',
-        'dist': '6 Km',
-        'discount': '25% OFF',
-        'points': '150 Points Available',
-        'image': pharmacyImage,
-      },
-    ];
-
-    return Column(
-      children: [
-        _buildSectionHeader('Trusted Pharmacies', () {}),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 240,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: pharmacies.length,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              return _buildRestaurantCard(controller, pharmacies[index]);
-            },
-          ),
-        ),
-      ],
-    );
-  }
 
   // Top Rated Suppliers (Water)
   Widget _buildTopRatedSuppliers(HomeController controller) {
@@ -2423,74 +1811,7 @@ class HomeScreen extends StatelessWidget {
           items: controller.homeSuppliers.toList(),
         );
       }
-      final suppliers = [
-      {
-        'id': 'w1',
-        'title': 'PureLife Water Co.',
-        'subtitle': 'Premium purified drinking water',
-        'rating': '4.6',
-        'time': '30-35 min',
-        'dist': '10 Km',
-        'discount': '50% OFF',
-        'points': '200 Points Available',
-        'image':
-            'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=350&auto=format&fit=crop',
-      },
-      {
-        'id': 'w2',
-        'title': 'AquaFresh Supply',
-        'subtitle': 'Mineral & filtered water',
-        'rating': '4.5',
-        'time': '25-30 min',
-        'dist': '8 Km',
-        'discount': '40% OFF',
-        'points': '180 Points Available',
-        'image':
-            'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=350&auto=format&fit=crop',
-      },
-      {
-        'id': 'w3',
-        'title': 'Crystal Springs',
-        'subtitle': 'Natural spring water delivery',
-        'rating': '4.7',
-        'time': '35-40 min',
-        'dist': '12 Km',
-        'discount': '30% OFF',
-        'points': '220 Points Available',
-        'image': 'lib/assets/images/Water.png',
-      },
-      {
-        'id': 'w4',
-        'title': 'HydroPlus Waters',
-        'subtitle': 'Bulk water for home & office',
-        'rating': '4.4',
-        'time': '20-25 min',
-        'dist': '6 Km',
-        'discount': '25% OFF',
-        'points': '150 Points Available',
-        'image':
-            'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=350&auto=format&fit=crop',
-      },
-    ];
-
-    return Column(
-      children: [
-        _buildSectionHeader('Top Rated Suppliers', () {}),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 240,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: suppliers.length,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              return _buildRestaurantCard(controller, suppliers[index]);
-            },
-          ),
-        ),
-      ],
-    );
+      return const SizedBox.shrink();
     });
   }
 
@@ -2527,7 +1848,6 @@ class _HomeTopBannerCarousel extends StatefulWidget {
 
 class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
   static const _dotCount = 4;
-  static const _imagePath = 'lib/assets/images/Slider.png';
 
   final PageController _pageController = PageController();
   Timer? _timer;
@@ -2584,73 +1904,7 @@ class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
           );
         }
       }
-      return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 140,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: 10000,
-                physics: const ClampingScrollPhysics(),
-                onPageChanged: (index) {
-                  setState(() => _index = index);
-                  _startAutoScroll();
-                },
-                itemBuilder: (context, index) {
-                  if (home.homeLoaded.value && home.homeSliders.isNotEmpty) {
-                    final slides = home.homeSliders;
-                    final image =
-                        (slides[index % slides.length]['image'] ?? '')
-                            .toString();
-                    return Image.network(
-                      image,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: 140,
-                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
-                    );
-                  }
-                  return Image.asset(
-                    _imagePath,
-                    fit: BoxFit.fill,
-                    width: double.infinity,
-                    height: 140,
-                  );
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              home.homeLoaded.value && home.homeSliders.length > 1
-                  ? home.homeSliders.length
-                  : _dotCount,
-              (dot) {
-              final count = home.homeLoaded.value && home.homeSliders.length > 1
-                  ? home.homeSliders.length
-                  : _dotCount;
-              final isActive = _index % count == dot;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                height: 6,
-                width: isActive ? 18 : 6,
-                decoration: BoxDecoration(
-                  color: isActive ? const Color(0xFFFF5E00) : Colors.white,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
-    );
+      return const SizedBox.shrink();
     });
   }
 }

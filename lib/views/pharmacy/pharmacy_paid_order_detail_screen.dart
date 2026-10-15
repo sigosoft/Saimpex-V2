@@ -3,12 +3,17 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../core/network/api_exception.dart';
+import '../../models/order_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
 class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   final String orderId;
+  final int? apiOrderId;
   final bool isDelivery;
   final String pharmacyName;
   final String? prescriptionImageUrl;
@@ -16,17 +21,41 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   const PharmacyPaidOrderDetailScreen({
     super.key,
     this.orderId = '#22789007',
+    this.apiOrderId,
     this.isDelivery = true,
     this.pharmacyName = 'Pharmacy Nasr',
     this.prescriptionImageUrl,
   });
 
-  static const _samplePrescription =
-      'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&auto=format&fit=crop';
+  Widget _prescriptionFallback() {
+    return Container(
+      color: const Color(0xFFF3EFEA),
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.description_outlined,
+        color: Color(0xFFFF5E00),
+        size: 40,
+      ),
+    );
+  }
+
+  Future<void> _cancelOrder() async {
+    final id = apiOrderId;
+    if (id == null || id < 1 || !Get.isRegistered<OrderRepository>()) return;
+    try {
+      final message = await Get.find<OrderRepository>().cancelOrder(
+        orderId: id,
+        language: apiLanguageCode(),
+      );
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = prescriptionImageUrl ?? _samplePrescription;
+    final imageUrl = prescriptionImageUrl ?? '';
     final displayId = orderId.startsWith('#') ? orderId : '#$orderId';
 
     return PharmacyBackground(
@@ -144,7 +173,11 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   Widget _buildCancelButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        showCancelOrderBottomSheet(context, orderId: orderId);
+        showCancelOrderBottomSheet(
+          context,
+          orderId: orderId,
+          onConfirm: () => _cancelOrder(),
+        );
       },
       child: Container(
         height: 50,
@@ -168,7 +201,12 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   Widget _buildTrackButton() {
     return GestureDetector(
       onTap: () {
-        Get.to(() => PharmacyTrackOrderScreen(orderId: orderId));
+        Get.to(
+          () => PharmacyTrackOrderScreen(
+            orderId: orderId,
+            apiOrderId: apiOrderId,
+          ),
+        );
       },
       child: Container(
         height: 50,
@@ -231,33 +269,13 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             child: AspectRatio(
               aspectRatio: 16 / 10,
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: const Color(0xFFF3EFEA),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.description_outlined,
-                        color: Color(0xFFFF5E00),
-                        size: 40,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Prescription_Jun25.jpg',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF8A7F77),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              child: imageUrl.isEmpty
+                  ? _prescriptionFallback()
+                  : Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _prescriptionFallback(),
+                    ),
             ),
           ),
         ],
@@ -911,17 +929,11 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
       child: Row(
         children: [
           ClipOval(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop',
+            child: Container(
               width: 46,
               height: 46,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 46,
-                height: 46,
-                color: const Color(0xFFF3EFEA),
-                child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
-              ),
+              color: const Color(0xFFF3EFEA),
+              child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
             ),
           ),
           const SizedBox(width: 12),

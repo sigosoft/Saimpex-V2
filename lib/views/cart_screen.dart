@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
+import 'payment_webview_screen.dart';
 import '../controllers/home_controller.dart';
+import '../controllers/select_location_controller.dart';
 import '../core/network/api_exception.dart';
 import '../models/cart_repository.dart';
+import '../models/order_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../constants/text_styles.dart';
@@ -43,9 +48,18 @@ class _CartScreenState extends State<CartScreen> {
   bool usePoints = true;
   bool _minimumReminderScheduled = false;
   bool _cartLoading = true;
+  bool _placingOrder = false;
   bool _cartLoaded = false;
   String _apiVendorName = '';
   List<Map<String, dynamic>> _apiItems = const [];
+  int? _vendorId;
+  int? _cartId;
+  int? _summaryItemTotal;
+  int? _summaryDelivery;
+  int? _summaryTax;
+  int? _summaryToPay;
+  String _appliedCoupon = '';
+  final TextEditingController _couponController = TextEditingController();
   Worker? _cartTabWorker;
   late int selectedPaymentIndex;
   String scheduleText = "Pick a delivery time";
@@ -95,24 +109,300 @@ class _CartScreenState extends State<CartScreen> {
       final cart = await Get.find<CartRepository>().fetchList(
         apiLanguageCode(),
       );
+      var shown = cart;
+      try {
+        final all = await Get.find<CartRepository>().fetchListAll(
+          apiLanguageCode(),
+        );
+        if (all.items.isNotEmpty) shown = all;
+      } on ApiException {
+        shown = cart;
+      }
       if (!mounted) return;
-      final count = cart.items.fold<int>(
+      final items = _withRememberedCaps(shown.items);
+      final count = items.fold<int>(
         0,
         (sum, item) => sum + ((item['quantity'] as int?) ?? 0),
       );
       setState(() {
         _cartLoaded = true;
-        _apiVendorName = cart.vendorName;
-        _apiItems = cart.items;
+        _apiVendorName = shown.vendorName;
+        _apiItems = items;
+        _vendorId = shown.vendorId ?? cart.vendorId;
+        _cartId = shown.cartId ?? cart.cartId;
         quantity = count;
       });
+      _syncQuantityFields();
       _syncHomeCartBadgeCount(count);
+      if (count > 0) {
+        await _loadCheckoutSummary();
+        await _checkDelivery();
+      }
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     } finally {
       if (mounted) setState(() => _cartLoading = false);
     }
+  }
+
+  Future<void> _loadCheckoutSummary() async {
+    if (!Get.isRegistered<OrderRepository>() || !mounted) return;
+    final orders = Get.find<OrderRepository>();
+    final location = SelectLocationController.selectedSubtitle.trim().isEmpty
+        ? SelectLocationController.deliveryLabel.value
+        : SelectLocationController.selectedSubtitle;
+    Future<Map<String, dynamic>> load(bool version2) {
+      return orders.checkoutSummary(
+        selfPickup: !isDelivery,
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        location: location,
+        usePoints: usePoints,
+        language: apiLanguageCode(),
+        couponCode: _appliedCoupon,
+        version2: version2,
+      );
+    }
+
+    try {
+      _applySummary(await load(true));
+    } on ApiException {
+      try {
+        _applySummary(await load(false));
+      } on ApiException catch (error) {
+        if (!mounted) return;
+        showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      }
+    }
+  }
+
+  void _applySummary(Map<String, dynamic> data) {
+    int? money(dynamic value) {
+      if (value == null) return null;
+      final number = value is num ? value.toDouble() : double.tryParse('$value');
+      if (number == null) return null;
+      return number.round();
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _summaryItemTotal = money(data['item_total'] ?? data['sub_total']);
+      _summaryDelivery = money(data['delivery_fee']);
+      _summaryTax = money(data['tax']);
+      _summaryToPay = money(data['to_pay'] ?? data['payable']);
+    });
+  }
+
+  Future<void> _checkDelivery() async {
+    final vendorId = _vendorId;
+    if (!isDelivery || vendorId == null || !Get.isRegistered<OrderRepository>()) {
+      return;
+    }
+    try {
+      await Get.find<OrderRepository>().checkDelivery(
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        vendorId: vendorId,
+        language: apiLanguageCode(),
+      );
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  Future<void> _applyCoupon(int orderAmount) async {
+    final code = _couponController.text.trim();
+    if (code.isEmpty || !Get.isRegistered<OrderRepository>()) return;
+    try {
+      final message = await Get.find<OrderRepository>().applyCoupon(
+        couponCode: code,
+        orderAmount: orderAmount,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      _appliedCoupon = code;
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      await _loadCheckoutSummary();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  Future<void> _placeOrder(int payable) async {
+    if (_placingOrder || !Get.isRegistered<OrderRepository>()) return;
+    _placingOrder = true;
+    final orders = Get.find<OrderRepository>();
+    final location = SelectLocationController.selectedSubtitle.trim().isEmpty
+        ? SelectLocationController.deliveryLabel.value
+        : SelectLocationController.selectedSubtitle;
+    final note = _deliveryNoteController.text.trim();
+    final paymentType =
+        selectedPaymentIndex == 1 || selectedPaymentIndex == 2 ? '2' : '1';
+    Future<Map<String, dynamic>> place(bool version2) {
+      return orders.checkout(
+        selfPickup: !isDelivery,
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        location: location,
+        paymentType: paymentType,
+        language: apiLanguageCode(),
+        cartId: _cartId,
+        couponCode: _appliedCoupon,
+        redeemAmount: usePoints ? '$pointDiscountValue' : '0',
+        note: note,
+        version2: version2,
+      );
+    }
+
+    try {
+      final placed = await place(true);
+      if (!mounted) return;
+      await _finishPlacedOrder(placed, payable);
+    } on ApiException catch (error) {
+      if (error.statusCode == 404 || error.statusCode == 405) {
+        try {
+          final placed = await place(false);
+          if (!mounted) return;
+          await _finishPlacedOrder(placed, payable);
+          return;
+        } on ApiException catch (fallback) {
+          if (!mounted) return;
+          showAppToast(fallback.message, backgroundColor: const Color(0xFFEF4444));
+          return;
+        }
+      }
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      _placingOrder = false;
+    }
+  }
+
+  Future<void> _finishPlacedOrder(
+    Map<String, dynamic> placed,
+    int payable,
+  ) async {
+    final checkoutMessage = '${placed['message'] ?? ''}'.trim();
+    if (checkoutMessage.isNotEmpty) {
+      showAppToast(checkoutMessage, backgroundColor: const Color(0xFFFF5E00));
+    }
+    var paymentUrl = _paymentPageUrl(placed['payment_url']);
+    if (selectedPaymentIndex == 1) {
+      final startedUrl = await _startMasrviPayment(placed, payable);
+      if (startedUrl != null) paymentUrl = startedUrl;
+    }
+    if (!mounted) return;
+    final orderId = _positiveId(placed['order_id'] ?? placed['id']);
+    final needsOnlinePayment = selectedPaymentIndex == 1 ||
+        placed['payment_required'] == true ||
+        placed['payment_required'] == 1 ||
+        '$checkoutMessage'.toLowerCase().contains('complete online payment');
+    final url = paymentUrl ??
+        (needsOnlinePayment && orderId != null
+            ? _paymentPageUrl(
+                'https://dev.saimpexenterprise.com/pay/masrvi/payment/session?order_id=$orderId',
+              )
+            : null);
+    if (needsOnlinePayment && url != null) {
+      Get.closeAllSnackbars();
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      final paid = await Get.to<bool>(
+        () => PaymentWebViewScreen(url: url),
+      );
+      if (!mounted || paid != true) return;
+    }
+    _syncHomeCartBadgeCount(0);
+    Get.to(() => const OrderSuccessScreen());
+  }
+
+  Future<String?> _startMasrviPayment(
+    Map<String, dynamic> placed,
+    int payable,
+  ) async {
+    if (!Get.isRegistered<OrderRepository>()) return null;
+    final orders = Get.find<OrderRepository>();
+    final language = apiLanguageCode();
+    try {
+      await orders.masrviSession(language);
+    } on ApiException catch (error) {
+      if (!mounted) return null;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return null;
+    }
+    final orderId = _positiveId(placed['order_id'] ?? placed['id']);
+    if (orderId == null) return null;
+    final amount = _moneyArgument(
+      placed['payable'] ?? placed['to_pay'] ?? payable,
+    );
+    try {
+      final started = await orders.masrviInit(
+        orderId: orderId,
+        amount: amount,
+        language: language,
+      );
+      if (!mounted) return null;
+      final message = '${started['message'] ?? ''}'.trim();
+      if (message.isNotEmpty) {
+        showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      }
+      return _paymentPageUrlFrom(started);
+    } on ApiException catch (error) {
+      if (!mounted) return null;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return null;
+    }
+  }
+
+  String? _paymentPageUrlFrom(Map<String, dynamic> data) {
+    for (final key in [
+      'payment_url',
+      'url',
+      'redirect_url',
+      'checkout_url',
+      'session_url',
+    ]) {
+      final url = _paymentPageUrl(data[key]);
+      if (url != null) return url;
+    }
+    return null;
+  }
+
+  String? _paymentPageUrl(dynamic value) {
+    final raw = '$value'.trim();
+    if (raw.isEmpty || raw == 'null') return null;
+    final uri = Uri.tryParse(raw);
+    if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) {
+      return null;
+    }
+    final wrongHost = uri.host == 'localhost' ||
+        uri.host == '127.0.0.1' ||
+        uri.host == 'api.saimpexenterprise.com';
+    if (wrongHost && uri.path.contains('/pay/')) {
+      return Uri(
+        scheme: 'https',
+        host: 'dev.saimpexenterprise.com',
+        path: uri.path,
+        query: uri.hasQuery ? uri.query : null,
+      ).toString();
+    }
+    return uri.toString();
+  }
+
+  int? _positiveId(dynamic value) {
+    final number = value is int ? value : int.tryParse('$value');
+    if (number == null || number < 1) return null;
+    return number;
+  }
+
+  String _moneyArgument(dynamic value) {
+    final number = value is num ? value : num.tryParse('$value');
+    if (number == null) return '0';
+    if (number == number.roundToDouble()) return '${number.toInt()}';
+    return '$number';
   }
 
   String get storeName {
@@ -197,8 +487,7 @@ class _CartScreenState extends State<CartScreen> {
     if (t.contains('croissant')) {
       return 'lib/assets/images/butter_croissant.png';
     }
-    return image ??
-        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=350&auto=format&fit=crop';
+    return image ?? '';
   }
 
   final int pointDiscountValue = 1;
@@ -206,12 +495,26 @@ class _CartScreenState extends State<CartScreen> {
   final int tax = 2;
   final TextEditingController _customQuantityController =
       TextEditingController();
+  final Map<int, TextEditingController> _apiQuantityFields = {};
+  final Map<int, int> _quantityRequests = {};
+  final Map<int, int> _quantityCaps = {};
+  Timer? _apiQuantityDebounce;
   bool _syncingQuantityField = false;
+  bool _deliveryNoteOpen = false;
+  final TextEditingController _deliveryNoteController = TextEditingController();
+  final FocusNode _deliveryNoteFocus = FocusNode();
 
   @override
   void dispose() {
     _cartTabWorker?.dispose();
+    _apiQuantityDebounce?.cancel();
     _customQuantityController.dispose();
+    _deliveryNoteController.dispose();
+    _deliveryNoteFocus.dispose();
+    _couponController.dispose();
+    for (final controller in _apiQuantityFields.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -241,11 +544,208 @@ class _CartScreenState extends State<CartScreen> {
     _syncingQuantityField = false;
   }
 
+  TextEditingController _apiQuantityField(int cartItemId) {
+    return _apiQuantityFields.putIfAbsent(
+      cartItemId,
+      TextEditingController.new,
+    );
+  }
+
+  void _onApiQuantityTyped(int cartItemId, String value) {
+    final parsed = int.tryParse(value.trim());
+    if (parsed == null || parsed < 0) return;
+    _apiQuantityDebounce?.cancel();
+    _apiQuantityDebounce = Timer(const Duration(milliseconds: 450), () {
+      _applyApiQuantity(cartItemId, parsed);
+    });
+  }
+
+  Future<void> _applyApiQuantity(int cartItemId, int next) async {
+    if (cartItemId < 1 || !mounted) return;
+    final index = _apiItems.indexWhere(
+      (item) => item['cartItemId'] == cartItemId,
+    );
+    if (index < 0) return;
+    final current = (_apiItems[index]['quantity'] as int?) ?? 1;
+    final maxQuantity = _apiItems[index]['maxQuantity'] is int
+        ? _apiItems[index]['maxQuantity'] as int
+        : null;
+    var quantity = next < 0 ? 0 : next;
+    if (maxQuantity != null && quantity > maxQuantity) {
+      quantity = maxQuantity;
+      final field = _apiQuantityFields[cartItemId];
+      if (field != null) {
+        final text = '$quantity';
+        field.value = TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
+        );
+      }
+    }
+    if (quantity == current) return;
+
+    final updated = Map<String, dynamic>.from(_apiItems[index]);
+    final unit = (updated['unitPrice'] as num?) ?? 0;
+    updated['quantity'] = quantity;
+    updated['lineTotal'] = unit * quantity;
+    setState(() {
+      final items = [..._apiItems];
+      if (quantity == 0) {
+        items.removeAt(index);
+      } else {
+        items[index] = updated;
+      }
+      _apiItems = items;
+    });
+    _syncHomeCartBadgeCount(
+      _apiItems.fold<int>(
+        0,
+        (sum, item) => sum + ((item['quantity'] as int?) ?? 0),
+      ),
+    );
+
+    final request = (_quantityRequests[cartItemId] ?? 0) + 1;
+    _quantityRequests[cartItemId] = request;
+    try {
+      final repository = Get.find<CartRepository>();
+      if (quantity == 0) {
+        await repository.deleteItem(
+          cartItemId: cartItemId,
+          language: apiLanguageCode(),
+        );
+      } else {
+        await repository.updateItem(
+          cartItemId: cartItemId,
+          quantity: quantity,
+          language: apiLanguageCode(),
+        );
+      }
+      if (!mounted || _quantityRequests[cartItemId] != request) return;
+      await _loadCart();
+    } on ApiException catch (error) {
+      if (!mounted || _quantityRequests[cartItemId] != request) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      final allowed = _quantityCapFromMessage(error.message);
+      if (allowed != null) {
+        _quantityCaps[cartItemId] = allowed;
+        final target = current > allowed ? allowed : current;
+        _setApiLineQuantity(cartItemId, target, allowed);
+        if (current > allowed) {
+          try {
+            await Get.find<CartRepository>().updateItem(
+              cartItemId: cartItemId,
+              quantity: allowed,
+              language: apiLanguageCode(),
+            );
+          } on ApiException catch (retry) {
+            if (!mounted) return;
+            showAppToast(
+              retry.message,
+              backgroundColor: const Color(0xFFEF4444),
+            );
+          }
+        }
+      }
+      if (!mounted || _quantityRequests[cartItemId] != request) return;
+      await _loadCart();
+    }
+  }
+
+  List<Map<String, dynamic>> _withRememberedCaps(
+    List<Map<String, dynamic>> items,
+  ) {
+    return [
+      for (final item in items)
+        () {
+          final id = item['cartItemId'];
+          final cap = id is int ? _quantityCaps[id] : null;
+          if (cap == null) return item;
+          final copy = Map<String, dynamic>.from(item);
+          final existing = copy['maxQuantity'];
+          copy['maxQuantity'] = existing is int && existing > 0 && existing < cap
+              ? existing
+              : cap;
+          final count = copy['quantity'];
+          if (count is int && count > copy['maxQuantity']) {
+            final unit = (copy['unitPrice'] as num?) ?? 0;
+            copy['quantity'] = copy['maxQuantity'];
+            copy['lineTotal'] = unit * copy['maxQuantity'];
+          }
+          return copy;
+        }(),
+    ];
+  }
+
+  void _setApiLineQuantity(int cartItemId, int quantity, int? cap) {
+    final index = _apiItems.indexWhere(
+      (item) => item['cartItemId'] == cartItemId,
+    );
+    if (index < 0) return;
+    final updated = Map<String, dynamic>.from(_apiItems[index]);
+    final unit = (updated['unitPrice'] as num?) ?? 0;
+    updated['quantity'] = quantity;
+    updated['lineTotal'] = unit * quantity;
+    if (cap != null) updated['maxQuantity'] = cap;
+    setState(() {
+      final items = [..._apiItems];
+      items[index] = updated;
+      _apiItems = items;
+    });
+    _writeQuantityField(cartItemId, quantity);
+    _syncHomeCartBadgeCount(
+      _apiItems.fold<int>(
+        0,
+        (sum, item) => sum + ((item['quantity'] as int?) ?? 0),
+      ),
+    );
+  }
+
+  void _writeQuantityField(int cartItemId, int quantity) {
+    final field = _apiQuantityFields[cartItemId];
+    if (field == null) return;
+    final text = '$quantity';
+    field.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
+  void _syncQuantityFields() {
+    for (final item in _apiItems) {
+      final id = item['cartItemId'];
+      final count = item['quantity'];
+      if (id is! int || count is! int) continue;
+      final field = _apiQuantityFields[id];
+      if (field == null) continue;
+      final typed = int.tryParse(field.text.trim());
+      if (typed != null && typed != count) {
+        _writeQuantityField(id, count);
+      }
+    }
+  }
+
+  int? _quantityCapFromMessage(String message) {
+    final lower = message.toLowerCase();
+    final aboutQuantity =
+        lower.contains('quantit') || message.contains('الكمية');
+    if (!aboutQuantity) return null;
+    final matches = RegExp(r'(\d+)').allMatches(message);
+    if (matches.isEmpty) return null;
+    final value = int.tryParse(matches.last.group(1) ?? '');
+    if (value == null || value < 1) return null;
+    return value;
+  }
+
   Widget _buildApiCartItem(Map<String, dynamic> item) {
     final name = '${item['name'] ?? ''}';
+    final portion = '${item['portion'] ?? ''}'.trim();
     final count = item['quantity'] is int ? item['quantity'] as int : 0;
     final total = ((item['lineTotal'] as num?) ?? 0).round();
     final image = '${item['image'] ?? ''}';
+    final cartItemId = item['cartItemId'] is int ? item['cartItemId'] as int : 0;
+    final maxQuantity = item['maxQuantity'] is int
+        ? item['maxQuantity'] as int
+        : null;
     const fallback = ColoredBox(
       color: Color(0xFFF3EFEA),
       child: SizedBox(
@@ -262,53 +762,156 @@ class _CartScreenState extends State<CartScreen> {
         border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
       ),
       padding: const EdgeInsets.all(12),
-      child: Row(
+      child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: image.startsWith('http')
-                ? Image.network(
-                    image,
-                    width: 74,
-                    height: 74,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => fallback,
-                  )
-                : fallback,
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: image.startsWith('http')
+                    ? Image.network(
+                        image,
+                        width: 74,
+                        height: 74,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => fallback,
+                      )
+                    : fallback,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (portion.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        portion,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFA59A94),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    Text(
+                      '$total MRU',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFFF5E00),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0EA),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: cartItemId < 1
+                          ? null
+                          : () => _applyApiQuantity(cartItemId, count - 1),
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.remove,
+                          color: Color(0xFFFF5E00),
+                          size: 13,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      count.toString(),
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: cartItemId < 1 ||
+                              (maxQuantity != null && count >= maxQuantity)
+                          ? null
+                          : () => _applyApiQuantity(cartItemId, count + 1),
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFF5E00),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Qty $count',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFA59A94),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+          const SizedBox(height: 12),
+          Container(
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
             ),
-          ),
-          Text(
-            '$total MRU',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.centerLeft,
+            child: TextField(
+              controller: cartItemId < 1 ? null : _apiQuantityField(cartItemId),
+              keyboardType: TextInputType.number,
+              style: GoogleFonts.outfit(
+                fontSize: 11,
+                color: const Color(0xFF2C2520),
+                fontWeight: FontWeight.w500,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Customize your quantity here',
+                hintStyle: GoogleFonts.outfit(
+                  color: const Color(0xFFA59A94),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+              textInputAction: TextInputAction.done,
+              onChanged: cartItemId < 1
+                  ? null
+                  : (value) => _onApiQuantityTyped(cartItemId, value),
+              onSubmitted: (_) => FocusScope.of(context).unfocus(),
             ),
           ),
         ],
@@ -359,12 +962,15 @@ class _CartScreenState extends State<CartScreen> {
         0,
         (sum, item) => sum + (((item['lineTotal'] as num?) ?? 0).round()),
       );
-      final itemTotal = _cartLoaded ? apiTotal : basePrice * quantity;
+      final itemTotal = _summaryItemTotal ??
+          (_cartLoaded ? apiTotal : basePrice * quantity);
       final pointsOff = (usePoints && quantity > 0) ? pointDiscountValue : 0;
-      final currentDeliveryFee = (isDelivery && quantity > 0) ? deliveryFee : 0;
-      final currentTax = quantity > 0 ? tax : 0;
+      final currentDeliveryFee = _summaryDelivery ??
+          ((isDelivery && quantity > 0) ? deliveryFee : 0);
+      final currentTax = _summaryTax ?? (quantity > 0 ? tax : 0);
       final rawPay = itemTotal - pointsOff + currentDeliveryFee + currentTax;
-      final toPay = (quantity == 0 || rawPay < 0) ? 0 : rawPay;
+      final toPay = _summaryToPay ??
+          ((quantity == 0 || rawPay < 0) ? 0 : rawPay);
 
       if (!_cartLoading && quantity > 0 && itemTotal < 500) {
         if (!_minimumReminderScheduled) {
@@ -720,38 +1326,81 @@ class _CartScreenState extends State<CartScreen> {
                     if (!_cartLoading && quantity > 0) ...[
                       if (isDelivery) ...[
                         // Add Delivery Note — delivery only
-                        Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: const Color(0xFFD9D0C8),
-                              width: 1,
-                              strokeAlign: BorderSide.strokeAlignInside,
+                        if (_deliveryNoteOpen)
+                          CustomPaint(
+                            painter: _DashedRRectPainter(
+                              color: const Color(0xFFCABBAB),
+                              radius: 24,
                             ),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.add,
-                                color: Color(0xFFA59A94),
-                                size: 14,
+                            child: Container(
+                              constraints: const BoxConstraints(minHeight: 88),
+                              alignment: Alignment.topLeft,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 12,
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'Add delivery note (Optional)',
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3F0EC),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: TextField(
+                                controller: _deliveryNoteController,
+                                focusNode: _deliveryNoteFocus,
+                                minLines: 2,
+                                maxLines: 4,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFA59A94),
-                                  fontSize: 11,
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
+                                decoration: InputDecoration(
+                                  hintText: 'Add a note for the driver',
+                                  hintStyle: GoogleFonts.outfit(
+                                    color: const Color(0xFFA59A94),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
                               ),
-                            ],
+                            ),
+                          )
+                        else
+                          GestureDetector(
+                            onTap: () {
+                              setState(() => _deliveryNoteOpen = true);
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) _deliveryNoteFocus.requestFocus();
+                              });
+                            },
+                            child: CustomPaint(
+                              painter: _DashedRRectPainter(
+                                color: const Color(0xFFCABBAB),
+                                radius: 24,
+                              ),
+                              child: Container(
+                                height: 48,
+                                alignment: Alignment.centerLeft,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF3F0EC),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Text(
+                                  '+ Add delivery note (Optional)',
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFFA59A94),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 18),
                       ],
 
@@ -774,6 +1423,8 @@ class _CartScreenState extends State<CartScreen> {
                                 setState(() {
                                   isDelivery = true;
                                 });
+                                _loadCheckoutSummary();
+                                _checkDelivery();
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -856,6 +1507,7 @@ class _CartScreenState extends State<CartScreen> {
                                         0; // fallback when COD / Pay After Delivery hidden
                                   }
                                 });
+                                _loadCheckoutSummary();
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -1191,6 +1843,7 @@ class _CartScreenState extends State<CartScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: TextField(
+                                controller: _couponController,
                                 style: GoogleFonts.outfit(
                                   fontSize: 12,
                                   color: const Color(0xFF2C2520),
@@ -1207,17 +1860,7 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Coupon applied!',
-                                      style: GoogleFonts.outfit(),
-                                    ),
-                                    backgroundColor: const Color(0xFFFF5E00),
-                                  ),
-                                );
-                              },
+                              onTap: () => _applyCoupon(itemTotal),
                               child: Text(
                                 'Apply',
                                 style: GoogleFonts.outfit(
@@ -1237,11 +1880,12 @@ class _CartScreenState extends State<CartScreen> {
                           setState(() {
                             usePoints = !usePoints;
                           });
+                          _loadCheckoutSummary();
                         },
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(100),
                             border: Border.all(
                               color: const Color(0xFFEAD8C9),
                               width: 0.8,
@@ -1346,7 +1990,7 @@ class _CartScreenState extends State<CartScreen> {
                               color: selectedPaymentIndex == 3
                                   ? const Color(0xFFFFF0EA)
                                   : Colors.white,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(100),
                               border: Border.all(
                                 color: selectedPaymentIndex == 3
                                     ? const Color(0xFFFF5E00)
@@ -1444,7 +2088,7 @@ class _CartScreenState extends State<CartScreen> {
                           margin: const EdgeInsets.only(bottom: 10),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(100),
                             border: Border.all(
                               color: selectedPaymentIndex == 0
                                   ? const Color(0xFFFF5E00)
@@ -1534,7 +2178,7 @@ class _CartScreenState extends State<CartScreen> {
                           margin: const EdgeInsets.only(bottom: 10),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(100),
                             border: Border.all(
                               color: selectedPaymentIndex == 1
                                   ? const Color(0xFFFF5E00)
@@ -1625,7 +2269,7 @@ class _CartScreenState extends State<CartScreen> {
                             margin: const EdgeInsets.only(bottom: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(100),
                               border: Border.all(
                                 color: selectedPaymentIndex == 2
                                     ? const Color(0xFFFF5E00)
@@ -1856,8 +2500,7 @@ class _CartScreenState extends State<CartScreen> {
                             _showMinimumOrderReminder(context, itemTotal);
                             return;
                           }
-                          _syncHomeCartBadgeCount(0);
-                          Get.to(() => const OrderSuccessScreen());
+                          _placeOrder(toPay);
                         },
                         child: Container(
                           height: 48,
@@ -2056,7 +2699,13 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     const SizedBox(height: 18),
                     GestureDetector(
-                      onTap: () => Navigator.pop(dialogContext),
+                      onTap: () {
+                        Navigator.pop(dialogContext);
+                        if (!mounted) return;
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
                       child: Container(
                         height: 52,
                         width: double.infinity,
@@ -2454,5 +3103,47 @@ class _CartScreenState extends State<CartScreen> {
         );
       },
     );
+  }
+}
+
+class _DashedRRectPainter extends CustomPainter {
+  final Color color;
+  final double radius;
+
+  _DashedRRectPainter({required this.color, required this.radius});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+
+    final rrect = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      Radius.circular(radius),
+    );
+    final path = Path()..addRRect(rrect);
+    const dashWidth = 5.0;
+    const dashSpace = 4.0;
+    final dashed = Path();
+
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final next = distance + dashWidth;
+        dashed.addPath(
+          metric.extractPath(distance, next.clamp(0, metric.length)),
+          Offset.zero,
+        );
+        distance = next + dashSpace;
+      }
+    }
+    canvas.drawPath(dashed, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.radius != radius;
   }
 }

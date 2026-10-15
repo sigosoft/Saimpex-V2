@@ -13,6 +13,7 @@ import '../../models/pharmacy_repository.dart';
 import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
 import 'pharmacy_items_screen.dart';
+import 'pharmacy_search_screen.dart';
 import 'widgets/pharmacy_background.dart';
 import 'pharmacy_stores_screen.dart';
 import 'upload_prescription_screen.dart';
@@ -494,6 +495,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Icon(
               Icons.search_rounded,
@@ -504,15 +506,27 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
             Expanded(
               child: TextField(
                 controller: _searchController,
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+                textInputAction: TextInputAction.search,
+                textAlignVertical: TextAlignVertical.center,
+                onSubmitted: (value) {
+                  Get.to(
+                    () => PharmacySearchScreen(initialKeyword: value.trim()),
+                  );
+                },
+                style: GoogleFonts.outfit(
+                  color: Colors.black,
+                  fontSize: 13,
+                  height: 1,
+                ),
                 decoration: InputDecoration(
                   hintText: 'What do you need today?',
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12.5,
+                    height: 1,
                   ),
                   border: InputBorder.none,
-                  isDense: true,
+                  isCollapsed: true,
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -586,33 +600,14 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
     }
   }
 
+  // Shows the category image only when the API provides one.
   Widget _quickCategoryArt(Map<String, dynamic> category, bool isAll) {
     final image = category['image']?.toString() ?? '';
-    if (isAll && image.isEmpty) {
-      return Center(
-        child: Image.asset(
-          'lib/assets/images/All.png',
-          width: 28,
-          height: 28,
-          color: Colors.white,
-        ),
-      );
-    }
-    if (image.startsWith('http')) {
-      return Image.network(
-        image,
-        fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => const Icon(
-          Icons.medication_outlined,
-          color: Color(0xFFFF5E00),
-          size: 36,
-        ),
-      );
-    }
-    return const Icon(
-      Icons.medication_outlined,
-      color: Color(0xFFFF5E00),
-      size: 36,
+    if (!image.startsWith('http')) return const SizedBox.shrink();
+    return Image.network(
+      image,
+      fit: BoxFit.contain,
+      errorBuilder: (_, _, _) => const SizedBox.shrink(),
     );
   }
 

@@ -4,7 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../core/network/api_exception.dart';
+import '../../../models/order_repository.dart';
+import '../../../utils/api_language.dart';
+import '../../../utils/toast_helper.dart';
+
 import '../../chat_screen.dart';
+import '../../rating_reviews_screen.dart';
 import '../../../widgets/cancel_order_bottom_sheet.dart';
 import '../pharmacy_track_order_screen.dart';
 import '../quotation_detail_screen.dart';
@@ -16,6 +22,7 @@ class PharmacyQuotationReadyCard extends StatefulWidget {
   final String orderId;
   final String amount;
   final Duration expiresIn;
+  final int? prescriptionId;
 
   const PharmacyQuotationReadyCard({
     super.key,
@@ -23,6 +30,7 @@ class PharmacyQuotationReadyCard extends StatefulWidget {
     this.orderId = '#22789007',
     this.amount = '150 MRU',
     this.expiresIn = const Duration(hours: 2, minutes: 45, seconds: 9),
+    this.prescriptionId,
   });
 
   @override
@@ -221,8 +229,7 @@ class _PharmacyQuotationReadyCardState
                             () => ChatScreen(
                               restaurant: {
                                 'title': widget.pharmacyName,
-                                'image':
-                                    'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop',
+                                'image': '',
                               },
                             ),
                           );
@@ -268,6 +275,8 @@ class _PharmacyQuotationReadyCardState
                   orderId: widget.orderId,
                   pharmacyName: widget.pharmacyName,
                   expiresIn: _remaining,
+                  prescriptionId: widget.prescriptionId,
+                  amount: widget.amount,
                 ),
               );
             },
@@ -318,9 +327,11 @@ class PharmacyActiveOrderCard extends StatelessWidget {
   final Color statusBgColor;
   final String detailsText;
   final String orderId;
+  final int? apiOrderId;
   final bool showPrescription;
   final bool showTrack;
   final String? prescriptionName;
+  final int? vendorId;
 
   const PharmacyActiveOrderCard({
     super.key,
@@ -330,16 +341,32 @@ class PharmacyActiveOrderCard extends StatelessWidget {
     required this.statusBgColor,
     required this.detailsText,
     required this.orderId,
+    this.vendorId,
+    this.apiOrderId,
     this.showPrescription = false,
     this.showTrack = true,
     this.prescriptionName = 'Prescription_Jun25.jpg',
   });
 
   void _openOrderDetails() {
+    final id = apiOrderId;
+    if (id != null && id > 0 && Get.isRegistered<OrderRepository>()) {
+      final orders = Get.find<OrderRepository>();
+      final language = apiLanguageCode();
+      orders.orderDetails(orderId: id, language: language).then((_) {
+        return orders.rating(orderId: id, language: language);
+      }).catchError((Object error) {
+        if (error is ApiException) {
+          showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+        }
+        return <String, dynamic>{};
+      });
+    }
     if (showPrescription) {
       Get.to(
         () => PharmacyPaidOrderDetailScreen(
           orderId: orderId,
+          apiOrderId: apiOrderId,
           isDelivery: statusText != 'SELF PICKUP',
         ),
       );
@@ -347,10 +374,117 @@ class PharmacyActiveOrderCard extends StatelessWidget {
       Get.to(
         () => PharmacyItemOrderDetailScreen(
           orderId: orderId,
+          apiOrderId: apiOrderId,
           isDelivery: statusText != 'SELF PICKUP',
         ),
       );
     }
+  }
+
+  Future<void> _rateOrder(BuildContext context) async {
+    final id = apiOrderId;
+    if (id == null || id < 1 || !Get.isRegistered<OrderRepository>()) return;
+    final orders = Get.find<OrderRepository>();
+    final language = apiLanguageCode();
+    try {
+      await orders.rating(orderId: id, language: language);
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return;
+    }
+    if (!context.mounted) return;
+    var vendorRating = 5;
+    var driverRating = 5;
+    final vendorComment = TextEditingController();
+    final driverComment = TextEditingController();
+    final submitted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Widget stars(int value, ValueChanged<int> onPick) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(5, (index) {
+                  final star = index + 1;
+                  return IconButton(
+                    onPressed: () => setDialogState(() => onPick(star)),
+                    icon: Icon(
+                      star <= value ? Icons.star : Icons.star_border,
+                      color: const Color(0xFFFF5E00),
+                    ),
+                  );
+                }),
+              );
+            }
+
+            return AlertDialog(
+              title: Text('Rate order', style: GoogleFonts.outfit()),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Pharmacy', style: GoogleFonts.outfit()),
+                  stars(vendorRating, (value) => vendorRating = value),
+                  TextField(
+                    controller: vendorComment,
+                    decoration: const InputDecoration(hintText: 'Comment'),
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Driver', style: GoogleFonts.outfit()),
+                  stars(driverRating, (value) => driverRating = value),
+                  TextField(
+                    controller: driverComment,
+                    decoration: const InputDecoration(hintText: 'Comment'),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  child: const Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    final vendorText = vendorComment.text.trim();
+    final driverText = driverComment.text.trim();
+    vendorComment.dispose();
+    driverComment.dispose();
+    if (submitted != true) return;
+    try {
+      final message = await orders.submitRating(
+        orderId: id,
+        vendorRating: vendorRating,
+        driverRating: driverRating,
+        vendorComment: vendorText,
+        driverComment: driverText,
+        language: language,
+      );
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return;
+    }
+    final vendor = vendorId;
+    if (vendor == null || vendor < 1 || !context.mounted) return;
+    Get.to(
+      () => RatingReviewsScreen(
+        target: ReviewTarget(
+          type: 'provider',
+          expectedSubjectType: 'pharmacy',
+          title: pharmacyName,
+          vendorId: vendor,
+          vendorType: 4,
+        ),
+      ),
+    );
   }
 
   @override
@@ -477,6 +611,30 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                     showCancelOrderBottomSheet(
                       context,
                       orderId: orderId,
+                      onConfirm: () async {
+                        final id = apiOrderId;
+                        if (id == null ||
+                            id < 1 ||
+                            !Get.isRegistered<OrderRepository>()) {
+                          return;
+                        }
+                        try {
+                          final message = await Get.find<OrderRepository>()
+                              .cancelOrder(
+                                orderId: id,
+                                language: apiLanguageCode(),
+                              );
+                          showAppToast(
+                            message,
+                            backgroundColor: const Color(0xFFFF5E00),
+                          );
+                        } on ApiException catch (error) {
+                          showAppToast(
+                            error.message,
+                            backgroundColor: const Color(0xFFEF4444),
+                          );
+                        }
+                      },
                     );
                   },
                 ),
@@ -486,7 +644,12 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      Get.to(() => PharmacyTrackOrderScreen(orderId: orderId));
+                      Get.to(
+                        () => PharmacyTrackOrderScreen(
+                          orderId: orderId,
+                          apiOrderId: apiOrderId,
+                        ),
+                      );
                     },
                     child: Container(
                       height: 42,
@@ -521,6 +684,28 @@ class PharmacyActiveOrderCard extends StatelessWidget {
               ],
             ],
           ),
+          if (statusText.toUpperCase().contains('DELIVER')) ...[
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () => _rateOrder(context),
+              child: Container(
+                height: 42,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: const Color(0xFFFF5E00)),
+                ),
+                child: Text(
+                  'Rate Order',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFFF5E00),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Center(
             child: GestureDetector(

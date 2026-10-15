@@ -5,7 +5,9 @@ import '../widgets/app_back_button.dart';
 import 'rating_reviews_screen.dart';
 
 class RateOrderScreen extends StatefulWidget {
-  const RateOrderScreen({super.key});
+  final ReviewTarget? reviewTarget;
+
+  const RateOrderScreen({super.key, this.reviewTarget});
 
   @override
   State<RateOrderScreen> createState() => _RateOrderScreenState();
@@ -191,7 +193,9 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                     backgroundColor: const Color(0xFF00B25C),
                   ),
                 );
-                Get.to(() => const RatingReviewsScreen());
+                Get.to(
+                  () => RatingReviewsScreen(target: widget.reviewTarget),
+                );
               },
               child: Container(
                 height: 52,

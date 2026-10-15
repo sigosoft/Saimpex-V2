@@ -13,6 +13,8 @@ class ApiConstants {
   static const String fetchLocation = 'customer/fetchLocation';
   static const String pharmacyHome = 'customer/pharmacyHome';
   static const String pharmacyHomeCategories = 'customer/pharmacyHomeCategories';
+  static const String pharmacySearch = 'customer/pharmacySearch';
+  static const String pharmacySearchV2 = 'customer/pharmacySearchV2';
   static const String pharmacyStore = 'customer/pharmacy/store';
   static const String pharmacyDetails = 'customer/pharmacy/details';
   static const String pharmacyCategories = 'customer/pharmacy/categories';
@@ -23,10 +25,37 @@ class ApiConstants {
   static const String pharmacyItemDetail = 'customer/pharmacy/item/detail';
   static const String prescriptionPharmacies = 'customer/prescription/pharmacies';
   static const String prescriptionUpload = 'customer/prescription/upload';
+  static const String prescriptions = 'customer/prescriptions';
+  static String prescriptionById(int id) => 'customer/prescription/$id';
+  static String prescriptionPay(int id) => 'customer/prescription/$id/pay';
+  static String prescriptionAccept(int id) => 'customer/prescription/$id/accept';
   static const String pharmacyOrders = 'customer/orders/pharmacy';
   static const String cartList = 'customer/cart/list';
+  static const String cartListAll = 'customer/cart/listAll';
+  static const String cartReplace = 'customer/cart/replace';
+  static const String cartUpdate = 'customer/cart/update';
+  static const String cartItemDelete = 'customer/cart/item/delete';
+  static const String cartPharmacyAdd = 'customer/cart/pharmacy/add';
+  static const String cartPharmacyAttachPrescription =
+      'customer/cart/pharmacy/attachPrescription';
+  static const String checkDeliveryAvailability =
+      'customer/checkDeliveryAvailability';
+  static const String checkoutSummary = 'customer/checkoutSummary';
+  static const String checkoutSummaryV2 = 'customer/checkoutSummaryV2';
+  static const String checkout = 'customer/checkout';
+  static const String checkoutV2 = 'customer/checkoutV2';
+  static const String masrviSession = 'customer/payments/masrvi/session';
+  static const String masrviInit = 'customer/payments/masrvi/init';
+  static const String orderDetails = 'customer/orderDetails';
+  static const String cancelOrder = 'customer/cancelOrder';
+  static const String trackOrder = 'customer/trackOrder';
+  static const String coupons = 'customer/coupons';
+  static const String applyCoupon = 'customer/applyCoupon';
+  static const String rating = 'customer/rating';
+  static const String submitRating = 'customer/submitRating';
   static const String foodVendorCategories = 'customer/foodVendorCategories';
   static const String homeHub = 'customer/homeHub';
+  static const String reviews = 'customer/reviews';
 
   static String? mediaUrl(String? path) {
     if (path == null) return null;

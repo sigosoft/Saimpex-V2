@@ -1,62 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/network/api_exception.dart';
+import '../models/order_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
-class CouponsScreen extends StatelessWidget {
+class CouponsScreen extends StatefulWidget {
   const CouponsScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> coupons = [
-      {
-        'discount': '50%',
-        'isPink': true,
-        'badges': ['🔥 BEST DEAL', '⏱️ LIMITED'],
-        'title': '50% OFF up to 50 MRU',
-        'subtitle': 'On orders above 200 MRU',
-        'code': 'YUM50',
-        'image': 'lib/assets/images/Food.png',
-      },
-      {
-        'discount': '30%',
-        'isPink': false,
-        'badges': ['🔥 FREE DELIVERY'],
-        'title': '50% OFF up to 50 MRU',
-        'subtitle': 'On orders above 200 MRU',
-        'code': 'YRR50',
-        'image': 'lib/assets/images/FreeDelivery.png',
-      },
-      {
-        'discount': '50%',
-        'isPink': true,
-        'badges': ['🔥 BEST DEAL', '⏱️ LIMITED'],
-        'title': '50% OFF up to 50 MRU',
-        'subtitle': 'On orders above 200 MRU',
-        'code': 'YUM50',
-        'image': 'lib/assets/images/Food.png',
-      },
-      {
-        'discount': '30%',
-        'isPink': false,
-        'badges': ['🔥 FREE DELIVERY'],
-        'title': '50% OFF up to 50 MRU',
-        'subtitle': 'On orders above 200 MRU',
-        'code': 'YRR50',
-        'image': 'lib/assets/images/FreeDelivery.png',
-      },
-      {
-        'discount': '50%',
-        'isPink': true,
-        'badges': ['🔥 BEST DEAL', '⏱️ LIMITED'],
-        'title': '50% OFF up to 50 MRU',
-        'subtitle': 'On orders above 200 MRU',
-        'code': 'YUM50',
-        'image': 'lib/assets/images/Food.png',
-      },
-    ];
+  State<CouponsScreen> createState() => _CouponsScreenState();
+}
 
+class _CouponsScreenState extends State<CouponsScreen> {
+  List<Map<String, dynamic>> coupons = const [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCoupons();
+  }
+
+  Future<void> _loadCoupons() async {
+    if (!Get.isRegistered<OrderRepository>()) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
+    try {
+      final loaded = await Get.find<OrderRepository>().coupons(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        coupons = [
+          for (var index = 0; index < loaded.length; index++)
+            {
+              ...loaded[index],
+              'isPink': index.isEven,
+              'badges': '${loaded[index]['discount'] ?? ''}'.trim().isEmpty
+                  ? <String>[]
+                  : <String>['${loaded[index]['discount']}'],
+            },
+        ];
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFDF9),
       appBar: PreferredSize(
@@ -86,7 +87,11 @@ class CouponsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
+      body: _loading
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+            )
+          : ListView.builder(
         itemCount: coupons.length,
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         itemBuilder: (context, index) {
@@ -185,16 +190,18 @@ class CouponsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Positioned(
-                    right: -10,
-                    bottom: -10,
-                    child: Image.asset(
-                      coupon['image'] as String,
-                      width: 72,
-                      height: 72,
-                      fit: BoxFit.contain,
+                  if ('${coupon['image'] ?? ''}'.isNotEmpty)
+                    Positioned(
+                      right: -10,
+                      bottom: -10,
+                      child: Image.network(
+                        coupon['image'] as String,
+                        width: 72,
+                        height: 72,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

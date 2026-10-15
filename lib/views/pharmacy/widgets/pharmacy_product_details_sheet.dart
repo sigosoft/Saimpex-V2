@@ -12,12 +12,13 @@ void showPharmacyProductDetailsSheet(
   BuildContext context, {
   required Map<String, dynamic> food,
   required bool isNotAccepting,
-  required VoidCallback onAdd,
+  required Future<bool> Function() onAdd,
   int? menuId,
   int? pharmacyId,
 }) {
   var requested = false;
   var isLiked = false;
+  var adding = false;
 
   showModalBottomSheet(
       context: context,
@@ -243,9 +244,19 @@ void showPharmacyProductDetailsSheet(
                                             ),
                                           );
                                         }
-                                      : () {
+                                      : () async {
+                                          if (adding) return;
+                                          adding = true;
+                                          var added = false;
+                                          try {
+                                            added = await onAdd();
+                                          } finally {
+                                            adding = false;
+                                          }
+                                          if (!context.mounted || !added) {
+                                            return;
+                                          }
                                           Navigator.pop(context);
-                                          onAdd();
                                         },
                                   child: Container(
                                     height: 48,
