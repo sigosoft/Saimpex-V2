@@ -45,6 +45,8 @@ class GeneralRepository {
         data: {
           'latitude': latitude.toString(),
           'longitude': longitude.toString(),
+          'limit': '10',
+          'recent_limit': '5',
           'city': '',
         },
         options: Options(contentType: Headers.jsonContentType),
@@ -53,7 +55,7 @@ class GeneralRepository {
     );
     final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
     final location = asJsonMap(data['location']) ?? <String, dynamic>{};
-    final sections = _sections(data['sections']);
+    final sections = _sections(data['sections'], language);
     final trendingTitle = _localized(data, 'trending_title', language);
     if (trendingTitle.isNotEmpty) {
       sections['trending'] = {
@@ -174,6 +176,10 @@ class GeneralRepository {
       if (vertical == null) continue;
       final enabled = vertical['is_enabled'];
       if (enabled == false || enabled == 0 || enabled == '0') continue;
+      final iconPath = vertical['icon']?.toString().trim();
+      final hasIcon = iconPath != null &&
+          iconPath.isNotEmpty &&
+          iconPath.toLowerCase() != 'null';
       verticals.add({
         'id': _asInt(vertical['vertical_id']),
         'slug': vertical['slug']?.toString() ?? '',
@@ -182,7 +188,7 @@ class GeneralRepository {
             ? null
             : _asInt(vertical['parent_vertical_id']),
         'sort': _asInt(vertical['sort_order']),
-        'icon': ApiConstants.mediaUrl(vertical['icon']?.toString()),
+        'icon': hasIcon ? ApiConstants.mediaUrl(iconPath) : null,
       });
     }
     verticals.sort(
@@ -208,6 +214,10 @@ class GeneralRepository {
       final open = vendor['is_open'];
       final isOpen = open == null || open == 1 || open == true || open == '1';
       final distance = vendor['distance_km'];
+      final busyMode = _asInt(vendor['busy_mode']);
+      final isFav = vendor['is_favourite'] == 1 ||
+          vendor['is_favourite'] == true ||
+          vendor['is_favourite'] == '1';
       cards.add({
         'id': '${vendor['id'] ?? vendor['vendor_id'] ?? vendor['pharmacy_id'] ?? ''}',
         'title': name,
@@ -220,7 +230,8 @@ class GeneralRepository {
             : (offer > 0 ? '${_number(offer)}% OFF' : ''),
         'points': points > 0 ? '${_number(points)} Points Available' : '',
         'isClosed': !isOpen,
-        'isTemporarilyClosed': false,
+        'isTemporarilyClosed': busyMode > 1,
+        'isFavourite': isFav,
         'image': ApiConstants.mediaUrl(vendor['image']?.toString()) ?? '',
       });
     }
@@ -285,7 +296,7 @@ class GeneralRepository {
     return banners;
   }
 
-  Map<String, Map<String, String>> _sections(dynamic raw) {
+  Map<String, Map<String, String>> _sections(dynamic raw, String language) {
     final sections = <String, Map<String, String>>{};
     if (raw is! List) return sections;
     for (final item in raw) {
@@ -293,8 +304,11 @@ class GeneralRepository {
       if (section == null) continue;
       final key = section['key']?.toString() ?? '';
       if (key.isEmpty) continue;
+      final title = _localized(section, 'title', language);
       sections[key] = {
-        'title': section['title_en']?.toString().trim() ?? '',
+        'title': title.isNotEmpty
+            ? title
+            : (section['title_en']?.toString().trim() ?? ''),
         'seeAll': section['see_all']?.toString() ?? '',
       };
     }
@@ -366,6 +380,75 @@ class GeneralRepository {
   String _number(double value) {
     if (value == value.roundToDouble()) return value.toInt().toString();
     return value.toString();
+  }
+
+  Future<({String title, String content})> fetchAbout(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.getAbout),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    final about = asJsonMap(data?['about']) ?? data ?? <String, dynamic>{};
+    final title = _localized(about, 'title', language);
+    final content = _localized(about, 'content', language);
+    return (
+      title: title.isEmpty ? 'About Us' : title,
+      content: content,
+    );
+  }
+
+  Future<({String title, String content})> fetchPrivacyPolicy(
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.getPrivacyPolicy),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    final policy =
+        asJsonMap(data?['privacy_policy']) ?? data ?? <String, dynamic>{};
+    final title = _localized(policy, 'title', language);
+    final content = _localized(policy, 'content', language);
+    return (
+      title: title.isEmpty ? 'Privacy Policy' : title,
+      content: content,
+    );
+  }
+
+  Future<({String title, String content})> fetchTermsAndConditions(
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.getTermsAndConditions),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    final terms = asJsonMap(data?['terms']) ?? data ?? <String, dynamic>{};
+    final title = _localized(terms, 'title', language);
+    final content = _localized(terms, 'content', language);
+    return (
+      title: title.isEmpty ? 'Terms & Conditions' : title,
+      content: content,
+    );
+  }
+
+  Future<({String email, String phone})> fetchContact(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.getContact),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    final contact = asJsonMap(data?['contact']) ?? data ?? <String, dynamic>{};
+    final email = contact['email']?.toString().trim() ?? '';
+    final mobile = contact['mobile']?.toString().trim() ?? '';
+    final countryCode = contact['country_code']?.toString().trim() ?? '';
+    final phone = (countryCode.isNotEmpty && mobile.isNotEmpty)
+        ? '$countryCode $mobile'
+        : (mobile.isNotEmpty ? mobile : countryCode);
+    return (
+      email: email,
+      phone: phone,
+    );
   }
 
   Future<ApiEnvelope> _send(

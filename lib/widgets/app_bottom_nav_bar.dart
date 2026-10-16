@@ -43,15 +43,26 @@ class AppBottomNavBar extends StatelessWidget {
   });
 
   void _handleTap(int index) {
-    if (index == selectedIndex) return;
+    if (index == selectedIndex) {
+      if (index == HomeController.navHome &&
+          Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().loadHome();
+      }
+      return;
+    }
     HapticFeedback.selectionClick();
     if (onTap != null) {
       onTap!(index);
+      if (index == HomeController.navHome &&
+          Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().loadHome();
+      }
       return;
     }
-    final controller = Get.find<HomeController>();
-    if (controller.currentNavIndex.value == index) return;
-    controller.selectNavigation(index);
+    if (Get.isRegistered<HomeController>()) {
+      final controller = Get.find<HomeController>();
+      controller.selectNavigation(index);
+    }
   }
 
   @override

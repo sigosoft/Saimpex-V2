@@ -3,6 +3,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../core/network/dio_client.dart';
+import '../../core/storage/session_store.dart';
+import '../../models/grocery_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import 'grocery_stores_screen.dart';
 import 'grocery_details_screen.dart';
 import '../../widgets/app_back_button.dart';
@@ -26,10 +32,37 @@ class _GroceryScreenState extends State<GroceryScreen> {
   /// search bar + subcategories row
   static const double _stickyExtent = 166;
 
+  List<Map<String, dynamic>> subcategories = [
+    {'id': 0, 'label': 'All', 'isAll': true},
+  ];
+  List<Map<String, dynamic>> topStores = [];
+  List<Map<String, dynamic>> recentOrders = [];
+  List<Map<String, dynamic>> fastDeliveryStores = [];
+  List<Map<String, dynamic>> frequentlyBought = [];
+
+  bool _groceryLoading = true;
+  bool _categoriesLoading = true;
+  int? _activeCategoryId;
+
+  GroceryRepository _getGroceryRepo() {
+    if (Get.isRegistered<GroceryRepository>()) {
+      return Get.find<GroceryRepository>();
+    }
+    final session = Get.isRegistered<SessionStore>()
+        ? Get.find<SessionStore>()
+        : SessionStore();
+    final dio = Get.isRegistered<DioClient>()
+        ? Get.find<DioClient>()
+        : Get.put(DioClient(session), permanent: true);
+    return Get.put(GroceryRepository(dio), permanent: true);
+  }
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadGroceryCategories();
+    _loadGroceryHome();
   }
 
   @override
@@ -38,6 +71,143 @@ class _GroceryScreenState extends State<GroceryScreen> {
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadGroceryCategories() async {
+    try {
+      final repo = _getGroceryRepo();
+      final lang = currentApiLanguage();
+      final lat = SelectLocationController.selectedLatitude ?? 18.0735;
+      final lng = SelectLocationController.selectedLongitude ?? -15.9582;
+
+      final fetched = await repo.fetchGroceryCategories(
+        latitude: lat,
+        longitude: lng,
+        language: lang,
+      );
+
+      if (!mounted) return;
+      if (fetched.isNotEmpty) {
+        setState(() {
+          final hasAll = fetched.any((c) => c['isAll'] == true || c['id'] == 0);
+          if (!hasAll) {
+            subcategories = [
+              {'id': 0, 'label': 'All', 'isAll': true},
+              ...fetched,
+            ];
+          } else {
+            subcategories = fetched;
+          }
+          _categoriesLoading = false;
+        });
+      } else {
+        setState(() => _categoriesLoading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _categoriesLoading = false);
+    }
+  }
+
+  Future<void> _loadGroceryHome({int? categoryId, String? keyword}) async {
+    setState(() => _groceryLoading = true);
+    try {
+      final repo = _getGroceryRepo();
+      final lang = currentApiLanguage();
+      final lat = SelectLocationController.selectedLatitude ?? 18.0735;
+      final lng = SelectLocationController.selectedLongitude ?? -15.9582;
+
+      final result = await repo.fetchGroceryHomeV2(
+        latitude: lat,
+        longitude: lng,
+        language: lang,
+        categoryId: categoryId,
+        keyword: keyword,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        topStores = result.topStores;
+        recentOrders = result.recentOrders;
+        fastDeliveryStores = result.fastDeliveryStores;
+        frequentlyBought = result.frequentlyBought;
+
+        if (result.categories.isNotEmpty) {
+          final hasAll = result.categories.any(
+            (c) => c['isAll'] == true || c['id'] == 0,
+          );
+          if (!hasAll) {
+            subcategories = [
+              {'id': 0, 'label': 'All', 'isAll': true},
+              ...result.categories,
+            ];
+          } else {
+            subcategories = result.categories;
+          }
+        }
+        _groceryLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        topStores = [];
+        recentOrders = [];
+        fastDeliveryStores = [];
+        frequentlyBought = [];
+        _groceryLoading = false;
+      });
+      if (e is ApiException) {
+        ToastHelper.showError(e.message);
+      }
+    }
+  }
+
+  Widget _buildNoDataPlaceholder(String title) {
+    String message;
+    final lower = title.toLowerCase();
+    if (lower.contains('recent order')) {
+      message = 'No recent orders available';
+    } else if (lower.contains('top store') || lower.contains('store')) {
+      message = 'No grocery stores available';
+    } else if (lower.contains('delivery') || lower.contains('15-min')) {
+      message = 'No fast delivery stores available';
+    } else if (lower.contains('frequently') ||
+        lower.contains('bought') ||
+        lower.contains('product')) {
+      message = 'No products available';
+    } else {
+      message = 'No data available';
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              'lib/assets/images/Nodata.png',
+              width: 86,
+              height: 86,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              message,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF7A6A60),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _handleScroll() {
@@ -56,166 +226,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
   Widget _buildStickySearchSubcatsSection() {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildSearchBar(),
-        _buildSubcategoriesRow(),
-      ],
+      children: [_buildSearchBar(), _buildSubcategoriesRow()],
     );
   }
-
-  final subcategories = [
-    {'label': 'All', 'isAll': true},
-    {
-      'label': 'Fruits',
-      'image':
-          'https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Vegetables',
-      'image':
-          'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Meat',
-      'image':
-          'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Masalas',
-      'image':
-          'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Rice',
-      'image':
-          'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=100&auto=format&fit=crop',
-    },
-  ];
-
-  final topStores = [
-    {
-      'id': 'g_store1',
-      'name': 'Salam Supermarket',
-      'category': 'Hypermarket',
-      'rating': '4.6',
-      'time': '35 min',
-      'dist': '10 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=350&auto=format&fit=crop',
-    },
-    {
-      'id': 'g_store2',
-      'name': 'Good Choice Store',
-      'category': 'Fruits & Veg',
-      'rating': '4.6',
-      'time': '35 min',
-      'dist': '10 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=350&auto=format&fit=crop',
-    },
-  ];
-
-  final recentOrders = [
-    {
-      'id': 'ord1',
-      'name': 'Salam Supermarket',
-      'rating': '4.6',
-      'items': 'Milk 1L • Brown Egg x12',
-      'date': 'Yesterday',
-      'count': '2 Items',
-      'image':
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=150&auto=format&fit=crop',
-    },
-    {
-      'id': 'ord2',
-      'name': 'Salam Supermarket',
-      'rating': '4.6',
-      'items': 'Milk 1L • Brown Egg x12',
-      'date': 'Yesterday',
-      'count': '2 Items',
-      'image':
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=150&auto=format&fit=crop',
-    },
-  ];
-
-  final fastDeliveryStores = [
-    {
-      'id': 'g_fast1',
-      'name': 'Salam Supermarket',
-      'category': 'Hypermarket',
-      'rating': '4.6',
-      'time': '15m',
-      'points': '200 Points Available',
-      'discount': '50% OFF',
-      'image':
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=350&auto=format&fit=crop',
-    },
-    {
-      'id': 'g_fast2',
-      'name': 'Good Choice Store',
-      'category': 'Fruits & Veg',
-      'rating': '4.6',
-      'time': '15m',
-      'points': '200 Points Available',
-      'discount': '50% OFF',
-      'image':
-          'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=350&auto=format&fit=crop',
-    },
-  ];
-
-  final frequentlyBought = [
-    {
-      'id': 'fb1',
-      'name': 'Whole Milk 1L',
-      'store': 'Salam Supermarket',
-      'rating': '4.6',
-      'price': '65 MRU',
-      'image':
-          'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200&auto=format&fit=crop',
-    },
-    {
-      'id': 'fb2',
-      'name': 'Brown Egg X12',
-      'store': 'Salam Supermarket',
-      'rating': '4.6',
-      'price': '65 MRU',
-      'image':
-          'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=200&auto=format&fit=crop',
-    },
-    {
-      'id': 'fb3',
-      'name': 'Fresh Bread',
-      'store': 'Marhaba Market',
-      'rating': '4.7',
-      'price': '40 MRU',
-      'image':
-          'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&auto=format&fit=crop',
-    },
-    {
-      'id': 'fb4',
-      'name': 'Banana Bunch',
-      'store': 'City Mart',
-      'rating': '4.5',
-      'price': '55 MRU',
-      'image':
-          'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&auto=format&fit=crop',
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFFFFDDCF),
-            Color(0xFFFFEEE5),
-            Color(0xFFFAF6F0),
-          ],
+          colors: [Color(0xFFFFDDCF), Color(0xFFFFEEE5), Color(0xFFFAF6F0)],
           stops: [0.0, 0.38, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -235,60 +255,44 @@ class _GroceryScreenState extends State<GroceryScreen> {
                   children: [
                     _buildHeader(context),
                     Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: Text(
-                              'Grocery',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          _buildAIPredictiveCard(),
-                          _buildAITipRow(),
-
-                          // Pins when scrolled: search + subcategories
-                          KeyedSubtree(
-                            key: _searchAnchorKey,
-                            child: _showStickySearch
-                                ? const SizedBox(height: _stickyExtent)
-                                : _buildStickySearchSubcatsSection(),
-                          ),
-
-                          _buildSectionHeader(
-                            'Top Stores Near You',
-                            'See All',
-                            () {
-                              Get.to(() => const GroceryStoresScreen());
-                            },
-                          ),
-                          _buildTopStoresList(),
-                          _buildSectionHeader(
-                            'Recent Orders',
-                            'View Orders',
-                            () {},
-                          ),
-                          _buildRecentOrdersList(),
-                          _buildSectionHeader(
-                            '15-Min Delivery',
-                            'See All',
-                            () {},
-                          ),
-                          _buildFastDeliveryList(),
-                          _buildSectionHeader(
-                            'Frequently Bought',
-                            'See All',
-                            () {},
-                          ),
-                          _buildFrequentlyBoughtList(),
-                          const SizedBox(height: 36),
-                        ],
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        'Grocery',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
+                    _buildAIPredictiveCard(),
+                    _buildAITipRow(),
+
+                    // Pins when scrolled: search + subcategories
+                    KeyedSubtree(
+                      key: _searchAnchorKey,
+                      child: _showStickySearch
+                          ? const SizedBox(height: _stickyExtent)
+                          : _buildStickySearchSubcatsSection(),
+                    ),
+
+                    _buildSectionHeader('Top Stores Near You', 'See All', () {
+                      Get.to(() => const GroceryStoresScreen());
+                    }),
+                    _buildTopStoresList(),
+                    _buildSectionHeader('Recent Orders', 'View Orders', () {}),
+                    _buildRecentOrdersList(),
+                    _buildSectionHeader('15-Min Delivery', 'See All', () {}),
+                    _buildFastDeliveryList(),
+                    _buildSectionHeader('Frequently Bought', 'See All', () {}),
+                    _buildFrequentlyBoughtList(),
+                    const SizedBox(height: 36),
+                  ],
+                ),
+              ),
             ),
 
             if (_showStickySearch)
@@ -543,11 +547,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.auto_awesome,
-            color: Color(0xFFFF5E00),
-            size: 18,
-          ),
+          const Icon(Icons.auto_awesome, color: Color(0xFFFF5E00), size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: RichText(
@@ -649,6 +649,13 @@ class _GroceryScreenState extends State<GroceryScreen> {
             Expanded(
               child: TextField(
                 controller: _searchController,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (value) {
+                  _loadGroceryHome(
+                    categoryId: _activeCategoryId,
+                    keyword: value.trim().isNotEmpty ? value.trim() : null,
+                  );
+                },
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'What do you need today?',
@@ -726,12 +733,25 @@ class _GroceryScreenState extends State<GroceryScreen> {
             final sub = subcategories[index];
             final isSelected = selectedSubcategoryIndex == index;
             final isAll = sub['isAll'] == true;
+            final imageStr = (sub['image'] ?? '').toString();
 
             return GestureDetector(
               onTap: () {
+                final catId = sub['id'] is int
+                    ? sub['id'] as int
+                    : int.tryParse('${sub['id']}');
                 setState(() {
                   selectedSubcategoryIndex = index;
+                  _activeCategoryId = (catId != null && catId != 0)
+                      ? catId
+                      : null;
                 });
+                _loadGroceryHome(
+                  categoryId: _activeCategoryId,
+                  keyword: _searchController.text.trim().isNotEmpty
+                      ? _searchController.text.trim()
+                      : null,
+                );
               },
               child: Padding(
                 padding: EdgeInsets.only(
@@ -744,7 +764,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                     children: [
                       Column(
                         children: [
-                          isAll
+                          (isAll || imageStr.isEmpty)
                               ? Container(
                                   width: 46,
                                   height: 46,
@@ -752,14 +772,14 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: Center(
-                                  child: Image.asset(
-                                    'lib/assets/images/All.png',
-                                    width: 22,
-                                    height: 22,
-                                    color: const Color(0xFFFF5E00),
+                                    child: Image.asset(
+                                      'lib/assets/images/All.png',
+                                      width: 22,
+                                      height: 22,
+                                      color: const Color(0xFFFF5E00),
+                                    ),
                                   ),
-                                ),
-                              )
+                                )
                               : Container(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
@@ -773,7 +793,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                   ),
                                   child: ClipOval(
                                     child: Image.network(
-                                      sub['image'] as String,
+                                      imageStr,
                                       width: 46,
                                       height: 46,
                                       fit: BoxFit.cover,
@@ -794,7 +814,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 ),
                           const SizedBox(height: 8),
                           Text(
-                            sub['label'] as String,
+                            (sub['label'] ?? '').toString(),
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.visible,
@@ -840,6 +860,21 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
   // Top Stores List
   Widget _buildTopStoresList() {
+    if (_groceryLoading) {
+      return const SizedBox(
+        height: 220,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFFF5E00),
+            strokeWidth: 2.5,
+          ),
+        ),
+      );
+    }
+    if (topStores.isEmpty) {
+      return _buildNoDataPlaceholder('Top Stores Near You');
+    }
+
     return SizedBox(
       height: 220,
       child: ListView.builder(
@@ -853,6 +888,17 @@ class _GroceryScreenState extends State<GroceryScreen> {
               ? Get.find<HomeController>()
               : Get.put(HomeController());
 
+          final discountText = (store['discount'] ?? '').toString();
+          final hasDiscount = discountText.isNotEmpty;
+          final ratingText = (store['rating'] ?? '4.5').toString();
+          final pointsText = (store['points'] ?? '').toString();
+          final hasPoints = pointsText.isNotEmpty;
+          final nameText = (store['name'] ?? store['title'] ?? '').toString();
+          final categoryText = (store['category'] ?? '').toString();
+          final timeText = (store['time'] ?? '').toString();
+          final distText = (store['dist'] ?? '').toString();
+          final imageUrl = (store['image'] ?? '').toString();
+
           return GestureDetector(
             onTap: () {
               Get.to(() => GroceryDetailsScreen(store: store));
@@ -860,245 +906,267 @@ class _GroceryScreenState extends State<GroceryScreen> {
             child: Container(
               width: 240,
               margin: const EdgeInsets.only(right: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image with overlays
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                      child: Image.network(
-                        store['image']!,
-                        height: 120,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 120,
-                          color: Colors.grey.shade300,
-                          child: const Icon(
-                            Icons.store,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image with overlays
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
                         ),
+                        child: imageUrl.isNotEmpty
+                            ? Image.network(
+                                imageUrl,
+                                height: 120,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                      height: 120,
+                                      color: Colors.grey.shade300,
+                                      child: const Icon(
+                                        Icons.store,
+                                        size: 40,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                              )
+                            : Container(
+                                height: 120,
+                                color: Colors.grey.shade300,
+                                child: const Icon(
+                                  Icons.store,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
+                              ),
                       ),
-                    ),
 
-                    // Discount tag
-                    Positioned(
-                      top: 10,
-                      left: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          store['discount']!,
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Rating badge
-                    Positioned(
-                      top: 10,
-                      left: 62,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
+                      // Discount tag
+                      if (hasDiscount)
+                        Positioned(
+                          top: 10,
+                          left: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
                             ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.star_rounded,
-                              color: Color(0xFFFFB300),
-                              size: 12,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF5E00),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            const SizedBox(width: 2),
-                            Text(
-                              store['rating']!,
+                            child: Text(
+                              discountText,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
+                                color: Colors.white,
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ],
+                          ),
+                        ),
+
+                      // Rating badge
+                      Positioned(
+                        top: 10,
+                        left: hasDiscount ? 62 : 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.star_rounded,
+                                color: Color(0xFFFFB300),
+                                size: 12,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                ratingText,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
-                    // Favorite button
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: Obx(() {
-                        final isLiked = homeController.isLiked(
-                          (store['id'] ?? '').toString(),
-                        );
-                        return GestureDetector(
-                          onTap: () => homeController.toggleLike(
+                      // Favorite button
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: Obx(() {
+                          final isLiked = homeController.isLiked(
                             (store['id'] ?? '').toString(),
-                            store,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
+                          );
+                          return GestureDetector(
+                            onTap: () => homeController.toggleLike(
+                              (store['id'] ?? '').toString(),
+                              store,
                             ),
-                            child: Icon(
-                              isLiked
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_border_rounded,
-                              color: const Color(0xFFE03A3A),
-                              size: 14,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-
-                    // Points overlay bottom-left
-                    Positioned(
-                      bottom: 8,
-                      left: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              "lib/assets/images/Points.png",
-                              width: 12,
-                              height: 12,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset(
-                                    "lib/assets/images/Coin.png",
-                                    width: 12,
-                                    height: 12,
-                                  ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              store['points']!,
-                              style: GoogleFonts.outfit(
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: const BoxDecoration(
                                 color: Colors.white,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isLiked
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                color: const Color(0xFFE03A3A),
+                                size: 14,
                               ),
                             ),
-                          ],
-                        ),
+                          );
+                        }),
                       ),
-                    ),
-                  ],
-                ),
 
-                // Store details text
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        store['name']!,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        store['category']!,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFA59A94),
-                          fontSize: 10,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.access_time_rounded,
-                            color: Color(0xFFFF5E00),
-                            size: 12,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            store['time']!,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF7A6A60),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
+                      // Points overlay bottom-left
+                      if (hasPoints)
+                        Positioned(
+                          bottom: 8,
+                          left: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  "lib/assets/images/Points.png",
+                                  width: 12,
+                                  height: 12,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                        "lib/assets/images/Coin.png",
+                                        width: 12,
+                                        height: 12,
+                                      ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  pointsText,
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          const Icon(
-                            Icons.location_on_outlined,
-                            color: Color(0xFFFF5E00),
-                            size: 12,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            store['dist']!,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF7A6A60),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
                     ],
                   ),
-                ),
-              ],
+
+                  // Store details text
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nameText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          categoryText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFA59A94),
+                            fontSize: 10,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            if (timeText.isNotEmpty) ...[
+                              const Icon(
+                                Icons.access_time_rounded,
+                                color: Color(0xFFFF5E00),
+                                size: 12,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                timeText,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF7A6A60),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                            ],
+                            if (distText.isNotEmpty) ...[
+                              const Icon(
+                                Icons.location_on_outlined,
+                                color: Color(0xFFFF5E00),
+                                size: 12,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                distText,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF7A6A60),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),);
+          );
         },
       ),
     );
@@ -1106,6 +1174,21 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
   // Recent Orders List
   Widget _buildRecentOrdersList() {
+    if (_groceryLoading) {
+      return const SizedBox(
+        height: 100,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFFF5E00),
+            strokeWidth: 2.5,
+          ),
+        ),
+      );
+    }
+    if (recentOrders.isEmpty) {
+      return _buildNoDataPlaceholder('Recent Orders');
+    }
+
     return SizedBox(
       height: 100,
       child: ListView.builder(
@@ -1115,6 +1198,12 @@ class _GroceryScreenState extends State<GroceryScreen> {
         itemCount: recentOrders.length,
         itemBuilder: (context, index) {
           final order = recentOrders[index];
+          final imageUrl = (order['image'] ?? '').toString();
+          final nameText = (order['name'] ?? '').toString();
+          final ratingText = (order['rating'] ?? '4.5').toString();
+          final itemsText = (order['items'] ?? '').toString();
+          final dateText = (order['date'] ?? '').toString();
+          final countText = (order['count'] ?? '').toString();
 
           return Container(
             width: 250,
@@ -1136,22 +1225,34 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 // Product circle image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    order['image']!,
-                    width: 44,
-                    height: 44,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 44,
-                      height: 44,
-                      color: Colors.grey.shade200,
-                      child: const Icon(
-                        Icons.fastfood,
-                        size: 20,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          width: 44,
+                          height: 44,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                width: 44,
+                                height: 44,
+                                color: Colors.grey.shade200,
+                                child: const Icon(
+                                  Icons.fastfood,
+                                  size: 20,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                        )
+                      : Container(
+                          width: 44,
+                          height: 44,
+                          color: Colors.grey.shade200,
+                          child: const Icon(
+                            Icons.fastfood,
+                            size: 20,
+                            color: Colors.grey,
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 10),
 
@@ -1165,7 +1266,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         children: [
                           Flexible(
                             child: Text(
-                              order['name']!,
+                              nameText,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: GoogleFonts.outfit(
@@ -1182,7 +1283,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             size: 10,
                           ),
                           Text(
-                            order['rating']!,
+                            ratingText,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 9,
@@ -1193,7 +1294,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        order['items']!,
+                        itemsText,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: GoogleFonts.outfit(
@@ -1211,7 +1312,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            order['date']!,
+                            dateText,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 9,
@@ -1230,7 +1331,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      order['count']!,
+                      countText,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 9,
@@ -1284,6 +1385,21 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
   // 15-Min Delivery List
   Widget _buildFastDeliveryList() {
+    if (_groceryLoading) {
+      return const SizedBox(
+        height: 220,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFFF5E00),
+            strokeWidth: 2.5,
+          ),
+        ),
+      );
+    }
+    if (fastDeliveryStores.isEmpty) {
+      return _buildNoDataPlaceholder('15-Min Delivery');
+    }
+
     return SizedBox(
       height: 220,
       child: ListView.builder(
@@ -1297,6 +1413,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
               ? Get.find<HomeController>()
               : Get.put(HomeController());
 
+          final discountText = (store['discount'] ?? '').toString();
+          final hasDiscount = discountText.isNotEmpty;
+          final ratingText = (store['rating'] ?? '4.5').toString();
+          final pointsText = (store['points'] ?? '').toString();
+          final hasPoints = pointsText.isNotEmpty;
+          final timeText = (store['time'] ?? '15m').toString();
+          final nameText = (store['name'] ?? store['title'] ?? '').toString();
+          final categoryText = (store['category'] ?? '').toString();
+          final imageUrl = (store['image'] ?? '').toString();
+
           return GestureDetector(
             onTap: () {
               Get.to(() => GroceryDetailsScreen(store: store));
@@ -1304,239 +1430,265 @@ class _GroceryScreenState extends State<GroceryScreen> {
             child: Container(
               width: 240,
               margin: const EdgeInsets.only(right: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image with overlays
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                      child: Image.network(
-                        store['image']!,
-                        height: 120,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 120,
-                          color: Colors.grey.shade300,
-                          child: const Icon(
-                            Icons.store,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image with overlays
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
                         ),
+                        child: imageUrl.isNotEmpty
+                            ? Image.network(
+                                imageUrl,
+                                height: 120,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                      height: 120,
+                                      color: Colors.grey.shade300,
+                                      child: const Icon(
+                                        Icons.store,
+                                        size: 40,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                              )
+                            : Container(
+                                height: 120,
+                                color: Colors.grey.shade300,
+                                child: const Icon(
+                                  Icons.store,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
+                              ),
                       ),
-                    ),
 
-                    // Discount tag
-                    Positioned(
-                      top: 10,
-                      left: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          store['discount']!,
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Rating badge
-                    Positioned(
-                      top: 10,
-                      left: 62,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.star_rounded,
-                              color: Color(0xFFFFB300),
-                              size: 12,
+                      // Discount tag
+                      if (hasDiscount)
+                        Positioned(
+                          top: 10,
+                          left: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
                             ),
-                            const SizedBox(width: 2),
-                            Text(
-                              store['rating']!,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF5E00),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              discountText,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
+                                color: Colors.white,
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      // Rating badge
+                      Positioned(
+                        top: 10,
+                        left: hasDiscount ? 62 : 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.star_rounded,
+                                color: Color(0xFFFFB300),
+                                size: 12,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                ratingText,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Favorite button
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: Obx(() {
+                          final isLiked = homeController.isLiked(
+                            (store['id'] ?? '').toString(),
+                          );
+                          return GestureDetector(
+                            onTap: () => homeController.toggleLike(
+                              (store['id'] ?? '').toString(),
+                              store,
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isLiked
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                color: const Color(0xFFE03A3A),
+                                size: 14,
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+
+                      // Points + Time badge overlay bottom-left
+                      Positioned(
+                        bottom: 8,
+                        left: 10,
+                        child: Row(
+                          children: [
+                            if (hasPoints) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.6),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Image.asset(
+                                      "lib/assets/images/Points.png",
+                                      width: 12,
+                                      height: 12,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Image.asset(
+                                                "lib/assets/images/Coin.png",
+                                                width: 12,
+                                                height: 12,
+                                              ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      pointsText,
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.access_time_rounded,
+                                    color: Colors.white,
+                                    size: 10,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    timeText,
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-
-                    // Favorite button
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: Obx(() {
-                        final isLiked = homeController.isLiked(
-                          (store['id'] ?? '').toString(),
-                        );
-                        return GestureDetector(
-                          onTap: () => homeController.toggleLike(
-                            (store['id'] ?? '').toString(),
-                            store,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              isLiked
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_border_rounded,
-                              color: const Color(0xFFE03A3A),
-                              size: 14,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-
-                    // Points + Time badge overlay bottom-left
-                    Positioned(
-                      bottom: 8,
-                      left: 10,
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Image.asset(
-                                  "lib/assets/images/Points.png",
-                                  width: 12,
-                                  height: 12,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Image.asset(
-                                        "lib/assets/images/Coin.png",
-                                        width: 12,
-                                        height: 12,
-                                      ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  store['points']!,
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.access_time_rounded,
-                                  color: Colors.white,
-                                  size: 10,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  store['time']!,
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Store details text
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        store['name']!,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        store['category']!,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFA59A94),
-                          fontSize: 10,
-                        ),
-                      ),
                     ],
                   ),
-                ),
-              ],
+
+                  // Store details text
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nameText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          categoryText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFA59A94),
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),);
+          );
         },
       ),
     );
@@ -1544,6 +1696,21 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
   // Frequently Bought List
   Widget _buildFrequentlyBoughtList() {
+    if (_groceryLoading) {
+      return const SizedBox(
+        height: 195,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFFF5E00),
+            strokeWidth: 2.5,
+          ),
+        ),
+      );
+    }
+    if (frequentlyBought.isEmpty) {
+      return _buildNoDataPlaceholder('Frequently Bought');
+    }
+
     return SizedBox(
       height: 195,
       child: ListView.builder(
@@ -1553,6 +1720,11 @@ class _GroceryScreenState extends State<GroceryScreen> {
         itemCount: frequentlyBought.length,
         itemBuilder: (context, index) {
           final prod = frequentlyBought[index];
+          final imageUrl = (prod['image'] ?? '').toString();
+          final ratingText = (prod['rating'] ?? '4.5').toString();
+          final nameText = (prod['name'] ?? '').toString();
+          final storeText = (prod['store'] ?? '').toString();
+          final priceText = (prod['price'] ?? '').toString();
 
           return Container(
             width: 150,
@@ -1578,21 +1750,32 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(20),
                       ),
-                      child: Image.network(
-                        prod['image']!,
-                        height: 100,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 100,
-                          color: Colors.grey.shade300,
-                          child: const Icon(
-                            Icons.shopping_bag_outlined,
-                            size: 30,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
+                      child: imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
+                              height: 100,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    height: 100,
+                                    color: Colors.grey.shade300,
+                                    child: const Icon(
+                                      Icons.shopping_bag_outlined,
+                                      size: 30,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                            )
+                          : Container(
+                              height: 100,
+                              color: Colors.grey.shade300,
+                              child: const Icon(
+                                Icons.shopping_bag_outlined,
+                                size: 30,
+                                color: Colors.grey,
+                              ),
+                            ),
                     ),
 
                     // Rating badge
@@ -1618,7 +1801,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              prod['rating']!,
+                              ratingText,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 8,
@@ -1639,7 +1822,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        prod['name']!,
+                        nameText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 12,
@@ -1648,7 +1833,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        prod['store']!,
+                        storeText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 9,
@@ -1658,12 +1845,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            prod['price']!,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                          Flexible(
+                            child: Text(
+                              priceText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFFF5E00),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           Container(
@@ -1707,51 +1898,51 @@ class _GroceryScreenState extends State<GroceryScreen> {
       ),
     );
   }
+}
 
-  // Section Header
-  Widget _buildSectionHeader(
-    String title,
-    String actionText,
-    VoidCallback onTap,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
+// Section Header
+Widget _buildSectionHeader(
+  String title,
+  String actionText,
+  VoidCallback onTap,
+) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.outfit(
+            color: const Color(0xFF2C2520),
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
           ),
-          actionText == 'See All'
-              ? SeeAllButton(onTap: onTap)
-              : GestureDetector(
-                  onTap: onTap,
-                  child: Row(
-                    children: [
-                      Text(
-                        actionText,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
+        ),
+        actionText == 'See All'
+            ? SeeAllButton(onTap: onTap)
+            : GestureDetector(
+                onTap: onTap,
+                child: Row(
+                  children: [
+                    Text(
+                      actionText,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFFF5E00),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(width: 2),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: Color(0xFFFF5E00),
-                        size: 16,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFFFF5E00),
+                      size: 16,
+                    ),
+                  ],
                 ),
-        ],
-      ),
-    );
-  }
+              ),
+      ],
+    ),
+  );
 }

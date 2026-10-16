@@ -20,7 +20,9 @@ class ProfileRepository {
     if (data == null) {
       throw const ApiException('Unexpected server response');
     }
-    return AuthUser.fromJson(data);
+    final userMap =
+        asJsonMap(data['user']) ?? asJsonMap(data['profile']) ?? data;
+    return AuthUser.fromJson(userMap);
   }
 
   Future<({AuthUser user, String message})> updateProfile({
@@ -72,6 +74,21 @@ class ProfileRepository {
     );
   }
 
+  Future<String> updateLanguage(String languageCode) async {
+    final code = languageCode.trim().toLowerCase();
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.updateLanguage,
+        data: {
+          'language': code,
+          'language_code': code,
+        },
+      ),
+      code,
+    );
+    return envelope.message;
+  }
+
   Future<String> updateLocation({
     required double latitude,
     required double longitude,
@@ -108,6 +125,31 @@ class ProfileRepository {
         location['longitude'] ?? location['long'] ?? location['lng'],
       ),
     );
+  }
+
+  Future<({num userPoints, num redeemableAmount})> fetchUserPoints(
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.userPoints),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    final userPoints = _asNum(data?['user_points']) ?? 0;
+    final redeemableAmount = _asNum(
+          data?['redeemable amount'] ?? data?['redeemable_amount'],
+        ) ??
+        0;
+    return (
+      userPoints: userPoints,
+      redeemableAmount: redeemableAmount,
+    );
+  }
+
+  num? _asNum(dynamic value) {
+    if (value is num) return value;
+    if (value is String) return num.tryParse(value.trim());
+    return null;
   }
 
   double? _asDouble(dynamic value) {

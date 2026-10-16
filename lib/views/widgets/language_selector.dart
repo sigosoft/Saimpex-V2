@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../constants/colors.dart';
 import '../../controllers/onboarding_controller.dart';
+import '../../core/storage/session_store.dart';
+import '../../models/profile_repository.dart';
+import '../../utils/toast_helper.dart';
 
 class AppLanguage {
   final String code;
@@ -56,19 +59,12 @@ class LanguageSelector extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.12),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.25),
-              width: 1,
-            ),
+            border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.translate,
-                color: Colors.white,
-                size: 14,
-              ),
+              const Icon(Icons.translate, color: Colors.white, size: 14),
               const SizedBox(width: 6),
               Text(
                 controller.selectedLanguage.value,
@@ -95,10 +91,7 @@ class LanguageSelector extends StatelessWidget {
 class LanguageSelectionSheet extends StatefulWidget {
   final String currentLanguage;
 
-  const LanguageSelectionSheet({
-    super.key,
-    required this.currentLanguage,
-  });
+  const LanguageSelectionSheet({super.key, required this.currentLanguage});
 
   @override
   State<LanguageSelectionSheet> createState() => _LanguageSelectionSheetState();
@@ -106,6 +99,7 @@ class LanguageSelectionSheet extends StatefulWidget {
 
 class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
   late int _selectedIndex;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -114,6 +108,36 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
       (lang) => lang.label == widget.currentLanguage,
     );
     _selectedIndex = index < 0 ? 0 : index;
+  }
+
+  Future<void> _handleContinue() async {
+    if (_isSaving) return;
+    final selectedLang = appLanguages[_selectedIndex];
+
+    if (Get.isRegistered<SessionStore>() &&
+        Get.find<SessionStore>().token != null &&
+        Get.find<SessionStore>().token!.isNotEmpty &&
+        Get.isRegistered<ProfileRepository>()) {
+      setState(() => _isSaving = true);
+      try {
+        final code = selectedLang.code.toLowerCase();
+        final message = await Get.find<ProfileRepository>().updateLanguage(
+          code,
+        );
+        showAppToast(
+          message.isNotEmpty ? message : 'Language updated successfully',
+          backgroundColor: AppColors.primaryOrange,
+        );
+      } catch (e) {
+        showAppToast(e.toString());
+      } finally {
+        if (mounted) setState(() => _isSaving = false);
+      }
+    }
+
+    if (mounted) {
+      Navigator.of(context).pop(selectedLang.label);
+    }
   }
 
   @override
@@ -162,10 +186,8 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
             ],
             const SizedBox(height: 28),
             _SheetActionButton(
-              label: 'Continue',
-              onTap: () {
-                Navigator.of(context).pop(appLanguages[_selectedIndex].label);
-              },
+              label: _isSaving ? 'Updating...' : 'Continue',
+              onTap: _isSaving ? () {} : _handleContinue,
             ),
             const SizedBox(height: 12),
             _SheetActionButton(
@@ -204,10 +226,7 @@ class _SheetActionButton extends StatelessWidget {
           color: filled ? null : const Color(0xFFE8E8E8),
           gradient: filled
               ? const LinearGradient(
-                  colors: [
-                    AppColors.primaryOrange,
-                    AppColors.gradientYellow,
-                  ],
+                  colors: [AppColors.primaryOrange, AppColors.gradientYellow],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 )
@@ -249,9 +268,7 @@ class _LanguageOptionCard extends StatelessWidget {
           color: const Color(0xFFFFF4EF),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFF3DDD2),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFF3DDD2),
             width: selected ? 1.6 : 1,
           ),
         ),

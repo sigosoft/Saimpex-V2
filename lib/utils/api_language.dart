@@ -18,3 +18,6 @@ String apiLanguageCode() {
   }
   return 'en';
 }
+
+/// Convenience alias for [apiLanguageCode].
+String currentApiLanguage() => apiLanguageCode();

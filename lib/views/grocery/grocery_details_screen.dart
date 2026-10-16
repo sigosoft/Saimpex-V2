@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../../controllers/home_controller.dart';
+import '../../controllers/select_location_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../core/network/dio_client.dart';
+import '../../core/storage/session_store.dart';
+import '../../models/grocery_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/filter_chip_style.dart';
 import '../messages_screen.dart';
 import '../cart_screen.dart';
@@ -27,13 +34,215 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   Map<String, dynamic>? lastAddedItem;
   String? lastAddedItemPortion;
 
+  bool _isLoading = true;
+  bool _isLoadingItems = true;
+  Map<String, dynamic>? _storeDetails;
+
   /// search(42) + gap(12) + filters(32) + bottom gap(12)
   static const double _searchFiltersExtent = 98;
+
+  GroceryRepository _getGroceryRepo() {
+    if (Get.isRegistered<GroceryRepository>()) {
+      return Get.find<GroceryRepository>();
+    }
+    final session = Get.isRegistered<SessionStore>()
+        ? Get.find<SessionStore>()
+        : SessionStore();
+    final dio = Get.isRegistered<DioClient>()
+        ? Get.find<DioClient>()
+        : Get.put(DioClient(session), permanent: true);
+    return Get.put(GroceryRepository(dio), permanent: true);
+  }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    await _loadGroceryDetails();
+    await _loadGroceryItems();
+  }
+
+  Future<void> _loadGroceryDetails() async {
+    setState(() => _isLoading = true);
+    try {
+      final repo = _getGroceryRepo();
+      final lang = currentApiLanguage();
+      final lat = SelectLocationController.selectedLatitude ?? 18.0735;
+      final lng = SelectLocationController.selectedLongitude ?? -15.9582;
+
+      final rawId =
+          widget.store['grocery_id'] ??
+          widget.store['id'] ??
+          widget.store['vendor_id'] ??
+          widget.store['restaurant_id'] ??
+          (widget.store['raw'] is Map
+              ? (widget.store['raw']['grocery_id'] ??
+                    widget.store['raw']['id'] ??
+                    widget.store['raw']['vendor_id'])
+              : null);
+
+      final groceryId = int.tryParse('$rawId') ?? 0;
+
+      final details = await repo.fetchGroceryDetails(
+        groceryId: groceryId,
+        latitude: lat,
+        longitude: lng,
+        language: lang,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _storeDetails = details;
+        subcategories =
+            (details['categories'] as List<Map<String, dynamic>>?) ?? [];
+        smartBundle = details['smartBundle'] as Map<String, dynamic>?;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        subcategories = [];
+        smartBundle = null;
+        _isLoading = false;
+      });
+      if (e is ApiException) {
+        ToastHelper.showError(e.message);
+      }
+    }
+  }
+
+  Future<void> _loadGroceryItems() async {
+    if (!mounted) return;
+    setState(() => _isLoadingItems = true);
+    try {
+      final repo = _getGroceryRepo();
+      final lang = currentApiLanguage();
+
+      final rawId =
+          widget.store['grocery_id'] ??
+          widget.store['id'] ??
+          widget.store['vendor_id'] ??
+          widget.store['restaurant_id'] ??
+          (_storeDetails != null
+              ? (_storeDetails!['grocery_id'] ?? _storeDetails!['id'])
+              : null) ??
+          (widget.store['raw'] is Map
+              ? (widget.store['raw']['grocery_id'] ??
+                    widget.store['raw']['id'] ??
+                    widget.store['raw']['vendor_id'])
+              : null);
+
+      final groceryId = int.tryParse('$rawId') ?? 0;
+
+      dynamic categoryId;
+      dynamic subCategoryId;
+
+      if (activeSubcategoryIndex >= 0 &&
+          activeSubcategoryIndex < subcategories.length) {
+        final selected = subcategories[activeSubcategoryIndex];
+        if (selected['isAll'] != true) {
+          categoryId =
+              selected['category_id'] ??
+              selected['id'] ??
+              (selected['raw'] is Map
+                  ? (selected['raw']['category_id'] ?? selected['raw']['id'])
+                  : null);
+          subCategoryId =
+              selected['sub_category_id'] ??
+              (selected['raw'] is Map
+                  ? (selected['raw']['sub_category_id'] ??
+                        selected['raw']['subcategory_id'])
+                  : null);
+        }
+      }
+
+      categoryId ??=
+          widget.store['category_id'] ??
+          widget.store['cat_id'] ??
+          (subcategories.isNotEmpty
+              ? (subcategories.first['category_id'] ??
+                    subcategories.first['id'])
+              : null) ??
+          '1';
+
+      subCategoryId ??=
+          widget.store['sub_category_id'] ??
+          (subcategories.isNotEmpty
+              ? subcategories.first['sub_category_id']
+              : null) ??
+          categoryId;
+
+      final items = await repo.fetchGroceryItems(
+        groceryId: groceryId,
+        categoryId: categoryId,
+        subCategoryId: subCategoryId,
+        limit: 20,
+        language: lang,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        menuItems = items;
+        _isLoadingItems = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        menuItems = [];
+        _isLoadingItems = false;
+      });
+      if (e is ApiException) {
+        ToastHelper.showError(e.message);
+      }
+    }
+  }
+
+  Widget _buildNoDataPlaceholder(String title) {
+    String message;
+    final lower = title.toLowerCase();
+    if (lower.contains('item') || lower.contains('product')) {
+      message = 'No items available from this store';
+    } else if (lower.contains('bundle')) {
+      message = 'No smart bundles available';
+    } else if (lower.contains('categor')) {
+      message = 'No categories available';
+    } else {
+      message = 'No data available';
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              'lib/assets/images/Nodata.png',
+              width: 86,
+              height: 86,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              message,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF7A6A60),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -140,15 +349,15 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
             leading: filter['isMru'] == true
                 ? AppFilterChip.mruLeading()
                 : filter['icon'] is IconData
-                    ? AppFilterChip.iconLeading(
-                        filter['icon'] as IconData,
-                        color: filter['label'] == 'Rating'
-                            ? const Color(0xFFFFAE00)
-                            : const Color(0xFF2C2520),
-                      )
-                    : filter['icon'] is Widget
-                        ? AppFilterChip.widgetLeading(filter['icon'] as Widget)
-                        : null,
+                ? AppFilterChip.iconLeading(
+                    filter['icon'] as IconData,
+                    color: filter['label'] == 'Rating'
+                        ? const Color(0xFFFFAE00)
+                        : const Color(0xFF2C2520),
+                  )
+                : filter['icon'] is Widget
+                ? AppFilterChip.widgetLeading(filter['icon'] as Widget)
+                : null,
           ),
       ],
     );
@@ -159,34 +368,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     return int.tryParse(clean) ?? 0;
   }
 
-  final List<Map<String, dynamic>> subcategories = [
-    {'label': 'All', 'isAll': true},
-    {
-      'label': 'Fruits',
-      'image':
-          'https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Vegetables',
-      'image':
-          'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Meat',
-      'image':
-          'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Masalas',
-      'image':
-          'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Rice',
-      'image':
-          'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=100&auto=format&fit=crop',
-    },
-  ];
+  List<Map<String, dynamic>> subcategories = [];
 
   final List<Map<String, dynamic>> filters = [
     {'label': 'Filter', 'icon': Image.asset("lib/assets/images/Filter.png")},
@@ -195,84 +377,52 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     {'label': 'Rating', 'icon': Icons.star_rounded},
   ];
 
-  final List<Map<String, dynamic>> menuItems = [
-    {
-      'title': 'Whole Milk 1L',
-      'image':
-          'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1517448931760-9bf4414148c5?w=350&auto=format&fit=crop',
-      ],
-      'isVeg': true,
-      'tag': 'Dairy',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'title': 'Tomato',
-      'image':
-          'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1561136594-7f68413baa99?w=350&auto=format&fit=crop',
-      ],
-      'isVeg': true,
-      'tag': 'Veg',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'title': 'Potato',
-      'image':
-          'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500&auto=format&fit=crop',
-      ],
-      'isVeg': true,
-      'tag': 'Veg',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'title': 'Banana',
-      'image':
-          'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=350&auto=format&fit=crop',
-      'images': [
-        'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=350&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=350&auto=format&fit=crop',
-      ],
-      'isVeg': true,
-      'tag': 'Fruits',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-    },
-  ];
+  List<Map<String, dynamic>> menuItems = [];
+  Map<String, dynamic>? smartBundle;
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
-    final storeId = widget.store['id']?.toString() ?? 'g1';
+    final currentStore = _storeDetails ?? widget.store;
+    final storeId =
+        (currentStore['grocery_id'] ??
+                currentStore['id'] ??
+                widget.store['id'] ??
+                'g1')
+            .toString();
+    final storeName =
+        (currentStore['name'] ??
+                currentStore['title'] ??
+                widget.store['name'] ??
+                'Store')
+            .toString();
+    final storeImage =
+        (currentStore['image'] != null &&
+            currentStore['image'].toString().isNotEmpty)
+        ? currentStore['image'].toString()
+        : (widget.store['image']?.toString() ??
+              'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop');
+    final storeRating =
+        (currentStore['rating'] ?? widget.store['rating'] ?? '4.6').toString();
+    final storeCategory =
+        (currentStore['category'] ?? widget.store['category'] ?? 'Grocery')
+            .toString();
+    final storeTime =
+        (currentStore['time'] ?? widget.store['time'] ?? '30-35 min')
+            .toString();
+    final storeDist = (currentStore['dist'] ?? widget.store['dist'] ?? '10 Km')
+        .toString();
+    final storeDiscount =
+        (currentStore['discount'] ?? widget.store['discount'] ?? '').toString();
+
     final isClosed =
-        widget.store['isClosed'] == true || widget.store['isClosed'] == 'true';
+        currentStore['isClosed'] == true ||
+        currentStore['isClosed'] == 'true' ||
+        widget.store['isClosed'] == true ||
+        widget.store['isClosed'] == 'true';
     final isTemporarilyClosed =
+        currentStore['isTemporarilyClosed'] == true ||
+        currentStore['isTemporarilyClosed'] == 'true' ||
         widget.store['isTemporarilyClosed'] == true ||
         widget.store['isTemporarilyClosed'] == 'true';
     final isNotAccepting = isClosed || isTemporarilyClosed;
@@ -303,18 +453,17 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           right: 0,
                           height: topInset + 132,
                           child: Image.network(
-                            widget.store['image'] ??
-                                'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop',
+                            storeImage,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
                                 Container(
-                              color: const Color(0xFFF3EFEA),
-                              child: const Icon(
-                                Icons.storefront_outlined,
-                                color: Colors.grey,
-                                size: 40,
-                              ),
-                            ),
+                                  color: const Color(0xFFF3EFEA),
+                                  child: const Icon(
+                                    Icons.storefront_outlined,
+                                    color: Colors.grey,
+                                    size: 40,
+                                  ),
+                                ),
                           ),
                         ),
                         Column(
@@ -324,10 +473,15 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
 
                             // Floating Info Card
                             Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              padding:
-                                  const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              padding: const EdgeInsets.fromLTRB(
+                                14,
+                                12,
+                                14,
+                                12,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(24),
@@ -348,7 +502,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          widget.store['name'] ?? 'Store',
+                                          storeName,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 18,
@@ -363,8 +517,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF00B25C),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -376,7 +531,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                             ),
                                             const SizedBox(width: 2),
                                             Text(
-                                              widget.store['rating'] ?? '4.6',
+                                              storeRating,
                                               style: GoogleFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 10,
@@ -390,7 +545,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    widget.store['category'] ?? 'Grocery',
+                                    storeCategory,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF7A6A60),
                                       fontSize: 12,
@@ -407,7 +562,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        widget.store['time'] ?? '30-35 min',
+                                        storeTime,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF7A6A60),
                                           fontSize: 11,
@@ -422,34 +577,36 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        widget.store['dist'] ?? '10 Km',
+                                        storeDist,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF7A6A60),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      const SizedBox(width: 14),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFF5E00),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Text(
-                                          widget.store['discount'] ??
-                                              '30% OFF',
-                                          style: GoogleFonts.outfit(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
+                                      if (storeDiscount.isNotEmpty) ...[
+                                        const SizedBox(width: 14),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFF5E00),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            storeDiscount,
+                                            style: GoogleFonts.outfit(
+                                              color: Colors.white,
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ],
                                   ),
 
@@ -463,8 +620,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFFEE2E2),
-                                        borderRadius:
-                                            BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Row(
                                         children: [
@@ -500,15 +656,14 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                           onTap: () {
                                             Get.to(
                                               () => MessagesScreen(
-                                                restaurant: widget.store,
+                                                restaurant: currentStore,
                                               ),
                                             );
                                           },
                                           child: Container(
                                             height: 38,
                                             decoration: BoxDecoration(
-                                              gradient:
-                                                  const LinearGradient(
+                                              gradient: const LinearGradient(
                                                 colors: [
                                                   Color(0xFFFF5E00),
                                                   Color(0xFFFFAE00),
@@ -543,8 +698,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                   style: GoogleFonts.outfit(
                                                     color: Colors.white,
                                                     fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.bold,
+                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
                                               ],
@@ -556,11 +710,12 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       GestureDetector(
                                         onTap: () => controller.toggleLike(
                                           storeId,
-                                          widget.store,
+                                          currentStore,
                                         ),
                                         child: Obx(() {
-                                          final liked =
-                                              controller.isLiked(storeId);
+                                          final liked = controller.isLiked(
+                                            storeId,
+                                          );
                                           return Container(
                                             width: 38,
                                             height: 38,
@@ -569,8 +724,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               border: Border.all(
-                                                color:
-                                                    const Color(0xFFEAD8C9),
+                                                color: const Color(0xFFEAD8C9),
                                                 width: 0.8,
                                               ),
                                               boxShadow: [
@@ -586,7 +740,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               liked
                                                   ? Icons.favorite_rounded
                                                   : Icons
-                                                      .favorite_border_rounded,
+                                                        .favorite_border_rounded,
                                               color: liked
                                                   ? const Color(0xFFE03A3A)
                                                   : const Color(0xFF2C2520),
@@ -602,192 +756,207 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             ),
 
                             // Categories row (scrolls away with banner/info)
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(0, 8, 0, 10),
-                              padding: const EdgeInsets.only(top: 4),
-                              clipBehavior: Clip.antiAlias,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(22)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color(0x14000000),
-                                    blurRadius: 16,
-                                    offset: Offset(0, 6),
+                            if (subcategories.isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(0, 8, 0, 10),
+                                padding: const EdgeInsets.only(top: 4),
+                                clipBehavior: Clip.antiAlias,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(22),
                                   ),
-                                ],
-                              ),
-                              child: SizedBox(
-                                height: 86,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: subcategories.length,
-                                  physics: const BouncingScrollPhysics(),
-                                  padding: const EdgeInsets.fromLTRB(
-                                    14,
-                                    4,
-                                    14,
-                                    0,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    final sub = subcategories[index];
-                                    final isAll = sub['isAll'] == true;
-                                    final isSelected =
-                                        activeSubcategoryIndex == index;
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color(0x14000000),
+                                      blurRadius: 16,
+                                      offset: Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: SizedBox(
+                                  height: 86,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: subcategories.length,
+                                    physics: const BouncingScrollPhysics(),
+                                    padding: const EdgeInsets.fromLTRB(
+                                      14,
+                                      4,
+                                      14,
+                                      0,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final sub = subcategories[index];
+                                      final isAll = sub['isAll'] == true;
+                                      final isSelected =
+                                          activeSubcategoryIndex == index;
 
-                                    return GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          activeSubcategoryIndex = index;
-                                        });
-                                      },
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                          right: index ==
-                                                  subcategories.length - 1
-                                              ? 0
-                                              : 10,
-                                        ),
-                                        child: SizedBox(
-                                          width: 62,
-                                          child: Stack(
-                                            alignment: Alignment.topCenter,
-                                            children: [
-                                              Column(
-                                                children: [
-                                                  isAll
-                                                      ? Container(
-                                                          width: 46,
-                                                          height: 46,
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                            shape: BoxShape
-                                                                .circle,
-                                                          ),
-                                                          child: Center(
-                                                            child: Image.asset(
-                                                              'lib/assets/images/All.png',
-                                                              width: 22,
-                                                              height: 22,
-                                                              color:
-                                                                  const Color(
-                                                                0xFFFF5E00,
+                                      return GestureDetector(
+                                        onTap: () {
+                                          if (activeSubcategoryIndex != index) {
+                                            setState(() {
+                                              activeSubcategoryIndex = index;
+                                            });
+                                            _loadGroceryItems();
+                                          }
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            right:
+                                                index ==
+                                                    subcategories.length - 1
+                                                ? 0
+                                                : 10,
+                                          ),
+                                          child: SizedBox(
+                                            width: 62,
+                                            child: Stack(
+                                              alignment: Alignment.topCenter,
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    isAll
+                                                        ? Container(
+                                                            width: 46,
+                                                            height: 46,
+                                                            decoration:
+                                                                const BoxDecoration(
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                ),
+                                                            child: Center(
+                                                              child: Image.asset(
+                                                                'lib/assets/images/All.png',
+                                                                width: 22,
+                                                                height: 22,
+                                                                color:
+                                                                    const Color(
+                                                                      0xFFFF5E00,
+                                                                    ),
                                                               ),
                                                             ),
-                                                          ),
-                                                        )
-                                                      : Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape: BoxShape
-                                                                .circle,
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                color: Colors
-                                                                    .black
-                                                                    .withOpacity(
-                                                                  0.10,
+                                                          )
+                                                        : Container(
+                                                            decoration: BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                        0.10,
+                                                                      ),
+                                                                  blurRadius:
+                                                                      10,
+                                                                  offset:
+                                                                      const Offset(
+                                                                        0,
+                                                                        4,
+                                                                      ),
                                                                 ),
-                                                                blurRadius: 10,
-                                                                offset:
-                                                                    const Offset(
-                                                                  0,
-                                                                  4,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          child: ClipOval(
-                                                            child:
-                                                                Image.network(
-                                                              sub['image']
-                                                                  as String,
-                                                              width: 46,
-                                                              height: 46,
-                                                              fit: BoxFit
-                                                                  .cover,
-                                                              errorBuilder: (
-                                                                context,
-                                                                error,
-                                                                stackTrace,
-                                                              ) =>
-                                                                  Container(
+                                                              ],
+                                                            ),
+                                                            child: ClipOval(
+                                                              child: Image.network(
+                                                                (sub['image'] ??
+                                                                        '')
+                                                                    .toString(),
                                                                 width: 46,
                                                                 height: 46,
-                                                                color: Colors
-                                                                    .grey
-                                                                    .shade300,
-                                                                child:
-                                                                    const Icon(
-                                                                  Icons
-                                                                      .fastfood,
-                                                                  size: 18,
-                                                                  color: Colors
-                                                                      .grey,
-                                                                ),
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                                errorBuilder:
+                                                                    (
+                                                                      context,
+                                                                      error,
+                                                                      stackTrace,
+                                                                    ) => Container(
+                                                                      width: 46,
+                                                                      height:
+                                                                          46,
+                                                                      color: Colors
+                                                                          .grey
+                                                                          .shade300,
+                                                                      child: const Icon(
+                                                                        Icons
+                                                                            .fastfood,
+                                                                        size:
+                                                                            18,
+                                                                        color: Colors
+                                                                            .grey,
+                                                                      ),
+                                                                    ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    sub['label'] as String,
-                                                    textAlign:
-                                                        TextAlign.center,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.visible,
-                                                    style: GoogleFonts.outfit(
-                                                      color: isSelected
-                                                          ? const Color(
-                                                              0xFFFF5E00)
-                                                          : const Color(
-                                                              0xFF3A312C),
-                                                      fontSize: 11,
-                                                      fontWeight: isSelected
-                                                          ? FontWeight.w700
-                                                          : FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              if (isSelected)
-                                                Positioned(
-                                                  bottom: 0,
-                                                  child: Container(
-                                                    height: 10,
-                                                    width: 56,
-                                                    decoration: BoxDecoration(
-                                                      gradient:
-                                                          const LinearGradient(
-                                                        colors: [
-                                                          Color(0xFFFF5E00),
-                                                          Color(0xFFFFAE00),
-                                                        ],
-                                                      ),
-                                                      borderRadius:
-                                                          const BorderRadius
-                                                              .only(
-                                                        topLeft:
-                                                            Radius.circular(
-                                                                12),
-                                                        topRight:
-                                                            Radius.circular(
-                                                                12),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      (sub['label'] ?? '')
+                                                          .toString(),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.visible,
+                                                      style: GoogleFonts.outfit(
+                                                        color: isSelected
+                                                            ? const Color(
+                                                                0xFFFF5E00,
+                                                              )
+                                                            : const Color(
+                                                                0xFF3A312C,
+                                                              ),
+                                                        fontSize: 11,
+                                                        fontWeight: isSelected
+                                                            ? FontWeight.w700
+                                                            : FontWeight.w600,
                                                       ),
                                                     ),
-                                                  ),
+                                                  ],
                                                 ),
-                                            ],
+                                                if (isSelected)
+                                                  Positioned(
+                                                    bottom: 0,
+                                                    child: Container(
+                                                      height: 10,
+                                                      width: 56,
+                                                      decoration: BoxDecoration(
+                                                        gradient:
+                                                            const LinearGradient(
+                                                              colors: [
+                                                                Color(
+                                                                  0xFFFF5E00,
+                                                                ),
+                                                                Color(
+                                                                  0xFFFFAE00,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                        borderRadius:
+                                                            const BorderRadius.only(
+                                                              topLeft:
+                                                                  Radius.circular(
+                                                                    12,
+                                                                  ),
+                                                              topRight:
+                                                                  Radius.circular(
+                                                                    12,
+                                                                  ),
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  },
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ],
@@ -817,7 +986,23 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildSmartBundleCard(context, isNotAccepting),
+                    if (smartBundle != null)
+                      _buildSmartBundleCard(
+                        context,
+                        isNotAccepting,
+                        smartBundle!,
+                      )
+                    else if (!_isLoading)
+                      _buildNoDataPlaceholder('Smart Bundles')
+                    else
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFFF5E00),
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 20),
 
                     Padding(
@@ -835,28 +1020,40 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: menuItems.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          mainAxisExtent: 268,
+                    if (_isLoadingItems || _isLoading)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 32),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFFF5E00),
+                          ),
                         ),
-                        itemBuilder: (context, index) {
-                          return _buildFoodCard(
-                            context,
-                            menuItems[index],
-                            isNotAccepting,
-                          );
-                        },
+                      )
+                    else if (menuItems.isEmpty)
+                      _buildNoDataPlaceholder('All Items from This Store')
+                    else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: menuItems.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                                mainAxisExtent: 268,
+                              ),
+                          itemBuilder: (context, index) {
+                            return _buildFoodCard(
+                              context,
+                              menuItems[index],
+                              isNotAccepting,
+                            );
+                          },
+                        ),
                       ),
-                    ),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -1004,7 +1201,17 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     );
   }
 
-  Widget _buildSmartBundleCard(BuildContext context, bool isNotAccepting) {
+  Widget _buildSmartBundleCard(
+    BuildContext context,
+    bool isNotAccepting,
+    Map<String, dynamic> bundle,
+  ) {
+    final title = (bundle['title'] ?? 'Special Bundle').toString();
+    final itemsDesc = (bundle['items'] ?? 'Bundle').toString();
+    final price = (bundle['price'] ?? '750 MRU').toString();
+    final originalPrice = (bundle['originalPrice'] ?? '1500 MRU').toString();
+    final bundlePrice = parsePrice(price);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(12),
@@ -1040,7 +1247,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Special Bundle',
+                  title,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
@@ -1049,7 +1256,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Milk 1L • Eggs • Bread • Yogurt',
+                  itemsDesc,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 10,
@@ -1060,23 +1267,25 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 Row(
                   children: [
                     Text(
-                      '750 MRU',
+                      price,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '1500 MRU',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 10,
-                        decoration: TextDecoration.lineThrough,
-                        decorationColor: const Color(0xFFA59A94),
+                    if (originalPrice.isNotEmpty) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        originalPrice,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFA59A94),
+                          fontSize: 10,
+                          decoration: TextDecoration.lineThrough,
+                          decorationColor: const Color(0xFFA59A94),
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ],
@@ -1099,19 +1308,25 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     setState(() {
                       showCartBar = true;
                       lastAddedItem = {
-                        'title': 'Special Bundle',
-                        'price': '750 MRU',
-                        'image': widget.store['image'],
+                        'title': title,
+                        'price': price,
+                        'image':
+                            (_storeDetails?['image'] ?? widget.store['image']),
                       };
                       lastAddedItemPortion = 'Bundle';
                     });
                     if (Get.isRegistered<HomeController>()) {
                       Get.find<HomeController>().setCartItem(
-                        storeName: widget.store['name']?.toString() ?? 'Grocery Store',
-                        itemName: 'Special Bundle',
+                        storeName:
+                            (_storeDetails?['name'] ?? widget.store['name'])
+                                ?.toString() ??
+                            'Grocery Store',
+                        itemName: title,
                         itemPortion: 'Bundle',
-                        basePrice: 750,
-                        itemImage: widget.store['image']?.toString(),
+                        basePrice: bundlePrice > 0 ? bundlePrice : 750,
+                        itemImage:
+                            (_storeDetails?['image'] ?? widget.store['image'])
+                                ?.toString(),
                       );
                     }
                   },
@@ -1132,8 +1347,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     ? null
                     : [
                         BoxShadow(
-                          color:
-                              const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                          color: const Color(
+                            0xFFFF5E00,
+                          ).withValues(alpha: 0.35),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -1210,7 +1426,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        food['discount']!,
+                        (food['discount'] ?? '').toString(),
                         style: GoogleFonts.outfit(
                           color: Colors.white,
                           fontSize: 8,
@@ -1230,7 +1446,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      food['title']!,
+                      (food['title'] ?? '').toString(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.outfit(
@@ -1249,7 +1465,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         ),
                         const SizedBox(width: 2),
                         Text(
-                          food['rating']!,
+                          (food['rating'] ?? '4.5').toString(),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 10,
@@ -1259,7 +1475,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         const SizedBox(width: 2),
                         Expanded(
                           child: Text(
-                            '(${food['reviews']})',
+                            '(${food['reviews'] ?? ''})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.outfit(
@@ -1272,7 +1488,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      food['originalPrice']!,
+                      (food['originalPrice'] ?? '').toString(),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 10,
@@ -1281,7 +1497,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       ),
                     ),
                     Text(
-                      food['price']!,
+                      (food['price'] ?? '').toString(),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 14,
@@ -1419,7 +1635,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                food['title']!,
+                                (food['title'] ?? '').toString(),
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 18,
@@ -1438,7 +1654,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
-                                  food['tag']!,
+                                  (food['tag'] ?? 'Grocery').toString(),
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 10,
@@ -1453,7 +1669,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 textBaseline: TextBaseline.alphabetic,
                                 children: [
                                   Text(
-                                    food['price']!,
+                                    (food['price'] ?? '').toString(),
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFFF5E00),
                                       fontSize: 18,
@@ -1462,7 +1678,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    food['originalPrice']!,
+                                    (food['originalPrice'] ?? '').toString(),
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
@@ -1484,7 +1700,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '${food['rating']!} (${food['reviews']!})',
+                                    '${food['rating'] ?? '4.5'} (${food['reviews'] ?? ''})',
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
@@ -1649,7 +1865,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           color: Colors.white,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                            color: const Color(
+                              0xFFFF5E00,
+                            ).withValues(alpha: 0.35),
                             width: 1.2,
                           ),
                           boxShadow: [
@@ -1677,7 +1895,6 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     );
   }
 
-
   void _showCustomizeBottomSheet(
     BuildContext context,
     Map<String, dynamic> food, {
@@ -1693,7 +1910,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     String qtyText2 = '5 Kg';
     String qtyPrice2 = '550 MRU';
 
-    final title = food['title'] as String;
+    final title = (food['title'] ?? '').toString();
     if (title.contains('Milk')) {
       qtyText1 = '1 L';
       qtyPrice1 = '65 MRU';
@@ -2033,7 +2250,12 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                     width: 0.8,
                                   ),
                                 ),
-                                padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  10,
+                                  10,
+                                  10,
+                                ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
@@ -2198,11 +2420,18 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   });
                                   if (Get.isRegistered<HomeController>()) {
                                     Get.find<HomeController>().setCartItem(
-                                      storeName: widget.store['name']?.toString() ?? 'Grocery Store',
-                                      itemName: lastAddedItem?['title']?.toString(),
+                                      storeName:
+                                          widget.store['name']?.toString() ??
+                                          'Grocery Store',
+                                      itemName: lastAddedItem?['title']
+                                          ?.toString(),
                                       itemPortion: lastAddedItemPortion,
-                                      basePrice: parsePrice(lastAddedItem?['price']?.toString() ?? '65'),
-                                      itemImage: lastAddedItem?['image']?.toString(),
+                                      basePrice: parsePrice(
+                                        lastAddedItem?['price']?.toString() ??
+                                            '65',
+                                      ),
+                                      itemImage: lastAddedItem?['image']
+                                          ?.toString(),
                                     );
                                   }
 
@@ -2281,7 +2510,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           color: Colors.white,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                            color: const Color(
+                              0xFFFF5E00,
+                            ).withValues(alpha: 0.35),
                             width: 1.2,
                           ),
                           boxShadow: [

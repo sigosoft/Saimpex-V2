@@ -3,14 +3,48 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../models/general_repository.dart';
+import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
 
-class HelpSupportScreen extends StatelessWidget {
+class HelpSupportScreen extends StatefulWidget {
   const HelpSupportScreen({super.key});
 
-  static const _phoneDisplay = '+222 45 12 34 56';
-  static const _emailDisplay = 'saimpex@gmail.com';
-  static const _supportEmail = 'support@norbizlotto.com';
+  @override
+  State<HelpSupportScreen> createState() => _HelpSupportScreenState();
+}
+
+class _HelpSupportScreenState extends State<HelpSupportScreen> {
+  String _phone = '';
+  String _email = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchContact();
+  }
+
+  Future<void> _fetchContact() async {
+    if (!Get.isRegistered<GeneralRepository>()) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+
+    try {
+      final contact = await Get.find<GeneralRepository>().fetchContact(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _phone = contact.phone;
+        _email = contact.email;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,31 +63,37 @@ class HelpSupportScreen extends StatelessWidget {
           children: [
             _buildHeader(context),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                child: Column(
-                  children: [
-                    _buildContactCard(
-                      icon: Icons.phone_in_talk_rounded,
-                      label: 'Call Us',
-                      value: _phoneDisplay,
-                      buttonLabel: 'Call Now',
-                      onTap: () {},
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF5E00),
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                      child: Column(
+                        children: [
+                          _buildContactCard(
+                            icon: Icons.phone_in_talk_rounded,
+                            label: 'Call Us',
+                            value: _phone,
+                            buttonLabel: 'Call Now',
+                            onTap: () {},
+                          ),
+                          const SizedBox(height: 14),
+                          _buildContactCard(
+                            icon: Icons.email_rounded,
+                            label: 'Email Us',
+                            value: _email,
+                            buttonLabel: 'Send Mail',
+                            onTap: () {},
+                          ),
+                          const SizedBox(height: 14),
+                          _buildSupportInfoCard(),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 14),
-                    _buildContactCard(
-                      icon: Icons.email_rounded,
-                      label: 'Email Us',
-                      value: _emailDisplay,
-                      buttonLabel: 'Send Mail',
-                      onTap: () {},
-                    ),
-                    const SizedBox(height: 14),
-                    _buildSupportInfoCard(),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -207,13 +247,13 @@ class HelpSupportScreen extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.phone_in_talk_rounded,
             title: 'Call Support',
-            subtitle: _phoneDisplay,
+            subtitle: _phone,
           ),
           const SizedBox(height: 18),
           _buildInfoRow(
             icon: Icons.email_rounded,
             title: 'Support Email',
-            subtitle: _supportEmail,
+            subtitle: _email,
           ),
         ],
       ),

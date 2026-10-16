@@ -72,10 +72,7 @@ class _MainShellScreenState extends State<MainShellScreen>
       vsync: this,
       duration: const Duration(milliseconds: 380),
     );
-    _tabCurve = CurvedAnimation(
-      parent: _tabAnim,
-      curve: Curves.easeInOutCubic,
-    );
+    _tabCurve = CurvedAnimation(parent: _tabAnim, curve: Curves.easeInOutCubic);
     _tabAnim.addStatusListener((status) {
       if (status == AnimationStatus.completed && _from != _to && mounted) {
         setState(() => _from = _to);
@@ -97,6 +94,7 @@ class _MainShellScreenState extends State<MainShellScreen>
     _to = initial;
 
     _navWorker = ever<int>(_controller.currentNavIndex, _onNavIndex);
+    unawaited(_controller.loadHome());
     unawaited(_loadSavedProfile());
     unawaited(_loadDeliveryLocation());
   }
@@ -148,12 +146,20 @@ class _MainShellScreenState extends State<MainShellScreen>
 
   void _onNavIndex(int index) {
     final next = index.clamp(0, HomeController.navMaxIndex);
-    if (next == _to) return;
+    if (next == _to) {
+      if (next == HomeController.navHome) {
+        _controller.loadHome();
+      }
+      return;
+    }
     setState(() {
       _from = _to;
       _to = next;
     });
     _tabAnim.forward(from: 0);
+    if (next == HomeController.navHome) {
+      _controller.loadHome();
+    }
   }
 
   int _visualPosition(int index) {
@@ -215,8 +221,9 @@ class _MainShellScreenState extends State<MainShellScreen>
   }
 
   Widget _buildPages() {
-    final direction =
-        _visualPosition(_to) >= _visualPosition(_from) ? 1.0 : -1.0;
+    final direction = _visualPosition(_to) >= _visualPosition(_from)
+        ? 1.0
+        : -1.0;
     final animating = _from != _to;
 
     return AnimatedBuilder(

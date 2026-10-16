@@ -9,6 +9,8 @@ class ApiConstants {
   static const String logout = 'customer/logout';
   static const String profile = 'customer/profile';
   static const String updateProfile = 'customer/updateProfile';
+  static const String updateLanguage = 'customer/updateLanguage';
+  static const String userPoints = 'customer/userPoints';
   static const String updateLocation = 'customer/updateLocation';
   static const String fetchLocation = 'customer/fetchLocation';
   static const String pharmacyHome = 'customer/pharmacyHome';
@@ -54,8 +56,18 @@ class ApiConstants {
   static const String rating = 'customer/rating';
   static const String submitRating = 'customer/submitRating';
   static const String foodVendorCategories = 'customer/foodVendorCategories';
+  static const String restaurantHomeV2 = 'customer/restaurantHomeV2';
+  static const String groceryHomeV2 = 'customer/groceryHomeV2';
+  static const String groceryHomeCategories = 'customer/groceryHomeCategories';
+  static const String groceryVendorCategories = 'customer/groceryVendorCategories';
+  static const String groceryDetails = 'customer/grocery/details';
+  static const String groceryItems = 'customer/grocery/items';
   static const String homeHub = 'customer/homeHub';
   static const String reviews = 'customer/reviews';
+  static const String getAbout = 'customer/getAbout';
+  static const String getPrivacyPolicy = 'customer/getPrivacyPolicy';
+  static const String getTermsAndConditions = 'customer/getTermsandConditions';
+  static const String getContact = 'customer/getContact';
 
   static String? mediaUrl(String? path) {
     if (path == null) return null;

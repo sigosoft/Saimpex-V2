@@ -96,6 +96,9 @@ class HomeController extends GetxController {
 
   void selectNavigation(int index) {
     currentNavIndex.value = index;
+    if (index == navHome) {
+      loadHome();
+    }
   }
 
   void goToOrdersTab({int categoryIndex = 0}) {
@@ -201,9 +204,47 @@ class HomeController extends GetxController {
     return '$amount $currency';
   }
 
-  String sectionTitle(String key) => homeSections[key]?['title'] ?? '';
+  String sectionTitle(String key) {
+    final title = homeSections[key]?['title']?.trim() ?? '';
+    if (title.isNotEmpty) return title;
+    switch (key) {
+      case 'trending':
+        return 'Trending in your area';
+      case 'recent_orders':
+        return 'Recent Orders';
+      case 'under_30_minutes':
+        return 'Under 30 Minutes';
+      case 'top_grocery':
+        return 'Top Grocery Stores Near You';
+      case 'trusted_pharmacies':
+        return 'Trusted Pharmacies';
+      case 'top_rated_suppliers':
+        return 'Top Rated Suppliers';
+      default:
+        return '';
+    }
+  }
 
-  String sectionSeeAll(String key) => homeSections[key]?['seeAll'] ?? '';
+  String sectionSeeAll(String key) {
+    final seeAll = homeSections[key]?['seeAll']?.trim() ?? '';
+    if (seeAll.isNotEmpty) return seeAll;
+    switch (key) {
+      case 'trending':
+        return 'food';
+      case 'recent_orders':
+        return 'orders';
+      case 'under_30_minutes':
+        return 'food';
+      case 'top_grocery':
+        return 'grocery';
+      case 'trusted_pharmacies':
+        return 'pharmacy';
+      case 'top_rated_suppliers':
+        return 'water';
+      default:
+        return '';
+    }
+  }
 
   Map<String, dynamic>? bannerFor(String section) {
     for (final banner in homeBanners) {
@@ -221,11 +262,17 @@ class HomeController extends GetxController {
   Future<void> loadHome() async {
     if (!Get.isRegistered<GeneralRepository>()) return;
     final request = ++_homeRequest;
-    if (!homeLoaded.value) homeLoading.value = true;
+    homeLoading.value = true;
     try {
+      double lat = SelectLocationController.selectedLatitude;
+      double lng = SelectLocationController.selectedLongitude;
+      if (lat == 0.0 && lng == 0.0) {
+        lat = 18.0735;
+        lng = -15.9582;
+      }
       final home = await Get.find<GeneralRepository>().fetchHome(
-        latitude: SelectLocationController.selectedLatitude,
-        longitude: SelectLocationController.selectedLongitude,
+        latitude: lat,
+        longitude: lng,
         language: apiLanguageCode(),
       );
       if (request != _homeRequest) return;
@@ -256,6 +303,20 @@ class HomeController extends GetxController {
           }
         });
       }
+      for (final list in [
+        homeTrending,
+        homeUnder30,
+        homeTopGrocery,
+        homeTrusted,
+        homeSuppliers,
+      ]) {
+        for (final item in list) {
+          final id = (item['id'] ?? '').toString();
+          if (id.isNotEmpty && item['isFavourite'] == true && !likedItems.contains(id)) {
+            likedItems.add(id);
+          }
+        }
+      }
       homeLoaded.value = true;
     } on ApiException catch (error) {
       if (request != _homeRequest) return;
@@ -274,8 +335,6 @@ class HomeController extends GetxController {
         ? address
         : city.isNotEmpty
         ? city
-        : (latitude != null && longitude != null)
-        ? '${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}'
         : '';
     if (label.isEmpty && latitude == null && longitude == null) return;
     SelectLocationController.applyFetchedLocation(

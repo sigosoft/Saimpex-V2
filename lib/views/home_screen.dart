@@ -29,6 +29,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(HomeController());
+    if (!controller.homeLoaded.value && !controller.homeLoading.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadHome();
+      });
+    }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -76,50 +81,50 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
 
-                            // Save More Today Section
-                            _buildSaveMoreToday(),
-                            const SizedBox(height: 24),
+                          // Save More Today Section
+                          _buildSaveMoreToday(),
+                          const SizedBox(height: 24),
 
-                            // Trending in Nouakchott
-                            _buildTrendingSection(controller),
-                            const SizedBox(height: 24),
+                          // Trending in Nouakchott
+                          _buildTrendingSection(controller),
+                          const SizedBox(height: 24),
 
-                            // Recent Orders
-                            _buildRecentOrdersSection(),
-                            const SizedBox(height: 24),
+                          // Recent Orders
+                          _buildRecentOrdersSection(),
+                          const SizedBox(height: 24),
 
-                            // Under 30 Minutes
-                            _buildUnder30MinSection(controller),
-                            const SizedBox(height: 24),
+                          // Under 30 Minutes
+                          _buildUnder30MinSection(controller),
+                          const SizedBox(height: 24),
 
-                            // Mid-page Grocery Banner Slider
-                            _buildGroceryPromoBanner(controller),
-                            const SizedBox(height: 24),
+                          // Mid-page Grocery Banner Slider
+                          _buildGroceryPromoBanner(controller),
+                          const SizedBox(height: 24),
 
-                            // Top Grocery Stores Near You
-                            _buildTopGroceryStores(controller),
-                            const SizedBox(height: 24),
+                          // Top Grocery Stores Near You
+                          _buildTopGroceryStores(controller),
+                          const SizedBox(height: 24),
 
-                            // Mid-page Pharmacy Banner Slider
-                            _buildPharmacyPromoBanner(controller),
-                            const SizedBox(height: 24),
+                          // Mid-page Pharmacy Banner Slider
+                          _buildPharmacyPromoBanner(controller),
+                          const SizedBox(height: 24),
 
-                            // Trusted Pharmacies
-                            _buildTrustedPharmacies(controller),
-                            const SizedBox(height: 24),
+                          // Trusted Pharmacies
+                          _buildTrustedPharmacies(controller),
+                          const SizedBox(height: 24),
 
-                            // Mid-page Water Banner Slider
-                            _buildWaterPromoBanner(controller),
-                            const SizedBox(height: 24),
+                          // Mid-page Water Banner Slider
+                          _buildWaterPromoBanner(controller),
+                          const SizedBox(height: 24),
 
-                            // Top Rated Suppliers (Water)
-                            _buildTopRatedSuppliers(controller),
-                          ],
-                        ),
+                          // Top Rated Suppliers (Water)
+                          _buildTopRatedSuppliers(controller),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
               // 2. Floating Bottom Navigation Bar Layer
               if (showBottomNav)
                 Positioned(
@@ -130,9 +135,7 @@ class HomeScreen extends StatelessWidget {
                 ),
 
               // 3. AI Chatbot Head (draggable overlay)
-              const Positioned.fill(
-                child: ChatBotHead(),
-              ),
+              const Positioned.fill(child: ChatBotHead()),
             ],
           ),
         ),
@@ -152,19 +155,14 @@ class HomeScreen extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          const Positioned.fill(
-            child: ColoredBox(color: Color(0xFFFDDCC9)),
-          ),
+          const Positioned.fill(child: ColoredBox(color: Color(0xFFFDDCC9))),
           const Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   center: Alignment(0.05, -0.2),
                   radius: 1.15,
-                  colors: [
-                    Color(0xF2FFFFFF),
-                    Color(0x00FFFFFF),
-                  ],
+                  colors: [Color(0xF2FFFFFF), Color(0x00FFFFFF)],
                 ),
               ),
             ),
@@ -179,9 +177,24 @@ class HomeScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    const Color.fromARGB(255, 255, 133, 62).withValues(alpha: 0.95),
-                    const Color.fromARGB(255, 255, 102, 0).withValues(alpha: 0.42),
-                    const Color.fromARGB(255, 255, 137, 58).withValues(alpha: 0),
+                    const Color.fromARGB(
+                      255,
+                      255,
+                      133,
+                      62,
+                    ).withValues(alpha: 0.95),
+                    const Color.fromARGB(
+                      255,
+                      255,
+                      102,
+                      0,
+                    ).withValues(alpha: 0.42),
+                    const Color.fromARGB(
+                      255,
+                      255,
+                      137,
+                      58,
+                    ).withValues(alpha: 0),
                   ],
                   stops: const [0.0, 0.46, 1.0],
                 ),
@@ -298,7 +311,7 @@ class HomeScreen extends StatelessWidget {
                     height: 16,
                   ),
                 ),
-                const SizedBox(width:3),
+                const SizedBox(width: 3),
                 Obx(() {
                   final home = Get.find<HomeController>();
                   final label = home.homeLoaded.value ? home.walletLabel : '';
@@ -327,7 +340,8 @@ class HomeScreen extends StatelessWidget {
               border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
             ),
             child: Obx(() {
-              final count = Get.find<HomeController>().unreadNotifications.value;
+              final count =
+                  Get.find<HomeController>().unreadNotifications.value;
               final loaded = Get.find<HomeController>().homeLoaded.value;
               return Stack(
                 clipBehavior: Clip.none,
@@ -362,7 +376,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-
   // Search Box
   Widget _buildSearchBox() {
     return const HomeSearchBox();
@@ -371,26 +384,9 @@ class HomeScreen extends StatelessWidget {
   // Category Selector Grid
   Widget _buildCategoryGrid(HomeController controller) {
     return Obx(() {
-      if (controller.homeLoading.value && !controller.homeLoaded.value) {
-        return const SizedBox(
-          height: 120,
-          child: Center(
-            child: SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Color(0xFFFF5E00),
-              ),
-            ),
-          ),
-        );
-      }
-      if (!controller.homeLoaded.value) return const SizedBox.shrink();
       return _categoryGrid(controller, _verticalTiles(controller));
     });
   }
-
 
   Widget _categoryGrid(
     HomeController controller,
@@ -413,10 +409,8 @@ class HomeScreen extends StatelessWidget {
           final slug = (cat['slug'] ?? '').toString();
           final isSelected = slug == 'all';
           return GestureDetector(
-            onTap: () => _openHomeVertical(
-              slug,
-              (cat['label'] ?? '').toString(),
-            ),
+            onTap: () =>
+                _openHomeVertical(slug, (cat['label'] ?? '').toString()),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -466,12 +460,28 @@ class HomeScreen extends StatelessWidget {
                   bottom: isSelected ? 28 : 22,
                   child: isSelected
                       ? Center(
-                          child: Image.asset(
-                            cat['icon'] as String,
-                            width: 24,
-                            height: 24,
-                            color: Colors.white,
-                          ),
+                          child:
+                              (cat['icon'] ?? '').toString().startsWith('http')
+                              ? Image.network(
+                                  cat['icon'] as String,
+                                  width: 24,
+                                  height: 24,
+                                  color: Colors.white,
+                                  errorBuilder: (_, _, _) => Image.asset(
+                                    'lib/assets/images/All.png',
+                                    width: 24,
+                                    height: 24,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Image.asset(
+                                  (cat['icon'] as String?)?.isNotEmpty == true
+                                      ? (cat['icon'] as String)
+                                      : 'lib/assets/images/All.png',
+                                  width: 24,
+                                  height: 24,
+                                  color: Colors.white,
+                                ),
                         )
                       : _verticalIcon(cat),
                 ),
@@ -498,6 +508,36 @@ class HomeScreen extends StatelessWidget {
       'local_store': 'lib/assets/images/Local Store.png',
       'services': 'lib/assets/images/cleaning_services.png',
     };
+    if (controller.homeVerticals.isEmpty) {
+      const defaultSlugs = [
+        'all',
+        'food',
+        'grocery',
+        'pharmacy',
+        'water',
+        'courier',
+        'express',
+        'local_store',
+      ];
+      const defaultLabels = {
+        'all': 'All',
+        'food': 'Food',
+        'grocery': 'Grocery',
+        'pharmacy': 'Pharmacy',
+        'water': 'Water',
+        'courier': 'Courier',
+        'express': 'Express',
+        'local_store': 'Local Store',
+      };
+      return defaultSlugs
+          .map((slug) => {
+                'label': defaultLabels[slug] ?? slug,
+                'slug': slug,
+                'icon': icons[slug] ?? 'lib/assets/images/All.png',
+                'gradient': _verticalGradient(slug),
+              })
+          .toList();
+    }
     final tiles = <Map<String, dynamic>>[];
     for (final vertical in controller.homeVerticals) {
       final slug = vertical['slug']?.toString() ?? '';
@@ -518,7 +558,9 @@ class HomeScreen extends StatelessWidget {
     final localIndex = tiles.indexWhere(
       (tile) => tile['slug'] == 'local_store',
     );
-    if (expressIndex >= 0 && localIndex >= 0 && localIndex != expressIndex + 1) {
+    if (expressIndex >= 0 &&
+        localIndex >= 0 &&
+        localIndex != expressIndex + 1) {
       final local = tiles.removeAt(localIndex);
       final insertAt = tiles.indexWhere((tile) => tile['slug'] == 'express');
       tiles.insert(insertAt + 1, local);
@@ -553,14 +595,31 @@ class HomeScreen extends StatelessWidget {
 
   Widget _verticalIcon(Map<String, dynamic> cat) {
     final icon = (cat['icon'] ?? '').toString();
+    final slug = (cat['slug'] ?? '').toString();
+    const fallbackIcons = <String, String>{
+      'all': 'lib/assets/images/All.png',
+      'food': 'lib/assets/images/Food.png',
+      'grocery': 'lib/assets/images/Grocery.png',
+      'pharmacy': 'lib/assets/images/Pharmacy.png',
+      'water': 'lib/assets/images/Water.png',
+      'courier': 'lib/assets/images/Courier.png',
+      'express': 'lib/assets/images/Express.png',
+      'local_store': 'lib/assets/images/Local Store.png',
+      'services': 'lib/assets/images/cleaning_services.png',
+    };
+    final fallback = fallbackIcons[slug] ?? 'lib/assets/images/All.png';
+
     if (icon.startsWith('http')) {
       return Image.network(
         icon,
         fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => const Icon(Icons.category_outlined),
+        errorBuilder: (_, _, _) => Image.asset(fallback, fit: BoxFit.contain),
       );
     }
-    return Image.asset(icon, fit: BoxFit.contain);
+    if (icon.isNotEmpty) {
+      return Image.asset(icon, fit: BoxFit.contain);
+    }
+    return Image.asset(fallback, fit: BoxFit.contain);
   }
 
   void _openHomeVertical(String slug, String label) {
@@ -614,6 +673,56 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
+  Widget _buildNoDataPlaceholder(String title) {
+    String message;
+    final lower = title.toLowerCase();
+    if (lower.contains('recent order')) {
+      message = 'No recent orders available';
+    } else if (lower.contains('trending')) {
+      message = 'No trending items available';
+    } else if (lower.contains('under 30')) {
+      message = 'No items available under 30 minutes';
+    } else if (lower.contains('grocery')) {
+      message = 'No grocery stores available';
+    } else if (lower.contains('pharmac')) {
+      message = 'No pharmacies available';
+    } else if (lower.contains('supplier')) {
+      message = 'No suppliers available';
+    } else {
+      message = 'No data available';
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              'lib/assets/images/Nodata.png',
+              width: 86,
+              height: 86,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              message,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF7A6A60),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _vendorSection(
     HomeController controller, {
     required String sectionKey,
@@ -622,16 +731,18 @@ class HomeScreen extends StatelessWidget {
   }) {
     final title = controller.sectionTitle(sectionKey);
     final seeAll = controller.sectionSeeAll(sectionKey);
-    if (title.isEmpty && items.isEmpty) return const SizedBox.shrink();
+    if (title.isEmpty) return const SizedBox.shrink();
+
     return Column(
       children: [
-        if (title.isNotEmpty)
-          _buildSectionHeader(
-            title,
-            seeAll.isEmpty ? null : () => _openSeeAll(controller, seeAll),
-          ),
-        if (items.isNotEmpty) ...[
-          const SizedBox(height: 14),
+        _buildSectionHeader(
+          title,
+          items.isEmpty || seeAll.isEmpty
+              ? null
+              : () => _openSeeAll(controller, seeAll),
+        ),
+        const SizedBox(height: 14),
+        if (items.isNotEmpty)
           SizedBox(
             height: under30 ? 230 : 240,
             child: ListView.builder(
@@ -646,8 +757,9 @@ class HomeScreen extends StatelessWidget {
                     : _buildRestaurantCard(controller, item);
               },
             ),
-          ),
-        ],
+          )
+        else
+          _buildNoDataPlaceholder(title),
       ],
     );
   }
@@ -811,15 +923,11 @@ class HomeScreen extends StatelessWidget {
   // Trending Section
   Widget _buildTrendingSection(HomeController controller) {
     return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        return _vendorSection(
-          controller,
-          sectionKey: 'trending',
-          items: controller.homeTrending.toList(),
-        );
-      }
-      return const SizedBox.shrink();
+      return _vendorSection(
+        controller,
+        sectionKey: 'trending',
+        items: controller.homeTrending.toList(),
+      );
     });
   }
 
@@ -869,34 +977,42 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                         )
-                      : Image.asset(
+                      : (item['image'] ?? '').toString().isNotEmpty
+                      ? Image.asset(
                           (item['image'] ?? '').toString(),
                           fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: const Color(0xFFF3EFEA),
+                          child: const Icon(
+                            Icons.image_not_supported_outlined,
+                            color: Colors.grey,
+                          ),
                         ),
                 ),
                 if ((item['discount'] ?? '').toString().trim().isNotEmpty)
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE03A3A),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      (item['discount'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
+                  Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE03A3A),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        (item['discount'] ?? '').toString(),
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
                 // Star Rating
                 Positioned(
                   top: 10,
@@ -961,38 +1077,38 @@ class HomeScreen extends StatelessWidget {
                   }),
                 ),
                 if ((item['points'] ?? '').toString().trim().isNotEmpty)
-                Positioned(
-                  bottom: 8,
-                  left: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          "lib/assets/images/Coin.png",
-                          width: 12,
-                          height: 12,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          (item['points'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
+                  Positioned(
+                    bottom: 8,
+                    left: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "lib/assets/images/Coin.png",
+                            width: 12,
+                            height: 12,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            (item['points'] ?? '').toString(),
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
                 if (isClosed) ...[
                   Positioned.fill(
                     child: Container(color: Colors.black.withOpacity(0.35)),
@@ -1225,77 +1341,73 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Recent Orders Section
   Widget _buildRecentOrdersSection() {
     final controller = Get.find<HomeController>();
     return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        final title = controller.sectionTitle('recent_orders');
-        final orders = controller.homeRecentOrders.toList();
-        final seeAll = controller.sectionSeeAll('recent_orders');
-        if (title.isEmpty && orders.isEmpty) return const SizedBox.shrink();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (title.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (seeAll.isNotEmpty)
-                      GestureDetector(
-                        onTap: () => _openSeeAll(controller, seeAll),
-                        child: Row(
-                          children: [
-                            Text(
-                              'View Orders',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            const Icon(
-                              Icons.chevron_right_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 14,
-                            ),
-                          ],
+      final orders = controller.homeRecentOrders.toList();
+      final title = controller.sectionTitle('recent_orders');
+      final seeAll = controller.sectionSeeAll('recent_orders');
+      if (title.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (orders.isNotEmpty && seeAll.isNotEmpty)
+                  GestureDetector(
+                    onTap: () => _openSeeAll(controller, seeAll),
+                    child: Row(
+                      children: [
+                        Text(
+                          'View Orders',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFFF5E00),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                  ],
-                ),
+                        const SizedBox(width: 2),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: Color(0xFFFF5E00),
+                          size: 14,
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (orders.isNotEmpty)
+            SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: orders.length,
+                itemBuilder: (context, index) {
+                  return _buildRecentOrderCard(orders[index]);
+                },
               ),
-            if (orders.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 120,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: orders.length,
-                  itemBuilder: (context, index) {
-                    return _buildRecentOrderCard(orders[index]);
-                  },
-                ),
-              ),
-            ],
-          ],
-        );
-      }
-      return const SizedBox.shrink();
+            )
+          else
+            _buildNoDataPlaceholder(title),
+        ],
+      );
     });
   }
 
@@ -1492,16 +1604,12 @@ class HomeScreen extends StatelessWidget {
   // Under 30 Minutes
   Widget _buildUnder30MinSection(HomeController controller) {
     return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        return _vendorSection(
-          controller,
-          sectionKey: 'under_30_minutes',
-          items: controller.homeUnder30.toList(),
-          under30: true,
-        );
-      }
-      return const SizedBox.shrink();
+      return _vendorSection(
+        controller,
+        sectionKey: 'under_30_minutes',
+        items: controller.homeUnder30.toList(),
+        under30: true,
+      );
     });
   }
 
@@ -1551,34 +1659,42 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                         )
-                      : Image.asset(
+                      : (item['image'] ?? '').toString().isNotEmpty
+                      ? Image.asset(
                           (item['image'] ?? '').toString(),
                           fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: const Color(0xFFF3EFEA),
+                          child: const Icon(
+                            Icons.image_not_supported_outlined,
+                            color: Colors.grey,
+                          ),
                         ),
                 ),
                 if ((item['discount'] ?? '').toString().trim().isNotEmpty)
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE03A3A),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      (item['discount'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
+                  Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE03A3A),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        (item['discount'] ?? '').toString(),
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
                 // Star Rating overlay (top right)
                 Positioned(
                   top: 10,
@@ -1622,35 +1738,35 @@ class HomeScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       if ((item['points'] ?? '').toString().trim().isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              "lib/assets/images/Coin.png",
-                              width: 12,
-                              height: 12,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              (item['points'] ?? '').toString(),
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(
+                                "lib/assets/images/Coin.png",
+                                width: 12,
+                                height: 12,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Text(
+                                (item['points'] ?? '').toString(),
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
                       // Time Badge
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -1737,81 +1853,49 @@ class HomeScreen extends StatelessWidget {
 
   // Mid-page Grocery Promo Banner (slider)
   Widget _buildGroceryPromoBanner(HomeController controller) {
-    return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        return _apiBanner(controller, 'grocery');
-      }
-      return const SizedBox.shrink();
-    });
+    return Obx(() => _apiBanner(controller, 'grocery'));
   }
 
   // Top Grocery Stores
   Widget _buildTopGroceryStores(HomeController controller) {
     return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        return _vendorSection(
-          controller,
-          sectionKey: 'top_grocery',
-          items: controller.homeTopGrocery.toList(),
-        );
-      }
-      return const SizedBox.shrink();
+      return _vendorSection(
+        controller,
+        sectionKey: 'top_grocery',
+        items: controller.homeTopGrocery.toList(),
+      );
     });
   }
 
   // Mid-page Pharmacy Promo Banner (slider)
   Widget _buildPharmacyPromoBanner(HomeController controller) {
-    return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        return _apiBanner(controller, 'pharmacy');
-      }
-      return const SizedBox.shrink();
-    });
+    return Obx(() => _apiBanner(controller, 'pharmacy'));
   }
 
   // Mid-page Water Promo Banner (slider)
   Widget _buildWaterPromoBanner(HomeController controller) {
-    return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        return _apiBanner(controller, 'water');
-      }
-      return const SizedBox.shrink();
-    });
+    return Obx(() => _apiBanner(controller, 'water'));
   }
-
 
   // Trusted Pharmacies
   Widget _buildTrustedPharmacies(HomeController controller) {
     return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        return _vendorSection(
-          controller,
-          sectionKey: 'trusted_pharmacies',
-          items: controller.homeTrusted.toList(),
-        );
-      }
-      return const SizedBox.shrink();
+      return _vendorSection(
+        controller,
+        sectionKey: 'trusted_pharmacies',
+        items: controller.homeTrusted.toList(),
+      );
     });
   }
-
 
   // Top Rated Suppliers (Water)
   Widget _buildTopRatedSuppliers(HomeController controller) {
     return Obx(() {
-      if (_homeBusy(controller)) return const SizedBox.shrink();
-      if (controller.homeLoaded.value) {
-        return _vendorSection(
-          controller,
-          sectionKey: 'top_rated_suppliers',
-          items: controller.homeSuppliers.toList(),
-        );
-      }
-      return const SizedBox.shrink();
+      return _vendorSection(
+        controller,
+        sectionKey: 'top_rated_suppliers',
+        items: controller.homeSuppliers.toList(),
+      );
     });
   }
 
@@ -1823,6 +1907,7 @@ class HomeScreen extends StatelessWidget {
         onTap: (index) {
           if (index == 0) {
             controller.selectNavigation(0);
+            controller.loadHome();
             return;
           }
           // Standalone home — jump into shell at the chosen tab
@@ -1847,8 +1932,6 @@ class _HomeTopBannerCarousel extends StatefulWidget {
 }
 
 class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
-  static const _dotCount = 4;
-
   final PageController _pageController = PageController();
   Timer? _timer;
   int _index = 0;
@@ -1863,8 +1946,12 @@ class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted || !_pageController.hasClients) return;
+      final home = Get.find<HomeController>();
+      final count = home.homeSliders.length;
+      if (count <= 1) return;
+      final next = (_index + 1) % count;
       _pageController.animateToPage(
-        _index + 1,
+        next,
         duration: const Duration(milliseconds: 450),
         curve: Curves.easeInOut,
       );
@@ -1903,6 +1990,33 @@ class _HomeTopBannerCarouselState extends State<_HomeTopBannerCarousel> {
             ),
           );
         }
+        return SizedBox(
+          height: 140,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: slides.length,
+            onPageChanged: (i) => setState(() => _index = i),
+            itemBuilder: (context, index) {
+              final image = (slides[index]['image'] ?? '').toString();
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: image.startsWith('http')
+                      ? Image.network(
+                          image,
+                          height: 140,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) =>
+                              const SizedBox(height: 140),
+                        )
+                      : const SizedBox(height: 140),
+                ),
+              );
+            },
+          ),
+        );
       }
       return const SizedBox.shrink();
     });

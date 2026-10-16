@@ -8,6 +8,7 @@ import '../controllers/home_controller.dart';
 import '../core/network/api_exception.dart';
 import '../core/storage/session_store.dart';
 import '../models/auth_repository.dart';
+import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/profile_image_view.dart';
@@ -39,6 +40,106 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   bool _showDeleteMenu = false;
+  String _walletAmount = '0';
+  String _rewardPoints = '0';
+  Worker? _navWorker;
+  Worker? _sessionWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAccountData();
+    if (Get.isRegistered<HomeController>()) {
+      _navWorker = ever<int>(
+        Get.find<HomeController>().currentNavIndex,
+        (index) {
+          if (index == HomeController.navProfile) {
+            _loadAccountData();
+          }
+        },
+      );
+    }
+    if (Get.isRegistered<SessionStore>()) {
+      _sessionWorker = ever(
+        Get.find<SessionStore>().profileRevision,
+        (_) {
+          if (mounted) setState(() {});
+        },
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _navWorker?.dispose();
+    _sessionWorker?.dispose();
+    super.dispose();
+  }
+
+  void _loadAccountData() {
+    _fetchProfile();
+    _fetchUserPoints();
+  }
+
+  Future<void> _fetchProfile() async {
+    if (!Get.isRegistered<SessionStore>() ||
+        !Get.isRegistered<ProfileRepository>()) {
+      return;
+    }
+    final session = Get.find<SessionStore>();
+    final token = session.token;
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final profile = await Get.find<ProfileRepository>().fetchProfile(
+        apiLanguageCode(),
+      );
+      final currentToken = session.token;
+      if (!mounted || currentToken == null || currentToken.isEmpty) return;
+      await session.saveSession(
+        token: currentToken,
+        user: profile.mergedWith(session.readUser()),
+      );
+      if (mounted) setState(() {});
+    } catch (_) {}
+  }
+
+  Future<void> _fetchUserPoints() async {
+    if (!Get.isRegistered<SessionStore>() ||
+        !Get.isRegistered<ProfileRepository>()) {
+      return;
+    }
+    final session = Get.find<SessionStore>();
+    final token = session.token;
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final pointsData = await Get.find<ProfileRepository>().fetchUserPoints(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _walletAmount = _formatNumber(pointsData.redeemableAmount);
+        _rewardPoints = _formatNumber(pointsData.userPoints);
+      });
+    } catch (_) {}
+  }
+
+  String _formatNumber(num value) {
+    if (value % 1 == 0) {
+      final intVal = value.toInt();
+      final str = intVal.abs().toString();
+      final buffer = StringBuffer();
+      for (int i = 0; i < str.length; i++) {
+        if (i > 0 && (str.length - i) % 3 == 0) {
+          buffer.write(',');
+        }
+        buffer.write(str[i]);
+      }
+      return (value < 0 ? '-' : '') + buffer.toString();
+    }
+    return value.toString();
+  }
 
   void _openDeleteConfirmSheet() {
     setState(() => _showDeleteMenu = false);
@@ -332,7 +433,10 @@ class _AccountScreenState extends State<AccountScreen> {
               GestureDetector(
                 onTap: () async {
                   await Get.to(() => const EditProfileScreen());
-                  if (mounted) setState(() {});
+                  if (mounted) {
+                    _loadAccountData();
+                    setState(() {});
+                  }
                 },
                 child: Container(
                   width: 34,
@@ -369,7 +473,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 child: _buildStatCard(
                   iconAsset: 'lib/assets/images/wallet_profile.png',
                   label: 'WALLET',
-                  value: '2,450',
+                  value: _walletAmount,
                   unit: 'MRU',
                   animateIcon: true,
                 ),
@@ -379,9 +483,12 @@ class _AccountScreenState extends State<AccountScreen> {
                 child: _buildStatCard(
                   iconAsset: 'lib/assets/images/Coin.png',
                   label: 'REWARD POINTS',
-                  value: '1,820',
+                  value: _rewardPoints,
                   animateIcon: true,
-                  onTap: () => Get.to(() => const RewardsReferralScreen()),
+                  onTap: () async {
+                    await Get.to(() => const RewardsReferralScreen());
+                    if (mounted) _fetchUserPoints();
+                  },
                 ),
               ),
             ],
@@ -723,17 +830,23 @@ class _AccountScreenState extends State<AccountScreen> {
                   } else if (item['label'] == 'Help & Support') {
                     Get.to(() => const HelpSupportScreen());
                   } else if (item['label'] == 'Terms & Conditions') {
-                    Get.to(() => const TermsConditionsScreen());
+                    Get.to(
+                      () => const TermsConditionsScreen(
+                        isTermsAndConditions: true,
+                      ),
+                    );
                   } else if (item['label'] == 'Privacy & Security') {
                     Get.to(
                       () => const TermsConditionsScreen(
                         title: 'Privacy & Security',
+                        isPrivacyPolicy: true,
                       ),
                     );
                   } else if (item['label'] == 'About Us') {
                     Get.to(
                       () => const TermsConditionsScreen(
                         title: 'About Us',
+                        isAboutUs: true,
                       ),
                     );
                   }
