@@ -296,8 +296,12 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: GestureDetector(
-                                onTap: () =>
-                                    Get.to(() => const SelectLocationScreen()),
+                                onTap: () async {
+                                  await Get.to(
+                                    () => const SelectLocationScreen(),
+                                  );
+                                  if (mounted) setState(() {});
+                                },
                                 child: Row(
                                   children: [
                                     const Icon(
@@ -329,7 +333,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                               Flexible(
                                                 child: Text(
                                                   SelectLocationController
-                                                      .selectedTitle,
+                                                      .deliveryLabel.value,
                                                   style: GoogleFonts.outfit(
                                                     color: const Color(
                                                       0xFF2C2520,

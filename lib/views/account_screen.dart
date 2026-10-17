@@ -1103,8 +1103,49 @@ class _DeleteAccountSheet extends StatelessWidget {
   }
 }
 
-class _LogoutSheet extends StatelessWidget {
+class _LogoutSheet extends StatefulWidget {
   const _LogoutSheet();
+
+  @override
+  State<_LogoutSheet> createState() => _LogoutSheetState();
+}
+
+class _LogoutSheetState extends State<_LogoutSheet> {
+  bool _isLoading = false;
+
+  Future<void> _handleLogout() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    final session = Get.find<SessionStore>();
+    String? toastMsg;
+
+    try {
+      if (session.token != null && session.token!.isNotEmpty) {
+        toastMsg = await Get.find<AuthRepository>().logout(apiLanguageCode());
+      }
+    } on ApiException catch (error) {
+      debugPrint('Logout API error: ${error.message}');
+      toastMsg = error.message;
+    } catch (e) {
+      debugPrint('Logout unexpected error: $e');
+    } finally {
+      await session.clear();
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().currentNavIndex.value = HomeController.navHome;
+      }
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      Get.offAll(() => const LoginScreen());
+      showAppToast(
+        toastMsg?.isNotEmpty == true
+            ? toastMsg!
+            : 'You are logged out successfully.',
+        backgroundColor: AppColors.primaryOrange,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1147,7 +1188,7 @@ class _LogoutSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: _isLoading ? null : () => Navigator.of(context).pop(),
                   child: Container(
                     height: 48,
                     alignment: Alignment.center,
@@ -1169,10 +1210,7 @@ class _LogoutSheet extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _logout();
-                  },
+                  onTap: _isLoading ? null : _handleLogout,
                   child: Container(
                     height: 48,
                     alignment: Alignment.center,
@@ -1184,14 +1222,24 @@ class _LogoutSheet extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(28),
                     ),
-                    child: Text(
-                      'Yes',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            'Yes',
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -1200,39 +1248,5 @@ class _LogoutSheet extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-bool _logoutInProgress = false;
-
-Future<void> _logout() async {
-  if (_logoutInProgress) return;
-  _logoutInProgress = true;
-
-  final session = Get.find<SessionStore>();
-  if (session.token == null || session.token!.isEmpty) {
-    await session.clear();
-    if (Get.isRegistered<HomeController>()) {
-      Get.find<HomeController>().selectNavigation(HomeController.navHome);
-    }
-    _logoutInProgress = false;
-    return;
-  }
-
-  try {
-    final message = await Get.find<AuthRepository>().logout(apiLanguageCode());
-    await session.clear();
-    if (Get.isRegistered<HomeController>()) {
-      Get.find<HomeController>().selectNavigation(HomeController.navHome);
-    }
-    if (message.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showAppToast(message, backgroundColor: AppColors.primaryOrange);
-      });
-    }
-  } on ApiException catch (error) {
-    showAppToast(error.message);
-  } finally {
-    _logoutInProgress = false;
   }
 }

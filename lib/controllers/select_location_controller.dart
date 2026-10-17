@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:saimpex_v2/controllers/home_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
@@ -17,12 +18,22 @@ import '../utils/toast_helper.dart';
 import '../views/main_shell_screen.dart';
 
 class SelectLocationController extends GetxController {
+  bool isInitialSetup = false;
+
   // Track selected address type: 'Home', 'Office', or 'Other'
   final selectedAddressType = 'Home'.obs;
 
   // Address description details
-  final addressTitle = 'Loading current location...'.obs;
-  final addressSubtitle = 'Please approve location access if prompted.'.obs;
+  late final addressTitle =
+      (selectedTitle.trim().isNotEmpty && !_isPlaceholder(selectedTitle)
+              ? selectedTitle
+              : 'Loading current location...')
+          .obs;
+  late final addressSubtitle =
+      (selectedSubtitle.trim().isNotEmpty && !_isPlaceholder(selectedSubtitle)
+              ? selectedSubtitle
+              : 'Please approve location access if prompted.')
+          .obs;
 
   static final deliveryLabel = 'Nouakchott, Mauritania'.obs;
   static String selectedSubtitle =
@@ -69,11 +80,19 @@ class SelectLocationController extends GetxController {
     if (isUpdatingLocation.value) return;
     _commitDeliveryAddress();
 
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().loadHome();
+    }
+
     final token = Get.isRegistered<SessionStore>()
         ? Get.find<SessionStore>().token
         : null;
     if (token == null || token.isEmpty) {
-      Get.offAll(() => const MainShellScreen());
+      if (isInitialSetup || Get.key.currentState?.canPop() != true) {
+        Get.offAll(() => const MainShellScreen());
+      } else {
+        Get.back(result: true);
+      }
       return;
     }
 
@@ -87,7 +106,11 @@ class SelectLocationController extends GetxController {
       );
       if (_isDisposed) return;
       showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
-      Get.offAll(() => const MainShellScreen());
+      if (isInitialSetup || Get.key.currentState?.canPop() != true) {
+        Get.offAll(() => const MainShellScreen());
+      } else {
+        Get.back(result: true);
+      }
     } on ApiException catch (error) {
       if (!_isDisposed) showAppToast(error.message);
     } finally {
@@ -134,7 +157,11 @@ class SelectLocationController extends GetxController {
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    getCurrentLocation(); // Fetch current location immediately when map is ready
+    if (isInitialSetup || !hasValidAddress) {
+      getCurrentLocation(); // Fetch current location for initial setup or empty address
+    } else {
+      updateAddressFromCoordinates(selectedLatitude, selectedLongitude);
+    }
   }
 
   void onCameraMove(CameraPosition position) {
@@ -493,7 +520,7 @@ class SelectLocationController extends GetxController {
     unawaited(_saveDeliveryAddress());
   }
 
-  bool _isPlaceholder(String value) {
+  static bool _isPlaceholder(String value) {
     final text = value.trim();
     return text.isEmpty ||
         text.startsWith('Loading') ||
@@ -555,10 +582,7 @@ class SelectLocationController extends GetxController {
 
   Map<String, String>? getSelectedAddressResult() {
     if (!hasValidAddress) return null;
-    return {
-      'title': addressTitle.value,
-      'subtitle': addressSubtitle.value,
-    };
+    return {'title': addressTitle.value, 'subtitle': addressSubtitle.value};
   }
 
   bool _isDisposed = false;

@@ -4,20 +4,21 @@ import 'package:get/get.dart';
 
 import 'chat_screen.dart';
 import '../constants/text_styles.dart';
-import '../widgets/app_back_button.dart';
-import '../widgets/home_background_blend.dart';
-import '../widgets/app_bottom_nav_bar.dart';
+import '../core/network/api_constants.dart';
+import '../core/network/dio_client.dart';
+import '../core/storage/session_store.dart';
+import '../models/chat_repository.dart';
 import '../navigation/bottom_nav_router.dart';
+import '../utils/api_language.dart';
+import '../widgets/app_back_button.dart';
+import '../widgets/app_bottom_nav_bar.dart';
+import '../widgets/home_background_blend.dart';
 
 class MessagesScreen extends StatefulWidget {
   final Map<String, dynamic>? restaurant;
   final bool showBottomNav;
 
-  const MessagesScreen({
-    super.key,
-    this.restaurant,
-    this.showBottomNav = true,
-  });
+  const MessagesScreen({super.key, this.restaurant, this.showBottomNav = true});
 
   @override
   State<MessagesScreen> createState() => _MessagesScreenState();
@@ -26,63 +27,151 @@ class MessagesScreen extends StatefulWidget {
 class _MessagesScreenState extends State<MessagesScreen> {
   int activeChipIndex = 0;
   final List<String> chips = ['All', 'Food', 'Grocery', 'Pharmacy'];
-  late List<Map<String, dynamic>> _chats;
+  List<Map<String, dynamic>> _chats = [];
+  bool _isLoading = false;
+
+  ChatRepository _getChatRepo() {
+    if (Get.isRegistered<ChatRepository>()) {
+      return Get.find<ChatRepository>();
+    }
+    final session = Get.isRegistered<SessionStore>()
+        ? Get.find<SessionStore>()
+        : SessionStore();
+    final dio = Get.isRegistered<DioClient>()
+        ? Get.find<DioClient>()
+        : Get.put(DioClient(session), permanent: true);
+    return Get.put(ChatRepository(dio), permanent: true);
+  }
+
+  String _formatTimestamp(dynamic raw) {
+    if (raw == null) return '';
+    try {
+      final dt = DateTime.parse(raw.toString()).toLocal();
+      final now = DateTime.now();
+      if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
+        final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+        final minute = dt.minute.toString().padLeft(2, '0');
+        final period = dt.hour >= 12 ? 'PM' : 'AM';
+        return '$hour:$minute $period';
+      }
+      return '${dt.day}/${dt.month}/${dt.year}';
+    } catch (_) {
+      return raw.toString();
+    }
+  }
+
+  Future<void> _loadConversations() async {
+    setState(() => _isLoading = true);
+    try {
+      final repo = _getChatRepo();
+      final lang = currentApiLanguage();
+      final list = await repo.getAllConversations(language: lang);
+
+      final List<Map<String, dynamic>> parsedChats = [];
+      for (final conv in list) {
+        final convId = conv['id']?.toString() ?? '';
+        final vendorId = conv['vendor_id']?.toString();
+        final vendor = (conv['vendor'] is Map)
+            ? Map<String, dynamic>.from(conv['vendor'] as Map)
+            : (conv['restaurant'] is Map)
+            ? Map<String, dynamic>.from(conv['restaurant'] as Map)
+            : (conv['store'] is Map)
+            ? Map<String, dynamic>.from(conv['store'] as Map)
+            : conv;
+
+        final title =
+            vendor['name']?.toString() ??
+            vendor['title']?.toString() ??
+            vendor['name_en']?.toString() ??
+            vendor['name_ar']?.toString() ??
+            (vendorId != null ? 'Vendor #$vendorId' : 'Vendor');
+
+        final rawImg =
+            vendor['image']?.toString() ??
+            vendor['logo']?.toString() ??
+            vendor['profile_image']?.toString() ??
+            vendor['banner']?.toString();
+        final imgUrl = (rawImg != null && rawImg.isNotEmpty)
+            ? (ApiConstants.mediaUrl(rawImg) ?? rawImg)
+            : 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150&auto=format&fit=crop';
+
+        final lastMsg = (conv['last_message'] is Map)
+            ? Map<String, dynamic>.from(conv['last_message'] as Map)
+            : (conv['latest_message'] is Map)
+            ? Map<String, dynamic>.from(conv['latest_message'] as Map)
+            : (conv['messages'] is List &&
+                  (conv['messages'] as List).isNotEmpty)
+            ? Map<String, dynamic>.from((conv['messages'] as List).last as Map)
+            : null;
+
+        final subtitle =
+            lastMsg?['message']?.toString() ??
+            (lastMsg?['message_type'] == 'voice'
+                ? 'Voice note'
+                : 'Conversation started');
+
+        final timeStr = _formatTimestamp(
+          lastMsg?['created_at'] ?? conv['updated_at'] ?? conv['created_at'],
+        );
+
+        final unreadCount =
+            int.tryParse(
+              '${conv['unread_count'] ?? conv['unreadCount'] ?? 0}',
+            ) ??
+            0;
+
+        final rawCat =
+            (vendor['category'] ?? vendor['type'] ?? conv['category'] ?? '')
+                .toString()
+                .toLowerCase();
+
+        String category = 'Food';
+        if (rawCat.contains('grocery') ||
+            rawCat.contains('market') ||
+            rawCat.contains('store')) {
+          category = 'Grocery';
+        } else if (rawCat.contains('pharmacy')) {
+          category = 'Pharmacy';
+        } else if (rawCat.contains('food') || rawCat.contains('restaurant')) {
+          category = 'Food';
+        }
+
+        parsedChats.add({
+          'id': convId,
+          'title': title,
+          'subtitle': subtitle,
+          'image': imgUrl,
+          'time': timeStr,
+          'isOnline': vendor['is_online'] == true || vendor['is_online'] == 1,
+          'unreadCount': unreadCount,
+          'category': category,
+          'restaurantData': {
+            'id': vendorId ?? convId,
+            'vendor_id': vendorId ?? vendor['id'] ?? convId,
+            'conversation_id': convId,
+            'title': title,
+            'image': imgUrl,
+            'raw': conv,
+          },
+        });
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _chats = parsedChats;
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    final incoming = widget.restaurant;
-    _chats = [
-      {
-        'id': 'c1',
-        'title': incoming?['title'] ?? 'Al Fantasia Restaurant',
-        'subtitle': "Sure! We're adding the finest Moroccan ....",
-        'image': incoming?['image'] ??
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150&auto=format&fit=crop',
-        'time': '12:45 PM',
-        'isOnline': true,
-        'unreadCount': 1,
-        'category': 'Food',
-        'restaurantData': incoming ??
-            {
-              'title': 'Al Fantasia Restaurant',
-              'image':
-                  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150&auto=format&fit=crop',
-            },
-      },
-      {
-        'id': 'c2',
-        'title': 'Salam Supermarket',
-        'subtitle': 'Etiam cursus velit non eros eleifenddic',
-        'image':
-            'https://images.unsplash.com/photo-1542838132-92c53300491e?w=150&auto=format&fit=crop',
-        'time': 'Just now',
-        'isOnline': false,
-        'unreadCount': 0,
-        'category': 'Grocery',
-        'restaurantData': {
-          'title': 'Salam Supermarket',
-          'image':
-              'https://images.unsplash.com/photo-1542838132-92c53300491e?w=150&auto=format&fit=crop',
-        },
-      },
-      {
-        'id': 'c3',
-        'title': 'Pharmacy Nasr',
-        'subtitle': 'Your quotation is ready for review.',
-        'image':
-            'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop',
-        'time': '10:20 AM',
-        'isOnline': true,
-        'unreadCount': 2,
-        'category': 'Pharmacy',
-        'restaurantData': {
-          'title': 'Pharmacy Nasr',
-          'image':
-              'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop',
-        },
-      },
-    ];
+    _chats = <Map<String, dynamic>>[];
+    _loadConversations();
   }
 
   List<Map<String, dynamic>> get _filteredChats {
@@ -110,15 +199,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: widget.showBottomNav
-                        ? AppBackButton(
-                            onTap: () => Navigator.pop(context),
-                          )
+                        ? AppBackButton(onTap: () => Navigator.pop(context))
                         : const SizedBox(width: 38),
                   ),
-                  Text(
-                    'Messages',
-                    style: AppTextStyles.heading(),
-                  ),
+                  Text('Messages', style: AppTextStyles.heading()),
                 ],
               ),
             ),
@@ -175,43 +259,75 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 ),
                 const SizedBox(height: 16),
                 Expanded(
-                  child: chats.isEmpty
-                      ? Center(
-                          child: Text(
-                            'No conversations yet',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFFA59A94),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
+                  child: (_isLoading && _chats.isEmpty)
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFFF5E00),
+                            strokeWidth: 2.5,
                           ),
                         )
-                      : ListView.builder(
-                          itemCount: chats.length,
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 110),
-                          itemBuilder: (context, index) {
-                            final chat = chats[index];
-                            return _MessageCard(
-                              chat: chat,
-                              onTap: () {
-                                Get.to(
-                                  () => ChatScreen(
-                                    restaurant: Map<String, dynamic>.from(
-                                      chat['restaurantData'] as Map,
-                                    ),
+                      : RefreshIndicator(
+                          color: const Color(0xFFFF5E00),
+                          onRefresh: _loadConversations,
+                          child: chats.isEmpty
+                              ? ListView(
+                                  physics: const AlwaysScrollableScrollPhysics(
+                                    parent: BouncingScrollPhysics(),
                                   ),
-                                );
-                              },
-                              onDelete: () {
-                                setState(() {
-                                  _chats.removeWhere(
-                                    (c) => c['id'] == chat['id'],
-                                  );
-                                });
-                              },
-                            );
-                          },
+                                  children: [
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                          0.4,
+                                      child: Center(
+                                        child: Text(
+                                          'No conversations yet',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : ListView.builder(
+                                  itemCount: chats.length,
+                                  physics: const AlwaysScrollableScrollPhysics(
+                                    parent: BouncingScrollPhysics(),
+                                  ),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    0,
+                                    16,
+                                    110,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final chat = chats[index];
+                                    return _MessageCard(
+                                      chat: chat,
+                                      onTap: () async {
+                                        await Get.to(
+                                          () => ChatScreen(
+                                            restaurant:
+                                                Map<String, dynamic>.from(
+                                                  chat['restaurantData'] as Map,
+                                                ),
+                                          ),
+                                        );
+                                        _loadConversations();
+                                      },
+                                      onDelete: () {
+                                        setState(() {
+                                          _chats.removeWhere(
+                                            (c) => c['id'] == chat['id'],
+                                          );
+                                        });
+                                      },
+                                    );
+                                  },
+                                ),
                         ),
                 ),
               ],

@@ -20,6 +20,7 @@ import '../widgets/see_all_button.dart';
 import 'main_shell_screen.dart';
 import 'widgets/chatbot_head.dart';
 import 'widgets/home_search_box.dart';
+import 'select_location_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -245,47 +246,63 @@ class HomeScreen extends StatelessWidget {
       child: Row(
         children: [
           // Delivery Details
-          Image.asset("lib/assets/images/Home.png", width: 22, height: 22),
-          const SizedBox(width: 6),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Deliver To:',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF7A6A60),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Obx(
-                        () => Text(
-                          SelectLocationController.deliveryLabel.value,
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.ellipsis,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () async {
+                final result = await Get.to(() => const SelectLocationScreen());
+                if (result == true && Get.isRegistered<HomeController>()) {
+                  Get.find<HomeController>().loadHome();
+                }
+              },
+              child: Row(
+                children: [
+                  Image.asset("lib/assets/images/Home.png", width: 22, height: 22),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Deliver To:',
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF7A6A60),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Obx(
+                                () => Text(
+                                  SelectLocationController.deliveryLabel.value,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Color(0xFF2C2520),
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF2C2520),
-                      size: 18,
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
+          const SizedBox(width: 8),
           // Wallet pill badge
           Container(
             height: 36,

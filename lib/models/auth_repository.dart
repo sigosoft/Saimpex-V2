@@ -16,15 +16,11 @@ class AuthRepository {
     required String mobile,
     required String language,
   }) async {
-    final envelope = await _post(
-      ApiConstants.sendOtp,
-      {
-        'country_code': countryCode,
-        'language': language,
-        'mobile': mobile,
-      },
-      language,
-    );
+    final envelope = await _post(ApiConstants.sendOtp, {
+      'country_code': countryCode,
+      'language': language,
+      'mobile': mobile,
+    }, language);
     return envelope.message;
   }
 
@@ -35,17 +31,13 @@ class AuthRepository {
     required String language,
     String? fcmToken,
   }) async {
-    final envelope = await _post(
-      ApiConstants.verifyOtp,
-      {
-        'country_code': countryCode,
-        'mobile': mobile,
-        'otp': otp,
-        if (fcmToken != null && fcmToken.trim().isNotEmpty)
-          'fcm_token': fcmToken.trim(),
-      },
-      language,
-    );
+    final envelope = await _post(ApiConstants.verifyOtp, {
+      'country_code': countryCode,
+      'mobile': mobile,
+      'otp': otp,
+      if (fcmToken != null && fcmToken.trim().isNotEmpty)
+        'fcm_token': fcmToken.trim(),
+    }, language);
 
     final data = asJsonMap(envelope.data);
     if (data == null) {
@@ -63,11 +55,7 @@ class AuthRepository {
       isNewUser: data['is_new_user'] == true,
     );
 
-    return (
-      token: token,
-      user: user,
-      message: envelope.message,
-    );
+    return (token: token, user: user, message: envelope.message);
   }
 
   /// False when the stored token is rejected. A connection problem keeps the
@@ -90,7 +78,7 @@ class AuthRepository {
     try {
       final response = await _client.dio.post(
         ApiConstants.logout,
-        data: const {},
+        data: {'language': language},
         options: Options(contentType: Headers.jsonContentType),
       );
       final body = asJsonMap(response.data);

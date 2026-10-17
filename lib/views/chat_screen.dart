@@ -3,10 +3,18 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
+import '../core/network/api_constants.dart';
+import '../core/network/api_exception.dart';
+import '../core/network/api_message.dart';
+import '../core/network/dio_client.dart';
+import '../core/storage/session_store.dart';
+import '../models/chat_repository.dart';
+import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
 
 enum _ChatMessageType { text, voice }
@@ -31,9 +39,9 @@ class _ChatMessage {
     required this.audioPath,
     required this.duration,
     required this.time,
+    this.isMine = true,
   })  : type = _ChatMessageType.voice,
-        text = null,
-        isMine = true;
+        text = null;
 }
 
 class ChatScreen extends StatefulWidget {
@@ -52,32 +60,183 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
 
   bool _isRecording = false;
+  bool _isSending = false;
+  bool _isLoadingMessages = false;
+  dynamic _conversationId;
   Duration _recordElapsed = Duration.zero;
   Timer? _recordTimer;
   String? _playingPath;
   StreamSubscription<void>? _playerCompleteSub;
 
-  late final List<_ChatMessage> _messages;
+  List<_ChatMessage> _messages = <_ChatMessage>[];
+
+  ChatRepository _getChatRepo() {
+    if (Get.isRegistered<ChatRepository>()) {
+      return Get.find<ChatRepository>();
+    }
+    final session = Get.isRegistered<SessionStore>()
+        ? Get.find<SessionStore>()
+        : SessionStore();
+    final dio = Get.isRegistered<DioClient>()
+        ? Get.find<DioClient>()
+        : Get.put(DioClient(session), permanent: true);
+    return Get.put(ChatRepository(dio), permanent: true);
+  }
+
+  dynamic get _vendorId {
+    final raw = widget.restaurant;
+    final candidates = [
+      raw['vendor_id'],
+      raw['vendorId'],
+      raw['restaurant_id'],
+      raw['store_id'],
+      raw['pharmacy_id'],
+      raw['id'],
+    ];
+    for (final c in candidates) {
+      if (c != null && '$c'.trim().isNotEmpty && '$c'.trim() != '0') {
+        return c;
+      }
+    }
+    if (raw['raw'] is Map) {
+      final inner = raw['raw'] as Map;
+      final innerCandidates = [
+        inner['vendor_id'],
+        inner['vendorId'],
+        inner['restaurant_id'],
+        inner['store_id'],
+        inner['pharmacy_id'],
+        inner['id'],
+      ];
+      for (final c in innerCandidates) {
+        if (c != null && '$c'.trim().isNotEmpty && '$c'.trim() != '0') {
+          return c;
+        }
+      }
+    }
+    return null;
+  }
+
+  bool _checkIsMine(Map<String, dynamic> m, dynamic customerId) {
+    if (m['is_mine'] == true ||
+        m['is_customer'] == true ||
+        m['is_customer'] == 1) {
+      return true;
+    }
+    final senderType = (m['sender_type'] ?? m['sender'] ?? m['type'] ?? '')
+        .toString()
+        .toLowerCase();
+    if (senderType.contains('customer') || senderType.contains('user')) {
+      return true;
+    }
+    if (senderType.contains('vendor') || senderType.contains('restaurant')) {
+      return false;
+    }
+    if (customerId != null && m['sender_id'] != null) {
+      return '${m['sender_id']}'.trim() == '$customerId'.trim();
+    }
+    return false;
+  }
+
+  String _formatTimestamp(dynamic raw) {
+    if (raw == null) return _nowLabel();
+    try {
+      final dt = DateTime.parse(raw.toString()).toLocal();
+      final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+      final minute = dt.minute.toString().padLeft(2, '0');
+      final period = dt.hour >= 12 ? 'PM' : 'AM';
+      return '$hour:$minute $period';
+    } catch (_) {
+      return raw.toString();
+    }
+  }
+
+  Future<void> _loadConversation() async {
+    final vId = _vendorId;
+    final cId = _conversationId;
+    if (vId == null && cId == null) {
+      return;
+    }
+
+    setState(() => _isLoadingMessages = true);
+    try {
+      final repo = _getChatRepo();
+      final lang = currentApiLanguage();
+      final res = await repo.getConversation(
+        vendorId: vId,
+        conversationId: cId,
+        language: lang,
+      );
+
+      final conv = asJsonMap(res['conversation']) ?? res;
+      if (conv['id'] != null) {
+        _conversationId = conv['id'];
+      }
+
+      final customerId = conv['customer_id'] ??
+          (conv['customer'] is Map ? conv['customer']['id'] : null);
+
+      final rawList = conv['messages'];
+      final List<_ChatMessage> parsed = [];
+      if (rawList is List) {
+        for (final item in rawList) {
+          if (item is! Map) continue;
+          final m = Map<String, dynamic>.from(item);
+          final isMine = _checkIsMine(m, customerId);
+          final typeStr =
+              (m['message_type'] ?? 'text').toString().toLowerCase();
+          final timeStr = _formatTimestamp(m['created_at']);
+
+          if (typeStr == 'voice' || m['voice_note'] != null) {
+            final rawAudio = m['voice_note']?.toString() ??
+                m['attachment_url']?.toString();
+            final vUrl = ApiConstants.mediaUrl(rawAudio) ?? rawAudio;
+            final durSec = int.tryParse('${m['duration']}') ?? 0;
+            parsed.add(
+              _ChatMessage.voice(
+                audioPath: vUrl,
+                duration: Duration(seconds: durSec),
+                time: timeStr,
+                isMine: isMine,
+              ),
+            );
+          } else {
+            parsed.add(
+              _ChatMessage.text(
+                text: m['message']?.toString() ?? '',
+                time: timeStr,
+                isMine: isMine,
+              ),
+            );
+          }
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _messages = parsed;
+        _isLoadingMessages = false;
+      });
+      _scrollToBottom();
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoadingMessages = false);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _messages = [
-      const _ChatMessage.text(
-        text:
-            'Hello Ahmed! Your order #22789000 is being ready. Would you like to add anything else?',
-        time: '12:42 PM',
-      ),
-      const _ChatMessage.voice(
-        audioPath: null,
-        duration: Duration(seconds: 12),
-        time: '12:44 PM',
-      ),
-      const _ChatMessage.text(
-        text: 'Perfect, thank you! How long until the delivery starts?',
-        time: '12:42 PM',
-      ),
-    ];
+    final raw = widget.restaurant;
+    _conversationId = raw['conversation_id'] ??
+        raw['conversationId'] ??
+        raw['chat_conversation_id'] ??
+        (raw['raw'] is Map
+            ? (raw['raw']['conversation_id'] ??
+                raw['raw']['conversationId'] ??
+                raw['raw']['chat_conversation_id'])
+            : null);
+    _loadConversation();
     _playerCompleteSub = _player.onPlayerComplete.listen((_) {
       if (!mounted) return;
       setState(() => _playingPath = null);
@@ -220,11 +379,41 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     });
     _scrollToBottom();
+
+    try {
+      final repo = _getChatRepo();
+      final lang = currentApiLanguage();
+      final res = await repo.sendMessage(
+        conversationId: _conversationId,
+        vendorId: _vendorId,
+        messageType: 'voice',
+        voiceNotePath: path,
+        duration: elapsed.inSeconds,
+        language: lang,
+      );
+      if (res['conversation_id'] != null) {
+        _conversationId = res['conversation_id'];
+      }
+    } catch (e) {
+      if (!mounted) return;
+      final errorMsg =
+          e is ApiException ? e.message : 'Failed to send voice message.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            errorMsg,
+            style: GoogleFonts.outfit(),
+          ),
+          backgroundColor: const Color(0xFFFF3E3E),
+        ),
+      );
+    }
   }
 
   Future<void> _sendText() async {
     final text = _textController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _isSending) return;
+
     setState(() {
       _messages.add(
         _ChatMessage.text(
@@ -234,8 +423,41 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
       _textController.clear();
+      _isSending = true;
     });
     _scrollToBottom();
+
+    try {
+      final repo = _getChatRepo();
+      final lang = currentApiLanguage();
+      final res = await repo.sendMessage(
+        conversationId: _conversationId,
+        vendorId: _vendorId,
+        message: text,
+        messageType: 'text',
+        language: lang,
+      );
+      if (res['conversation_id'] != null) {
+        _conversationId = res['conversation_id'];
+      }
+    } catch (e) {
+      if (!mounted) return;
+      final errorMsg =
+          e is ApiException ? e.message : 'Failed to send message.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            errorMsg,
+            style: GoogleFonts.outfit(),
+          ),
+          backgroundColor: const Color(0xFFFF3E3E),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSending = false);
+      }
+    }
   }
 
   void _scrollToBottom() {
@@ -260,7 +482,11 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     await _player.stop();
-    await _player.play(DeviceFileSource(path));
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      await _player.play(UrlSource(path));
+    } else {
+      await _player.play(DeviceFileSource(path));
+    }
     setState(() => _playingPath = path);
   }
 
@@ -359,63 +585,71 @@ class _ChatScreenState extends State<ChatScreen> {
         body: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                itemCount: _messages.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return Center(
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 20),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0E9E1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          'Today',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF8A7F77),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+              child: (_isLoadingMessages && _messages.isEmpty)
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF5E00),
+                        strokeWidth: 2.5,
                       ),
-                    );
-                  }
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      itemCount: _messages.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return Center(
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 20),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF0E9E1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Today',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF8A7F77),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
 
-                  final message = _messages[index - 1];
-                  if (message.type == _ChatMessageType.voice) {
-                    return _VoiceOutgoingBubble(
-                      time: message.time,
-                      durationLabel: _formatClock(
-                        message.duration ?? Duration.zero,
-                      ),
-                      isPlaying: _playingPath != null &&
-                          _playingPath == message.audioPath,
-                      canPlay: message.audioPath != null,
-                      onPlay: () => _togglePlayback(message),
-                    );
-                  }
+                        final message = _messages[index - 1];
+                        if (message.type == _ChatMessageType.voice) {
+                          return _VoiceOutgoingBubble(
+                            time: message.time,
+                            durationLabel: _formatClock(
+                              message.duration ?? Duration.zero,
+                            ),
+                            isPlaying: _playingPath != null &&
+                                _playingPath == message.audioPath,
+                            canPlay: message.audioPath != null,
+                            isMine: message.isMine,
+                            onPlay: () => _togglePlayback(message),
+                          );
+                        }
 
-                  if (message.isMine) {
-                    return _OutgoingTextBubble(
-                      text: message.text ?? '',
-                      time: message.time,
-                    );
-                  }
+                        if (message.isMine) {
+                          return _OutgoingTextBubble(
+                            text: message.text ?? '',
+                            time: message.time,
+                          );
+                        }
 
-                  return _IncomingBubble(
-                    text: message.text ?? '',
-                    time: message.time,
-                  );
-                },
-              ),
+                        return _IncomingBubble(
+                          text: message.text ?? '',
+                          time: message.time,
+                        );
+                      },
+                    ),
             ),
             SafeArea(
               top: false,
@@ -756,6 +990,7 @@ class _VoiceOutgoingBubble extends StatelessWidget {
   final String durationLabel;
   final bool isPlaying;
   final bool canPlay;
+  final bool isMine;
   final VoidCallback onPlay;
 
   const _VoiceOutgoingBubble({
@@ -764,6 +999,7 @@ class _VoiceOutgoingBubble extends StatelessWidget {
     required this.isPlaying,
     required this.canPlay,
     required this.onPlay,
+    this.isMine = true,
   });
 
   @override
@@ -773,9 +1009,10 @@ class _VoiceOutgoingBubble extends StatelessWidget {
     ];
 
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment:
+            isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           GestureDetector(
             onTap: canPlay ? onPlay : null,
@@ -784,7 +1021,7 @@ class _VoiceOutgoingBubble extends StatelessWidget {
               height: 48,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: isMine ? Colors.black : const Color(0xFF2C2520),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
@@ -828,7 +1065,11 @@ class _VoiceOutgoingBubble extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Padding(
-            padding: const EdgeInsets.only(right: 4, bottom: 18),
+            padding: EdgeInsets.only(
+              left: isMine ? 0 : 4,
+              right: isMine ? 4 : 0,
+              bottom: 18,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -840,12 +1081,14 @@ class _VoiceOutgoingBubble extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.done_all_rounded,
-                  color: Color(0xFFFF5E00),
-                  size: 14,
-                ),
+                if (isMine) ...[
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.done_all_rounded,
+                    color: Color(0xFFFF5E00),
+                    size: 14,
+                  ),
+                ],
               ],
             ),
           ),

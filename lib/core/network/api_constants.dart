@@ -57,6 +57,8 @@ class ApiConstants {
   static const String submitRating = 'customer/submitRating';
   static const String foodVendorCategories = 'customer/foodVendorCategories';
   static const String restaurantHomeV2 = 'customer/restaurantHomeV2';
+  static const String restaurantDetails = 'customer/restaurant/details';
+  static const String restaurantItems = 'customer/restaurant/items';
   static const String groceryHomeV2 = 'customer/groceryHomeV2';
   static const String groceryHomeCategories = 'customer/groceryHomeCategories';
   static const String groceryVendorCategories = 'customer/groceryVendorCategories';
@@ -68,6 +70,9 @@ class ApiConstants {
   static const String getPrivacyPolicy = 'customer/getPrivacyPolicy';
   static const String getTermsAndConditions = 'customer/getTermsandConditions';
   static const String getContact = 'customer/getContact';
+  static const String chatAllConversations = 'customer/chat/allConversations';
+  static const String chatGetConversation = 'customer/chat/getConversation';
+  static const String chatSendMessage = 'customer/chat/sendMessage';
 
   static String? mediaUrl(String? path) {
     if (path == null) return null;

@@ -308,15 +308,17 @@ class _WaterScreenState extends State<WaterScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Flexible(
-                              child: Text(
-                                SelectLocationController.selectedTitle,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
+                              child: Obx(
+                                () => Text(
+                                  SelectLocationController.deliveryLabel.value,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 2),

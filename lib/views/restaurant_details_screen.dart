@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import '../controllers/select_location_controller.dart';
 import '../core/network/api_exception.dart';
+import '../core/network/dio_client.dart';
+import '../core/storage/session_store.dart';
 import '../models/cart_repository.dart';
+import '../models/food_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
@@ -34,13 +38,162 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   bool _showStickySearch = false;
   Map<String, dynamic>? lastAddedFood;
 
+  Map<String, dynamic>? _restaurantDetails;
+  List<Map<String, dynamic>> _menuItems = [];
+  bool _isLoadingItems = false;
+
   /// search(46) + gap(12) + filters(32) + bottom gap(12)
   static const double _searchFiltersExtent = 102;
+
+  FoodRepository _getFoodRepo() {
+    if (Get.isRegistered<FoodRepository>()) {
+      return Get.find<FoodRepository>();
+    }
+    final session = Get.isRegistered<SessionStore>()
+        ? Get.find<SessionStore>()
+        : SessionStore();
+    final dio = Get.isRegistered<DioClient>()
+        ? Get.find<DioClient>()
+        : Get.put(DioClient(session), permanent: true);
+    return Get.put(FoodRepository(dio), permanent: true);
+  }
+
+  Map<String, dynamic> get _restaurantData =>
+      _restaurantDetails ?? widget.restaurant;
+
+  int get _parsedRestaurantId {
+    final rawId =
+        _restaurantDetails?['restaurant_id'] ??
+        _restaurantDetails?['id'] ??
+        widget.restaurant['restaurant_id'] ??
+        widget.restaurant['id'] ??
+        widget.restaurant['vendor_id'] ??
+        (widget.restaurant['raw'] is Map
+            ? (widget.restaurant['raw']['restaurant_id'] ??
+                  widget.restaurant['raw']['id'] ??
+                  widget.restaurant['raw']['vendor_id'])
+            : null);
+    return int.tryParse('$rawId') ?? 0;
+  }
+
+  String get _restaurantName {
+    final name =
+        _restaurantDetails?['name'] ??
+        _restaurantDetails?['title'] ??
+        widget.restaurant['title'] ??
+        widget.restaurant['name'];
+    return (name != null && name.toString().trim().isNotEmpty)
+        ? name.toString().trim()
+        : '';
+  }
+
+  String get _restaurantRating {
+    final r = _restaurantDetails?['rating'] ?? widget.restaurant['rating'];
+    return (r != null && r.toString().trim().isNotEmpty)
+        ? r.toString().trim()
+        : '';
+  }
+
+  String get _restaurantSubtitle {
+    final s =
+        _restaurantDetails?['subtitle'] ??
+        _restaurantDetails?['address'] ??
+        widget.restaurant['subtitle'] ??
+        widget.restaurant['address'];
+    return (s != null && s.toString().trim().isNotEmpty)
+        ? s.toString().trim()
+        : '';
+  }
+
+  String get _restaurantTime {
+    final t = _restaurantDetails?['time'] ?? widget.restaurant['time'];
+    return (t != null && t.toString().trim().isNotEmpty)
+        ? t.toString().trim()
+        : '';
+  }
+
+  String get _restaurantDistance {
+    final d = _restaurantDetails?['dist'] ?? widget.restaurant['dist'];
+    return (d != null && d.toString().trim().isNotEmpty)
+        ? d.toString().trim()
+        : '';
+  }
+
+  String get _restaurantDiscount {
+    final d = _restaurantDetails?['discount'] ?? widget.restaurant['discount'];
+    return (d != null && d.toString().trim().isNotEmpty)
+        ? d.toString().trim()
+        : '';
+  }
+
+  String? get _restaurantImage {
+    final img = _restaurantDetails?['image'] ?? widget.restaurant['image'];
+    if (img != null && img.toString().trim().isNotEmpty) {
+      return img.toString().trim();
+    }
+    return null;
+  }
+
+  Future<void> _loadRestaurantDetails() async {
+    final restaurantId = _parsedRestaurantId;
+    if (restaurantId <= 0) return;
+
+    try {
+      final repo = _getFoodRepo();
+      final lang = currentApiLanguage();
+      final lat = SelectLocationController.selectedLatitude;
+      final lng = SelectLocationController.selectedLongitude;
+
+      final details = await repo.fetchRestaurantDetails(
+        restaurantId: restaurantId,
+        latitude: lat,
+        longitude: lng,
+        language: lang,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _restaurantDetails = details;
+      });
+
+      if (_menuItems.isEmpty && !_isLoadingItems) {
+        _loadRestaurantItems();
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _loadRestaurantItems([dynamic categoryId]) async {
+    final restaurantId = _parsedRestaurantId;
+    if (restaurantId <= 0) return;
+
+    setState(() => _isLoadingItems = true);
+    try {
+      final repo = _getFoodRepo();
+      final lang = currentApiLanguage();
+
+      final items = await repo.fetchRestaurantItems(
+        restaurantId: restaurantId,
+        categoryId: categoryId,
+        language: lang,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _menuItems = items;
+        _isLoadingItems = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoadingItems = false);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadRestaurantDetails();
+    _loadRestaurantItems();
   }
 
   @override
@@ -132,15 +285,15 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             leading: filter['isVeg'] == true
                 ? AppFilterChip.vegLeading()
                 : filter['icon'] is IconData
-                    ? AppFilterChip.iconLeading(
-                        filter['icon'] as IconData,
-                        color: (filter['label'] as String).contains('Rating')
-                            ? const Color(0xFFFFAE00)
-                            : const Color(0xFF2C2520),
-                      )
-                    : filter['asset'] is String
-                        ? AppFilterChip.assetLeading(filter['asset'] as String)
-                        : null,
+                ? AppFilterChip.iconLeading(
+                    filter['icon'] as IconData,
+                    color: (filter['label'] as String).contains('Rating')
+                        ? const Color(0xFFFFAE00)
+                        : const Color(0xFF2C2520),
+                  )
+                : filter['asset'] is String
+                ? AppFilterChip.assetLeading(filter['asset'] as String)
+                : null,
           ),
       ],
     );
@@ -165,9 +318,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   }
 
   String _currentRestaurantName() {
-    return (widget.restaurant['title'] ??
-            widget.restaurant['name'] ??
-            'Restaurant')
+    if (_restaurantName.isNotEmpty) {
+      return _restaurantName;
+    }
+    return (widget.restaurant['title'] ?? widget.restaurant['name'] ?? '')
         .toString()
         .trim();
   }
@@ -188,8 +342,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   Future<bool> _confirmReplaceCartIfNeeded(BuildContext context) async {
     final controller = _homeController();
     final newRestaurant = _currentRestaurantName();
-    final existingStore =
-        controller.lastCartItem?['storeName']?.toString().trim();
+    final existingStore = controller.lastCartItem?['storeName']
+        ?.toString()
+        .trim();
 
     if (controller.cartItemCount.value <= 0 ||
         existingStore == null ||
@@ -239,8 +394,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
     final controller = _homeController();
     if (controller.cartItemCount.value > 0) {
-      final existingStore =
-          controller.lastCartItem?['storeName']?.toString().trim();
+      final existingStore = controller.lastCartItem?['storeName']
+          ?.toString()
+          .trim();
       if (existingStore != null &&
           _isDifferentRestaurant(existingStore, _currentRestaurantName())) {
         controller.clearCart();
@@ -276,9 +432,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   }
 
   int _parsePrice(String? priceStr) {
-    if (priceStr == null) return 750;
+    if (priceStr == null) return 0;
     final digits = priceStr.replaceAll(RegExp(r'[^\d]'), '');
-    return int.tryParse(digits) ?? 750;
+    return int.tryParse(digits) ?? 0;
   }
 
   final List<Map<String, dynamic>> subcategories = [
@@ -317,81 +473,45 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     {'label': 'Ratings 4.0+', 'icon': Icons.star_rounded},
   ];
 
-  final List<Map<String, dynamic>> menuItems = [
-    {
-      'title': 'Chiken Pasta',
-      'image':
-          'https://quickhomemaderecipes.com/wp-content/uploads/2024/04/Cajun-Chicken-Pasta-Recipe-1.jpg',
-      'images': [
-        'https://quickhomemaderecipes.com/wp-content/uploads/2024/04/Cajun-Chicken-Pasta-Recipe-1.jpg',
-        'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=400&q=80',
-      ],
-      'isVeg': false,
-      'tag': 'Spicy',
-      'rating': '4.6',
-      'reviews': '10k+ reviews',
-      'price': '750 MRU',
-      'originalPrice': '1,500 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'title': 'Chiken Tagine',
-      'image':
-          'https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg',
-      'images': [
-        'https://www.thechickenrecipes.co.uk/wp-content/uploads/2024/05/chicken-tagine-recipe-UK.jpg',
-        'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=400&q=80',
-      ],
-      'isVeg': false,
-      'tag': 'Spicy',
-      'rating': '4.6',
-      'reviews': '10k+ reviews',
-      'price': '750 MRU',
-      'originalPrice': '1,500 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'title': 'Milk Dessert',
-      'image':
-          'https://myminichefs.com/wp-content/uploads/2022/09/vanilla-almond-milk-pudding-image.jpg',
-      'images': [
-        'https://myminichefs.com/wp-content/uploads/2022/09/vanilla-almond-milk-pudding-image.jpg',
-        'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=400&q=80',
-      ],
-      'isVeg': true,
-      'tag': 'Pure Dairy',
-      'rating': '4.6',
-      'reviews': '10k+ reviews',
-      'price': '750 MRU',
-      'originalPrice': '1,500 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'title': 'Thieboudienne',
-      'image':
-          'https://img.cuisineaz.com/660x660/2016/07/17/i19848-thieboudienne.jpeg',
-      'images': [
-        'https://img.cuisineaz.com/660x660/2016/07/17/i19848-thieboudienne.jpeg',
-        'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=400&q=80',
-      ],
-      'isVeg': false,
-      'tag': 'Spicy',
-      'rating': '4.6',
-      'reviews': '10k+ reviews',
-      'price': '750 MRU',
-      'originalPrice': '1,500 MRU',
-      'discount': '50% OFF',
-    },
-  ];
+  Widget _buildNoDataPlaceholder() {
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              'lib/assets/images/Nodata.png',
+              width: 86,
+              height: 86,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'No items available',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF7A6A60),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final controller = _homeController();
-    final restaurantId = widget.restaurant['id']?.toString() ?? 'r1';
+    final restaurantId =
+        _restaurantData['id']?.toString() ??
+        widget.restaurant['id']?.toString() ??
+        'r1';
     final topInset = MediaQuery.paddingOf(context).top;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
@@ -418,20 +538,30 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           left: 0,
                           right: 0,
                           height: topInset + 132,
-                          child: Image.network(
-                            widget.restaurant['image'] ??
-                                'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                              color: const Color(0xFFF3EFEA),
-                              child: const Icon(
-                                Icons.restaurant_outlined,
-                                color: Colors.grey,
-                                size: 40,
-                              ),
-                            ),
-                          ),
+                          child:
+                              (_restaurantImage != null &&
+                                  _restaurantImage!.isNotEmpty)
+                              ? Image.network(
+                                  _restaurantImage!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                        color: const Color(0xFFF3EFEA),
+                                        child: const Icon(
+                                          Icons.restaurant_outlined,
+                                          color: Colors.grey,
+                                          size: 40,
+                                        ),
+                                      ),
+                                )
+                              : Container(
+                                  color: const Color(0xFFF3EFEA),
+                                  child: const Icon(
+                                    Icons.restaurant_outlined,
+                                    color: Colors.grey,
+                                    size: 40,
+                                  ),
+                                ),
                         ),
                         Column(
                           mainAxisSize: MainAxisSize.min,
@@ -440,8 +570,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
                             // Floating Info Card
                             Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 16),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -463,8 +594,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          widget.restaurant['title'] ??
-                                              'Restaurant',
+                                          _restaurantName.isNotEmpty
+                                              ? _restaurantName
+                                              : (widget.restaurant['title'] ??
+                                                    widget.restaurant['name'] ??
+                                                    ''),
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 18,
@@ -472,105 +606,120 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                           ),
                                         ),
                                       ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF00B25C),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(
-                                              Icons.star_rounded,
-                                              color: Colors.white,
-                                              size: 12,
+                                      if (_restaurantRating.isNotEmpty)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF00B25C),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
                                             ),
-                                            const SizedBox(width: 2),
-                                            Text(
-                                              widget.restaurant['rating'] ??
-                                                  '4.6',
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.star_rounded,
+                                                color: Colors.white,
+                                                size: 12,
+                                              ),
+                                              const SizedBox(width: 2),
+                                              Text(
+                                                _restaurantRating,
+                                                style: GoogleFonts.outfit(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  if (_restaurantSubtitle.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _restaurantSubtitle,
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF7A6A60),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                  if (_restaurantTime.isNotEmpty ||
+                                      _restaurantDistance.isNotEmpty ||
+                                      _restaurantDiscount.isNotEmpty) ...[
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        if (_restaurantTime.isNotEmpty) ...[
+                                          const Icon(
+                                            Icons.access_time_rounded,
+                                            color: Color(0xFFFF5E00),
+                                            size: 13,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            _restaurantTime,
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF7A6A60),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                        if (_restaurantTime.isNotEmpty &&
+                                            _restaurantDistance.isNotEmpty)
+                                          const SizedBox(width: 14),
+                                        if (_restaurantDistance.isNotEmpty) ...[
+                                          const Icon(
+                                            Icons.location_on_outlined,
+                                            color: Color(0xFFFF5E00),
+                                            size: 13,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            _restaurantDistance,
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF7A6A60),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                        if ((_restaurantTime.isNotEmpty ||
+                                                _restaurantDistance
+                                                    .isNotEmpty) &&
+                                            _restaurantDiscount.isNotEmpty)
+                                          const SizedBox(width: 14),
+                                        if (_restaurantDiscount.isNotEmpty)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 3,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFFF5E00),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Text(
+                                              _restaurantDiscount,
                                               style: GoogleFonts.outfit(
                                                 color: Colors.white,
-                                                fontSize: 10,
+                                                fontSize: 9,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    widget.restaurant['subtitle'] ??
-                                        'Moroccan • Traditional',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF7A6A60),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.access_time_rounded,
-                                        color: Color(0xFFFF5E00),
-                                        size: 13,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        widget.restaurant['time'] ??
-                                            '30-35 min',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF7A6A60),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 14),
-                                      const Icon(
-                                        Icons.location_on_outlined,
-                                        color: Color(0xFFFF5E00),
-                                        size: 13,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        widget.restaurant['dist'] ?? '10 Km',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF7A6A60),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 14),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFF5E00),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Text(
-                                          widget.restaurant['discount'] ??
-                                              '50% OFF',
-                                          style: GoogleFonts.outfit(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
+                                  ],
                                   const SizedBox(height: 20),
                                   Row(
                                     children: [
@@ -579,15 +728,14 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                           onTap: () {
                                             Get.to(
                                               () => ChatScreen(
-                                                restaurant: widget.restaurant,
+                                                restaurant: _restaurantData,
                                               ),
                                             );
                                           },
                                           child: Container(
                                             height: 44,
                                             decoration: BoxDecoration(
-                                              gradient:
-                                                  const LinearGradient(
+                                              gradient: const LinearGradient(
                                                 colors: [
                                                   Color(0xFFFF5E00),
                                                   Color(0xFFFFAE00),
@@ -599,8 +747,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                   BorderRadius.circular(22),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: const Color(0xFFFF5E00)
-                                                      .withOpacity(0.3),
+                                                  color: const Color(
+                                                    0xFFFF5E00,
+                                                  ).withOpacity(0.3),
                                                   blurRadius: 10,
                                                   offset: const Offset(0, 4),
                                                 ),
@@ -637,7 +786,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                         return GestureDetector(
                                           onTap: () => controller.toggleLike(
                                             restaurantId,
-                                            widget.restaurant,
+                                            _restaurantData,
                                           ),
                                           child: Container(
                                             width: 44,
@@ -662,7 +811,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                               liked
                                                   ? Icons.favorite_rounded
                                                   : Icons
-                                                      .favorite_border_rounded,
+                                                        .favorite_border_rounded,
                                               color: const Color(0xFFFF5E00),
                                               size: 18,
                                             ),
@@ -684,8 +833,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                               clipBehavior: Clip.antiAlias,
                               decoration: const BoxDecoration(
                                 color: Color(0xFFFFFCF8),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(22)),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(22),
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Color(0x14000000),
@@ -700,8 +850,12 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                   scrollDirection: Axis.horizontal,
                                   itemCount: subcategories.length,
                                   physics: const BouncingScrollPhysics(),
-                                  padding:
-                                      const EdgeInsets.fromLTRB(14, 4, 14, 0),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    14,
+                                    4,
+                                    14,
+                                    0,
+                                  ),
                                   itemBuilder: (context, index) {
                                     final sub = subcategories[index];
                                     final isAll = sub['isAll'] == true;
@@ -718,8 +872,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                         padding: EdgeInsets.only(
                                           right:
                                               index == subcategories.length - 1
-                                                  ? 0
-                                                  : 10,
+                                              ? 0
+                                              : 10,
                                         ),
                                         child: SizedBox(
                                           width: 62,
@@ -734,9 +888,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                           height: 46,
                                                           decoration:
                                                               const BoxDecoration(
-                                                            shape: BoxShape
-                                                                .circle,
-                                                          ),
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
                                                           child: Center(
                                                             child: Image.asset(
                                                               'lib/assets/images/All.png',
@@ -744,77 +898,75 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                               height: 22,
                                                               color:
                                                                   const Color(
-                                                                0xFFFF5E00,
-                                                              ),
+                                                                    0xFFFF5E00,
+                                                                  ),
                                                             ),
                                                           ),
                                                         )
                                                       : Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape: BoxShape
-                                                                .circle,
+                                                          decoration: BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
                                                             boxShadow: [
                                                               BoxShadow(
                                                                 color: Colors
                                                                     .black
                                                                     .withOpacity(
-                                                                  0.10,
-                                                                ),
+                                                                      0.10,
+                                                                    ),
                                                                 blurRadius: 10,
                                                                 offset:
                                                                     const Offset(
-                                                                  0,
-                                                                  4,
-                                                                ),
+                                                                      0,
+                                                                      4,
+                                                                    ),
                                                               ),
                                                             ],
                                                           ),
                                                           child: ClipOval(
-                                                            child:
-                                                                Image.network(
+                                                            child: Image.network(
                                                               sub['image']
                                                                   as String,
                                                               width: 46,
                                                               height: 46,
                                                               fit: BoxFit.cover,
-                                                              errorBuilder: (
-                                                                context,
-                                                                error,
-                                                                stackTrace,
-                                                              ) =>
-                                                                  Container(
-                                                                width: 46,
-                                                                height: 46,
-                                                                color: Colors
-                                                                    .grey
-                                                                    .shade300,
-                                                                child:
-                                                                    const Icon(
-                                                                  Icons
-                                                                      .fastfood,
-                                                                  size: 18,
-                                                                  color: Colors
-                                                                      .grey,
-                                                                ),
-                                                              ),
+                                                              errorBuilder:
+                                                                  (
+                                                                    context,
+                                                                    error,
+                                                                    stackTrace,
+                                                                  ) => Container(
+                                                                    width: 46,
+                                                                    height: 46,
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade300,
+                                                                    child: const Icon(
+                                                                      Icons
+                                                                          .fastfood,
+                                                                      size: 18,
+                                                                      color: Colors
+                                                                          .grey,
+                                                                    ),
+                                                                  ),
                                                             ),
                                                           ),
                                                         ),
                                                   const SizedBox(height: 8),
                                                   Text(
                                                     sub['label'] as String,
-                                                    textAlign:
-                                                        TextAlign.center,
+                                                    textAlign: TextAlign.center,
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.visible,
                                                     style: GoogleFonts.outfit(
                                                       color: isSelected
                                                           ? const Color(
-                                                              0xFFFF5E00)
+                                                              0xFFFF5E00,
+                                                            )
                                                           : const Color(
-                                                              0xFF3A312C),
+                                                              0xFF3A312C,
+                                                            ),
                                                       fontSize: 11,
                                                       fontWeight: isSelected
                                                           ? FontWeight.w700
@@ -832,19 +984,22 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                     decoration: BoxDecoration(
                                                       gradient:
                                                           const LinearGradient(
-                                                        colors: [
-                                                          Color(0xFFFF5E00),
-                                                          Color(0xFFFFAE00),
-                                                        ],
-                                                      ),
+                                                            colors: [
+                                                              Color(0xFFFF5E00),
+                                                              Color(0xFFFFAE00),
+                                                            ],
+                                                          ),
                                                       borderRadius:
-                                                          const BorderRadius
-                                                              .only(
-                                                        topLeft:
-                                                            Radius.circular(12),
-                                                        topRight:
-                                                            Radius.circular(12),
-                                                      ),
+                                                          const BorderRadius.only(
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                  12,
+                                                                ),
+                                                            topRight:
+                                                                Radius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
                                                     ),
                                                   ),
                                                 ),
@@ -891,14 +1046,25 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     // Vertical Menu List
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: menuItems.map((food) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _buildFoodCard(context, food),
-                          );
-                        }).toList(),
-                      ),
+                      child: _isLoadingItems && _menuItems.isEmpty
+                          ? const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 32),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFFFF5E00),
+                                ),
+                              ),
+                            )
+                          : _menuItems.isEmpty
+                          ? _buildNoDataPlaceholder()
+                          : Column(
+                              children: _menuItems.map((food) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: _buildFoodCard(context, food),
+                                );
+                              }).toList(),
+                            ),
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -951,23 +1117,22 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                   Get.to(
                     () => CartScreen(
                       isFoodOrGrocery: true,
-                      storeName:
-                          widget.restaurant['name']?.toString() ??
-                          'Golden Bakery',
+                      storeName: _restaurantName.isNotEmpty
+                          ? _restaurantName
+                          : (widget.restaurant['name']?.toString() ??
+                                widget.restaurant['title']?.toString() ??
+                                ''),
                       itemName:
                           controller.lastCartItem?['itemName']?.toString() ??
                           lastAddedFood?['title']?.toString() ??
                           'Chicken Tagine',
                       itemPortion:
-                          controller.lastCartItem?['itemPortion']
-                              ?.toString() ??
+                          controller.lastCartItem?['itemPortion']?.toString() ??
                           'Full portion',
                       basePrice: () {
                         final saved = controller.lastCartItem?['basePrice'];
                         if (saved is num) return saved.toInt();
-                        return _parsePrice(
-                          lastAddedFood?['price']?.toString(),
-                        );
+                        return _parsePrice(lastAddedFood?['price']?.toString());
                       }(),
                       itemImage: lastAddedFood?['image']?.toString(),
                     ),
@@ -1048,7 +1213,21 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   }
 
   Widget _buildFoodCard(BuildContext context, Map<String, dynamic> food) {
-    final isVeg = food['isVeg'] as bool;
+    final isVeg =
+        food['isVeg'] == true ||
+        food['is_veg'] == 1 ||
+        food['is_veg'] == true ||
+        food['is_veg'] == '1' ||
+        food['veg'] == 1 ||
+        food['veg'] == true;
+    final discount = (food['discount'] ?? '').toString().trim();
+    final tag = (food['tag'] ?? '').toString().trim();
+    final title = (food['title'] ?? food['name'] ?? '').toString().trim();
+    final rating = (food['rating'] ?? '').toString().trim();
+    final reviews = (food['reviews'] ?? '').toString().trim();
+    final price = (food['price'] ?? '').toString().trim();
+    final originalPrice = (food['originalPrice'] ?? '').toString().trim();
+
     return GestureDetector(
       onTap: () => _showFoodDetailsBottomSheet(context, food),
       child: Container(
@@ -1087,31 +1266,32 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 8,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3.5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          food['discount']!,
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 8.5,
-                            fontWeight: FontWeight.bold,
+                  if (discount.isNotEmpty)
+                    Positioned(
+                      top: 8,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF5E00),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            discount,
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -1127,60 +1307,71 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF0EC),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            food['tag']!,
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
+                        if (tag.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
                             ),
-                          ),
-                        ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF0EC),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              tag,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFFF5E00),
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        else
+                          const SizedBox.shrink(),
                         _buildVegIndicator(isVeg),
                       ],
                     ),
                     Text(
-                      food['title']!,
+                      title.isNotEmpty ? title : 'Item',
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Color(0xFFFFAE00),
-                          size: 12,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          food['rating']!,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          ' (${food['reviews']})',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFA59A94),
-                            fontSize: 9,
-                          ),
-                        ),
-                      ],
-                    ),
+                    if (rating.isNotEmpty || reviews.isNotEmpty)
+                      Row(
+                        children: [
+                          if (rating.isNotEmpty) ...[
+                            const Icon(
+                              Icons.star_rounded,
+                              color: Color(0xFFFFAE00),
+                              size: 12,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              rating,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                          if (reviews.isNotEmpty)
+                            Text(
+                              rating.isNotEmpty ? ' ($reviews)' : reviews,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFA59A94),
+                                fontSize: 9,
+                              ),
+                            ),
+                        ],
+                      )
+                    else
+                      const SizedBox.shrink(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -1188,25 +1379,28 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text(
-                              food['price']!,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                            if (price.isNotEmpty)
+                              Text(
+                                price,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFFF5E00),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              food['originalPrice']!,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFA59A94),
-                                fontSize: 10,
-                                decoration: TextDecoration.lineThrough,
-                                decorationColor: const Color(0xFFA59A94),
-                                decorationThickness: 1.5,
+                            if (originalPrice.isNotEmpty) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                originalPrice,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFA59A94),
+                                  fontSize: 10,
+                                  decoration: TextDecoration.lineThrough,
+                                  decorationColor: const Color(0xFFA59A94),
+                                  decorationThickness: 1.5,
+                                ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                         GestureDetector(
@@ -1275,11 +1469,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       food: food,
       onOpenCustomize: () {
         // Opens on top of detail — swipe down returns to detail
-        return _showCustomizeBottomSheet(
-          context,
-          food,
-          fromBottomSheet: true,
-        );
+        return _showCustomizeBottomSheet(context, food, fromBottomSheet: true);
       },
     );
   }
@@ -1292,8 +1482,13 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     return showFoodItemCustomizeSheet(
       context: context,
       food: food,
-      onAddToCart: (sheetContext, {required portion, required price, required quantity}) =>
-          _addFoodToCart(
+      onAddToCart:
+          (
+            sheetContext, {
+            required portion,
+            required price,
+            required quantity,
+          }) => _addFoodToCart(
             sheetContext,
             food,
             fromBottomSheet: fromBottomSheet,

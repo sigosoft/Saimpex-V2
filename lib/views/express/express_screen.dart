@@ -12,6 +12,7 @@ import '../../widgets/app_back_button.dart';
 import '../../widgets/store_map_button.dart';
 import '../../widgets/see_all_button.dart';
 import '../widgets/search_camera_button.dart';
+import '../select_location_screen.dart';
 
 class ExpressScreen extends StatefulWidget {
   const ExpressScreen({super.key});
@@ -292,55 +293,61 @@ class _ExpressScreenState extends State<ExpressScreen> {
           AppBackButton(onTap: () => Get.back()),
           const SizedBox(width: 10),
           Expanded(
-            child: Row(
-              children: [
-                Image.asset(
-                  'lib/assets/images/Home.png',
-                  width: 22,
-                  height: 22,
-                  errorBuilder: (_, __, ___) => const Icon(
-                    Icons.home_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 22,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Get.to(() => const SelectLocationScreen()),
+              child: Row(
+                children: [
+                  Image.asset(
+                    'lib/assets/images/Home.png',
+                    width: 22,
+                    height: 22,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.home_rounded,
+                      color: Color(0xFFFF5E00),
+                      size: 22,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Deliver To',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF7A6A60),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Deliver To',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF7A6A60),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              SelectLocationController.selectedTitle,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Obx(
+                                () => Text(
+                                  SelectLocationController.deliveryLabel.value,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                          const Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: Color(0xFF2C2520),
-                            size: 16,
-                          ),
-                        ],
-                      ),
-                    ],
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Color(0xFF2C2520),
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Container(

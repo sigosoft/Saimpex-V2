@@ -131,7 +131,7 @@ class OtpController extends GetxController {
       );
       await _session.saveSession(token: result.token, user: result.user);
       showAppToast(result.message, backgroundColor: AppColors.primaryOrange);
-      Get.to(() => const SelectLocationScreen());
+      Get.to(() => const SelectLocationScreen(isInitialSetup: true));
     } on ApiException catch (error) {
       showAppToast(error.message);
     } finally {

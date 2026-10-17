@@ -7,11 +7,20 @@ import '../../controllers/select_location_controller.dart';
 import '../widgets/app_back_button.dart';
 
 class SelectLocationScreen extends StatelessWidget {
-  const SelectLocationScreen({super.key});
+  final bool isInitialSetup;
+
+  const SelectLocationScreen({
+    super.key,
+    this.isInitialSetup = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (Get.isRegistered<SelectLocationController>()) {
+      Get.delete<SelectLocationController>(force: true);
+    }
     final controller = Get.put(SelectLocationController());
+    controller.isInitialSetup = isInitialSetup;
     final orientation = MediaQuery.of(context).orientation;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -72,8 +81,15 @@ class SelectLocationScreen extends StatelessWidget {
               // Google Map
               Positioned.fill(
                 child: GoogleMap(
-                  initialCameraPosition: const CameraPosition(
-                    target: SelectLocationController.defaultCenter,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      SelectLocationController.selectedLatitude != 0.0
+                          ? SelectLocationController.selectedLatitude
+                          : SelectLocationController.defaultCenter.latitude,
+                      SelectLocationController.selectedLongitude != 0.0
+                          ? SelectLocationController.selectedLongitude
+                          : SelectLocationController.defaultCenter.longitude,
+                    ),
                     zoom: 16.0,
                   ),
                   onMapCreated: (mapController) {
@@ -171,8 +187,15 @@ class SelectLocationScreen extends StatelessWidget {
                     // Google Map
                     Positioned.fill(
                       child: GoogleMap(
-                        initialCameraPosition: const CameraPosition(
-                          target: SelectLocationController.defaultCenter,
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(
+                            SelectLocationController.selectedLatitude != 0.0
+                                ? SelectLocationController.selectedLatitude
+                                : SelectLocationController.defaultCenter.latitude,
+                            SelectLocationController.selectedLongitude != 0.0
+                                ? SelectLocationController.selectedLongitude
+                                : SelectLocationController.defaultCenter.longitude,
+                          ),
                           zoom: 16.0,
                         ),
                         onMapCreated: (mapController) {
