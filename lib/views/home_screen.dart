@@ -21,6 +21,7 @@ import 'main_shell_screen.dart';
 import 'widgets/chatbot_head.dart';
 import 'widgets/home_search_box.dart';
 import 'select_location_screen.dart';
+import 'notifications_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -257,7 +258,11 @@ class HomeScreen extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  Image.asset("lib/assets/images/Home.png", width: 22, height: 22),
+                  Image.asset(
+                    "lib/assets/images/Home.png",
+                    width: 22,
+                    height: 22,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Column(
@@ -347,43 +352,46 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           // Notification Bell
-          Container(
-            width: 36,
-            height: 36,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
-            ),
-            child: Obx(() {
-              final count =
-                  Get.find<HomeController>().unreadNotifications.value;
-              final loaded = Get.find<HomeController>().homeLoaded.value;
-              return Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(
-                    Icons.notifications_none_rounded,
-                    color: Color(0xFF2C2520),
-                    size: 24,
-                  ),
-                  if (loaded && count > 0)
-                    Positioned(
-                      top: -2,
-                      right: -2,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFF5E00),
-                          shape: BoxShape.circle,
+          GestureDetector(
+            onTap: () => Get.to(() => const NotificationsScreen()),
+            child: Container(
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
+              ),
+              child: Obx(() {
+                final count =
+                    Get.find<HomeController>().unreadNotifications.value;
+                final loaded = Get.find<HomeController>().homeLoaded.value;
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(
+                      Icons.notifications_none_rounded,
+                      color: Color(0xFF2C2520),
+                      size: 24,
+                    ),
+                    if (loaded && count > 0)
+                      Positioned(
+                        top: -2,
+                        right: -2,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFF5E00),
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              );
-            }),
+                  ],
+                );
+              }),
+            ),
           ),
           const SizedBox(width: 10),
           // Profile Avatar
@@ -547,12 +555,14 @@ class HomeScreen extends StatelessWidget {
         'local_store': 'Local Store',
       };
       return defaultSlugs
-          .map((slug) => {
-                'label': defaultLabels[slug] ?? slug,
-                'slug': slug,
-                'icon': icons[slug] ?? 'lib/assets/images/All.png',
-                'gradient': _verticalGradient(slug),
-              })
+          .map(
+            (slug) => {
+              'label': defaultLabels[slug] ?? slug,
+              'slug': slug,
+              'icon': icons[slug] ?? 'lib/assets/images/All.png',
+              'gradient': _verticalGradient(slug),
+            },
+          )
           .toList();
     }
     final tiles = <Map<String, dynamic>>[];

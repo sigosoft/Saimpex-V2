@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/order_repository.dart';
 import '../../models/pharmacy_repository.dart';
@@ -13,6 +14,7 @@ import '../../utils/toast_helper.dart';
 import '../chat_screen.dart';
 import '../order_success_screen.dart';
 import '../payment_webview_screen.dart';
+import 'prescription_checkout_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
 class QuotationDetailScreen extends StatefulWidget {
@@ -28,7 +30,7 @@ class QuotationDetailScreen extends StatefulWidget {
     this.pharmacyName = 'Pharmacy Nasr',
     this.expiresIn = const Duration(hours: 2, minutes: 45, seconds: 9),
     this.prescriptionId,
-    this.amount = '150 MRU',
+    this.amount = '0 MRU',
   });
 
   @override
@@ -40,6 +42,8 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   Timer? _timer;
   var _loading = false;
   var _paying = false;
+  // Server status of the prescription (uploaded, quoted, accepted, ...)
+  String _status = '';
   String _pharmacyName = '';
   String _fileName = '';
   String _amountText = '';
@@ -72,9 +76,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
 
   Future<void> _loadPrescription() async {
     final id = widget.prescriptionId;
-    if (id == null ||
-        id < 1 ||
-        !Get.isRegistered<PharmacyRepository>()) {
+    if (id == null || id < 1 || !Get.isRegistered<PharmacyRepository>()) {
       return;
     }
     setState(() => _loading = true);
@@ -104,6 +106,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         }
       }
       setState(() {
+        _status = '${data['status'] ?? ''}'.trim();
         if (pharmacy.isNotEmpty) _pharmacyName = pharmacy;
         if (fileName.isNotEmpty) _fileName = fileName;
         if (quoteNumber != null) {
@@ -132,12 +135,31 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
     try {
       final repository = Get.find<PharmacyRepository>();
       final language = apiLanguageCode();
-      await repository.acceptPrescription(
-        prescriptionId: id,
-        language: language,
+      // Review first: the customer confirms delivery or pickup on the checkout page
+      final isDelivery = await Get.to<bool>(
+        () => PrescriptionCheckoutScreen(
+          pharmacyName: _pharmacyName,
+          quoteAmount: _quoteAmount,
+        ),
       );
+      if (isDelivery == null || !mounted) return;
+      // Accepting twice fails on the server, so only accept a quote not yet accepted
+      if (_status != 'accepted') {
+        await repository.acceptPrescription(
+          prescriptionId: id,
+          language: language,
+        );
+        if (mounted) setState(() => _status = 'accepted');
+      }
+      final location = SelectLocationController.selectedSubtitle.trim().isEmpty
+          ? SelectLocationController.deliveryLabel.value
+          : SelectLocationController.selectedSubtitle;
       final placed = await repository.payPrescription(
         prescriptionId: id,
+        selfPickup: !isDelivery,
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        location: location,
         language: language,
       );
       if (!mounted) return;
@@ -156,7 +178,8 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
     }
     var paymentUrl = _paymentPageUrlFrom(placed);
-    final payable = placed['payable'] ??
+    final payable =
+        placed['payable'] ??
         placed['to_pay'] ??
         placed['quote_amount'] ??
         _quoteAmount;
@@ -166,11 +189,13 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       if (startedUrl != null) paymentUrl = startedUrl;
     }
     if (!mounted) return;
-    final needsOnlinePayment = placed['payment_required'] == true ||
+    final needsOnlinePayment =
+        placed['payment_required'] == true ||
         placed['payment_required'] == 1 ||
         paymentUrl != null ||
         message.toLowerCase().contains('complete online payment');
-    final url = paymentUrl ??
+    final url =
+        paymentUrl ??
         (needsOnlinePayment && orderId != null
             ? _paymentPageUrl(
                 'https://dev.saimpexenterprise.com/pay/masrvi/payment/session?order_id=$orderId',
@@ -181,9 +206,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       Get.closeAllSnackbars();
       await Future<void>.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
-      final paid = await Get.to<bool>(
-        () => PaymentWebViewScreen(url: url),
-      );
+      final paid = await Get.to<bool>(() => PaymentWebViewScreen(url: url));
       if (!mounted || paid != true) return;
     }
     Get.to(() => const OrderSuccessScreen());
@@ -239,7 +262,8 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
     if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) {
       return null;
     }
-    final wrongHost = uri.host == 'localhost' ||
+    final wrongHost =
+        uri.host == 'localhost' ||
         uri.host == '127.0.0.1' ||
         uri.host == 'api.saimpexenterprise.com';
     if (wrongHost && uri.path.contains('/pay/')) {
@@ -304,7 +328,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: AppBackButton(onTap: () => Navigator.pop(context),),
+                    child: AppBackButton(onTap: () => Navigator.pop(context)),
                   ),
                   Text(
                     'Order ${widget.orderId}',
@@ -694,8 +718,10 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFE8E6),
                     borderRadius: BorderRadius.circular(8),
@@ -742,8 +768,10 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF0E6),
                       borderRadius: BorderRadius.circular(8),
@@ -1054,10 +1082,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             onTap: () {
               Get.to(
                 () => ChatScreen(
-                  restaurant: {
-                    'title': _pharmacyName,
-                    'image': '',
-                  },
+                  restaurant: {'title': _pharmacyName, 'image': ''},
                 ),
               );
             },

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../core/network/api_constants.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/order_repository.dart';
 import '../../utils/api_language.dart';
@@ -10,18 +11,86 @@ import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
+import 'widgets/pharmacy_order_detail_loader.dart';
 
+/// Loads the order from the API, then shows it.
 class PharmacyItemOrderDetailScreen extends StatelessWidget {
   final String orderId;
   final int? apiOrderId;
   final bool isDelivery;
+
+  /// Shown as the store name; orders from other verticals pass their own store.
+  final String? storeName;
 
   const PharmacyItemOrderDetailScreen({
     super.key,
     this.orderId = '#22789009',
     this.apiOrderId,
     this.isDelivery = true,
+    this.storeName,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return PharmacyOrderDetailLoader(
+      apiOrderId: apiOrderId,
+      builder: (context, detail) => _PharmacyItemOrderDetailBody(
+        orderId: orderId,
+        apiOrderId: apiOrderId,
+        isDelivery: isDelivery,
+        storeName: storeName,
+        detail: detail,
+      ),
+    );
+  }
+}
+
+class _PharmacyItemOrderDetailBody extends StatelessWidget {
+  final String orderId;
+  final int? apiOrderId;
+  final bool isDelivery;
+  final String? storeName;
+  final Map<String, dynamic>? detail;
+
+  const _PharmacyItemOrderDetailBody({
+    required this.orderId,
+    this.apiOrderId,
+    this.isDelivery = true,
+    this.storeName,
+    this.detail,
+  });
+
+  Map<String, dynamic> get _payment => detail?['payment'] is Map
+      ? Map<String, dynamic>.from(detail!['payment'] as Map)
+      : <String, dynamic>{};
+
+  List<Widget> _itemRows() {
+    final items = detail?['items'] is List
+        ? (detail!['items'] as List).whereType<Map>().toList()
+        : const <Map>[];
+    final rows = <Widget>[];
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      if (i > 0) {
+        rows.add(
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Divider(height: 1, color: Color(0xFFEFE8E1)),
+          ),
+        );
+      }
+      rows.add(
+        _itemRow(
+          imageUrl: ApiConstants.mediaUrl(item['image']?.toString()) ?? '',
+          title: '${item['name_en'] ?? ''}',
+          subtitle: '${orderMoneyText(item['unit_price'])} each',
+          qty: 'x${item['quantity'] ?? 1}',
+          price: orderMoneyText(item['total_price']),
+        ),
+      );
+    }
+    return rows;
+  }
 
   Future<void> _cancelOrder() async {
     final id = apiOrderId;
@@ -53,7 +122,7 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: AppBackButton(onTap: () => Navigator.pop(context),),
+                    child: AppBackButton(onTap: () => Navigator.pop(context)),
                   ),
                   Text(
                     'Order $orderId',
@@ -225,12 +294,12 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
   Widget _buildTrackButton() {
     return GestureDetector(
       onTap: () {
-          Get.to(
-            () => PharmacyTrackOrderScreen(
-              orderId: orderId,
-              apiOrderId: apiOrderId,
-            ),
-          );
+        Get.to(
+          () => PharmacyTrackOrderScreen(
+            orderId: orderId,
+            apiOrderId: apiOrderId,
+          ),
+        );
       },
       child: Container(
         height: 48,
@@ -535,22 +604,13 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Pharmacy Nasr',
+                  (storeName == null || storeName!.isEmpty)
+                      ? 'Store'
+                      : storeName!,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  'Pharmacy Nasr, Near Nouakchott, Mauritania',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFA59A94),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -584,11 +644,11 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
         children: [
           ClipOval(
             child: Container(
-                width: 46,
-                height: 46,
-                color: const Color(0xFFF3EFEA),
-                child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
-              ),
+              width: 46,
+              height: 46,
+              color: const Color(0xFFF3EFEA),
+              child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -666,31 +726,7 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          _itemRow(
-            imageUrl:
-                'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&auto=format&fit=crop',
-            title: 'Paracetamol 500 mg',
-            subtitle: '10 Tablets',
-            qty: 'x1',
-            price: '50 MRU',
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: Color(0xFFEFE8E1)),
-          ),
-          _itemRow(
-            imageUrl:
-                'https://images.unsplash.com/photo-1584833409684-cfa318603b87?w=200&auto=format&fit=crop',
-            title: 'Baby Diapers',
-            subtitle: 'Size M • 54 Pieces',
-            qty: 'x1',
-            price: '50 MRU',
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
+      child: Column(children: [..._itemRows(), const SizedBox(height: 8)]),
     );
   }
 
@@ -789,19 +825,19 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Item total', '100 MRU'),
+          _payRow('Item total', orderMoneyText(_payment['item_total'])),
           const SizedBox(height: 10),
           _payRow(
             'Redeemed points',
-            '-50 MRU',
+            orderMoneyText(_payment['redeemed_points'], negative: true),
             valueColor: const Color(0xFFFF5E00),
           ),
           if (isDelivery) ...[
             const SizedBox(height: 10),
-            _payRow('Delivery fee', '20 MRU'),
+            _payRow('Delivery fee', orderMoneyText(_payment['delivery_fee'])),
           ],
           const SizedBox(height: 10),
-          _payRow('Tax', '10 MRU'),
+          _payRow('Tax', orderMoneyText(_payment['tax'])),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(height: 1, color: Color(0xFF3A434E)),
@@ -818,7 +854,7 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                isDelivery ? '80 MRU' : '60 MRU',
+                orderMoneyText(_payment['total_bill']),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,

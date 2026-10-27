@@ -141,7 +141,9 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen> {
       points.add(
         LatLng(
           u * u * p0.latitude + 2 * u * t * p1.latitude + t * t * p2.latitude,
-          u * u * p0.longitude + 2 * u * t * p1.longitude + t * t * p2.longitude,
+          u * u * p0.longitude +
+              2 * u * t * p1.longitude +
+              t * t * p2.longitude,
         ),
       );
     }
@@ -184,9 +186,7 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen> {
           decoration: BoxDecoration(
             color: outlined ? Colors.white : _orange,
             shape: BoxShape.circle,
-            border: outlined
-                ? Border.all(color: _orange, width: 2.5)
-                : null,
+            border: outlined ? Border.all(color: _orange, width: 2.5) : null,
             boxShadow: [
               BoxShadow(
                 color: _orange.withValues(alpha: outlined ? 0.22 : 0.35),
@@ -236,7 +236,7 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen> {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: AppBackButton(onTap: () => Get.back(),),
+                  child: AppBackButton(onTap: () => Get.back()),
                 ),
                 Text(
                   'Track Order $_displayId',
@@ -580,11 +580,7 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen> {
                 width: 56,
                 height: 56,
                 color: const Color(0xFFEAD8C9),
-                child: const Icon(
-                  Icons.person,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                child: const Icon(Icons.person, color: Colors.white, size: 28),
               ),
             ),
           ),
@@ -649,11 +645,7 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen> {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.call,
-                color: Colors.white,
-                size: 20,
-              ),
+              child: const Icon(Icons.call, color: Colors.white, size: 20),
             ),
           ),
         ],

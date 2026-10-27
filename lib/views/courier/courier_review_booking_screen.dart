@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/courier_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 
 import 'courier_booking_success_screen.dart';
@@ -16,6 +20,11 @@ class CourierReviewBookingScreen extends StatefulWidget {
   final String vehiclePrice;
   final String vehicleImage;
   final int deliveryFee;
+  final double pickupLatitude;
+  final double pickupLongitude;
+  final double dropOffLatitude;
+  final double dropOffLongitude;
+  final bool isExpress;
 
   const CourierReviewBookingScreen({
     super.key,
@@ -28,6 +37,11 @@ class CourierReviewBookingScreen extends StatefulWidget {
     this.vehiclePrice = '50 MRU',
     this.vehicleImage = 'lib/assets/images/bike.png',
     this.deliveryFee = 50,
+    this.pickupLatitude = 18.0735,
+    this.pickupLongitude = -15.9582,
+    this.dropOffLatitude = 18.0800,
+    this.dropOffLongitude = -15.9600,
+    this.isExpress = false,
   });
 
   @override
@@ -35,11 +49,48 @@ class CourierReviewBookingScreen extends StatefulWidget {
       _CourierReviewBookingScreenState();
 }
 
-class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen> {
+class _CourierReviewBookingScreenState
+    extends State<CourierReviewBookingScreen> {
   bool usePoints = false;
   int selectedPaymentIndex = 0; // mandatory — Wallet selected by default
+  bool _placingBooking = false;
   final int redeemedPointsDiscount = 1;
   final int tax = 2;
+
+  /// Books the delivery with courier/create, then shows the success screen.
+  Future<void> _placeBooking() async {
+    if (_placingBooking) return;
+    setState(() => _placingBooking = true);
+    try {
+      // Online payment is 2; wallet and cash on delivery are 1, as in the cart
+      final paymentType = selectedPaymentIndex == 1 ? '2' : '1';
+      final result = await Get.find<CourierRepository>().create(
+        pickup: CourierStop(
+          address: widget.pickupAddress,
+          latitude: widget.pickupLatitude,
+          longitude: widget.pickupLongitude,
+        ),
+        dropoff: CourierStop(
+          address: widget.dropOffAddress,
+          latitude: widget.dropOffLatitude,
+          longitude: widget.dropOffLongitude,
+          contactName: widget.recipientName,
+          contactPhone: _formattedPhone,
+        ),
+        isExpress: widget.isExpress,
+        paymentType: paymentType,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      showAppToast(result.message, backgroundColor: const Color(0xFFFF5E00));
+      Get.to(() => const CourierBookingSuccessScreen());
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _placingBooking = false);
+    }
+  }
 
   int get toPay =>
       widget.deliveryFee - redeemedPointsDiscount - (usePoints ? 50 : 0) + tax;
@@ -57,7 +108,8 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
 
   String get _formattedPhone {
     final phone = widget.recipientPhone.trim();
-    if (phone.startsWith('+222')) return phone;
+    // Numbers from the details screen already carry their country code
+    if (phone.startsWith('+')) return phone;
     if (phone.startsWith('222')) return '+$phone';
     return '+222 $phone';
   }
@@ -77,11 +129,7 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFFFDDCF),
-              Color(0xFFFFEEE5),
-              Color(0xFFFAF6F0),
-            ],
+            colors: [Color(0xFFFFDDCF), Color(0xFFFFEEE5), Color(0xFFFAF6F0)],
             stops: [0.0, 0.28, 1.0],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -99,7 +147,12 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
                     Expanded(
                       child: SingleChildScrollView(
                         physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.fromLTRB(16, 0, 16, 100 + bottomInset),
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          0,
+                          16,
+                          100 + bottomInset,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -190,7 +243,7 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: AppBackButton(onTap: () => Get.back(),),
+            child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
             'Review Booking',
@@ -214,11 +267,7 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
         color: const Color(0xFFFF5E00),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: const Icon(
-        Icons.person_rounded,
-        color: Colors.white,
-        size: 20,
-      ),
+      child: const Icon(Icons.person_rounded, color: Colors.white, size: 20),
     );
 
     return Container(
@@ -274,10 +323,7 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
                         title: widget.pickupAddress,
                       ),
                       const SizedBox(height: 18),
-                      _buildRouteRow(
-                        label: 'DROP-OFF',
-                        title: _displayDropOff,
-                      ),
+                      _buildRouteRow(label: 'DROP-OFF', title: _displayDropOff),
                     ],
                   ),
                 ),
@@ -286,11 +332,7 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Divider(
-              color: Color(0xFFE8E0D8),
-              height: 1,
-              thickness: 1,
-            ),
+            child: Divider(color: Color(0xFFE8E0D8), height: 1, thickness: 1),
           ),
           Row(
             children: [
@@ -355,17 +397,11 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
       width: 22,
       height: 22,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: halo,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: halo, shape: BoxShape.circle),
       child: Container(
         width: 10,
         height: 10,
-        decoration: BoxDecoration(
-          color: fill,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
       ),
     );
   }
@@ -980,7 +1016,7 @@ class _CourierReviewBookingScreenState extends State<CourierReviewBookingScreen>
 
   Widget _buildPayButton() {
     return GestureDetector(
-      onTap: () => Get.to(() => const CourierBookingSuccessScreen()),
+      onTap: _placingBooking ? null : _placeBooking,
       child: Container(
         height: 54,
         decoration: BoxDecoration(

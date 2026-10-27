@@ -28,7 +28,7 @@ class PharmacyQuotationReadyCard extends StatefulWidget {
     super.key,
     this.pharmacyName = 'Pharmacy Nasr',
     this.orderId = '#22789007',
-    this.amount = '150 MRU',
+    this.amount = '0 MRU',
     this.expiresIn = const Duration(hours: 2, minutes: 45, seconds: 9),
     this.prescriptionId,
   });
@@ -124,8 +124,10 @@ class _PharmacyQuotationReadyCardState
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1B2430),
                     borderRadius: BorderRadius.circular(30),
@@ -353,14 +355,20 @@ class PharmacyActiveOrderCard extends StatelessWidget {
     if (id != null && id > 0 && Get.isRegistered<OrderRepository>()) {
       final orders = Get.find<OrderRepository>();
       final language = apiLanguageCode();
-      orders.orderDetails(orderId: id, language: language).then((_) {
-        return orders.rating(orderId: id, language: language);
-      }).catchError((Object error) {
-        if (error is ApiException) {
-          showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
-        }
-        return <String, dynamic>{};
-      });
+      orders
+          .orderDetails(orderId: id, language: language)
+          .then((_) {
+            return orders.rating(orderId: id, language: language);
+          })
+          .catchError((Object error) {
+            if (error is ApiException) {
+              showAppToast(
+                error.message,
+                backgroundColor: const Color(0xFFEF4444),
+              );
+            }
+            return <String, dynamic>{};
+          });
     }
     if (showPrescription) {
       Get.to(
@@ -492,248 +500,249 @@ class PharmacyActiveOrderCard extends StatelessWidget {
     return GestureDetector(
       onTap: _openOrderDetails,
       child: Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  pharmacyName,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              _StatusBadge(
-                text: statusText,
-                color: statusColor,
-                bgColor: statusBgColor,
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            detailsText,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          if (showPrescription) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F0EC),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Container(
-                      width: 42,
-                      height: 42,
-                      color: Colors.white,
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.description_outlined,
-                        color: Color(0xFFA59A94),
-                        size: 22,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          prescriptionName ?? 'Prescription.jpg',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Row(
-                          children: [
-                            Text(
-                              'View Full Prescription',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.open_in_new_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 13,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _SoftButton(
-                  label: 'Cancel',
-                  onTap: () {
-                    showCancelOrderBottomSheet(
-                      context,
-                      orderId: orderId,
-                      onConfirm: () async {
-                        final id = apiOrderId;
-                        if (id == null ||
-                            id < 1 ||
-                            !Get.isRegistered<OrderRepository>()) {
-                          return;
-                        }
-                        try {
-                          final message = await Get.find<OrderRepository>()
-                              .cancelOrder(
-                                orderId: id,
-                                language: apiLanguageCode(),
-                              );
-                          showAppToast(
-                            message,
-                            backgroundColor: const Color(0xFFFF5E00),
-                          );
-                        } on ApiException catch (error) {
-                          showAppToast(
-                            error.message,
-                            backgroundColor: const Color(0xFFEF4444),
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-              if (showTrack) ...[
-                const SizedBox(width: 10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      Get.to(
-                        () => PharmacyTrackOrderScreen(
-                          orderId: orderId,
-                          apiOrderId: apiOrderId,
+                  child: Text(
+                    pharmacyName,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                _StatusBadge(
+                  text: statusText,
+                  color: statusColor,
+                  bgColor: statusBgColor,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              detailsText,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFA59A94),
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            if (showPrescription) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F0EC),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        color: Colors.white,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.description_outlined,
+                          color: Color(0xFFA59A94),
+                          size: 22,
                         ),
-                      );
-                    },
-                    child: Container(
-                      height: 42,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFFF5E00)
-                                .withValues(alpha: 0.22),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            prescriptionName ?? 'Prescription.jpg',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              Text(
+                                'View Full Prescription',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFFF5E00),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.open_in_new_rounded,
+                                color: Color(0xFFFF5E00),
+                                size: 13,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Track Order',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _SoftButton(
+                    label: 'Cancel',
+                    onTap: () {
+                      showCancelOrderBottomSheet(
+                        context,
+                        orderId: orderId,
+                        onConfirm: () async {
+                          final id = apiOrderId;
+                          if (id == null ||
+                              id < 1 ||
+                              !Get.isRegistered<OrderRepository>()) {
+                            return;
+                          }
+                          try {
+                            final message = await Get.find<OrderRepository>()
+                                .cancelOrder(
+                                  orderId: id,
+                                  language: apiLanguageCode(),
+                                );
+                            showAppToast(
+                              message,
+                              backgroundColor: const Color(0xFFFF5E00),
+                            );
+                          } on ApiException catch (error) {
+                            showAppToast(
+                              error.message,
+                              backgroundColor: const Color(0xFFEF4444),
+                            );
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+                if (showTrack) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.to(
+                          () => PharmacyTrackOrderScreen(
+                            orderId: orderId,
+                            apiOrderId: apiOrderId,
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 42,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0xFFFF5E00,
+                              ).withValues(alpha: 0.22),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Track Order',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
-            ],
-          ),
-          if (statusText.toUpperCase().contains('DELIVER')) ...[
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: () => _rateOrder(context),
-              child: Container(
-                height: 42,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: const Color(0xFFFF5E00)),
-                ),
-                child: Text(
-                  'Rate Order',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
+            ),
+            if (statusText.toUpperCase().contains('DELIVER')) ...[
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () => _rateOrder(context),
+                child: Container(
+                  height: 42,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: const Color(0xFFFF5E00)),
                   ),
+                  child: Text(
+                    'Rate Order',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFFF5E00),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Center(
+              child: GestureDetector(
+                onTap: _openOrderDetails,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'View Order Status & Details',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFFF5E00),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFFFF5E00),
+                      size: 16,
+                    ),
+                  ],
                 ),
               ),
             ),
           ],
-          const SizedBox(height: 12),
-          Center(
-            child: GestureDetector(
-              onTap: _openOrderDetails,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'View Order Status & Details',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 16,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
     );
   }
 }

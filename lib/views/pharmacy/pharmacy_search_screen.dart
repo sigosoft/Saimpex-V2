@@ -66,32 +66,19 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
     final repository = Get.find<PharmacyRepository>();
     final language = apiLanguageCode();
     try {
-      if (_useFilteredSearch) {
-        final result = await repository.searchPharmaciesV2(
-          latitude: SelectLocationController.selectedLatitude,
-          longitude: SelectLocationController.selectedLongitude,
-          language: language,
-          keyword: _searchController.text,
-          filters: Map<String, String>.from(_selectedFilters),
-        );
-        if (!mounted || requestId != _requestId) return;
-        setState(() {
-          _pharmacies = result.pharmacies;
-          _products = result.products;
-          if (result.filters.isNotEmpty) _filters = result.filters;
-          _loading = false;
-        });
-        return;
-      }
-      final pharmacies = await repository.searchPharmacies(
+      // One search endpoint for every case; products only show once a keyword or filter is set
+      final result = await repository.searchPharmaciesV2(
         latitude: SelectLocationController.selectedLatitude,
         longitude: SelectLocationController.selectedLongitude,
         language: language,
+        keyword: _searchController.text,
+        filters: Map<String, String>.from(_selectedFilters),
       );
       if (!mounted || requestId != _requestId) return;
       setState(() {
-        _pharmacies = pharmacies;
-        _products = const [];
+        _pharmacies = result.pharmacies;
+        _products = _useFilteredSearch ? result.products : const [];
+        if (result.filters.isNotEmpty) _filters = result.filters;
         _loading = false;
       });
     } on ApiException catch (error) {
@@ -206,7 +193,9 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
             Expanded(
               child: _loading
                   ? const Center(
-                      child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF5E00),
+                      ),
                     )
                   : !hasResults
                   ? Center(
@@ -221,7 +210,12 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
                     )
                   : ListView(
                       physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset + 20),
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        16,
+                        16,
+                        bottomInset + 20,
+                      ),
                       children: [
                         if (_pharmacies.isNotEmpty) ...[
                           _sectionTitle('Pharmacies'),
@@ -230,13 +224,12 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
                             _resultTile(
                               title: '${pharmacy['title'] ?? ''}',
                               subtitle: '${pharmacy['subtitle'] ?? ''}',
-                              meta: [
-                                pharmacy['rating'],
-                                pharmacy['dist'],
-                              ].where((part) {
-                                final text = '$part'.trim();
-                                return text.isNotEmpty && text != 'null';
-                              }).join(' • '),
+                              meta: [pharmacy['rating'], pharmacy['dist']]
+                                  .where((part) {
+                                    final text = '$part'.trim();
+                                    return text.isNotEmpty && text != 'null';
+                                  })
+                                  .join(' • '),
                               image: '${pharmacy['image'] ?? ''}',
                               onTap: () => _openPharmacy(pharmacy),
                             ),
@@ -279,11 +272,7 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
       alignment: Alignment.center,
       child: Row(
         children: [
-          const Icon(
-            Icons.search_rounded,
-            color: Color(0xFFA59A94),
-            size: 20,
-          ),
+          const Icon(Icons.search_rounded, color: Color(0xFFA59A94), size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(

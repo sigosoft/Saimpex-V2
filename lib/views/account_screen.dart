@@ -50,22 +50,18 @@ class _AccountScreenState extends State<AccountScreen> {
     super.initState();
     _loadAccountData();
     if (Get.isRegistered<HomeController>()) {
-      _navWorker = ever<int>(
-        Get.find<HomeController>().currentNavIndex,
-        (index) {
-          if (index == HomeController.navProfile) {
-            _loadAccountData();
-          }
-        },
-      );
+      _navWorker = ever<int>(Get.find<HomeController>().currentNavIndex, (
+        index,
+      ) {
+        if (index == HomeController.navProfile) {
+          _loadAccountData();
+        }
+      });
     }
     if (Get.isRegistered<SessionStore>()) {
-      _sessionWorker = ever(
-        Get.find<SessionStore>().profileRevision,
-        (_) {
-          if (mounted) setState(() {});
-        },
-      );
+      _sessionWorker = ever(Get.find<SessionStore>().profileRevision, (_) {
+        if (mounted) setState(() {});
+      });
     }
   }
 
@@ -207,89 +203,83 @@ class _AccountScreenState extends State<AccountScreen> {
       ),
       child: HomeBackgroundBlend(
         child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          Column(
+          backgroundColor: Colors.transparent,
+          body: Stack(
             children: [
-              _buildHeader(context),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Quick Actions',
-                        style: AppTextStyles.title(),
-                      ),
-                      _buildQuickActions(),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Settings',
-                        style: AppTextStyles.title(),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildSettingsCard(context),
-                      const SizedBox(height: 28),
-                      _buildSocialRow(),
-                      const SizedBox(height: 16),
-                      Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'V2.8.2',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFA59A94),
-                                fontSize: 12,
-                              ),
+              Column(
+                children: [
+                  _buildHeader(context),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Quick Actions', style: AppTextStyles.title()),
+                          _buildQuickActions(),
+                          const SizedBox(height: 24),
+                          Text('Settings', style: AppTextStyles.title()),
+                          const SizedBox(height: 12),
+                          _buildSettingsCard(context),
+                          const SizedBox(height: 28),
+                          _buildSocialRow(),
+                          const SizedBox(height: 16),
+                          Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'V2.8.2',
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFFA59A94),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Check for update',
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFFA59A94),
+                                    fontSize: 12,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Check for update',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFA59A94),
-                                fontSize: 12,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                  ),
+                ],
+              ),
+              if (widget.showBottomNav)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: AppBottomNavBar(
+                    selectedIndex: HomeController.navProfile,
+                    onTap: BottomNavRouter.go,
                   ),
                 ),
-              ),
+              if (_showDeleteMenu) ...[
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _showDeleteMenu = false),
+                    behavior: HitTestBehavior.translucent,
+                    child: const SizedBox.expand(),
+                  ),
+                ),
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 52,
+                  right: 16,
+                  child: _buildDeleteMenuPopup(),
+                ),
+              ],
             ],
           ),
-          if (widget.showBottomNav)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: AppBottomNavBar(
-                selectedIndex: HomeController.navProfile,
-                onTap: BottomNavRouter.go,
-              ),
-            ),
-          if (_showDeleteMenu) ...[
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () => setState(() => _showDeleteMenu = false),
-                behavior: HitTestBehavior.translucent,
-                child: const SizedBox.expand(),
-              ),
-            ),
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 52,
-              right: 16,
-              child: _buildDeleteMenuPopup(),
-            ),
-          ],
-        ],
-      ),
         ),
       ),
     );
@@ -462,10 +452,7 @@ class _AccountScreenState extends State<AccountScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Container(
-            height: 1,
-            color: Colors.white.withOpacity(0.35),
-          ),
+          Container(height: 1, color: Colors.white.withOpacity(0.35)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -509,115 +496,115 @@ class _AccountScreenState extends State<AccountScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-      height: 124,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -22,
-            bottom: -26,
-            child: Opacity(
-              opacity: 0.50,
-              child: ColorFiltered(
-                colorFilter: const ColorFilter.mode(
-                  Color(0xFFFF9A5A),
-                  BlendMode.srcIn,
-                ),
-                child: Image.asset(
-                  'lib/assets/images/Ellipse.png',
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.contain,
+        height: 124,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -22,
+              bottom: -26,
+              child: Opacity(
+                opacity: 0.50,
+                child: ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Color(0xFFFF9A5A),
+                    BlendMode.srcIn,
+                  ),
+                  child: Image.asset(
+                    'lib/assets/images/Ellipse.png',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (animateIcon)
-                  iconAsset.contains('wallet')
-                      ? Image.asset(
-                          iconAsset,
-                          width: 28,
-                          height: 28,
-                          fit: BoxFit.contain,
-                        )
-                      : AnimatedCoin(size: 28, asset: iconAsset)
-                else
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF0E6),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      iconAsset,
-                      width: 17,
-                      height: 17,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                Text(
-                  label,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFA59A94),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      value,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        height: 1,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (animateIcon)
+                    iconAsset.contains('wallet')
+                        ? Image.asset(
+                            iconAsset,
+                            width: 28,
+                            height: 28,
+                            fit: BoxFit.contain,
+                          )
+                        : AnimatedCoin(size: 28, asset: iconAsset)
+                  else
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF0E6),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        iconAsset,
+                        width: 17,
+                        height: 17,
+                        fit: BoxFit.contain,
                       ),
                     ),
-                    if (unit != null) ...[
-                      const SizedBox(width: 5),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 2),
-                        child: Text(
-                          unit,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFA59A94),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
+                  const SizedBox(height: 12),
+                  Text(
+                    label,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFA59A94),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        value,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          height: 1,
                         ),
                       ),
+                      if (unit != null) ...[
+                        const SizedBox(width: 5),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
+                          child: Text(
+                            unit,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -730,8 +717,8 @@ class _AccountScreenState extends State<AccountScreen> {
                       ? Obx(() {
                           final homeController =
                               Get.isRegistered<HomeController>()
-                                  ? Get.find<HomeController>()
-                                  : Get.put(HomeController());
+                              ? Get.find<HomeController>()
+                              : Get.put(HomeController());
                           final count = homeController.favouritesCount;
                           return Text(
                             count > 0
@@ -769,11 +756,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
   Widget _buildSettingsCard(BuildContext context) {
     final items = [
-      {
-        'label': 'Language',
-        'icon': Icons.language_rounded,
-        'isLogout': false,
-      },
+      {'label': 'Language', 'icon': Icons.language_rounded, 'isLogout': false},
       {
         'label': 'App Preferences',
         'icon': Icons.settings_outlined,
@@ -799,11 +782,7 @@ class _AccountScreenState extends State<AccountScreen> {
         'icon': Icons.info_outline_rounded,
         'isLogout': false,
       },
-      {
-        'label': 'Logout',
-        'icon': Icons.logout_rounded,
-        'isLogout': true,
-      },
+      {'label': 'Logout', 'icon': Icons.logout_rounded, 'isLogout': true},
     ];
 
     return Container(
@@ -940,22 +919,10 @@ class _AccountScreenState extends State<AccountScreen> {
 
   Widget _buildSocialRow() {
     final socials = [
-      {
-        'label': 'Instagram',
-        'asset': 'lib/assets/images/Instagram.png',
-      },
-      {
-        'label': 'Facebook',
-        'asset': 'lib/assets/images/facebook.png',
-      },
-      {
-        'label': 'WhatsApp',
-        'asset': 'lib/assets/images/whatsapp.png',
-      },
-      {
-        'label': 'YouTube',
-        'asset': 'lib/assets/images/youtube.png',
-      },
+      {'label': 'Instagram', 'asset': 'lib/assets/images/Instagram.png'},
+      {'label': 'Facebook', 'asset': 'lib/assets/images/facebook.png'},
+      {'label': 'WhatsApp', 'asset': 'lib/assets/images/whatsapp.png'},
+      {'label': 'YouTube', 'asset': 'lib/assets/images/youtube.png'},
     ];
 
     return Container(
@@ -1046,8 +1013,20 @@ class _DeleteAccountSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     Navigator.of(context).pop();
+                    // The server deletes the account first; the session is kept if that fails.
+                    try {
+                      await Get.find<ProfileRepository>().deleteAccount(
+                        apiLanguageCode(),
+                      );
+                    } on ApiException catch (error) {
+                      showAppToast(
+                        error.message,
+                        backgroundColor: const Color(0xFFEF4444),
+                      );
+                      return;
+                    }
                     Get.find<SessionStore>().clear();
                     Get.offAll(() => const LoginScreen());
                   },
@@ -1132,7 +1111,8 @@ class _LogoutSheetState extends State<_LogoutSheet> {
     } finally {
       await session.clear();
       if (Get.isRegistered<HomeController>()) {
-        Get.find<HomeController>().currentNavIndex.value = HomeController.navHome;
+        Get.find<HomeController>().currentNavIndex.value =
+            HomeController.navHome;
       }
       if (mounted) {
         Navigator.of(context).pop();
@@ -1228,8 +1208,9 @@ class _LogoutSheetState extends State<_LogoutSheet> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : Text(

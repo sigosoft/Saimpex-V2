@@ -21,7 +21,7 @@ import 'widgets/pharmacy_product_details_sheet.dart';
 import 'widgets/pharmacy_subcategory_icon.dart';
 import '../../widgets/app_back_button.dart';
 
-  class PharmacyItemsScreen extends StatefulWidget {
+class PharmacyItemsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
   final int initialSubcategoryIndex;
   final int? initialCategoryId;
@@ -72,7 +72,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       menuItems = [];
       _loadingStore = true;
       searchController.addListener(_onSearchChanged);
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _loadStore(reset: true);
       });
@@ -81,10 +81,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
 
   int? get _pharmacyId => int.tryParse('${widget.store['id']}');
 
-  Map<String, dynamic> get _store => {
-    ...widget.store,
-    ...?_pharmacyDetails,
-  };
+  Map<String, dynamic> get _store => {...widget.store, ...?_pharmacyDetails};
 
   bool get _usesApi => _pharmacyId != null;
 
@@ -521,554 +518,562 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
 
     return PharmacyBackground(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Single scroll + sticky subcategories/search
-          Positioned.fill(
-            child: Obx(() {
-              final hasItems = controller.cartItemCount.value > 0;
-              return SingleChildScrollView(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.only(
-                  bottom: hasItems ? bottomInset + 88 : 24,
-                ),
-                child: Column(
-                  children: [
-                    // Collapses: banner + info + upload
-                    Stack(
-                      children: [
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          height: topInset + 96,
-                          child: storeImage.isEmpty
-                              ? Container(
-                                  color: const Color(0xFFF3EFEA),
-                                  child: const Icon(
-                                    Icons.storefront_outlined,
-                                    color: Colors.grey,
-                                    size: 40,
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            // Single scroll + sticky subcategories/search
+            Positioned.fill(
+              child: Obx(() {
+                final hasItems = controller.cartItemCount.value > 0;
+                return SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(
+                    bottom: hasItems ? bottomInset + 88 : 24,
+                  ),
+                  child: Column(
+                    children: [
+                      // Collapses: banner + info + upload
+                      Stack(
+                        children: [
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: topInset + 96,
+                            child: storeImage.isEmpty
+                                ? Container(
+                                    color: const Color(0xFFF3EFEA),
+                                    child: const Icon(
+                                      Icons.storefront_outlined,
+                                      color: Colors.grey,
+                                      size: 40,
+                                    ),
+                                  )
+                                : Image.network(
+                                    storeImage,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                              color: const Color(0xFFF3EFEA),
+                                              child: const Icon(
+                                                Icons.storefront_outlined,
+                                                color: Colors.grey,
+                                                size: 40,
+                                              ),
+                                            ),
                                   ),
-                                )
-                              : Image.network(
-                                  storeImage,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                        color: const Color(0xFFF3EFEA),
-                                        child: const Icon(
-                                          Icons.storefront_outlined,
-                                          color: Colors.grey,
-                                          size: 40,
-                                        ),
-                                      ),
+                          ),
+                          Column(
+                            children: [
+                              SizedBox(height: topInset + 52),
+                              // Floating Info Card
+                              Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
                                 ),
-                        ),
-                        Column(
-                          children: [
-                            SizedBox(height: topInset + 52),
-                            // Floating Info Card
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              padding: const EdgeInsets.fromLTRB(
-                                12,
-                                10,
-                                12,
-                                10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.06),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          storeTitle,
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF2C2520),
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.w700,
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  10,
+                                  12,
+                                  10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.06),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            storeTitle,
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF2C2520),
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                           ),
                                         ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF22C55E),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.star_rounded,
+                                                color: Colors.white,
+                                                size: 12,
+                                              ),
+                                              const SizedBox(width: 2),
+                                              Text(
+                                                _storeText('rating', '4.6'),
+                                                style: GoogleFonts.outfit(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _storeText('subtitle', 'Trusted'),
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF7A6A60),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
                                       ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        if (storeTime.isNotEmpty) ...[
+                                          const Icon(
+                                            Icons.access_time_rounded,
+                                            color: Color(0xFFFF5E00),
+                                            size: 12,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            storeTime,
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF7A6A60),
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                        ],
+                                        if (storeDistance.isNotEmpty) ...[
+                                          const Icon(
+                                            Icons.location_on_outlined,
+                                            color: Color(0xFFFF5E00),
+                                            size: 12,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            storeDistance,
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF7A6A60),
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                        if (storeDiscount.isNotEmpty) ...[
+                                          const SizedBox(width: 10),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 7,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFFF5E00),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              storeDiscount,
+                                              style: GoogleFonts.outfit(
+                                                color: Colors.white,
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    if (isNotAccepting) ...[
+                                      const SizedBox(height: 8),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
+                                          horizontal: 10,
+                                          vertical: 6,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF22C55E),
+                                          color: const Color(0xFFFEE2E2),
                                           borderRadius: BorderRadius.circular(
-                                            12,
+                                            10,
                                           ),
                                         ),
                                         child: Row(
-                                          mainAxisSize: MainAxisSize.min,
                                           children: [
                                             const Icon(
-                                              Icons.star_rounded,
-                                              color: Colors.white,
-                                              size: 12,
+                                              Icons.error_outline_rounded,
+                                              color: Color(0xFFEF4444),
+                                              size: 14,
                                             ),
-                                            const SizedBox(width: 2),
-                                            Text(
-                                              _storeText('rating', '4.6'),
-                                              style: GoogleFonts.outfit(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
+                                            const SizedBox(width: 6),
+                                            Expanded(
+                                              child: Text(
+                                                isTemporarilyClosed
+                                                    ? 'Temporarily not accepting orders'
+                                                    : 'Currently Closed',
+                                                style: GoogleFonts.outfit(
+                                                  color: const Color(
+                                                    0xFFEF4444,
+                                                  ),
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
                                     ],
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _storeText('subtitle', 'Trusted'),
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF7A6A60),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      if (storeTime.isNotEmpty) ...[
-                                        const Icon(
-                                          Icons.access_time_rounded,
-                                          color: Color(0xFFFF5E00),
-                                          size: 12,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          storeTime,
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF7A6A60),
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                      ],
-                                      if (storeDistance.isNotEmpty) ...[
-                                        const Icon(
-                                          Icons.location_on_outlined,
-                                          color: Color(0xFFFF5E00),
-                                          size: 12,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          storeDistance,
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF7A6A60),
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                      if (storeDiscount.isNotEmpty) ...[
-                                        const SizedBox(width: 10),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 7,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFFF5E00),
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            storeDiscount,
-                                            style: GoogleFonts.outfit(
-                                              color: Colors.white,
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  if (isNotAccepting) ...[
-                                    const SizedBox(height: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFEE2E2),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.error_outline_rounded,
-                                            color: Color(0xFFEF4444),
-                                            size: 14,
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Expanded(
-                                            child: Text(
-                                              isTemporarilyClosed
-                                                  ? 'Temporarily not accepting orders'
-                                                  : 'Currently Closed',
-                                              style: GoogleFonts.outfit(
-                                                color: const Color(0xFFEF4444),
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Get.to(
+                                                () => ChatScreen(
+                                                  restaurant: {
+                                                    'title': storeTitle,
+                                                    'image': storeImage,
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              height: 38,
+                                              decoration: BoxDecoration(
+                                                gradient: const LinearGradient(
+                                                  colors: [
+                                                    Color(0xFFFF5E00),
+                                                    Color(0xFFFFAE00),
+                                                  ],
+                                                  begin: Alignment.centerLeft,
+                                                  end: Alignment.centerRight,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(19),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Image.asset(
+                                                    "lib/assets/images/Chat Details.png",
+                                                    height: 16,
+                                                    width: 16,
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    'Chat with Pharmacy',
+                                                    style: GoogleFonts.outfit(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Get.to(
-                                              () => ChatScreen(
-                                                restaurant: {
-                                                  'title': storeTitle,
-                                                  'image': storeImage,
-                                                },
+                                        ),
+                                        const SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () => controller.toggleLike(
+                                            storeId,
+                                            _store,
+                                          ),
+                                          child: Obx(() {
+                                            final liked = controller.isLiked(
+                                              storeId,
+                                            );
+                                            return Container(
+                                              width: 38,
+                                              height: 38,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: const Color(
+                                                    0xFFEAD8C9,
+                                                  ),
+                                                  width: 0.8,
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.04),
+                                                    blurRadius: 6,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Icon(
+                                                liked
+                                                    ? Icons.favorite_rounded
+                                                    : Icons
+                                                          .favorite_border_rounded,
+                                                color: liked
+                                                    ? const Color(0xFFFF5E00)
+                                                    : const Color(0xFFA59A94),
+                                                size: 16,
                                               ),
                                             );
-                                          },
-                                          child: Container(
-                                            height: 38,
-                                            decoration: BoxDecoration(
-                                              gradient: const LinearGradient(
-                                                colors: [
-                                                  Color(0xFFFF5E00),
-                                                  Color(0xFFFFAE00),
-                                                ],
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(19),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Image.asset(
-                                                  "lib/assets/images/Chat Details.png",
-                                                  height: 16,
-                                                  width: 16,
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  'Chat with Pharmacy',
-                                                  style: GoogleFonts.outfit(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                          }),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              // Upload Your Prescription
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Get.to(
+                                      () => UploadPrescriptionScreen(
+                                        initialPharmacy: storeTitle,
+                                        initialPharmacyId: _pharmacyId,
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFCBEFF4),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: const Color(0xFFA2E0E8),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: 24,
+                                          height: 24,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFF0097A7),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.description_outlined,
+                                            color: Colors.white,
+                                            size: 14,
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      GestureDetector(
-                                        onTap: () => controller.toggleLike(
-                                          storeId,
-                                          _store,
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Upload Your Prescription',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF3A312C),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                        child: Obx(() {
-                                          final liked = controller.isLiked(
-                                            storeId,
-                                          );
-                                          return Container(
-                                            width: 38,
-                                            height: 38,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: const Color(0xFFEAD8C9),
-                                                width: 0.8,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.04),
-                                                  blurRadius: 6,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Icon(
-                                              liked
-                                                  ? Icons.favorite_rounded
-                                                  : Icons
-                                                        .favorite_border_rounded,
-                                              color: liked
-                                                  ? const Color(0xFFFF5E00)
-                                                  : const Color(0xFFA59A94),
-                                              size: 16,
-                                            ),
-                                          );
-                                        }),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 8),
-
-                            // Upload Your Prescription
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.to(
-                                    () => UploadPrescriptionScreen(
-                                      initialPharmacy: storeTitle,
-                                      initialPharmacyId: _pharmacyId,
+                                      ],
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFCBEFF4),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: const Color(0xFFA2E0E8),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        width: 24,
-                                        height: 24,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF0097A7),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.description_outlined,
-                                          color: Colors.white,
-                                          size: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Upload Your Prescription',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF3A312C),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
                                   ),
                                 ),
                               ),
-                            ),
 
-                            const SizedBox(height: 8),
-                          ],
-                        ),
-                      ],
-                    ),
-
-                    // Sticky anchor: categories + search
-                    KeyedSubtree(
-                      key: _searchAnchorKey,
-                      child: _showStickySearch
-                          ? const SizedBox(height: _searchFiltersExtent)
-                          : _buildStickySection(),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // All Items title
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'All Items from This Pharmacy',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                              const SizedBox(height: 8),
+                            ],
                           ),
-                        ),
+                        ],
                       ),
-                    ),
 
-                    // Products grid
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: menuItems.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 12,
-                              crossAxisSpacing: 12,
-                              mainAxisExtent: 248,
-                            ),
-                        itemBuilder: (context, index) {
-                          final food = menuItems[index];
-                          return PharmacyProductCard(
-                            food: food,
-                            isNotAccepting: isNotAccepting,
-                            onTap: () => showPharmacyProductDetailsSheet(
-                              context,
-                              food: food,
-                              menuId: int.tryParse('${food['id']}'),
-                              pharmacyId: _pharmacyId,
-                              isNotAccepting: isNotAccepting,
-                              onAdd: () => _addPharmacyItem(
-                                food,
-                                portion: food['tag']?.toString(),
-                              ),
-                            ),
-                            onAdd: () => showPharmacyCustomizeSheet(
-                              context,
-                              food: food,
-                              fromBottomSheet: false,
-                              onAdded: (item, portion, quantity) =>
-                                  _addPharmacyItem(
-                                    item,
-                                    portion: portion,
-                                    quantity: quantity,
-                                  ),
-                            ),
-                          );
-                        },
+                      // Sticky anchor: categories + search
+                      KeyedSubtree(
+                        key: _searchAnchorKey,
+                        child: _showStickySearch
+                            ? const SizedBox(height: _searchFiltersExtent)
+                            : _buildStickySection(),
                       ),
-                    ),
-                    if (_loadingStore && menuItems.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 28),
-                        child: CircularProgressIndicator(
-                          color: Color(0xFFFF5E00),
-                        ),
-                      ),
-                    if (!_loadingStore && menuItems.isEmpty)
+
+                      const SizedBox(height: 8),
+
+                      // All Items title
                       Padding(
-                        padding: const EdgeInsets.only(top: 28),
-                        child: Text(
-                          'No items',
-                          style: GoogleFonts.outfit(
-                            color: Color(0xFF7A6A60),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'All Items from This Pharmacy',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),
-                    if (_loadingMore)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
+
+                      // Products grid
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: menuItems.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                                mainAxisExtent: 248,
+                              ),
+                          itemBuilder: (context, index) {
+                            final food = menuItems[index];
+                            return PharmacyProductCard(
+                              food: food,
+                              isNotAccepting: isNotAccepting,
+                              onTap: () => showPharmacyProductDetailsSheet(
+                                context,
+                                food: food,
+                                menuId: int.tryParse('${food['id']}'),
+                                pharmacyId: _pharmacyId,
+                                isNotAccepting: isNotAccepting,
+                                onAdd: () => _addPharmacyItem(
+                                  food,
+                                  portion: food['tag']?.toString(),
+                                ),
+                              ),
+                              onAdd: () => showPharmacyCustomizeSheet(
+                                context,
+                                food: food,
+                                fromBottomSheet: false,
+                                onAdded: (item, portion, quantity) =>
+                                    _addPharmacyItem(
+                                      item,
+                                      portion: portion,
+                                      quantity: quantity,
+                                    ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      if (_loadingStore && menuItems.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 28),
                           child: CircularProgressIndicator(
-                            strokeWidth: 2.4,
                             color: Color(0xFFFF5E00),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-              );
-            }),
-          ),
+                      if (!_loadingStore && menuItems.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 28),
+                          child: Text(
+                            'No items',
+                            style: GoogleFonts.outfit(
+                              color: Color(0xFF7A6A60),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      if (_loadingMore)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.4,
+                              color: Color(0xFFFF5E00),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+            ),
 
-          // Sticky subcategories + search overlay
-          if (_showStickySearch)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Material(
-                elevation: 2,
-                color: PharmacyBackground.top,
-                child: Padding(
-                  padding: EdgeInsets.only(top: topInset, bottom: 8),
-                  child: _buildStickySection(),
+            // Sticky subcategories + search overlay
+            if (_showStickySearch)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 2,
+                  color: PharmacyBackground.top,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: topInset, bottom: 8),
+                    child: _buildStickySection(),
+                  ),
                 ),
               ),
-            ),
-          // Floating Back Button (hidden while sticky is pinned)
-          if (!_showStickySearch)
-            Positioned(
-              top: topInset + 10,
-              left: 16,
-              child: AppBackButton(onTap: () => Navigator.pop(context),),
-            ),
+            // Floating Back Button (hidden while sticky is pinned)
+            if (!_showStickySearch)
+              Positioned(
+                top: topInset + 10,
+                left: 16,
+                child: AppBackButton(onTap: () => Navigator.pop(context)),
+              ),
 
-          // 4. Floating Cart Summary Bar
-          Positioned(
-            bottom: bottomInset + 16,
-            left: 16,
-            right: 16,
-            child: Obx(() {
-              final hasItems = controller.cartItemCount.value > 0;
-              if (!hasItems) return const SizedBox.shrink();
-              return PharmacyCartBar(
-                price: lastAddedItem?['price'] ?? '50 MRU',
-                onTap: () {
-                  Get.to(
-                    () => CartScreen(
-                      showBottomNav: false,
-                      storeName: storeTitle,
-                      itemName: lastAddedItem?['title'],
-                      itemPortion: lastAddedItemPortion,
-                      basePrice: parsePrice(lastAddedItem?['price'] ?? '50'),
-                      itemImage: lastAddedItem?['image'],
-                    ),
-                  );
-                },
-              );
-            }),
-          ),
-        ],
-      ),
+            // 4. Floating Cart Summary Bar
+            Positioned(
+              bottom: bottomInset + 16,
+              left: 16,
+              right: 16,
+              child: Obx(() {
+                final hasItems = controller.cartItemCount.value > 0;
+                if (!hasItems) return const SizedBox.shrink();
+                return PharmacyCartBar(
+                  price: lastAddedItem?['price'] ?? '0 MRU',
+                  onTap: () {
+                    Get.to(
+                      () => CartScreen(
+                        showBottomNav: false,
+                        storeName: storeTitle,
+                        itemName: lastAddedItem?['title'],
+                        itemPortion: lastAddedItemPortion,
+                        basePrice: parsePrice(lastAddedItem?['price'] ?? '50'),
+                        itemImage: lastAddedItem?['image'],
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }

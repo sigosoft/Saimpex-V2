@@ -453,7 +453,7 @@ class _WaterProductSubscriptionScreenState
       ),
       child: Row(
         children: [
-          AppBackButton(onTap: () => Get.back(),),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
               'Subscription',

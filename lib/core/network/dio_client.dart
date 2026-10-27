@@ -51,9 +51,14 @@ String _formatData(dynamic data) {
   if (data == null) return 'null';
   if (data is FormData) {
     final fields = data.fields.map((e) => '${e.key}: ${e.value}').toList();
-    final files =
-        data.files.map((e) => '${e.key}: ${e.value.filename}').toList();
+    final files = data.files
+        .map((e) => '${e.key}: ${e.value.filename}')
+        .toList();
     return 'FormData(fields: $fields, files: $files)';
+  }
+  // Binary downloads (images) would otherwise print every byte
+  if (data is List<int>) {
+    return '<binary ${data.length} bytes>';
   }
   if (data is Map || data is List) {
     try {

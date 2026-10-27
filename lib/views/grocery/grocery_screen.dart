@@ -7,6 +7,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/storage/session_store.dart';
 import '../../models/grocery_repository.dart';
+import '../../models/profile_repository.dart';
 import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
 import 'grocery_stores_screen.dart';
@@ -41,6 +42,8 @@ class _GroceryScreenState extends State<GroceryScreen> {
   List<Map<String, dynamic>> fastDeliveryStores = [];
   List<Map<String, dynamic>> frequentlyBought = [];
 
+  String _walletText = '0 MRU';
+
   bool _groceryLoading = true;
   bool _categoriesLoading = true;
   int? _activeCategoryId;
@@ -64,6 +67,28 @@ class _GroceryScreenState extends State<GroceryScreen> {
     _scrollController.addListener(_handleScroll);
     _loadGroceryCategories();
     _loadGroceryHome();
+    _loadWallet();
+  }
+
+  /// Wallet amount from userPoints (redeemable amount), as on the account screen.
+  Future<void> _loadWallet() async {
+    if (!Get.isRegistered<SessionStore>() ||
+        !Get.isRegistered<ProfileRepository>()) {
+      return;
+    }
+    final token = Get.find<SessionStore>().token;
+    if (token == null || token.isEmpty) return;
+    try {
+      final points = await Get.find<ProfileRepository>().fetchUserPoints(
+        currentApiLanguage(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _walletText = '${points.redeemableAmount.round()} MRU';
+      });
+    } catch (_) {
+      if (mounted) setState(() => _walletText = '0 MRU');
+    }
   }
 
   @override
@@ -414,7 +439,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 ),
                 const SizedBox(width: 3),
                 Text(
-                  '300 MRU',
+                  _walletText,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 13,

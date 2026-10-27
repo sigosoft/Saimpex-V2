@@ -126,7 +126,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          AppBackButton(onTap: () => Get.back(),),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
               'Order $orderId',
@@ -335,15 +335,9 @@ class CourierOrderDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildRouteRow(
-                    label: 'PICKUP',
-                    title: pickupAddress,
-                  ),
+                  _buildRouteRow(label: 'PICKUP', title: pickupAddress),
                   const SizedBox(height: 18),
-                  _buildRouteRow(
-                    label: 'DROP-OFF',
-                    title: dropOffAddress,
-                  ),
+                  _buildRouteRow(label: 'DROP-OFF', title: dropOffAddress),
                 ],
               ),
             ),
@@ -358,25 +352,16 @@ class CourierOrderDetailScreen extends StatelessWidget {
       width: 22,
       height: 22,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: halo,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: halo, shape: BoxShape.circle),
       child: Container(
         width: 10,
         height: 10,
-        decoration: BoxDecoration(
-          color: fill,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
       ),
     );
   }
 
-  Widget _buildRouteRow({
-    required String label,
-    required String title,
-  }) {
+  Widget _buildRouteRow({required String label, required String title}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

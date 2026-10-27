@@ -1177,7 +1177,7 @@ class _WaterCartScreenState extends State<WaterCartScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          AppBackButton(onTap: () => Get.back(),),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
               'Cart',

@@ -114,7 +114,7 @@ class _CourierSelectRecipientLocationScreenState
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: AppBackButton(onTap: () => Get.back(),),
+            child: AppBackButton(onTap: () => Get.back()),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
@@ -213,11 +213,8 @@ class _CourierSelectRecipientLocationScreenState
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 6),
         itemCount: controller.searchResults.length,
-        separatorBuilder: (_, __) => const Divider(
-          height: 1,
-          indent: 44,
-          color: Color(0xFFF0E8E0),
-        ),
+        separatorBuilder: (_, __) =>
+            const Divider(height: 1, indent: 44, color: Color(0xFFF0E8E0)),
         itemBuilder: (context, index) {
           final result = controller.searchResults[index];
           final label = result['label']?.toString() ?? '';

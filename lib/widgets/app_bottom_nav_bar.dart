@@ -1,3 +1,5 @@
+﻿import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -6,27 +8,23 @@ import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
 import 'bottom_chat_icon.dart';
 
-/// Shared floating bottom navigation used by [MainShellScreen] and standalone pages.
+/// Shared bottom navigation used by [MainShellScreen] and standalone pages.
 ///
-/// App-themed pill bar: inactive items are muted circles; the selected item expands
-/// into a peach capsule with an orange icon circle and label.
+/// A flat white bar with a notch cut around the raised Services disc. Every item
+/// is an icon with a label under it; the cart shows an orange count badge.
 class AppBottomNavBar extends StatelessWidget {
-  static const double _barHeight = 78;
-  static const double _iconCircleSize = 34;
-  static const double _iconSize = 18;
+  static const double _barHeight = 66;
+  static const double _iconSize = 22;
   static const double _iconStrokeFactor = 0.075;
-  static const double _inactiveItemWidth = 44;
-  static const int _itemCount = 7;
-  static const Duration _moveDuration = Duration(milliseconds: 360);
-  static const Curve _moveCurve = Curves.easeInOutCubic;
+  static const double _servicesDiscSize = 68;
+  static const double _servicesBorder = 5;
+  static const double _notchRadius = 44;
+  static const double _iconSlotTop = 12;
+  static const double _labelGap = 4;
 
-  static const Color _outerBg = Color(0xFFFAF6F0);
   static const Color _barColor = Colors.white;
-  static const Color _inactiveCircle = Color(0xFFFFF3EB);
-  static const Color _activeCapsule = Color(0xFFFFE4CC);
   static const Color _orange = Color(0xFFFF5E00);
-  static const Color _inactiveIcon = Color.fromARGB(255, 123, 123, 123);
-  static const Color _activeLabel = Color(0xFF1A1A1A);
+  static const Color _inactive = Color(0xFF7B7B7B);
 
   final int selectedIndex;
 
@@ -41,6 +39,9 @@ class AppBottomNavBar extends StatelessWidget {
     this.onTap,
     this.isServicesOption = false,
   });
+
+  /// The disc sits above the bar top, so the widget reserves this much extra height.
+  static const double _discOverhang = _servicesDiscSize / 2;
 
   void _handleTap(int index) {
     if (index == selectedIndex) {
@@ -67,175 +68,186 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: _outerBg,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(2, 8, 2, 10),
-          child: Container(
-            width: double.infinity,
-            height: _barHeight,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-            decoration: BoxDecoration(
-              color: _barColor,
-              borderRadius: BorderRadius.circular(40),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final selectedWidth =
-                    constraints.maxWidth -
-                    _inactiveItemWidth * (_itemCount - 1);
-                return Row(
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    final barHeight = _barHeight + bottomInset;
+
+    return SizedBox(
+      height: barHeight + _discOverhang,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: barHeight,
+            child: CustomPaint(
+              painter: _NavBarPainter(
+                color: _barColor,
+                notchRadius: _notchRadius,
+                bottomInset: bottomInset,
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(bottom: bottomInset),
+                child: Row(
                   children: [
                     _navItem(
                       index: HomeController.navHome,
                       label: 'Home',
                       asset: 'lib/assets/images/Bottom Home.png',
-                      width: selectedIndex == HomeController.navHome
-                          ? selectedWidth
-                          : _inactiveItemWidth,
                     ),
                     _navItem(
                       index: HomeController.navBookings,
                       label: 'Bookings',
                       asset: null,
-                      width: selectedIndex == HomeController.navBookings
-                          ? selectedWidth
-                          : _inactiveItemWidth,
                     ),
                     _navItem(
                       index: HomeController.navOrders,
                       label: 'Orders',
                       asset: 'lib/assets/images/Bottom Order.png',
-                      width: selectedIndex == HomeController.navOrders
-                          ? selectedWidth
-                          : _inactiveItemWidth,
                     ),
-                    _navItem(
-                      index: HomeController.navServices,
-                      label: 'Services',
-                      asset: null,
-                      width: selectedIndex == HomeController.navServices
-                          ? selectedWidth
-                          : _inactiveItemWidth,
-                    ),
+                    _servicesItem(),
                     _navItem(
                       index: HomeController.navCart,
                       label: 'Cart',
                       asset: 'lib/assets/images/Bottom Cart.png',
                       observeCartBadge: true,
-                      width: selectedIndex == HomeController.navCart
-                          ? selectedWidth
-                          : _inactiveItemWidth,
                     ),
                     _navItem(
                       index: HomeController.navChat,
                       label: 'Chat',
                       asset: null,
-                      width: selectedIndex == HomeController.navChat
-                          ? selectedWidth
-                          : _inactiveItemWidth,
                     ),
                     _navItem(
                       index: HomeController.navProfile,
                       label: 'Profile',
                       asset: 'lib/assets/images/Bottom Profile.png',
-                      width: selectedIndex == HomeController.navProfile
-                          ? selectedWidth
-                          : _inactiveItemWidth,
                     ),
                   ],
-                );
-              },
+                ),
+              ),
             ),
+          ),
+          // Centre of the bar's top edge is the centre of the disc
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Center(child: _servicesDisc()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Icon above a label. Every item except Services has the same size and colour.
+  Widget _navItem({
+    required int index,
+    required String label,
+    required String? asset,
+    bool observeCartBadge = false,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _handleTap(index),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.only(top: _iconSlotTop),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: _iconSize,
+                child: observeCartBadge
+                    ? Obx(() {
+                        final controller = Get.isRegistered<HomeController>()
+                            ? Get.find<HomeController>()
+                            : Get.put(HomeController());
+                        return _iconWithBadge(
+                          label: label,
+                          asset: asset,
+                          badgeCount: controller.cartItemCount.value,
+                        );
+                      })
+                    : _iconWithBadge(label: label, asset: asset, badgeCount: 0),
+              ),
+              const SizedBox(height: _labelGap),
+              Text(
+                label,
+                style: GoogleFonts.outfit(
+                  color: _inactive,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _navItem({
-    required int index,
-    required String label,
-    required String? asset,
-    required double width,
-    bool observeCartBadge = false,
-  }) {
-    final isSelected = selectedIndex == index;
-
-    return GestureDetector(
-      onTap: () => _handleTap(index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: _moveDuration,
-        curve: _moveCurve,
-        width: width,
-        height: double.infinity,
-        clipBehavior: Clip.hardEdge,
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? _activeCapsule : Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (observeCartBadge)
-              Obx(() {
-                final controller = Get.isRegistered<HomeController>()
-                    ? Get.find<HomeController>()
-                    : Get.put(HomeController());
-                return _iconWithBadge(
-                  label: label,
-                  asset: asset,
-                  isSelected: isSelected,
-                  badgeCount: controller.cartItemCount.value,
-                );
-              })
-            else
-              _iconWithBadge(
-                label: label,
-                asset: asset,
-                isSelected: isSelected,
-                badgeCount: 0,
-              ),
-            Flexible(
-              child: AnimatedAlign(
-                duration: _moveDuration,
-                curve: _moveCurve,
-                alignment: Alignment.centerLeft,
-                widthFactor: isSelected ? 1 : 0,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      softWrap: false,
-                      style: GoogleFonts.outfit(
-                        color: _activeLabel,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        height: 1,
-                      ),
-                    ),
-                  ),
+  /// The raised disc sits in the notch; its label sits on the bar like the others.
+  Widget _servicesItem() {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _handleTap(HomeController.navServices),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.only(top: _iconSlotTop),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: _iconSize),
+              const SizedBox(height: _labelGap),
+              Text(
+                'SERVICES',
+                style: GoogleFonts.outfit(
+                  color: _orange,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
                 ),
               ),
+              const SizedBox(height: 3),
+              Container(
+                width: 4,
+                height: 4,
+                decoration: const BoxDecoration(
+                  color: _orange,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _servicesDisc() {
+    return GestureDetector(
+      onTap: () => _handleTap(HomeController.navServices),
+      child: Container(
+        width: _servicesDiscSize,
+        height: _servicesDiscSize,
+        decoration: BoxDecoration(
+          color: _orange,
+          shape: BoxShape.circle,
+          border: Border.all(color: _barColor, width: _servicesBorder),
+          boxShadow: [
+            BoxShadow(
+              color: _orange.withValues(alpha: 0.35),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
+        ),
+        alignment: Alignment.center,
+        child: const _ServicesGridIcon(
+          color: Colors.white,
+          size: 24,
+          outlined: true,
         ),
       ),
     );
@@ -244,38 +256,25 @@ class AppBottomNavBar extends StatelessWidget {
   Widget _iconWithBadge({
     required String label,
     required String? asset,
-    required bool isSelected,
     required int badgeCount,
   }) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        AnimatedContainer(
-          duration: _moveDuration,
-          curve: _moveCurve,
-          width: _iconCircleSize,
-          height: _iconCircleSize,
-          decoration: BoxDecoration(
-            color: isSelected ? _orange : _inactiveCircle,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: _buildIcon(
-            label: label,
-            asset: asset,
-            isSelected: isSelected,
-          ),
+        Center(
+          child: _buildIcon(label: label, asset: asset, isSelected: false),
         ),
         if (badgeCount > 0)
           Positioned(
-            top: -2,
-            right: -2,
+            top: -4,
+            right: -8,
             child: Container(
-              width: 16,
-              height: 16,
-              decoration: const BoxDecoration(
-                color: Color(0xFFE53935),
-                shape: BoxShape.circle,
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: _orange,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _barColor, width: 1.5),
               ),
               alignment: Alignment.center,
               child: Text(
@@ -297,7 +296,7 @@ class AppBottomNavBar extends StatelessWidget {
     required String? asset,
     required bool isSelected,
   }) {
-    final color = isSelected ? Colors.white : _inactiveIcon;
+    final color = isSelected ? Colors.white : _inactive;
 
     if (label == 'Chat') {
       return BottomChatIcon(
@@ -315,14 +314,6 @@ class AppBottomNavBar extends StatelessWidget {
         strokeFactor: _iconStrokeFactor,
       );
     }
-    if (label == 'Services') {
-      return _ServicesGridIcon(
-        key: ValueKey('services-$isSelected'),
-        color: color,
-        size: _iconSize,
-        outlined: true,
-      );
-    }
     return Image.asset(
       asset!,
       key: ValueKey('$label-$isSelected'),
@@ -333,6 +324,62 @@ class AppBottomNavBar extends StatelessWidget {
       filterQuality: FilterQuality.high,
     );
   }
+}
+
+/// White bar with a circular notch at the top centre, drawn with a soft shadow.
+class _NavBarPainter extends CustomPainter {
+  final Color color;
+  final double notchRadius;
+  final double bottomInset;
+
+  const _NavBarPainter({
+    required this.color,
+    required this.notchRadius,
+    required this.bottomInset,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centreX = size.width / 2;
+    // Notch floor is a circle of [notchRadius]; the two shoulders are rounded
+    // with a small corner radius, so the cut stays the same width.
+    const shoulder = 10.0;
+    final r = notchRadius;
+    final shoulderCentreX = math.sqrt(r * r + 2 * r * shoulder);
+    final joinX = r * shoulderCentreX / (r + shoulder);
+    final joinY = r * shoulder / (r + shoulder);
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(centreX - shoulderCentreX, 0)
+      ..arcToPoint(
+        Offset(centreX - joinX, joinY),
+        radius: const Radius.circular(shoulder),
+        clockwise: true,
+      )
+      ..arcToPoint(
+        Offset(centreX + joinX, joinY),
+        radius: Radius.circular(r),
+        clockwise: false,
+      )
+      ..arcToPoint(
+        Offset(centreX + shoulderCentreX, 0),
+        radius: const Radius.circular(shoulder),
+        clockwise: true,
+      )
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+
+    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.25), 6, false);
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_NavBarPainter oldDelegate) =>
+      oldDelegate.color != color ||
+      oldDelegate.notchRadius != notchRadius ||
+      oldDelegate.bottomInset != bottomInset;
 }
 
 class _BookingsCalendarIcon extends StatelessWidget {
@@ -431,7 +478,6 @@ class _ServicesGridIcon extends StatelessWidget {
   final bool outlined;
 
   const _ServicesGridIcon({
-    super.key,
     required this.color,
     required this.size,
     this.outlined = false,

@@ -236,15 +236,20 @@ class _MainShellScreenState extends State<MainShellScreen>
             for (var index = 0; index < _pages.length; index++)
               Offstage(
                 offstage: index != _to && !(animating && index == _from),
-                child: IgnorePointer(
-                  ignoring: index != _to,
-                  child: _movedPage(
-                    page: _pages[index],
-                    incoming: index == _to,
-                    animating: animating && (index == _to || index == _from),
-                    t: t,
-                    direction: direction,
-                    width: width,
+                // Offstage keeps tickers running; mute the hidden tabs so their
+                // repeating animations (e.g. home's pulse) stop drawing frames
+                child: TickerMode(
+                  enabled: index == _to,
+                  child: IgnorePointer(
+                    ignoring: index != _to,
+                    child: _movedPage(
+                      page: _pages[index],
+                      incoming: index == _to,
+                      animating: animating && (index == _to || index == _from),
+                      t: t,
+                      direction: direction,
+                      width: width,
+                    ),
                   ),
                 ),
               ),

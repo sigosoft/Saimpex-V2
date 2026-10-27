@@ -1,5 +1,6 @@
 import 'dart:io';
 import '../../widgets/app_back_button.dart';
+import '../widgets/country_code_picker.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,8 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
   bool uploadedIsImage = false;
   final TextEditingController contactController = TextEditingController();
   final FocusNode contactFocus = FocusNode();
+  String countryCode = '+222';
+  String countryFlag = '🇲🇷';
   List<Map<String, String>> pharmacies = [];
 
   @override
@@ -65,128 +68,128 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
 
     return PharmacyBackground(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          SizedBox(height: topInset + 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
-              height: 42,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: AppBackButton(onTap: () => Navigator.pop(context),),
-                  ),
-                  Text(
-                    'Upload Prescription',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            SizedBox(height: topInset + 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                height: 42,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: AppBackButton(onTap: () => Navigator.pop(context)),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, bottomInset + 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'A licensed pharmacist will review your prescription and send you a priced quotation',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 12,
-                      height: 1.45,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildPrescriptionIllustration(),
-                  const SizedBox(height: 20),
-                  _buildAddPrescriptionCard(),
-                  const SizedBox(height: 14),
-                  _buildCallToggle(),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Choose a Pharmacy',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildPharmacyDropdown(),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Enter Contact Number',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildContactField(),
-                  const SizedBox(height: 24),
-                  GestureDetector(
-                    onTap: isPickingFile || isSubmitting
-                        ? null
-                        : _submitQuotation,
-                    child: Container(
-                      height: 52,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(26),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFFF5E00).withValues(
-                              alpha: 0.3,
-                            ),
-                            blurRadius: 14,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
+                    Text(
+                      'Upload Prescription',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
                       ),
-                      child: isSubmitting
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.4,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              'Submit for Quotation',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(16, 12, 16, bottomInset + 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'A licensed pharmacist will review your prescription and send you a priced quotation',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFA59A94),
+                        fontSize: 12,
+                        height: 1.45,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildPrescriptionIllustration(),
+                    const SizedBox(height: 20),
+                    _buildAddPrescriptionCard(),
+                    const SizedBox(height: 14),
+                    _buildCallToggle(),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Choose a Pharmacy',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildPharmacyDropdown(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Enter Contact Number',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildContactField(),
+                    const SizedBox(height: 24),
+                    GestureDetector(
+                      onTap: isPickingFile || isSubmitting
+                          ? null
+                          : _submitQuotation,
+                      child: Container(
+                        height: 52,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(26),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0xFFFF5E00,
+                              ).withValues(alpha: 0.3),
+                              blurRadius: 14,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: isSubmitting
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                'Submit for Quotation',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -368,8 +371,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 ),
                 children: [
                   const TextSpan(
-                    text:
-                        'Take a clear photo or upload a file. We accept ',
+                    text: 'Take a clear photo or upload a file. We accept ',
                   ),
                   TextSpan(
                     text: 'JPG, PNG',
@@ -574,12 +576,33 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
-            Text(
-              '+222',
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF2C2520),
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+            GestureDetector(
+              onTap: () => showCountryCodePicker(
+                onSelected: (code, flag) => setState(() {
+                  countryCode = code;
+                  countryFlag = flag;
+                }),
+              ),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(countryFlag, style: const TextStyle(fontSize: 16)),
+                  const SizedBox(width: 4),
+                  Text(
+                    countryCode,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    color: Color(0xFF7A6A60),
+                    size: 18,
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: 4),
@@ -638,9 +661,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
       String? path = file.path;
       if ((path == null || path.isEmpty) && file.bytes != null) {
         final tempDir = Directory.systemTemp;
-        final tempFile = File(
-          '${tempDir.path}${Platform.pathSeparator}$name',
-        );
+        final tempFile = File('${tempDir.path}${Platform.pathSeparator}$name');
         await tempFile.writeAsBytes(file.bytes!, flush: true);
         path = tempFile.path;
       }
@@ -682,9 +703,9 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           builder: (context, setModalState) {
             final filtered = pharmacies.where((pharmacy) {
               if (query.isEmpty) return true;
-              return pharmacy['title']!
-                  .toLowerCase()
-                  .contains(query.toLowerCase());
+              return pharmacy['title']!.toLowerCase().contains(
+                query.toLowerCase(),
+              );
             }).toList();
 
             return SizedBox(
@@ -715,12 +736,12 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           ),
                           const SizedBox(height: 14),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Container(
                               height: 48,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 14),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(28),
@@ -1137,7 +1158,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
     try {
       final message = await Get.find<PharmacyRepository>().uploadPrescription(
         pharmacyId: selectedPharmacyId!,
-        contactNumber: contactNumber,
+        contactNumber: '$countryCode $contactNumber',
         callBeforeAlternative: callBeforeAlternative,
         filePath: uploadedPath!,
         language: apiLanguageCode(),
@@ -1163,8 +1184,9 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: GoogleFonts.outfit()),
-        backgroundColor:
-            isError ? const Color(0xFFEF4444) : const Color(0xFF00B25C),
+        backgroundColor: isError
+            ? const Color(0xFFEF4444)
+            : const Color(0xFF00B25C),
       ),
     );
   }

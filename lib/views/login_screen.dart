@@ -1,3 +1,4 @@
+import 'widgets/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -76,7 +77,9 @@ class LoginScreen extends StatelessWidget {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: AppColors.whiteSheet,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(30),
+                    ),
                   ),
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(
@@ -412,82 +415,6 @@ class LoginScreen extends StatelessWidget {
   }
 
   void _showCountryPicker(BuildContext context, LoginController controller) {
-    final List<Map<String, String>> countries = [
-      {'name': 'Mauritania', 'code': '+222', 'flag': '🇲🇷'},
-      {'name': 'India', 'code': '+91', 'flag': '🇮🇳'},
-      {'name': 'United Arab Emirates', 'code': '+971', 'flag': '🇦🇪'},
-      {'name': 'Saudi Arabia', 'code': '+966', 'flag': '🇸🇦'},
-      {'name': 'United States', 'code': '+1', 'flag': '🇺🇸'},
-      {'name': 'United Kingdom', 'code': '+44', 'flag': '🇬🇧'},
-    ];
-
-    Get.bottomSheet(
-      Material(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: SafeArea(
-            child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Select Country',
-                style: GoogleFonts.outfit(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: countries.length,
-                  itemBuilder: (context, index) {
-                    final country = countries[index];
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Text(
-                        country['flag']!,
-                        style: const TextStyle(fontSize: 22),
-                      ),
-                      title: Text(
-                        country['name']!,
-                        style: GoogleFonts.outfit(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      trailing: Text(
-                        country['code']!,
-                        style: GoogleFonts.outfit(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onTap: () {
-                        controller.setCountry(
-                          country['code']!,
-                          country['flag']!,
-                        );
-                        Get.back();
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-    backgroundColor: Colors.transparent,
-  );
+    showCountryCodePicker(onSelected: controller.setCountry);
   }
 }

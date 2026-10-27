@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
+import '../../controllers/select_location_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../core/network/dio_client.dart';
+import '../../core/storage/session_store.dart';
+import '../../models/grocery_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/filter_chip_style.dart';
 import 'grocery_details_screen.dart';
 import '../../widgets/app_back_button.dart';
@@ -26,88 +33,113 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
   /// search(62) + filters(34) + bottom gap(8)
   static const double _searchFiltersExtent = 104;
 
-  final subcategories = [
-    {'label': 'All', 'isAll': true},
-    {
-      'label': 'Fruits',
-      'image':
-          'https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Vegetables',
-      'image':
-          'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Meat',
-      'image':
-          'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Masalas',
-      'image':
-          'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Rice',
-      'image':
-          'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=100&auto=format&fit=crop',
-    },
+  List<Map<String, dynamic>> subcategories = [
+    {'id': 0, 'label': 'All', 'isAll': true},
   ];
 
-  final List<Map<String, dynamic>> filters = [
-    {'label': 'Filter', 'icon': Image.asset("lib/assets/images/Filter.png")},
-    {'label': 'Under 200 MRU', 'isMru': true},
-    {'label': 'Offers', 'icon': Image.asset("lib/assets/images/Offer.png")},
-    {'label': 'Ratings 4.0+', 'icon': Icons.star_rounded},
-  ];
+  List<Map<String, dynamic>> groceryStores = [];
+  List<Map<String, dynamic>> _quickFilters = [];
+  final Map<String, String> _selectedFilters = {};
+  int? _categoryId;
+  bool _storesLoading = true;
 
-  final List<Map<String, dynamic>> groceryStores = [
-    {
-      'id': 'gs_all1',
-      'name': 'Salam Supermarket',
-      'category': 'Hypermarket',
-      'rating': '4.6',
-      'time': '35 min',
-      'dist': '10 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop',
-      'isClosed': true,
-      'opensAt': '10 AM',
-    },
-    {
-      'id': 'gs_all2',
-      'name': 'Good Choice Store',
-      'category': 'Fruits & Veg',
-      'rating': '4.7',
-      'time': '35 min',
-      'dist': '10 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500&auto=format&fit=crop',
-      'isTemporarilyClosed': true,
-    },
-    {
-      'id': 'gs_all3',
-      'name': 'Jawda Stores',
-      'category': 'Essentials',
-      'rating': '4.7',
-      'time': '35 min',
-      'dist': '10 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=500&auto=format&fit=crop',
-    },
-  ];
+  GroceryRepository _getGroceryRepo() {
+    if (Get.isRegistered<GroceryRepository>()) {
+      return Get.find<GroceryRepository>();
+    }
+    final session = Get.isRegistered<SessionStore>()
+        ? Get.find<SessionStore>()
+        : SessionStore();
+    final dio = Get.isRegistered<DioClient>()
+        ? Get.find<DioClient>()
+        : Get.put(DioClient(session), permanent: true);
+    return Get.put(GroceryRepository(dio), permanent: true);
+  }
+
+  double get _latitude => SelectLocationController.selectedLatitude;
+
+  double get _longitude => SelectLocationController.selectedLongitude;
+
+  Future<void> _loadCategories() async {
+    try {
+      final fetched = await _getGroceryRepo().fetchGroceryCategories(
+        latitude: _latitude,
+        longitude: _longitude,
+        language: currentApiLanguage(),
+      );
+      if (!mounted || fetched.isEmpty) return;
+      final hasAll = fetched.any((c) => c['isAll'] == true || c['id'] == 0);
+      setState(() {
+        subcategories = hasAll
+            ? fetched
+            : [
+                {'id': 0, 'label': 'All', 'isAll': true},
+                ...fetched,
+              ];
+      });
+    } catch (_) {}
+  }
+
+  /// Stores for the current search text, category and quick filters.
+  Future<void> _loadStores() async {
+    setState(() => _storesLoading = true);
+    try {
+      final result = await _getGroceryRepo().searchGroceryStores(
+        latitude: _latitude,
+        longitude: _longitude,
+        language: currentApiLanguage(),
+        keyword: _searchController.text,
+        filters: Map<String, String>.from(_selectedFilters),
+        categoryId: _categoryId,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        groceryStores = result.stores;
+        if (result.filters.isNotEmpty) _quickFilters = result.filters;
+        _storesLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        groceryStores = [];
+        _storesLoading = false;
+      });
+      if (e is ApiException) {
+        ToastHelper.showError(e.message);
+      }
+    }
+  }
+
+  void _selectSubcategory(int index) {
+    if (selectedSubcategoryIndex == index) return;
+    final catId = int.tryParse('${subcategories[index]['id']}') ?? 0;
+    setState(() {
+      selectedSubcategoryIndex = index;
+      _categoryId = catId > 0 ? catId : null;
+    });
+    _loadStores();
+  }
+
+  void _toggleFilter(Map<String, dynamic> filter) {
+    final param = '${filter['param']}';
+    final value = '${filter['value']}';
+    setState(() {
+      if (_selectedFilters[param] == value) {
+        _selectedFilters.remove(param);
+      } else {
+        _selectedFilters[param] = value;
+      }
+    });
+    _loadStores();
+  }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadCategories();
+    _loadStores();
   }
 
   @override
@@ -171,10 +203,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFFFFCF8),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFEAD8C9),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.02),
@@ -308,10 +337,10 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                             height: 12,
                             errorBuilder: (context, error, stackTrace) =>
                                 Image.asset(
-                              "lib/assets/images/Coin.png",
-                              width: 12,
-                              height: 12,
-                            ),
+                                  "lib/assets/images/Coin.png",
+                                  width: 12,
+                                  height: 12,
+                                ),
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -328,9 +357,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                   ),
                   if (isClosed) ...[
                     Positioned.fill(
-                      child: Container(
-                        color: Colors.black.withOpacity(0.35),
-                      ),
+                      child: Container(color: Colors.black.withOpacity(0.35)),
                     ),
                     Positioned.fill(
                       child: _buildClosedOverlay(
@@ -339,13 +366,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     ),
                   ] else if (isTemporarilyClosed) ...[
                     Positioned.fill(
-                      child: Container(
-                        color: Colors.black.withOpacity(0.35),
-                      ),
+                      child: Container(color: Colors.black.withOpacity(0.35)),
                     ),
-                    Positioned.fill(
-                      child: _buildTemporarilyClosedOverlay(),
-                    ),
+                    Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                   ],
                 ],
               ),
@@ -422,11 +445,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFFFFDDCF),
-            Color(0xFFFFEEE5),
-            Color(0xFFFAF6F0),
-          ],
+          colors: [Color(0xFFFFDDCF), Color(0xFFFFEEE5), Color(0xFFFAF6F0)],
           stops: [0.0, 0.38, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -441,10 +460,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  KeyedSubtree(
-                    key: _headerKey,
-                    child: _buildHeader(context),
-                  ),
+                  KeyedSubtree(key: _headerKey, child: _buildHeader(context)),
                   Expanded(
                     child: SingleChildScrollView(
                       controller: _scrollController,
@@ -483,11 +499,36 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                           const SizedBox(height: 12),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Column(
-                              children: groceryStores
-                                  .map((store) => _buildStoreCard(store))
-                                  .toList(),
-                            ),
+                            child: _storesLoading
+                                ? const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 32),
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: Color(0xFFFF5E00),
+                                      ),
+                                    ),
+                                  )
+                                : groceryStores.isEmpty
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 32,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'No grocery stores available',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF7A6A60),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Column(
+                                    children: groceryStores
+                                        .map((store) => _buildStoreCard(store))
+                                        .toList(),
+                                  ),
                           ),
                         ],
                       ),
@@ -550,11 +591,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
           final isAll = sub['isAll'] == true;
 
           return GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedSubcategoryIndex = index;
-              });
-            },
+            onTap: () => _selectSubcategory(index),
             child: Padding(
               padding: EdgeInsets.only(
                 right: index == subcategories.length - 1 ? 0 : 10,
@@ -595,7 +632,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                 ),
                                 child: ClipOval(
                                   child: Image.network(
-                                    sub['image'] as String,
+                                    (sub['image'] ?? '').toString(),
                                     width: 46,
                                     height: 46,
                                     fit: BoxFit.cover,
@@ -688,6 +725,8 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
             Expanded(
               child: TextField(
                 controller: _searchController,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (_) => _loadStores(),
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'What do you need today?',
@@ -736,21 +775,24 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
   Widget _buildFiltersRow() {
     return AppFilterChipsRow(
       children: [
-        for (final filter in filters)
+        AppFilterChip(
+          label: 'Filter',
+          leading: AppFilterChip.widgetLeading(
+            Image.asset("lib/assets/images/Filter.png"),
+          ),
+        ),
+        for (final filter in _quickFilters)
           AppFilterChip(
-            label: filter['label'] as String,
-            leading: filter['isMru'] == true
-                ? AppFilterChip.mruLeading()
-                : filter['icon'] is IconData
-                    ? AppFilterChip.iconLeading(
-                        filter['icon'] as IconData,
-                        color: (filter['label'] as String).contains('Rating')
-                            ? const Color(0xFFFFAE00)
-                            : const Color(0xFF2C2520),
-                      )
-                    : filter['icon'] is Widget
-                        ? AppFilterChip.widgetLeading(filter['icon'] as Widget)
-                        : null,
+            label: '${filter['label']}',
+            selected:
+                _selectedFilters['${filter['param']}'] == '${filter['value']}',
+            onTap: () => _toggleFilter(filter),
+            leading: '${filter['param']}' == 'rating'
+                ? AppFilterChip.iconLeading(
+                    Icons.star_rounded,
+                    color: const Color(0xFFFFAE00),
+                  )
+                : null,
           ),
       ],
     );
@@ -905,4 +947,3 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
     );
   }
 }
-

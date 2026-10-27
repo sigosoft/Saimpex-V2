@@ -162,10 +162,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                 child: _SoftButton(
                   label: 'Cancel',
                   onTap: () {
-                    showCancelOrderBottomSheet(
-                      context,
-                      orderId: orderId,
-                    );
+                    showCancelOrderBottomSheet(context, orderId: orderId);
                   },
                 ),
               ),
@@ -174,9 +171,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      Get.to(
-                        () => CourierTrackOrderScreen(orderId: orderId),
-                      );
+                      Get.to(() => CourierTrackOrderScreen(orderId: orderId));
                     },
                     child: Container(
                       height: 42,
@@ -189,8 +184,9 @@ class CourierActiveOrderCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFF5E00)
-                                .withValues(alpha: 0.22),
+                            color: const Color(
+                              0xFFFF5E00,
+                            ).withValues(alpha: 0.22),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -285,10 +281,7 @@ class _SoftButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _SoftButton({
-    required this.label,
-    required this.onTap,
-  });
+  const _SoftButton({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

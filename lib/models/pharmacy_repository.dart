@@ -205,13 +205,7 @@ class PharmacyRepository {
     );
   }
 
-  Future<
-    ({
-      List<Map<String, dynamic>> items,
-      int currentPage,
-      int lastPage,
-    })
-  >
+  Future<({List<Map<String, dynamic>> items, int currentPage, int lastPage})>
   fetchPharmacyItems({
     required int pharmacyId,
     required String language,
@@ -247,13 +241,7 @@ class PharmacyRepository {
     );
   }
 
-  Future<
-    ({
-      List<Map<String, dynamic>> items,
-      int currentPage,
-      int lastPage,
-    })
-  >
+  Future<({List<Map<String, dynamic>> items, int currentPage, int lastPage})>
   fetchCategoryItems({
     required int pharmacyId,
     required int categoryId,
@@ -347,10 +335,7 @@ class PharmacyRepository {
     final envelope = await _send(
       () => _client.dio.get(
         ApiConstants.pharmacyItemDetail,
-        queryParameters: {
-          'menu_id': menuId,
-          'pharmacy_id': pharmacyId,
-        },
+        queryParameters: {'menu_id': menuId, 'pharmacy_id': pharmacyId},
       ),
       language,
     );
@@ -422,11 +407,7 @@ class PharmacyRepository {
   }
 
   Future<
-    ({
-      List<Map<String, dynamic>> prescriptions,
-      int currentPage,
-      int lastPage,
-    })
+    ({List<Map<String, dynamic>> prescriptions, int currentPage, int lastPage})
   >
   fetchPrescriptionsList({
     required String language,
@@ -477,7 +458,8 @@ class PharmacyRepository {
       'paymentRequestedAt': '${item['payment_requested_at'] ?? ''}'.trim(),
       'createdAt': '${item['created_at'] ?? ''}'.trim(),
       'contactNumber': '${item['contact_number'] ?? ''}'.trim(),
-      'callBeforeAlternative': item['call_before_alternative'] == 1 ||
+      'callBeforeAlternative':
+          item['call_before_alternative'] == 1 ||
           item['call_before_alternative'] == true,
     };
   }
@@ -522,14 +504,26 @@ class PharmacyRepository {
     return data;
   }
 
+  /// Pays an accepted quote. The server needs the same delivery fields as checkout:
+  /// location is required for delivery, and payment_type is always online (2).
   Future<Map<String, dynamic>> payPrescription({
     required int prescriptionId,
+    required bool selfPickup,
+    required double latitude,
+    required double longitude,
+    required String location,
     required String language,
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
         ApiConstants.prescriptionPay(prescriptionId),
-        data: <String, dynamic>{},
+        data: {
+          'is_self_pickup': selfPickup ? '1' : '0',
+          'lat': latitude.toString(),
+          'long': longitude.toString(),
+          'location': location,
+          'payment_type': '2',
+        },
         options: Options(contentType: Headers.jsonContentType),
       ),
       language,
@@ -583,12 +577,14 @@ class PharmacyRepository {
       'totalText': _moneyText(
         item['total_price'] ?? item['total'] ?? item['line_total'],
       ),
-      'isAlternative': item['is_alternative'] == true ||
+      'isAlternative':
+          item['is_alternative'] == true ||
           item['is_alternative'] == 1 ||
           alternative != null,
-      'originalName':
-          '${item['original_name'] ?? item['requested_name'] ?? ''}'.trim(),
-      'outOfStock': item['out_of_stock'] == true ||
+      'originalName': '${item['original_name'] ?? item['requested_name'] ?? ''}'
+          .trim(),
+      'outOfStock':
+          item['out_of_stock'] == true ||
           item['in_stock'] == false ||
           (item['stock'] != null && _asInt(item['stock']) == 0),
       'alternativeName': alternativeName,
@@ -608,18 +604,8 @@ class PharmacyRepository {
     };
   }
 
-  Future<
-    ({
-      List<Map<String, dynamic>> orders,
-      int currentPage,
-      int lastPage,
-    })
-  >
-  fetchOrders({
-    required String language,
-    int limit = 10,
-    int page = 1,
-  }) async {
+  Future<({List<Map<String, dynamic>> orders, int currentPage, int lastPage})>
+  fetchOrders({required String language, int limit = 10, int page = 1}) async {
     final envelope = await _send(
       () => _client.dio.get(
         ApiConstants.pharmacyOrders,
@@ -663,8 +649,8 @@ class PharmacyRepository {
         ? code
         : (prescriptionId == null ? '' : '#$prescriptionId');
     return {
-      'pharmacyName': (item['vendor_name']?.toString().trim().isNotEmpty ??
-              false)
+      'pharmacyName':
+          (item['vendor_name']?.toString().trim().isNotEmpty ?? false)
           ? item['vendor_name'].toString().trim()
           : 'Pharmacy',
       'statusText': statusText.isEmpty ? 'Order' : statusText,
@@ -729,7 +715,9 @@ class PharmacyRepository {
       'price': _moneyText(selling ?? menu['selling_price']),
       'originalPrice': _moneyText(mrp ?? menu['price']),
       'discount': _offerText(
-        variant == null ? menu['offer_percentage'] : variant['offer_percentage'],
+        variant == null
+            ? menu['offer_percentage']
+            : variant['offer_percentage'],
       ),
       'prescriptionRequired':
           detail['prescription_required'] == 1 ||
@@ -932,16 +920,14 @@ class PharmacyRepository {
     return int.tryParse('$value') ?? fallback;
   }
 
-  Map<String, dynamic> _nearbyCard(
-    Map<String, dynamic> item,
-    String language,
-  ) {
+  Map<String, dynamic> _nearbyCard(Map<String, dynamic> item, String language) {
     final name = _localized(item, 'name', language);
     final status = _localized(item, 'status_label', language);
     final points = item['points_label']?.toString().trim() ?? '';
     final offer = item['offer_text']?.toString().trim() ?? '';
     final isOpen = item['is_open'] == 1 || item['is_open'] == true;
-    final isOpenAllDay = item['is_open_24h'] == 1 || item['is_open_24h'] == true;
+    final isOpenAllDay =
+        item['is_open_24h'] == 1 || item['is_open_24h'] == true;
 
     return {
       'id': '${item['pharmacy_id'] ?? item['id'] ?? item['store_id'] ?? ''}',
@@ -968,28 +954,6 @@ class PharmacyRepository {
       return distance.toLowerCase().contains('km') ? distance : '$distance Km';
     }
     return _distanceText(item['distance_km']);
-  }
-
-  Future<List<Map<String, dynamic>>> searchPharmacies({
-    required double latitude,
-    required double longitude,
-    required String language,
-    int limit = 20,
-  }) async {
-    final envelope = await _send(
-      () => _client.dio.post(
-        ApiConstants.pharmacySearch,
-        data: {
-          'latitude': latitude.toString(),
-          'longitude': longitude.toString(),
-          'limit': '$limit',
-        },
-        options: Options(contentType: Headers.jsonContentType),
-      ),
-      language,
-    );
-    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
-    return _pharmacyCards(data['pharmacies'], language);
   }
 
   Future<

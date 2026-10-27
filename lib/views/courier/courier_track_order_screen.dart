@@ -138,7 +138,9 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
       points.add(
         LatLng(
           u * u * p0.latitude + 2 * u * t * p1.latitude + t * t * p2.latitude,
-          u * u * p0.longitude + 2 * u * t * p1.longitude + t * t * p2.longitude,
+          u * u * p0.longitude +
+              2 * u * t * p1.longitude +
+              t * t * p2.longitude,
         ),
       );
     }
@@ -263,8 +265,12 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    const Color(0xFFFFFDF9).withValues(alpha: 0),
-                                    const Color(0xFFFFFDF9).withValues(alpha: 0.55),
+                                    const Color(
+                                      0xFFFFFDF9,
+                                    ).withValues(alpha: 0),
+                                    const Color(
+                                      0xFFFFFDF9,
+                                    ).withValues(alpha: 0.55),
                                     const Color(0xFFFFFDF9),
                                   ],
                                   stops: const [0.0, 0.45, 1.0],
@@ -312,7 +318,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        AppBackButton(onTap: () => Get.back(),),
+        AppBackButton(onTap: () => Get.back()),
         Expanded(
           child: Text(
             'Track Order $_displayOrderId',
@@ -426,22 +432,13 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
           child: Row(
             children: [
               Expanded(
-                child: Container(
-                  height: 2,
-                  color: const Color(0xFFFF5E00),
-                ),
+                child: Container(height: 2, color: const Color(0xFFFF5E00)),
               ),
               Expanded(
-                child: Container(
-                  height: 2,
-                  color: const Color(0xFFFF5E00),
-                ),
+                child: Container(height: 2, color: const Color(0xFFFF5E00)),
               ),
               Expanded(
-                child: Container(
-                  height: 2,
-                  color: const Color(0xFFEAD8C9),
-                ),
+                child: Container(height: 2, color: const Color(0xFFEAD8C9)),
               ),
             ],
           ),
@@ -518,17 +515,10 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                     width: 18,
                     height: 18,
                     color: Colors.white,
-                    errorBuilder: (_, __, ___) => Icon(
-                      icon,
-                      color: Colors.white,
-                      size: 18,
-                    ),
+                    errorBuilder: (_, __, ___) =>
+                        Icon(icon, color: Colors.white, size: 18),
                   )
-                : Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 18,
-                  ),
+                : Icon(icon, color: Colors.white, size: 18),
           ),
           const SizedBox(height: 6),
           Text(
@@ -587,11 +577,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                 width: 64,
                 height: 64,
                 color: const Color(0xFFEAD8C9),
-                child: const Icon(
-                  Icons.person,
-                  color: Colors.white,
-                  size: 32,
-                ),
+                child: const Icon(Icons.person, color: Colors.white, size: 32),
               ),
             ),
           ),
@@ -656,11 +642,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                 color: Color(0xFFFF5E00),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.call,
-                color: Colors.white,
-                size: 20,
-              ),
+              child: const Icon(Icons.call, color: Colors.white, size: 20),
             ),
           ),
         ],

@@ -107,11 +107,7 @@ class _WaterNearbySuppliersScreenState
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFD8F0F8),
-              Color(0xFFFFF4EE),
-              Color(0xFFFFF9F5),
-            ],
+            colors: [Color(0xFFD8F0F8), Color(0xFFFFF4EE), Color(0xFFFFF9F5)],
             stops: [0.0, 0.18, 1.0],
           ),
         ),
@@ -151,7 +147,7 @@ class _WaterNearbySuppliersScreenState
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: Row(
         children: [
-          AppBackButton(onTap: () => Get.back(),),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
               'Nearby Suppliers',
@@ -268,8 +264,8 @@ class _WaterNearbySuppliersScreenState
     HomeController controller,
     Map<String, dynamic> item,
   ) {
-    final cardImage =
-        (item['cardImage'] ?? 'lib/assets/images/19Lbottle.png').toString();
+    final cardImage = (item['cardImage'] ?? 'lib/assets/images/19Lbottle.png')
+        .toString();
     final supplierId = (item['id'] ?? '').toString();
 
     return GestureDetector(
@@ -318,10 +314,7 @@ class _WaterNearbySuppliersScreenState
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [
-                            Color(0xFF7AD3F3),
-                            Color(0xFF2E9FE6),
-                          ],
+                          colors: [Color(0xFF7AD3F3), Color(0xFF2E9FE6)],
                         ),
                       ),
                       child: Padding(
@@ -332,10 +325,10 @@ class _WaterNearbySuppliersScreenState
                           alignment: Alignment.bottomCenter,
                           errorBuilder: (context, error, stackTrace) =>
                               const Icon(
-                            Icons.water_drop_outlined,
-                            color: Colors.white,
-                            size: 64,
-                          ),
+                                Icons.water_drop_outlined,
+                                color: Colors.white,
+                                size: 64,
+                              ),
                         ),
                       ),
                     ),
@@ -401,8 +394,7 @@ class _WaterNearbySuppliersScreenState
                     child: Obx(() {
                       final liked = controller.isLiked(supplierId);
                       return GestureDetector(
-                        onTap: () =>
-                            controller.toggleLike(supplierId, item),
+                        onTap: () => controller.toggleLike(supplierId, item),
                         child: Container(
                           width: 34,
                           height: 34,
@@ -444,10 +436,10 @@ class _WaterNearbySuppliersScreenState
                             height: 14,
                             errorBuilder: (context, error, stackTrace) =>
                                 const Icon(
-                              Icons.monetization_on,
-                              color: Color(0xFFFFAE00),
-                              size: 14,
-                            ),
+                                  Icons.monetization_on,
+                                  color: Color(0xFFFFAE00),
+                                  size: 14,
+                                ),
                           ),
                           const SizedBox(width: 6),
                           Text(

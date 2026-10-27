@@ -29,7 +29,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: AppBackButton(onTap: () => Get.back(),),
+                  child: AppBackButton(onTap: () => Get.back()),
                 ),
               ),
               Expanded(
@@ -105,24 +105,22 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () => BottomNavRouter.returnToShell(
                           tabIndex: HomeController.navOrders,
-                          ordersCategoryIndex: 4,
+                          ordersCategoryIndex: 5,
                         ),
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFFFF5E00),
-                                Color(0xFFFFAE00),
-                              ],
+                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                             borderRadius: BorderRadius.circular(25),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFF5E00)
-                                    .withValues(alpha: 0.35),
+                                color: const Color(
+                                  0xFFFF5E00,
+                                ).withValues(alpha: 0.35),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),

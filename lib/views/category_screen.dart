@@ -12,7 +12,6 @@ import '../widgets/store_map_button.dart';
 import '../widgets/see_all_button.dart';
 import 'widgets/search_camera_button.dart';
 import '../widgets/filter_chip_style.dart';
-import 'coupons_screen.dart';
 import 'restaurant_details_screen.dart';
 import 'store_map_screen.dart';
 import 'under_30_min_screen.dart';
@@ -50,8 +49,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
   List<Map<String, dynamic>> mapStores = const [];
   String trendingTitle = '';
   int? _activeCategoryId;
-  bool? _isVegFilter;
-  String? _ratingFilter;
+
+  /// Quick filters for the restaurant search (veg, offers, rating), keyed by API param.
+  final Map<String, String> _searchFilters = {};
 
   int _asInt(dynamic value, {int fallback = 0}) {
     if (value is int) return value;
@@ -75,15 +75,40 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
   }
 
+  /// Search results and the home feed both render in this screen's list.
   Future<void> _loadRestaurantHome({
     int? categoryId,
-    String? keyword,
-    bool? isVeg,
-    String? rating,
+    String keyword = '',
+    Map<String, String> filters = const {},
   }) async {
     if (!Get.isRegistered<FoodRepository>()) return;
     if (!mounted) return;
     setState(() => _restaurantsLoading = true);
+
+    // A keyword or quick filter goes through the search API; otherwise the home feed loads
+    final searching = keyword.trim().isNotEmpty || filters.isNotEmpty;
+    if (searching) {
+      try {
+        final found = await Get.find<FoodRepository>().searchRestaurants(
+          latitude: SelectLocationController.selectedLatitude,
+          longitude: SelectLocationController.selectedLongitude,
+          language: apiLanguageCode(),
+          keyword: keyword,
+          filters: filters,
+          categoryId: categoryId,
+        );
+        if (!mounted) return;
+        setState(() {
+          _restaurantsLoading = false;
+          items = found.restaurants;
+        });
+      } on ApiException catch (error) {
+        if (!mounted) return;
+        setState(() => _restaurantsLoading = false);
+        showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      }
+      return;
+    }
 
     try {
       final result = await Get.find<FoodRepository>().fetchRestaurantHomeV2(
@@ -91,9 +116,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
         longitude: SelectLocationController.selectedLongitude,
         language: apiLanguageCode(),
         categoryId: categoryId,
-        keyword: keyword,
-        veg: isVeg == true ? '1' : null,
-        rating: rating,
       );
 
       if (!mounted) return;
@@ -197,12 +219,43 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
   }
 
+  /// Filter chips. Chips with a param toggle that search filter in place.
   List<Map<String, dynamic>> get _filters => [
     {'label': 'Filter', 'icon': Image.asset("lib/assets/images/Filter.png")},
-    {'label': 'Veg', 'isVeg': true},
-    {'label': 'Offers', 'icon': Image.asset("lib/assets/images/Offer.png")},
-    {'label': 'Ratings 4.0+', 'icon': Icons.star_rounded},
+    {'label': 'Veg', 'param': 'veg', 'value': '1', 'isVeg': true},
+    {
+      'label': 'Offers',
+      'param': 'offers',
+      'value': '1',
+      'icon': Image.asset("lib/assets/images/Offer.png"),
+    },
+    {
+      'label': 'Ratings 4.0+',
+      'param': 'rating',
+      'value': '4',
+      'icon': Icons.star_rounded,
+    },
   ];
+
+  /// Reloads the list with the current keyword, category and quick filters.
+  void _reloadRestaurants() {
+    _loadRestaurantHome(
+      categoryId: _activeCategoryId,
+      keyword: _searchController.text,
+      filters: Map<String, String>.from(_searchFilters),
+    );
+  }
+
+  void _toggleSearchFilter(String param, String value) {
+    setState(() {
+      if (_searchFilters[param] == value) {
+        _searchFilters.remove(param);
+      } else {
+        _searchFilters[param] = value;
+      }
+    });
+    _reloadRestaurants();
+  }
 
   Widget _buildSearchFiltersSection() {
     return Column(
@@ -245,14 +298,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               child: TextField(
                 controller: _searchController,
                 textInputAction: TextInputAction.search,
-                onSubmitted: (value) {
-                  _loadRestaurantHome(
-                    categoryId: _activeCategoryId,
-                    keyword: value.trim(),
-                    isVeg: _isVegFilter,
-                    rating: _ratingFilter,
-                  );
-                },
+                onSubmitted: (_) => _reloadRestaurants(),
                 decoration: InputDecoration(
                   hintText: 'What do you need today?',
                   hintStyle: GoogleFonts.outfit(
@@ -301,30 +347,16 @@ class _CategoryScreenState extends State<CategoryScreen> {
         for (final filter in filters)
           AppFilterChip(
             label: filter['label'] as String,
+            selected:
+                filter['param'] != null &&
+                _searchFilters[filter['param']] == filter['value'],
             onTap: () {
-              if (filter['label'] == 'Filter') {
+              if (filter['param'] == null) {
                 _showFilterBottomSheet(context);
-              } else if (filter['label'] == 'Offers') {
-                Get.to(() => const CouponsScreen());
-              } else if (filter['label'] == 'Veg') {
-                setState(() {
-                  _isVegFilter = (_isVegFilter == true ? null : true);
-                });
-                _loadRestaurantHome(
-                  categoryId: _activeCategoryId,
-                  keyword: _searchController.text.trim(),
-                  isVeg: _isVegFilter,
-                  rating: _ratingFilter,
-                );
-              } else if ((filter['label'] as String).contains('Rating')) {
-                setState(() {
-                  _ratingFilter = (_ratingFilter == '4' ? null : '4');
-                });
-                _loadRestaurantHome(
-                  categoryId: _activeCategoryId,
-                  keyword: _searchController.text.trim(),
-                  isVeg: _isVegFilter,
-                  rating: _ratingFilter,
+              } else {
+                _toggleSearchFilter(
+                  filter['param'] as String,
+                  filter['value'] as String,
                 );
               }
             },
@@ -422,12 +454,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                   ? null
                                   : _asInt(sub['id']);
                               _activeCategoryId = catId;
-                              _loadRestaurantHome(
-                                categoryId: catId,
-                                keyword: _searchController.text.trim(),
-                                isVeg: _isVegFilter,
-                                rating: _ratingFilter,
-                              );
+                              _reloadRestaurants();
                             },
                             child: Padding(
                               padding: EdgeInsets.only(

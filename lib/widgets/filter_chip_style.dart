@@ -7,6 +7,7 @@ class AppFilterChip extends StatelessWidget {
   final Widget? leading;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry margin;
+  final bool selected;
 
   const AppFilterChip({
     super.key,
@@ -14,6 +15,7 @@ class AppFilterChip extends StatelessWidget {
     this.leading,
     this.onTap,
     this.margin = const EdgeInsets.only(right: 10),
+    this.selected = false,
   });
 
   /// Orange $ badge for “Under … MRU” filters.
@@ -62,11 +64,7 @@ class AppFilterChip extends StatelessWidget {
   }
 
   static Widget assetLeading(String path, {double size = 15}) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Image.asset(path),
-    );
+    return SizedBox(width: size, height: size, child: Image.asset(path));
   }
 
   static Widget widgetLeading(Widget child, {double size = 15}) {
@@ -81,7 +79,7 @@ class AppFilterChip extends StatelessWidget {
       height: 36,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFCF8),
+        color: selected ? const Color(0xFFFF5E00) : const Color(0xFFFFFCF8),
         borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
@@ -94,14 +92,11 @@ class AppFilterChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (leading != null) ...[
-            leading!,
-            const SizedBox(width: 6),
-          ],
+          if (leading != null) ...[leading!, const SizedBox(width: 6)],
           Text(
             label,
             style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
+              color: selected ? Colors.white : const Color(0xFF2C2520),
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),

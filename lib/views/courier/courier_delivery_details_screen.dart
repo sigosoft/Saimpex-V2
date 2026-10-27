@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/country_code_picker.dart';
 
 import 'courier_review_booking_screen.dart';
 
@@ -14,6 +15,11 @@ class CourierDeliveryDetailsScreen extends StatefulWidget {
   final String vehiclePrice;
   final String vehicleImage;
   final int deliveryFee;
+  final double pickupLatitude;
+  final double pickupLongitude;
+  final double dropOffLatitude;
+  final double dropOffLongitude;
+  final bool isExpress;
 
   const CourierDeliveryDetailsScreen({
     super.key,
@@ -24,6 +30,11 @@ class CourierDeliveryDetailsScreen extends StatefulWidget {
     this.vehiclePrice = '50 MRU',
     this.vehicleImage = 'lib/assets/images/bike.png',
     this.deliveryFee = 50,
+    this.pickupLatitude = 18.0735,
+    this.pickupLongitude = -15.9582,
+    this.dropOffLatitude = 18.0800,
+    this.dropOffLongitude = -15.9600,
+    this.isExpress = false,
   });
 
   @override
@@ -35,6 +46,8 @@ class _CourierDeliveryDetailsScreenState
     extends State<CourierDeliveryDetailsScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  String countryCode = '+222';
+  String countryFlag = '🇲🇷';
 
   @override
   void dispose() {
@@ -69,11 +82,7 @@ class _CourierDeliveryDetailsScreenState
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFFFDDCF),
-              Color(0xFFFFEEE5),
-              Color(0xFFFAF6F0),
-            ],
+            colors: [Color(0xFFFFDDCF), Color(0xFFFFEEE5), Color(0xFFFAF6F0)],
             stops: [0.0, 0.28, 1.0],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -125,7 +134,7 @@ class _CourierDeliveryDetailsScreenState
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: AppBackButton(onTap: () => Get.back(),),
+            child: AppBackButton(onTap: () => Get.back()),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 44),
@@ -191,15 +200,9 @@ class _CourierDeliveryDetailsScreenState
             Expanded(
               child: Column(
                 children: [
-                  _buildRouteRow(
-                    label: 'PICKUP',
-                    title: widget.pickupAddress,
-                  ),
+                  _buildRouteRow(label: 'PICKUP', title: widget.pickupAddress),
                   const SizedBox(height: 18),
-                  _buildRouteRow(
-                    label: 'DROP-OFF',
-                    title: _displayDropOff,
-                  ),
+                  _buildRouteRow(label: 'DROP-OFF', title: _displayDropOff),
                 ],
               ),
             ),
@@ -214,17 +217,11 @@ class _CourierDeliveryDetailsScreenState
       width: 22,
       height: 22,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: halo,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: halo, shape: BoxShape.circle),
       child: Container(
         width: 10,
         height: 10,
-        decoration: BoxDecoration(
-          color: fill,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
       ),
     );
   }
@@ -355,14 +352,33 @@ class _CourierDeliveryDetailsScreenState
             ),
             child: Row(
               children: [
-                const Text('🇲🇷', style: TextStyle(fontSize: 16)),
-                const SizedBox(width: 6),
-                Text(
-                  '+222',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                GestureDetector(
+                  onTap: () => showCountryCodePicker(
+                    onSelected: (code, flag) => setState(() {
+                      countryCode = code;
+                      countryFlag = flag;
+                    }),
+                  ),
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(countryFlag, style: const TextStyle(fontSize: 16)),
+                      const SizedBox(width: 4),
+                      Text(
+                        countryCode,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_drop_down,
+                        color: Color(0xFF7A6A60),
+                        size: 18,
+                      ),
+                    ],
                   ),
                 ),
                 Container(
@@ -410,12 +426,19 @@ class _CourierDeliveryDetailsScreenState
             pickupAddress: widget.pickupAddress,
             dropOffAddress: widget.dropOffAddress,
             recipientName: name.isEmpty ? 'Sidi' : name,
-            recipientPhone: phone.isEmpty ? '+222 22 34 56 78' : phone,
+            recipientPhone: phone.isEmpty
+                ? '+222 22 34 56 78'
+                : '$countryCode $phone',
             vehicleLabel: widget.vehicleLabel,
             vehicleTime: widget.vehicleTime,
             vehiclePrice: widget.vehiclePrice,
             vehicleImage: widget.vehicleImage,
             deliveryFee: widget.deliveryFee,
+            pickupLatitude: widget.pickupLatitude,
+            pickupLongitude: widget.pickupLongitude,
+            dropOffLatitude: widget.dropOffLatitude,
+            dropOffLongitude: widget.dropOffLongitude,
+            isExpress: widget.isExpress,
           ),
         );
       },
@@ -496,7 +519,9 @@ class _CourierDeliveryDetailsScreenState
           const SizedBox(height: 12),
           ...List.generate(items.length, (index) {
             return Padding(
-              padding: EdgeInsets.only(bottom: index == items.length - 1 ? 0 : 8),
+              padding: EdgeInsets.only(
+                bottom: index == items.length - 1 ? 0 : 8,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

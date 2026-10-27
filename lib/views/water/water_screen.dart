@@ -14,6 +14,10 @@ import 'water_supplier_details_screen.dart';
 import 'water_see_all_screen.dart';
 import 'water_subscription_screen.dart';
 import '../widgets/search_camera_button.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/water_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 
 class WaterScreen extends StatefulWidget {
   const WaterScreen({super.key});
@@ -33,129 +37,16 @@ class _WaterScreenState extends State<WaterScreen> {
   /// search bar height
   static const double _stickyExtent = 48;
 
-  final List<Map<String, String>> categories = [
-    {'label': '19L Bottle', 'image': 'lib/assets/images/19L water.png'},
-    {'label': '10L Bottle', 'image': 'lib/assets/images/10L water.png'},
-    {'label': 'Bottled Water', 'image': 'lib/assets/images/Bottle water.png'},
-    {'label': 'Office Supply', 'image': 'lib/assets/images/set of water.png'},
-  ];
-
-  final List<Map<String, dynamic>> topSuppliers = [
-    {
-      'id': 'w_supp1',
-      'name': 'PureLife Water Co.',
-      'subtitle': 'Premium purified drinking water',
-      'rating': '4.6',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/Water.png',
-      'isFavorite': false,
-      'isClosed': false,
-      'isTemporarilyClosed': false,
-    },
-    {
-      'id': 'w_supp2',
-      'name': 'AquaPure',
-      'subtitle': 'Natural spring water delivery',
-      'rating': '4.8',
-      'time': '25-30 min',
-      'dist': '8 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/19L water.png',
-      'isFavorite': false,
-      'isClosed': true,
-      'opensAt': '10 AM',
-      'isTemporarilyClosed': false,
-    },
-    {
-      'id': 'w_supp3',
-      'name': 'HydroPlus Waters',
-      'subtitle': 'Bulk water for home & office',
-      'rating': '4.5',
-      'time': '35-40 min',
-      'dist': '12 Km',
-      'discount': '20% OFF',
-      'points': '150 Points Available',
-      'image': 'lib/assets/images/set of water.png',
-      'isFavorite': false,
-      'isClosed': false,
-      'isTemporarilyClosed': true,
-    },
-  ];
-
-  final List<Map<String, dynamic>> nearbySuppliers = [
-    {
-      'id': 'w_near1',
-      'name': 'PureLife Water Co.',
-      'subtitle': 'Premium purified drinking water',
-      'rating': '4.6',
-      'time': '30-35 min',
-      'dist': '10 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/Water.png',
-      'isFavorite': false,
-    },
-    {
-      'id': 'w_near2',
-      'name': 'AquaPure',
-      'subtitle': 'Natural spring water delivery',
-      'rating': '4.8',
-      'time': '25-30 min',
-      'dist': '8 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/19L water.png',
-      'isFavorite': false,
-    },
-    {
-      'id': 'w_near3',
-      'name': 'HydroPlus Waters',
-      'subtitle': 'Bulk water for home & office',
-      'rating': '4.5',
-      'time': '35-40 min',
-      'dist': '12 Km',
-      'discount': '20% OFF',
-      'points': '150 Points Available',
-      'image': 'lib/assets/images/set of water.png',
-      'isFavorite': false,
-    },
-  ];
-
-  final List<Map<String, dynamic>> popularProducts = [
-    {
-      'id': 'p1',
-      'title': 'Drinking Water 19L',
-      'supplier': 'PureLife Water Co.',
-      'rating': '4.6',
-      'price': '65 MRU',
-      'image': 'lib/assets/images/19L water.png',
-    },
-    {
-      'id': 'p2',
-      'title': 'Drinking Water 10L',
-      'supplier': 'AquaPure',
-      'rating': '4.6',
-      'price': '65 MRU',
-      'image': 'lib/assets/images/10L water.png',
-    },
-    {
-      'id': 'p3',
-      'title': 'Bottled Water Pack',
-      'supplier': 'Salma Water',
-      'rating': '4.7',
-      'price': '45 MRU',
-      'image': 'lib/assets/images/Bottle water.png',
-    },
-  ];
+  List<Map<String, dynamic>> categories = const [];
+  List<Map<String, dynamic>> topSuppliers = const [];
+  List<Map<String, dynamic>> nearbySuppliers = const [];
+  List<Map<String, dynamic>> popularProducts = const [];
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadHome();
   }
 
   @override
@@ -165,6 +56,47 @@ class _WaterScreenState extends State<WaterScreen> {
     _searchController.dispose();
     _bannerController.dispose();
     super.dispose();
+  }
+
+  /// Loads the home sections from waterHome for the selected location.
+  Future<void> _loadHome() async {
+    if (!Get.isRegistered<WaterRepository>()) return;
+    try {
+      final home = await Get.find<WaterRepository>().fetchHome(
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        categories = home.categories;
+        topSuppliers = home.topRatedSuppliers;
+        popularProducts = home.popularProducts;
+        nearbySuppliers = home.nearbySuppliers;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  /// Opens the products of a water category (waterSearchV2 with category_id).
+  Future<void> _openCategory(Map<String, dynamic> cat) async {
+    if (!Get.isRegistered<WaterRepository>()) return;
+    final label = cat['label']?.toString() ?? 'Category';
+    try {
+      final result = await Get.find<WaterRepository>().search(
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: apiLanguageCode(),
+        categoryId: cat['id'] as int?,
+      );
+      if (!mounted) return;
+      Get.to(() => WaterSeeAllScreen(title: label, items: result.products));
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
   }
 
   void _handleScroll() {
@@ -193,11 +125,7 @@ class _WaterScreenState extends State<WaterScreen> {
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFFFDDCF),
-              Color(0xFFFFEEE5),
-              Color(0xFFFAF6F0),
-            ],
+            colors: [Color(0xFFFFDDCF), Color(0xFFFFEEE5), Color(0xFFFAF6F0)],
             stops: [0.0, 0.38, 1.0],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -205,63 +133,63 @@ class _WaterScreenState extends State<WaterScreen> {
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8),
-                    _buildHeader(context),
-                    const SizedBox(height: 16),
-                          _buildTitle(),
-                          const SizedBox(height: 16),
-                          _buildBannerSlider(),
-                          const SizedBox(height: 16),
-                          KeyedSubtree(
-                            key: _searchAnchorKey,
-                            child: _showStickySearch
-                                ? const SizedBox(height: _stickyExtent)
-                                : _buildSearchBar(),
-                          ),
-                          const SizedBox(height: 24),
-                          _buildCategoriesSection(),
-                          const SizedBox(height: 24),
-                          _buildTopRatedSuppliersSection(),
-                          const SizedBox(height: 24),
-                          _buildMidPageBanner(),
-                          const SizedBox(height: 24),
-                          _buildPopularProductsSection(),
-                          const SizedBox(height: 24),
-                          _buildNearbySuppliersSection(),
-                        ],
+          body: Stack(
+            children: [
+              SafeArea(
+                bottom: false,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      _buildHeader(context),
+                      const SizedBox(height: 16),
+                      _buildTitle(),
+                      const SizedBox(height: 16),
+                      _buildBannerSlider(),
+                      const SizedBox(height: 16),
+                      KeyedSubtree(
+                        key: _searchAnchorKey,
+                        child: _showStickySearch
+                            ? const SizedBox(height: _stickyExtent)
+                            : _buildSearchBar(),
                       ),
-                    ),
-            ),
-
-            if (_showStickySearch)
-              Positioned(
-                top: MediaQuery.paddingOf(context).top,
-                left: 0,
-                right: 0,
-                child: ColoredBox(
-                  color: const Color(0xFFFFDDCF),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 8),
-                    child: _buildSearchBar(),
+                      const SizedBox(height: 24),
+                      _buildCategoriesSection(),
+                      const SizedBox(height: 24),
+                      _buildTopRatedSuppliersSection(),
+                      const SizedBox(height: 24),
+                      _buildMidPageBanner(),
+                      const SizedBox(height: 24),
+                      _buildPopularProductsSection(),
+                      const SizedBox(height: 24),
+                      _buildNearbySuppliersSection(),
+                    ],
                   ),
                 ),
               ),
-          ],
+
+              if (_showStickySearch)
+                Positioned(
+                  top: MediaQuery.paddingOf(context).top,
+                  left: 0,
+                  right: 0,
+                  child: ColoredBox(
+                    color: const Color(0xFFFFDDCF),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 8),
+                      child: _buildSearchBar(),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 
   // 1. Header Bar
@@ -271,7 +199,7 @@ class _WaterScreenState extends State<WaterScreen> {
       child: Row(
         children: [
           // Back Button
-          AppBackButton(onTap: () => Get.back(),),
+          AppBackButton(onTap: () => Get.back()),
           const SizedBox(width: 12),
 
           // Deliver To Location
@@ -623,7 +551,55 @@ class _WaterScreenState extends State<WaterScreen> {
   }
 
   // 5. Categories Section
+  /// Heading plus the no-data placeholder, used when a home section has no items.
+  Widget _buildNoDataSection(String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            title,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF1A1A1A),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'lib/assets/images/Nodata.png',
+                  width: 86,
+                  height: 86,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'No data available',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF7A6A60),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildCategoriesSection() {
+    if (categories.isEmpty) return _buildNoDataSection('Categories');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -647,69 +623,75 @@ class _WaterScreenState extends State<WaterScreen> {
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: SizedBox(
-                    height: 84,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        // 1. Card Background (Starts 16px from top)
-                        Positioned(
-                          top: 16,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFE6F4FF), Color(0xFFCBE8FE)],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 3),
+                  child: GestureDetector(
+                    onTap: () => _openCategory(cat),
+                    child: SizedBox(
+                      height: 84,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          // 1. Card Background (Starts 16px from top)
+                          Positioned(
+                            top: 16,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFFE6F4FF),
+                                    Color(0xFFCBE8FE),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
                                 ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.only(
-                              bottom: 6,
-                              left: 2,
-                              right: 2,
-                            ),
-                            alignment: Alignment.bottomCenter,
-                            child: Text(
-                              cat['label']!,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.04),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              padding: const EdgeInsets.only(
+                                bottom: 6,
+                                left: 2,
+                                right: 2,
+                              ),
+                              alignment: Alignment.bottomCenter,
+                              child: Text(
+                                cat['label']!,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
-                        ),
-                        // 2. Overlapping bottle image projecting above card
-                        Positioned(
-                          top: 0,
-                          left: 4,
-                          right: 4,
-                          height: 52,
-                          child: Image.asset(
-                            cat['image']!,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.water_drop,
-                              color: Color(0xFF007BFF),
-                              size: 36,
+                          // 2. Overlapping bottle image projecting above card
+                          Positioned(
+                            top: 0,
+                            left: 4,
+                            right: 4,
+                            height: 52,
+                            child: waterImage(
+                              cat['image'] as String,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.water_drop,
+                                color: Color(0xFF007BFF),
+                                size: 36,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -723,6 +705,9 @@ class _WaterScreenState extends State<WaterScreen> {
 
   // 6. Top Rated Suppliers Section
   Widget _buildTopRatedSuppliersSection() {
+    if (topSuppliers.isEmpty) {
+      return _buildNoDataSection('Top Rated Suppliers');
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -740,10 +725,12 @@ class _WaterScreenState extends State<WaterScreen> {
                 ),
               ),
               SeeAllButton(
-                onTap: () => Get.to(() => WaterSeeAllScreen(
-                      title: 'Top Rated Suppliers',
-                      items: topSuppliers,
-                    )),
+                onTap: () => Get.to(
+                  () => WaterSeeAllScreen(
+                    title: 'Top Rated Suppliers',
+                    items: topSuppliers,
+                  ),
+                ),
               ),
             ],
           ),
@@ -961,13 +948,9 @@ class _WaterScreenState extends State<WaterScreen> {
                   ),
 
                   if (isClosed)
-                    Positioned.fill(
-                      child: _buildClosedOverlay(opensAt),
-                    ),
+                    Positioned.fill(child: _buildClosedOverlay(opensAt)),
                   if (isTemporarilyClosed)
-                    Positioned.fill(
-                      child: _buildTemporarilyClosedOverlay(),
-                    ),
+                    Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                 ],
               ),
             ),
@@ -1057,14 +1040,11 @@ class _WaterScreenState extends State<WaterScreen> {
       height: 120,
       width: double.infinity,
       color: const Color(0xFFEBF5FF),
-      child: Image.asset(
+      child: waterImage(
         item['image'] as String,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Icon(
-          Icons.water_drop,
-          size: 50,
-          color: Color(0xFF007BFF),
-        ),
+        errorBuilder: (_, __, ___) =>
+            const Icon(Icons.water_drop, size: 50, color: Color(0xFF007BFF)),
       ),
     );
   }
@@ -1239,6 +1219,9 @@ class _WaterScreenState extends State<WaterScreen> {
 
   // 8. Popular Products Section
   Widget _buildPopularProductsSection() {
+    if (popularProducts.isEmpty) {
+      return _buildNoDataSection('Popular Products');
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1256,10 +1239,12 @@ class _WaterScreenState extends State<WaterScreen> {
                 ),
               ),
               SeeAllButton(
-                onTap: () => Get.to(() => WaterSeeAllScreen(
-                      title: 'Popular Products',
-                      items: popularProducts,
-                    )),
+                onTap: () => Get.to(
+                  () => WaterSeeAllScreen(
+                    title: 'Popular Products',
+                    items: popularProducts,
+                  ),
+                ),
               ),
             ],
           ),
@@ -1314,7 +1299,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   width: double.infinity,
                   color: const Color(0xFFF4F9FF),
                   padding: const EdgeInsets.all(10),
-                  child: Image.asset(
+                  child: waterImage(
                     prod['image'] as String,
                     fit: BoxFit.contain,
                     errorBuilder: (_, __, ___) => const Icon(
@@ -1453,6 +1438,9 @@ class _WaterScreenState extends State<WaterScreen> {
 
   // 9. Nearby Suppliers Section
   Widget _buildNearbySuppliersSection() {
+    if (nearbySuppliers.isEmpty) {
+      return _buildNoDataSection('Nearby Suppliers');
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1472,10 +1460,12 @@ class _WaterScreenState extends State<WaterScreen> {
               Row(
                 children: [
                   SeeAllButton(
-                    onTap: () => Get.to(() => WaterSeeAllScreen(
-                          title: 'Nearby Suppliers',
-                          items: nearbySuppliers,
-                        )),
+                    onTap: () => Get.to(
+                      () => WaterSeeAllScreen(
+                        title: 'Nearby Suppliers',
+                        items: nearbySuppliers,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   const StoreMapButton(),
@@ -1504,4 +1494,16 @@ class _WaterScreenState extends State<WaterScreen> {
       ],
     );
   }
+}
+
+/// Network image for API URLs, bundled asset for the design images.
+Widget waterImage(
+  String path, {
+  BoxFit fit = BoxFit.cover,
+  ImageErrorWidgetBuilder? errorBuilder,
+}) {
+  if (path.startsWith('http')) {
+    return Image.network(path, fit: fit, errorBuilder: errorBuilder);
+  }
+  return Image.asset(path, fit: fit, errorBuilder: errorBuilder);
 }

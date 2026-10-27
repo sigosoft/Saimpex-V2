@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/water_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../chat_screen.dart';
 import '../cart_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
@@ -39,81 +43,38 @@ class _WaterSupplierDetailsScreenState
   /// search bar height (48) + small padding
   static const double _stickyExtent = 56;
 
-  final List<Map<String, dynamic>> products = [
-    {
-      'id': 'w_prod1',
-      'title': 'Drinking Water 19L',
-      'image': 'lib/assets/images/19L water.png',
-      'images': [
-        'lib/assets/images/19L water.png',
-        'lib/assets/images/Bottle water.png',
-        'lib/assets/images/set of water.png',
-      ],
-      'bottleTag': '1 BOTTLE',
-      'sizeTag': '19L',
-      'rating': '4.6',
-      'reviews': '(10k + reviews)',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'id': 'w_prod2',
-      'title': 'Drinking Water 10L',
-      'image': 'lib/assets/images/10L water.png',
-      'images': [
-        'lib/assets/images/10L water.png',
-        'lib/assets/images/Bottle water.png',
-        'lib/assets/images/10Lbottle.png',
-      ],
-      'bottleTag': '1 BOTTLE',
-      'sizeTag': '10L',
-      'rating': '4.6',
-      'reviews': '(10k + reviews)',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'id': 'w_prod3',
-      'title': 'Drinking Water 19L',
-      'image': 'lib/assets/images/19L water.png',
-      'images': [
-        'lib/assets/images/19L water.png',
-        'lib/assets/images/Bottle water.png',
-        'lib/assets/images/set of water.png',
-      ],
-      'bottleTag': '1 BOTTLE',
-      'sizeTag': '19L',
-      'rating': '4.6',
-      'reviews': '(10k + reviews)',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-    },
-    {
-      'id': 'w_prod4',
-      'title': 'Drinking Water 10L',
-      'image': 'lib/assets/images/10L water.png',
-      'images': [
-        'lib/assets/images/10L water.png',
-        'lib/assets/images/Bottle water.png',
-        'lib/assets/images/10Lbottle.png',
-      ],
-      'bottleTag': '1 BOTTLE',
-      'sizeTag': '10L',
-      'rating': '4.6',
-      'reviews': '(10k + reviews)',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-    },
-  ];
+  List<Map<String, dynamic>> products = const [];
+  bool _productsLoading = true;
+
+  /// Loads this supplier's products from the API (water/categories, then water/items).
+  Future<void> _loadProducts() async {
+    final vendorId = (widget.supplier['vendorId'] as int?) ?? 0;
+    if (vendorId == 0 || !Get.isRegistered<WaterRepository>()) {
+      setState(() => _productsLoading = false);
+      return;
+    }
+    try {
+      final result = await Get.find<WaterRepository>().fetchSupplierProducts(
+        waterVendorId: vendorId,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        products = result;
+        _productsLoading = false;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _productsLoading = false);
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadProducts();
   }
 
   @override
@@ -147,10 +108,7 @@ class _WaterSupplierDetailsScreenState
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: const Color(0xFFEAD8C9),
-            width: 1.2,
-          ),
+          border: Border.all(color: const Color(0xFFEAD8C9), width: 1.2),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.03),
@@ -170,10 +128,7 @@ class _WaterSupplierDetailsScreenState
             Expanded(
               child: TextField(
                 controller: _searchController,
-                style: GoogleFonts.outfit(
-                  color: Colors.black,
-                  fontSize: 13,
-                ),
+                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'Find something from this Supplier',
                   hintStyle: GoogleFonts.outfit(
@@ -243,7 +198,8 @@ class _WaterSupplierDetailsScreenState
         body: Stack(
           children: [
             Obx(() {
-              final hasItems = controller.cartItemCount.value > 0 || showCartBar;
+              final hasItems =
+                  controller.cartItemCount.value > 0 || showCartBar;
               return SingleChildScrollView(
                 controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
@@ -251,309 +207,333 @@ class _WaterSupplierDetailsScreenState
                   bottom: hasItems ? bottomInset + 88 : 32,
                 ),
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              // Header Stack with Banner Image and Overlapping Details Card
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  // Hero Banner Graphic
-                  Container(
-                    height: 180,
-                    width: double.infinity,
-                    color: const Color(0xFF007BFF),
-                    child: Image.asset(
-                      'lib/assets/images/water Details banner.png',
-                      width: double.infinity,
-                      height: 180,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF007BFF), Color(0xFF00C6FF)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Floating Supplier Details Card
-                  Container(
-                    margin: const EdgeInsets.only(
-                      top: 130,
-                      left: 16,
-                      right: 16,
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Stack with Banner Image and Overlapping Details Card
+                    Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        // Title & Green Rating Pill
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                supplierName,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF1A1A1A),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                        // Hero Banner Graphic
+                        Container(
+                          height: 180,
+                          width: double.infinity,
+                          color: const Color(0xFF007BFF),
+                          child: Image.asset(
+                            'lib/assets/images/water Details banner.png',
+                            width: double.infinity,
+                            height: 180,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF007BFF),
+                                    Color(0xFF00C6FF),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+                          ),
+                        ),
+
+                        // Floating Supplier Details Card
+                        Container(
+                          margin: const EdgeInsets.only(
+                            top: 130,
+                            left: 16,
+                            right: 16,
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.06),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
                               ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF0A8A00),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Title & Green Rating Pill
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: Colors.white,
-                                    size: 13,
+                                  Expanded(
+                                    child: Text(
+                                      supplierName,
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF1A1A1A),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    rating,
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0A8A00),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.star_rounded,
+                                          color: Colors.white,
+                                          size: 13,
+                                        ),
+                                        const SizedBox(width: 3),
+                                        Text(
+                                          rating,
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
+                              const SizedBox(height: 4),
 
-                        // Subtitle
-                        Text(
-                          subtitle,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF7A6A60),
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Info Tags Row
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.access_time_rounded,
-                              color: Color(0xFFFF5E00),
-                              size: 15,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              time,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            const Icon(
-                              Icons.location_on_outlined,
-                              color: Color(0xFFFF5E00),
-                              size: 15,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              dist,
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFF5E00),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                discount,
+                              // Subtitle
+                              Text(
+                                subtitle,
                                 style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF7A6A60),
+                                  fontSize: 12,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
+                              const SizedBox(height: 12),
 
-                        // Chat with Supplier & Favorite Buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.to(
-                                    () =>
-                                        ChatScreen(restaurant: widget.supplier),
-                                  );
-                                },
-                                child: Container(
-                                  height: 46,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFFF5E00),
-                                        Color(0xFFFFAE00),
-                                      ],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(23),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(
-                                          0xFFFF5E00,
-                                        ).withOpacity(0.3),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
+                              // Info Tags Row
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.access_time_rounded,
+                                    color: Color(0xFFFF5E00),
+                                    size: 15,
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const BottomChatIcon(
-                                        size: 18,
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    time,
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF2C2520),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  const Icon(
+                                    Icons.location_on_outlined,
+                                    color: Color(0xFFFF5E00),
+                                    size: 15,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    dist,
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF2C2520),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFF5E00),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      discount,
+                                      style: GoogleFonts.outfit(
                                         color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Chat with Supplier',
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Chat with Supplier & Favorite Buttons
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Get.to(
+                                          () => ChatScreen(
+                                            restaurant: widget.supplier,
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        height: 46,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xFFFF5E00),
+                                              Color(0xFFFFAE00),
+                                            ],
+                                            begin: Alignment.centerLeft,
+                                            end: Alignment.centerRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            23,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(
+                                                0xFFFF5E00,
+                                              ).withOpacity(0.3),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const BottomChatIcon(
+                                              size: 18,
+                                              color: Colors.white,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Chat with Supplier',
+                                              style: GoogleFonts.outfit(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isFavorite = !_isFavorite;
-                                });
-                              },
-                              child: Container(
-                                width: 46,
-                                height: 46,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFAF6F0),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: const Color(0xFFEAD8C9),
-                                    width: 1.0,
+                                  const SizedBox(width: 12),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _isFavorite = !_isFavorite;
+                                      });
+                                    },
+                                    child: Container(
+                                      width: 46,
+                                      height: 46,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFAF6F0),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFFEAD8C9),
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        _isFavorite
+                                            ? Icons.favorite_rounded
+                                            : Icons.favorite_border_rounded,
+                                        color: _isFavorite
+                                            ? const Color(0xFFFF5E00)
+                                            : const Color(0xFF2C2520),
+                                        size: 20,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                child: Icon(
-                                  _isFavorite
-                                      ? Icons.favorite_rounded
-                                      : Icons.favorite_border_rounded,
-                                  color: _isFavorite
-                                      ? const Color(0xFFFF5E00)
-                                      : const Color(0xFF2C2520),
-                                  size: 20,
-                                ),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
 
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-              // Pins when scrolled: search
-              KeyedSubtree(
-                key: _searchAnchorKey,
-                child: _showStickySearch
-                    ? const SizedBox(height: _stickyExtent)
-                    : _buildSearchBar(),
-              ),
+                    // Pins when scrolled: search
+                    KeyedSubtree(
+                      key: _searchAnchorKey,
+                      child: _showStickySearch
+                          ? const SizedBox(height: _stickyExtent)
+                          : _buildSearchBar(),
+                    ),
 
-              const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-              // Products Title Heading
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'Products',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1A1A1A),
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                    // Products Title Heading
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'Products',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1A1A1A),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // 2-Column Products Grid
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _productsLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Color(0xFFFF5E00),
+                              ),
+                            )
+                          : products.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No products available',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF6B6B6B),
+                                ),
+                              ),
+                            )
+                          : GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: products.length,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 14,
+                                    mainAxisSpacing: 16,
+                                    childAspectRatio: 0.68,
+                                  ),
+                              itemBuilder: (context, index) {
+                                final item = products[index];
+                                return _buildProductCard(item);
+                              },
+                            ),
+                    ),
+                  ],
                 ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // 2-Column Products Grid
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: products.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.68,
-                  ),
-                  itemBuilder: (context, index) {
-                    final item = products[index];
-                    return _buildProductCard(item);
-                  },
-                ),
-              ),
-            ],
-          ),
               );
             }),
 
@@ -578,7 +558,7 @@ class _WaterSupplierDetailsScreenState
               Positioned(
                 top: topInset + 10,
                 left: 16,
-                child: AppBackButton(onTap: () => Get.back(),),
+                child: AppBackButton(onTap: () => Get.back()),
               ),
 
             // Floating Cart Summary Bar Popup
@@ -601,27 +581,31 @@ class _WaterSupplierDetailsScreenState
 
   Widget _buildCartBar() {
     final readyIn = widget.supplier['time']?.toString() ?? '30-35 min';
-    final lastItem = lastAddedItem ??
+    final lastItem =
+        lastAddedItem ??
         (Get.isRegistered<HomeController>()
             ? Get.find<HomeController>().lastCartItem
             : null);
     final price = lastItem?['price']?.toString() ?? '50 MRU';
-    final title = lastItem?['title']?.toString() ??
+    final title =
+        lastItem?['title']?.toString() ??
         lastItem?['itemName']?.toString() ??
         'Drinking Water 19L';
-    final portion = lastItem?['bottleTag']?.toString() ??
+    final portion =
+        lastItem?['bottleTag']?.toString() ??
         lastItem?['sizeTag']?.toString() ??
         lastItem?['itemPortion']?.toString() ??
         '19L';
-    final image = lastItem?['image']?.toString() ??
-        lastItem?['itemImage']?.toString();
+    final image =
+        lastItem?['image']?.toString() ?? lastItem?['itemImage']?.toString();
 
     return GestureDetector(
       onTap: () {
         Get.to(
           () => CartScreen(
             showBottomNav: false,
-            storeName: widget.supplier['name'] ??
+            storeName:
+                widget.supplier['name'] ??
                 widget.supplier['title'] ??
                 'PureLife Water Co.',
             itemName: title,
@@ -727,18 +711,43 @@ class _WaterSupplierDetailsScreenState
   }
 
   Widget _buildProductCard(Map<String, dynamic> item) {
-    void handleAdd() {
+    Future<void> handleAdd() async {
+      if (!Get.isRegistered<WaterRepository>()) return;
+      final productId = int.tryParse('${item['productId']}') ?? 0;
+      if (productId == 0) {
+        // Sample items on this screen have no server id, so they can't be ordered yet
+        showAppToast(
+          'This product is not available to order yet',
+          backgroundColor: const Color(0xFFEF4444),
+        );
+        return;
+      }
+      try {
+        // Save the item on the server first; only update the local cart bar after success
+        await Get.find<WaterRepository>().addToCart(
+          waterVendorId: (widget.supplier['vendorId'] as int?) ?? 0,
+          productId: productId,
+          language: apiLanguageCode(),
+        );
+      } on ApiException catch (error) {
+        if (!mounted) return;
+        showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+        return;
+      }
+      if (!mounted) return;
       setState(() {
         showCartBar = true;
         lastAddedItem = item;
       });
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().setCartItem(
-          storeName: widget.supplier['name'] ??
+          storeName:
+              widget.supplier['name'] ??
               widget.supplier['title'] ??
               'PureLife Water Co.',
           itemName: item['title']?.toString(),
-          itemPortion: item['bottleTag']?.toString() ??
+          itemPortion:
+              item['bottleTag']?.toString() ??
               item['sizeTag']?.toString() ??
               '19L',
           basePrice: parsePrice(item['price']?.toString() ?? '50'),

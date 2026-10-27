@@ -6,7 +6,9 @@ import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/storage/session_store.dart';
+import '../../models/cart_repository.dart';
 import '../../models/grocery_repository.dart';
+import '../../widgets/replace_cart_item_dialog.dart';
 import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/filter_chip_style.dart';
@@ -26,6 +28,8 @@ class GroceryDetailsScreen extends StatefulWidget {
 
 class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   int activeSubcategoryIndex = 0;
+  List<Map<String, dynamic>> _subcategories = [];
+  int? _activeSubCategoryId;
   final TextEditingController searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _searchAnchorKey = GlobalKey();
@@ -62,8 +66,78 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   }
 
   Future<void> _loadInitialData() async {
+    _loadTagOptions();
     await _loadGroceryDetails();
     await _loadGroceryItems();
+    _refreshCartCount();
+  }
+
+  /// If the cart holds items from another store, asks before replacing them.
+  /// On yes, the server cart is cleared and the local cart bar is reset.
+  Future<bool> _confirmReplaceCartIfNeeded(BuildContext context) async {
+    final controller = Get.find<HomeController>();
+    final storeName =
+        (_storeDetails?['name'] ?? widget.store['name'] ?? 'Grocery Store')
+            .toString()
+            .trim();
+
+    // Ask the server which restaurant holds items; the local count can be stale.
+    String existingStore = '';
+    try {
+      final totals = await Get.find<CartRepository>().fetchCartTotals(
+        currentApiLanguage(),
+      );
+      existingStore = totals.cartName.trim();
+    } catch (_) {
+      existingStore = controller.lastCartItem?['storeName']?.toString() ?? '';
+    }
+
+    if (existingStore.isEmpty ||
+        existingStore.toLowerCase() == storeName.toLowerCase()) {
+      return true;
+    }
+
+    final replace = await ReplaceCartItemDialog.show(
+      context: context,
+      currentCartRestaurant: existingStore,
+      newRestaurant: storeName,
+    );
+    if (replace != true) return false;
+
+    try {
+      final repo = Get.find<CartRepository>();
+      await repo.replaceCart(currentApiLanguage());
+      // The replace call doesn't clear restaurant lines, so remove them here.
+      await repo.clearCatalogCart(language: currentApiLanguage());
+    } on ApiException catch (error) {
+      ToastHelper.showError(error.message);
+      return false;
+    }
+    controller.clearCart();
+    return true;
+  }
+
+  /// Sets the cart bar count to the server cart's total quantity.
+  Future<void> _refreshCartCount() async {
+    if (!Get.isRegistered<HomeController>() ||
+        !Get.isRegistered<CartRepository>()) {
+      return;
+    }
+    try {
+      final totals = await Get.find<CartRepository>().fetchCartTotals(
+        currentApiLanguage(),
+      );
+      final home = Get.find<HomeController>();
+      home.cartItemCount.value = totals.count;
+      home.cartAmount.value = totals.amount;
+    } catch (_) {}
+  }
+
+  /// "350" for whole amounts, otherwise two decimals.
+  String _cartAmountText(double value) {
+    return value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toStringAsFixed(2);
   }
 
   Future<void> _loadGroceryDetails() async {
@@ -73,19 +147,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
       final lang = currentApiLanguage();
       final lat = SelectLocationController.selectedLatitude ?? 18.0735;
       final lng = SelectLocationController.selectedLongitude ?? -15.9582;
-
-      final rawId =
-          widget.store['grocery_id'] ??
-          widget.store['id'] ??
-          widget.store['vendor_id'] ??
-          widget.store['restaurant_id'] ??
-          (widget.store['raw'] is Map
-              ? (widget.store['raw']['grocery_id'] ??
-                    widget.store['raw']['id'] ??
-                    widget.store['raw']['vendor_id'])
-              : null);
-
-      final groceryId = int.tryParse('$rawId') ?? 0;
+      final groceryId = _groceryId();
 
       final details = await repo.fetchGroceryDetails(
         groceryId: groceryId,
@@ -93,19 +155,31 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
         longitude: lng,
         language: lang,
       );
+      // The details payload has no image; keep the one from the store card.
+      if ((details['image'] ?? '').toString().isEmpty) {
+        details['image'] = widget.store['image'] ?? '';
+      }
+      final categories = await _loadStoreCategories(repo, groceryId, lang);
 
       if (!mounted) return;
       setState(() {
         _storeDetails = details;
-        subcategories =
-            (details['categories'] as List<Map<String, dynamic>>?) ?? [];
-        smartBundle = details['smartBundle'] as Map<String, dynamic>?;
+        subcategories = [
+          {'id': 0, 'label': 'All', 'isAll': true},
+          ...categories,
+        ];
+        activeSubcategoryIndex = 0;
+        _subcategories = [];
+        _activeSubCategoryId = null;
+        smartBundle = null;
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         subcategories = [];
+        _subcategories = [];
+        _activeSubCategoryId = null;
         smartBundle = null;
         _isLoading = false;
       });
@@ -115,78 +189,92 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     }
   }
 
+  Future<List<Map<String, dynamic>>> _loadStoreCategories(
+    GroceryRepository repo,
+    int groceryId,
+    String language,
+  ) async {
+    try {
+      return await repo.fetchGroceryStoreCategories(
+        groceryId: groceryId,
+        language: language,
+      );
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  int _groceryId() {
+    final raw =
+        widget.store['grocery_id'] ??
+        widget.store['id'] ??
+        _storeDetails?['grocery_id'] ??
+        widget.store['vendor_id'];
+    return int.tryParse('$raw') ?? 0;
+  }
+
+  /// Category picked in the top row; null for "All".
+  int? _selectedCategoryId() {
+    if (activeSubcategoryIndex < 0 ||
+        activeSubcategoryIndex >= subcategories.length) {
+      return null;
+    }
+    final selected = subcategories[activeSubcategoryIndex];
+    if (selected['isAll'] == true) return null;
+    final id = int.tryParse('${selected['id']}') ?? 0;
+    return id > 0 ? id : null;
+  }
+
+  /// Picks a top-row category, loads its subcategories, then its items.
+  Future<void> _selectCategory(int index) async {
+    if (activeSubcategoryIndex == index) return;
+    setState(() {
+      activeSubcategoryIndex = index;
+      _subcategories = [];
+      _activeSubCategoryId = null;
+    });
+
+    final categoryId = _selectedCategoryId();
+    if (categoryId != null) {
+      try {
+        final subs = await _getGroceryRepo().fetchGrocerySubCategories(
+          groceryId: _groceryId(),
+          categoryId: categoryId,
+          language: currentApiLanguage(),
+        );
+        if (mounted) setState(() => _subcategories = subs);
+      } catch (_) {}
+    }
+    await _loadGroceryItems();
+  }
+
+  void _selectSubCategory(int? subCategoryId) {
+    if (_activeSubCategoryId == subCategoryId) return;
+    setState(() => _activeSubCategoryId = subCategoryId);
+    _loadGroceryItems();
+  }
+
+  /// Items for the selected category, subcategory and search text.
   Future<void> _loadGroceryItems() async {
     if (!mounted) return;
     setState(() => _isLoadingItems = true);
     try {
-      final repo = _getGroceryRepo();
-      final lang = currentApiLanguage();
-
-      final rawId =
-          widget.store['grocery_id'] ??
-          widget.store['id'] ??
-          widget.store['vendor_id'] ??
-          widget.store['restaurant_id'] ??
-          (_storeDetails != null
-              ? (_storeDetails!['grocery_id'] ?? _storeDetails!['id'])
-              : null) ??
-          (widget.store['raw'] is Map
-              ? (widget.store['raw']['grocery_id'] ??
-                    widget.store['raw']['id'] ??
-                    widget.store['raw']['vendor_id'])
-              : null);
-
-      final groceryId = int.tryParse('$rawId') ?? 0;
-
-      dynamic categoryId;
-      dynamic subCategoryId;
-
-      if (activeSubcategoryIndex >= 0 &&
-          activeSubcategoryIndex < subcategories.length) {
-        final selected = subcategories[activeSubcategoryIndex];
-        if (selected['isAll'] != true) {
-          categoryId =
-              selected['category_id'] ??
-              selected['id'] ??
-              (selected['raw'] is Map
-                  ? (selected['raw']['category_id'] ?? selected['raw']['id'])
-                  : null);
-          subCategoryId =
-              selected['sub_category_id'] ??
-              (selected['raw'] is Map
-                  ? (selected['raw']['sub_category_id'] ??
-                        selected['raw']['subcategory_id'])
-                  : null);
-        }
-      }
-
-      categoryId ??=
-          widget.store['category_id'] ??
-          widget.store['cat_id'] ??
-          (subcategories.isNotEmpty
-              ? (subcategories.first['category_id'] ??
-                    subcategories.first['id'])
-              : null) ??
-          '1';
-
-      subCategoryId ??=
-          widget.store['sub_category_id'] ??
-          (subcategories.isNotEmpty
-              ? subcategories.first['sub_category_id']
-              : null) ??
-          categoryId;
-
-      final items = await repo.fetchGroceryItems(
-        groceryId: groceryId,
-        categoryId: categoryId,
-        subCategoryId: subCategoryId,
+      final items = await _getGroceryRepo().fetchGroceryItems(
+        groceryId: _groceryId(),
+        categoryId: _selectedCategoryId(),
+        subCategoryId: _activeSubCategoryId,
+        keyword: searchController.text,
         limit: 20,
-        language: lang,
+        sortBy: _itemFilters.sortBy,
+        priceRange: _itemFilters.priceRange,
+        rating: _itemFilters.rating,
+        tagIds: _itemFilters.tagIds.toList(),
+        language: currentApiLanguage(),
       );
 
       if (!mounted) return;
       setState(() {
-        menuItems = items;
+        menuItems = _applyLocalFilters(items);
         _isLoadingItems = false;
       });
     } catch (e) {
@@ -199,6 +287,52 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
         ToastHelper.showError(e.message);
       }
     }
+  }
+
+  Widget _buildSubcategoryChips() {
+    return SizedBox(
+      height: 34,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: _subcategories.length + 1,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final sub = index == 0 ? null : _subcategories[index - 1];
+          final subId = sub == null
+              ? null
+              : int.tryParse('${sub['sub_category_id'] ?? sub['id']}');
+          final selected = _activeSubCategoryId == subId;
+          final label = sub == null ? 'All' : (sub['label'] ?? '').toString();
+
+          return GestureDetector(
+            onTap: () => _selectSubCategory(subId),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected ? const Color(0xFFFF5E00) : Colors.white,
+                borderRadius: BorderRadius.circular(17),
+                border: Border.all(
+                  color: selected
+                      ? const Color(0xFFFF5E00)
+                      : const Color(0xFFEAD8C9),
+                ),
+              ),
+              child: Text(
+                label,
+                style: GoogleFonts.outfit(
+                  color: selected ? Colors.white : const Color(0xFF2C2520),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildNoDataPlaceholder(String title) {
@@ -307,6 +441,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
             Expanded(
               child: TextField(
                 controller: searchController,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (_) => _loadGroceryItems(),
                 decoration: InputDecoration(
                   hintText: 'Find something from this Store',
                   hintStyle: GoogleFonts.outfit(
@@ -340,27 +476,95 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   }
 
   Widget _buildFiltersRow() {
+    final filters = _itemFilters;
     return AppFilterChipsRow(
       children: [
-        for (final filter in filters)
-          AppFilterChip(
-            label: filter['label'] as String,
-            onTap: filter['label'] == 'Filter' ? _showFilterBottomSheet : null,
-            leading: filter['isMru'] == true
-                ? AppFilterChip.mruLeading()
-                : filter['icon'] is IconData
-                ? AppFilterChip.iconLeading(
-                    filter['icon'] as IconData,
-                    color: filter['label'] == 'Rating'
-                        ? const Color(0xFFFFAE00)
-                        : const Color(0xFF2C2520),
-                  )
-                : filter['icon'] is Widget
-                ? AppFilterChip.widgetLeading(filter['icon'] as Widget)
-                : null,
+        AppFilterChip(
+          label: 'Filter',
+          onTap: () => _showFilterBottomSheet(),
+          leading: AppFilterChip.widgetLeading(
+            Image.asset("lib/assets/images/Filter.png"),
           ),
+        ),
+        AppFilterChip(
+          label: 'Under 200 MRU',
+          selected: filters.priceRange == 'under_200',
+          onTap: () => _changeFilters(
+            filters.priceRange == 'under_200'
+                ? filters.copyWith(clearPriceRange: true)
+                : filters.copyWith(priceRange: 'under_200'),
+          ),
+          leading: AppFilterChip.mruLeading(),
+        ),
+        AppFilterChip(
+          label: 'Offers',
+          selected: filters.offersOnly,
+          onTap: () =>
+              _changeFilters(filters.copyWith(offersOnly: !filters.offersOnly)),
+          leading: AppFilterChip.widgetLeading(
+            Image.asset("lib/assets/images/Offer.png"),
+          ),
+        ),
+        AppFilterChip(
+          label: 'Rating',
+          selected: filters.rating == 4.0,
+          onTap: () => _changeFilters(
+            filters.rating == 4.0
+                ? filters.copyWith(clearRating: true)
+                : filters.copyWith(rating: 4.0),
+          ),
+          leading: AppFilterChip.iconLeading(
+            Icons.star_rounded,
+            color: const Color(0xFFFFAE00),
+          ),
+        ),
       ],
     );
+  }
+
+  /// Stores the new filters and reloads the items with them.
+  void _changeFilters(GroceryItemFilters next) {
+    setState(() => _itemFilters = next);
+    _loadGroceryItems();
+  }
+
+  Future<void> _showFilterBottomSheet() async {
+    final result = await showModalBottomSheet<GroceryItemFilters>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          _GroceryFilterBottomSheet(initial: _itemFilters, tags: _tagOptions),
+    );
+    if (result == null || !mounted) return;
+    _changeFilters(result);
+  }
+
+  /// Filters the device can apply: the offers flag and the slider's price bounds.
+  List<Map<String, dynamic>> _applyLocalFilters(
+    List<Map<String, dynamic>> items,
+  ) {
+    final bounds = _itemFilters.priceBounds;
+    return items.where((item) {
+      if (_itemFilters.offersOnly &&
+          (item['discount'] ?? '').toString().isEmpty) {
+        return false;
+      }
+      if (bounds != null) {
+        final price = (item['sellingPrice'] as num?)?.toDouble() ?? 0;
+        if (price < bounds.start || price > bounds.end) return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  Future<void> _loadTagOptions() async {
+    try {
+      final tags = await _getGroceryRepo().fetchGroceryTagChoices(
+        language: currentApiLanguage(),
+      );
+      if (mounted) setState(() => _tagOptions = tags);
+    } catch (_) {}
   }
 
   int parsePrice(String priceStr) {
@@ -370,12 +574,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
 
   List<Map<String, dynamic>> subcategories = [];
 
-  final List<Map<String, dynamic>> filters = [
-    {'label': 'Filter', 'icon': Image.asset("lib/assets/images/Filter.png")},
-    {'label': 'Under 200 MRU', 'isMru': true},
-    {'label': 'Offers', 'icon': Image.asset("lib/assets/images/Offer.png")},
-    {'label': 'Rating', 'icon': Icons.star_rounded},
-  ];
+  GroceryItemFilters _itemFilters = const GroceryItemFilters();
+  List<({int id, String label})> _tagOptions = const [];
 
   List<Map<String, dynamic>> menuItems = [];
   Map<String, dynamic>? smartBundle;
@@ -794,12 +994,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
 
                                       return GestureDetector(
                                         onTap: () {
-                                          if (activeSubcategoryIndex != index) {
-                                            setState(() {
-                                              activeSubcategoryIndex = index;
-                                            });
-                                            _loadGroceryItems();
-                                          }
+                                          _selectCategory(index);
                                         },
                                         child: Padding(
                                           padding: EdgeInsets.only(
@@ -1019,6 +1214,10 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         ),
                       ),
                     ),
+                    if (_subcategories.isNotEmpty) ...[
+                      _buildSubcategoryChips(),
+                      const SizedBox(height: 12),
+                    ],
                     const SizedBox(height: 12),
                     if (_isLoadingItems || _isLoading)
                       const Padding(
@@ -1138,7 +1337,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          '1',
+                          '${controller.cartItemCount.value}',
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 14,
@@ -1153,7 +1352,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'View Cart • 1 items',
+                              'View Cart • ${controller.cartItemCount.value} ${controller.cartItemCount.value == 1 ? 'item' : 'items'}',
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -1161,7 +1360,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               ),
                             ),
                             Text(
-                              'Ready in 15-20 min',
+                              'Ready in 30-35 min',
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 10,
@@ -1175,7 +1374,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            lastAddedItem?['price'] ?? '65 MRU',
+                            '${_cartAmountText(controller.cartAmount.value)} MRU',
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 13,
@@ -1208,8 +1407,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   ) {
     final title = (bundle['title'] ?? 'Special Bundle').toString();
     final itemsDesc = (bundle['items'] ?? 'Bundle').toString();
-    final price = (bundle['price'] ?? '750 MRU').toString();
-    final originalPrice = (bundle['originalPrice'] ?? '1500 MRU').toString();
+    final price = (bundle['price'] ?? '— MRU').toString();
+    final originalPrice = (bundle['originalPrice'] ?? '').toString();
     final bundlePrice = parsePrice(price);
 
     return Container(
@@ -1377,6 +1576,89 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// One size tile in the customize sheet. Same look as the two-option layout.
+  Widget _variantTile({
+    required List<Map<String, dynamic>> variants,
+    required int index,
+    required int selected,
+    required ValueChanged<int> onSelect,
+  }) {
+    final variant = variants[index];
+    final isSelected = selected == index;
+    final inStock = variant['inStock'] == true;
+
+    return GestureDetector(
+      onTap: () => onSelect(index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFFFF0EA) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFFFF5E00)
+                : const Color(0xFFEAD8C9),
+            width: isSelected ? 1.5 : 0.8,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 18,
+              height: 18,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFFFF5E00)
+                      : const Color(0xFFA59A94),
+                  width: 1.5,
+                ),
+              ),
+              padding: const EdgeInsets.all(3),
+              child: isSelected
+                  ? Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF5E00),
+                        shape: BoxShape.circle,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${variant['label']}',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF2C2520),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    inStock ? '${variant['price']}' : 'Out of stock',
+                    style: GoogleFonts.outfit(
+                      color: inStock
+                          ? const Color(0xFFFF5E00)
+                          : const Color(0xFF7A6A60),
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1555,7 +1837,11 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              isNotAccepting ? 'CLOSED' : 'ADD',
+                              isNotAccepting
+                                  ? 'CLOSED'
+                                  : (food['inStock'] == false
+                                        ? 'SOLD OUT'
+                                        : 'ADD'),
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 11,
@@ -1895,58 +2181,52 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     );
   }
 
-  void _showCustomizeBottomSheet(
+  /// Variants from the item detail; falls back to the variants already on the row.
+  Future<List<Map<String, dynamic>>> _loadVariants(
+    Map<String, dynamic> food,
+  ) async {
+    final menuId = int.tryParse('${food['menuId']}') ?? 0;
+    try {
+      final detail = await _getGroceryRepo().fetchGroceryItemDetail(
+        menuId: menuId,
+        groceryId: _groceryId(),
+        language: currentApiLanguage(),
+      );
+      final variants = (detail['variants'] as List)
+          .whereType<Map<String, dynamic>>()
+          .toList();
+      if (variants.isNotEmpty) return variants;
+    } catch (_) {}
+    try {
+      final menuVariants = await _getGroceryRepo().fetchGroceryMenuVariants(
+        menuId: menuId,
+        groceryId: _groceryId(),
+        language: currentApiLanguage(),
+      );
+      if (menuVariants.isNotEmpty) return menuVariants;
+    } catch (_) {}
+    return (food['variants'] as List? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .toList();
+  }
+
+  Future<void> _showCustomizeBottomSheet(
     BuildContext context,
     Map<String, dynamic> food, {
     required bool fromBottomSheet,
-  }) {
-    int selectedQuantityIndex = 0; // Default to first (1 Kg)
+  }) async {
+    final variants = await _loadVariants(food);
+    if (!mounted || !context.mounted) return;
+    if (variants.isEmpty) {
+      ToastHelper.showError('No sizes are available for this item');
+      return;
+    }
+
+    int selectedQuantityIndex = 0;
     int quantity = 1;
     final TextEditingController notesController = TextEditingController();
 
-    // Determine quantity text and price options based on clicked item
-    String qtyText1 = '1 Kg';
-    String qtyPrice1 = food['price'] ?? '50 MRU';
-    String qtyText2 = '5 Kg';
-    String qtyPrice2 = '550 MRU';
-
     final title = (food['title'] ?? '').toString();
-    if (title.contains('Milk')) {
-      qtyText1 = '1 L';
-      qtyPrice1 = '65 MRU';
-      qtyText2 = '5 L';
-      qtyPrice2 = '300 MRU';
-    } else if (title.contains('Egg')) {
-      qtyText1 = '1 Pack';
-      qtyPrice1 = '65 MRU';
-      qtyText2 = '3 Packs';
-      qtyPrice2 = '180 MRU';
-    } else if (title.contains('Broccoli')) {
-      qtyText1 = '500 g';
-      qtyPrice1 = '80 MRU';
-      qtyText2 = '2.5 Kg';
-      qtyPrice2 = '360 MRU';
-    } else if (title.contains('Onion')) {
-      qtyText1 = '1 Kg';
-      qtyPrice1 = '45 MRU';
-      qtyText2 = '5 Kg';
-      qtyPrice2 = '200 MRU';
-    } else if (title.contains('Rice')) {
-      qtyText1 = '1 Kg';
-      qtyPrice1 = '90 MRU';
-      qtyText2 = '5 Kg';
-      qtyPrice2 = '400 MRU';
-    } else if (title.contains('Masala')) {
-      qtyText1 = '100 g';
-      qtyPrice1 = '55 MRU';
-      qtyText2 = '500 g';
-      qtyPrice2 = '250 MRU';
-    } else if (title == 'Potato') {
-      qtyText1 = '1 Kg';
-      qtyPrice1 = '50 MRU';
-      qtyText2 = '5 Kg';
-      qtyPrice2 = '550 MRU';
-    }
 
     showModalBottomSheet(
       context: context,
@@ -2005,196 +2285,40 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               ),
                               const SizedBox(height: 12),
 
-                              Row(
-                                children: [
-                                  // Option 1
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setModalState(() {
-                                          selectedQuantityIndex = 0;
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 14,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: selectedQuantityIndex == 0
-                                              ? const Color(0xFFFFF0EA)
-                                              : Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                          border: Border.all(
-                                            color: selectedQuantityIndex == 0
-                                                ? const Color(0xFFFF5E00)
-                                                : const Color(0xFFEAD8C9),
-                                            width: selectedQuantityIndex == 0
-                                                ? 1.5
-                                                : 0.8,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            // Radio dot
-                                            Container(
-                                              width: 18,
-                                              height: 18,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color:
-                                                      selectedQuantityIndex == 0
-                                                      ? const Color(0xFFFF5E00)
-                                                      : const Color(0xFFA59A94),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              padding: const EdgeInsets.all(3),
-                                              child: selectedQuantityIndex == 0
-                                                  ? Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                            color: Color(
-                                                              0xFFFF5E00,
-                                                            ),
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                    )
-                                                  : null,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  qtyText1,
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFF2C2520,
-                                                    ),
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  qtyPrice1,
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFFFF5E00,
-                                                    ),
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                              for (var i = 0; i < variants.length; i += 2) ...[
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _variantTile(
+                                        variants: variants,
+                                        index: i,
+                                        selected: selectedQuantityIndex,
+                                        onSelect: (value) => setModalState(
+                                          () => selectedQuantityIndex = value,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-
-                                  // Option 2
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setModalState(() {
-                                          selectedQuantityIndex = 1;
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 14,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: selectedQuantityIndex == 1
-                                              ? const Color(0xFFFFF0EA)
-                                              : Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                          border: Border.all(
-                                            color: selectedQuantityIndex == 1
-                                                ? const Color(0xFFFF5E00)
-                                                : const Color(0xFFEAD8C9),
-                                            width: selectedQuantityIndex == 1
-                                                ? 1.5
-                                                : 0.8,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            // Radio dot
-                                            Container(
-                                              width: 18,
-                                              height: 18,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color:
-                                                      selectedQuantityIndex == 1
-                                                      ? const Color(0xFFFF5E00)
-                                                      : const Color(0xFFA59A94),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              padding: const EdgeInsets.all(3),
-                                              child: selectedQuantityIndex == 1
-                                                  ? Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                            color: Color(
-                                                              0xFFFF5E00,
-                                                            ),
-                                                            shape:
-                                                                BoxShape.circle,
-                                                          ),
-                                                    )
-                                                  : null,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  qtyText2,
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFF2C2520,
-                                                    ),
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.bold,
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: i + 1 < variants.length
+                                          ? _variantTile(
+                                              variants: variants,
+                                              index: i + 1,
+                                              selected: selectedQuantityIndex,
+                                              onSelect: (value) =>
+                                                  setModalState(
+                                                    () =>
+                                                        selectedQuantityIndex =
+                                                            value,
                                                   ),
-                                                ),
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  qtyPrice2,
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFFFF5E00,
-                                                    ),
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                            )
+                                          : const SizedBox.shrink(),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                                if (i + 2 < variants.length)
+                                  const SizedBox(height: 12),
+                              ],
                               const SizedBox(height: 16),
 
                               // Customize quantity field
@@ -2398,7 +2522,45 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             const SizedBox(width: 14),
                             Expanded(
                               child: GestureDetector(
-                                onTap: () {
+                                onTap: () async {
+                                  final variant =
+                                      variants[selectedQuantityIndex];
+                                  if (variant['inStock'] != true) {
+                                    ToastHelper.showError(
+                                      'This size is out of stock',
+                                    );
+                                    return;
+                                  }
+                                  if (!await _confirmReplaceCartIfNeeded(
+                                    context,
+                                  )) {
+                                    return;
+                                  }
+                                  try {
+                                    await _getGroceryRepo().addGroceryCartItem(
+                                      groceryId: _groceryId(),
+                                      productId: variant['productId'] as int,
+                                      attributeId:
+                                          variant['attributeId'] as int?,
+                                      unitPrice:
+                                          variant['sellingPrice'] as double,
+                                      quantity: quantity,
+                                      language: currentApiLanguage(),
+                                    );
+                                  } on ApiException catch (error) {
+                                    ToastHelper.showError(error.message);
+                                    return;
+                                  }
+                                  // Shows the added amount at once; the server total replaces it below.
+                                  if (Get.isRegistered<HomeController>()) {
+                                    Get.find<HomeController>()
+                                            .cartAmount
+                                            .value +=
+                                        (variant['sellingPrice'] as double) *
+                                        quantity;
+                                  }
+                                  _refreshCartCount();
+                                  if (!context.mounted) return;
                                   Navigator.pop(context);
                                   if (fromBottomSheet) {
                                     Navigator.pop(context);
@@ -2408,14 +2570,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                     lastAddedItem = Map<String, dynamic>.from(
                                       food,
                                     );
-                                    lastAddedItem!['price'] =
-                                        (selectedQuantityIndex == 0)
-                                        ? qtyPrice1
-                                        : qtyPrice2;
+                                    lastAddedItem!['price'] = variant['price'];
                                     lastAddedItemPortion =
-                                        (selectedQuantityIndex == 0)
-                                        ? qtyText1
-                                        : qtyText2;
+                                        '${variant['label']}';
                                     showCartBar = true;
                                   });
                                   if (Get.isRegistered<HomeController>()) {
@@ -2539,19 +2696,56 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
       },
     );
   }
+}
 
-  void _showFilterBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const _GroceryFilterBottomSheet(),
+/// Filters applied to the store's items. Empty values mean "no filter".
+class GroceryItemFilters {
+  const GroceryItemFilters({
+    this.sortBy = 'relevance',
+    this.priceRange,
+    this.priceBounds,
+    this.rating,
+    this.offersOnly = false,
+    this.tagIds = const {},
+  });
+
+  /// Sort value sent as sort_by.
+  final String sortBy;
+
+  /// Server price bucket (price_range), set by the "Under 200 MRU" chip.
+  final String? priceRange;
+
+  /// Slider bounds in MRU, filtered on the device. Null means no bounds.
+  final RangeValues? priceBounds;
+  final double? rating;
+  final bool offersOnly;
+  final Set<int> tagIds;
+
+  GroceryItemFilters copyWith({
+    String? sortBy,
+    String? priceRange,
+    bool clearPriceRange = false,
+    double? rating,
+    bool clearRating = false,
+    bool? offersOnly,
+    Set<int>? tagIds,
+  }) {
+    return GroceryItemFilters(
+      sortBy: sortBy ?? this.sortBy,
+      priceRange: clearPriceRange ? null : (priceRange ?? this.priceRange),
+      priceBounds: priceBounds,
+      rating: clearRating ? null : (rating ?? this.rating),
+      offersOnly: offersOnly ?? this.offersOnly,
+      tagIds: tagIds ?? this.tagIds,
     );
   }
 }
 
 class _GroceryFilterBottomSheet extends StatefulWidget {
-  const _GroceryFilterBottomSheet();
+  const _GroceryFilterBottomSheet({required this.initial, required this.tags});
+
+  final GroceryItemFilters initial;
+  final List<({int id, String label})> tags;
 
   @override
   State<_GroceryFilterBottomSheet> createState() =>
@@ -2559,29 +2753,66 @@ class _GroceryFilterBottomSheet extends StatefulWidget {
 }
 
 class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
-  final List<String> selectedTags = [];
-  RangeValues priceRange = const RangeValues(65, 1500);
-  String selectedSortBy = 'Relevance';
+  static const RangeValues _fullRange = RangeValues(0, 3000);
+  static const Map<String, double> _ratingChips = {
+    'Ratings 4.5+': 4.5,
+    'Ratings 4.0+': 4.0,
+    'Ratings 3.0+': 3.0,
+  };
+  static const Map<String, String> _sortChips = {
+    'Relevance': 'relevance',
+    'Delivery Time': 'delivery_time',
+    'Cost: Low to High': 'price_low_to_high',
+    'Cost: High to Low': 'price_high_to_low',
+  };
 
-  final List<String> filterTags = [
+  late final Set<String> selectedTags = {
+    if (widget.initial.offersOnly) 'Offers',
+    for (final entry in _ratingChips.entries)
+      if (widget.initial.rating == entry.value) entry.key,
+    for (final tag in widget.tags)
+      if (widget.initial.tagIds.contains(tag.id)) tag.label,
+  };
+  late RangeValues priceRange = widget.initial.priceBounds ?? _fullRange;
+  late String selectedSortBy = _sortChips.entries
+      .firstWhere(
+        (entry) => entry.value == widget.initial.sortBy,
+        orElse: () => _sortChips.entries.first,
+      )
+      .key;
+
+  List<String> get filterTags => [
     'Offers',
-    'Ratings 4.5+',
-    'Ratings 4.0+',
-    'Ratings 3.0+',
+    ..._ratingChips.keys,
+    for (final tag in widget.tags) tag.label,
   ];
-  final List<String> sortOptions = [
-    'Relevance',
-    'Delivery Time',
-    'Cost: Low to High',
-    'Cost: High to Low',
-  ];
+  List<String> get sortOptions => _sortChips.keys.toList();
 
   void _clearAll() {
     setState(() {
       selectedTags.clear();
-      priceRange = const RangeValues(65, 1500);
+      priceRange = _fullRange;
       selectedSortBy = 'Relevance';
     });
+  }
+
+  /// Turns the chosen labels into the filters the screen applies.
+  GroceryItemFilters _result() {
+    final rating = _ratingChips.entries
+        .where((entry) => selectedTags.contains(entry.key))
+        .map((entry) => entry.value)
+        .firstOrNull;
+    return GroceryItemFilters(
+      sortBy: _sortChips[selectedSortBy] ?? 'relevance',
+      priceRange: widget.initial.priceRange,
+      priceBounds: priceRange == _fullRange ? null : priceRange,
+      rating: rating,
+      offersOnly: selectedTags.contains('Offers'),
+      tagIds: {
+        for (final tag in widget.tags)
+          if (selectedTags.contains(tag.label)) tag.id,
+      },
+    );
   }
 
   Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
@@ -2675,6 +2906,12 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                             if (selectedTags.contains(tag)) {
                               selectedTags.remove(tag);
                             } else {
+                              // Only one rating can be chosen at a time.
+                              if (_ratingChips.containsKey(tag)) {
+                                selectedTags.removeWhere(
+                                  _ratingChips.containsKey,
+                                );
+                              }
                               selectedTags.add(tag);
                             }
                           });
@@ -2817,7 +3054,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => Navigator.pop(context),
+                          onTap: () => Navigator.pop(context, _result()),
                           child: Container(
                             height: 50,
                             alignment: Alignment.center,

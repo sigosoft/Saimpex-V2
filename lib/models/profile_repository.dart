@@ -64,14 +64,9 @@ class ProfileRepository {
       throw const ApiException('Unexpected server response');
     }
 
-    final user = AuthUser.fromJson(userJson).copyWith(
-      countryCode: countryCode,
-    );
+    final user = AuthUser.fromJson(userJson).copyWith(countryCode: countryCode);
 
-    return (
-      user: user,
-      message: envelope.message,
-    );
+    return (user: user, message: envelope.message);
   }
 
   Future<String> updateLanguage(String languageCode) async {
@@ -79,10 +74,7 @@ class ProfileRepository {
     final envelope = await _send(
       () => _client.dio.post(
         ApiConstants.updateLanguage,
-        data: {
-          'language': code,
-          'language_code': code,
-        },
+        data: {'language': code, 'language_code': code},
       ),
       code,
     );
@@ -117,7 +109,8 @@ class ProfileRepository {
       language,
     );
     final data = asJsonMap(envelope.data);
-    final location = asJsonMap(data?['location']) ?? data ?? <String, dynamic>{};
+    final location =
+        asJsonMap(data?['location']) ?? data ?? <String, dynamic>{};
     return (
       address: location['address']?.toString().trim() ?? '',
       latitude: _asDouble(location['latitude'] ?? location['lat']),
@@ -136,14 +129,89 @@ class ProfileRepository {
     );
     final data = asJsonMap(envelope.data);
     final userPoints = _asNum(data?['user_points']) ?? 0;
-    final redeemableAmount = _asNum(
-          data?['redeemable amount'] ?? data?['redeemable_amount'],
-        ) ??
-        0;
-    return (
-      userPoints: userPoints,
-      redeemableAmount: redeemableAmount,
+    final redeemableAmount =
+        _asNum(data?['redeemable amount'] ?? data?['redeemable_amount']) ?? 0;
+    return (userPoints: userPoints, redeemableAmount: redeemableAmount);
+  }
+
+  /// Whether push notifications are on (notification/preference).
+  Future<bool> fetchNotificationPreference(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.notificationPreference,
+        queryParameters: {'notification_enabled': 1},
+      ),
+      language,
     );
+    final data = asJsonMap(envelope.data);
+    final value = data?['notification_enabled'];
+    return value == true || value == 1 || value == '1';
+  }
+
+  /// Turns push notifications on or off.
+  Future<String> updateNotificationPreference({
+    required bool enabled,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.notificationPreference,
+        data: {'notification_enabled': enabled ? '1' : '0'},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Recent notifications, newest first (notifications).
+  Future<List<Map<String, dynamic>>> fetchNotifications({
+    required String language,
+    int limit = 20,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.notifications,
+        queryParameters: {'limit': limit, 'notification_enabled': 1},
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    final raw = data?['notifications'];
+    if (raw is! List) return const [];
+    return raw
+        .map((item) => asJsonMap(item))
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (item) => {
+            'title': _localizedText(item, 'title', language),
+            'content': _localizedText(item, 'content', language),
+            'date': item['date']?.toString() ?? '',
+            'time': item['time']?.toString() ?? '',
+          },
+        )
+        .toList();
+  }
+
+  /// Deletes the customer account on the server (delete).
+  Future<String> deleteAccount(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.customerDelete),
+      language,
+    );
+    return envelope.message;
+  }
+
+  String _localizedText(
+    Map<String, dynamic> item,
+    String key,
+    String language,
+  ) {
+    for (final code in [language, 'en', 'fr', 'ar']) {
+      final value = item['${key}_$code']?.toString().trim() ?? '';
+      if (value.isNotEmpty && value != 'null') return value;
+    }
+    return '';
   }
 
   num? _asNum(dynamic value) {

@@ -22,7 +22,9 @@ class OrderRepository {
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
-        version2 ? ApiConstants.checkoutSummaryV2 : ApiConstants.checkoutSummary,
+        version2
+            ? ApiConstants.checkoutSummaryV2
+            : ApiConstants.checkoutSummary,
         data: {
           'is_self_pickup': selfPickup ? '1' : '0',
           'lat': latitude.toString(),
@@ -77,6 +79,53 @@ class OrderRepository {
     return data;
   }
 
+  /// Restaurant (catalog) checkout; the cart is the server-side catalog cart.
+  Future<Map<String, dynamic>> catalogCheckout({
+    required bool selfPickup,
+    required double latitude,
+    required double longitude,
+    required String location,
+    required String paymentType,
+    required String language,
+    String note = '',
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.catalogCheckout,
+        data: FormData.fromMap({
+          'is_self_pickup': selfPickup ? '1' : '0',
+          'lat': latitude.toString(),
+          'long': longitude.toString(),
+          'location': location,
+          'payment_type': paymentType,
+          'notes': note,
+          'order_note': note,
+        }),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    data['message'] = envelope.message;
+    return data;
+  }
+
+  /// Restaurant (catalog) order detail, looked up by order_id.
+  Future<Map<String, dynamic>> catalogOrderDetail({
+    required int orderId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.catalogOrderDetail,
+        queryParameters: {'order_id': orderId},
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    data['message'] = envelope.message;
+    return data;
+  }
+
   Future<Map<String, dynamic>> masrviSession(String language) async {
     final envelope = await _send(
       () => _client.dio.get(ApiConstants.masrviSession),
@@ -95,10 +144,7 @@ class OrderRepository {
     final envelope = await _send(
       () => _client.dio.post(
         ApiConstants.masrviInit,
-        data: {
-          'order_id': '$orderId',
-          'test_amount': amount,
-        },
+        data: {'order_id': '$orderId', 'test_amount': amount},
         options: Options(contentType: Headers.jsonContentType),
       ),
       language,

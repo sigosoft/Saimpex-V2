@@ -50,6 +50,9 @@ class HomeController extends GetxController {
   /// Active cart items count for bottom navigation badge.
   final cartItemCount = 0.obs;
 
+  /// Total amount of the active cart, shown beside the count in the cart bar.
+  final cartAmount = 0.0.obs;
+
   /// Active cart product details so that tapping Cart in bottom navigation bar displays the added product.
   Map<String, dynamic>? lastCartItem;
 
@@ -92,6 +95,7 @@ class HomeController extends GetxController {
   void clearCart() {
     lastCartItem = null;
     cartItemCount.value = 0;
+    cartAmount.value = 0;
   }
 
   void selectNavigation(int index) {
@@ -154,8 +158,7 @@ class HomeController extends GetxController {
         data['title'] = data['name'];
       }
       if (data['subtitle'] == null) {
-        data['subtitle'] =
-            data['category'] ?? data['subtitle'] ?? '';
+        data['subtitle'] = data['category'] ?? data['subtitle'] ?? '';
       }
       data.putIfAbsent('title', () => 'Favourite');
       data.putIfAbsent('subtitle', () => '');
@@ -312,7 +315,9 @@ class HomeController extends GetxController {
       ]) {
         for (final item in list) {
           final id = (item['id'] ?? '').toString();
-          if (id.isNotEmpty && item['isFavourite'] == true && !likedItems.contains(id)) {
+          if (id.isNotEmpty &&
+              item['isFavourite'] == true &&
+              !likedItems.contains(id)) {
             likedItems.add(id);
           }
         }

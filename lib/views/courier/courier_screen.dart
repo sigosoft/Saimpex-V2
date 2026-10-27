@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/courier_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 
 import 'courier_select_recipient_location_screen.dart';
@@ -14,24 +18,87 @@ class CourierScreen extends StatefulWidget {
   State<CourierScreen> createState() => _CourierScreenState();
 }
 
+// Placeholder pickup point until the app reads the store location from the API
+const _pickupAddress = 'Marhaba Supermarket, Nouakchott';
+const _pickupLatitude = 18.0735;
+const _pickupLongitude = -15.9582;
+
 class _CourierScreenState extends State<CourierScreen> {
+  final _courier = Get.find<CourierRepository>();
   int selectedVehicleIndex = 0;
   String? dropOffAddress;
+  double? dropOffLatitude;
+  double? dropOffLongitude;
+  // Fees from courier/quote, keyed by is_express. Null until the quote loads.
+  final Map<bool, double> _fees = {};
+  double? _distanceKm;
+  bool _quoteLoading = false;
 
+  // Standard and Express are the two options the quote API prices (is_express).
   final vehicles = [
     {
-      'label': 'Bike',
-      'time': '30-35 min',
-      'price': '50 MRU',
+      'label': 'Standard',
+      'isExpress': false,
       'image': 'lib/assets/images/bike.png',
     },
     {
-      'label': 'Mini Van',
-      'time': '30-35 min',
-      'price': '100 MRU',
+      'label': 'Express',
+      'isExpress': true,
       'image': 'lib/assets/images/minivan.png',
     },
   ];
+
+  String _priceText(bool isExpress) {
+    final fee = _fees[isExpress];
+    return fee == null ? '— MRU' : '${fee.round()} MRU';
+  }
+
+  String get _timeText =>
+      _distanceKm == null ? '' : '${_distanceKm!.toStringAsFixed(1)} km';
+
+  Future<void> _loadQuote() async {
+    final latitude = dropOffLatitude;
+    final longitude = dropOffLongitude;
+    final address = dropOffAddress;
+    if (latitude == null || longitude == null || address == null) return;
+    setState(() => _quoteLoading = true);
+    try {
+      final language = apiLanguageCode();
+      final pickup = const CourierStop(
+        address: _pickupAddress,
+        latitude: _pickupLatitude,
+        longitude: _pickupLongitude,
+      );
+      final dropoff = CourierStop(
+        address: address,
+        latitude: latitude,
+        longitude: longitude,
+      );
+      final standard = await _courier.quote(
+        pickup: pickup,
+        dropoff: dropoff,
+        isExpress: false,
+        language: language,
+      );
+      final express = await _courier.quote(
+        pickup: pickup,
+        dropoff: dropoff,
+        isExpress: true,
+        language: language,
+      );
+      if (!mounted) return;
+      setState(() {
+        _fees[false] = standard.deliveryFee;
+        _fees[true] = express.deliveryFee;
+        _distanceKm = standard.distanceKm;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _quoteLoading = false);
+    }
+  }
 
   final offers = [
     'lib/assets/images/courier_banner1.png',
@@ -53,11 +120,7 @@ class _CourierScreenState extends State<CourierScreen> {
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFFFDDCF),
-              Color(0xFFFFEEE5),
-              Color(0xFFFAF6F0),
-            ],
+            colors: [Color(0xFFFFDDCF), Color(0xFFFFEEE5), Color(0xFFFAF6F0)],
             stops: [0.0, 0.32, 1.0],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -76,7 +139,12 @@ class _CourierScreenState extends State<CourierScreen> {
                     Expanded(
                       child: SingleChildScrollView(
                         physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.fromLTRB(16, 0, 16, 92 + bottomInset),
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          0,
+                          16,
+                          92 + bottomInset,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -134,7 +202,7 @@ class _CourierScreenState extends State<CourierScreen> {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: AppBackButton(onTap: () => Get.back(),),
+            child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
             'Courier',
@@ -244,17 +312,11 @@ class _CourierScreenState extends State<CourierScreen> {
       width: 22,
       height: 22,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: halo,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: halo, shape: BoxShape.circle),
       child: Container(
         width: 10,
         height: 10,
-        decoration: BoxDecoration(
-          color: fill,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
       ),
     );
   }
@@ -268,7 +330,12 @@ class _CourierScreenState extends State<CourierScreen> {
     final title = result['title']?.toString();
     final subtitle = result['subtitle']?.toString();
     if (title != null && title.isNotEmpty) {
-      setState(() => dropOffAddress = _formatDropOffAddress(title, subtitle));
+      setState(() {
+        dropOffAddress = _formatDropOffAddress(title, subtitle);
+        dropOffLatitude = double.tryParse('${result['latitude']}');
+        dropOffLongitude = double.tryParse('${result['longitude']}');
+      });
+      _loadQuote();
     }
   }
 
@@ -329,8 +396,9 @@ class _CourierScreenState extends State<CourierScreen> {
                         ? const Color(0xFF8C7D73)
                         : const Color(0xFF2C2520),
                     fontSize: 14,
-                    fontWeight:
-                        isPlaceholder ? FontWeight.w500 : FontWeight.w700,
+                    fontWeight: isPlaceholder
+                        ? FontWeight.w500
+                        : FontWeight.w700,
                     height: 1.3,
                   ),
                 ),
@@ -414,7 +482,7 @@ class _CourierScreenState extends State<CourierScreen> {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                vehicle['time']!.toString(),
+                                _timeText,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 11,
@@ -423,7 +491,7 @@ class _CourierScreenState extends State<CourierScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                vehicle['price']!.toString(),
+                                _priceText(vehicle['isExpress']! as bool),
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFA59A94),
                                   fontSize: 10,
@@ -508,21 +576,42 @@ class _CourierScreenState extends State<CourierScreen> {
 
   Widget _buildConfirmButton() {
     final vehicle = vehicles[selectedVehicleIndex];
-    final feeStr = vehicle['price']!.toString().replaceAll(RegExp(r'[^0-9]'), '');
-    final deliveryFee = int.tryParse(feeStr) ?? 50;
+    final isExpress = vehicle['isExpress']! as bool;
 
     return GestureDetector(
       onTap: () {
+        final fee = _fees[isExpress];
+        if (dropOffAddress == null || dropOffLatitude == null) {
+          showAppToast(
+            'Add a drop-off destination first',
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          return;
+        }
+        if (fee == null) {
+          showAppToast(
+            _quoteLoading
+                ? 'Getting the delivery price…'
+                : 'Could not get the price. Try again.',
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          if (!_quoteLoading) _loadQuote();
+          return;
+        }
         Get.to(
           () => CourierDeliveryDetailsScreen(
-            pickupAddress: 'Marhaba Supermarket, Nouakchott',
-            dropOffAddress:
-                dropOffAddress ?? 'Saimpex Logistics Hub, Wharf Sector',
+            pickupAddress: _pickupAddress,
+            dropOffAddress: dropOffAddress!,
+            pickupLatitude: _pickupLatitude,
+            pickupLongitude: _pickupLongitude,
+            dropOffLatitude: dropOffLatitude!,
+            dropOffLongitude: dropOffLongitude!,
             vehicleLabel: vehicle['label']!.toString(),
-            vehicleTime: vehicle['time']!.toString(),
-            vehiclePrice: vehicle['price']!.toString(),
+            vehicleTime: _timeText,
+            vehiclePrice: _priceText(isExpress),
             vehicleImage: vehicle['image']!.toString(),
-            deliveryFee: deliveryFee,
+            isExpress: isExpress,
+            deliveryFee: fee.round(),
           ),
         );
       },

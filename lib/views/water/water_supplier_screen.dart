@@ -1,9 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../controllers/home_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/water_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../cart_screen.dart';
 import '../chat_screen.dart';
 import 'water_product_subscription_screen.dart';
@@ -24,80 +28,38 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
   bool showCartBar = false;
   Map<String, dynamic>? lastAddedItem;
 
-  final products = [
-    {
-      'title': 'Drinking Water 19L',
-      'image': 'lib/assets/images/19Lbottle.png',
-      'images': [
-        'lib/assets/images/19Lbottle.png',
-        'lib/assets/images/Bottle water.png',
-        'lib/assets/images/set of water.png',
-      ],
-      'size': '19L',
-      'quantity': '1 BOTTLE',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-      'description':
-          'Stay hydrated with our premium 19-liter drinking water bottle, carefully purified and packaged to ensure freshness and quality. Ideal for homes, offices, restaurants, and commercial spaces, this large-capacity bottle provides a convenient and reliable source of clean drinking water for everyday use.',
-    },
-    {
-      'title': 'Drinking Water 10L',
-      'image': 'lib/assets/images/10Lbottle.png',
-      'images': [
-        'lib/assets/images/10Lbottle.png',
-        'lib/assets/images/Bottle water.png',
-        'lib/assets/images/10L water.png',
-      ],
-      'size': '10L',
-      'quantity': '1 BOTTLE',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '45 MRU',
-      'originalPrice': '90 MRU',
-      'discount': '50% OFF',
-      'description':
-          'Stay refreshed with our premium 10-liter drinking water bottle, carefully purified and sealed for daily use. Perfect for smaller households, offices, and personal hydration needs while maintaining the same high quality standards as our larger bottles.',
-    },
-    {
-      'title': 'Drinking Water 19L',
-      'image': 'lib/assets/images/19Lbottle.png',
-      'images': [
-        'lib/assets/images/19Lbottle.png',
-        'lib/assets/images/Bottle water.png',
-        'lib/assets/images/set of water.png',
-      ],
-      'size': '19L',
-      'quantity': '1 BOTTLE',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '50 MRU',
-      'originalPrice': '100 MRU',
-      'discount': '50% OFF',
-      'description':
-          'Stay hydrated with our premium 19-liter drinking water bottle, carefully purified and packaged to ensure freshness and quality. Ideal for homes, offices, restaurants, and commercial spaces, this large-capacity bottle provides a convenient and reliable source of clean drinking water for everyday use.',
-    },
-    {
-      'title': 'Drinking Water 10L',
-      'image': 'lib/assets/images/10Lbottle.png',
-      'images': [
-        'lib/assets/images/10Lbottle.png',
-        'lib/assets/images/Bottle water.png',
-        'lib/assets/images/10L water.png',
-      ],
-      'size': '10L',
-      'quantity': '1 BOTTLE',
-      'rating': '4.6',
-      'reviews': '10k + reviews',
-      'price': '45 MRU',
-      'originalPrice': '90 MRU',
-      'discount': '50% OFF',
-      'description':
-          'Stay refreshed with our premium 10-liter drinking water bottle, carefully purified and sealed for daily use. Perfect for smaller households, offices, and personal hydration needs while maintaining the same high quality standards as our larger bottles.',
-    },
-  ];
+  List<Map<String, dynamic>> products = const [];
+  bool _productsLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  /// Loads this supplier's products from the API (water/categories, then water/items).
+  Future<void> _loadProducts() async {
+    final vendorId = (widget.supplier['vendorId'] as int?) ?? 0;
+    if (vendorId == 0 || !Get.isRegistered<WaterRepository>()) {
+      setState(() => _productsLoading = false);
+      return;
+    }
+    try {
+      final result = await Get.find<WaterRepository>().fetchSupplierProducts(
+        waterVendorId: vendorId,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        products = result;
+        _productsLoading = false;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _productsLoading = false);
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   int parsePrice(String priceStr) {
     final clean = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
@@ -121,10 +83,11 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
     final isNotAccepting = isClosed || isTemporarilyClosed;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     final topInset = MediaQuery.viewPaddingOf(context).top;
-    final headerImage = (widget.supplier['headerImage'] ??
-            widget.supplier['cardImage'] ??
-            'lib/assets/images/19Lbottle.png')
-        .toString();
+    final headerImage =
+        (widget.supplier['headerImage'] ??
+                widget.supplier['cardImage'] ??
+                'lib/assets/images/19Lbottle.png')
+            .toString();
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFEADF),
@@ -145,6 +108,18 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               ),
               Obx(() {
                 final hasItems = controller.cartItemCount.value > 0;
+                if (_productsLoading) {
+                  return const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFFF5E00),
+                        ),
+                      ),
+                    ),
+                  );
+                }
                 return SliverPadding(
                   padding: EdgeInsets.fromLTRB(
                     16,
@@ -153,22 +128,20 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                     hasItems ? bottomInset + 88 : 24,
                   ),
                   sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    mainAxisExtent: 210,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          mainAxisExtent: 210,
+                        ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
                       final product = products[index];
                       return WaterProductCard(
                         product: product,
                         isNotAccepting: isNotAccepting,
-                        onTap: () => showWaterProductDetailsSheet(
-                          context,
-                          product,
-                        ),
+                        onTap: () =>
+                            showWaterProductDetailsSheet(context, product),
                         onSubscribe: () {
                           Get.to(
                             () => WaterProductSubscriptionScreen(
@@ -179,34 +152,64 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                             ),
                           );
                         },
-                        onAdd: () {
+                        onAdd: () async {
+                          if (!Get.isRegistered<WaterRepository>()) return;
+                          if ((int.tryParse('${product['productId']}') ?? 0) ==
+                              0) {
+                            // Sample items on this screen have no server id, so they can't be ordered yet
+                            showAppToast(
+                              'This product is not available to order yet',
+                              backgroundColor: const Color(0xFFEF4444),
+                            );
+                            return;
+                          }
+                          try {
+                            // Save the item on the server first; only then update the cart bar
+                            await Get.find<WaterRepository>().addToCart(
+                              waterVendorId:
+                                  (widget.supplier['vendorId'] as int?) ?? 0,
+                              productId:
+                                  int.tryParse('${product['productId']}') ?? 0,
+                              language: apiLanguageCode(),
+                            );
+                          } on ApiException catch (error) {
+                            if (!mounted) return;
+                            showAppToast(
+                              error.message,
+                              backgroundColor: const Color(0xFFEF4444),
+                            );
+                            return;
+                          }
+                          if (!mounted) return;
                           setState(() {
                             showCartBar = true;
                             lastAddedItem = product;
                           });
                           if (Get.isRegistered<HomeController>()) {
                             Get.find<HomeController>().setCartItem(
-                              storeName: widget.supplier['title']?.toString() ?? 'PureLife Water Co.',
+                              storeName:
+                                  widget.supplier['title']?.toString() ??
+                                  'PureLife Water Co.',
                               itemName: product['title']?.toString(),
                               itemPortion: product['size']?.toString(),
-                              basePrice: parsePrice(product['price']?.toString() ?? '50'),
+                              basePrice: parsePrice(
+                                product['price']?.toString() ?? '50',
+                              ),
                               itemImage: product['image']?.toString(),
                             );
                           }
                         },
                       );
-                    },
-                    childCount: products.length,
+                    }, childCount: products.length),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
             ],
           ),
           Positioned(
             top: topInset + 10,
             left: 16,
-            child: AppBackButton(onTap: () => Navigator.pop(context),),
+            child: AppBackButton(onTap: () => Navigator.pop(context)),
           ),
           Positioned(
             bottom: bottomInset + 16,
@@ -355,10 +358,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0B4F8A),
-            Color(0xFF1BA4B8),
-          ],
+          colors: [Color(0xFF0B4F8A), Color(0xFF1BA4B8)],
         ),
       ),
       child: Stack(
@@ -558,7 +558,8 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                     Get.to(
                       () => ChatScreen(
                         restaurant: {
-                          'title': widget.supplier['title'] ?? 'PureLife Water Co.',
+                          'title':
+                              widget.supplier['title'] ?? 'PureLife Water Co.',
                           'image': headerImageForChat(),
                         },
                       ),
@@ -632,10 +633,11 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
   }
 
   String headerImageForChat() {
-    final image = (widget.supplier['headerImage'] ??
-            widget.supplier['cardImage'] ??
-            widget.supplier['image'])
-        ?.toString();
+    final image =
+        (widget.supplier['headerImage'] ??
+                widget.supplier['cardImage'] ??
+                widget.supplier['image'])
+            ?.toString();
     if (image != null && image.startsWith('http')) return image;
     return 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=150&auto=format&fit=crop';
   }

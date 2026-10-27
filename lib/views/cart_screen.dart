@@ -17,6 +17,7 @@ import '../widgets/app_back_button.dart';
 import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
+import 'pharmacy/widgets/attach_prescription_sheet.dart';
 
 class CartScreen extends StatefulWidget {
   final String? storeName;
@@ -46,10 +47,11 @@ class _CartScreenState extends State<CartScreen> {
   bool isDelivery = true; // default to Delivery as in reference image 2
   int quantity = 0;
   bool usePoints = true;
-  bool _minimumReminderScheduled = false;
   bool _cartLoading = true;
   bool _placingOrder = false;
   bool _cartLoaded = false;
+  // Restaurant carts use their own line totals, not the general checkout summary
+  bool _isCatalogCart = false;
   String _apiVendorName = '';
   List<Map<String, dynamic>> _apiItems = const [];
   int? _vendorId;
@@ -58,6 +60,10 @@ class _CartScreenState extends State<CartScreen> {
   int? _summaryDelivery;
   int? _summaryTax;
   int? _summaryToPay;
+  // From the checkout summary: the cart needs a prescription before it can be paid
+  bool _needsPrescription = false;
+  bool _hasPrescription = false;
+  int? _prescriptionId;
   String _appliedCoupon = '';
   final TextEditingController _couponController = TextEditingController();
   Worker? _cartTabWorker;
@@ -106,7 +112,7 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
     try {
-      final cart = await Get.find<CartRepository>().fetchList(
+      final cart = await Get.find<CartRepository>().fetchListOrEmpty(
         apiLanguageCode(),
       );
       var shown = cart;
@@ -118,6 +124,19 @@ class _CartScreenState extends State<CartScreen> {
       } on ApiException {
         shown = cart;
       }
+      // A restaurant cart comes from the catalog endpoint; other carts return nothing here
+      var catalogCart = false;
+      try {
+        final catalog = await Get.find<CartRepository>().fetchCatalogList(
+          apiLanguageCode(),
+        );
+        if (catalog.items.isNotEmpty) {
+          shown = catalog;
+          catalogCart = true;
+        }
+      } on ApiException {
+        // keep the cart shown above
+      }
       if (!mounted) return;
       final items = _withRememberedCaps(shown.items);
       final count = items.fold<int>(
@@ -126,6 +145,7 @@ class _CartScreenState extends State<CartScreen> {
       );
       setState(() {
         _cartLoaded = true;
+        _isCatalogCart = catalogCart;
         _apiVendorName = shown.vendorName;
         _apiItems = items;
         _vendorId = shown.vendorId ?? cart.vendorId;
@@ -148,6 +168,11 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _loadCheckoutSummary() async {
     if (!Get.isRegistered<OrderRepository>() || !mounted) return;
+    // The general checkout summary has no restaurant cart and answers "cart not found".
+    if (_isCatalogCart) {
+      _applySummary(const {});
+      return;
+    }
     final orders = Get.find<OrderRepository>();
     final location = SelectLocationController.selectedSubtitle.trim().isEmpty
         ? SelectLocationController.deliveryLabel.value
@@ -180,23 +205,137 @@ class _CartScreenState extends State<CartScreen> {
   void _applySummary(Map<String, dynamic> data) {
     int? money(dynamic value) {
       if (value == null) return null;
-      final number = value is num ? value.toDouble() : double.tryParse('$value');
+      final number = value is num
+          ? value.toDouble()
+          : double.tryParse('$value');
       if (number == null) return null;
       return number.round();
     }
 
+    bool flag(dynamic value) => value == true || value == 1 || value == '1';
+
     if (!mounted) return;
     setState(() {
+      if (_isCatalogCart) {
+        _summaryItemTotal = null;
+        _summaryDelivery = null;
+        _summaryTax = null;
+        _summaryToPay = null;
+        _needsPrescription = false;
+        _hasPrescription = false;
+        _prescriptionId = null;
+        return;
+      }
       _summaryItemTotal = money(data['item_total'] ?? data['sub_total']);
       _summaryDelivery = money(data['delivery_fee']);
       _summaryTax = money(data['tax']);
       _summaryToPay = money(data['to_pay'] ?? data['payable']);
+      _needsPrescription = flag(data['needs_prescription']);
+      _hasPrescription = flag(data['has_prescription']);
+      _prescriptionId = _positiveId(data['prescription_id']);
     });
+  }
+
+  Future<void> _attachPrescription() async {
+    final vendorId = _vendorId;
+    if (vendorId == null) {
+      showAppToast(
+        'Pharmacy not found for this cart. Please try again.',
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
+    final attached = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AttachPrescriptionSheet(pharmacyId: vendorId),
+    );
+    if (attached == true && mounted) await _loadCheckoutSummary();
+  }
+
+  Widget _buildPrescriptionSection() {
+    final attached = _hasPrescription;
+    final accent = attached ? const Color(0xFF00A854) : const Color(0xFFFF5E00);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: attached ? const Color(0xFFBFE8CF) : const Color(0xFFEAD8C9),
+          width: 0.8,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              attached
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.description_outlined,
+              color: accent,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  attached ? 'Prescription attached' : 'Prescription required',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  attached
+                      ? (_prescriptionId == null
+                            ? 'A pharmacist will review it before checkout'
+                            : 'Prescription #$_prescriptionId')
+                      : 'Upload a prescription for the medicine in your cart',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFA59A94),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!attached)
+            GestureDetector(
+              onTap: _attachPrescription,
+              child: Text(
+                'Upload',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   Future<void> _checkDelivery() async {
     final vendorId = _vendorId;
-    if (!isDelivery || vendorId == null || !Get.isRegistered<OrderRepository>()) {
+    if (!isDelivery ||
+        vendorId == null ||
+        !Get.isRegistered<OrderRepository>()) {
       return;
     }
     try {
@@ -233,15 +372,34 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _placeOrder(int payable) async {
     if (_placingOrder || !Get.isRegistered<OrderRepository>()) return;
+    if (_needsPrescription && !_hasPrescription) {
+      showAppToast(
+        'Upload your prescription before placing the order',
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
     _placingOrder = true;
     final orders = Get.find<OrderRepository>();
     final location = SelectLocationController.selectedSubtitle.trim().isEmpty
         ? SelectLocationController.deliveryLabel.value
         : SelectLocationController.selectedSubtitle;
     final note = _deliveryNoteController.text.trim();
-    final paymentType =
-        selectedPaymentIndex == 1 || selectedPaymentIndex == 2 ? '2' : '1';
+    // The API takes 2 for online payment only. Cash on Delivery and Pay After
+    // Delivery send 1, so they don't open the payment page.
+    final paymentType = selectedPaymentIndex == 1 ? '2' : '1';
     Future<Map<String, dynamic>> place(bool version2) {
+      if (_isCatalogCart) {
+        return orders.catalogCheckout(
+          selfPickup: !isDelivery,
+          latitude: SelectLocationController.selectedLatitude,
+          longitude: SelectLocationController.selectedLongitude,
+          location: location,
+          paymentType: paymentType,
+          language: apiLanguageCode(),
+          note: note,
+        );
+      }
       return orders.checkout(
         selfPickup: !isDelivery,
         latitude: SelectLocationController.selectedLatitude,
@@ -270,7 +428,10 @@ class _CartScreenState extends State<CartScreen> {
           return;
         } on ApiException catch (fallback) {
           if (!mounted) return;
-          showAppToast(fallback.message, backgroundColor: const Color(0xFFEF4444));
+          showAppToast(
+            fallback.message,
+            backgroundColor: const Color(0xFFEF4444),
+          );
           return;
         }
       }
@@ -296,11 +457,13 @@ class _CartScreenState extends State<CartScreen> {
     }
     if (!mounted) return;
     final orderId = _positiveId(placed['order_id'] ?? placed['id']);
-    final needsOnlinePayment = selectedPaymentIndex == 1 ||
+    final needsOnlinePayment =
+        selectedPaymentIndex == 1 ||
         placed['payment_required'] == true ||
         placed['payment_required'] == 1 ||
         '$checkoutMessage'.toLowerCase().contains('complete online payment');
-    final url = paymentUrl ??
+    final url =
+        paymentUrl ??
         (needsOnlinePayment && orderId != null
             ? _paymentPageUrl(
                 'https://dev.saimpexenterprise.com/pay/masrvi/payment/session?order_id=$orderId',
@@ -310,13 +473,12 @@ class _CartScreenState extends State<CartScreen> {
       Get.closeAllSnackbars();
       await Future<void>.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
-      final paid = await Get.to<bool>(
-        () => PaymentWebViewScreen(url: url),
-      );
+      final paid = await Get.to<bool>(() => PaymentWebViewScreen(url: url));
       if (!mounted || paid != true) return;
     }
     _syncHomeCartBadgeCount(0);
-    Get.to(() => const OrderSuccessScreen());
+    // Replaces this cart screen, so the placed items don't stay visible behind the success screen.
+    Get.off(() => const OrderSuccessScreen());
   }
 
   Future<String?> _startMasrviPayment(
@@ -378,7 +540,8 @@ class _CartScreenState extends State<CartScreen> {
     if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) {
       return null;
     }
-    final wrongHost = uri.host == 'localhost' ||
+    final wrongHost =
+        uri.host == 'localhost' ||
         uri.host == '127.0.0.1' ||
         uri.host == 'api.saimpexenterprise.com';
     if (wrongHost && uri.path.contains('/pay/')) {
@@ -609,8 +772,21 @@ class _CartScreenState extends State<CartScreen> {
     try {
       final repository = Get.find<CartRepository>();
       if (quantity == 0) {
-        await repository.deleteItem(
+        if (_isCatalogCart) {
+          await repository.deleteCatalogItem(
+            cartItemId: cartItemId,
+            language: apiLanguageCode(),
+          );
+        } else {
+          await repository.deleteItem(
+            cartItemId: cartItemId,
+            language: apiLanguageCode(),
+          );
+        }
+      } else if (_isCatalogCart) {
+        await repository.updateCatalogItem(
           cartItemId: cartItemId,
+          quantity: quantity,
           language: apiLanguageCode(),
         );
       } else {
@@ -632,11 +808,20 @@ class _CartScreenState extends State<CartScreen> {
         _setApiLineQuantity(cartItemId, target, allowed);
         if (current > allowed) {
           try {
-            await Get.find<CartRepository>().updateItem(
-              cartItemId: cartItemId,
-              quantity: allowed,
-              language: apiLanguageCode(),
-            );
+            final repo = Get.find<CartRepository>();
+            if (_isCatalogCart) {
+              await repo.updateCatalogItem(
+                cartItemId: cartItemId,
+                quantity: allowed,
+                language: apiLanguageCode(),
+              );
+            } else {
+              await repo.updateItem(
+                cartItemId: cartItemId,
+                quantity: allowed,
+                language: apiLanguageCode(),
+              );
+            }
           } on ApiException catch (retry) {
             if (!mounted) return;
             showAppToast(
@@ -662,7 +847,8 @@ class _CartScreenState extends State<CartScreen> {
           if (cap == null) return item;
           final copy = Map<String, dynamic>.from(item);
           final existing = copy['maxQuantity'];
-          copy['maxQuantity'] = existing is int && existing > 0 && existing < cap
+          copy['maxQuantity'] =
+              existing is int && existing > 0 && existing < cap
               ? existing
               : cap;
           final count = copy['quantity'];
@@ -742,7 +928,9 @@ class _CartScreenState extends State<CartScreen> {
     final count = item['quantity'] is int ? item['quantity'] as int : 0;
     final total = ((item['lineTotal'] as num?) ?? 0).round();
     final image = '${item['image'] ?? ''}';
-    final cartItemId = item['cartItemId'] is int ? item['cartItemId'] as int : 0;
+    final cartItemId = item['cartItemId'] is int
+        ? item['cartItemId'] as int
+        : 0;
     final maxQuantity = item['maxQuantity'] is int
         ? item['maxQuantity'] as int
         : null;
@@ -804,6 +992,17 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ),
                     ],
+                    if ('${item['addOns'] ?? ''}'.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Add-ons: ${item['addOns']}',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFA59A94),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Text(
                       '$total MRU',
@@ -855,7 +1054,8 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: cartItemId < 1 ||
+                      onTap:
+                          cartItemId < 1 ||
                               (maxQuantity != null && count >= maxQuantity)
                           ? null
                           : () => _applyApiQuantity(cartItemId, count + 1),
@@ -962,88 +1162,86 @@ class _CartScreenState extends State<CartScreen> {
         0,
         (sum, item) => sum + (((item['lineTotal'] as num?) ?? 0).round()),
       );
-      final itemTotal = _summaryItemTotal ??
-          (_cartLoaded ? apiTotal : basePrice * quantity);
+      final itemTotal =
+          _summaryItemTotal ?? (_cartLoaded ? apiTotal : basePrice * quantity);
       final pointsOff = (usePoints && quantity > 0) ? pointDiscountValue : 0;
-      final currentDeliveryFee = _summaryDelivery ??
-          ((isDelivery && quantity > 0) ? deliveryFee : 0);
+      final currentDeliveryFee =
+          _summaryDelivery ?? ((isDelivery && quantity > 0) ? deliveryFee : 0);
       final currentTax = _summaryTax ?? (quantity > 0 ? tax : 0);
       final rawPay = itemTotal - pointsOff + currentDeliveryFee + currentTax;
-      final toPay = _summaryToPay ??
-          ((quantity == 0 || rawPay < 0) ? 0 : rawPay);
-
-      if (!_cartLoading && quantity > 0 && itemTotal < 500) {
-        if (!_minimumReminderScheduled) {
-          _minimumReminderScheduled = true;
-          final amount = itemTotal;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            _showMinimumOrderReminder(context, amount);
-          });
-        }
-      } else {
-        _minimumReminderScheduled = false;
-      }
+      final toPay =
+          _summaryToPay ?? ((quantity == 0 || rawPay < 0) ? 0 : rawPay);
 
       final canPop = Navigator.canPop(context);
 
       return HomeBackgroundBlend(
         child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: Container(
-            color: Colors.transparent,
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 8,
-              left: 16,
-              right: 16,
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: (widget.showBottomNav || canPop)
-                      ? AppBackButton(
-                          onTap: () {
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            } else if (Get.isRegistered<HomeController>()) {
-                              Get.find<HomeController>().selectNavigation(0);
-                            }
-                          },
-                        )
-                      : const SizedBox(width: 38),
-                ),
-                Text(
-                  'Cart',
-                  style: AppTextStyles.heading(),
-                ),
-              ],
+          backgroundColor: Colors.transparent,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(60),
+            child: Container(
+              color: Colors.transparent,
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 8,
+                left: 16,
+                right: 16,
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: (widget.showBottomNav || canPop)
+                        ? AppBackButton(
+                            onTap: () {
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              } else if (Get.isRegistered<HomeController>()) {
+                                Get.find<HomeController>().selectNavigation(0);
+                              }
+                            },
+                          )
+                        : const SizedBox(width: 38),
+                  ),
+                  Text('Cart', style: AppTextStyles.heading()),
+                ],
+              ),
             ),
           ),
-        ),
-        body: Stack(
-          children: [
-            Positioned.fill(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_cartLoading) ...[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 28),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_cartLoading) ...[
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 28),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFFFF5E00),
+                            ),
                           ),
                         ),
-                      ),
-                    ] else if (_cartLoaded && _apiItems.isNotEmpty) ...[
-                      if (storeName.isNotEmpty) ...[
+                      ] else if (_cartLoaded && _apiItems.isNotEmpty) ...[
+                        if (storeName.isNotEmpty) ...[
+                          Text(
+                            'From $storeName',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        for (final item in _apiItems) _buildApiCartItem(item),
+                        if (_needsPrescription || _hasPrescription)
+                          _buildPrescriptionSection(),
+                      ] else if (quantity > 0) ...[
                         Text(
                           'From $storeName',
                           style: GoogleFonts.outfit(
@@ -1053,1228 +1251,544 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                      ],
-                      for (final item in _apiItems) _buildApiCartItem(item),
-                    ] else if (quantity > 0) ...[
-                      Text(
-                        'From $storeName',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFA59A94),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // 1. Food Item Card
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xFFEAD8C9),
-                            width: 0.8,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
+                        // 1. Food Item Card
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: const Color(0xFFEAD8C9),
+                              width: 0.8,
                             ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                // Food Image
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: itemImage.startsWith('http')
-                                      ? Image.network(
-                                          itemImage,
-                                          width: 74,
-                                          height: 74,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (
-                                                context,
-                                                error,
-                                                stackTrace,
-                                              ) => Container(
-                                                width: 74,
-                                                height: 74,
-                                                color: const Color(0xFFF3EFEA),
-                                                child: const Icon(
-                                                  Icons.image_not_supported_outlined,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                        )
-                                      : Image.asset(
-                                          itemImage,
-                                          width: 74,
-                                          height: 74,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (
-                                                context,
-                                                error,
-                                                stackTrace,
-                                              ) => Container(
-                                                width: 74,
-                                                height: 74,
-                                                color: const Color(0xFFF3EFEA),
-                                                child: const Icon(
-                                                  Icons.image_not_supported_outlined,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                        ),
-                                ),
-                                const SizedBox(width: 12),
-                                // Text Info
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        itemTitle,
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        itemPortion,
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFFA59A94),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        '${basePrice * quantity} MRU',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFFFF5E00),
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Quantity controls
-                                Container(
-                                  height: 32,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF0EA),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.02),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  // Food Image
+                                  ClipRRect(
                                     borderRadius: BorderRadius.circular(16),
+                                    child: itemImage.startsWith('http')
+                                        ? Image.network(
+                                            itemImage,
+                                            width: 74,
+                                            height: 74,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) => Container(
+                                                  width: 74,
+                                                  height: 74,
+                                                  color: const Color(
+                                                    0xFFF3EFEA,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons
+                                                        .image_not_supported_outlined,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                          )
+                                        : Image.asset(
+                                            itemImage,
+                                            width: 74,
+                                            height: 74,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) => Container(
+                                                  width: 74,
+                                                  height: 74,
+                                                  color: const Color(
+                                                    0xFFF3EFEA,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons
+                                                        .image_not_supported_outlined,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                          ),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          if (quantity > 0) {
-                                            _setQuantity(quantity - 1);
-                                          }
-                                        },
-                                        child: Container(
-                                          width: 22,
-                                          height: 22,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.remove,
-                                            color: Color(0xFFFF5E00),
-                                            size: 13,
+                                  const SizedBox(width: 12),
+                                  // Text Info
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          itemTitle,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        quantity.toString(),
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      GestureDetector(
-                                        onTap: () => _setQuantity(quantity + 1),
-                                        child: Container(
-                                          width: 22,
-                                          height: 22,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFFF5E00),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.add,
-                                            color: Colors.white,
-                                            size: 13,
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          itemPortion,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '${basePrice * quantity} MRU',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFFF5E00),
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Quantity controls
+                                  Container(
+                                    height: 32,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF0EA),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            if (quantity > 0) {
+                                              _setQuantity(quantity - 1);
+                                            }
+                                          },
+                                          child: Container(
+                                            width: 22,
+                                            height: 22,
+                                            decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.remove,
+                                              color: Color(0xFFFF5E00),
+                                              size: 13,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          quantity.toString(),
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        GestureDetector(
+                                          onTap: () =>
+                                              _setQuantity(quantity + 1),
+                                          child: Container(
+                                            width: 22,
+                                            height: 22,
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5E00),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                              size: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Container(
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: const Color(0xFFEAD8C9),
+                                    width: 0.8,
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: const Color(0xFFEAD8C9),
-                                  width: 0.8,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
                                 ),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              alignment: Alignment.centerLeft,
-                              child: TextField(
-                                controller: _customQuantityController,
-                                keyboardType: TextInputType.number,
-                                style: GoogleFonts.outfit(
-                                  fontSize: 11,
-                                  color: const Color(0xFF2C2520),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'Customize your quantity here',
-                                  hintStyle: GoogleFonts.outfit(
-                                    color: const Color(0xFFA59A94),
+                                alignment: Alignment.centerLeft,
+                                child: TextField(
+                                  controller: _customQuantityController,
+                                  keyboardType: TextInputType.number,
+                                  style: GoogleFonts.outfit(
                                     fontSize: 11,
+                                    color: const Color(0xFF2C2520),
                                     fontWeight: FontWeight.w500,
                                   ),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
+                                  decoration: InputDecoration(
+                                    hintText: 'Customize your quantity here',
+                                    hintStyle: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  onChanged: _onCustomQuantityChanged,
+                                  onSubmitted: (_) =>
+                                      FocusScope.of(context).unfocus(),
                                 ),
-                                textInputAction: TextInputAction.done,
-                                onChanged: _onCustomQuantityChanged,
-                                onSubmitted: (_) =>
-                                    FocusScope.of(context).unfocus(),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                    ] else ...[
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xFFEAD8C9),
-                            width: 0.8,
+                            ],
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.shopping_cart_outlined,
-                              color: Color(0xFFA59A94),
-                              size: 24,
+                        const SizedBox(height: 14),
+                      ] else ...[
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: const Color(0xFFEAD8C9),
+                              width: 0.8,
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Your cart is empty',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.shopping_cart_outlined,
+                                color: Color(0xFFA59A94),
+                                size: 24,
                               ),
-                            ),
-                            if (!_cartLoaded)
-                              GestureDetector(
-                                onTap: () => _setQuantity(1),
+                              const SizedBox(width: 12),
+                              Expanded(
                                 child: Text(
-                                  'Add Product',
+                                  'Your cart is empty',
                                   style: GoogleFonts.outfit(
-                                    color: const Color(0xFFFF5E00),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
-                          ],
+                              if (!_cartLoaded)
+                                GestureDetector(
+                                  onTap: () => _setQuantity(1),
+                                  child: Text(
+                                    'Add Product',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFFF5E00),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 14),
-                    ],
+                        const SizedBox(height: 14),
+                      ],
 
-                    if (!_cartLoading && quantity > 0) ...[
-                      if (isDelivery) ...[
-                        // Add Delivery Note — delivery only
-                        if (_deliveryNoteOpen)
-                          CustomPaint(
-                            painter: _DashedRRectPainter(
-                              color: const Color(0xFFCABBAB),
-                              radius: 24,
-                            ),
-                            child: Container(
-                              constraints: const BoxConstraints(minHeight: 88),
-                              alignment: Alignment.topLeft,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF3F0EC),
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              child: TextField(
-                                controller: _deliveryNoteController,
-                                focusNode: _deliveryNoteFocus,
-                                minLines: 2,
-                                maxLines: 4,
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'Add a note for the driver',
-                                  hintStyle: GoogleFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                              ),
-                            ),
-                          )
-                        else
-                          GestureDetector(
-                            onTap: () {
-                              setState(() => _deliveryNoteOpen = true);
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (mounted) _deliveryNoteFocus.requestFocus();
-                              });
-                            },
-                            child: CustomPaint(
+                      if (!_cartLoading && quantity > 0) ...[
+                        if (isDelivery) ...[
+                          // Add Delivery Note — delivery only
+                          if (_deliveryNoteOpen)
+                            CustomPaint(
                               painter: _DashedRRectPainter(
                                 color: const Color(0xFFCABBAB),
                                 radius: 24,
                               ),
                               child: Container(
-                                height: 48,
-                                alignment: Alignment.centerLeft,
+                                constraints: const BoxConstraints(
+                                  minHeight: 88,
+                                ),
+                                alignment: Alignment.topLeft,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 18,
+                                  vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF3F0EC),
                                   borderRadius: BorderRadius.circular(24),
                                 ),
-                                child: Text(
-                                  '+ Add delivery note (Optional)',
+                                child: TextField(
+                                  controller: _deliveryNoteController,
+                                  focusNode: _deliveryNoteFocus,
+                                  minLines: 2,
+                                  maxLines: 4,
                                   style: GoogleFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 12,
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w500,
                                   ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 18),
-                      ],
-
-                      // 3. Delivery Type
-                      Text(
-                        'Delivery type',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          // Delivery Option
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isDelivery = true;
-                                });
-                                _loadCheckoutSummary();
-                                _checkDelivery();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: isDelivery
-                                        ? const Color(0xFFFF5E00)
-                                        : const Color(0xFFEAD8C9),
-                                    width: isDelivery ? 1.5 : 0.8,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 18,
-                                      height: 18,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: isDelivery
-                                              ? const Color(0xFFFF5E00)
-                                              : const Color(0xFFA59A94),
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.all(3),
-                                      child: isDelivery
-                                          ? Container(
-                                              decoration: const BoxDecoration(
-                                                color: Color(0xFFFF5E00),
-                                                shape: BoxShape.circle,
-                                              ),
-                                            )
-                                          : null,
+                                  decoration: InputDecoration(
+                                    hintText: 'Add a note for the driver',
+                                    hintStyle: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Delivery',
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF2C2520),
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          '30-35 min',
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFFA59A94),
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Self Pickup Option
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isDelivery = false;
-                                  if (selectedPaymentIndex == 2 ||
-                                      selectedPaymentIndex == 3) {
-                                    selectedPaymentIndex =
-                                        0; // fallback when COD / Pay After Delivery hidden
-                                  }
-                                });
-                                _loadCheckoutSummary();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: !isDelivery
-                                        ? const Color(0xFFFF5E00)
-                                        : const Color(0xFFEAD8C9),
-                                    width: !isDelivery ? 1.5 : 0.8,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 18,
-                                      height: 18,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: !isDelivery
-                                              ? const Color(0xFFFF5E00)
-                                              : const Color(0xFFA59A94),
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.all(3),
-                                      child: !isDelivery
-                                          ? Container(
-                                              decoration: const BoxDecoration(
-                                                color: Color(0xFFFF5E00),
-                                                shape: BoxShape.circle,
-                                              ),
-                                            )
-                                          : null,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Self Pickup',
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF2C2520),
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          'Ready in 15 min',
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFFA59A94),
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      // 4. Address Details (Shown conditionally based on delivery or pickup selection)
-                      if (isDelivery) ...[
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: const Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 32,
-                                height: 32,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFFFF0EA),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.home_outlined,
-                                  color: Color(0xFFFF5E00),
-                                  size: 16,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Sahara View Home',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Near Marhaba Supermarket, Nouakchott.',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFFA59A94),
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {},
-                                child: Text(
-                                  'Edit',
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFFFF5E00),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                      ] else ...[
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(28),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFFFF0EA),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.location_on_rounded,
-                                  color: Color(0xFFFF5E00),
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Pickup Location',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      '$storeName, Near Nouakchott, Mauritania',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFFA59A94),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w500,
-                                        height: 1.25,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                color: Color(0xFFFF5E00),
-                                size: 22,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-
-                      // 5. Schedule for Later
-                      GestureDetector(
-                        onTap: () => _showScheduleBottomSheet(context),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE8F8EE),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: const Color(0xFFBBEAC5),
-                              width: 0.8,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 32,
-                                height: 32,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFCEF5DA),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.calendar_month_outlined,
-                                  color: Color(0xFF00B25C),
-                                  size: 16,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Schedule for later',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF0E5A2A),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      scheduleText,
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF3BA162),
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                color: Color(0xFF00B25C),
-                                size: 20,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 18),
-
-                      // 6. Save More Header & Coupons list
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Save More',
-                            style: AppTextStyles.title(),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Opening Coupons Screen...',
-                                    style: GoogleFonts.outfit(),
-                                  ),
-                                  backgroundColor: const Color(0xFFFF5E00),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'View Coupons',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      // Coupon input
-                      Container(
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(22),
-                          border: Border.all(
-                            color: const Color(0xFFEAD8C9),
-                            width: 0.8,
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.local_offer_outlined,
-                              color: Color(0xFFFF5E00),
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                controller: _couponController,
-                                style: GoogleFonts.outfit(
-                                  fontSize: 12,
-                                  color: const Color(0xFF2C2520),
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'Enter coupon',
-                                  hintStyle: GoogleFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 12,
-                                  ),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                ),
-                              ),
-                            ),
+                            )
+                          else
                             GestureDetector(
-                              onTap: () => _applyCoupon(itemTotal),
-                              child: Text(
-                                'Apply',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                              onTap: () {
+                                setState(() => _deliveryNoteOpen = true);
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  if (mounted)
+                                    _deliveryNoteFocus.requestFocus();
+                                });
+                              },
+                              child: CustomPaint(
+                                painter: _DashedRRectPainter(
+                                  color: const Color(0xFFCABBAB),
+                                  radius: 24,
+                                ),
+                                child: Container(
+                                  height: 48,
+                                  alignment: Alignment.centerLeft,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF3F0EC),
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  child: Text(
+                                    '+ Add delivery note (Optional)',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 18),
+                        ],
+
+                        // 3. Delivery Type
+                        Text(
+                          'Delivery type',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            // Delivery Option
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isDelivery = true;
+                                  });
+                                  _loadCheckoutSummary();
+                                  _checkDelivery();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: isDelivery
+                                          ? const Color(0xFFFF5E00)
+                                          : const Color(0xFFEAD8C9),
+                                      width: isDelivery ? 1.5 : 0.8,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: isDelivery
+                                                ? const Color(0xFFFF5E00)
+                                                : const Color(0xFFA59A94),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.all(3),
+                                        child: isDelivery
+                                            ? Container(
+                                                decoration: const BoxDecoration(
+                                                  color: Color(0xFFFF5E00),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              )
+                                            : null,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Delivery',
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF2C2520),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '30-35 min',
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFFA59A94),
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // Self Pickup Option
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isDelivery = false;
+                                    if (selectedPaymentIndex == 2 ||
+                                        selectedPaymentIndex == 3) {
+                                      selectedPaymentIndex =
+                                          0; // fallback when COD / Pay After Delivery hidden
+                                    }
+                                  });
+                                  _loadCheckoutSummary();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: !isDelivery
+                                          ? const Color(0xFFFF5E00)
+                                          : const Color(0xFFEAD8C9),
+                                      width: !isDelivery ? 1.5 : 0.8,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: !isDelivery
+                                                ? const Color(0xFFFF5E00)
+                                                : const Color(0xFFA59A94),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.all(3),
+                                        child: !isDelivery
+                                            ? Container(
+                                                decoration: const BoxDecoration(
+                                                  color: Color(0xFFFF5E00),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              )
+                                            : null,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Self Pickup',
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFF2C2520),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Ready in 15 min',
+                                            style: GoogleFonts.outfit(
+                                              color: const Color(0xFFA59A94),
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      // Use 500 points Card
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            usePoints = !usePoints;
-                          });
-                          _loadCheckoutSummary();
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(
-                              color: const Color(0xFFEAD8C9),
-                              width: 0.8,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 26,
-                                height: 26,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFFFF0EA),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.monetization_on_outlined,
-                                  color: Color(0xFFFF5E00),
-                                  size: 15,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Use 500 points',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      '= 50 MRU off',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFFA59A94),
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: 18,
-                                height: 18,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: usePoints
-                                        ? const Color(0xFFFF5E00)
-                                        : const Color(0xFFA59A94),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(3),
-                                child: usePoints
-                                    ? Container(
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFFFF5E00),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
 
-                      const SizedBox(height: 18),
+                        const SizedBox(height: 14),
 
-                      // 7. Payment Header
-                      Text(
-                        'Payment',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Payment Cards list
-                      if (widget.isFoodOrGrocery && isDelivery) ...[
-                        // Card 0: Pay After Delivery (Delivery only — select, no schedule popup)
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedPaymentIndex = 3;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: selectedPaymentIndex == 3
-                                  ? const Color(0xFFFFF0EA)
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: selectedPaymentIndex == 3
-                                    ? const Color(0xFFFF5E00)
-                                    : const Color(0xFFEAD8C9),
-                                width: selectedPaymentIndex == 3 ? 1.5 : 0.8,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(14),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 34,
-                                  height: 34,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFF0EA),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.verified_user_rounded,
-                                      color: Color(0xFFFF5E00),
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Pay After Delivery',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 3),
-                                      Text(
-                                        "Enjoy your order first. Complete your payment whenever it's convenient after delivery.",
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF8C7D73),
-                                          fontSize: 10,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: selectedPaymentIndex == 3
-                                          ? const Color(0xFFFF5E00)
-                                          : const Color(0xFFA59A94),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.all(3),
-                                  child: selectedPaymentIndex == 3
-                                      ? Container(
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFFF5E00),
-                                            shape: BoxShape.circle,
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-
-                      // Card 1: SAIMPEX Wallet
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedPaymentIndex = 0;
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(
-                              color: selectedPaymentIndex == 0
-                                  ? const Color(0xFFFF5E00)
-                                  : const Color(0xFFEAD8C9),
-                              width: selectedPaymentIndex == 0 ? 1.5 : 0.8,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 32,
-                                height: 32,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFFFF0EA),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.account_balance_wallet_outlined,
-                                  color: Color(0xFFFF5E00),
-                                  size: 16,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'SAIMPEX Wallet',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Balance: 2,450 MRU',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFFA59A94),
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: 18,
-                                height: 18,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: selectedPaymentIndex == 0
-                                        ? const Color(0xFFFF5E00)
-                                        : const Color(0xFFA59A94),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(3),
-                                child: selectedPaymentIndex == 0
-                                    ? Container(
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFFFF5E00),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Card 2: Online Payment
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedPaymentIndex = 1;
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(
-                              color: selectedPaymentIndex == 1
-                                  ? const Color(0xFFFF5E00)
-                                  : const Color(0xFFEAD8C9),
-                              width: selectedPaymentIndex == 1 ? 1.5 : 0.8,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 32,
-                                height: 32,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFFFF0EA),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.credit_card_outlined,
-                                  color: Color(0xFFFF5E00),
-                                  size: 16,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Online payment',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Card â€¢ Mobile money',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFFA59A94),
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: 18,
-                                height: 18,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: selectedPaymentIndex == 1
-                                        ? const Color(0xFFFF5E00)
-                                        : const Color(0xFFA59A94),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(3),
-                                child: selectedPaymentIndex == 1
-                                    ? Container(
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFFFF5E00),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Card 3: Cash on Delivery (Shown ONLY if Delivery type is Delivery)
-                      if (isDelivery)
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedPaymentIndex = 2;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
+                        // 4. Address Details (Shown conditionally based on delivery or pickup selection)
+                        if (isDelivery) ...[
+                          Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(100),
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: selectedPaymentIndex == 2
-                                    ? const Color(0xFFFF5E00)
-                                    : const Color(0xFFEAD8C9),
-                                width: selectedPaymentIndex == 2 ? 1.5 : 0.8,
+                                color: const Color(0xFFEAD8C9),
+                                width: 0.8,
                               ),
                             ),
                             padding: const EdgeInsets.symmetric(
@@ -2291,7 +1805,7 @@ class _CartScreenState extends State<CartScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
-                                    Icons.monetization_on_outlined,
+                                    Icons.home_outlined,
                                     color: Color(0xFFFF5E00),
                                     size: 16,
                                   ),
@@ -2303,7 +1817,7 @@ class _CartScreenState extends State<CartScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Cash on Delivery',
+                                        'Sahara View Home',
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF2C2520),
                                           fontSize: 12,
@@ -2312,7 +1826,305 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        'Pay the SAIMPEX driver',
+                                        'Near Marhaba Supermarket, Nouakchott.',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFFA59A94),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: Text(
+                                    'Edit',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFFF5E00),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ] else ...[
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFF0EA),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.location_on_rounded,
+                                    color: Color(0xFFFF5E00),
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Pickup Location',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF2C2520),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '$storeName, Near Nouakchott, Mauritania',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFFA59A94),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1.25,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: Color(0xFFFF5E00),
+                                  size: 22,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+
+                        // 5. Schedule for Later
+                        GestureDetector(
+                          onTap: () => _showScheduleBottomSheet(context),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F8EE),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFFBBEAC5),
+                                width: 0.8,
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFCEF5DA),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.calendar_month_outlined,
+                                    color: Color(0xFF00B25C),
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Schedule for later',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF0E5A2A),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        scheduleText,
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF3BA162),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: Color(0xFF00B25C),
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // 6. Save More Header & Coupons list
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Save More', style: AppTextStyles.title()),
+                            GestureDetector(
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Opening Coupons Screen...',
+                                      style: GoogleFonts.outfit(),
+                                    ),
+                                    backgroundColor: const Color(0xFFFF5E00),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                'View Coupons',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFFF5E00),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        // Coupon input
+                        Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: const Color(0xFFEAD8C9),
+                              width: 0.8,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.local_offer_outlined,
+                                color: Color(0xFFFF5E00),
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: _couponController,
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    color: const Color(0xFF2C2520),
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter coupon',
+                                    hintStyle: GoogleFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 12,
+                                    ),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => _applyCoupon(itemTotal),
+                                child: Text(
+                                  'Apply',
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFFFF5E00),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        // Use 500 points Card
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              usePoints = !usePoints;
+                            });
+                            _loadCheckoutSummary();
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(
+                                color: const Color(0xFFEAD8C9),
+                                width: 0.8,
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 26,
+                                  height: 26,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFF0EA),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.monetization_on_outlined,
+                                    color: Color(0xFFFF5E00),
+                                    size: 15,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Use 500 points',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF2C2520),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '= 50 MRU off',
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 10,
@@ -2328,14 +2140,14 @@ class _CartScreenState extends State<CartScreen> {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: selectedPaymentIndex == 2
+                                      color: usePoints
                                           ? const Color(0xFFFF5E00)
                                           : const Color(0xFFA59A94),
                                       width: 1.5,
                                     ),
                                   ),
                                   padding: const EdgeInsets.all(3),
-                                  child: selectedPaymentIndex == 2
+                                  child: usePoints
                                       ? Container(
                                           decoration: const BoxDecoration(
                                             color: Color(0xFFFF5E00),
@@ -2349,208 +2161,605 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ),
 
-                      const SizedBox(height: 14),
+                        const SizedBox(height: 18),
 
-                      // 8. Payment Details Box
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2C2520),
-                          borderRadius: BorderRadius.circular(24),
+                        // 7. Payment Header
+                        Text(
+                          'Payment',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'PAYMENT DETAILS',
+                        const SizedBox(height: 10),
+
+                        // Payment Cards list
+                        if (widget.isFoodOrGrocery && isDelivery) ...[
+                          // Card 0: Pay After Delivery (Delivery only — select, no schedule popup)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPaymentIndex = 3;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: selectedPaymentIndex == 3
+                                    ? const Color(0xFFFFF0EA)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: selectedPaymentIndex == 3
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFEAD8C9),
+                                  width: selectedPaymentIndex == 3 ? 1.5 : 0.8,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              padding: const EdgeInsets.all(14),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 34,
+                                    height: 34,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFF0EA),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.verified_user_rounded,
+                                        color: Color(0xFFFF5E00),
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Pay After Delivery',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          "Enjoy your order first. Complete your payment whenever it's convenient after delivery.",
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF8C7D73),
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: selectedPaymentIndex == 3
+                                            ? const Color(0xFFFF5E00)
+                                            : const Color(0xFFA59A94),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(3),
+                                    child: selectedPaymentIndex == 3
+                                        ? Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5E00),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        // Card 1: SAIMPEX Wallet
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedPaymentIndex = 0;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(
+                                color: selectedPaymentIndex == 0
+                                    ? const Color(0xFFFF5E00)
+                                    : const Color(0xFFEAD8C9),
+                                width: selectedPaymentIndex == 0 ? 1.5 : 0.8,
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFF0EA),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.account_balance_wallet_outlined,
+                                    color: Color(0xFFFF5E00),
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'SAIMPEX Wallet',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF2C2520),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Balance: 2,450 MRU',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFFA59A94),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  width: 18,
+                                  height: 18,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: selectedPaymentIndex == 0
+                                          ? const Color(0xFFFF5E00)
+                                          : const Color(0xFFA59A94),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(3),
+                                  child: selectedPaymentIndex == 0
+                                      ? Container(
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFFFF5E00),
+                                            shape: BoxShape.circle,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Card 2: Online Payment
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedPaymentIndex = 1;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(
+                                color: selectedPaymentIndex == 1
+                                    ? const Color(0xFFFF5E00)
+                                    : const Color(0xFFEAD8C9),
+                                width: selectedPaymentIndex == 1 ? 1.5 : 0.8,
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFF0EA),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.credit_card_outlined,
+                                    color: Color(0xFFFF5E00),
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Online payment',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF2C2520),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Card • Mobile money',
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFFA59A94),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  width: 18,
+                                  height: 18,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: selectedPaymentIndex == 1
+                                          ? const Color(0xFFFF5E00)
+                                          : const Color(0xFFA59A94),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(3),
+                                  child: selectedPaymentIndex == 1
+                                      ? Container(
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFFFF5E00),
+                                            shape: BoxShape.circle,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Card 3: Cash on Delivery (Shown ONLY if Delivery type is Delivery)
+                        if (isDelivery)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPaymentIndex = 2;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: selectedPaymentIndex == 2
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFEAD8C9),
+                                  width: selectedPaymentIndex == 2 ? 1.5 : 0.8,
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFF0EA),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.monetization_on_outlined,
+                                      color: Color(0xFFFF5E00),
+                                      size: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Cash on Delivery',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Pay the SAIMPEX driver',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: selectedPaymentIndex == 2
+                                            ? const Color(0xFFFF5E00)
+                                            : const Color(0xFFA59A94),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(3),
+                                    child: selectedPaymentIndex == 2
+                                        ? Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5E00),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                        const SizedBox(height: 14),
+
+                        // 8. Payment Details Box
+                        Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2C2520),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'PAYMENT DETAILS',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFFF5E00),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Item total',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$itemTotal MRU',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (usePoints) ...[
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Redeemed points',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      '-$pointDiscountValue MRU',
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFFFF5E00),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                              if (isDelivery) ...[
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Delivery fee',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      '$deliveryFee MRU',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Tax',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$tax MRU',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              const Divider(
+                                color: Color(0xFF423B36),
+                                height: 1,
+                              ),
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'To pay',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$toPay MRU',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // 9. Gradient Pay Button
+                        GestureDetector(
+                          onTap: () {
+                            if (itemTotal < 500) {
+                              _showMinimumOrderReminder(context, itemTotal);
+                              return;
+                            }
+                            _placeOrder(toPay);
+                          },
+                          child: Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFFFF5E00,
+                                  ).withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              selectedPaymentIndex == 3
+                                  ? 'Order Now'
+                                  : 'Pay $toPay MRU',
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
-                                fontSize: 11,
+                                color: Colors.white,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 14),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Item total',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  '$itemTotal MRU',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (usePoints) ...[
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Redeemed points',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    '-$pointDiscountValue MRU',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFFFF5E00),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                            if (isDelivery) ...[
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Delivery fee',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    '$deliveryFee MRU',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Tax',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  '$tax MRU',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 14),
-                            const Divider(color: Color(0xFF423B36), height: 1),
-                            const SizedBox(height: 14),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'To pay',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  '$toPay MRU',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // 9. Gradient Pay Button
-                      GestureDetector(
-                        onTap: () {
-                          if (itemTotal < 500) {
-                            _showMinimumOrderReminder(context, itemTotal);
-                            return;
-                          }
-                          _placeOrder(toPay);
-                        },
-                        child: Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFFF5E00).withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            selectedPaymentIndex == 3
-                                ? 'Order Now'
-                                : 'Pay $toPay MRU',
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 20),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: widget.showBottomNav
-                  ? AppBottomNavBar(
-                      selectedIndex: HomeController.navCart,
-                      onTap: BottomNavRouter.go,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          ],
-        ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: widget.showBottomNav
+                    ? AppBottomNavBar(
+                        selectedIndex: HomeController.navCart,
+                        onTap: BottomNavRouter.go,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
         ),
       );
     });
@@ -2667,9 +2876,7 @@ class _CartScreenState extends State<CartScreen> {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const TextSpan(
-                            text: ' more to place your order',
-                          ),
+                          const TextSpan(text: ' more to place your order'),
                         ],
                       ),
                     ),
@@ -2687,10 +2894,7 @@ class _CartScreenState extends State<CartScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFFFF5E00),
-                                Color(0xFFFFC14D),
-                              ],
+                              colors: [Color(0xFFFF5E00), Color(0xFFFFC14D)],
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),

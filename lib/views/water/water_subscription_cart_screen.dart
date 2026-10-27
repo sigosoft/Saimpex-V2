@@ -232,7 +232,7 @@ class _WaterSubscriptionCartScreenState
       ),
       child: Row(
         children: [
-          AppBackButton(onTap: () => Get.back(),),
+          AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
               'Cart',
@@ -438,10 +438,7 @@ class _WaterSubscriptionCartScreenState
 
   Widget _buildDeliveryNote() {
     return CustomPaint(
-      painter: _DashedRRectPainter(
-        color: const Color(0xFFCABBAB),
-        radius: 24,
-      ),
+      painter: _DashedRRectPainter(color: const Color(0xFFCABBAB), radius: 24),
       child: Container(
         height: 48,
         alignment: Alignment.centerLeft,
@@ -516,10 +513,7 @@ class _WaterSubscriptionCartScreenState
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: _detailBox(
-                      label: 'End Date',
-                      value: widget.endDate,
-                    ),
+                    child: _detailBox(label: 'End Date', value: widget.endDate),
                   ),
                 ],
               ),
@@ -786,9 +780,7 @@ class _WaterSubscriptionCartScreenState
             ),
           ],
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : Colors.transparent,
+            color: selected ? const Color(0xFFFF5E00) : Colors.transparent,
             width: selected ? 1.4 : 0,
           ),
         ),

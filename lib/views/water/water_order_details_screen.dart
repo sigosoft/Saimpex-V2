@@ -85,7 +85,7 @@ class WaterOrderDetailsScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          AppBackButton(onTap: () => Get.back(),),
+          AppBackButton(onTap: () => Get.back()),
           Text(
             'Order $orderId',
             style: GoogleFonts.outfit(
@@ -103,10 +103,7 @@ class WaterOrderDetailsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFFEAD8C9),
-                  width: 1.0,
-                ),
+                border: Border.all(color: const Color(0xFFEAD8C9), width: 1.0),
               ),
               child: Text(
                 'Help',
@@ -213,8 +210,8 @@ class WaterOrderDetailsScreen extends StatelessWidget {
                           top: (circle - 3) / 2,
                           child: Row(
                             children: List.generate(steps.length - 1, (i) {
-                              final segmentActive = steps[i].isActive &&
-                                  steps[i + 1].isActive;
+                              final segmentActive =
+                                  steps[i].isActive && steps[i + 1].isActive;
                               return Container(
                                 width: segment,
                                 height: 3,
@@ -240,8 +237,9 @@ class WaterOrderDetailsScreen extends StatelessWidget {
                                   boxShadow: step.isActive
                                       ? [
                                           BoxShadow(
-                                            color: const Color(0xFFFF5E00)
-                                                .withValues(alpha: 0.40),
+                                            color: const Color(
+                                              0xFFFF5E00,
+                                            ).withValues(alpha: 0.40),
                                             blurRadius: 12,
                                             spreadRadius: 1,
                                           ),
@@ -718,11 +716,7 @@ class WaterOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReceiptRow(
-    String label,
-    String value, {
-    bool isOrange = false,
-  }) {
+  Widget _buildReceiptRow(String label, String value, {bool isOrange = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -841,9 +835,6 @@ class WaterOrderDetailsScreen extends StatelessWidget {
   }
 
   void _showCancelDialog(BuildContext context) {
-    showCancelOrderBottomSheet(
-      context,
-      orderId: orderId,
-    );
+    showCancelOrderBottomSheet(context, orderId: orderId);
   }
 }

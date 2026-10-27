@@ -26,6 +26,29 @@ class CartRepository {
     return _cartPayload(envelope.data, language);
   }
 
+  /// Like [fetchList], but "cart not found" means an empty general cart.
+  /// Restaurant-only carts have none, and that must not hide the restaurant cart.
+  Future<
+    ({
+      String vendorName,
+      List<Map<String, dynamic>> items,
+      int? vendorId,
+      int? cartId,
+    })
+  >
+  fetchListOrEmpty(String language) async {
+    try {
+      return await fetchList(language);
+    } on ApiException {
+      return (
+        vendorName: '',
+        items: const <Map<String, dynamic>>[],
+        vendorId: null,
+        cartId: null,
+      );
+    }
+  }
+
   Future<
     ({
       String vendorName,
@@ -79,8 +102,8 @@ class CartRepository {
   _cartPayload(dynamic raw, String language) {
     final data = asJsonMap(raw) ?? <String, dynamic>{};
     final items = [
-      ..._lines(data['items']),
-      ..._lines(data['basket_items']),
+      ..._lines(data['items'], language),
+      ..._lines(data['basket_items'], language),
     ];
     return (
       vendorName: _vendorName(data, language),
@@ -88,6 +111,141 @@ class CartRepository {
       vendorId: _positiveInt(data['vendor_id']),
       cartId: _positiveInt(data['cart_id']),
     );
+  }
+
+  /// Restaurant add: variant_id plus optional option_ids[] and extra_ids[] (add-ons).
+  Future<String> addCatalogItem({
+    required int restaurantId,
+    required int variantId,
+    required String language,
+    int quantity = 1,
+    List<int> optionIds = const [],
+    List<int> extraIds = const [],
+  }) async {
+    final count = quantity < 1 ? 1 : quantity;
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.catalogCartAdd,
+        data: FormData.fromMap({
+          'restaurant_id': '$restaurantId',
+          'variant_id': '$variantId',
+          'quantity': '$count',
+          if (optionIds.isNotEmpty)
+            'option_ids[]': optionIds.map((id) => '$id').toList(),
+          if (extraIds.isNotEmpty)
+            'extra_ids[]': extraIds.map((id) => '$id').toList(),
+        }),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Restaurant cart (vendor, cart id and lines in the catalog shape).
+  Future<
+    ({
+      String vendorName,
+      List<Map<String, dynamic>> items,
+      int? vendorId,
+      int? cartId,
+    })
+  >
+  fetchCatalogList(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.catalogCartList),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final vendor = asJsonMap(data['vendor']) ?? <String, dynamic>{};
+    return (
+      vendorName: _catalogVendorName(vendor, language),
+      items: _catalogLines(data['items'], language),
+      vendorId: _positiveInt(vendor['id']),
+      cartId: _positiveInt(data['cart_id']),
+    );
+  }
+
+  /// Totals across the general cart (grocery, pharmacy) and the restaurant cart.
+  /// [cartName] is the store holding the items (restaurant or grocery), or empty.
+  Future<({int count, double amount, String cartName})> fetchCartTotals(
+    String language,
+  ) async {
+    var count = 0;
+    var amount = 0.0;
+    var cartName = '';
+    var loaded = 0;
+    Object? lastError;
+
+    try {
+      final general = await fetchList(language);
+      loaded++;
+      for (final line in general.items) {
+        count += (line['quantity'] as num?)?.toInt() ?? 1;
+        amount += (line['lineTotal'] as num?)?.toDouble() ?? 0;
+      }
+      if (general.items.isNotEmpty) cartName = general.vendorName;
+    } catch (error) {
+      lastError = error;
+    }
+
+    try {
+      final catalog = await fetchCatalogList(language);
+      loaded++;
+      for (final line in catalog.items) {
+        count += (line['quantity'] as num?)?.toInt() ?? 1;
+        amount += (line['lineTotal'] as num?)?.toDouble() ?? 0;
+      }
+      if (catalog.items.isNotEmpty) cartName = catalog.vendorName;
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (loaded == 0 && lastError != null) throw lastError;
+    return (count: count, amount: amount, cartName: cartName);
+  }
+
+  /// Add-on names for a restaurant line, e.g. "Chilli, Rice".
+  String _catalogAddOnNames(dynamic raw) {
+    if (raw is! List) return '';
+    return raw
+        .map((option) => asJsonMap(option)?['option_name']?.toString().trim())
+        .where((name) => name != null && name.isNotEmpty && name != 'null')
+        .join(', ');
+  }
+
+  String _catalogVendorName(Map<String, dynamic> vendor, String language) {
+    final localized = _localizedField(vendor, 'name', language);
+    if (localized.isNotEmpty) return localized;
+    final name = vendor['name']?.toString().trim() ?? '';
+    return name == 'null' ? '' : name;
+  }
+
+  List<Map<String, dynamic>> _catalogLines(dynamic raw, String language) {
+    if (raw is! List) return const [];
+    final lines = <Map<String, dynamic>>[];
+    for (final item in raw) {
+      final map = asJsonMap(item);
+      if (map == null) continue;
+      final quantity = _asInt(map['quantity'], fallback: 1);
+      final unit = _asDouble(map['unit_price'] ?? map['base_price']);
+      final total = map['total_price'] == null
+          ? unit * quantity
+          : _asDouble(map['total_price']);
+      final name = _localizedField(map, 'name', language);
+      final variant = map['variant_name']?.toString().trim() ?? '';
+      lines.add({
+        'cartItemId': _asInt(map['cart_item_id']),
+        'name': name.isEmpty ? 'Item' : name,
+        'portion': variant == 'null' ? '' : variant,
+        'addOns': _catalogAddOnNames(map['options']),
+        'quantity': quantity < 1 ? 1 : quantity,
+        'unitPrice': unit,
+        'lineTotal': total,
+        'maxQuantity': _positiveInt(map['quantity_allowed']),
+        'image': ApiConstants.mediaUrl(map['image']?.toString()) ?? '',
+      });
+    }
+    return lines;
   }
 
   Future<({String message, String? action, bool needsPrescription})>
@@ -118,8 +276,7 @@ class CartRepository {
           ? null
           : action,
       needsPrescription:
-          data['needs_prescription'] == true ||
-          data['needs_prescription'] == 1,
+          data['needs_prescription'] == true || data['needs_prescription'] == 1,
     );
   }
 
@@ -165,31 +322,53 @@ class CartRepository {
     return name == 'null' ? '' : name;
   }
 
-  List<Map<String, dynamic>> _lines(dynamic raw) {
+  List<Map<String, dynamic>> _lines(dynamic raw, String language) {
     if (raw is! List) return const [];
     final lines = <Map<String, dynamic>>[];
     for (final item in raw) {
       final map = asJsonMap(item);
       if (map == null) continue;
-      final name = _itemName(map);
+      final name = _itemName(map, language);
       final quantity = _asInt(map['quantity'], fallback: 1);
-      final unit = _asDouble(map['unit_price'] ?? map['price'] ?? map['selling_price']);
-      final total = map['total_price'] == null
-          ? unit * quantity
-          : _asDouble(map['total_price']);
+      final unit = _asDouble(
+        map['unit_price'] ?? map['price'] ?? map['selling_price'],
+      );
+      // A zero total with a real unit price is missing data, so compute it.
+      final serverTotal = _asDouble(map['total_price']);
+      final total = serverTotal > 0 ? serverTotal : unit * quantity;
       lines.add({
         'cartItemId': _asInt(map['cart_item_id']),
         'name': name.isEmpty ? 'Item' : name,
-        'portion': _itemPortion(map),
+        'portion': _itemPortion(map, language),
         'quantity': quantity < 1 ? 1 : quantity,
         'unitPrice': unit,
         'lineTotal': total,
         'maxQuantity':
             _positiveInt(map['quantity_allowed']) ?? _positiveInt(map['stock']),
-        'image': ApiConstants.mediaUrl(map['image']?.toString()) ?? '',
+        'image':
+            ApiConstants.mediaUrl(
+              map['image']?.toString() ?? map['item_image']?.toString(),
+            ) ??
+            '',
       });
     }
     return lines;
+  }
+
+  /// Changes a restaurant (catalog) cart line's quantity; the screen reloads the cart after.
+  Future<void> updateCatalogItem({
+    required int cartItemId,
+    required int quantity,
+    required String language,
+  }) async {
+    await _send(
+      () => _client.dio.post(
+        ApiConstants.catalogCartUpdate,
+        data: {'cart_item_id': '$cartItemId', 'quantity': '$quantity'},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
   }
 
   Future<void> updateItem({
@@ -211,6 +390,55 @@ class CartRepository {
     );
   }
 
+  /// Removes every restaurant (catalog) line. The general replace call doesn't touch these,
+  /// so a store switch to grocery deletes them one by one.
+  Future<void> clearCatalogCart({required String language}) async {
+    final catalog = await fetchCatalogListOrEmpty(language);
+    for (final line in catalog.items) {
+      final cartItemId = line['cartItemId'] as int;
+      if (cartItemId < 1) continue;
+      await deleteCatalogItem(cartItemId: cartItemId, language: language);
+    }
+  }
+
+  /// Like [fetchCatalogList], but "cart not found" means no restaurant cart.
+  Future<
+    ({
+      String vendorName,
+      List<Map<String, dynamic>> items,
+      int? vendorId,
+      int? cartId,
+    })
+  >
+  fetchCatalogListOrEmpty(String language) async {
+    try {
+      return await fetchCatalogList(language);
+    } on ApiException {
+      return (
+        vendorName: '',
+        items: const <Map<String, dynamic>>[],
+        vendorId: null,
+        cartId: null,
+      );
+    }
+  }
+
+  /// Removes a restaurant (catalog) cart line; the response is the cart after removal.
+  Future<String> deleteCatalogItem({
+    required int cartItemId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.catalogCartItemDelete,
+        data: {'cart_item_id': '$cartItemId'},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
   Future<void> deleteItem({
     required int cartItemId,
     required String language,
@@ -225,9 +453,11 @@ class CartRepository {
     );
   }
 
-  String _itemPortion(Map<String, dynamic> item) {
+  String _itemPortion(Map<String, dynamic> item, String language) {
     final direct = item['portion']?.toString().trim() ?? '';
     if (direct.isNotEmpty && direct != 'null') return direct;
+    final variant = _localizedField(item, 'variant_name', language);
+    if (variant.isNotEmpty) return variant;
     final parts = [item['form'], item['dosage'], item['stock_unit']]
         .map((part) => part?.toString().trim() ?? '')
         .where((part) => part.isNotEmpty && part != 'null')
@@ -235,7 +465,22 @@ class CartRepository {
     return parts.join(' ');
   }
 
-  String _itemName(Map<String, dynamic> item) {
+  /// Restaurant lines carry `<key>_<lang>` fields; try the app language first.
+  String _localizedField(
+    Map<String, dynamic> item,
+    String key,
+    String language,
+  ) {
+    for (final code in [language, 'en', 'fr', 'ar']) {
+      final value = item['${key}_$code']?.toString().trim() ?? '';
+      if (value.isNotEmpty && value != 'null') return value;
+    }
+    return '';
+  }
+
+  String _itemName(Map<String, dynamic> item, String language) {
+    final localized = _localizedField(item, 'item_name', language);
+    if (localized.isNotEmpty) return localized;
     for (final key in ['menu_name', 'name', 'product_name', 'title']) {
       final value = item[key]?.toString().trim() ?? '';
       if (value.isNotEmpty && value != 'null') return value;

@@ -10,7 +10,9 @@ import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
+import 'widgets/pharmacy_order_detail_loader.dart';
 
+/// Loads the order from the API, then shows it.
 class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   final String orderId;
   final int? apiOrderId;
@@ -26,6 +28,43 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
     this.pharmacyName = 'Pharmacy Nasr',
     this.prescriptionImageUrl,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return PharmacyOrderDetailLoader(
+      apiOrderId: apiOrderId,
+      builder: (context, detail) => _PharmacyPaidOrderDetailBody(
+        orderId: orderId,
+        apiOrderId: apiOrderId,
+        isDelivery: isDelivery,
+        pharmacyName: pharmacyName,
+        prescriptionImageUrl: prescriptionImageUrl,
+        detail: detail,
+      ),
+    );
+  }
+}
+
+class _PharmacyPaidOrderDetailBody extends StatelessWidget {
+  final String orderId;
+  final int? apiOrderId;
+  final bool isDelivery;
+  final String pharmacyName;
+  final String? prescriptionImageUrl;
+  final Map<String, dynamic>? detail;
+
+  const _PharmacyPaidOrderDetailBody({
+    required this.orderId,
+    this.apiOrderId,
+    this.isDelivery = true,
+    this.pharmacyName = 'Pharmacy Nasr',
+    this.prescriptionImageUrl,
+    this.detail,
+  });
+
+  Map<String, dynamic> get _payment => detail?['payment'] is Map
+      ? Map<String, dynamic>.from(detail!['payment'] as Map)
+      : <String, dynamic>{};
 
   Widget _prescriptionFallback() {
     return Container(
@@ -60,112 +99,112 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
 
     return PharmacyBackground(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: AppBackButton(onTap: () => Navigator.pop(context),),
-                  ),
-                  Text(
-                    'Order $displayId',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: AppBackButton(onTap: () => Navigator.pop(context)),
                     ),
-                  ),
-                ],
+                    Text(
+                      'Order $displayId',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPrescriptionCard(imageUrl),
-                  const SizedBox(height: 14),
-                  _buildOrderStatusCard(),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Medicines In Your Quotation',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildPrescriptionCard(imageUrl),
+                    const SizedBox(height: 14),
+                    _buildOrderStatusCard(),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Medicines In Your Quotation',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMedicineCard(
-                    title: '1. Paracetamol 500 mg',
-                    unit: 'Unit: 10 tablets x 50 MRU',
-                    totalAmount: '500',
-                  ),
-                  const SizedBox(height: 10),
-                  _buildMedicineCard(
-                    title: '1. Paracetamol 650 mg',
-                    unit: 'Unit: 10 tablets x 50 MRU',
-                    totalAmount: '500',
-                    availabilityBadge: '6 of 10 available',
-                  ),
-                  const SizedBox(height: 10),
-                  _buildMedicineCard(
-                    title: '1. Paracetamol 500 mg',
-                    unit: '10 tablets × 50 MRU',
-                    totalAmount: '500',
-                    showSuggestedAlternative: true,
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    isDelivery ? 'Delivery Details' : 'Pickup Location',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+                    const SizedBox(height: 12),
+                    _buildMedicineCard(
+                      title: '1. Paracetamol 500 mg',
+                      unit: 'Unit: 10 tablets x 50 MRU',
+                      totalAmount: '500',
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (isDelivery) ...[
-                    _buildAddressCard(),
                     const SizedBox(height: 10),
-                    _buildCourierCard(),
-                  ] else
-                    _buildPickupLocationCard(),
-                  const SizedBox(height: 16),
-                  _buildQuotationSummaryCard(),
-                ],
+                    _buildMedicineCard(
+                      title: '1. Paracetamol 650 mg',
+                      unit: 'Unit: 10 tablets x 50 MRU',
+                      totalAmount: '500',
+                      availabilityBadge: '6 of 10 available',
+                    ),
+                    const SizedBox(height: 10),
+                    _buildMedicineCard(
+                      title: '1. Paracetamol 500 mg',
+                      unit: '10 tablets × 50 MRU',
+                      totalAmount: '500',
+                      showSuggestedAlternative: true,
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      isDelivery ? 'Delivery Details' : 'Pickup Location',
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (isDelivery) ...[
+                      _buildAddressCard(),
+                      const SizedBox(height: 10),
+                      _buildCourierCard(),
+                    ] else
+                      _buildPickupLocationCard(),
+                    const SizedBox(height: 16),
+                    _buildQuotationSummaryCard(),
+                  ],
+                ),
               ),
             ),
-          ),
-          SafeArea(
-            top: false,
-            child: Container(
-              width: double.infinity,
-              color: PharmacyBackground.bottom,
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-              child: isDelivery
-                  ? Row(
-                      children: [
-                        Expanded(child: _buildCancelButton(context)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildTrackButton()),
-                      ],
-                    )
-                  : _buildCancelButton(context),
+            SafeArea(
+              top: false,
+              child: Container(
+                width: double.infinity,
+                color: PharmacyBackground.bottom,
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                child: isDelivery
+                    ? Row(
+                        children: [
+                          Expanded(child: _buildCancelButton(context)),
+                          const SizedBox(width: 12),
+                          Expanded(child: _buildTrackButton()),
+                        ],
+                      )
+                    : _buildCancelButton(context),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -422,8 +461,9 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
                                   boxShadow: steps[i].highlight
                                       ? [
                                           BoxShadow(
-                                            color: const Color(0xFFFF5E00)
-                                                .withValues(alpha: 0.35),
+                                            color: const Color(
+                                              0xFFFF5E00,
+                                            ).withValues(alpha: 0.35),
                                             blurRadius: 10,
                                             spreadRadius: 1,
                                           ),
@@ -540,8 +580,10 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
               ),
               if (availabilityBadge != null)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF4D6),
                     borderRadius: BorderRadius.circular(20),
@@ -561,10 +603,7 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _buildSuggestedAlternativeBox(),
             const SizedBox(height: 14),
-            _buildUnitTotalFooter(
-              unitValue: unit,
-              totalAmount: totalAmount,
-            ),
+            _buildUnitTotalFooter(unitValue: unit, totalAmount: totalAmount),
           ] else ...[
             const SizedBox(height: 12),
             Row(
@@ -1019,15 +1058,15 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Item total', '1450 MRU'),
+          _payRow('Item total', orderMoneyText(_payment['item_total'])),
           const SizedBox(height: 10),
-          _payRow('Delivery fee', '50 MRU'),
+          _payRow('Delivery fee', orderMoneyText(_payment['delivery_fee'])),
           const SizedBox(height: 10),
-          _payRow('Tax', '20 MRU'),
+          _payRow('Tax', orderMoneyText(_payment['tax'])),
           const SizedBox(height: 10),
           _payRow(
             'Redeemed points',
-            '-50 MRU',
+            orderMoneyText(_payment['redeemed_points'], negative: true),
             valueColor: const Color(0xFFFF5E00),
             labelColor: const Color(0xFFFF5E00),
           ),
@@ -1047,7 +1086,7 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '1470 MRU',
+                orderMoneyText(_payment['total_bill']),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,

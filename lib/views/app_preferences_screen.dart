@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/network/api_exception.dart';
+import '../models/profile_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import 'widgets/language_selector.dart';
 
@@ -16,6 +20,40 @@ class AppPreferencesScreen extends StatefulWidget {
 class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
   bool _pushNotifications = true;
   bool _whatsappNotifications = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPushPreference();
+  }
+
+  /// Reads the saved push setting from the server.
+  Future<void> _loadPushPreference() async {
+    if (!Get.isRegistered<ProfileRepository>()) return;
+    try {
+      final enabled = await Get.find<ProfileRepository>()
+          .fetchNotificationPreference(apiLanguageCode());
+      if (mounted) setState(() => _pushNotifications = enabled);
+    } on ApiException {
+      // Keep the default; the switch still works.
+    }
+  }
+
+  /// Saves a push change; the switch goes back if the server rejects it.
+  Future<void> _setPushNotifications(bool enabled) async {
+    final previous = _pushNotifications;
+    setState(() => _pushNotifications = enabled);
+    try {
+      await Get.find<ProfileRepository>().updateNotificationPreference(
+        enabled: enabled,
+        language: apiLanguageCode(),
+      );
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _pushNotifications = previous);
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +96,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                           title: 'Push Notifications',
                           subtitle: 'Order updates and offers',
                           value: _pushNotifications,
-                          onChanged: (v) =>
-                              setState(() => _pushNotifications = v),
+                          onChanged: (v) => _setPushNotifications(v),
                         ),
                         const SizedBox(height: 18),
                         _buildToggleRow(
@@ -176,18 +213,10 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
         Container(
           width: 42,
           height: 42,
-          decoration: BoxDecoration(
-            color: iconBg,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
           alignment: Alignment.center,
           child: asset != null
-              ? Image.asset(
-                  asset,
-                  width: 22,
-                  height: 22,
-                  fit: BoxFit.contain,
-                )
+              ? Image.asset(asset, width: 22, height: 22, fit: BoxFit.contain)
               : Icon(icon, color: iconColor, size: 22),
         ),
         const SizedBox(width: 12),

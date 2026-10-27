@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
-import 'pharmacy_paid_order_detail_screen.dart';
+import '../../controllers/select_location_controller.dart';
 import 'widgets/pharmacy_background.dart';
 
+/// Last step before paying a quotation. Pops with true for delivery, false for pickup.
 class PrescriptionCheckoutScreen extends StatefulWidget {
   final String pharmacyName;
-  final int itemTotal;
+  final num quoteAmount;
 
   const PrescriptionCheckoutScreen({
     super.key,
-    this.pharmacyName = 'Pharmacy Nasr',
-    this.itemTotal = 150,
+    required this.pharmacyName,
+    required this.quoteAmount,
   });
 
   @override
@@ -41,10 +41,16 @@ class _PrescriptionCheckoutScreenState
     super.dispose();
   }
 
-  int get _toPay {
-    final delivery = isDelivery ? _deliveryFee : 0;
-    final points = usePoints ? _pointDiscount : 0;
-    return widget.itemTotal - points + delivery + _tax;
+  int get _itemTotal => widget.quoteAmount.round();
+
+  /// The amount charged is the quote from the pharmacy.
+  int get _toPay => _itemTotal;
+
+  String get _addressTitle => SelectLocationController.deliveryLabel.value;
+
+  String get _addressSubtitle {
+    final subtitle = SelectLocationController.selectedSubtitle.trim();
+    return subtitle.isEmpty ? _addressTitle : subtitle;
   }
 
   @override
@@ -65,7 +71,7 @@ class _PrescriptionCheckoutScreenState
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: AppBackButton(onTap: () => Navigator.pop(context),),
+                    child: AppBackButton(onTap: () => Navigator.pop(context)),
                   ),
                   Text(
                     'Checkout',
@@ -167,10 +173,7 @@ class _PrescriptionCheckoutScreenState
 
   Widget _buildDeliveryNote() {
     return CustomPaint(
-      painter: _DashedRRectPainter(
-        color: const Color(0xFFD9D0C8),
-        radius: 24,
-      ),
+      painter: _DashedRRectPainter(color: const Color(0xFFD9D0C8), radius: 24),
       child: Container(
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -240,9 +243,7 @@ class _PrescriptionCheckoutScreenState
           color: selected ? const Color(0xFFFFF4EC) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFEAD8C9),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
             width: selected ? 1.5 : 0.8,
           ),
         ),
@@ -285,9 +286,7 @@ class _PrescriptionCheckoutScreenState
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected
-              ? const Color(0xFFFF5E00)
-              : const Color(0xFFA59A94),
+          color: selected ? const Color(0xFFFF5E00) : const Color(0xFFA59A94),
           width: 1.5,
         ),
       ),
@@ -338,7 +337,9 @@ class _PrescriptionCheckoutScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sahara View Home',
+                  _addressTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
@@ -347,7 +348,9 @@ class _PrescriptionCheckoutScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Near Marhaba Supermarket, Nouakchott',
+                  _addressSubtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
@@ -389,8 +392,8 @@ class _PrescriptionCheckoutScreenState
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF0EA),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFF0EA),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -414,7 +417,7 @@ class _PrescriptionCheckoutScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${widget.pharmacyName}, Near Nouakchott, Mauritania',
+                  '${widget.pharmacyName}, $_addressSubtitle',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
@@ -657,9 +660,7 @@ class _PrescriptionCheckoutScreenState
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFEAD8C9),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
             width: selected ? 1.5 : 0.8,
           ),
         ),
@@ -727,7 +728,7 @@ class _PrescriptionCheckoutScreenState
             ),
           ),
           const SizedBox(height: 14),
-          _summaryRow('Item total', '${widget.itemTotal} MRU'),
+          _summaryRow('Item total', '$_itemTotal MRU'),
           if (isDelivery) ...[
             const SizedBox(height: 10),
             _summaryRow('Delivery fee', '$_deliveryFee MRU'),
@@ -798,15 +799,7 @@ class _PrescriptionCheckoutScreenState
 
   Widget _buildPayButton() {
     return GestureDetector(
-      onTap: () {
-        Get.off(
-          () => PharmacyPaidOrderDetailScreen(
-            orderId: '#22789007',
-            isDelivery: isDelivery,
-            pharmacyName: widget.pharmacyName,
-          ),
-        );
-      },
+      onTap: () => Navigator.pop(context, isDelivery),
       child: Container(
         height: 52,
         decoration: BoxDecoration(

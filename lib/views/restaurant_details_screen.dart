@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
@@ -41,6 +42,23 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   Map<String, dynamic>? _restaurantDetails;
   List<Map<String, dynamic>> _menuItems = [];
   bool _isLoadingItems = false;
+  String _searchQuery = "";
+  bool _vegOnly = false;
+  bool _offersOnly = false;
+  bool _ratingFourPlus = false;
+
+  // Search and filters run on the server, so the list shows what came back
+  List<Map<String, dynamic>> get _visibleItems => _menuItems;
+
+  bool get _isSearching =>
+      _searchQuery.trim().isNotEmpty ||
+      _vegOnly ||
+      _offersOnly ||
+      _ratingFourPlus;
+
+  Timer? _searchDebounce;
+
+  int _itemsRequestId = 0;
 
   /// search(46) + gap(12) + filters(32) + bottom gap(12)
   static const double _searchFiltersExtent = 102;
@@ -155,35 +173,117 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       setState(() {
         _restaurantDetails = details;
       });
+    } catch (_) {}
+  }
 
-      if (_menuItems.isEmpty && !_isLoadingItems) {
-        _loadRestaurantItems();
+  Future<void> _loadSubcategories() async {
+    try {
+      // Only the categories this restaurant sells
+      final categories = await _getFoodRepo().fetchRestaurantCategories(
+        restaurantId: _parsedRestaurantId,
+        language: currentApiLanguage(),
+      );
+      if (!mounted || categories.isEmpty) return;
+      setState(() {
+        subcategories = [
+          if (!categories.any((c) => c['isAll'] == true))
+            {'label': 'All', 'isAll': true, 'id': 0, 'category_ids': <int>[]},
+          ...categories,
+        ];
+      });
+      // Categories arrive after the first render, so "All" loads once they exist
+      if (activeSubcategoryIndex == 0) {
+        _loadRestaurantItems(_categoryIdsFor(subcategories[0]));
       }
     } catch (_) {}
   }
 
-  Future<void> _loadRestaurantItems([dynamic categoryId]) async {
+  /// Real category ids for a chip; "All" expands to every category's ids.
+  List<int> _categoryIdsFor(Map<String, dynamic> sub) {
+    if (sub['isAll'] != true) {
+      final ids = sub['category_ids'];
+      if (ids is List && ids.isNotEmpty) {
+        return ids
+            .map((e) => int.tryParse('$e') ?? 0)
+            .where((e) => e > 0)
+            .toList();
+      }
+      final id = int.tryParse('${sub['id']}') ?? 0;
+      return id > 0 ? [id] : [];
+    }
+    final all = <int>{};
+    for (final other in subcategories) {
+      if (other['isAll'] != true) all.addAll(_categoryIdsFor(other));
+    }
+    return all.toList();
+  }
+
+  Future<void> _loadRestaurantItems(List<int> categoryIds) async {
     final restaurantId = _parsedRestaurantId;
     if (restaurantId <= 0) return;
 
-    setState(() => _isLoadingItems = true);
+    // Latest request wins, so a slow earlier category response can't overwrite the current one
+    final requestId = ++_itemsRequestId;
+    setState(() {
+      _isLoadingItems = true;
+      _menuItems = [];
+    });
     try {
       final repo = _getFoodRepo();
       final lang = currentApiLanguage();
 
-      final items = await repo.fetchRestaurantItems(
-        restaurantId: restaurantId,
-        categoryId: categoryId,
-        language: lang,
-      );
+      final List<List<Map<String, dynamic>>> results;
+      if (_isSearching) {
+        // Search and filters: one server search per category, or across the menu for "All"
+        final isAll =
+            subcategories.isNotEmpty &&
+            subcategories[activeSubcategoryIndex]['isAll'] == true;
+        final scopes = isAll ? <int?>[null] : categoryIds.map<int?>((id) => id);
+        results = await Future.wait(
+          scopes.map(
+            (id) => repo
+                .searchRestaurantItems(
+                  restaurantId: restaurantId,
+                  categoryId: id,
+                  keyword: _searchQuery,
+                  veg: _vegOnly ? '1' : '',
+                  offers: _offersOnly ? '1' : '',
+                  rating: _ratingFourPlus ? '4' : '',
+                  language: lang,
+                )
+                .catchError((_) => <Map<String, dynamic>>[]),
+          ),
+        );
+      } else {
+        // One request per category; a failing category shouldn't hide the rest
+        results = await Future.wait(
+          categoryIds.map(
+            (id) => repo
+                .fetchRestaurantItems(
+                  restaurantId: restaurantId,
+                  categoryId: id,
+                  language: lang,
+                )
+                .catchError((_) => <Map<String, dynamic>>[]),
+          ),
+        );
+      }
 
-      if (!mounted) return;
+      final seen = <String>{};
+      final merged = <Map<String, dynamic>>[];
+      for (final list in results) {
+        for (final item in list) {
+          if (seen.add('${item['id']}')) merged.add(item);
+        }
+      }
+
+      if (!mounted || requestId != _itemsRequestId) return;
       setState(() {
-        _menuItems = items;
+        _menuItems = merged;
         _isLoadingItems = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || requestId != _itemsRequestId) return;
       setState(() => _isLoadingItems = false);
     }
   }
@@ -193,11 +293,13 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     super.initState();
     _scrollController.addListener(_handleScroll);
     _loadRestaurantDetails();
-    _loadRestaurantItems();
+    _loadSubcategories();
+    _refreshCartTotals();
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
     searchController.dispose();
@@ -246,6 +348,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             Expanded(
               child: TextField(
                 controller: searchController,
+                onChanged: _onSearchChanged,
                 decoration: InputDecoration(
                   hintText: 'Find something from this restaurant',
                   hintStyle: GoogleFonts.outfit(
@@ -276,12 +379,87 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     );
   }
 
+  bool _isFilterOn(String label) => switch (label) {
+    'Veg' => _vegOnly,
+    'Offers' => _offersOnly,
+    'Ratings 4.0+' => _ratingFourPlus,
+    _ => false,
+  };
+
+  String _chipLabel(String label) => _isFilterOn(label) ? '✓ $label' : label;
+
+  void _toggleFilter(String label) {
+    setState(() {
+      switch (label) {
+        case 'Veg':
+          _vegOnly = !_vegOnly;
+        case 'Offers':
+          _offersOnly = !_offersOnly;
+        case 'Ratings 4.0+':
+          _ratingFourPlus = !_ratingFourPlus;
+      }
+    });
+    _reloadActiveItems();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() => _searchQuery = value);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 450),
+      _reloadActiveItems,
+    );
+  }
+
+  /// Reloads the items for the selected category, with the current search and filters.
+  void _reloadActiveItems() {
+    if (activeSubcategoryIndex >= subcategories.length) return;
+    _loadRestaurantItems(
+      _categoryIdsFor(subcategories[activeSubcategoryIndex]),
+    );
+  }
+
+  /// Adds the item's portions and add-on groups, which the sheet needs.
+  Future<Map<String, dynamic>> _withMenuVariants(
+    Map<String, dynamic> food,
+  ) async {
+    final raw = food['raw'] is Map
+        ? Map<String, dynamic>.from(food['raw'] as Map)
+        : <String, dynamic>{};
+    final menuId = int.tryParse('${raw['menu_id'] ?? ''}') ?? 0;
+    final restaurantId = _parsedRestaurantId;
+    if (menuId < 1 || restaurantId < 1) return food;
+    try {
+      final menu = await _getFoodRepo().fetchRestaurantMenuVariants(
+        menuId: menuId,
+        restaurantId: restaurantId,
+      );
+      if (menu.variants.isEmpty &&
+          menu.optionGroups.isEmpty &&
+          menu.extras.isEmpty) {
+        return food;
+      }
+      return {
+        ...food,
+        'raw': {
+          ...raw,
+          'items': menu.variants,
+          'option_groups': menu.optionGroups,
+          'extras': menu.extras,
+        },
+      };
+    } catch (_) {
+      return food;
+    }
+  }
+
   Widget _buildFiltersRow() {
     return AppFilterChipsRow(
       children: [
         for (final filter in filters)
           AppFilterChip(
-            label: filter['label'] as String,
+            label: _chipLabel(filter['label'] as String),
+            onTap: () => _toggleFilter(filter['label'] as String),
             leading: filter['isVeg'] == true
                 ? AppFilterChip.vegLeading()
                 : filter['icon'] is IconData
@@ -342,13 +520,19 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   Future<bool> _confirmReplaceCartIfNeeded(BuildContext context) async {
     final controller = _homeController();
     final newRestaurant = _currentRestaurantName();
-    final existingStore = controller.lastCartItem?['storeName']
-        ?.toString()
-        .trim();
 
-    if (controller.cartItemCount.value <= 0 ||
-        existingStore == null ||
-        existingStore.isEmpty ||
+    // Ask the server which store holds items; the local memory is empty after a restart.
+    String existingStore = '';
+    try {
+      final totals = await Get.find<CartRepository>().fetchCartTotals(
+        apiLanguageCode(),
+      );
+      existingStore = totals.cartName.trim();
+    } catch (_) {
+      existingStore = controller.lastCartItem?['storeName']?.toString() ?? '';
+    }
+
+    if (existingStore.isEmpty ||
         !_isDifferentRestaurant(existingStore, newRestaurant)) {
       return true;
     }
@@ -375,6 +559,24 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     return replace == true;
   }
 
+  /// Sets the cart bar's count and amount from the server's restaurant cart.
+  /// If the cart can't be read, the locally tracked values stay as they are.
+  Future<void> _refreshCartTotals() async {
+    if (!Get.isRegistered<CartRepository>() ||
+        !Get.isRegistered<HomeController>()) {
+      return;
+    }
+    try {
+      final totals = await Get.find<CartRepository>().fetchCartTotals(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      final controller = _homeController();
+      controller.cartItemCount.value = totals.count;
+      controller.cartAmount.value = totals.amount;
+    } catch (_) {}
+  }
+
   Future<void> _addFoodToCart(
     BuildContext context,
     Map<String, dynamic> food, {
@@ -382,10 +584,36 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     String portion = 'Full portion',
     int? price,
     int quantity = 1,
+    int? variantId,
+    List<int> optionIds = const [],
+    List<int> extraIds = const [],
   }) async {
     final canAdd = await _confirmReplaceCartIfNeeded(context);
     if (!canAdd || !context.mounted) return;
 
+    final restaurantId = _parsedRestaurantId;
+    if (variantId == null || variantId < 1 || restaurantId < 1) {
+      showAppToast('Unable to add this item');
+      return;
+    }
+    try {
+      final message = await Get.find<CartRepository>().addCatalogItem(
+        restaurantId: restaurantId,
+        variantId: variantId,
+        optionIds: optionIds,
+        extraIds: extraIds,
+        quantity: quantity,
+        language: apiLanguageCode(),
+      );
+      if (message.trim().isNotEmpty) {
+        showAppToast(message.trim(), backgroundColor: const Color(0xFFFF5E00));
+      }
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return;
+    }
+
+    if (!context.mounted) return;
     Navigator.pop(context);
     if (fromBottomSheet && context.mounted) {
       Navigator.pop(context);
@@ -403,15 +631,18 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       }
     }
 
-    final selectedPrice = price ?? _parsePrice(food['price']?.toString());
+    final unitPrice = price ?? _parsePrice(food['price']?.toString());
     controller.setCartItem(
       storeName: _currentRestaurantName(),
       itemName: food['title']?.toString(),
       itemPortion: portion,
-      basePrice: selectedPrice,
+      basePrice: unitPrice,
       itemImage: food['image']?.toString(),
       quantity: quantity,
     );
+    // Shows the added amount at once; the server total replaces it below.
+    controller.cartAmount.value += (unitPrice * quantity).toDouble();
+    _refreshCartTotals();
 
     setState(() {
       showCartBar = true;
@@ -437,33 +668,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     return int.tryParse(digits) ?? 0;
   }
 
-  final List<Map<String, dynamic>> subcategories = [
-    {'label': 'All', 'isAll': true},
-    {
-      'label': 'Meals',
-      'image':
-          'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Breakfast',
-      'image':
-          'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Drinks',
-      'image':
-          'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Desserts',
-      'image':
-          'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=100&auto=format&fit=crop',
-    },
-    {
-      'label': 'Cafes',
-      'image':
-          'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=100&auto=format&fit=crop',
-    },
+  /// "All" is always present; API categories are appended once loaded.
+  List<Map<String, dynamic>> subcategories = [
+    {'label': 'All', 'isAll': true, 'id': 0},
   ];
 
   final List<Map<String, dynamic>> filters = [
@@ -867,6 +1074,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                         setState(() {
                                           activeSubcategoryIndex = index;
                                         });
+                                        _loadRestaurantItems(
+                                          _categoryIdsFor(sub),
+                                        );
                                       },
                                       child: Padding(
                                         padding: EdgeInsets.only(
@@ -925,8 +1135,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                           ),
                                                           child: ClipOval(
                                                             child: Image.network(
-                                                              sub['image']
-                                                                  as String,
+                                                              (sub['image'] ??
+                                                                      '')
+                                                                  .toString(),
                                                               width: 46,
                                                               height: 46,
                                                               fit: BoxFit.cover,
@@ -1055,10 +1266,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                 ),
                               ),
                             )
-                          : _menuItems.isEmpty
+                          : _visibleItems.isEmpty
                           ? _buildNoDataPlaceholder()
                           : Column(
-                              children: _menuItems.map((food) {
+                              children: _visibleItems.map((food) {
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 16),
                                   child: _buildFoodCard(context, food),
@@ -1196,6 +1407,15 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           ],
                         ),
                       ),
+                      Text(
+                        '${_cartAmountText(controller.cartAmount.value)} MRU',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFF5E00),
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
                       const Icon(
                         Icons.chevron_right_rounded,
                         color: Color(0xFFFF5E00),
@@ -1210,6 +1430,13 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         ],
       ),
     );
+  }
+
+  /// Whole amounts show without decimals; others show two.
+  String _cartAmountText(double value) {
+    return value == value.roundToDouble()
+        ? '${value.toInt()}'
+        : value.toStringAsFixed(2);
   }
 
   Widget _buildFoodCard(BuildContext context, Map<String, dynamic> food) {
@@ -1229,7 +1456,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     final originalPrice = (food['originalPrice'] ?? '').toString().trim();
 
     return GestureDetector(
-      onTap: () => _showFoodDetailsBottomSheet(context, food),
+      onTap: () =>
+          _showCustomizeBottomSheet(context, food, fromBottomSheet: false),
       child: Container(
         height: 120,
         decoration: BoxDecoration(
@@ -1404,8 +1632,17 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           ],
                         ),
                         GestureDetector(
+                          // ADD goes straight to the customize sheet; card tap still opens details
                           onTap: () {
-                            _showFoodDetailsBottomSheet(context, food);
+                            if (food['inStock'] == false) {
+                              showAppToast('This item is out of stock');
+                              return;
+                            }
+                            _showCustomizeBottomSheet(
+                              context,
+                              food,
+                              fromBottomSheet: false,
+                            );
                           },
                           child: Container(
                             height: 28,
@@ -1437,7 +1674,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'ADD',
+                                  food['inStock'] == false ? 'SOLD OUT' : 'ADD',
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 10,
@@ -1460,31 +1697,22 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     );
   }
 
-  void _showFoodDetailsBottomSheet(
-    BuildContext context,
-    Map<String, dynamic> food,
-  ) {
-    showFoodItemDetailSheet(
-      context: context,
-      food: food,
-      onOpenCustomize: () {
-        // Opens on top of detail — swipe down returns to detail
-        return _showCustomizeBottomSheet(context, food, fromBottomSheet: true);
-      },
-    );
-  }
-
   Future<void> _showCustomizeBottomSheet(
     BuildContext context,
     Map<String, dynamic> food, {
     required bool fromBottomSheet,
-  }) {
+  }) async {
+    final detailed = await _withMenuVariants(food);
+    if (!mounted) return;
     return showFoodItemCustomizeSheet(
       context: context,
-      food: food,
+      food: detailed,
       onAddToCart:
           (
             sheetContext, {
+            required variantId,
+            required optionIds,
+            required extraIds,
             required portion,
             required price,
             required quantity,
@@ -1492,6 +1720,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             sheetContext,
             food,
             fromBottomSheet: fromBottomSheet,
+            variantId: variantId,
+            optionIds: optionIds,
+            extraIds: extraIds,
             portion: portion,
             price: price,
             quantity: quantity,

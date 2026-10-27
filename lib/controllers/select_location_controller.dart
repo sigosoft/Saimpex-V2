@@ -582,7 +582,12 @@ class SelectLocationController extends GetxController {
 
   Map<String, String>? getSelectedAddressResult() {
     if (!hasValidAddress) return null;
-    return {'title': addressTitle.value, 'subtitle': addressSubtitle.value};
+    return {
+      'title': addressTitle.value,
+      'subtitle': addressSubtitle.value,
+      'latitude': selectedLatitude.toString(),
+      'longitude': selectedLongitude.toString(),
+    };
   }
 
   bool _isDisposed = false;
