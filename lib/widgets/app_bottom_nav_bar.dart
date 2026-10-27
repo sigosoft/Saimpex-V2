@@ -340,31 +340,43 @@ class _NavBarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final centreX = size.width / 2;
-    // Notch floor is a circle of [notchRadius]; the two shoulders are rounded
-    // with a small corner radius, so the cut stays the same width.
-    const shoulder = 10.0;
+    final cx = size.width / 2;
     final r = notchRadius;
-    final shoulderCentreX = math.sqrt(r * r + 2 * r * shoulder);
-    final joinX = r * shoulderCentreX / (r + shoulder);
-    final joinY = r * shoulder / (r + shoulder);
+    // The notch arc spans from angle pi - a to a; the shoulders run from the flat
+    // bar edge into those two points, so the joins have no corners.
+    const a = 0.7;
+    const shoulder = 16.0;
+    const handle = 12.0;
+    final sinA = math.sin(a);
+    final cosA = math.cos(a);
+    final leftX = cx - r * cosA;
+    final rightX = cx + r * cosA;
+    final armY = r * sinA;
+
     final path = Path()
       ..moveTo(0, 0)
-      ..lineTo(centreX - shoulderCentreX, 0)
-      ..arcToPoint(
-        Offset(centreX - joinX, joinY),
-        radius: const Radius.circular(shoulder),
-        clockwise: true,
+      ..lineTo(cx - r - shoulder, 0)
+      ..cubicTo(
+        cx - r - shoulder / 2,
+        0,
+        leftX - handle * sinA,
+        armY - handle * cosA,
+        leftX,
+        armY,
       )
-      ..arcToPoint(
-        Offset(centreX + joinX, joinY),
-        radius: Radius.circular(r),
-        clockwise: false,
+      ..arcTo(
+        Rect.fromCircle(center: Offset(cx, 0), radius: r),
+        math.pi - a,
+        -(math.pi - 2 * a),
+        false,
       )
-      ..arcToPoint(
-        Offset(centreX + shoulderCentreX, 0),
-        radius: const Radius.circular(shoulder),
-        clockwise: true,
+      ..cubicTo(
+        rightX + handle * sinA,
+        armY - handle * cosA,
+        cx + r + shoulder / 2,
+        0,
+        cx + r + shoulder,
+        0,
       )
       ..lineTo(size.width, 0)
       ..lineTo(size.width, size.height)
