@@ -739,7 +739,10 @@ class OrderDetailScreen extends StatelessWidget {
                             child: GestureDetector(
                               onTap: () {
                                 Get.to(
-                                  () => TrackOrderScreen(orderId: orderId),
+                                  () => TrackOrderScreen(
+                                    orderId: orderId,
+                                    apiOrderId: apiOrderId,
+                                  ),
                                 );
                               },
                               child: Container(
