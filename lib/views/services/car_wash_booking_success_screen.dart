@@ -78,15 +78,6 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  "Congratulations! You've earned 10 points",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF8A7E76),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
                 const Spacer(flex: 3),
                 Row(
                   children: [

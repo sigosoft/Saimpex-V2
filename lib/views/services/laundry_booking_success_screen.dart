@@ -77,15 +77,6 @@ class LaundryBookingSuccessScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  "Congratulations! You've earned 10 points",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF8A7E76),
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
                 const Spacer(),
                 Row(
                   children: [

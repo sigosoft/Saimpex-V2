@@ -115,7 +115,12 @@ class _AccountScreenState extends State<AccountScreen> {
       );
       if (!mounted) return;
       setState(() {
-        _walletAmount = _formatNumber(pointsData.redeemableAmount);
+        // WALLET is the SAIMPEX Wallet balance (spendable at any store), not
+        // loyalty points, which are store-specific and shown separately.
+        final wallet = Get.isRegistered<HomeController>()
+            ? Get.find<HomeController>().walletBalance.value.trim()
+            : '';
+        _walletAmount = wallet.isEmpty ? '0' : wallet;
         _rewardPoints = _formatNumber(pointsData.userPoints);
       });
     } catch (_) {}

@@ -514,7 +514,8 @@ class _CartScreenState extends State<CartScreen> {
     }
     _syncHomeCartBadgeCount(0);
     // Replaces this cart screen, so the placed items don't stay visible behind the success screen.
-    Get.off(() => const OrderSuccessScreen());
+    final points = int.tryParse('${placed['reward_points_earned'] ?? ''}') ?? 0;
+    Get.off(() => OrderSuccessScreen(pointsToEarn: points));
   }
 
   Future<String?> _startMasrviPayment(

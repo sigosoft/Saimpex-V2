@@ -6,7 +6,10 @@ import '../widgets/app_back_button.dart';
 import 'my_orders_screen.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
-  const OrderSuccessScreen({Key? key}) : super(key: key);
+  /// Store points this order will earn once delivered (0 hides the line).
+  final int pointsToEarn;
+
+  const OrderSuccessScreen({Key? key, this.pointsToEarn = 0}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +31,7 @@ class OrderSuccessScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 1. Top-Left custom Back Button
-                AppBackButton(
-                  onTap: () => Navigator.pop(context),
-                ),
+                AppBackButton(onTap: () => Navigator.pop(context)),
 
                 const Spacer(),
 
@@ -68,16 +69,19 @@ class OrderSuccessScreen extends StatelessWidget {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Congratulations! You\'ve earned 10 points',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF8C7D73),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      if (pointsToEarn > 0) ...[
+                        const SizedBox(height: 8),
+                        // Points are credited only after delivery (scope §4).
+                        Text(
+                          'You will earn +$pointsToEarn points once your order is delivered',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF8C7D73),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
+                      ],
                     ],
                   ),
                 ),
