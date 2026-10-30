@@ -7,7 +7,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
-import 'local_store_details_screen.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/grocery_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
+import '../grocery/grocery_details_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/store_map_button.dart';
 import '../../widgets/see_all_button.dart';
@@ -95,78 +99,55 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> nearbyStores = [
-    {
-      'id': 'ls_1',
-      'name': 'Golden Bakery',
-      'subtitle': 'Bakery - Pastries',
-      'rating': '4.6',
-      'time': '35 min',
-      'dist': '1.8 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/golden_bakery.png',
-      'isFavorite': false,
-    },
-    {
-      'id': 'ls_2',
-      'name': 'Fresh Fish Market',
-      'subtitle': 'Fish & Seafood',
-      'rating': '4.5',
-      'time': '20 min',
-      'dist': '2.5 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/Fish.png',
-      'isFavorite': false,
-      'isClosed': true,
-      'opensAt': '10 AM',
-    },
-  ];
+  List<Map<String, dynamic>> nearbyStores = const [];
+  List<Map<String, dynamic>> allStores = const [];
+  bool _storesLoading = true;
 
-  final List<Map<String, dynamic>> allStores = [
-    {
-      'id': 'ls_3',
-      'name': 'City Florist',
-      'subtitle': 'Flowers',
-      'rating': '4.7',
-      'time': '35 min',
-      'dist': '1.8 Km',
-      'discount': '30% OFF',
-      'points': '250 Points Available',
-      'image': 'lib/assets/images/city_florist.png',
-      'isFavorite': false,
-    },
-    {
-      'id': 'ls_4',
-      'name': 'Nouakchott Stationery',
-      'subtitle': 'Books',
-      'rating': '4.7',
-      'time': '35 min',
-      'dist': '1.8 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/browse_stationery.png',
-      'isFavorite': false,
-    },
-    {
-      'id': 'ls_5',
-      'name': 'Dessert Sweets',
-      'subtitle': 'Sweets',
-      'rating': '4.7',
-      'time': '35 min',
-      'dist': '1.8 Km',
-      'discount': '30% OFF',
-      'points': '250 Points Available',
-      'image': 'lib/assets/images/dessert_sweet.png',
-      'isFavorite': false,
-    },
-  ];
+  Future<void> _loadStores() async {
+    const tag = GroceryRepository.localStoreTag;
+    if (!Get.isRegistered<GroceryRepository>(tag: tag)) {
+      setState(() => _storesLoading = false);
+      return;
+    }
+    setState(() => _storesLoading = true);
+    try {
+      final stores = await Get.find<GroceryRepository>(tag: tag)
+          .fetchLocalStores(
+            latitude: SelectLocationController.selectedLatitude,
+            longitude: SelectLocationController.selectedLongitude,
+            language: apiLanguageCode(),
+          );
+      if (!mounted) return;
+      setState(() {
+        allStores = stores
+            .map((store) => {...store, 'subtitle': store['category']})
+            .toList();
+        nearbyStores = allStores.take(5).toList();
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _storesLoading = false);
+    }
+  }
+
+  Widget _storeImage(
+    String path, {
+    BoxFit fit = BoxFit.cover,
+    ImageErrorWidgetBuilder? errorBuilder,
+  }) {
+    if (path.startsWith('http')) {
+      return Image.network(path, fit: fit, errorBuilder: errorBuilder);
+    }
+    return Image.asset(path, fit: fit, errorBuilder: errorBuilder);
+  }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadStores();
   }
 
   @override
@@ -671,6 +652,25 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               const SizedBox(height: 14),
 
               // Browse All Stores Vertical List
+              if (_storesLoading || allStores.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  child: Center(
+                    child: _storesLoading
+                        ? const CircularProgressIndicator(
+                            color: Color(0xFFFF5E00),
+                          )
+                        : Text(
+                            'No local stores near you yet',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                )
+              else
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ListView.builder(
@@ -719,7 +719,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
 
     return GestureDetector(
       onTap: () {
-        Get.to(() => LocalStoreDetailsScreen(store: store));
+        Get.to(() => GroceryDetailsScreen(store: store));
       },
       child: Container(
         width: 250,
@@ -763,7 +763,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                 Colors.black.withValues(alpha: 0.22),
                                 BlendMode.darken,
                               ),
-                              child: Image.asset(
+                              child: _storeImage(
                                 store['image'],
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, __, ___) => Container(
@@ -777,7 +777,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               ),
                             ),
                           )
-                        : Image.asset(
+                        : _storeImage(
                             store['image'],
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Container(
@@ -1079,7 +1079,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   Widget _buildVerticalStoreCard(Map<String, dynamic> store) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => LocalStoreDetailsScreen(store: store));
+        Get.to(() => GroceryDetailsScreen(store: store));
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -1107,7 +1107,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                   child: SizedBox(
                     height: 150,
                     width: double.infinity,
-                    child: Image.asset(
+                    child: _storeImage(
                       store['image'],
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(

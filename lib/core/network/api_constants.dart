@@ -140,6 +140,23 @@ class ApiConstants {
   static const String cartWaterAdd = 'customer/cart/water/add';
   static const String cartGroceryAdd = 'customer/cart/grocery/add';
   static const String cartGroceryRemove = 'customer/cart/grocery/remove';
+  static const String localStoreHome = 'customer/localStoreHome';
+  static const String localStoreDetails = 'customer/localStore/details';
+  static const String localStoreCategories = 'customer/localStore/categories';
+  static const String localStoreSubCategories =
+      'customer/localStore/subCategories';
+  static const String localStoreItems = 'customer/localStore/items';
+  static const String localStoreItemsSearch =
+      'customer/localStore/items/search';
+  static const String localStoreItemsBarcodeSearch =
+      'customer/localStore/items/barcode/search';
+  static const String localStoreItemDetail = 'customer/localStore/item/detail';
+  static const String localStoreMenuVariants =
+      'customer/localStore/getMenuItemVariants';
+  static const String cartLocalStoreAdd = 'customer/cart/localStore/add';
+  static const String cartLocalStoreRemove = 'customer/cart/localStore/remove';
+  static const String localStoreOrders = 'customer/orders/localStore';
+  static const String expressHome = 'customer/expressHome';
   static const String homeHub = 'customer/homeHub';
   static const String reviews = 'customer/reviews';
   static const String getAbout = 'customer/getAbout';

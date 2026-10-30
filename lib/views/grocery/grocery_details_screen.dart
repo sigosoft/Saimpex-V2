@@ -46,6 +46,13 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   static const double _searchFiltersExtent = 98;
 
   GroceryRepository _getGroceryRepo() {
+    // Local stores reuse this screen against the local store API.
+    if (widget.store['isLocalStore'] == true &&
+        Get.isRegistered<GroceryRepository>(
+          tag: GroceryRepository.localStoreTag,
+        )) {
+      return Get.find<GroceryRepository>(tag: GroceryRepository.localStoreTag);
+    }
     if (Get.isRegistered<GroceryRepository>()) {
       return Get.find<GroceryRepository>();
     }

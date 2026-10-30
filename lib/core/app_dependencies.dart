@@ -30,6 +30,11 @@ class AppDependencies {
     Get.put<OrderRepository>(OrderRepository(client), permanent: true);
     Get.put<FoodRepository>(FoodRepository(client), permanent: true);
     Get.put<GroceryRepository>(GroceryRepository(client), permanent: true);
+    Get.put<GroceryRepository>(
+      GroceryRepository.localStore(client),
+      tag: GroceryRepository.localStoreTag,
+      permanent: true,
+    );
     Get.put<WaterRepository>(WaterRepository(client), permanent: true);
     Get.put<CourierRepository>(CourierRepository(client), permanent: true);
     Get.put<ServiceRepository>(ServiceRepository(client), permanent: true);
