@@ -20,6 +20,11 @@ import '../views/main_shell_screen.dart';
 class SelectLocationController extends GetxController {
   bool isInitialSetup = false;
 
+  /// Opened from Saved Addresses: Continue also saves the spot to the
+  /// address book under [selectedAddressType], editing [editAddressId].
+  bool saveToAddressBook = false;
+  int? editAddressId;
+
   // Track selected address type: 'Home', 'Office', or 'Other'
   final selectedAddressType = 'Home'.obs;
 
@@ -98,12 +103,23 @@ class SelectLocationController extends GetxController {
 
     isUpdatingLocation.value = true;
     try {
-      final message = await Get.find<ProfileRepository>().updateLocation(
+      final profile = Get.find<ProfileRepository>();
+      var message = await profile.updateLocation(
         latitude: selectedLatitude,
         longitude: selectedLongitude,
         address: selectedTitle,
         language: apiLanguageCode(),
       );
+      if (saveToAddressBook) {
+        message = await profile.saveAddress(
+          addressId: editAddressId,
+          label: selectedAddressType.value,
+          address: selectedTitle,
+          latitude: selectedLatitude,
+          longitude: selectedLongitude,
+          language: apiLanguageCode(),
+        );
+      }
       if (_isDisposed) return;
       showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
       if (isInitialSetup || Get.key.currentState?.canPop() != true) {

@@ -101,6 +101,89 @@ class ProfileRepository {
     return envelope.message;
   }
 
+  /// The address book: `{id, label, address, latitude, longitude}` rows.
+  Future<List<Map<String, dynamic>>> savedAddresses(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.addresses),
+      language,
+    );
+    return _rows(asJsonMap(envelope.data)?['addresses']);
+  }
+
+  /// Creates a saved address, or edits [addressId]. [label] is Home, Office
+  /// or Other; saving a second Home/Office replaces the first.
+  Future<String> saveAddress({
+    int? addressId,
+    required String label,
+    required String address,
+    required double latitude,
+    required double longitude,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.saveAddress,
+        data: {
+          'address_id': ?addressId,
+          'label': label,
+          'address': address,
+          'latitude': latitude,
+          'longitude': longitude,
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  Future<String> deleteAddress({
+    required int addressId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.deleteAddress,
+        data: {'address_id': addressId},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Hearted cards: the card fields saved with each, plus `id`.
+  Future<List<Map<String, dynamic>>> favourites(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.favourites),
+      language,
+    );
+    return _rows(asJsonMap(envelope.data)?['favourites']);
+  }
+
+  /// Sets whether [itemId] is a favourite, saving [card] for My Favourites.
+  Future<void> setFavourite({
+    required String itemId,
+    required bool favourite,
+    Map<String, dynamic> card = const {},
+    required String language,
+  }) async {
+    await _send(
+      () => _client.dio.post(
+        ApiConstants.toggleFavourite,
+        data: {'item_id': itemId, 'favourite': favourite, 'card': card},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+  }
+
+  static List<Map<String, dynamic>> _rows(dynamic value) => [
+    if (value is List)
+      for (final row in value)
+        if (asJsonMap(row) != null) asJsonMap(row)!,
+  ];
+
   Future<({String address, double? latitude, double? longitude})> fetchLocation(
     String language,
   ) async {

@@ -1111,8 +1111,9 @@ class _LogoutSheetState extends State<_LogoutSheet> {
     } finally {
       await session.clear();
       if (Get.isRegistered<HomeController>()) {
-        Get.find<HomeController>().currentNavIndex.value =
-            HomeController.navHome;
+        Get.find<HomeController>()
+          ..resetForLogout()
+          ..currentNavIndex.value = HomeController.navHome;
       }
       if (mounted) {
         Navigator.of(context).pop();

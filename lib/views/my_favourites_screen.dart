@@ -49,10 +49,7 @@ class MyFavouritesScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                   itemCount: favourites.length,
                   itemBuilder: (context, index) {
-                    return _buildFavouriteCard(
-                      controller,
-                      favourites[index],
-                    );
+                    return _buildFavouriteCard(controller, favourites[index]);
                   },
                 );
               }),
@@ -143,54 +140,57 @@ class MyFavouritesScreen extends StatelessWidget {
                     left: 12,
                     child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E00),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            (item['discount'] ?? '50% OFF').toString(),
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                        if (_text(item, 'discount').isNotEmpty) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF5E00),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              _text(item, 'discount'),
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.star_rounded,
-                                color: Color(0xFFFFAE00),
-                                size: 13,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                (item['rating'] ?? '4.5').toString(),
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
+                          const SizedBox(width: 8),
+                        ],
+                        if (_text(item, 'rating').isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.star_rounded,
+                                  color: Color(0xFFFFAE00),
+                                  size: 13,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 3),
+                                Text(
+                                  _text(item, 'rating'),
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -214,40 +214,40 @@ class MyFavouritesScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    bottom: 10,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            'lib/assets/images/Coin.png',
-                            width: 14,
-                            height: 14,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            (item['points'] ?? '200 Points Available')
-                                .toString(),
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                  if (_text(item, 'points').isNotEmpty)
+                    Positioned(
+                      bottom: 10,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.55),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'lib/assets/images/Coin.png',
+                              width: 14,
+                              height: 14,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 6),
+                            Text(
+                              _text(item, 'points'),
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -257,7 +257,9 @@ class MyFavouritesScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    (item['title'] ?? 'Favourite').toString(),
+                    _text(item, 'title').isEmpty
+                        ? 'Favourite'
+                        : _text(item, 'title'),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 16,
@@ -273,40 +275,47 @@ class MyFavouritesScreen extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.timer_outlined,
-                        color: Color(0xFFFF5E00),
-                        size: 15,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        (item['time'] ?? '30–35 min').toString(),
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF4A453F),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
-                        size: 15,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        (item['dist'] ?? '10 Km').toString(),
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF4A453F),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
+                  if (_text(item, 'time').isNotEmpty ||
+                      _text(item, 'dist').isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        if (_text(item, 'time').isNotEmpty) ...[
+                          const Icon(
+                            Icons.timer_outlined,
+                            color: Color(0xFFFF5E00),
+                            size: 15,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            _text(item, 'time'),
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF4A453F),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 18),
+                        ],
+                        if (_text(item, 'dist').isNotEmpty) ...[
+                          const Icon(
+                            Icons.location_on_outlined,
+                            color: Color(0xFFFF5E00),
+                            size: 15,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            _text(item, 'dist'),
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF4A453F),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -315,6 +324,10 @@ class MyFavouritesScreen extends StatelessWidget {
       ),
     );
   }
+
+  /// A card field as text; empty when the card doesn't have it.
+  static String _text(Map<String, dynamic> item, String key) =>
+      '${item[key] ?? ''}'.trim();
 
   Widget _buildImage(String image) {
     if (image.startsWith('http')) {

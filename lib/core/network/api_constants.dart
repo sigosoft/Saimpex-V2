@@ -18,6 +18,11 @@ class ApiConstants {
   static const String userPoints = 'customer/userPoints';
   static const String updateLocation = 'customer/updateLocation';
   static const String fetchLocation = 'customer/fetchLocation';
+  static const String addresses = 'customer/addresses';
+  static const String saveAddress = 'customer/addresses/save';
+  static const String deleteAddress = 'customer/addresses/delete';
+  static const String favourites = 'customer/favourites';
+  static const String toggleFavourite = 'customer/favourites/toggle';
   static const String pharmacyHome = 'customer/pharmacyHome';
   static const String pharmacyHomeCategories =
       'customer/pharmacyHomeCategories';

@@ -9,9 +9,19 @@ import '../widgets/app_back_button.dart';
 class SelectLocationScreen extends StatelessWidget {
   final bool isInitialSetup;
 
+  /// Save the picked spot to the address book (from Saved Addresses).
+  final bool saveToAddressBook;
+
+  /// Saved address being edited, and its label to preselect.
+  final int? editAddressId;
+  final String? initialLabel;
+
   const SelectLocationScreen({
     super.key,
     this.isInitialSetup = false,
+    this.saveToAddressBook = false,
+    this.editAddressId,
+    this.initialLabel,
   });
 
   @override
@@ -21,6 +31,9 @@ class SelectLocationScreen extends StatelessWidget {
     }
     final controller = Get.put(SelectLocationController());
     controller.isInitialSetup = isInitialSetup;
+    controller.saveToAddressBook = saveToAddressBook;
+    controller.editAddressId = editAddressId;
+    if (initialLabel != null) controller.selectAddressType(initialLabel!);
     final orientation = MediaQuery.of(context).orientation;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(

@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'select_location_controller.dart';
 import '../core/network/api_exception.dart';
+import '../core/storage/session_store.dart';
 import '../models/general_repository.dart';
+import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 
@@ -141,14 +145,23 @@ class HomeController extends GetxController {
     pharmacyBannerSliderIndex.value = index;
   }
 
+  bool get _signedIn {
+    if (!Get.isRegistered<SessionStore>()) return false;
+    final token = Get.find<SessionStore>().token;
+    return token != null && token.isNotEmpty;
+  }
+
+  /// Hearts or un-hearts a card. Signed-in customers' favourites are saved
+  /// with customer/favourites/toggle; a failed save is undone.
   void toggleLike(String itemId, [Map<String, dynamic>? item]) {
     if (itemId.isEmpty) return;
 
     final existingIndex = favourites.indexWhere(
       (e) => (e['id'] ?? '').toString() == itemId,
     );
+    final removed = existingIndex >= 0 ? favourites[existingIndex] : null;
 
-    if (existingIndex >= 0) {
+    if (removed != null) {
       favourites.removeAt(existingIndex);
       likedItems.remove(itemId);
     } else {
@@ -162,17 +175,71 @@ class HomeController extends GetxController {
       }
       data.putIfAbsent('title', () => 'Favourite');
       data.putIfAbsent('subtitle', () => '');
-      data.putIfAbsent('rating', () => '4.5');
-      data.putIfAbsent('time', () => '30–35 min');
-      data.putIfAbsent('dist', () => '10 Km');
-      data.putIfAbsent('discount', () => '50% OFF');
-      data.putIfAbsent('points', () => '200 Points Available');
       data.putIfAbsent('image', () => '');
       favourites.add(data);
       if (!likedItems.contains(itemId)) {
         likedItems.add(itemId);
       }
     }
+
+    if (!_signedIn || !Get.isRegistered<ProfileRepository>()) return;
+    final added = removed == null;
+    Get.find<ProfileRepository>()
+        .setFavourite(
+          itemId: itemId,
+          favourite: added,
+          card: added
+              ? {
+                  for (final entry in favourites.last.entries)
+                    if (entry.key != 'id' &&
+                        (entry.value is String || entry.value is num))
+                      entry.key: entry.value,
+                }
+              : const {},
+          language: apiLanguageCode(),
+        )
+        .catchError((Object error) {
+          // Put the heart back the way it was.
+          if (added) {
+            favourites.removeWhere((e) => (e['id'] ?? '').toString() == itemId);
+            likedItems.remove(itemId);
+          } else {
+            favourites.add(removed);
+            if (!likedItems.contains(itemId)) likedItems.add(itemId);
+          }
+          if (error is ApiException) {
+            showAppToast(
+              error.message,
+              backgroundColor: const Color(0xFFEF4444),
+            );
+          }
+        });
+  }
+
+  /// The signed-in customer's saved favourites (customer/favourites).
+  Future<void> loadFavourites() async {
+    if (!_signedIn || !Get.isRegistered<ProfileRepository>()) return;
+    try {
+      final rows = await Get.find<ProfileRepository>().favourites(
+        apiLanguageCode(),
+      );
+      favourites.assignAll(rows);
+      likedItems.assignAll([
+        for (final row in rows) (row['id'] ?? '').toString(),
+      ]);
+    } on ApiException {
+      // Keep whatever is shown; the next home load retries.
+    }
+  }
+
+  /// Forgets the signed-out customer's favourites, wallet and profile.
+  void resetForLogout() {
+    favourites.clear();
+    likedItems.clear();
+    walletBalance.value = '';
+    walletCurrency.value = '';
+    unreadNotifications.value = 0;
+    profileImage.value = '';
   }
 
   bool isLiked(String itemId) {
@@ -264,6 +331,7 @@ class HomeController extends GetxController {
 
   Future<void> loadHome() async {
     if (!Get.isRegistered<GeneralRepository>()) return;
+    unawaited(loadFavourites());
     final request = ++_homeRequest;
     homeLoading.value = true;
     try {
