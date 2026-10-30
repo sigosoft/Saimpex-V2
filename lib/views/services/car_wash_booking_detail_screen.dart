@@ -867,6 +867,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         onTap: () => showCancelBookingBottomSheet(
           Get.context!,
           bookingId: _bookingId,
+          apiOrderId: booking['apiOrderId'] as int?,
         ),
         child: Container(
           width: double.infinity,

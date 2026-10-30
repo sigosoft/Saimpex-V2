@@ -2,14 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/network/api_exception.dart';
+import '../models/service_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../views/booking_cancelled_success_screen.dart';
 
+/// [bookingId] is the booking code shown to the customer; [apiOrderId] is
+/// the numeric id service/cancel needs. The success screen only opens once
+/// the server confirms the cancellation.
 void showCancelBookingBottomSheet(
   BuildContext context, {
-  VoidCallback? onConfirm,
   String? bookingId,
+  int? apiOrderId,
+  VoidCallback? onCancelled,
 }) {
   int selectedReasonIndex = -1;
+  var cancelling = false;
   const cancelReasons = [
     'Changed my mind',
     'Found a better price',
@@ -211,7 +220,8 @@ void showCancelBookingBottomSheet(
                                   builder: (context) {
                                     final canConfirm = selectedReasonIndex >= 0;
                                     return GestureDetector(
-                                      onTap: () {
+                                      onTap: () async {
+                                        if (cancelling) return;
                                         if (!canConfirm) {
                                           Get.snackbar(
                                             '',
@@ -234,8 +244,16 @@ void showCancelBookingBottomSheet(
                                           );
                                           return;
                                         }
+                                        setModalState(() => cancelling = true);
+                                        final cancelled = await _cancelBooking(
+                                          apiOrderId,
+                                          cancelReasons[selectedReasonIndex],
+                                        );
+                                        if (!context.mounted) return;
+                                        setModalState(() => cancelling = false);
+                                        if (!cancelled) return;
                                         Navigator.pop(context);
-                                        onConfirm?.call();
+                                        onCancelled?.call();
                                         Get.to(
                                           () => BookingCancelledSuccessScreen(
                                             bookingId: bookingId,
@@ -284,4 +302,29 @@ void showCancelBookingBottomSheet(
       );
     },
   );
+}
+
+Future<bool> _cancelBooking(int? orderId, String reason) async {
+  if (orderId == null || orderId < 1 || !Get.isRegistered<ServiceRepository>()) {
+    showAppToast(
+      'This booking cannot be cancelled right now',
+      backgroundColor: const Color(0xFFEF4444),
+    );
+    return false;
+  }
+  try {
+    final message = await Get.find<ServiceRepository>().cancelBooking(
+      orderId: orderId,
+      reason: reason,
+      language: apiLanguageCode(),
+    );
+    showAppToast(
+      message.isEmpty ? 'Booking cancelled' : message,
+      backgroundColor: const Color(0xFFFF5E00),
+    );
+    return true;
+  } on ApiException catch (error) {
+    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    return false;
+  }
 }
