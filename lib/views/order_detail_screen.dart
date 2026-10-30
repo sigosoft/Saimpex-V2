@@ -27,6 +27,8 @@ class OrderDetailScreen extends StatelessWidget {
     final orderId = detail == null
         ? this.orderId
         : '${detail!['order_code'] ?? this.orderId}';
+    // Numeric id for the cancel API; the sample layout has none.
+    final apiOrderId = int.tryParse('${detail?['id'] ?? detail?['order_id']}');
     final isSelfPickup = detail == null
         ? this.isSelfPickup
         : '${detail!['is_self_pickup']}' == '1' ||
@@ -678,7 +680,11 @@ class OrderDetailScreen extends StatelessWidget {
                     if (isSelfPickup)
                       GestureDetector(
                         onTap: () {
-                          showCancelOrderBottomSheet(context, orderId: orderId);
+                          showCancelOrderBottomSheet(
+                            context,
+                            orderId: orderId,
+                            apiOrderId: apiOrderId,
+                          );
                         },
                         child: Container(
                           width: double.infinity,
@@ -707,6 +713,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 showCancelOrderBottomSheet(
                                   context,
                                   orderId: orderId,
+                                  apiOrderId: apiOrderId,
                                 );
                               },
                               child: Container(

@@ -2,14 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/network/api_exception.dart';
+import '../models/order_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../views/order_cancelled_success_screen.dart';
 
+/// [orderId] is the order code shown to the customer; [apiOrderId] is the
+/// numeric id the cancel API needs. Without [onConfirm] the sheet cancels
+/// [apiOrderId] itself. The success screen only opens once the cancel succeeds.
 void showCancelOrderBottomSheet(
   BuildContext context, {
-  VoidCallback? onConfirm,
+  Future<bool> Function()? onConfirm,
   String? orderId,
+  int? apiOrderId,
+  VoidCallback? onCancelled,
 }) {
   int selectedReasonIndex = -1;
+  var cancelling = false;
   const cancelReasons = [
     'Changed my mind',
     'Found a better price',
@@ -208,7 +218,8 @@ void showCancelOrderBottomSheet(
                                 builder: (context) {
                                   final canConfirm = selectedReasonIndex >= 0;
                                   return GestureDetector(
-                                    onTap: () {
+                                    onTap: () async {
+                                      if (cancelling) return;
                                       if (!canConfirm) {
                                         Get.snackbar(
                                           '',
@@ -231,8 +242,14 @@ void showCancelOrderBottomSheet(
                                         );
                                         return;
                                       }
+                                      setModalState(() => cancelling = true);
+                                      final cancelled = await (onConfirm ??
+                                          () => _cancelOrderById(apiOrderId))();
+                                      if (!context.mounted) return;
+                                      setModalState(() => cancelling = false);
+                                      if (!cancelled) return;
                                       Navigator.pop(context);
-                                      onConfirm?.call();
+                                      onCancelled?.call();
                                       Get.to(
                                         () => OrderCancelledSuccessScreen(
                                           orderId: orderId,
@@ -254,7 +271,9 @@ void showCancelOrderBottomSheet(
                                       ),
                                       alignment: Alignment.center,
                                       child: Text(
-                                        'Cancel Order',
+                                        cancelling
+                                            ? 'Cancelling...'
+                                            : 'Cancel Order',
                                         style: GoogleFonts.outfit(
                                           color: Colors.white,
                                           fontSize: 15,
@@ -281,4 +300,28 @@ void showCancelOrderBottomSheet(
       );
     },
   );
+}
+
+Future<bool> _cancelOrderById(int? orderId) async {
+  if (orderId == null || orderId < 1 || !Get.isRegistered<OrderRepository>()) {
+    showAppToast(
+      'This order cannot be cancelled right now',
+      backgroundColor: const Color(0xFFEF4444),
+    );
+    return false;
+  }
+  try {
+    final message = await Get.find<OrderRepository>().cancelOrder(
+      orderId: orderId,
+      language: apiLanguageCode(),
+    );
+    showAppToast(
+      message.isEmpty ? 'Order cancelled' : message,
+      backgroundColor: const Color(0xFFFF5E00),
+    );
+    return true;
+  } on ApiException catch (error) {
+    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    return false;
+  }
 }

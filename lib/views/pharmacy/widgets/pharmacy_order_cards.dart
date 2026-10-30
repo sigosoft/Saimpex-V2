@@ -619,30 +619,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                       showCancelOrderBottomSheet(
                         context,
                         orderId: orderId,
-                        onConfirm: () async {
-                          final id = apiOrderId;
-                          if (id == null ||
-                              id < 1 ||
-                              !Get.isRegistered<OrderRepository>()) {
-                            return;
-                          }
-                          try {
-                            final message = await Get.find<OrderRepository>()
-                                .cancelOrder(
-                                  orderId: id,
-                                  language: apiLanguageCode(),
-                                );
-                            showAppToast(
-                              message,
-                              backgroundColor: const Color(0xFFFF5E00),
-                            );
-                          } on ApiException catch (error) {
-                            showAppToast(
-                              error.message,
-                              backgroundColor: const Color(0xFFEF4444),
-                            );
-                          }
-                        },
+                        apiOrderId: apiOrderId,
                       );
                     },
                   ),

@@ -4,10 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../core/network/api_constants.dart';
-import '../../core/network/api_exception.dart';
-import '../../models/order_repository.dart';
-import '../../utils/api_language.dart';
-import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
@@ -90,20 +86,6 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
       );
     }
     return rows;
-  }
-
-  Future<void> _cancelOrder() async {
-    final id = apiOrderId;
-    if (id == null || id < 1 || !Get.isRegistered<OrderRepository>()) return;
-    try {
-      final message = await Get.find<OrderRepository>().cancelOrder(
-        orderId: id,
-        language: apiLanguageCode(),
-      );
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
-    } on ApiException catch (error) {
-      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
-    }
   }
 
   @override
@@ -269,7 +251,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         showCancelOrderBottomSheet(
           context,
           orderId: orderId,
-          onConfirm: () => _cancelOrder(),
+          apiOrderId: apiOrderId,
         );
       },
       child: Container(
