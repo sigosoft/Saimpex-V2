@@ -544,9 +544,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     );
     if (replace == true && Get.isRegistered<CartRepository>()) {
       try {
-        final message = await Get.find<CartRepository>().replaceCart(
-          apiLanguageCode(),
-        );
+        final repo = Get.find<CartRepository>();
+        final message = await repo.replaceCart(apiLanguageCode());
+        // The replace call doesn't clear restaurant lines, so the previous
+        // restaurant's items would stay in the cart without this.
+        await repo.clearCatalogCart(language: apiLanguageCode());
         final text = message.trim();
         if (text.isNotEmpty) {
           showAppToast(text, backgroundColor: const Color(0xFFFF5E00));
@@ -555,6 +557,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
         return false;
       }
+      controller.clearCart();
     }
     return replace == true;
   }
