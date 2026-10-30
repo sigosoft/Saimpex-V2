@@ -6,7 +6,9 @@ import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import 'express_fifteen_min_delivery_screen.dart';
 import 'express_trending_screen.dart';
-import 'express_store_detail_screen.dart';
+import '../../core/network/api_exception.dart';
+import '../../utils/toast_helper.dart';
+import 'express_stores.dart';
 import 'express_store_map_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/store_map_button.dart';
@@ -74,99 +76,40 @@ class _ExpressScreenState extends State<ExpressScreen> {
     },
   ];
 
-  final fastDeliveryStores = [
-    {
-      'id': 'e_fast1',
-      'name': 'Freshmart',
-      'rating': '4.6',
-      'dist': '1.2 Km',
-      'time': '15m',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=350&auto=format&fit=crop',
-    },
-    {
-      'id': 'e_fast2',
-      'name': 'Express Hub',
-      'rating': '4.5',
-      'dist': '1.5 Km',
-      'time': '15m',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=350&auto=format&fit=crop',
-    },
-    {
-      'id': 'e_fast3',
-      'name': 'Quick Pick',
-      'rating': '4.7',
-      'dist': '0.8 Km',
-      'time': '15m',
-      'points': '180 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=350&auto=format&fit=crop',
-    },
-  ];
+  List<Map<String, String>> _stores = ExpressStores.stores;
 
-  final trendingStores = [
-    {
-      'id': 'e_t1',
-      'name': 'Quick Mart',
-      'rating': '4.6',
-      'time': '15-20 min',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=500&auto=format&fit=crop',
-    },
-    {
-      'id': 'e_t2',
-      'name': 'City Express',
-      'rating': '4.5',
-      'time': '15-20 min',
-      'dist': '8 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500&auto=format&fit=crop',
-    },
-  ];
+  // Nearest first from the API; the fast list is the closest few and
+  // trending is the best rated.
+  List<Map<String, String>> get fastDeliveryStores => _stores.take(6).toList();
 
-  final nearbyStores = [
-    {
-      'id': 'e_n1',
-      'name': 'Fresh Bites',
-      'rating': '4.6',
-      'time': '15-20 min',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&auto=format&fit=crop',
-    },
-    {
-      'id': 'e_n2',
-      'name': 'Sante Pharmacy',
-      'rating': '4.6',
-      'time': '15-20 min',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/Pharmacy.png',
-      'isAsset': true,
-    },
-    {
-      'id': 'e_n3',
-      'name': 'Pure Care Store',
-      'rating': '4.6',
-      'time': '15-20 min',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&auto=format&fit=crop',
-    },
-  ];
+  List<Map<String, String>> get trendingStores {
+    final sorted = [..._stores]
+      ..sort(
+        (a, b) => (double.tryParse(b['rating']!) ?? 0).compareTo(
+          double.tryParse(a['rating']!) ?? 0,
+        ),
+      );
+    return sorted.take(6).toList();
+  }
+
+  List<Map<String, String>> get nearbyStores => _stores;
+
+  Future<void> _loadStores() async {
+    try {
+      final stores = await ExpressStores.load();
+      if (!mounted) return;
+      setState(() => _stores = stores);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadStores();
   }
 
   @override
@@ -667,7 +610,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
         itemBuilder: (context, index) {
           final store = fastDeliveryStores[index];
           return GestureDetector(
-            onTap: () => Get.to(() => ExpressStoreDetailScreen(store: store)),
+            onTap: () => ExpressStores.open(store),
             child: Container(
             width: 170,
             margin: const EdgeInsets.only(right: 12),
@@ -818,7 +761,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
     final isAsset = store['isAsset'] == true || imagePath.startsWith('lib/');
 
     return GestureDetector(
-      onTap: () => Get.to(() => ExpressStoreDetailScreen(store: store)),
+      onTap: () => ExpressStores.open(store),
       child: Container(
       width: fullWidth ? double.infinity : width,
       margin: EdgeInsets.only(right: marginRight),

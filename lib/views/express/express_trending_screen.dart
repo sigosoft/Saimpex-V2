@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../widgets/filter_chip_style.dart';
 import '../coupons_screen.dart';
-import 'express_store_detail_screen.dart';
+import 'express_stores.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/search_camera_button.dart';
 
@@ -19,38 +19,8 @@ class ExpressTrendingScreen extends StatelessWidget {
     {'label': 'Rating', 'isRating': true},
   ];
 
-  static const _stores = [
-    {
-      'id': 'e_tr1',
-      'name': 'Quick Mart',
-      'rating': '4.6',
-      'time': '15-20 min',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&auto=format&fit=crop',
-    },
-    {
-      'id': 'e_tr2',
-      'name': 'Sante Pharmacy',
-      'rating': '4.6',
-      'time': '15-20 min',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/Pharmacy.png',
-      'isAsset': true,
-    },
-    {
-      'id': 'e_tr3',
-      'name': 'Pure Care Store',
-      'rating': '4.6',
-      'time': '15-20 min',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&auto=format&fit=crop',
-    },
-  ];
+  // Express vendors loaded by the Express home screen.
+  List<Map<String, String>> get _stores => ExpressStores.stores;
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +230,7 @@ class ExpressTrendingScreen extends StatelessWidget {
     final isAsset = store['isAsset'] == true || imagePath.startsWith('lib/');
 
     return GestureDetector(
-      onTap: () => Get.to(() => ExpressStoreDetailScreen(store: store)),
+      onTap: () => ExpressStores.open(store),
       child: Container(
       height: 220,
       decoration: BoxDecoration(

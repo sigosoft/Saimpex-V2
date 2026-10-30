@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../widgets/filter_chip_style.dart';
 import '../coupons_screen.dart';
-import 'express_store_detail_screen.dart';
+import 'express_stores.dart';
 import 'widgets/express_filter_sheet.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/search_camera_button.dart';
@@ -20,41 +20,8 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
     {'label': 'Rating', 'isRating': true},
   ];
 
-  static const _stores = [
-    {
-      'id': 'e15_1',
-      'name': 'Freshmart',
-      'rating': '4.6',
-      'time': '15 min',
-      'badgeTime': '15m',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop',
-    },
-    {
-      'id': 'e15_2',
-      'name': 'Express Hub',
-      'rating': '4.6',
-      'time': '15 min',
-      'badgeTime': '15m',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&auto=format&fit=crop',
-    },
-    {
-      'id': 'e15_3',
-      'name': 'Freshmart',
-      'rating': '4.6',
-      'time': '15 min',
-      'badgeTime': '15m',
-      'dist': '10 Km',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop',
-    },
-  ];
+  // Express vendors loaded by the Express home screen.
+  List<Map<String, String>> get _stores => ExpressStores.stores;
 
   @override
   Widget build(BuildContext context) {
@@ -263,7 +230,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
     Map<String, String> store,
   ) {
     return GestureDetector(
-      onTap: () => Get.to(() => ExpressStoreDetailScreen(store: store)),
+      onTap: () => ExpressStores.open(store),
       child: Container(
       height: 220,
       decoration: BoxDecoration(
