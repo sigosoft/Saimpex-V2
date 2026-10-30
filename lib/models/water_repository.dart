@@ -206,7 +206,77 @@ class WaterRepository {
     );
     final data = envelope.data;
     final raw = data is Map ? (data['data'] ?? data['subscriptions']) : data;
-    return _list(raw).map(_plan).toList();
+    return _list(raw).map(_subscription).toList();
+  }
+
+  Future<String> pauseSubscription({
+    required int subscriptionId,
+    required String language,
+  }) => _changeSubscription(
+    ApiConstants.waterSubscriptionPause,
+    subscriptionId,
+    language,
+  );
+
+  Future<String> resumeSubscription({
+    required int subscriptionId,
+    required String language,
+  }) => _changeSubscription(
+    ApiConstants.waterSubscriptionResume,
+    subscriptionId,
+    language,
+  );
+
+  Future<String> cancelSubscription({
+    required int subscriptionId,
+    required String language,
+  }) => _changeSubscription(
+    ApiConstants.waterSubscriptionCancel,
+    subscriptionId,
+    language,
+  );
+
+  Future<String> _changeSubscription(
+    String path,
+    int subscriptionId,
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        path,
+        data: {'subscription_id': subscriptionId},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// A subscription shaped for the My Subscriptions cards.
+  Map<String, dynamic> _subscription(Map<String, dynamic> item) {
+    final status = '${item['status'] ?? ''}'.toLowerCase();
+    final bottles = _asInt(item['bottles_per_delivery']);
+    final slot = '${item['delivery_slot'] ?? ''}'.trim();
+    final frequency = '${item['frequency_label'] ?? ''}'.trim();
+    String text(dynamic value) => '${value ?? ''}'.trim();
+    return {
+      'id': _asInt(item['subscription_id']),
+      'state': status,
+      'title': text(item['vendor_name']).isEmpty
+          ? 'Water supplier'
+          : text(item['vendor_name']),
+      'subtitle': _localized(item, 'product_name', fallback: ''),
+      'size': text(item['package_label']),
+      'qty': bottles > 0 ? 'x$bottles' : '',
+      'status': text(item['status_label']),
+      'imageUrl':
+          ApiConstants.mediaUrl(item['product_image']?.toString()) ?? '',
+      'frequency': slot.isEmpty ? frequency : '$frequency ($slot)',
+      'nextDelivery': text(item['next_delivery_at']).split(' ').first,
+      'startDate': text(item['start_date']),
+      'endDate': text(item['end_date']),
+      'pauseUntil': text(item['pause_until']).split(' ').first,
+    };
   }
 
   Map<String, dynamic> _supplier(Map<String, dynamic> item) {
