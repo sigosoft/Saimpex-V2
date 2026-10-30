@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import 'home_cleaning_choose_slot_sheet.dart';
 import 'home_cleaning_booking_success_screen.dart';
+import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
 
 class HomeCleaningCartScreen extends StatefulWidget {
@@ -94,6 +95,29 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   void dispose() {
     _couponController.dispose();
     super.dispose();
+  }
+
+  bool _booking = false;
+
+  Future<void> _placeBooking() async {
+    if (_booking) return;
+    setState(() => _booking = true);
+    List<Map<String, dynamic>> rows(List<Map<String, dynamic>> source) => [
+      for (final row in source)
+        {'name': row['label'], 'quantity': row['qty']},
+    ];
+    final booking = await placeServiceBooking(
+      slotDate: _slotDate,
+      slotLabel: _slotLabel,
+      onlinePayment: _paymentIndex == 1,
+      spaces: rows(_spaceRows),
+      addons: rows(_extraRows),
+      productSupply: _productsProvider == 'provider' ? 'vendor' : 'customer',
+    );
+    if (!mounted) return;
+    setState(() => _booking = false);
+    if (booking == null) return;
+    Get.off(() => const HomeCleaningBookingSuccessScreen());
   }
 
   List<Map<String, dynamic>> get _allSourceRows {
@@ -1243,9 +1267,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           ),
           const SizedBox(height: 14),
           GestureDetector(
-            onTap: () {
-              Get.to(() => const HomeCleaningBookingSuccessScreen());
-            },
+            onTap: _placeBooking,
             child: Container(
               width: double.infinity,
               height: 54,
@@ -1266,7 +1288,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ],
               ),
               child: Text(
-                'Pay $_toPay MRU',
+                _booking ? 'Booking...' : 'Pay $_toPay MRU',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,

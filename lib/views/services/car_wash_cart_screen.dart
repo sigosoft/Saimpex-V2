@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'car_wash_choose_slot_sheet.dart';
 import 'car_wash_booking_success_screen.dart';
-import '../../controllers/car_wash_bookings_store.dart';
+import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
 
 class CarWashCartScreen extends StatefulWidget {
@@ -110,113 +110,39 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
     return '${widget.providerName}, Near Nouakchott, Mauritania';
   }
 
-  String _slotRangeFromLabel(String label) {
-    final full = RegExp(
-      r'(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (full != null) {
-      final startH = full.group(1)!;
-      final startM = full.group(2)!;
-      final endH = full.group(3)!;
-      final endM = full.group(4)!;
-      final period = full.group(5)!.toUpperCase();
-      return '$startH:$startM $period - $endH:$endM $period';
-    }
-    final short = RegExp(
-      r'(\d+)\s*[–-]\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (short == null) return label;
-    return '${short.group(1)}:00 ${short.group(3)!.toUpperCase()} - ${short.group(2)}:00 ${short.group(3)!.toUpperCase()}';
-  }
-
   Future<void> _changeSlot() async {
     final result = await CarWashChooseSlotSheet.show(context);
     if (result == null) return;
     setState(() {
       _slotDate = result['date'] as DateTime;
-      _slotLabel = _slotRangeFromLabel(result['slot'] as String);
+      _slotLabel = formatServiceSlotLabel(result['slot'] as String);
     });
   }
 
-  void _pay() {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final d = _slotDate;
-    final slotDisplay =
-        '${d.day} ${months[d.month - 1]} ${d.year}, $_slotLabel';
-    final bookingId =
-        '22789${(100 + CarWashBookingsStore.instance.bookings.length).toString().padLeft(3, '0')}';
+  bool _booking = false;
 
-    final washServices = <Map<String, dynamic>>[
-      {
-        'title': widget.serviceTitle,
-        'description': widget.serviceDescription,
-        'price': '${widget.servicePrice} MRU',
-        'image': widget.serviceImage,
-      },
-      ...widget.selectedAddons.map(
-        (a) => {
-          'title': a['title'],
-          'description': a['description'],
-          'price': '+${a['price'] ?? 0} MRU',
-          'image': a['image'],
-          'isAddon': true,
-        },
-      ),
-    ];
-
-    CarWashBookingsStore.instance.add({
-      'id': bookingId,
-      'provider': widget.providerName,
-      'category': 'Car Wash',
-      'categoryColor': 0xFF2B7DE9,
-      'service': widget.serviceTitle,
-      'serviceTitle': widget.serviceTitle,
-      'serviceDescription': widget.serviceDescription,
-      'serviceImage': widget.serviceImage,
-      'servicePrice': '${widget.servicePrice} MRU',
-      'status': 'Confirmed',
-      'datetime': slotDisplay,
-      'slot': slotDisplay,
-      'location': _locationText,
-      'locationTitle': widget.providerName,
-      'price': '$_toPay MRU',
-      'vehicleLabel': widget.vehicleLabel,
-      'vehicleImage': widget.vehicleImage,
-      'plateNumber': widget.plateNumber,
-      'image': widget.vehicleImage,
-      'washServices': washServices,
-      'addons': widget.selectedAddons
-          .map(
-            (a) => {
-              'title': a['title'],
-              'description': a['description'],
-              'price': '+${a['price'] ?? 0} MRU',
-              'image': a['image'],
-            },
-          )
-          .toList(),
-      'total': '$_subtotal MRU',
-      'redeemed': '-$_pointsDiscount MRU',
-      'tax': '$_tax MRU',
-      'totalPaid': '$_toPay MRU',
-    });
-
-    Get.to(() => const CarWashBookingSuccessScreen());
+  Future<void> _pay() async {
+    if (_booking) return;
+    setState(() => _booking = true);
+    final atHome = widget.selectedLocation == 1;
+    final booking = await placeServiceBooking(
+      slotDate: _slotDate,
+      slotLabel: _slotLabel,
+      onlinePayment: _paymentIndex == 1,
+      place: atHome ? 'home' : 'station',
+      vehicles: [
+        {'name': widget.vehicleLabel, 'plate': widget.plateNumber},
+      ],
+      addons: [
+        for (final addon in widget.selectedAddons)
+          {'name': addon['title'], 'quantity': 1},
+      ],
+      notes: atHome ? widget.serviceAddress : '',
+    );
+    if (!mounted) return;
+    setState(() => _booking = false);
+    if (booking == null) return;
+    Get.off(() => const CarWashBookingSuccessScreen());
   }
 
   @override
@@ -1109,7 +1035,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 ],
               ),
               child: Text(
-                'Pay $_toPay MRU',
+                _booking ? 'Booking...' : 'Pay $_toPay MRU',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,

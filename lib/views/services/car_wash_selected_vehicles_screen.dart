@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'service_booking_submit.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -69,18 +70,6 @@ class _CarWashSelectedVehiclesScreenState
   int get _totalDurationMin =>
       _vehicles.fold<int>(0, (sum, v) => sum + v.durationMin);
 
-  String _slotRangeFromLabel(String label) {
-    final match = RegExp(
-      r'(\d+)\s*[–-]\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (match == null) return label;
-    final start = match.group(1)!;
-    final end = match.group(2)!;
-    final period = match.group(3)!.toUpperCase();
-    return '$start:00 $period - $end:00 $period';
-  }
-
   static String _formatDuration(int totalMin) {
     final h = totalMin ~/ 60;
     final m = totalMin % 60;
@@ -103,7 +92,7 @@ class _CarWashSelectedVehiclesScreenState
         basePrice: first.price,
         baseDurationMin: first.durationMin,
         slotDate: result['date'] as DateTime,
-        slotLabel: _slotRangeFromLabel(result['slot'] as String),
+        slotLabel: formatServiceSlotLabel(result['slot'] as String),
       ),
     );
   }

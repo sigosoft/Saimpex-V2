@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'service_booking_submit.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -164,18 +165,6 @@ class _CarWashServiceConfigureScreenState
     return '$m min';
   }
 
-  String _slotRangeFromLabel(String label) {
-    final match = RegExp(
-      r'(\d+)\s*[–-]\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (match == null) return label;
-    final start = match.group(1)!;
-    final end = match.group(2)!;
-    final period = match.group(3)!.toUpperCase();
-    return '$start:00 $period - $end:00 $period';
-  }
-
   Future<void> _openSelectedVehicleSheet(int index) async {
     final vehicle = _vehicles[index];
     setState(() {
@@ -249,7 +238,7 @@ class _CarWashServiceConfigureScreenState
         basePrice: _totalPrice,
         baseDurationMin: _totalDurationMin,
         slotDate: result['date'] as DateTime,
-        slotLabel: _slotRangeFromLabel(result['slot'] as String),
+        slotLabel: formatServiceSlotLabel(result['slot'] as String),
         initialAddonIds: Set<String>.from(_selectedAddons),
       ),
     );
