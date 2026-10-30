@@ -367,7 +367,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ] else if (delivered)
           _buildOrderButton(
             text: "Rate",
-            onTap: () => Get.to(() => const RateOrderScreen()),
+            onTap: () => Get.to(
+              () => RateOrderScreen(
+                orderId: order['numericOrderId'] as int?,
+              ),
+            ),
           ),
       ],
     );
@@ -466,7 +470,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         if (delivered)
           _buildOrderButton(
             text: "Rate",
-            onTap: () => Get.to(() => const RateOrderScreen()),
+            onTap: () => Get.to(
+              () => RateOrderScreen(
+                orderId: order['numericOrderId'] as int?,
+              ),
+            ),
           )
         else if (!cancelled) ...[
           _buildOrderButton(

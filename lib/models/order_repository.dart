@@ -299,8 +299,9 @@ class OrderRepository {
           'order_id': '$orderId',
           'vendor_rating': '$vendorRating',
           'vendor_comment': vendorComment,
-          'driver_rating': '$driverRating',
-          'driver_comment': driverComment,
+          // The API accepts 1-5 only, so an unrated driver is left out.
+          if (driverRating > 0) 'driver_rating': '$driverRating',
+          if (driverRating > 0) 'driver_comment': driverComment,
           'products': '',
         },
         options: Options(contentType: Headers.jsonContentType),

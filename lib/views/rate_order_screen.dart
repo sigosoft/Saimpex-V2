@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../core/network/api_exception.dart';
+import '../models/order_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import 'rating_reviews_screen.dart';
 
 class RateOrderScreen extends StatefulWidget {
   final ReviewTarget? reviewTarget;
 
-  const RateOrderScreen({super.key, this.reviewTarget});
+  /// Numeric order id sent to customer/submitRating.
+  final int? orderId;
+
+  const RateOrderScreen({super.key, this.reviewTarget, this.orderId});
 
   @override
   State<RateOrderScreen> createState() => _RateOrderScreenState();
@@ -34,6 +41,53 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
   ];
 
   final TextEditingController _reviewController = TextEditingController();
+  bool _submitting = false;
+
+  Future<void> _submit() async {
+    if (_submitting) return;
+    final orderId = widget.orderId;
+    if (orderId == null || orderId < 1 || !Get.isRegistered<OrderRepository>()) {
+      showAppToast(
+        'This order cannot be rated right now',
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
+    if (restaurantRating < 1) {
+      showAppToast(
+        'Please rate the store before submitting',
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
+    String comment(Set<String> tags, String text) =>
+        [...tags, if (text.isNotEmpty) text].join(', ');
+    setState(() => _submitting = true);
+    try {
+      final message = await Get.find<OrderRepository>().submitRating(
+        orderId: orderId,
+        vendorRating: restaurantRating,
+        driverRating: deliveryRating,
+        vendorComment: comment(
+          selectedRestaurantTags,
+          _reviewController.text.trim(),
+        ),
+        driverComment: comment(selectedDeliveryTags, ''),
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      showAppToast(
+        message.isEmpty ? 'Rating submitted successfully!' : message,
+        backgroundColor: const Color(0xFF00B25C),
+      );
+      Get.off(() => RatingReviewsScreen(target: widget.reviewTarget));
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -183,20 +237,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
               MediaQuery.of(context).viewPadding.bottom + 12,
             ),
             child: GestureDetector(
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Rating submitted successfully!',
-                      style: GoogleFonts.outfit(),
-                    ),
-                    backgroundColor: const Color(0xFF00B25C),
-                  ),
-                );
-                Get.to(
-                  () => RatingReviewsScreen(target: widget.reviewTarget),
-                );
-              },
+              onTap: _submit,
               child: Container(
                 height: 52,
                 decoration: BoxDecoration(
