@@ -9,7 +9,9 @@ import '../../navigation/bottom_nav_router.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
 import '../../widgets/see_all_button.dart';
 import '../select_location_screen.dart';
+import '../../models/service_repository.dart';
 import 'home_cleaning_provider_detail_screen.dart';
+import 'service_provider_list.dart';
 
 class HomeCleaningScreen extends StatelessWidget {
   const HomeCleaningScreen({super.key});
@@ -33,25 +35,6 @@ class HomeCleaningScreen extends StatelessWidget {
     },
   ];
 
-  static const _nearbyServices = [
-    {
-      'name': 'CleanPro Elite',
-      'rating': '4.8',
-      'distance': '2.4 km away',
-      'price': '450',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/cleanproelitee.jpg',
-    },
-    {
-      'name': 'Elite Shine',
-      'rating': '4.6',
-      'distance': '3.1 km away',
-      'price': '450',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&h=360&fit=crop',
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -444,10 +427,10 @@ class HomeCleaningScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        for (var i = 0; i < _nearbyServices.length; i++) ...[
-          if (i > 0) const SizedBox(height: 14),
-          _buildServiceCard(_nearbyServices[i]),
-        ],
+        ServiceProviderList(
+          vertical: ServiceRepository.homeCleaning,
+          cardBuilder: _buildServiceCard,
+        ),
       ],
     );
   }

@@ -12,6 +12,7 @@ import '../models/order_repository.dart';
 import '../models/pharmacy_repository.dart';
 import '../models/profile_repository.dart';
 import '../models/courier_repository.dart';
+import '../models/service_repository.dart';
 import '../models/water_repository.dart';
 
 class AppDependencies {
@@ -31,6 +32,7 @@ class AppDependencies {
     Get.put<GroceryRepository>(GroceryRepository(client), permanent: true);
     Get.put<WaterRepository>(WaterRepository(client), permanent: true);
     Get.put<CourierRepository>(CourierRepository(client), permanent: true);
+    Get.put<ServiceRepository>(ServiceRepository(client), permanent: true);
     Get.put<GeneralRepository>(GeneralRepository(client), permanent: true);
     await SelectLocationController.loadSaved();
   }

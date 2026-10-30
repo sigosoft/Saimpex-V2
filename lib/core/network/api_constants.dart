@@ -120,6 +120,14 @@ class ApiConstants {
   static const String waterSearchV2 = 'customer/waterSearchV2';
   static const String waterPlans = 'customer/water/plans';
   static const String waterSubscriptions = 'customer/water/subscriptions';
+  static const String serviceProviders = 'customer/serviceProviders';
+  static const String serviceProvider = 'customer/serviceProvider';
+  static const String serviceSlots = 'customer/serviceSlots';
+  static const String serviceQuote = 'customer/service/quote';
+  static const String serviceBook = 'customer/service/book';
+  static const String serviceBookings = 'customer/service/bookings';
+  static const String serviceBooking = 'customer/service/booking';
+  static const String serviceCancel = 'customer/service/cancel';
   static const String waterSubscriptionPause =
       'customer/water/subscription/pause';
   static const String waterSubscriptionResume =

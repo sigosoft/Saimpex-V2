@@ -11,7 +11,9 @@ import '../../navigation/bottom_nav_router.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
 import '../../widgets/see_all_button.dart';
 import '../select_location_screen.dart';
+import '../../models/service_repository.dart';
 import 'laundry_provider_detail_screen.dart';
+import 'service_provider_list.dart';
 
 class LaundryServicesScreen extends StatelessWidget {
   const LaundryServicesScreen({super.key});
@@ -35,38 +37,6 @@ class LaundryServicesScreen extends StatelessWidget {
     },
   ];
 
-  static const _nearbyServices = [
-    {
-      'name': 'CleanPro Laundry',
-      'rating': '4.4',
-      'distance': '2.4 km away',
-      'ready': 'Ready in 24 hours',
-      'points': '200 Points Available',
-      'tag1': 'Wash & Fold',
-      'price1': '150 MRU/kg',
-      'tag2': 'Wash & Iron',
-      'price2': '200 MRU/kg',
-      'tag3': 'Ironing',
-      'price3': '120 MRU/kg',
-      'image':
-          'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=800&h=480&fit=crop',
-    },
-    {
-      'name': 'Oasis Laundry Hub',
-      'rating': '4.6',
-      'distance': '3.4 km away',
-      'ready': 'Ready in 24 hours',
-      'points': '200 Points Available',
-      'tag1': 'Dry Cleaning',
-      'price1': '180 MRU/kg',
-      'tag2': 'Ironing',
-      'price2': '120 MRU/kg',
-      'tag3': 'Wash & Fold',
-      'price3': '150 MRU/kg',
-      'image':
-          'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=800&h=480&fit=crop',
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -452,10 +422,10 @@ class LaundryServicesScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        for (var i = 0; i < _nearbyServices.length; i++) ...[
-          if (i > 0) const SizedBox(height: 14),
-          _buildProviderCard(_nearbyServices[i]),
-        ],
+        ServiceProviderList(
+          vertical: ServiceRepository.laundry,
+          cardBuilder: _buildProviderCard,
+        ),
       ],
     );
   }

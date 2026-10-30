@@ -11,31 +11,12 @@ import '../../navigation/bottom_nav_router.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
 import '../../widgets/see_all_button.dart';
 import '../select_location_screen.dart';
+import '../../models/service_repository.dart';
 import 'car_wash_provider_detail_screen.dart';
+import 'service_provider_list.dart';
 
 class CarWashScreen extends StatelessWidget {
   const CarWashScreen({super.key});
-
-  static const _nearbyCenters = [
-    {
-      'name': 'CleanRide Car Wash',
-      'rating': '4.8',
-      'distance': '2.4 km away',
-      'price': '550',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=800&h=480&fit=crop',
-    },
-    {
-      'name': 'Desert Shine Pro',
-      'rating': '4.6',
-      'distance': '3.4 km away',
-      'price': '650',
-      'points': '200 Points Available',
-      'image':
-          'https://images.unsplash.com/photo-1486006920555-c77dcf18193c?w=800&h=480&fit=crop',
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -348,10 +329,10 @@ class CarWashScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        for (var i = 0; i < _nearbyCenters.length; i++) ...[
-          if (i > 0) const SizedBox(height: 14),
-          _buildServiceCard(_nearbyCenters[i]),
-        ],
+        ServiceProviderList(
+          vertical: ServiceRepository.carWash,
+          cardBuilder: _buildServiceCard,
+        ),
       ],
     );
   }
