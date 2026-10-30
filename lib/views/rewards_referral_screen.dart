@@ -2,12 +2,220 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../controllers/select_location_controller.dart';
+import '../core/network/api_constants.dart';
+import '../core/network/api_exception.dart';
+import '../models/profile_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
-import '../widgets/see_all_button.dart';
+import 'cart_screen.dart';
 import 'redeem_detail_sheet.dart';
 
-class RewardsReferralScreen extends StatelessWidget {
+/// Points balance, tier, redeemable baskets, weekly missions, referral and
+/// points history, from customer/userPoints, loyalty, rewardList and
+/// transactionHistory.
+class RewardsReferralScreen extends StatefulWidget {
   const RewardsReferralScreen({super.key});
+
+  @override
+  State<RewardsReferralScreen> createState() => _RewardsReferralScreenState();
+}
+
+class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
+  num _points = 0;
+  num _redeemableAmount = 0;
+  Map<String, dynamic> _tier = const {};
+  List<Map<String, dynamic>> _missions = const [];
+  Map<String, dynamic> _referral = const {};
+  List<Map<String, dynamic>> _baskets = const [];
+  List<Map<String, dynamic>> _history = const [];
+  bool _loading = true;
+  String? _error;
+  int? _claimingId;
+
+  ProfileRepository get _repo => Get.find<ProfileRepository>();
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (!Get.isRegistered<ProfileRepository>()) return;
+    final language = apiLanguageCode();
+    try {
+      final results = await Future.wait([
+        _repo.fetchUserPoints(language),
+        _repo.loyalty(language),
+      ]);
+      final points = results[0] as ({num userPoints, num redeemableAmount});
+      final loyalty = results[1] as Map<String, dynamic>;
+      if (!mounted) return;
+      setState(() {
+        _points = points.userPoints;
+        _redeemableAmount = points.redeemableAmount;
+        _tier = _map(loyalty['tier']);
+        _missions = _list(loyalty['missions']);
+        _referral = _map(loyalty['referral']);
+        _error = null;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _error = error.message);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+    // Baskets and history are secondary; a failure just hides them.
+    try {
+      final baskets = await _repo.rewardBaskets(
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: language,
+      );
+      if (mounted) setState(() => _baskets = baskets);
+    } on ApiException {
+      // Leave the section hidden.
+    }
+    try {
+      final history = await _repo.rewardHistory(language);
+      if (mounted) setState(() => _history = history);
+    } on ApiException {
+      // Leave the section hidden.
+    }
+  }
+
+  static Map<String, dynamic> _map(dynamic value) =>
+      value is Map ? Map<String, dynamic>.from(value) : const {};
+
+  static List<Map<String, dynamic>> _list(dynamic value) => [
+    if (value is List)
+      for (final row in value)
+        if (row is Map) Map<String, dynamic>.from(row),
+  ];
+
+  static num _num(dynamic value) => num.tryParse('${value ?? ''}') ?? 0;
+
+  /// 1820 → "1,820".
+  static String _grouped(num value) {
+    final digits = value.round().toString();
+    final out = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) out.write(',');
+      out.write(digits[i]);
+    }
+    return out.toString();
+  }
+
+  String _localized(Map<String, dynamic> row, String key) {
+    final language = apiLanguageCode();
+    final value = '${row['${key}_$language'] ?? ''}'.trim();
+    return value.isNotEmpty ? value : '${row['${key}_en'] ?? ''}'.trim();
+  }
+
+  Future<void> _claim(Map<String, dynamic> mission) async {
+    final id = int.tryParse('${mission['id']}');
+    if (id == null || _claimingId != null) return;
+    setState(() => _claimingId = id);
+    try {
+      final message = await _repo.claimMission(
+        missionId: id,
+        language: apiLanguageCode(),
+      );
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      await _load();
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _claimingId = null);
+    }
+  }
+
+  Future<void> _redeem(Map<String, dynamic> basket) async {
+    final basketId = int.tryParse('${basket['id']}');
+    final vendorId = int.tryParse('${basket['vendor_id']}');
+    if (basketId == null || vendorId == null) return;
+    try {
+      final message = await _repo.redeemBasket(
+        basketId: basketId,
+        vendorId: vendorId,
+        language: apiLanguageCode(),
+      );
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      Get.to(() => const CartScreen(isFoodOrGrocery: true));
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  void _copyInvite() {
+    final code = '${_referral['code'] ?? ''}';
+    if (code.isEmpty) return;
+    final amount = _num(_referral['reward_amount']).round();
+    Clipboard.setData(
+      ClipboardData(
+        text:
+            'Join SAIMPEX with my code $code and we both get $amount MRU '
+            'after your first delivered order.',
+      ),
+    );
+    showAppToast(
+      'Invite copied. Paste it to your friends.',
+      backgroundColor: const Color(0xFFFF5E00),
+    );
+  }
+
+  Future<void> _enterCode() async {
+    final controller = TextEditingController();
+    final code = await Get.dialog<String>(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(
+          'Enter a referral code',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 17),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.characters,
+          decoration: const InputDecoration(hintText: 'e.g. SXAB12CD'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.outfit(color: const Color(0xFF7A6A60)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: controller.text.trim()),
+            child: Text(
+              'Apply',
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFFF5E00),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (code == null || code.isEmpty) return;
+    try {
+      final message = await _repo.applyReferral(
+        code: code,
+        language: apiLanguageCode(),
+      );
+      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      await _load();
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,63 +234,88 @@ class RewardsReferralScreen extends StatelessWidget {
           children: [
             _buildHeader(context),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildBalanceCard(),
-                    const SizedBox(height: 22),
-                    _buildSectionTitle('🎁  Redeem Rewards'),
-                    const SizedBox(height: 12),
-                    _buildRedeemList(),
-                    const SizedBox(height: 22),
-                    _buildSectionTitle(
-                      '🎯  Weekly Mission',
-                      trailing: true,
+              child: _loading && _tier.isEmpty
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF5E00),
+                      ),
+                    )
+                  : _tier.isEmpty && _error != null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFA59A94),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
+                      color: const Color(0xFFFF5E00),
+                      onRefresh: _load,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildBalanceCard(),
+                            if (_baskets.isNotEmpty) ...[
+                              const SizedBox(height: 22),
+                              _buildSectionTitle('🎁  Redeem Rewards'),
+                              const SizedBox(height: 12),
+                              _buildRedeemList(),
+                            ],
+                            if (_missions.isNotEmpty) ...[
+                              const SizedBox(height: 22),
+                              _buildSectionTitle('🎯  Weekly Mission'),
+                              const SizedBox(height: 12),
+                              for (var i = 0; i < _missions.length; i++) ...[
+                                if (i > 0) const SizedBox(height: 10),
+                                _buildMissionCard(_missions[i]),
+                              ],
+                            ],
+                            const SizedBox(height: 22),
+                            _buildSectionTitle(
+                              'Invite & Earn',
+                              iconAsset:
+                                  'lib/assets/images/invite_earn_icon.png',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildInviteCard(),
+                            if (_referral['can_apply_code'] == true) ...[
+                              const SizedBox(height: 10),
+                              Center(
+                                child: GestureDetector(
+                                  onTap: _enterCode,
+                                  child: Text(
+                                    'Have a referral code? Enter it',
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFFF5E00),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            if (_history.isNotEmpty) ...[
+                              const SizedBox(height: 22),
+                              _buildSectionTitle('Points History'),
+                              const SizedBox(height: 12),
+                              _buildHistory(),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    _buildMissionCard(
-                      asset: 'lib/assets/images/groceryorders_icon.png',
-                      title: 'Place 3 grocery orders',
-                      subtitle: '2/3 orders completed this week',
-                      reward: '+150 pts',
-                      progress: 2 / 3,
-                    ),
-                    const SizedBox(height: 10),
-                    _buildMissionCard(
-                      asset: 'lib/assets/images/star_icon.png',
-                      title: 'Rate 5 orders',
-                      subtitle: '3/5 reviews submitted',
-                      reward: '+75 pts',
-                      progress: 3 / 5,
-                    ),
-                    const SizedBox(height: 10),
-                    _buildMissionCard(
-                      asset: 'lib/assets/images/invitefriens_icon.png',
-                      title: 'Invite 5 friends',
-                      subtitle: '0/5 referrals',
-                      reward: '+100 MRU',
-                      progress: 0,
-                    ),
-                    const SizedBox(height: 22),
-                    _buildSectionTitle(
-                      'Invite & Earn',
-                      iconAsset: 'lib/assets/images/invite_earn_icon.png',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInviteCard(),
-                    const SizedBox(height: 22),
-                    _buildSectionTitle(
-                      'Cashback History',
-                      trailing: true,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCashbackHistory(),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -118,20 +351,11 @@ class RewardsReferralScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(
-    String title, {
-    bool trailing = false,
-    String? iconAsset,
-  }) {
+  Widget _buildSectionTitle(String title, {String? iconAsset}) {
     return Row(
       children: [
         if (iconAsset != null) ...[
-          Image.asset(
-            iconAsset,
-            width: 20,
-            height: 20,
-            fit: BoxFit.contain,
-          ),
+          Image.asset(iconAsset, width: 20, height: 20, fit: BoxFit.contain),
           const SizedBox(width: 8),
         ],
         Expanded(
@@ -144,13 +368,17 @@ class RewardsReferralScreen extends StatelessWidget {
             ),
           ),
         ),
-        if (trailing)
-          const SeeAllButton(),
       ],
     );
   }
 
   Widget _buildBalanceCard() {
+    final tierName = '${_tier['name'] ?? ''}';
+    final nextName = '${_tier['next_name'] ?? ''}';
+    final toNext = _num(_tier['next_points']) - _num(_tier['points']);
+    final perks = [
+      for (final perk in (_tier['perks'] as List? ?? const [])) '$perk',
+    ];
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
@@ -182,7 +410,7 @@ class RewardsReferralScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          '1,820',
+                          _grouped(_points),
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 34,
@@ -192,7 +420,7 @@ class RewardsReferralScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'pts ≈ 182 MRU',
+                          'pts ≈ ${_grouped(_redeemableAmount)} MRU',
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFBDBDBD),
                             fontSize: 14,
@@ -205,44 +433,47 @@ class RewardsReferralScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2A1208),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF904D25)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.workspace_premium_rounded,
-                      color: Color(0xFFD87B3C),
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'GOLD TIER',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFBE8D8),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.3,
+              if (tierName.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A1208),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFF904D25)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.workspace_premium_rounded,
+                        color: Color(0xFFD87B3C),
+                        size: 14,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        '${tierName.toUpperCase()} TIER',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFBE8D8),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 18),
           SizedBox(
             width: double.infinity,
             child: Text(
-              '550 pts to Platinum unlock',
+              nextName.isEmpty
+                  ? 'Top tier reached'
+                  : '${_grouped(toNext < 0 ? 0 : toNext)} tier pts to $nextName unlock',
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFCFCFCF),
@@ -253,40 +484,36 @@ class RewardsReferralScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           _buildTierProgress(),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildBenefitChip(
-                  asset: 'lib/assets/images/delivery_icon.png',
-                  label: 'Free Delivery',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildBenefitChip(
-                  icon: Icons.percent_rounded,
-                  label: 'Offers',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildBenefitChip(
-                  asset: 'lib/assets/images/priority_icon.png',
-                  label: 'Priority',
-                ),
-              ),
-            ],
-          ),
+          if (perks.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                for (var i = 0; i < perks.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 8),
+                  Expanded(child: _buildBenefitChip(perks[i])),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
   Widget _buildTierProgress() {
-    const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum'];
-    // Gold reached (index 2 of 3 segments) — ~75% filled toward platinum
-    const progress = 0.78;
+    final tiers = [
+      for (final tier in (_tier['tiers'] as List? ?? const []))
+        if (tier is Map) '${tier['name']}',
+    ];
+    if (tiers.length < 2) return const SizedBox.shrink();
+    final currentIndex = tiers.indexOf('${_tier['name'] ?? ''}');
+    final within = _num(_tier['progress']).toDouble().clamp(0.0, 1.0);
+    // Each gap between tier dots is one segment of the bar.
+    final progress = currentIndex < 0
+        ? 0.0
+        : ((currentIndex + (currentIndex < tiers.length - 1 ? within : 0)) /
+                  (tiers.length - 1))
+              .clamp(0.0, 1.0);
 
     return Column(
       children: [
@@ -321,7 +548,7 @@ class RewardsReferralScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(tiers.length, (index) {
-            final active = index <= 2;
+            final active = index <= currentIndex;
             return Column(
               children: [
                 Container(
@@ -353,11 +580,12 @@ class RewardsReferralScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBenefitChip({
-    IconData? icon,
-    String? asset,
-    required String label,
-  }) {
+  Widget _buildBenefitChip(String label) {
+    final asset = switch (label) {
+      'Free Delivery' => 'lib/assets/images/delivery_icon.png',
+      'Priority' => 'lib/assets/images/priority_icon.png',
+      _ => null,
+    };
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -365,7 +593,7 @@ class RewardsReferralScreen extends StatelessWidget {
         color: Colors.grey.shade800,
         borderRadius: BorderRadius.circular(40),
         border: Border.all(
-          color: Colors.white.withOpacity(0.22),
+          color: Colors.white.withValues(alpha: 0.22),
           width: 1,
         ),
       ),
@@ -374,14 +602,13 @@ class RewardsReferralScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (asset != null)
-            Image.asset(
-              asset,
-              width: 24,
-              height: 24,
-              fit: BoxFit.contain,
-            )
-          else if (icon != null)
-            Icon(icon, color: const Color(0xFFFF5E00), size: 24),
+            Image.asset(asset, width: 24, height: 24, fit: BoxFit.contain)
+          else
+            const Icon(
+              Icons.percent_rounded,
+              color: Color(0xFFFF5E00),
+              size: 24,
+            ),
           const SizedBox(height: 2),
           Text(
             label,
@@ -399,264 +626,285 @@ class RewardsReferralScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRedeemList() {
-    final rewards = [
-      {
-        'store': 'Al Fantasia',
-        'title': 'Premium Food Basket',
-        'subtitle': 'Reach 5000 points to redeem your basket reward',
-        'points': '5,000 pts',
-        'progress': 0.6,
-        'redeemable': false,
-        'rewardValue': 'Free up to 1,000 MRU',
-        'insides': ['Chicken Pasta', 'Chicken Tagine', 'Milk Dessert'],
-        'image':
-            'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop',
-      },
-      {
-        'store': 'Good Choice',
-        'title': 'Free Delivery Pass',
-        'subtitle': 'Reach 2500 points to unlock free delivery',
-        'points': '2,500 pts',
-        'progress': 0.55,
-        'redeemable': false,
-        'rewardValue': 'Free delivery for 30 days',
-        'insides': ['Unlimited delivery', 'All stores', 'Priority support'],
-        'image':
-            'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=500&auto=format&fit=crop',
-      },
-      {
-        'store': 'Al Fantasia',
-        'title': 'Premium Food Basket',
-        'subtitle': 'Reach 5000 points to redeem your basket reward',
-        'points': '5,000 pts',
-        'progress': 1.0,
-        'redeemable': true,
-        'rewardValue': 'Free up to 1,000 MRU',
-        'insides': ['Chicken Pasta', 'Chicken Tagine', 'Milk Dessert'],
-        'image':
-            'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop',
-      },
-    ];
+  /// A rewardList basket in the shape RedeemDetailSheet and the cards use.
+  Map<String, dynamic> _basketCard(Map<String, dynamic> basket) {
+    final needed = _num(basket['basket_redeem_points']);
+    final have = _num(basket['user_points']);
+    final language = apiLanguageCode();
+    final vendor = '${basket['vendor_name_$language'] ?? ''}'.trim();
+    return {
+      'store': vendor.isNotEmpty ? vendor : '${basket['vendor_name'] ?? ''}',
+      'title': _localized(basket, 'name'),
+      'subtitle': _localized(basket, 'description'),
+      'points': '${_grouped(needed)} pts',
+      'progress': needed <= 0 ? 1.0 : (have / needed).toDouble(),
+      'redeemable':
+          basket['can_redeem'] == true &&
+          basket['available'] != false &&
+          basket['purchase_available'] != false,
+      'rewardValue': '${_grouped(_num(basket['basket_price']))} MRU basket',
+      'image': ApiConstants.mediaUrl('${basket['image'] ?? ''}') ?? '',
+    };
+  }
 
+  Widget _buildRedeemList() {
     return SizedBox(
       height: 268,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: rewards.length,
+        itemCount: _baskets.length,
         itemBuilder: (context, index) {
-          final item = rewards[index];
+          final basket = _baskets[index];
+          final item = _basketCard(basket);
           final progress = (item['progress'] as double).clamp(0.0, 1.0);
           final redeemable = item['redeemable'] == true;
-
-          final image = Image.network(
-            item['image'] as String,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
-              color: const Color(0xFFD9D3CC),
-              child: const Icon(Icons.card_giftcard_rounded),
-            ),
+          final placeholder = Container(
+            color: const Color(0xFFD9D3CC),
+            child: const Icon(Icons.card_giftcard_rounded),
           );
+          final imageUrl = item['image'] as String;
+          final image = imageUrl.isEmpty
+              ? placeholder
+              : Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => placeholder,
+                );
 
           return GestureDetector(
-            onTap: () => RedeemDetailSheet.show(context, item),
+            onTap: () => RedeemDetailSheet.show(
+              context,
+              item,
+              onRedeem: () => _redeem(basket),
+            ),
             child: Container(
-            width: 220,
-            margin: EdgeInsets.only(
-              right: index == rewards.length - 1 ? 0 : 14,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(26),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 105,
-                  width: double.infinity,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      if (redeemable)
-                        image
-                      else
-                        ColorFiltered(
-                          colorFilter: const ColorFilter.matrix(<double>[
-                            0.2126, 0.7152, 0.0722, 0, 0,
-                            0.2126, 0.7152, 0.0722, 0, 0,
-                            0.2126, 0.7152, 0.0722, 0, 0,
-                            0, 0, 0, 1, 0,
-                          ]),
-                          child: image,
-                        ),
-                      if (!redeemable)
-                        Container(color: Colors.black.withOpacity(0.28)),
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 5,
-                              height: 5,
-                              decoration: BoxDecoration(
-                                color: redeemable
-                                    ? Colors.white
-                                    : const Color(0xFFC8C2BC),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              item['store'] as String,
-                              style: GoogleFonts.outfit(
-                                color: redeemable
-                                    ? Colors.white
-                                    : const Color(0xFFE8E4DF),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (!redeemable)
-                        const Center(
-                          child: Icon(
-                            Icons.lock_outline_rounded,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                        ),
-                    ],
+              width: 220,
+              margin: EdgeInsets.only(
+                right: index == _baskets.length - 1 ? 0 : 14,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(26),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 105,
+                    width: double.infinity,
+                    child: Stack(
+                      fit: StackFit.expand,
                       children: [
-                        Text(
-                          item['title'] as String,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF1A1A1A),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                        if (redeemable)
+                          image
+                        else
+                          ColorFiltered(
+                            colorFilter: const ColorFilter.matrix(<double>[
+                              0.2126, 0.7152, 0.0722, 0, 0, //
+                              0.2126, 0.7152, 0.0722, 0, 0, //
+                              0.2126, 0.7152, 0.0722, 0, 0, //
+                              0, 0, 0, 1, 0,
+                            ]),
+                            child: image,
                           ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          item['subtitle'] as String,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF8A8A8A),
-                            fontSize: 10,
-                            height: 1.3,
-                            fontWeight: FontWeight.w400,
+                        if (!redeemable)
+                          Container(
+                            color: Colors.black.withValues(alpha: 0.28),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          item['points'] as String,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            return Stack(
-                              children: [
-                                Container(
-                                  height: 6,
-                                  width: constraints.maxWidth,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEDE8E2),
-                                    borderRadius: BorderRadius.circular(8),
+                        Positioned(
+                          top: 12,
+                          left: 12,
+                          right: 12,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: redeemable
+                                      ? Colors.white
+                                      : const Color(0xFFC8C2BC),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  item['store'] as String,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.outfit(
+                                    color: redeemable
+                                        ? Colors.white
+                                        : const Color(0xFFE8E4DF),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                Container(
-                                  height: 6,
-                                  width: constraints.maxWidth * progress,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFFF5E00),
-                                        Color(0xFFFFAE00),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        const Spacer(),
-                        Container(
-                          width: double.infinity,
-                          height: 34,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: redeemable
-                                ? null
-                                : const Color(0xFFB0B0B0),
-                            gradient: redeemable
-                                ? const LinearGradient(
-                                    colors: [
-                                      Color(0xFFFF5E00),
-                                      Color(0xFFFFAE00),
-                                    ],
-                                  )
-                                : null,
-                            borderRadius: BorderRadius.circular(24),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            'Redeem',
-                            style: GoogleFonts.outfit(
+                        ),
+                        if (!redeemable)
+                          const Center(
+                            child: Icon(
+                              Icons.lock_outline_rounded,
                               color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              size: 30,
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['title'] as String,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF1A1A1A),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            item['subtitle'] as String,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF8A8A8A),
+                              fontSize: 10,
+                              height: 1.3,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            item['points'] as String,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFFF5E00),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          _progressBar(
+                            progress,
+                            height: 6,
+                            track: const Color(0xFFEDE8E2),
+                          ),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: redeemable ? () => _redeem(basket) : null,
+                            child: Container(
+                              width: double.infinity,
+                              height: 34,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: redeemable
+                                    ? null
+                                    : const Color(0xFFB0B0B0),
+                                gradient: redeemable
+                                    ? const LinearGradient(
+                                        colors: [
+                                          Color(0xFFFF5E00),
+                                          Color(0xFFFFAE00),
+                                        ],
+                                      )
+                                    : null,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Text(
+                                'Redeem',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
           );
         },
       ),
     );
   }
 
-  Widget _buildMissionCard({
-    IconData? icon,
-    String? asset,
-    required String title,
-    required String subtitle,
-    required String reward,
-    required double progress,
-  }) {
+  Widget _progressBar(double value, {double height = 7, Color? track}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final clamped = value.clamp(0.0, 1.0);
+        return Stack(
+          children: [
+            Container(
+              height: height,
+              width: constraints.maxWidth,
+              decoration: BoxDecoration(
+                color: track ?? const Color(0xFFEDE6DF),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            if (clamped > 0)
+              Container(
+                height: height,
+                width: constraints.maxWidth * clamped,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildMissionCard(Map<String, dynamic> mission) {
+    final metric = '${mission['metric'] ?? ''}';
+    final done = _num(mission['done']).toInt();
+    final target = _num(mission['target']).toInt();
+    final asset = switch (metric) {
+      'ratings' => 'lib/assets/images/star_icon.png',
+      'referrals' => 'lib/assets/images/invitefriens_icon.png',
+      _ => 'lib/assets/images/groceryorders_icon.png',
+    };
+    final noun = switch (metric) {
+      'ratings' => 'reviews submitted',
+      'referrals' => 'referrals rewarded',
+      _ => 'orders delivered',
+    };
+    final value = _num(mission['reward_value']).round();
+    final reward = mission['reward_type'] == 'wallet'
+        ? '+$value MRU'
+        : '+$value pts';
+    final claimed = mission['claimed'] == true;
+    final claimable = mission['claimable'] == true;
+    final claiming = _claimingId == int.tryParse('${mission['id']}');
+
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       decoration: BoxDecoration(
@@ -664,7 +912,7 @@ class RewardsReferralScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -686,14 +934,12 @@ class RewardsReferralScreen extends StatelessWidget {
                   ),
                 ),
                 alignment: Alignment.center,
-                child: asset != null
-                    ? Image.asset(
-                        asset,
-                        width: 20,
-                        height: 20,
-                        fit: BoxFit.contain,
-                      )
-                    : Icon(icon, color: Colors.white, size: 22),
+                child: Image.asset(
+                  asset,
+                  width: 20,
+                  height: 20,
+                  fit: BoxFit.contain,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -701,7 +947,7 @@ class RewardsReferralScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      '${mission['title'] ?? ''}',
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
@@ -710,7 +956,7 @@ class RewardsReferralScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      subtitle,
+                      '$done/$target $noun this week',
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 11,
@@ -719,61 +965,48 @@ class RewardsReferralScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF0E6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  reward,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+              GestureDetector(
+                onTap: claimable && !claiming ? () => _claim(mission) : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: claimable ? null : const Color(0xFFFFF0E6),
+                    gradient: claimable
+                        ? const LinearGradient(
+                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          )
+                        : null,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    claimed
+                        ? 'Claimed ✓'
+                        : claimable
+                        ? (claiming ? 'Claiming…' : 'Claim $reward')
+                        : reward,
+                    style: GoogleFonts.outfit(
+                      color: claimable ? Colors.white : const Color(0xFFFF5E00),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final value = progress.clamp(0.0, 1.0);
-              return Stack(
-                children: [
-                  Container(
-                    height: 7,
-                    width: constraints.maxWidth,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEDE6DF),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  if (value > 0)
-                    Container(
-                      height: 7,
-                      width: constraints.maxWidth * value,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
+          _progressBar(target <= 0 ? 0 : done / target),
         ],
       ),
     );
   }
 
   Widget _buildInviteCard() {
+    final amount = _grouped(_num(_referral['reward_amount']));
+    final code = '${_referral['code'] ?? ''}';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
@@ -786,7 +1019,7 @@ class RewardsReferralScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -796,7 +1029,7 @@ class RewardsReferralScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Refer a Friend, Earn 200 MRU',
+            'Refer a Friend, Earn $amount MRU',
             style: GoogleFonts.outfit(
               color: Colors.white,
               fontSize: 21,
@@ -806,9 +1039,10 @@ class RewardsReferralScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Earn 200 MRU for every friend who joins SAIMPEX',
+            'You and your friend each get $amount MRU in your wallet when '
+            'their first order is delivered',
             style: GoogleFonts.outfit(
-              color: Colors.white.withOpacity(0.95),
+              color: Colors.white.withValues(alpha: 0.95),
               fontSize: 13,
               fontWeight: FontWeight.w400,
               height: 1.35,
@@ -826,7 +1060,7 @@ class RewardsReferralScreen extends StatelessWidget {
                       Text(
                         'YOUR CODE',
                         style: GoogleFonts.outfit(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.6,
@@ -834,7 +1068,7 @@ class RewardsReferralScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        'AH-097',
+                        code.isEmpty ? '—' : code,
                         style: GoogleFonts.outfit(
                           color: Colors.white,
                           fontSize: 22,
@@ -845,34 +1079,37 @@ class RewardsReferralScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 13,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.share,
-                        color: Color(0xFFFF5E00),
-                        size: 16,
-                      ),
-                      const SizedBox(width: 7),
-                      Text(
-                        'SHARE',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.2,
+                GestureDetector(
+                  onTap: _copyInvite,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 13,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.copy_rounded,
+                          color: Color(0xFFFF5E00),
+                          size: 16,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 7),
+                        Text(
+                          'COPY',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFFF5E00),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -882,11 +1119,17 @@ class RewardsReferralScreen extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _buildInviteStat(value: '5', label: 'Joined'),
+                child: _buildInviteStat(
+                  value: '${_num(_referral['rewarded']).toInt()}',
+                  label: 'Joined',
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildInviteStat(value: '1000', label: 'Earned MRU'),
+                child: _buildInviteStat(
+                  value: _grouped(_num(_referral['earned'])),
+                  label: 'Earned MRU',
+                ),
               ),
             ],
           ),
@@ -906,10 +1149,10 @@ class RewardsReferralScreen extends StatelessWidget {
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.22),
+        color: Colors.white.withValues(alpha: 0.22),
         borderRadius: BorderRadius.circular(40),
         border: Border.all(
-          color: Colors.white.withOpacity(0.4),
+          color: Colors.white.withValues(alpha: 0.4),
           width: 1.2,
         ),
       ),
@@ -917,10 +1160,7 @@ class RewardsReferralScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInviteStat({
-    required String value,
-    required String label,
-  }) {
+  Widget _buildInviteStat({required String value, required String label}) {
     return _buildGlassPill(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       child: Row(
@@ -952,22 +1192,8 @@ class RewardsReferralScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCashbackHistory() {
-    final items = [
-      {
-        'title': 'Marhaba grocery',
-        'subtitle': '2 days ago · 3 order completed',
-        'value': '+150 pts',
-        'icon': 'lib/assets/images/grocery_icon.png',
-      },
-      {
-        'title': 'Referral Reward',
-        'subtitle': '2 days ago · 5 Referrals completed',
-        'value': '+200 MRU',
-        'icon': 'lib/assets/images/referralreward_icon.png',
-      },
-    ];
-
+  Widget _buildHistory() {
+    final language = apiLanguageCode();
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -975,8 +1201,19 @@ class RewardsReferralScreen extends StatelessWidget {
         border: Border.all(color: const Color(0xFFEAD8C9)),
       ),
       child: Column(
-        children: List.generate(items.length, (index) {
-          final item = items[index];
+        children: List.generate(_history.length, (index) {
+          final row = _history[index];
+          final credited = _num(row['type']).toInt() == 1;
+          final basket =
+              '${row['basket_name_$language'] ?? row['basket_name_en'] ?? ''}'
+                  .trim();
+          // The API spells it "vedor_name".
+          final vendor =
+              '${row['vedor_name_$language'] ?? row['vedor_name_en'] ?? ''}'
+                  .trim();
+          final code = '${row['order_code'] ?? ''}'.trim();
+          final date = '${row['date'] ?? ''}'.split('T').first.split(' ').first;
+          final points = _num(row['points']).abs();
           return Column(
             children: [
               Padding(
@@ -986,13 +1223,17 @@ class RewardsReferralScreen extends StatelessWidget {
                     Container(
                       width: 46,
                       height: 46,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE6F6EC),
+                      decoration: BoxDecoration(
+                        color: credited
+                            ? const Color(0xFFE6F6EC)
+                            : const Color(0xFFFFF0E6),
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
                       child: Image.asset(
-                        item['icon'] as String,
+                        basket.isNotEmpty
+                            ? 'lib/assets/images/referralreward_icon.png'
+                            : 'lib/assets/images/grocery_icon.png',
                         width: 22,
                         height: 22,
                         fit: BoxFit.contain,
@@ -1004,7 +1245,9 @@ class RewardsReferralScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item['title'] as String,
+                            vendor.isNotEmpty
+                                ? vendor
+                                : (basket.isNotEmpty ? basket : 'Points'),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 14,
@@ -1013,7 +1256,12 @@ class RewardsReferralScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            item['subtitle'] as String,
+                            [
+                              date,
+                              if (basket.isNotEmpty && vendor.isNotEmpty)
+                                basket,
+                              if (code.isNotEmpty) '#$code',
+                            ].where((part) => part.isNotEmpty).join(' · '),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF8A7E76),
                               fontSize: 12,
@@ -1023,9 +1271,11 @@ class RewardsReferralScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      item['value'] as String,
+                      '${credited ? '+' : '-'}${_grouped(points)} pts',
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFF1FAF5A),
+                        color: credited
+                            ? const Color(0xFF1FAF5A)
+                            : const Color(0xFFFF5E00),
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
@@ -1033,7 +1283,7 @@ class RewardsReferralScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              if (index != items.length - 1)
+              if (index != _history.length - 1)
                 const Divider(
                   height: 1,
                   thickness: 1,

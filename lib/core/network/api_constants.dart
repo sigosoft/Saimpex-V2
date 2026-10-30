@@ -23,6 +23,12 @@ class ApiConstants {
   static const String deleteAddress = 'customer/addresses/delete';
   static const String favourites = 'customer/favourites';
   static const String toggleFavourite = 'customer/favourites/toggle';
+  static const String loyalty = 'customer/loyalty';
+  static const String applyReferral = 'customer/referral/apply';
+  static const String claimMission = 'customer/missions/claim';
+  static const String rewardList = 'customer/rewardList';
+  static const String redeemBasket = 'customer/redeemBasket';
+  static const String rewardHistory = 'customer/transactionHistory';
   static const String pharmacyHome = 'customer/pharmacyHome';
   static const String pharmacyHomeCategories =
       'customer/pharmacyHomeCategories';

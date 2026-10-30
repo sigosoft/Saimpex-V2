@@ -4,18 +4,27 @@ import 'package:google_fonts/google_fonts.dart';
 class RedeemDetailSheet extends StatelessWidget {
   final Map<String, dynamic> reward;
 
-  const RedeemDetailSheet({super.key, required this.reward});
+  /// Called after the sheet closes when a redeemable reward's Redeem is
+  /// tapped.
+  final VoidCallback? onRedeem;
+
+  const RedeemDetailSheet({super.key, required this.reward, this.onRedeem});
 
   static const double _closeSize = 44;
 
-  static Future<void> show(BuildContext context, Map<String, dynamic> reward) {
+  static Future<void> show(
+    BuildContext context,
+    Map<String, dynamic> reward, {
+    VoidCallback? onRedeem,
+  }) {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       clipBehavior: Clip.none,
       barrierColor: Colors.black.withValues(alpha: 0.55),
-      builder: (context) => RedeemDetailSheet(reward: reward),
+      builder: (context) =>
+          RedeemDetailSheet(reward: reward, onRedeem: onRedeem),
     );
   }
 
@@ -23,18 +32,22 @@ class RedeemDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = (reward['store'] ?? 'Al Fantasia').toString();
     final title = (reward['title'] ?? 'Premium Food Basket').toString();
-    final subtitle = (reward['subtitle'] ??
-            'Reach 5000 points to redeem your basket reward')
-        .toString();
+    final subtitle =
+        (reward['subtitle'] ?? 'Reach 5000 points to redeem your basket reward')
+            .toString();
     final points = (reward['points'] ?? '5,000 pts').toString();
-    final progress =
-        ((reward['progress'] as num?)?.toDouble() ?? 0.6).clamp(0.0, 1.0);
+    final progress = ((reward['progress'] as num?)?.toDouble() ?? 0.6).clamp(
+      0.0,
+      1.0,
+    );
     final redeemable = reward['redeemable'] == true;
-    final imageUrl = (reward['image'] ??
-            'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop')
-        .toString();
+    final imageUrl =
+        (reward['image'] ??
+                'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop')
+            .toString();
 
-    final insides = (reward['insides'] as List<dynamic>?)
+    final insides =
+        (reward['insides'] as List<dynamic>?)
             ?.map((e) => e.toString())
             .toList() ??
         const ['Chicken Pasta', 'Chicken Tagine', 'Milk Dessert'];
@@ -285,8 +298,9 @@ class RedeemDetailSheet extends StatelessWidget {
                                           width: constraints.maxWidth,
                                           decoration: BoxDecoration(
                                             color: const Color(0xFFEDE6DF),
-                                            borderRadius:
-                                                BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                         ),
                                         Container(
@@ -294,8 +308,9 @@ class RedeemDetailSheet extends StatelessWidget {
                                           width:
                                               constraints.maxWidth * progress,
                                           decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                             gradient: const LinearGradient(
                                               colors: [
                                                 Color(0xFFFF5E00),
@@ -309,30 +324,38 @@ class RedeemDetailSheet extends StatelessWidget {
                                   },
                                 ),
                                 const SizedBox(height: 18),
-                                Container(
-                                  width: double.infinity,
-                                  height: 52,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: redeemable
-                                        ? null
-                                        : const Color(0xFFB0B0B0),
-                                    gradient: redeemable
-                                        ? const LinearGradient(
-                                            colors: [
-                                              Color(0xFFFF5E00),
-                                              Color(0xFFFFAE00),
-                                            ],
-                                          )
-                                        : null,
-                                    borderRadius: BorderRadius.circular(28),
-                                  ),
-                                  child: Text(
-                                    'Redeem',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                                GestureDetector(
+                                  onTap: redeemable && onRedeem != null
+                                      ? () {
+                                          Navigator.of(context).pop();
+                                          onRedeem!();
+                                        }
+                                      : null,
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 52,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: redeemable
+                                          ? null
+                                          : const Color(0xFFB0B0B0),
+                                      gradient: redeemable
+                                          ? const LinearGradient(
+                                              colors: [
+                                                Color(0xFFFF5E00),
+                                                Color(0xFFFFAE00),
+                                              ],
+                                            )
+                                          : null,
+                                      borderRadius: BorderRadius.circular(28),
+                                    ),
+                                    child: Text(
+                                      'Redeem',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                   ),
                                 ),

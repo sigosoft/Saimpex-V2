@@ -178,6 +178,98 @@ class ProfileRepository {
     );
   }
 
+  /// Tier, weekly missions and referral (customer/loyalty).
+  Future<Map<String, dynamic>> loyalty(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.loyalty,
+        queryParameters: {'language': language},
+      ),
+      language,
+    );
+    return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
+  Future<String> applyReferral({
+    required String code,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.applyReferral,
+        data: {'code': code},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  Future<String> claimMission({
+    required int missionId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.claimMission,
+        data: {'mission_id': missionId},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Baskets redeemable with store points near [latitude]/[longitude].
+  Future<List<Map<String, dynamic>>> rewardBaskets({
+    required double latitude,
+    required double longitude,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.rewardList,
+        queryParameters: {
+          'limit': 20,
+          'latitude': latitude,
+          'longitude': longitude,
+        },
+      ),
+      language,
+    );
+    return _rows(asJsonMap(envelope.data)?['data']);
+  }
+
+  /// Adds a points basket to the cart.
+  Future<String> redeemBasket({
+    required int basketId,
+    required int vendorId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.redeemBasket,
+        data: {'basket_id': basketId, 'vendor_id': vendorId},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Store points earned and spent, newest first.
+  Future<List<Map<String, dynamic>>> rewardHistory(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.rewardHistory,
+        queryParameters: {'limit': 20},
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    return _rows(data?['data'] ?? asJsonMap(data?['logs'])?['data']);
+  }
+
   static List<Map<String, dynamic>> _rows(dynamic value) => [
     if (value is List)
       for (final row in value)
