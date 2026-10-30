@@ -7,6 +7,7 @@ import 'laundry_booking_success_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
 import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
+import '../../utils/wallet_balance.dart';
 
 class LaundryCartScreen extends StatefulWidget {
   final String providerName;
@@ -58,7 +59,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
-      onlinePayment: _paymentIndex == 1,
+      paymentType: _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
       quantity: estimate,
       notes: _deliverySpeed == 1 ? 'Express delivery requested' : '',
     );
@@ -211,7 +212,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                         index: 0,
                         icon: Icons.account_balance_wallet_outlined,
                         title: 'SAIMPEX Wallet',
-                        subtitle: 'Balance: 2,450 MRU',
+                        subtitle: walletBalanceSubtitle(),
                       ),
                       const SizedBox(height: 10),
                       _buildPaymentOption(

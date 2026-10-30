@@ -136,13 +136,14 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       final repository = Get.find<PharmacyRepository>();
       final language = apiLanguageCode();
       // Review first: the customer confirms delivery or pickup on the checkout page
-      final isDelivery = await Get.to<bool>(
+      final choice = await Get.to<(bool, String)>(
         () => PrescriptionCheckoutScreen(
           pharmacyName: _pharmacyName,
           quoteAmount: _quoteAmount,
         ),
       );
-      if (isDelivery == null || !mounted) return;
+      if (choice == null || !mounted) return;
+      final (isDelivery, paymentType) = choice;
       // Accepting twice fails on the server, so only accept a quote not yet accepted
       if (_status != 'accepted') {
         await repository.acceptPrescription(
@@ -160,6 +161,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         latitude: SelectLocationController.selectedLatitude,
         longitude: SelectLocationController.selectedLongitude,
         location: location,
+        paymentType: paymentType,
         language: language,
       );
       if (!mounted) return;
@@ -176,6 +178,11 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
     final message = '${placed['message'] ?? ''}'.trim();
     if (message.isNotEmpty) {
       showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+    }
+    // Paid from the wallet: the order is placed and paid already.
+    if (placed['payment_required'] == false) {
+      Get.to(() => const OrderSuccessScreen());
+      return;
     }
     var paymentUrl = _paymentPageUrlFrom(placed);
     final payable =

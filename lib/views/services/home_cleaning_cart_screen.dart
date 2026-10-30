@@ -8,6 +8,7 @@ import 'home_cleaning_choose_slot_sheet.dart';
 import 'home_cleaning_booking_success_screen.dart';
 import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
+import '../../utils/wallet_balance.dart';
 
 class HomeCleaningCartScreen extends StatefulWidget {
   final String providerName;
@@ -116,7 +117,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
-      onlinePayment: _paymentIndex == 1,
+      paymentType: _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
       spaces: rows(_spaceRows),
       addons: rows(_extraRows),
       productSupply: _productsProvider == 'provider' ? 'vendor' : 'customer',
@@ -321,7 +322,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                         index: 0,
                         imageAsset: 'lib/assets/images/wallet.png',
                         title: 'SAIMPEX Wallet',
-                        subtitle: 'Balance: 2,450 MRU',
+                        subtitle: walletBalanceSubtitle(),
                       ),
                       const SizedBox(height: 10),
                       _buildPaymentOption(

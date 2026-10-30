@@ -9,6 +9,7 @@ import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 
 import 'courier_booking_success_screen.dart';
+import '../../utils/wallet_balance.dart';
 
 class CourierReviewBookingScreen extends StatefulWidget {
   final String pickupAddress;
@@ -63,7 +64,11 @@ class _CourierReviewBookingScreenState
     setState(() => _placingBooking = true);
     try {
       // Online payment is 2; wallet and cash on delivery are 1, as in the cart
-      final paymentType = selectedPaymentIndex == 1 ? '2' : '1';
+      final paymentType = switch (selectedPaymentIndex) {
+        0 => paymentTypeWallet,
+        1 => paymentTypeOnline,
+        _ => paymentTypeCash,
+      };
       final result = await Get.find<CourierRepository>().create(
         pickup: CourierStop(
           address: widget.pickupAddress,
@@ -189,7 +194,7 @@ class _CourierReviewBookingScreenState
                               index: 0,
                               icon: Icons.account_balance_wallet_outlined,
                               title: 'SAIMPEX Wallet',
-                              subtitle: 'Balance: 2,450 MRU',
+                              subtitle: walletBalanceSubtitle(),
                             ),
                             _buildPaymentOption(
                               index: 1,

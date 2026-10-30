@@ -4,6 +4,7 @@ import '../../widgets/app_back_button.dart';
 
 import '../../controllers/select_location_controller.dart';
 import 'widgets/pharmacy_background.dart';
+import '../../utils/wallet_balance.dart';
 
 /// Last step before paying a quotation. Pops with true for delivery, false for pickup.
 class PrescriptionCheckoutScreen extends StatefulWidget {
@@ -142,7 +143,7 @@ class _PrescriptionCheckoutScreenState
                 index: 0,
                 icon: Icons.account_balance_wallet_outlined,
                 title: 'SAIMPEX Wallet',
-                subtitle: 'Balance: 2,450 MRU',
+                subtitle: walletBalanceSubtitle(),
               ),
               const SizedBox(height: 10),
               _buildPaymentOption(
@@ -799,7 +800,12 @@ class _PrescriptionCheckoutScreenState
 
   Widget _buildPayButton() {
     return GestureDetector(
-      onTap: () => Navigator.pop(context, isDelivery),
+      // Returns (delivery?, payment type). Prescription orders are paid online
+      // or from the wallet; the server doesn't take cash for them.
+      onTap: () => Navigator.pop(context, (
+        isDelivery,
+        selectedPaymentIndex == 0 ? paymentTypeWallet : paymentTypeOnline,
+      )),
       child: Container(
         height: 52,
         decoration: BoxDecoration(

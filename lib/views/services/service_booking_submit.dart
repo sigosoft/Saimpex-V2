@@ -23,7 +23,8 @@ import '../../utils/toast_helper.dart';
 Future<Map<String, dynamic>?> placeServiceBooking({
   required DateTime slotDate,
   required String slotLabel,
-  required bool onlinePayment,
+  /// paymentTypeWallet, paymentTypeOnline or paymentTypeCash (utils/wallet_balance.dart).
+  required String paymentType,
   num? shownTotal,
   List<Map<String, dynamic>> spaces = const [],
   List<Map<String, dynamic>> addons = const [],
@@ -64,7 +65,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     'scheduled_for': ?window?.$1,
     'slot_end': ?window?.$2,
     'slot_label': slotLabel,
-    'payment_type': onlinePayment ? '2' : '1',
+    'payment_type': paymentType,
     if (notes.trim().isNotEmpty) 'notes': notes.trim(),
     'quantity': ?quantity,
     'product_supply': ?productSupply,

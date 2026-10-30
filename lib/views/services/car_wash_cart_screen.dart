@@ -7,6 +7,7 @@ import 'car_wash_choose_slot_sheet.dart';
 import 'car_wash_booking_success_screen.dart';
 import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
+import '../../utils/wallet_balance.dart';
 
 class CarWashCartScreen extends StatefulWidget {
   final String providerName;
@@ -134,7 +135,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
       shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
-      onlinePayment: _paymentIndex == 1,
+      paymentType: _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
       place: atHome ? 'home' : 'station',
       vehicles: widget.bookingVehicles.isNotEmpty
           ? widget.bookingVehicles
@@ -211,7 +212,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                         index: 0,
                         imageAsset: 'lib/assets/images/wallet.png',
                         title: 'SAIMPEX Wallet',
-                        subtitle: 'Balance: 2,450 MRU',
+                        subtitle: walletBalanceSubtitle(),
                       ),
                       const SizedBox(height: 10),
                       _buildPaymentOption(

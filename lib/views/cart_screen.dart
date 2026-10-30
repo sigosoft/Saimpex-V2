@@ -19,6 +19,7 @@ import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 import 'pharmacy/widgets/attach_prescription_sheet.dart';
+import '../utils/wallet_balance.dart';
 
 class CartScreen extends StatefulWidget {
   final String? storeName;
@@ -398,9 +399,13 @@ class _CartScreenState extends State<CartScreen> {
         ? SelectLocationController.deliveryLabel.value
         : SelectLocationController.selectedSubtitle;
     final note = _deliveryNoteController.text.trim();
-    // The API takes 2 for online payment only. Cash on Delivery and Pay After
-    // Delivery send 1, so they don't open the payment page.
-    final paymentType = selectedPaymentIndex == 1 ? '2' : '1';
+    // Wallet (0) is paid from the wallet when the order is placed; Online (1)
+    // opens the payment page; Cash on Delivery and Pay After Delivery send 1.
+    final paymentType = switch (selectedPaymentIndex) {
+      0 => paymentTypeWallet,
+      1 => paymentTypeOnline,
+      _ => paymentTypeCash,
+    };
     Future<Map<String, dynamic>> place(bool version2) {
       if (_isCatalogCart) {
         return orders.catalogCheckout(
@@ -2364,7 +2369,7 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        'Balance: 2,450 MRU',
+                                        walletBalanceSubtitle(),
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 10,

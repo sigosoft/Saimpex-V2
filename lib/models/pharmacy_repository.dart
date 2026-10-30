@@ -505,13 +505,15 @@ class PharmacyRepository {
   }
 
   /// Pays an accepted quote. The server needs the same delivery fields as checkout:
-  /// location is required for delivery, and payment_type is always online (2).
+  /// location is required for delivery. [paymentType] is online (2) or wallet (3);
+  /// a wallet payment places and pays the order at once (payment_required false).
   Future<Map<String, dynamic>> payPrescription({
     required int prescriptionId,
     required bool selfPickup,
     required double latitude,
     required double longitude,
     required String location,
+    String paymentType = '2',
     required String language,
   }) async {
     final envelope = await _send(
@@ -522,7 +524,7 @@ class PharmacyRepository {
           'lat': latitude.toString(),
           'long': longitude.toString(),
           'location': location,
-          'payment_type': '2',
+          'payment_type': paymentType,
         },
         options: Options(contentType: Headers.jsonContentType),
       ),
