@@ -10,6 +10,7 @@ import 'pharmacy/widgets/pharmacy_order_cards.dart';
 import '../core/network/api_exception.dart';
 import '../models/grocery_repository.dart';
 import 'pharmacy/pharmacy_item_order_detail_screen.dart';
+import '../models/courier_repository.dart';
 import '../models/food_repository.dart';
 import '../models/order_repository.dart';
 import '../models/pharmacy_repository.dart';
@@ -59,6 +60,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   bool _groceryOrdersLoading = false;
   List<Map<String, dynamic>> _waterOrders = const [];
   bool _waterOrdersLoading = false;
+  List<Map<String, dynamic>> _courierOrders = const [];
+  bool _courierOrdersLoading = false;
 
   @override
   void initState() {
@@ -68,6 +71,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _loadRestaurantOrders();
     _loadGroceryOrders();
     _loadWaterOrders();
+    _loadCourierOrders();
     if (Get.isRegistered<HomeController>()) {
       final home = Get.find<HomeController>();
       _ordersCategoryWorker = ever<int>(home.pendingOrdersCategoryIndex, (
@@ -91,6 +95,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _loadRestaurantOrders();
     _loadGroceryOrders();
     _loadWaterOrders();
+    _loadCourierOrders();
   }
 
   @override
@@ -846,10 +851,74 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
-  // Courier and Local Store orders aren't loaded from the API yet, so these
-  // tabs show an empty state instead of sample orders.
-  Widget _buildCourierOrders() => _buildUnloadedOrders();
+  Future<void> _loadCourierOrders() async {
+    if (!Get.isRegistered<CourierRepository>()) return;
+    setState(() => _courierOrdersLoading = true);
+    try {
+      final repository = Get.find<CourierRepository>();
+      final language = apiLanguageCode();
+      final first = await repository.fetchOrders(language: language);
+      final orders = [...first.orders];
+      var page = first.currentPage;
+      var lastPage = first.lastPage;
+      while (page < lastPage && page < 5) {
+        page += 1;
+        final next = await repository.fetchOrders(
+          language: language,
+          page: page,
+        );
+        orders.addAll(next.orders);
+        lastPage = next.lastPage;
+      }
+      if (!mounted) return;
+      setState(() => _courierOrders = orders);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _courierOrdersLoading = false);
+    }
+  }
 
+  Widget _buildCourierOrders() {
+    if (_courierOrdersLoading && _courierOrders.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 28),
+        child: Center(
+          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+        ),
+      );
+    }
+    if (_courierOrders.isEmpty) return _buildUnloadedOrders();
+    return Column(children: _courierOrders.map(_courierOrderCard).toList());
+  }
+
+  Widget _courierOrderCard(Map<String, dynamic> order) {
+    final orderId = '${order['orderId']}';
+    final cancelled = order['isCancelled'] == true;
+    final delivered = order['isDelivered'] == true;
+    final (Color statusColor, Color statusBgColor) = cancelled
+        ? (const Color(0xFFEF4444), const Color(0xFFFDECEC))
+        : delivered
+        ? (const Color(0xFF00B25C), const Color(0xFFE8F8EE))
+        : (const Color(0xFFFF8A00), const Color(0xFFFFF4EC));
+    final dropoff = '${order['dropoffAddress']}'.trim();
+    return _buildOrderCard(
+      restaurantName: dropoff.isEmpty ? 'Courier delivery' : 'To $dropoff',
+      statusText: '${order['statusText']}'.toUpperCase(),
+      statusColor: statusColor,
+      statusBgColor: statusBgColor,
+      detailsText: [
+        order['isExpress'] == true ? 'Express' : 'Standard',
+        '${order['total']}',
+        '#$orderId',
+      ].join(' • '),
+      buttons: const [],
+    );
+  }
+
+  // Local Store orders aren't loaded from the API yet, so this tab shows an
+  // empty state instead of sample orders.
   Widget _buildOtherCategoryOrders() => _buildUnloadedOrders();
 
   Widget _buildUnloadedOrders() {
