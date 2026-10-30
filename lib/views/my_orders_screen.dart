@@ -843,7 +843,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           _buildGradientButton(
             text: 'Track Order',
             onTap: () =>
-                Get.to(() => WaterTrackOrderScreen(orderId: '#$orderId')),
+                Get.to(
+                  () => WaterTrackOrderScreen(
+                    orderId: '#$orderId',
+                    apiOrderId: order['numericOrderId'] as int?,
+                  ),
+                ),
           ),
       ],
       onDetailsLink: () =>

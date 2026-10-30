@@ -2,13 +2,10 @@ import 'dart:math' as math;
 import '../../widgets/app_back_button.dart';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../core/network/api_exception.dart';
-import '../../models/order_repository.dart';
-import '../../utils/api_language.dart';
-import '../../utils/toast_helper.dart';
+import '../../models/order_tracking.dart';
+import '../widgets/tracking_widgets.dart';
 import 'widgets/pharmacy_background.dart';
 
 class PharmacyTrackOrderScreen extends StatefulWidget {
@@ -18,8 +15,8 @@ class PharmacyTrackOrderScreen extends StatefulWidget {
 
   const PharmacyTrackOrderScreen({
     super.key,
-    this.orderId = '#22789002',
-    this.merchantName = 'Pharmacy Nasr',
+    this.orderId = '',
+    this.merchantName = '',
     this.apiOrderId,
   });
 
@@ -28,12 +25,28 @@ class PharmacyTrackOrderScreen extends StatefulWidget {
       _PharmacyTrackOrderScreenState();
 }
 
-class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
+class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen>
+    with OrderTrackingMixin<PharmacyTrackOrderScreen> {
   GoogleMapController? _mapController;
 
+  // Placeholder positions until the first tracking response arrives.
   LatLng pharmacyLoc = const LatLng(18.0836, -15.9802);
   LatLng riderLoc = const LatLng(18.0858, -15.9768);
   LatLng homeLoc = const LatLng(18.0884, -15.9746);
+
+  @override
+  void onTrackingUpdated(OrderTracking tracking) {
+    final store = tracking.storeLocation ?? pharmacyLoc;
+    final home = tracking.deliveryLocation ?? homeLoc;
+    // Without a driver location the rider pin waits at the pharmacy.
+    final rider = tracking.driverLocation ?? store;
+    setState(() {
+      pharmacyLoc = store;
+      homeLoc = home;
+      riderLoc = rider;
+    });
+    _initMapData();
+  }
 
   Set<Polyline> _polylines = {};
   Offset? _storeScreen;
@@ -64,56 +77,8 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initMapData();
-      _loadTracking();
+      startTracking(widget.apiOrderId);
     });
-  }
-
-  Future<void> _loadTracking() async {
-    final id = widget.apiOrderId;
-    if (id == null || id < 1 || !Get.isRegistered<OrderRepository>()) return;
-    try {
-      final data = await Get.find<OrderRepository>().trackOrder(
-        orderId: id,
-        language: apiLanguageCode(),
-      );
-      if (!mounted) return;
-      LatLng? readPoint(List<String> latKeys, List<String> lngKeys) {
-        double? number(dynamic value) =>
-            value is num ? value.toDouble() : double.tryParse('$value');
-        for (final key in latKeys) {
-          final lat = number(data[key]);
-          if (lat == null) continue;
-          for (final lngKey in lngKeys) {
-            final lng = number(data[lngKey]);
-            if (lng != null) return LatLng(lat, lng);
-          }
-        }
-        return null;
-      }
-
-      final pharmacy = readPoint(
-        ['pharmacy_lat', 'vendor_lat', 'store_lat'],
-        ['pharmacy_lng', 'vendor_lng', 'store_lng'],
-      );
-      final rider = readPoint(
-        ['driver_lat', 'rider_lat'],
-        ['driver_lng', 'rider_lng'],
-      );
-      final home = readPoint(
-        ['customer_lat', 'delivery_lat', 'lat'],
-        ['customer_lng', 'delivery_lng', 'lng'],
-      );
-      if (pharmacy == null && rider == null && home == null) return;
-      setState(() {
-        if (pharmacy != null) pharmacyLoc = pharmacy;
-        if (rider != null) riderLoc = rider;
-        if (home != null) homeLoc = home;
-      });
-      _initMapData();
-    } on ApiException catch (error) {
-      if (!mounted) return;
-      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
-    }
   }
 
   Future<void> _initMapData() async {
@@ -391,71 +356,11 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF5E00),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      'ON THE WAY',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 8.5,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
+                  TrackingSummary(
+                    tracking: tracking,
+                    error: trackingError,
+                    fallbackOrderCode: widget.orderId,
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        '12 min',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'ETA',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFA59A94),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Order $displayId • ${widget.merchantName}',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF7A6A60),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildProgressTracker(),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Your Driver',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildDriverCard(),
                 ],
               ),
             ),
@@ -465,259 +370,4 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen> {
       ),
     );
   }
-
-  Widget _buildProgressTracker() {
-    const steps = [
-      _TrackStep(
-        label: 'Order placed',
-        time: '22 Oct 2025, 10:00 AM',
-        done: true,
-        icon: Icons.check_rounded,
-      ),
-      _TrackStep(
-        label: 'Preparing',
-        time: '22 Oct 2025, 10:05 AM',
-        done: true,
-        icon: Icons.assignment_outlined,
-      ),
-      _TrackStep(
-        label: 'On the way',
-        time: '22 Oct 2025, 10:10 AM',
-        done: true,
-        icon: Icons.delivery_dining_rounded,
-      ),
-      _TrackStep(
-        label: 'Delivered',
-        time: '',
-        done: false,
-        icon: Icons.check_rounded,
-      ),
-    ];
-
-    return Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        Positioned(
-          top: 18,
-          left: 30,
-          right: 30,
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 2,
-                  color: const Color(0xFFFF5E00),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  height: 2,
-                  color: const Color(0xFFFF5E00),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  height: 2,
-                  color: const Color(0xFFEAD8C9),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final step in steps)
-              _buildStepperNode(
-                isActive: step.done,
-                icon: step.icon,
-                title: step.label,
-                time: step.time,
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStepperNode({
-    required bool isActive,
-    required IconData icon,
-    required String title,
-    required String time,
-  }) {
-    return SizedBox(
-      width: 70,
-      child: Column(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: isActive
-                  ? const Color(0xFFFF5E00)
-                  : const Color(0xFFEAD8C9),
-              shape: BoxShape.circle,
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 18,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: GoogleFonts.outfit(
-              color: isActive
-                  ? const Color(0xFF2C2520)
-                  : const Color(0xFFA59A94),
-              fontSize: 8.5,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (time.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Text(
-              time,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFFA59A94),
-                fontSize: 6.5,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDriverCard() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipOval(
-            child: Container(
-              width: 64,
-              height: 64,
-              color: const Color(0xFFEAD8C9),
-              child: const Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 32,
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Amadou Sy',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFAE00),
-                      size: 16,
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      '4.6',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      ' (10k + reviews)',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Calling Amadou Sy...',
-                    style: GoogleFonts.outfit(),
-                  ),
-                  backgroundColor: const Color(0xFFFF5E00),
-                ),
-              );
-            },
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.call,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TrackStep {
-  final String label;
-  final String time;
-  final bool done;
-  final IconData icon;
-
-  const _TrackStep({
-    required this.label,
-    required this.time,
-    required this.done,
-    required this.icon,
-  });
 }
