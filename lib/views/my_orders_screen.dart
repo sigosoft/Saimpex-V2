@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_detail_screen.dart';
 import 'water/water_order_details_screen.dart';
+import 'courier/courier_order_detail_screen.dart';
+import 'courier/courier_track_order_screen.dart';
 import 'water/water_track_order_screen.dart';
 import 'rate_order_screen.dart';
 import 'pharmacy/my_prescriptions_screen.dart';
@@ -851,8 +853,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
           ),
       ],
-      onDetailsLink: () =>
-          Get.to(() => WaterOrderDetailsScreen(orderId: '#$orderId')),
+      onDetailsLink: () => Get.to(
+        () => WaterOrderDetailsScreen(
+          orderId: '#$orderId',
+          apiOrderId: order['numericOrderId'] as int?,
+        ),
+      ),
     );
   }
 
@@ -918,7 +924,26 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         '${order['total']}',
         '#$orderId',
       ].join(' • '),
-      buttons: const [],
+      buttons: [
+        if (!cancelled && !delivered)
+          _buildGradientButton(
+            text: 'Track Delivery',
+            onTap: () => Get.to(
+              () => CourierTrackOrderScreen(
+                orderId: '#$orderId',
+                apiOrderId: order['numericOrderId'] as int?,
+              ),
+            ),
+          ),
+      ],
+      onDetailsLink: () => Get.to(
+        () => CourierOrderDetailScreen(
+          orderId: '#$orderId',
+          apiOrderId: order['numericOrderId'] as int?,
+          pickupAddress: '${order['pickupAddress']}',
+          dropOffAddress: dropoff,
+        ),
+      ),
     );
   }
 

@@ -9,7 +9,9 @@ import '../core/network/api_exception.dart';
 import '../utils/api_language.dart';
 import 'order_repository.dart';
 
-/// customer/trackOrder parsed for the tracking screens.
+/// customer/trackOrder or customer/orderDetails, parsed for the tracking and
+/// order detail screens. Both return the same status, vendor, courier,
+/// driver, delivery_location and timeline shapes.
 class OrderTracking {
   OrderTracking._(this._data);
 
@@ -42,9 +44,42 @@ class OrderTracking {
   }
 
   String get vendorName => '${_map('vendor')['name'] ?? ''}'.trim();
+  String get vendorAddress => '${_map('vendor')['address'] ?? ''}'.trim();
 
   LatLng? get storeLocation =>
       _point(_map('vendor')['latitude'], _map('vendor')['longitude']);
+
+  bool get isSelfPickup =>
+      int.tryParse('${_data['is_self_pickup'] ?? ''}') == 1;
+
+  /// Courier and express orders carry pickup/drop-off instead of a vendor.
+  bool get isCourier => _data['courier'] is Map;
+  CourierStop get pickup => CourierStop._(_courierMap('pickup'));
+  CourierStop get dropoff => CourierStop._(_courierMap('dropoff'));
+  String get packageSize => '${_map('courier')['package_size'] ?? ''}'.trim();
+  String get packageDescription =>
+      '${_map('courier')['package_description'] ?? ''}'.trim();
+  bool get isExpress {
+    final value = _map('courier')['is_express'];
+    return value == true || value == 1 || value == '1';
+  }
+
+  Map<String, dynamic> _courierMap(String key) {
+    final value = _map('courier')[key];
+    return value is Map ? Map<String, dynamic>.from(value) : const {};
+  }
+
+  /// orderDetails only: the order lines and the payment summary.
+  List<Map<String, dynamic>> get items {
+    final value = _data['items'];
+    if (value is! List) return const [];
+    return [
+      for (final item in value)
+        if (item is Map) Map<String, dynamic>.from(item),
+    ];
+  }
+
+  Map<String, dynamic> get payment => _map('payment');
 
   LatLng? get deliveryLocation => _point(
     _map('delivery_location')['latitude'],
@@ -89,6 +124,31 @@ class OrderTracking {
     if (latitude == 0 && longitude == 0) return null;
     return LatLng(latitude, longitude);
   }
+}
+
+/// A courier order's pickup or drop-off point.
+class CourierStop {
+  const CourierStop._(this._data);
+
+  final Map<String, dynamic> _data;
+
+  String get address => '${_data['address'] ?? ''}'.trim();
+  String get contactName => '${_data['contact_name'] ?? ''}'.trim();
+  String get contactPhone => '${_data['contact_phone'] ?? ''}'.trim();
+  LatLng? get location =>
+      OrderTracking._point(_data['latitude'], _data['longitude']);
+}
+
+/// Loads customer/orderDetails once for an order detail screen. Returns null
+/// when there is no numeric id; API failures throw [ApiException].
+Future<OrderTracking?> loadOrderDetail(int? orderId) async {
+  if (orderId == null || orderId < 1) return null;
+  if (!Get.isRegistered<OrderRepository>()) return null;
+  final data = await Get.find<OrderRepository>().orderDetails(
+    orderId: orderId,
+    language: apiLanguageCode(),
+  );
+  return OrderTracking.fromJson(data);
 }
 
 /// Loads customer/trackOrder for a tracking screen and refreshes it every

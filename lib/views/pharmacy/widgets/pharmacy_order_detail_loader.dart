@@ -36,15 +36,13 @@ class _PharmacyOrderDetailLoaderState extends State<PharmacyOrderDetailLoader> {
     final id = widget.apiOrderId;
     if (id == null || id < 1 || !Get.isRegistered<OrderRepository>()) return;
     try {
+      // orderDetails already returns the response's data object.
       final result = await Get.find<OrderRepository>().orderDetails(
         orderId: id,
         language: apiLanguageCode(),
       );
-      final data = result['data'];
       if (!mounted) return;
-      setState(() {
-        _detail = data is Map ? Map<String, dynamic>.from(data) : null;
-      });
+      setState(() => _detail = result);
     } on ApiException {
       // Keep the placeholders; the screen still opens
     }
