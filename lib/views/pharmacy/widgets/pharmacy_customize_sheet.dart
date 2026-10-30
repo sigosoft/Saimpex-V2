@@ -27,39 +27,13 @@ void showPharmacyCustomizeSheet(
   final maxQuantity =
       readLimit(food['quantityAllowed']) ?? readLimit(food['stock']);
 
-  // Determine quantity text and price options based on clicked item
-  String qtyText1 = '1 Pack';
-  String qtyPrice1 = food['price'] ?? '0 MRU';
-  String qtyText2 = '3 Packs';
-  String qtyPrice2 = '140 MRU';
-
   final title = food['title'] as String;
-  if (title.contains('Vitamin')) {
-    qtyText1 = '30 Tablets';
-    qtyPrice1 = '120 MRU';
-    qtyText2 = '90 Tablets';
-    qtyPrice2 = '320 MRU';
-  } else if (title.contains('Powder')) {
-    qtyText1 = '100 g';
-    qtyPrice1 = '80 MRU';
-    qtyText2 = '500 g';
-    qtyPrice2 = '350 MRU';
-  } else if (title.contains('Toothpaste')) {
-    qtyText1 = '100 g';
-    qtyPrice1 = '45 MRU';
-    qtyText2 = '3 tubes';
-    qtyPrice2 = '120 MRU';
-  } else if (title.contains('Bandages')) {
-    qtyText1 = 'Pack of 20';
-    qtyPrice1 = '35 MRU';
-    qtyText2 = 'Pack of 100';
-    qtyPrice2 = '150 MRU';
-  } else if (title.contains('BP Monitor')) {
-    qtyText1 = '1 Unit';
-    qtyPrice1 = '1200 MRU';
-    qtyText2 = '2 Units';
-    qtyPrice2 = '2200 MRU';
-  }
+
+  // The item API has one price per product, so only that pack is offered.
+  // Extra pack sizes need pack-size data from the backend first.
+  final portion = '${food['portion'] ?? ''}'.trim();
+  final String qtyText1 = portion.isEmpty ? '1 Pack' : portion;
+  final String qtyPrice1 = '${food['price'] ?? '0 MRU'}';
 
   showModalBottomSheet(
     context: context,
@@ -193,98 +167,6 @@ void showPharmacyCustomizeSheet(
                                               const SizedBox(height: 2),
                                               Text(
                                                 qtyPrice1,
-                                                style: GoogleFonts.outfit(
-                                                  color: const Color(
-                                                    0xFFFF5E00,
-                                                  ),
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-
-                                // Option 2
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setModalState(() {
-                                        selectedQuantityIndex = 1;
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 14,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: selectedQuantityIndex == 1
-                                            ? const Color(0xFFFFF0EA)
-                                            : Colors.white,
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: selectedQuantityIndex == 1
-                                              ? const Color(0xFFFF5E00)
-                                              : const Color(0xFFEAD8C9),
-                                          width: selectedQuantityIndex == 1
-                                              ? 1.5
-                                              : 0.8,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          // Radio dot
-                                          Container(
-                                            width: 18,
-                                            height: 18,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color:
-                                                    selectedQuantityIndex == 1
-                                                    ? const Color(0xFFFF5E00)
-                                                    : const Color(0xFFA59A94),
-                                                width: 1.5,
-                                              ),
-                                            ),
-                                            padding: const EdgeInsets.all(3),
-                                            child: selectedQuantityIndex == 1
-                                                ? Container(
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                          color: Color(
-                                                            0xFFFF5E00,
-                                                          ),
-                                                          shape:
-                                                              BoxShape.circle,
-                                                        ),
-                                                  )
-                                                : null,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                qtyText2,
-                                                style: GoogleFonts.outfit(
-                                                  color: const Color(
-                                                    0xFF2C2520,
-                                                  ),
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                qtyPrice2,
                                                 style: GoogleFonts.outfit(
                                                   color: const Color(
                                                     0xFFFF5E00,
@@ -520,12 +402,8 @@ void showPharmacyCustomizeSheet(
                                 try {
                                   added = await onAdded(
                                     Map<String, dynamic>.from(food)
-                                      ..['price'] = (selectedQuantityIndex == 0)
-                                          ? qtyPrice1
-                                          : qtyPrice2,
-                                    (selectedQuantityIndex == 0)
-                                        ? qtyText1
-                                        : qtyText2,
+                                      ..['price'] = qtyPrice1,
+                                    qtyText1,
                                     quantity,
                                   );
                                 } finally {
