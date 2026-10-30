@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../chat_screen.dart';
+import '../../models/service_repository.dart';
 import 'car_wash_service_location_screen.dart';
+import 'provider_services_mixin.dart';
 import '../../widgets/app_back_button.dart';
 
 class CarWashProviderDetailScreen extends StatefulWidget {
@@ -21,9 +23,22 @@ class CarWashProviderDetailScreen extends StatefulWidget {
 }
 
 class _CarWashProviderDetailScreenState
-    extends State<CarWashProviderDetailScreen> {
+    extends State<CarWashProviderDetailScreen>
+    with ProviderServicesMixin<CarWashProviderDetailScreen> {
   int _selectedTab = 0;
   int _reviewFilter = 0;
+
+  @override
+  String get serviceVertical => ServiceRepository.carWash;
+
+  @override
+  Map<String, String> get providerCard => widget.provider;
+
+  @override
+  void initState() {
+    super.initState();
+    loadProviderServices();
+  }
 
   static const _tabs = ['Services', 'Reviews', 'About'];
   static const _reviewFilters = ['All Reviews', 'Most Recent', 'Highest Rated'];
@@ -57,35 +72,6 @@ class _CarWashProviderDetailScreenState
     },
   ];
 
-  static const _services = [
-    {
-      'title': 'Exterior Wash',
-      'description':
-          'High pressure snow foam, detailed rim cleaning & streak-free hand dry',
-      'price': '350 MRU',
-      'duration': '30 min',
-      'image':
-          'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=300&h=300&fit=crop',
-    },
-    {
-      'title': 'Interior Wash',
-      'description':
-          'Deep antimicrobial vacuum, UV dashboard polish & crystal glass cleaning',
-      'price': '350 MRU',
-      'duration': '30 min',
-      'image':
-          'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=300&h=300&fit=crop',
-    },
-    {
-      'title': 'Full Wash',
-      'description':
-          'Complete interior & exterior detailing with premium ceramic tire gloss',
-      'price': '690 MRU',
-      'duration': '30 min',
-      'image':
-          'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop',
-    },
-  ];
 
   String get _name => widget.provider['name'] ?? 'CleanRide Car Wash';
   String get _rating => widget.provider['rating'] ?? '4.8';
@@ -419,22 +405,11 @@ class _CarWashProviderDetailScreenState
     );
   }
 
-  Widget _buildServicesList() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-      child: Column(
-        children: [
-          for (var i = 0; i < _services.length; i++) ...[
-            if (i > 0) const SizedBox(height: 14),
-            _buildServiceItem(_services[i]),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget _buildServicesList() => buildProviderServices(_buildServiceItem);
 
   Widget _buildServiceItem(Map<String, String> item) {
     void openConfigure() {
+      selectService(item);
       Get.to(
         () => CarWashServiceLocationScreen(
           service: item,

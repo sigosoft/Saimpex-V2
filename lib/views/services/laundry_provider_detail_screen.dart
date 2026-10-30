@@ -7,6 +7,8 @@ import '../chat_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
 import 'laundry_dry_cleaning_screen.dart';
 import 'laundry_service_configure_screen.dart';
+import 'provider_services_mixin.dart';
+import '../../models/service_repository.dart';
 import '../../widgets/app_back_button.dart';
 
 class LaundryProviderDetailScreen extends StatefulWidget {
@@ -23,9 +25,22 @@ class LaundryProviderDetailScreen extends StatefulWidget {
 }
 
 class _LaundryProviderDetailScreenState
-    extends State<LaundryProviderDetailScreen> {
+    extends State<LaundryProviderDetailScreen>
+    with ProviderServicesMixin<LaundryProviderDetailScreen> {
   int _selectedTab = 0;
   int _reviewFilter = 0;
+
+  @override
+  String get serviceVertical => ServiceRepository.laundry;
+
+  @override
+  Map<String, String> get providerCard => widget.provider;
+
+  @override
+  void initState() {
+    super.initState();
+    loadProviderServices();
+  }
 
   static const _tabs = ['Services', 'Reviews', 'About'];
   static const _reviewFilters = ['All Reviews', 'Most Recent', 'Highest Rated'];
@@ -59,52 +74,6 @@ class _LaundryProviderDetailScreenState
     },
   ];
 
-  static const _services = [
-    {
-      'title': 'Wash & Fold',
-      'description': 'Professional washing and neatly folded clothes',
-      'price': '100 MRU/Kg',
-      'duration': '24 hours',
-      'action': 'ADD',
-      'image': 'lib/assets/images/wash&fold_detail.png',
-    },
-    {
-      'title': 'Wash & Iron',
-      'description':
-          'Washed and neatly pressed for a fresh, wrinkle-free finish',
-      'price': '200 MRU/Kg',
-      'duration': '24 hours',
-      'action': 'ADD',
-      'image': 'lib/assets/images/Wash & Iron.png',
-    },
-    {
-      'title': 'Dry Cleaning',
-      'description':
-          'Gentle cleaning for delicate garments with a fresh finish',
-      'price': '30 MRU',
-      'duration': '',
-      'action': 'View Prices',
-      'image': 'lib/assets/images/drycleaning_detail.png',
-    },
-    {
-      'title': 'Ironing',
-      'description': 'Neatly pressed clothes with a smooth, wrinkle-free finish',
-      'price': '150 MRU/Kg',
-      'duration': '24 hours',
-      'action': 'ADD',
-      'image': 'lib/assets/images/Ironing.png',
-    },
-    {
-      'title': 'Carpet',
-      'description':
-          'Deep carpet cleaning for a fresh, clean, and renewed finish',
-      'price': '150 MRU/Metre',
-      'duration': '24 hours',
-      'action': 'ADD',
-      'image':
-          'https://images.unsplash.com/photo-1600166898405-da9535204843?w=200&h=200&fit=crop',
-    },
-  ];
 
   String get _name => widget.provider['name'] ?? 'CleanPro Laundry';
   String get _rating => widget.provider['rating'] ?? '4.8';
@@ -398,19 +367,10 @@ class _LaundryProviderDetailScreenState
     );
   }
 
-  Widget _buildServicesList() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-      child: Column(
-        children: [
-          for (var i = 0; i < _services.length; i++) ...[
-            if (i > 0) const SizedBox(height: 14),
-            _buildServiceItem(_services[i]),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget _buildServicesList() => buildProviderServices(
+    _buildServiceItem,
+    fallbackImage: 'lib/assets/images/wash&fold_detail.png',
+  );
 
   Widget _buildServiceImage(String path) {
     final isAsset = path.startsWith('lib/');
@@ -449,6 +409,7 @@ class _LaundryProviderDetailScreenState
     final isDryCleaning = item['title'] == 'Dry Cleaning';
 
     void openConfigure() {
+      selectService(item);
       if (isViewPrices || isDryCleaning) {
         Get.to(
           () => LaundryDryCleaningScreen(

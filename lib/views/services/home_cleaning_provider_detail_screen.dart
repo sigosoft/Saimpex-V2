@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../chat_screen.dart';
+import '../../models/service_repository.dart';
 import 'home_cleaning_service_configure_screen.dart';
+import 'provider_services_mixin.dart';
 import '../../widgets/app_back_button.dart';
 
 class HomeCleaningProviderDetailScreen extends StatefulWidget {
@@ -21,9 +23,22 @@ class HomeCleaningProviderDetailScreen extends StatefulWidget {
 }
 
 class _HomeCleaningProviderDetailScreenState
-    extends State<HomeCleaningProviderDetailScreen> {
+    extends State<HomeCleaningProviderDetailScreen>
+    with ProviderServicesMixin<HomeCleaningProviderDetailScreen> {
   int _selectedTab = 0;
   int _reviewFilter = 0;
+
+  @override
+  String get serviceVertical => ServiceRepository.homeCleaning;
+
+  @override
+  Map<String, String> get providerCard => widget.provider;
+
+  @override
+  void initState() {
+    super.initState();
+    loadProviderServices();
+  }
 
   static const _tabs = ['Services', 'Reviews', 'About'];
   static const _reviewFilters = ['All Reviews', 'Most Recent', 'Highest Rated'];
@@ -57,27 +72,6 @@ class _HomeCleaningProviderDetailScreenState
     },
   ];
 
-  static const _services = [
-    {
-      'title': 'Regular Cleaning',
-      'description':
-          'Professional cleaning with flexible space-based pricing',
-      'price': '100 MRU',
-      'duration': '1 hr 30 min',
-      'image': 'lib/assets/images/regular_cleaning.jpg',
-      'isNetwork': 'false',
-    },
-    {
-      'title': 'Pest Control & Disinfection',
-      'description':
-          'Pest control & disinfection handled by a specialized team',
-      'price': '100 MRU',
-      'duration': '2 hr',
-      'image':
-          'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&h=400&fit=crop',
-      'isNetwork': 'true',
-    },
-  ];
 
   String get _name => widget.provider['name'] ?? 'CleanPro Elite';
   String get _rating => widget.provider['rating'] ?? '4.8';
@@ -365,28 +359,22 @@ class _HomeCleaningProviderDetailScreenState
     );
   }
 
-  Widget _buildServicesList() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-      child: Column(
-        children: [
-          for (var i = 0; i < _services.length; i++) ...[
-            if (i > 0) const SizedBox(height: 14),
-            _buildServiceItem(_services[i]),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget _buildServicesList() => buildProviderServices(
+    _buildServiceItem,
+    fallbackImage: 'lib/assets/images/regular_cleaning.jpg',
+  );
 
   Widget _buildServiceItem(Map<String, String> item) {
     return GestureDetector(
-      onTap: () => Get.to(
-        () => HomeCleaningServiceConfigureScreen(
-          service: item,
-          providerName: _name,
-        ),
-      ),
+      onTap: () {
+        selectService(item);
+        Get.to(
+          () => HomeCleaningServiceConfigureScreen(
+            service: item,
+            providerName: _name,
+          ),
+        );
+      },
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
