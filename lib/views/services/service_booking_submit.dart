@@ -30,6 +30,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   List<Map<String, dynamic>> garments = const [],
   List<Map<String, dynamic>> vehicles = const [],
   String? productSupply,
+  String propertyType = '',
   num? quantity,
   String place = 'home',
   String notes = '',
@@ -67,6 +68,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     if (notes.trim().isNotEmpty) 'notes': notes.trim(),
     'quantity': ?quantity,
     'product_supply': ?productSupply,
+    if (propertyType.trim().isNotEmpty) 'property_type': propertyType.trim(),
   };
   final matchedSpaces = _catalogRows(spaces, 'spaces');
   if (matchedSpaces.isNotEmpty) request['spaces'] = matchedSpaces;

@@ -234,6 +234,8 @@ class _HomeCleaningServiceConfigureScreenState
             },
         ],
         productsProvider: _isPestControl ? 'self' : _productsProvider,
+        propertyType: _propertyType,
+        notes: _notesController.text,
         productsFee: 120,
         selectedPests: _isPestControl
             ? _pestIssues

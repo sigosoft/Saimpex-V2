@@ -29,6 +29,10 @@ class HomeCleaningCartScreen extends StatefulWidget {
   final String slotLabel;
   final Set<String> initialAddonIds;
 
+  /// From the configure screen; sent with the booking.
+  final String propertyType;
+  final String notes;
+
   const HomeCleaningCartScreen({
     super.key,
     this.providerName = 'CleanPro Elite',
@@ -44,6 +48,8 @@ class HomeCleaningCartScreen extends StatefulWidget {
     this.extras = const [],
     this.selectedPests = const [],
     this.productsProvider = 'self',
+    this.propertyType = '',
+    this.notes = '',
     this.productsFee = 120,
     this.basePrice = 750,
     this.baseDurationMin = 90,
@@ -114,6 +120,8 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       spaces: rows(_spaceRows),
       addons: rows(_extraRows),
       productSupply: _productsProvider == 'provider' ? 'vendor' : 'customer',
+      propertyType: widget.propertyType,
+      notes: widget.notes,
     );
     if (!mounted) return;
     setState(() => _booking = false);
