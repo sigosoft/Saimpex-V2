@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'laundry_booking_success_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
+import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
 
 class LaundryCartScreen extends StatefulWidget {
@@ -40,10 +41,31 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
   bool _usePoints = true;
   int _paymentIndex = 0; // mandatory — Wallet selected by default
   final _couponController = TextEditingController();
+  bool _booking = false;
 
   static const _tax = 10;
   static const _pointsOff = 50;
   static const _expressFee = 300;
+
+  Future<void> _placeBooking() async {
+    if (_booking) return;
+    setState(() => _booking = true);
+    // "Estimated 3 kg" → 3; the server re-prices after weighing at pickup.
+    final estimate = num.tryParse(
+      RegExp(r'[\d.]+').firstMatch(widget.estimateLabel)?.group(0) ?? '',
+    );
+    final booking = await placeServiceBooking(
+      slotDate: _slotDate,
+      slotLabel: _slotLabel,
+      onlinePayment: _paymentIndex == 1,
+      quantity: estimate,
+      notes: _deliverySpeed == 1 ? 'Express delivery requested' : '',
+    );
+    if (!mounted) return;
+    setState(() => _booking = false);
+    if (booking == null) return;
+    Get.off(() => const LaundryBookingSuccessScreen());
+  }
 
   static const _months = [
     'Jan',
@@ -1062,9 +1084,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           ),
           const SizedBox(height: 14),
           GestureDetector(
-            onTap: () => Get.off(
-              () => const LaundryBookingSuccessScreen(),
-            ),
+            onTap: _placeBooking,
             child: Container(
               width: double.infinity,
               height: 52,
@@ -1085,7 +1105,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 ],
               ),
               child: Text(
-                'Pay $_toPay MRU',
+                _booking ? 'Booking...' : 'Pay $_toPay MRU',
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,
