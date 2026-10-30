@@ -225,9 +225,24 @@ class _CarWashChooseWashServicesScreenState
       }
     }
 
+    // Every selected vehicle is booked, each with its own add-ons; the API
+    // prices them all from the provider's catalog.
+    final bookingVehicles = [
+      for (var i = 0; i < widget.vehicles.length; i++)
+        {
+          'name': widget.vehicles[i].label,
+          'plate': widget.vehicles[i].plateNumber,
+          'addons': [
+            for (final ai in _configs[i].selectedAddons)
+              {'name': _addons[ai]['title'], 'quantity': 1},
+          ],
+        },
+    ];
+
     Get.to(
       () => CarWashCartScreen(
         providerName: widget.providerName,
+        bookingVehicles: bookingVehicles,
         serviceTitle: service['title'] as String,
         serviceDescription: service['description'] as String,
         serviceImage: service['image'] as String,

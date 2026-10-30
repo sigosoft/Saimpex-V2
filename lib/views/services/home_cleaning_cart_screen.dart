@@ -107,6 +107,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         {'name': row['label'], 'quantity': row['qty']},
     ];
     final booking = await placeServiceBooking(
+      shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
       onlinePayment: _paymentIndex == 1,

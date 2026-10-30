@@ -55,6 +55,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       RegExp(r'[\d.]+').firstMatch(widget.estimateLabel)?.group(0) ?? '',
     );
     final booking = await placeServiceBooking(
+      shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
       onlinePayment: _paymentIndex == 1,

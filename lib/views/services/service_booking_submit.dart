@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import '../../controllers/service_booking_draft.dart';
@@ -15,10 +16,15 @@ import '../../utils/toast_helper.dart';
 /// [spaces], [addons] and [garments] are `{name, quantity}` rows from the
 /// cart; only names in the provider's catalog are sent, because the API
 /// rejects any others and prices the booking from its own catalog.
+///
+/// [shownTotal] is the total the cart showed. The booking is charged at the
+/// server's price, so when customer/service/quote comes back different the
+/// customer confirms that price before anything is booked.
 Future<Map<String, dynamic>?> placeServiceBooking({
   required DateTime slotDate,
   required String slotLabel,
   required bool onlinePayment,
+  num? shownTotal,
   List<Map<String, dynamic>> spaces = const [],
   List<Map<String, dynamic>> addons = const [],
   List<Map<String, dynamic>> garments = const [],
@@ -68,9 +74,26 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   if (matchedAddons.isNotEmpty) request['addons'] = matchedAddons;
   final matchedGarments = _catalogRows(garments, 'garments');
   if (matchedGarments.isNotEmpty) request['garments'] = matchedGarments;
-  // Car wash vehicle types are listed as the item's spaces.
-  final matchedVehicles = _catalogRows(vehicles, 'spaces');
+  // Car wash vehicle types are listed as the item's spaces. Each vehicle can
+  // carry its own add-ons, which are matched against the catalog too.
+  final matchedVehicles = [
+    for (final vehicle in _catalogRows(vehicles, 'spaces'))
+      {
+        ...vehicle,
+        'addons': _catalogRows(
+          [
+            for (final addon in (vehicle['addons'] as List? ?? const []))
+              if (addon is Map) Map<String, dynamic>.from(addon),
+          ],
+          'addons',
+        ),
+      },
+  ];
   if (matchedVehicles.isNotEmpty) request['vehicles'] = matchedVehicles;
+
+  if (shownTotal != null && !await _confirmServerPrice(request, shownTotal)) {
+    return null;
+  }
 
   try {
     final result = await Get.find<ServiceRepository>().book(
@@ -85,6 +108,127 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   } on ApiException catch (error) {
     showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     return null;
+  }
+}
+
+/// Prices [request] with customer/service/quote. True when the server's total
+/// matches [shownTotal] or the customer accepts the server's price.
+Future<bool> _confirmServerPrice(
+  Map<String, dynamic> request,
+  num shownTotal,
+) async {
+  final Map<String, dynamic> quote;
+  try {
+    quote = await Get.find<ServiceRepository>().quote(
+      request: request,
+      language: apiLanguageCode(),
+    );
+  } on ApiException catch (error) {
+    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    return false;
+  }
+  final total = double.tryParse('${quote['total'] ?? ''}');
+  if (total == null || total.round() == shownTotal.round()) return true;
+  final lines = [
+    for (final line in (quote['lines'] as List? ?? const []))
+      if (line is Map) Map<String, dynamic>.from(line),
+  ];
+  final accepted = await Get.dialog<bool>(
+    _ServerPriceDialog(lines: lines, total: total),
+  );
+  return accepted == true;
+}
+
+/// The provider's price for the booking, line by line, to accept or go back.
+class _ServerPriceDialog extends StatelessWidget {
+  const _ServerPriceDialog({required this.lines, required this.total});
+
+  final List<Map<String, dynamic>> lines;
+  final double total;
+
+  static String _mru(num value) => '${value.round()} MRU';
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle style(double size, FontWeight weight, Color color) =>
+        GoogleFonts.outfit(fontSize: size, fontWeight: weight, color: color);
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      title: Text(
+        "Provider's price",
+        style: style(17, FontWeight.w800, const Color(0xFF2C2520)),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Your booking will be charged at the provider\'s current prices:',
+            style: style(12.5, FontWeight.w500, const Color(0xFF7A6A60)),
+          ),
+          const SizedBox(height: 12),
+          for (final line in lines)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      [
+                        '${line['name'] ?? ''}',
+                        if ('${line['unit'] ?? ''}'.isNotEmpty)
+                          '(${line['unit']})',
+                        if ((num.tryParse('${line['quantity']}') ?? 1) > 1)
+                          '×${line['quantity']}',
+                      ].join(' '),
+                      style: style(13, FontWeight.w500, const Color(0xFF2C2520)),
+                    ),
+                  ),
+                  Text(
+                    _mru(
+                      (num.tryParse('${line['price']}') ?? 0) *
+                          (num.tryParse('${line['quantity']}') ?? 1),
+                    ),
+                    style: style(13, FontWeight.w700, const Color(0xFF2C2520)),
+                  ),
+                ],
+              ),
+            ),
+          const Divider(height: 18, color: Color(0xFFEAD8C9)),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Total',
+                  style: style(15, FontWeight.w800, const Color(0xFF2C2520)),
+                ),
+              ),
+              Text(
+                _mru(total),
+                style: style(16, FontWeight.w800, const Color(0xFFFF5E00)),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Get.back(result: false),
+          child: Text(
+            'Go back',
+            style: style(14, FontWeight.w700, const Color(0xFF7A6A60)),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Get.back(result: true),
+          child: Text(
+            'Book at ${_mru(total)}',
+            style: style(14, FontWeight.w800, const Color(0xFFFF5E00)),
+          ),
+        ),
+      ],
+    );
   }
 }
 

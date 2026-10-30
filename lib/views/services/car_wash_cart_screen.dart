@@ -26,8 +26,13 @@ class CarWashCartScreen extends StatefulWidget {
   final String serviceAddress;
   final int homeServiceFee;
 
+  /// Every vehicle to book as `{name, plate, addons: [{name, quantity}]}`.
+  /// Empty means just [vehicleLabel] with [selectedAddons].
+  final List<Map<String, dynamic>> bookingVehicles;
+
   const CarWashCartScreen({
     super.key,
+    this.bookingVehicles = const [],
     this.providerName = 'CleanRide Car Wash',
     this.serviceTitle = 'Exterior Wash',
     this.serviceDescription =
@@ -126,17 +131,23 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
     setState(() => _booking = true);
     final atHome = widget.selectedLocation == 1;
     final booking = await placeServiceBooking(
+      shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
       onlinePayment: _paymentIndex == 1,
       place: atHome ? 'home' : 'station',
-      vehicles: [
-        {'name': widget.vehicleLabel, 'plate': widget.plateNumber},
-      ],
-      addons: [
-        for (final addon in widget.selectedAddons)
-          {'name': addon['title'], 'quantity': 1},
-      ],
+      vehicles: widget.bookingVehicles.isNotEmpty
+          ? widget.bookingVehicles
+          : [
+              {
+                'name': widget.vehicleLabel,
+                'plate': widget.plateNumber,
+                'addons': [
+                  for (final addon in widget.selectedAddons)
+                    {'name': addon['title'], 'quantity': 1},
+                ],
+              },
+            ],
       notes: atHome ? widget.serviceAddress : '',
     );
     if (!mounted) return;
