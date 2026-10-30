@@ -7,6 +7,7 @@ import 'order_success_screen.dart';
 import 'payment_webview_screen.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
+import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../models/cart_repository.dart';
 import '../models/order_repository.dart';
@@ -49,6 +50,9 @@ class _CartScreenState extends State<CartScreen> {
   bool usePoints = true;
   bool _cartLoading = true;
   bool _placingOrder = false;
+  // Order already placed but not yet paid online. Retrying reopens payment for
+  // it instead of checking out again, which would create a duplicate order.
+  Map<String, dynamic>? _unpaidOrder;
   bool _cartLoaded = false;
   // Restaurant carts use their own line totals, not the general checkout summary
   bool _isCatalogCart = false;
@@ -380,6 +384,15 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
     _placingOrder = true;
+    final unpaid = _unpaidOrder;
+    if (unpaid != null) {
+      try {
+        await _finishPlacedOrder(unpaid, payable);
+      } finally {
+        _placingOrder = false;
+      }
+      return;
+    }
     final orders = Get.find<OrderRepository>();
     final location = SelectLocationController.selectedSubtitle.trim().isEmpty
         ? SelectLocationController.deliveryLabel.value
@@ -466,15 +479,33 @@ class _CartScreenState extends State<CartScreen> {
         paymentUrl ??
         (needsOnlinePayment && orderId != null
             ? _paymentPageUrl(
-                'https://dev.saimpexenterprise.com/pay/masrvi/payment/session?order_id=$orderId',
+                '$_apiOrigin/pay/masrvi/payment/session?order_id=$orderId',
               )
             : null);
-    if (needsOnlinePayment && url != null) {
+    if (needsOnlinePayment) {
+      _unpaidOrder = placed;
+      if (url == null) {
+        showAppToast(
+          'Could not open the payment page. Tap Place Order to try again.',
+          backgroundColor: const Color(0xFFEF4444),
+        );
+        return;
+      }
       Get.closeAllSnackbars();
       await Future<void>.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
       final paid = await Get.to<bool>(() => PaymentWebViewScreen(url: url));
-      if (!mounted || paid != true) return;
+      if (!mounted) return;
+      if (paid != true) {
+        showAppToast(
+          paid == false
+              ? 'Payment failed. Tap Place Order to try again.'
+              : 'Payment not completed. Tap Place Order to pay for this order.',
+          backgroundColor: const Color(0xFFEF4444),
+        );
+        return;
+      }
+      _unpaidOrder = null;
     }
     _syncHomeCartBadgeCount(0);
     // Replaces this cart screen, so the placed items don't stay visible behind the success screen.
@@ -547,13 +578,16 @@ class _CartScreenState extends State<CartScreen> {
     if (wrongHost && uri.path.contains('/pay/')) {
       return Uri(
         scheme: 'https',
-        host: 'dev.saimpexenterprise.com',
+        host: Uri.parse(ApiConstants.baseUrl).host,
         path: uri.path,
         query: uri.hasQuery ? uri.query : null,
       ).toString();
     }
     return uri.toString();
   }
+
+  // Payment pages are served by the same backend as the API.
+  String get _apiOrigin => Uri.parse(ApiConstants.baseUrl).origin;
 
   int? _positiveId(dynamic value) {
     final number = value is int ? value : int.tryParse('$value');
