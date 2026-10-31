@@ -14,7 +14,6 @@ import 'pharmacy/pharmacy_screen.dart';
 import 'express/express_screen.dart';
 import 'courier/courier_screen.dart';
 import 'local_store/local_store_screen.dart';
-import 'under_30_min_screen.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/see_all_button.dart';
 import 'main_shell_screen.dart';

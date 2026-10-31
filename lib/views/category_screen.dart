@@ -39,7 +39,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
   /// search(48) + gap(16) + filters(34) + bottom gap(12)
   static const double _searchFiltersExtent = 110;
 
-  bool _foodCategoriesLoaded = false;
   bool _foodCategoriesLoading = false;
   List<Map<String, dynamic>> subcategories = const [];
 
@@ -159,7 +158,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
       setState(() {
         _foodCategoriesLoading = false;
         subcategories = categories;
-        _foodCategoriesLoaded = true;
       });
       if (categories.isNotEmpty && Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().selectSubcategory(0);

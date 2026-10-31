@@ -460,9 +460,9 @@ AC: checkout shows the per-km delivery fee from the server summary; Gold+ custom
 
 **P2-3. Chat unread and delete.** AC: opening a conversation calls `chat/markAsRead`; the list shows unread counts; delete uses `chat/deleteConversation`. ✅ Done (C17): opening a chat calls `chat/markAsRead`; the bin icon asks first, then calls `chat/deleteConversation` and removes the row only if the server agreed. Unread counts come from `allConversations` (already shown).
 
-**P2-4. Real tests.** AC: replace `test/widget_test.dart` with tests for `ApiEnvelope.parse`, payment type mapping and one repository mapper; `flutter test` passes.
+**P2-4. Real tests.** AC: replace `test/widget_test.dart` with tests for `ApiEnvelope.parse`, payment type mapping and one repository mapper; `flutter test` passes. ✅ Done (`feature/analyzer-and-tests`): the template test is gone; `test/core_test.dart` covers `ApiEnvelope.parse` (languages, JSON strings, refusals, nested 422s), the payment-method rules, `ChatbotRepository` mapping and its translated errors (through a fake Dio), and `serviceSlotWindow`. `flutter test`: 17 passing.
 
-**P2-5. Analyzer clean-up.** AC: 0 warnings (13 today: unused fields/imports, dead null-aware code in `grocery_screen.dart` and `grocery_details_screen.dart`).
+**P2-5. Analyzer clean-up.** AC: 0 warnings (13 today: unused fields/imports, dead null-aware code in `grocery_screen.dart` and `grocery_details_screen.dart`). ✅ Done: 0 errors, 0 warnings (the remaining ~490 are info-level lints such as `withOpacity` deprecations, left for C19).
 
 **P2-6. Laundry per Figma.** Replace the hard-coded dry-cleaning garment list with the backend list; match the Figma laundry screens. (No customer PDF upload — confirmed by Praveen.) 🟡 Partly done (C18, `feature/laundry-store-map`): the garment list and prices come from the provider's service item (`garments`) and are sent to `service/book`; the cart shows the server's subtotal/tax/total from `service/quote` and the unsupported express fee, coupon and points (fixed 300/50/10 MRU) are gone. **Not checked against Figma** (no Figma access in that session), and dev has no laundry service items yet, so the garment screen is untested with data.
 
@@ -521,7 +521,7 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 | R-10 | Home search, voice search and image search fill a field that triggers nothing. | `lib/views/widgets/home_search_box.dart` | Headline feature appears broken. (P0-6) |
 | R-11 | Release build signs with the debug key; placeholder app IDs. | `android/app/build.gradle.kts`, `ios/Runner.xcodeproj/project.pbxproj` | Cannot ship as a V1 update until fixed. (P2-8) |
 | R-12 | Dev server code version is unknown. | — | Wallet type 3, addresses, favourites, loyalty need backend `integration/v2`. Confirm deployment before debugging. |
-| R-13 | `test/widget_test.dart` is the template counter test and fails. | `test/widget_test.dart` | `flutter test` is red; CI (if added) fails. (P2-4) |
+| R-13 | `test/widget_test.dart` is the template counter test and fails. | `test/widget_test.dart` | `flutter test` is red; CI (if added) fails. (P2-4) ✅ Fixed. |
 | R-14 | `checkoutV2`/`checkoutSummaryV2` fall back to V1 routes on 404/405. | `lib/views/cart_screen.dart`, `lib/models/order_repository.dart` | Hides a missing V2 route; V1 `checkout` may ignore payment type 3. Remove the fallback once dev is on `integration/v2`. |
 | R-15 | `scratch_grocery.json` (empty) and `android/gradle.properties` are tracked though `.gitignore` lists `android/gradle.properties`. | repo root, `android/` | Clutter; machine-specific Gradle memory settings (`-Xmx8G`) may not suit every machine. |
 | R-16 | Very large screen files (e.g. `cart_screen.dart` ~3,400 lines, `home_screen.dart` ~2,100). | `lib/views/` | Edits risk regressions; change carefully and test each flow. |
