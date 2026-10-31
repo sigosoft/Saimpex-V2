@@ -270,7 +270,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                                   .centerStart,
                                               child: Padding(
                                                 padding:
-                                                    const EdgeInsets.fromLTRB(
+                                                    const EdgeInsetsDirectional.fromSTEB(
                                                       16,
                                                       0,
                                                       12,

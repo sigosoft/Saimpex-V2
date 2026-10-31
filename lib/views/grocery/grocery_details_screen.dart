@@ -1009,8 +1009,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                           _selectCategory(index);
                                         },
                                         child: Padding(
-                                          padding: EdgeInsets.only(
-                                            right:
+                                          padding: EdgeInsetsDirectional.only(
+                                            end:
                                                 index ==
                                                     subcategories.length - 1
                                                 ? 0
@@ -1053,7 +1053,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                                   color: Colors
                                                                       .black
                                                                       .withValues(
-                                                                        alpha: 0.10,
+                                                                        alpha:
+                                                                            0.10,
                                                                       ),
                                                                   blurRadius:
                                                                       10,
@@ -1299,9 +1300,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
 
           // 3. Floating Back Button (hidden while sticky search is pinned)
           if (!_showStickySearch)
-            Positioned(
+            PositionedDirectional(
               top: topInset + 12,
-              left: 16,
+              start: 16,
               child: AppBackButton(onTap: () => Navigator.pop(context)),
             ),
 
@@ -1394,8 +1395,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         children: [
                           Text(
                             'mru'.trParams({
-                              'amount':
-                                  _cartAmountText(controller.cartAmount.value),
+                              'amount': _cartAmountText(
+                                controller.cartAmount.value,
+                              ),
                             }),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
@@ -1717,9 +1719,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       images: foodGalleryImages(food),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    left: 8,
+                    start: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -2396,7 +2398,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                     width: 0.8,
                                   ),
                                 ),
-                                padding: const EdgeInsets.fromLTRB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                   12,
                                   10,
                                   10,
@@ -3001,7 +3003,9 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                     data: SliderTheme.of(context).copyWith(
                       activeTrackColor: const Color(0xFFFF5E00),
                       inactiveTrackColor: const Color(0xFFF3EFEA),
-                      overlayColor: const Color(0xFFFF5E00).withValues(alpha: 0.12),
+                      overlayColor: const Color(
+                        0xFFFF5E00,
+                      ).withValues(alpha: 0.12),
                       rangeThumbShape: const _GroceryRangeThumbShape(
                         enabledThumbRadius: 10,
                       ),

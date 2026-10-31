@@ -645,8 +645,7 @@ class _CourierReviewBookingScreenState
             child: Image.asset(
               widget.vehicleImage,
               fit: BoxFit.contain,
-              errorBuilder: (_, _, _) =>
-                  const Icon(Icons.two_wheeler_outlined),
+              errorBuilder: (_, _, _) => const Icon(Icons.two_wheeler_outlined),
             ),
           ),
           const SizedBox(width: 12),

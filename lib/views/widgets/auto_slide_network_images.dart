@@ -121,7 +121,10 @@ class _AutoSlideNetworkImagesState extends State<AutoSlideNetworkImages> {
     const fallback = ColoredBox(
       color: Color(0xFFFFE8DC),
       child: Center(
-        child: Icon(Icons.image_not_supported_outlined, color: Color(0xFFFF5E00)),
+        child: Icon(
+          Icons.image_not_supported_outlined,
+          color: Color(0xFFFF5E00),
+        ),
       ),
     );
     final image = path.startsWith('http')
@@ -164,9 +167,7 @@ class _AutoSlideNetworkImagesState extends State<AutoSlideNetworkImages> {
     if (widget.images.isEmpty) {
       return const ColoredBox(
         color: Color(0xFFFFE8DC),
-        child: Center(
-          child: Icon(Icons.restaurant, color: Color(0xFFFF5E00)),
-        ),
+        child: Center(child: Icon(Icons.restaurant, color: Color(0xFFFF5E00))),
       );
     }
 
@@ -180,9 +181,7 @@ class _AutoSlideNetworkImagesState extends State<AutoSlideNetworkImages> {
         PageView.builder(
           controller: _controller,
           physics: widget.images.length > 1
-              ? const _ForwardOnlyScrollPhysics(
-                  parent: PageScrollPhysics(),
-                )
+              ? const _ForwardOnlyScrollPhysics(parent: PageScrollPhysics())
               : const NeverScrollableScrollPhysics(),
           itemCount: widget.images.length > 1 ? null : widget.images.length,
           onPageChanged: (index) => setState(() => _page = index),

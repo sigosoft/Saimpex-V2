@@ -1138,7 +1138,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                                 color: Colors
                                                                     .black
                                                                     .withValues(
-                                                                      alpha: 0.10,
+                                                                      alpha:
+                                                                          0.10,
                                                                     ),
                                                                 blurRadius: 10,
                                                                 offset:

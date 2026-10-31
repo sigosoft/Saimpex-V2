@@ -230,13 +230,15 @@ Note: "models" holds **repositories** (API classes), not plain data classes. Mos
 
 - `lib/l10n/app_locale.dart` (`AppLocale`) holds the language (`en`/`fr`/`ar`), saves it in SharedPreferences (survives restart) and switches it with `Get.updateLocale`.
 - `lib/l10n/app_translations.dart` (`AppTranslations`, GetX `Translations`) has the EN/FR/AR strings. Use `'key'.tr` / `'key'.trParams({...})`; **add every new string there in all three languages.**
-- `GetMaterialApp` sets `translations`, `locale`, `fallbackLocale: en`, `supportedLocales` and the Flutter localisation delegates, so Arabic lays the app out right to left. Screens built with `EdgeInsets.fromLTRB` / `Alignment.centerLeft` don't flip yet: use `EdgeInsetsDirectional` / `AlignmentDirectional` when converting a screen.
+- `GetMaterialApp` sets `translations`, `locale`, `fallbackLocale: en`, `supportedLocales` and the Flutter localisation delegates, so Arabic lays the app out right to left. Uneven left/right padding, `Positioned` offsets, `alignment:` values and `TextAlign.left/right` use the directional versions (`EdgeInsetsDirectional`, `PositionedDirectional`, `AlignmentDirectional`, `TextAlign.start/end`; `feature/translations-review`). Keep using them in new code. Even left/right values, gradients and custom painters stay as they are. Material arrow and chevron icons mirror by themselves.
 - The language picker (`lib/views/widgets/language_selector.dart`) calls `customer/updateLanguage` (when logged in) and `AppLocale.change`. `apiLanguageCode()` returns `AppLocale.code`.
 - Screen strings live in `lib/l10n/areas/` (`core`, `orders`, `pharmacy_water`, `services`, `stores`; key prefixes `core_`, `orders_`, `pw_`, `svc_`, `st_`), merged by `AppTranslations`. About 1,400 keys per language.
 - `test/translations_test.dart` fails if FR/AR miss a key, drop an `@placeholder`, or the code uses an undefined key. Run `flutter test` after adding strings.
 - Labels that code compares or sends to the API (e.g. account menu `label`, service card titles, home-cleaning room names, delivery slots, cancel reasons) stay English internally and are translated only when drawn.
 - **Not translated on purpose:** server data, and sample/mock data still in some screens (to be replaced by real data, not translated).
-- **Still to do:** review by a native Arabic/French speaker (client QA, 16–25 Nov); finish RTL on screens with custom painters, gradients and maps (only mechanical directional swaps were made).
+- Error fallbacks in the repositories ("Request failed…"), courier statuses, provider-card tags and review messages are translated (`core_request_failed`, `core_status_1`…`10`, …).
+- French and Arabic were reviewed key by key (AI review, not a native speaker), with consistent terms. French: livreur, prestataire, réservation, portefeuille, retrait (customer collects), collecte (courier/laundry pickup), programmer, noter.
+- **Still to do:** the client's native-speaker QA (16–25 Nov) and an RTL pass on a device (custom painters, gradients and maps were not changed).
 
 See pending item P1-1.
 

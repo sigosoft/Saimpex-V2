@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -307,7 +308,7 @@ class WaterRepository {
       'id': _asInt(item['subscription_id']),
       'state': status,
       'title': text(item['vendor_name']).isEmpty
-          ? 'Water supplier'
+          ? 'core_water_supplier'.tr
           : text(item['vendor_name']),
       'subtitle': _localized(item, 'product_name', fallback: ''),
       'size': text(item['package_label']),
@@ -448,7 +449,7 @@ class WaterRepository {
       'numericOrderId': _asInt(item['order_id']),
       'vendorName': item['vendor_name']?.toString().trim().isNotEmpty == true
           ? item['vendor_name'].toString().trim()
-          : 'Water supplier',
+          : 'core_water_supplier'.tr,
       'statusText': status,
       'isCancelled': status.toLowerCase().contains('cancel'),
       'isDelivered': status.toLowerCase().contains('deliver'),

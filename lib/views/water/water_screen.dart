@@ -271,7 +271,7 @@ class _WaterScreenState extends State<WaterScreen> {
             onTap: () => Get.to(() => const RewardsReferralScreen()),
             child: Container(
               height: 36,
-              padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+              padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
               decoration: BoxDecoration(
                 color: const Color(0xFFFF5E00),
                 borderRadius: BorderRadius.circular(20),
@@ -370,7 +370,9 @@ class _WaterScreenState extends State<WaterScreen> {
                                   Text(
                                     'pw_subscribe_save_20'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: Colors.white.withValues(alpha: 0.85),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.85,
+                                      ),
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -389,7 +391,9 @@ class _WaterScreenState extends State<WaterScreen> {
                                   Text(
                                     'pw_delivery_plans_line'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: Colors.white.withValues(alpha: 0.85),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.85,
+                                      ),
                                       fontSize: 10,
                                     ),
                                   ),
@@ -466,7 +470,7 @@ class _WaterScreenState extends State<WaterScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 48,
-        padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 8, 0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -1400,7 +1404,9 @@ class _WaterScreenState extends State<WaterScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFF5E00).withValues(alpha: 0.25),
+                            color: const Color(
+                              0xFFFF5E00,
+                            ).withValues(alpha: 0.25),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),

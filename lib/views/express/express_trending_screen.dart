@@ -272,9 +272,9 @@ class ExpressTrendingScreen extends StatelessWidget {
                             errorBuilder: (_, _, _) => _imageFallback(),
                           ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 7,
@@ -305,9 +305,9 @@ class ExpressTrendingScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    right: 8,
+                    end: 8,
                     child: Obx(() {
                       final liked = controller.isLiked(store['id'].toString());
                       return GestureDetector(
@@ -335,8 +335,8 @@ class ExpressTrendingScreen extends StatelessWidget {
                       );
                     }),
                   ),
-                  Positioned(
-                    left: 10,
+                  PositionedDirectional(
+                    start: 10,
                     bottom: 8,
                     child: _pointsBadge(store['points'].toString()),
                   ),

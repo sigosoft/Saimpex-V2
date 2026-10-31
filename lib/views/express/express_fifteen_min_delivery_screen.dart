@@ -270,9 +270,9 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 7,
@@ -303,9 +303,9 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    right: 8,
+                    end: 8,
                     child: Obx(() {
                       final liked = controller.isLiked(store['id']!);
                       return GestureDetector(
@@ -330,13 +330,13 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       );
                     }),
                   ),
-                  Positioned(
-                    left: 10,
+                  PositionedDirectional(
+                    start: 10,
                     bottom: 8,
                     child: _pointsBadge(store['points']!),
                   ),
-                  Positioned(
-                    right: 10,
+                  PositionedDirectional(
+                    end: 10,
                     bottom: 8,
                     child: _timeBadge(store['badgeTime']!),
                   ),

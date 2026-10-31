@@ -210,9 +210,9 @@ class HomeCleaningScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const Positioned(
+              const PositionedDirectional(
                 top: -1,
-                right: -2,
+                end: -2,
                 child: Icon(
                   Icons.star_rounded,
                   color: Color(0xFFFF8A65),
@@ -469,14 +469,12 @@ class HomeCleaningScreen extends StatelessWidget {
                       ? Image.network(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              _providerImageFallback(),
+                          errorBuilder: (_, _, _) => _providerImageFallback(),
                         )
                       : Image.asset(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              _providerImageFallback(),
+                          errorBuilder: (_, _, _) => _providerImageFallback(),
                         ),
                 ),
                 PositionedDirectional(

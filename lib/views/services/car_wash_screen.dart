@@ -365,14 +365,12 @@ class CarWashScreen extends StatelessWidget {
                       ? Image.network(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              _providerImageFallback(),
+                          errorBuilder: (_, _, _) => _providerImageFallback(),
                         )
                       : Image.asset(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              _providerImageFallback(),
+                          errorBuilder: (_, _, _) => _providerImageFallback(),
                         ),
                 ),
                 PositionedDirectional(

@@ -314,9 +314,9 @@ class _CarWashBookingDetailScreenState
                 height: 118,
                 child: Stack(
                   children: [
-                    Positioned(
+                    PositionedDirectional(
                       top: lineTop - 1.5,
-                      left: lineLeft,
+                      start: lineLeft,
                       width: lineWidth,
                       child: Container(
                         height: 3,
@@ -326,9 +326,9 @@ class _CarWashBookingDetailScreenState
                         ),
                       ),
                     ),
-                    Positioned(
+                    PositionedDirectional(
                       top: lineTop - 1.5,
-                      left: lineLeft,
+                      start: lineLeft,
                       width: lineWidth * progress,
                       child: Container(
                         height: 3,

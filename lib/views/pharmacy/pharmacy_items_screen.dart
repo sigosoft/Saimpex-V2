@@ -304,8 +304,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 _loadStore(reset: true);
               },
               child: Padding(
-                padding: EdgeInsets.only(
-                  right: index == subcategories.length - 1 ? 0 : 10,
+                padding: EdgeInsetsDirectional.only(
+                  end: index == subcategories.length - 1 ? 0 : 10,
                 ),
                 child: SizedBox(
                   width: 62,
@@ -335,7 +335,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.10),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.10,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -585,7 +587,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.06),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.06,
+                                      ),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -828,7 +832,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black
-                                                        .withValues(alpha: 0.04),
+                                                        .withValues(
+                                                          alpha: 0.04,
+                                                        ),
                                                     blurRadius: 6,
                                                     offset: const Offset(0, 2),
                                                   ),

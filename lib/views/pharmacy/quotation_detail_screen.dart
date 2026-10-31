@@ -1071,7 +1071,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               SizedBox(
                 height: circle,
                 child: Stack(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   children: [
                     Positioned(
                       left: circle / 2,

@@ -19,10 +19,7 @@ class BottomChatIcon extends StatelessWidget {
       width: size,
       height: size,
       child: CustomPaint(
-        painter: _ChatBubblePainter(
-          color: color,
-          strokeFactor: strokeFactor,
-        ),
+        painter: _ChatBubblePainter(color: color, strokeFactor: strokeFactor),
       ),
     );
   }
@@ -32,10 +29,7 @@ class _ChatBubblePainter extends CustomPainter {
   final Color color;
   final double strokeFactor;
 
-  _ChatBubblePainter({
-    required this.color,
-    required this.strokeFactor,
-  });
+  _ChatBubblePainter({required this.color, required this.strokeFactor});
 
   @override
   void paint(Canvas canvas, Size size) {

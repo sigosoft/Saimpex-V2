@@ -232,9 +232,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -254,9 +254,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 70,
+                    start: 70,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 6,
@@ -287,9 +287,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    right: 10,
+                    end: 10,
                     child: Obx(() {
                       final isLiked = homeController.isLiked(
                         (store['id'] ?? '').toString(),
@@ -316,9 +316,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                       );
                     }),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     bottom: 8,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -357,7 +357,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                   ),
                   if (isClosed) ...[
                     Positioned.fill(
-                      child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.35),
+                      ),
                     ),
                     Positioned.fill(
                       child: _buildClosedOverlay(
@@ -366,7 +368,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     ),
                   ] else if (isTemporarilyClosed) ...[
                     Positioned.fill(
-                      child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.35),
+                      ),
                     ),
                     Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                   ],
@@ -593,8 +597,8 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
           return GestureDetector(
             onTap: () => _selectSubcategory(index),
             child: Padding(
-              padding: EdgeInsets.only(
-                right: index == subcategories.length - 1 ? 0 : 10,
+              padding: EdgeInsetsDirectional.only(
+                end: index == subcategories.length - 1 ? 0 : 10,
               ),
               child: SizedBox(
                 width: 62,
@@ -624,7 +628,9 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.10),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.10,
+                                      ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),

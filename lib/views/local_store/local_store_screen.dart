@@ -362,12 +362,13 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                   ),
                                   child: Container(
                                     height: 36,
-                                    padding: const EdgeInsets.fromLTRB(
-                                      4,
-                                      4,
-                                      6,
-                                      4,
-                                    ),
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                          4,
+                                          4,
+                                          6,
+                                          4,
+                                        ),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFFF5E00),
                                       borderRadius: BorderRadius.circular(20),
@@ -846,9 +847,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                   ),
 
                 // Top Left Badges (Discount + Rating)
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  left: 8,
+                  start: 8,
                   child: Row(
                     children: [
                       Container(
@@ -903,9 +904,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Favorite Heart Button Top Right
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -933,9 +934,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Points Badge Bottom Left on Image
-                Positioned(
+                PositionedDirectional(
                   bottom: 8,
-                  left: 8,
+                  start: 8,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -1159,9 +1160,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Top Left Badges (Discount + Rating)
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  left: 10,
+                  start: 10,
                   child: Row(
                     children: [
                       Container(
@@ -1216,9 +1217,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Favorite Heart Button Top Right
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  right: 10,
+                  end: 10,
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -1246,9 +1247,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Points Badge Bottom Left on Image
-                Positioned(
+                PositionedDirectional(
                   bottom: 10,
-                  left: 10,
+                  start: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,

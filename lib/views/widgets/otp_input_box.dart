@@ -25,10 +25,7 @@ class OtpInputBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppColors.inputBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColors.inputBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),

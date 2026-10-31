@@ -205,8 +205,8 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen>
     bool outlined = false,
   }) {
     if (screen == null) return const SizedBox.shrink();
-    return Positioned(
-      left: screen.dx - size / 2,
+    return PositionedDirectional(
+      start: screen.dx - size / 2,
       top: screen.dy - size / 2,
       child: IgnorePointer(
         child: Container(

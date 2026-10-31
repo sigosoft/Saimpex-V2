@@ -364,8 +364,8 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Positioned(
-            right: -20,
+          PositionedDirectional(
+            end: -20,
             bottom: -10,
             child: Image.asset(
               'lib/assets/images/19Lbottle.png',
@@ -380,8 +380,8 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               ),
             ),
           ),
-          Positioned(
-            left: 40,
+          PositionedDirectional(
+            start: 40,
             top: 40,
             child: Icon(
               Icons.water_drop,

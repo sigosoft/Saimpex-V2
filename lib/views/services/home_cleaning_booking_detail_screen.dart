@@ -330,9 +330,9 @@ class _HomeCleaningBookingDetailScreenState
                 height: 120,
                 child: Stack(
                   children: [
-                    Positioned(
+                    PositionedDirectional(
                       top: lineTop - 1.5,
-                      left: lineLeft,
+                      start: lineLeft,
                       width: lineWidth,
                       child: Container(
                         height: 3,
@@ -342,9 +342,9 @@ class _HomeCleaningBookingDetailScreenState
                         ),
                       ),
                     ),
-                    Positioned(
+                    PositionedDirectional(
                       top: lineTop - 1.5,
-                      left: lineLeft,
+                      start: lineLeft,
                       width: lineWidth * (done < 1 ? 0 : done / (count - 1)),
                       child: Container(
                         height: 3,

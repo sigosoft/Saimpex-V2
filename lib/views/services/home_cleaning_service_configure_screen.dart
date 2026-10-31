@@ -646,7 +646,7 @@ class _HomeCleaningServiceConfigureScreenState
             width: 72,
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.end,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 13.5,
@@ -889,7 +889,7 @@ class _HomeCleaningServiceConfigureScreenState
             width: 72,
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.end,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 13.5,
@@ -1278,7 +1278,7 @@ class _HomeCleaningServiceConfigureScreenState
             width: 64,
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.end,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 13.5,

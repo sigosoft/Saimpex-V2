@@ -363,7 +363,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
 
             Container(
               height: 36,
-              padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+              padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
               decoration: BoxDecoration(
                 color: const Color(0xFFFF5E00),
                 borderRadius: BorderRadius.circular(20),

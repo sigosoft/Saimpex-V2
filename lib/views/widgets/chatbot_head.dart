@@ -249,8 +249,8 @@ class _ChatBotHeadState extends State<ChatBotHead>
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            Positioned(
-              left: left,
+            PositionedDirectional(
+              start: left,
               top: top,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -297,7 +297,9 @@ class _ChatBotHeadState extends State<ChatBotHead>
                             border: Border.all(color: Colors.white, width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primaryOrange.withValues(alpha: 0.4),
+                                color: AppColors.primaryOrange.withValues(
+                                  alpha: 0.4,
+                                ),
                                 blurRadius: 15,
                                 spreadRadius: 2,
                                 offset: const Offset(0, 4),

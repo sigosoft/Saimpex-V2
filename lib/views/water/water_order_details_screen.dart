@@ -315,7 +315,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                   SizedBox(
                     height: circle,
                     child: Stack(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       children: [
                         // Line through exact vertical center of circles
                         Positioned(

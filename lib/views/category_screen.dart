@@ -513,7 +513,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.black
-                                                          .withValues(alpha: 0.10),
+                                                          .withValues(
+                                                            alpha: 0.10,
+                                                          ),
                                                       blurRadius: 10,
                                                       offset: const Offset(
                                                         0,
@@ -943,7 +945,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   ),
                   if (isClosed) ...[
                     Positioned.fill(
-                      child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.35),
+                      ),
                     ),
                     Positioned.fill(
                       child: _buildClosedOverlay(
@@ -952,7 +956,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     ),
                   ] else if (isTemporarilyClosed) ...[
                     Positioned.fill(
-                      child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.35),
+                      ),
                     ),
                     Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                   ],
@@ -1300,7 +1306,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   ),
                   if (isClosed) ...[
                     Positioned.fill(
-                      child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.35),
+                      ),
                     ),
                     Positioned.fill(
                       child: _buildClosedOverlay(
@@ -1309,7 +1317,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     ),
                   ] else if (isTemporarilyClosed) ...[
                     Positioned.fill(
-                      child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.35),
+                      ),
                     ),
                     Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                   ],

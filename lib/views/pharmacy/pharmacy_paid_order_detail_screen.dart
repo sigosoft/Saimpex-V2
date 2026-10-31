@@ -412,7 +412,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                   SizedBox(
                     height: circle + 8,
                     child: Stack(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       children: [
                         Positioned(
                           left: circle / 2,

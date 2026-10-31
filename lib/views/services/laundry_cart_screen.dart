@@ -989,8 +989,8 @@ class _CalendarClockIcon extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Positioned(
-            left: 0,
+          PositionedDirectional(
+            start: 0,
             top: size * 0.02,
             child: Icon(
               Icons.calendar_today_outlined,
@@ -998,8 +998,8 @@ class _CalendarClockIcon extends StatelessWidget {
               color: color,
             ),
           ),
-          Positioned(
-            right: -1.5,
+          PositionedDirectional(
+            end: -1.5,
             bottom: -1.5,
             child: Container(
               width: clockSize,

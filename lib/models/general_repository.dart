@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -525,9 +526,7 @@ class GeneralRepository {
         );
       } on FormatException catch (error) {
         throw ApiException(
-          error.message.isEmpty
-              ? 'Request failed. Please try again.'
-              : error.message,
+          error.message.isEmpty ? 'core_request_failed'.tr : error.message,
           statusCode: response.statusCode,
         );
       }

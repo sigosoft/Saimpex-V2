@@ -170,7 +170,7 @@ class _WaterNearbySuppliersScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 48,
-        padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 8, 0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),

@@ -190,8 +190,8 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen>
     double size = 34,
   }) {
     if (screen == null) return const SizedBox.shrink();
-    return Positioned(
-      left: screen.dx - size / 2,
+    return PositionedDirectional(
+      start: screen.dx - size / 2,
       top: screen.dy - size / 2,
       child: IgnorePointer(
         child: Container(

@@ -298,7 +298,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
           ),
           Container(
             height: 36,
-            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+            padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
             decoration: BoxDecoration(
               color: const Color(0xFFFF5E00),
               borderRadius: BorderRadius.circular(20),
@@ -645,8 +645,8 @@ class _ExpressScreenState extends State<ExpressScreen> {
                           child: const Icon(Icons.store, color: Colors.grey),
                         ),
                       ),
-                      Positioned(
-                        left: 10,
+                      PositionedDirectional(
+                        start: 10,
                         bottom: 8,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -805,9 +805,9 @@ class _ExpressScreenState extends State<ExpressScreen> {
                                 _storeImageFallback(imageHeight),
                           ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 7,
@@ -838,9 +838,9 @@ class _ExpressScreenState extends State<ExpressScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    right: 8,
+                    end: 8,
                     child: Obx(() {
                       final liked = controller.isLiked(store['id']!.toString());
                       return GestureDetector(
@@ -868,8 +868,8 @@ class _ExpressScreenState extends State<ExpressScreen> {
                       );
                     }),
                   ),
-                  Positioned(
-                    left: 10,
+                  PositionedDirectional(
+                    start: 10,
                     bottom: 8,
                     child: _pointsBadge(store['points']!.toString()),
                   ),

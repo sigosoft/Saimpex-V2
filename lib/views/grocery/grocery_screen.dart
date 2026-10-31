@@ -418,7 +418,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
           Container(
             height: 36,
-            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+            padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
             decoration: BoxDecoration(
               color: const Color(0xFFFF5E00),
               borderRadius: BorderRadius.circular(20),
@@ -793,8 +793,8 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 );
               },
               child: Padding(
-                padding: EdgeInsets.only(
-                  right: index == subcategories.length - 1 ? 0 : 10,
+                padding: EdgeInsetsDirectional.only(
+                  end: index == subcategories.length - 1 ? 0 : 10,
                 ),
                 child: SizedBox(
                   width: 62,
@@ -824,7 +824,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.10),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.10,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -1006,9 +1008,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Discount tag
                         if (hasDiscount)
-                          Positioned(
+                          PositionedDirectional(
                             top: 10,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -1030,9 +1032,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
 
                         // Rating badge
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          left: hasDiscount ? 62 : 10,
+                          start: hasDiscount ? 62 : 10,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -1071,9 +1073,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Favorite button
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          right: 10,
+                          end: 10,
                           child: Obx(() {
                             final isLiked = homeController.isLiked(
                               (store['id'] ?? '').toString(),
@@ -1103,9 +1105,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Points overlay bottom-left
                         if (hasPoints)
-                          Positioned(
+                          PositionedDirectional(
                             bottom: 8,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -1540,9 +1542,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Discount tag
                         if (hasDiscount)
-                          Positioned(
+                          PositionedDirectional(
                             top: 10,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -1564,9 +1566,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
 
                         // Rating badge
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          left: hasDiscount ? 62 : 10,
+                          start: hasDiscount ? 62 : 10,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -1605,9 +1607,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Favorite button
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          right: 10,
+                          end: 10,
                           child: Obx(() {
                             final isLiked = homeController.isLiked(
                               (store['id'] ?? '').toString(),
@@ -1636,9 +1638,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Points + Time badge overlay bottom-left
-                        Positioned(
+                        PositionedDirectional(
                           bottom: 8,
-                          left: 10,
+                          start: 10,
                           child: Row(
                             children: [
                               if (hasPoints) ...[
@@ -1846,9 +1848,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       ),
 
                       // Rating badge
-                      Positioned(
+                      PositionedDirectional(
                         top: 8,
-                        left: 8,
+                        start: 8,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 5,

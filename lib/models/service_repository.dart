@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -183,20 +184,20 @@ class ServiceRepository {
       'rating': rating > 0 ? rating.toStringAsFixed(1) : 'New',
       'distance': text(row['distance_label']),
       'price': rate.replaceAll(' MRU', ''),
-      'points': availability.isEmpty ? 'Open' : availability,
+      'points': availability.isEmpty ? 'core_open'.tr : availability,
       'image': ApiConstants.mediaUrl(text(row['image'])) ?? '',
       'isOpen': row['is_open'] == true ? '1' : '0',
       'ready': text(row['hours_label']).isEmpty
           ? availability
           : text(row['hours_label']),
-      'tag1': 'Starting from',
+      'tag1': 'svc_starting_from'.tr,
       'price1': rate.isEmpty
           ? '—'
           : unit.isEmpty
           ? rate
           : '$rate/$unit',
-      'tag2': 'Rating',
-      'price2': rating > 0 ? '${rating.toStringAsFixed(1)} ★' : 'New',
+      'tag2': 'core_rating'.tr,
+      'price2': rating > 0 ? '${rating.toStringAsFixed(1)} ★' : 'core_new'.tr,
     };
   }
 

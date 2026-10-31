@@ -41,17 +41,11 @@ void showAppToast(
 
 class ToastHelper {
   static void showError(String message) {
-    showAppToast(
-      message,
-      backgroundColor: const Color(0xFFEF4444),
-    );
+    showAppToast(message, backgroundColor: const Color(0xFFEF4444));
   }
 
   static void showSuccess(String message) {
-    showAppToast(
-      message,
-      backgroundColor: const Color(0xFF00B25C),
-    );
+    showAppToast(message, backgroundColor: const Color(0xFF00B25C));
   }
 
   static void show(String message) {

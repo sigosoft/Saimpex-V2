@@ -81,9 +81,9 @@ class PharmacyProductCard extends StatelessWidget {
                       ),
                     ),
                   if ((food['discount']?.toString() ?? '').isNotEmpty)
-                    Positioned(
+                    PositionedDirectional(
                       top: 0,
-                      left: 0,
+                      start: 0,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,

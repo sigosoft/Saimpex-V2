@@ -173,9 +173,9 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
+          PositionedDirectional(
             top: -100,
-            right: -90,
+            end: -90,
             child: Container(
               width: 300,
               height: 300,
@@ -207,9 +207,9 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
+          PositionedDirectional(
             bottom: -100,
-            left: -90,
+            start: -90,
             child: Container(
               width: 280,
               height: 280,
@@ -1162,7 +1162,9 @@ class HomeScreen extends StatelessWidget {
                   ),
                 if (isClosed) ...[
                   Positioned.fill(
-                    child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.35),
+                    ),
                   ),
                   Positioned.fill(
                     child: _buildClosedOverlay(
@@ -1171,7 +1173,9 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ] else if (isTemporarilyClosed) ...[
                   Positioned.fill(
-                    child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.35),
+                    ),
                   ),
                   Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                 ],
@@ -1853,7 +1857,9 @@ class HomeScreen extends StatelessWidget {
                 ),
                 if (isClosed) ...[
                   Positioned.fill(
-                    child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.35),
+                    ),
                   ),
                   Positioned.fill(
                     child: _buildClosedOverlay(
@@ -1862,7 +1868,9 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ] else if (isTemporarilyClosed) ...[
                   Positioned.fill(
-                    child: Container(color: Colors.black.withValues(alpha: 0.35)),
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.35),
+                    ),
                   ),
                   Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                 ],

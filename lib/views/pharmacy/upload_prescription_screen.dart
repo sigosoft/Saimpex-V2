@@ -301,7 +301,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
 
   Widget _buildAddPrescriptionCard() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 14, 16),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 14, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -481,7 +481,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
 
   Widget _buildCallToggle() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 8, 8, 8),
       decoration: BoxDecoration(
         color: const Color(0xFFF3EFEA),
         borderRadius: BorderRadius.circular(16),
@@ -895,7 +895,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 10, 12),
             child: Row(
               children: [
                 SizedBox(

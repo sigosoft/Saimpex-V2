@@ -964,7 +964,9 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         inactiveTrackColor: const Color(0xFFF3EFEA),
                         activeTickMarkColor: Colors.transparent,
                         inactiveTickMarkColor: Colors.transparent,
-                        overlayColor: const Color(0xFFFF5E00).withValues(alpha: 0.12),
+                        overlayColor: const Color(
+                          0xFFFF5E00,
+                        ).withValues(alpha: 0.12),
                         valueIndicatorColor: const Color(0xFFFF5E00),
                         rangeValueIndicatorShape:
                             const RectangularRangeSliderValueIndicatorShape(),
