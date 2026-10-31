@@ -22,6 +22,7 @@ import 'widgets/chatbot_head.dart';
 import 'widgets/home_search_box.dart';
 import 'select_location_screen.dart';
 import 'notifications_screen.dart';
+import 'wallet_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -308,8 +309,10 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // Wallet pill badge
-          Container(
+          // Wallet pill badge: opens the wallet (balance, history, top-up)
+          GestureDetector(
+            onTap: () => Get.to(() => const WalletScreen()),
+            child: Container(
             height: 36,
             padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
             decoration: BoxDecoration(
@@ -349,6 +352,7 @@ class HomeScreen extends StatelessWidget {
                 }),
               ],
             ),
+          ),
           ),
           const SizedBox(width: 10),
           // Notification Bell

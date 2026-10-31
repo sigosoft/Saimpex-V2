@@ -18,6 +18,7 @@ import 'saved_addresses_screen.dart';
 import 'my_subscriptions_screen.dart';
 import 'my_schedules_screen.dart';
 import 'pay_later_screen.dart';
+import 'wallet_screen.dart';
 import 'app_preferences_screen.dart';
 import 'help_support_screen.dart';
 import 'terms_conditions_screen.dart';
@@ -469,6 +470,10 @@ class _AccountScreenState extends State<AccountScreen> {
                   value: _walletAmount,
                   unit: 'MRU',
                   animateIcon: true,
+                  onTap: () async {
+                    await Get.to(() => const WalletScreen());
+                    if (mounted) _fetchUserPoints();
+                  },
                 ),
               ),
               const SizedBox(width: 14),

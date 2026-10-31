@@ -95,6 +95,33 @@ class _CartScreenState extends State<CartScreen> {
     };
   }
 
+  /// The wallet balance loaded with Home, or null before it has loaded.
+  num? get _walletBalance {
+    if (!Get.isRegistered<HomeController>()) return null;
+    final raw = Get.find<HomeController>().walletBalance.value;
+    return num.tryParse(raw.replaceAll(RegExp(r'[^0-9.]'), ''));
+  }
+
+  /// True when Wallet is chosen but can't cover [payable]: the wallet pays
+  /// what it has and Masrvi charges the rest (split payment).
+  bool _walletShort(int payable) {
+    final balance = _walletBalance;
+    return balance != null && balance < payable;
+  }
+
+  String _walletSubtitle(int payable) {
+    final balance = _walletBalance;
+    if (balance == null || !_walletShort(payable)) {
+      return walletBalanceSubtitle();
+    }
+    String money(num value) =>
+        value == value.roundToDouble() ? '${value.toInt()}' : '$value';
+    return 'wallet_split'.trParams({
+      'wallet': money(balance),
+      'online': money(payable - balance),
+    });
+  }
+
   Future<void> _loadPayAfterDelivery() async {
     if (!Get.isRegistered<OrderRepository>()) return;
     try {
@@ -440,12 +467,17 @@ class _CartScreenState extends State<CartScreen> {
     // Wallet (0) is paid from the wallet when the order is placed; Online (1)
     // opens the payment page; Cash on Delivery (2) is 1; Pay After Delivery
     // (3) is 4, which the server refuses when the customer can't use it.
-    final paymentType = switch (selectedPaymentIndex) {
-      0 => paymentTypeWallet,
-      1 => paymentTypeOnline,
-      3 => paymentTypePayAfterDelivery,
-      _ => paymentTypeCash,
-    };
+    // A wallet that can't cover the order splits it: payment_type 2 with
+    // use_wallet=1, so the wallet pays what it has and Masrvi the rest.
+    final splitWithWallet = selectedPaymentIndex == 0 && _walletShort(payable);
+    final paymentType = splitWithWallet
+        ? paymentTypeOnline
+        : switch (selectedPaymentIndex) {
+            0 => paymentTypeWallet,
+            1 => paymentTypeOnline,
+            3 => paymentTypePayAfterDelivery,
+            _ => paymentTypeCash,
+          };
     Future<Map<String, dynamic>> place(bool version2) {
       if (_isCatalogCart) {
         return orders.catalogCheckout(
@@ -456,6 +488,7 @@ class _CartScreenState extends State<CartScreen> {
           paymentType: paymentType,
           language: apiLanguageCode(),
           note: note,
+          useWallet: splitWithWallet,
         );
       }
       return orders.checkout(
@@ -470,6 +503,7 @@ class _CartScreenState extends State<CartScreen> {
         redeemAmount: usePoints ? '$pointDiscountValue' : '0',
         note: note,
         version2: version2,
+        useWallet: splitWithWallet,
       );
     }
 
@@ -2417,7 +2451,7 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        walletBalanceSubtitle(),
+                                        _walletSubtitle(toPay),
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 10,

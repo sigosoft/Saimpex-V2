@@ -13,6 +13,21 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'wallet_title': 'SAIMPEX Wallet',
+  'wallet_balance': 'Available balance',
+  'wallet_topup': 'Top up',
+  'wallet_topup_amount': 'Amount',
+  'wallet_topup_continue': 'Continue to payment',
+  'wallet_topup_limits': 'Between @min and @max MRU',
+  'wallet_topup_paid': 'Money added to your wallet.',
+  'wallet_topup_failed': 'Top-up failed. Nothing was added.',
+  'wallet_topup_pending':
+      'Top-up not confirmed yet. Your balance updates when the payment arrives.',
+  'wallet_history': 'History',
+  'wallet_no_history': 'No transactions yet.',
+  'wallet_credit': 'Added to wallet',
+  'wallet_debit': 'Paid from wallet',
+  'wallet_split': 'Wallet @wallet MRU + Online @online MRU',
   'search_hint': 'Search stores and products',
   'search_prompt': 'Type what you are looking for',
   'search_no_results': 'No results for "@query"',
@@ -52,6 +67,21 @@ const _en = {
 };
 
 const _fr = {
+  'wallet_title': 'Portefeuille SAIMPEX',
+  'wallet_balance': 'Solde disponible',
+  'wallet_topup': 'Recharger',
+  'wallet_topup_amount': 'Montant',
+  'wallet_topup_continue': 'Continuer vers le paiement',
+  'wallet_topup_limits': 'Entre @min et @max MRU',
+  'wallet_topup_paid': 'Montant ajouté à votre portefeuille.',
+  'wallet_topup_failed': "Recharge échouée. Rien n'a été ajouté.",
+  'wallet_topup_pending':
+      "Recharge pas encore confirmée. Votre solde sera mis à jour à la réception du paiement.",
+  'wallet_history': 'Historique',
+  'wallet_no_history': 'Aucune transaction pour le moment.',
+  'wallet_credit': 'Ajouté au portefeuille',
+  'wallet_debit': 'Payé avec le portefeuille',
+  'wallet_split': 'Portefeuille @wallet MRU + En ligne @online MRU',
   'search_hint': 'Rechercher des magasins et des produits',
   'search_prompt': 'Tapez ce que vous cherchez',
   'search_no_results': 'Aucun résultat pour « @query »',
@@ -92,6 +122,21 @@ const _fr = {
 };
 
 const _ar = {
+  'wallet_title': 'محفظة سايمبكس',
+  'wallet_balance': 'الرصيد المتاح',
+  'wallet_topup': 'شحن الرصيد',
+  'wallet_topup_amount': 'المبلغ',
+  'wallet_topup_continue': 'المتابعة إلى الدفع',
+  'wallet_topup_limits': 'بين @min و@max أوقية',
+  'wallet_topup_paid': 'تمت إضافة المبلغ إلى محفظتك.',
+  'wallet_topup_failed': 'فشل الشحن. لم تتم إضافة أي مبلغ.',
+  'wallet_topup_pending':
+      'لم يتم تأكيد الشحن بعد. سيتم تحديث رصيدك عند وصول الدفع.',
+  'wallet_history': 'السجل',
+  'wallet_no_history': 'لا توجد معاملات بعد.',
+  'wallet_credit': 'أضيف إلى المحفظة',
+  'wallet_debit': 'دُفع من المحفظة',
+  'wallet_split': 'المحفظة @wallet أوقية + عبر الإنترنت @online أوقية',
   'search_hint': 'ابحث عن المتاجر والمنتجات',
   'search_prompt': 'اكتب ما تبحث عنه',
   'search_no_results': 'لا توجد نتائج لـ "@query"',

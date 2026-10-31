@@ -54,6 +54,7 @@ class OrderRepository {
     String redeemAmount = '0',
     String note = '',
     bool version2 = true,
+    bool useWallet = false,
   }) async {
     final fields = <String, dynamic>{
       'is_self_pickup': selfPickup ? '1' : '0',
@@ -65,6 +66,9 @@ class OrderRepository {
       'redeem_amount': redeemAmount,
       'notes': note,
       'order_note': note,
+      // Split payment: with payment_type 2 the wallet pays what it can and
+      // Masrvi charges the rest (online_amount).
+      if (useWallet) 'use_wallet': '1',
     };
     if (!version2 && cartId != null) fields['cart_id'] = '$cartId';
     final envelope = await _send(
@@ -88,6 +92,7 @@ class OrderRepository {
     required String paymentType,
     required String language,
     String note = '',
+    bool useWallet = false,
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
@@ -100,6 +105,7 @@ class OrderRepository {
           'payment_type': paymentType,
           'notes': note,
           'order_note': note,
+          if (useWallet) 'use_wallet': '1',
         }),
       ),
       language,
