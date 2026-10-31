@@ -76,17 +76,17 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                         children: [
                           _buildContactCard(
                             icon: Icons.phone_in_talk_rounded,
-                            label: 'Call Us',
+                            label: 'core_help_call_us'.tr,
                             value: _phone,
-                            buttonLabel: 'Call Now',
+                            buttonLabel: 'core_help_call_now'.tr,
                             onTap: () {},
                           ),
                           const SizedBox(height: 14),
                           _buildContactCard(
                             icon: Icons.email_rounded,
-                            label: 'Email Us',
+                            label: 'core_help_email_us'.tr,
                             value: _email,
-                            buttonLabel: 'Send Mail',
+                            buttonLabel: 'core_help_send_mail'.tr,
                             onTap: () {},
                           ),
                           const SizedBox(height: 14),
@@ -114,7 +114,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Help & Support',
+              'core_help_title'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -230,7 +230,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Support Info',
+            'core_help_support_info'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 16,
@@ -240,19 +240,19 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           const SizedBox(height: 18),
           _buildInfoRow(
             icon: Icons.access_time_rounded,
-            title: 'Business Hours',
-            subtitle: 'Available 9 AM – 10 PM',
+            title: 'core_help_business_hours'.tr,
+            subtitle: 'core_help_hours_value'.tr,
           ),
           const SizedBox(height: 18),
           _buildInfoRow(
             icon: Icons.phone_in_talk_rounded,
-            title: 'Call Support',
+            title: 'core_help_call_support'.tr,
             subtitle: _phone,
           ),
           const SizedBox(height: 18),
           _buildInfoRow(
             icon: Icons.email_rounded,
-            title: 'Support Email',
+            title: 'core_help_support_email'.tr,
             subtitle: _email,
           ),
         ],

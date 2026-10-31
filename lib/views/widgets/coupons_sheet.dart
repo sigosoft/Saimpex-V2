@@ -71,7 +71,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Coupons',
+            'core_coupons_sheet_title'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 18,
@@ -99,7 +99,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
         padding: const EdgeInsets.symmetric(vertical: 32),
         child: Center(
           child: Text(
-            _error ?? 'No coupons available right now',
+            _error ?? 'core_coupons_sheet_empty'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFF8C7D73),

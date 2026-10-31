@@ -13,13 +13,13 @@ Future<String?> labelScannedImage(String path) async {
   try {
     final labels = await labeler.processImage(InputImage.fromFilePath(path));
     if (labels.isEmpty) {
-      showAppToast('Could not identify that image.');
+      showAppToast('core_scan_not_identified'.tr);
       return null;
     }
     labels.sort((a, b) => b.confidence.compareTo(a.confidence));
     return titleCaseScanLabel(labels.first.label);
   } catch (_) {
-    showAppToast('Could not scan that image.');
+    showAppToast('core_scan_failed'.tr);
     return null;
   } finally {
     await labeler.close();

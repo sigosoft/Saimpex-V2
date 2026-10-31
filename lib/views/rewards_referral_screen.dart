@@ -155,13 +155,14 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
     final amount = _num(_referral['reward_amount']).round();
     Clipboard.setData(
       ClipboardData(
-        text:
-            'Join SAIMPEX with my code $code and we both get $amount MRU '
-            'after your first delivered order.',
+        text: 'core_rewards_invite_message'.trParams({
+          'code': code,
+          'amount': '$amount',
+        }),
       ),
     );
     showAppToast(
-      'Invite copied. Paste it to your friends.',
+      'core_rewards_invite_copied'.tr,
       backgroundColor: const Color(0xFFFF5E00),
     );
   }
@@ -173,27 +174,27 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Enter a referral code',
+          'core_rewards_enter_code_title'.tr,
           style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 17),
         ),
         content: TextField(
           controller: controller,
           autofocus: true,
           textCapitalization: TextCapitalization.characters,
-          decoration: const InputDecoration(hintText: 'e.g. SXAB12CD'),
+          decoration: InputDecoration(hintText: 'core_rewards_code_hint'.tr),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text(
-              'Cancel',
+              'cancel'.tr,
               style: GoogleFonts.outfit(color: const Color(0xFF7A6A60)),
             ),
           ),
           TextButton(
             onPressed: () => Get.back(result: controller.text.trim()),
             child: Text(
-              'Apply',
+              'core_rewards_apply'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontWeight: FontWeight.w800,
@@ -269,13 +270,17 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                             _buildBalanceCard(),
                             if (_baskets.isNotEmpty) ...[
                               const SizedBox(height: 22),
-                              _buildSectionTitle('🎁  Redeem Rewards'),
+                              _buildSectionTitle(
+                                '🎁  ${'core_rewards_redeem_rewards'.tr}',
+                              ),
                               const SizedBox(height: 12),
                               _buildRedeemList(),
                             ],
                             if (_missions.isNotEmpty) ...[
                               const SizedBox(height: 22),
-                              _buildSectionTitle('🎯  Weekly Mission'),
+                              _buildSectionTitle(
+                                '🎯  ${'core_rewards_weekly_mission'.tr}',
+                              ),
                               const SizedBox(height: 12),
                               for (var i = 0; i < _missions.length; i++) ...[
                                 if (i > 0) const SizedBox(height: 10),
@@ -284,7 +289,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                             ],
                             const SizedBox(height: 22),
                             _buildSectionTitle(
-                              'Invite & Earn',
+                              'core_rewards_invite_earn'.tr,
                               iconAsset:
                                   'lib/assets/images/invite_earn_icon.png',
                             ),
@@ -296,7 +301,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                 child: GestureDetector(
                                   onTap: _enterCode,
                                   child: Text(
-                                    'Have a referral code? Enter it',
+                                    'core_rewards_have_code'.tr,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFFF5E00),
                                       fontSize: 13,
@@ -308,7 +313,9 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                             ],
                             if (_history.isNotEmpty) ...[
                               const SizedBox(height: 22),
-                              _buildSectionTitle('Points History'),
+                              _buildSectionTitle(
+                                'core_rewards_points_history'.tr,
+                              ),
                               const SizedBox(height: 12),
                               _buildHistory(),
                             ],
@@ -336,7 +343,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Rewards & Referral',
+              'core_rewards_title'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -397,7 +404,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'REWARD BALANCE',
+                      'core_rewards_reward_balance'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A9A9A),
                         fontSize: 11,
@@ -420,7 +427,9 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'pts ≈ ${_grouped(_redeemableAmount)} MRU',
+                          'core_rewards_pts_approx'.trParams({
+                            'amount': _grouped(_redeemableAmount),
+                          }),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFBDBDBD),
                             fontSize: 14,
@@ -454,7 +463,9 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${tierName.toUpperCase()} TIER',
+                        'core_rewards_tier_badge'.trParams({
+                          'tier': tierName.toUpperCase(),
+                        }),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFBE8D8),
                           fontSize: 10,
@@ -472,8 +483,11 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
             width: double.infinity,
             child: Text(
               nextName.isEmpty
-                  ? 'Top tier reached'
-                  : '${_grouped(toNext < 0 ? 0 : toNext)} tier pts to $nextName unlock',
+                  ? 'core_rewards_top_tier'.tr
+                  : 'core_rewards_to_next_tier'.trParams({
+                      'points': _grouped(toNext < 0 ? 0 : toNext),
+                      'tier': nextName,
+                    }),
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFCFCFCF),
@@ -636,13 +650,15 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
       'store': vendor.isNotEmpty ? vendor : '${basket['vendor_name'] ?? ''}',
       'title': _localized(basket, 'name'),
       'subtitle': _localized(basket, 'description'),
-      'points': '${_grouped(needed)} pts',
+      'points': 'core_rewards_pts'.trParams({'points': _grouped(needed)}),
       'progress': needed <= 0 ? 1.0 : (have / needed).toDouble(),
       'redeemable':
           basket['can_redeem'] == true &&
           basket['available'] != false &&
           basket['purchase_available'] != false,
-      'rewardValue': '${_grouped(_num(basket['basket_price']))} MRU basket',
+      'rewardValue': 'core_rewards_basket_value'.trParams({
+        'amount': _grouped(_num(basket['basket_price'])),
+      }),
       'image': ApiConstants.mediaUrl('${basket['image'] ?? ''}') ?? '',
     };
   }
@@ -680,8 +696,8 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
             ),
             child: Container(
               width: 220,
-              margin: EdgeInsets.only(
-                right: index == _baskets.length - 1 ? 0 : 14,
+              margin: EdgeInsetsDirectional.only(
+                end: index == _baskets.length - 1 ? 0 : 14,
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -830,7 +846,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               child: Text(
-                                'Redeem',
+                                'core_rewards_redeem'.tr,
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -892,15 +908,15 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
       'referrals' => 'lib/assets/images/invitefriens_icon.png',
       _ => 'lib/assets/images/groceryorders_icon.png',
     };
-    final noun = switch (metric) {
-      'ratings' => 'reviews submitted',
-      'referrals' => 'referrals rewarded',
-      _ => 'orders delivered',
+    final progressKey = switch (metric) {
+      'ratings' => 'core_rewards_mission_reviews',
+      'referrals' => 'core_rewards_mission_referrals',
+      _ => 'core_rewards_mission_orders',
     };
     final value = _num(mission['reward_value']).round();
     final reward = mission['reward_type'] == 'wallet'
-        ? '+$value MRU'
-        : '+$value pts';
+        ? 'core_rewards_plus_mru'.trParams({'amount': '$value'})
+        : 'core_rewards_plus_pts'.trParams({'points': '$value'});
     final claimed = mission['claimed'] == true;
     final claimable = mission['claimable'] == true;
     final claiming = _claimingId == int.tryParse('${mission['id']}');
@@ -956,7 +972,10 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '$done/$target $noun this week',
+                      progressKey.trParams({
+                        'done': '$done',
+                        'target': '$target',
+                      }),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 11,
@@ -983,9 +1002,13 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                   ),
                   child: Text(
                     claimed
-                        ? 'Claimed ✓'
+                        ? 'core_rewards_claimed'.tr
                         : claimable
-                        ? (claiming ? 'Claiming…' : 'Claim $reward')
+                        ? (claiming
+                              ? 'core_rewards_claiming'.tr
+                              : 'core_rewards_claim'.trParams({
+                                  'reward': reward,
+                                }))
                         : reward,
                     style: GoogleFonts.outfit(
                       color: claimable ? Colors.white : const Color(0xFFFF5E00),
@@ -1029,7 +1052,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Refer a Friend, Earn $amount MRU',
+            'core_rewards_refer_title'.trParams({'amount': amount}),
             style: GoogleFonts.outfit(
               color: Colors.white,
               fontSize: 21,
@@ -1039,8 +1062,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'You and your friend each get $amount MRU in your wallet when '
-            'their first order is delivered',
+            'core_rewards_refer_body'.trParams({'amount': amount}),
             style: GoogleFonts.outfit(
               color: Colors.white.withValues(alpha: 0.95),
               fontSize: 13,
@@ -1050,7 +1072,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
           ),
           const SizedBox(height: 20),
           _buildGlassPill(
-            padding: const EdgeInsets.fromLTRB(18, 8, 8, 8),
+            padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 8, 8),
             child: Row(
               children: [
                 Expanded(
@@ -1058,7 +1080,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'YOUR CODE',
+                        'core_rewards_your_code'.tr,
                         style: GoogleFonts.outfit(
                           color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 10,
@@ -1100,7 +1122,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                         ),
                         const SizedBox(width: 7),
                         Text(
-                          'COPY',
+                          'core_rewards_copy'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 13,
@@ -1121,14 +1143,14 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
               Expanded(
                 child: _buildInviteStat(
                   value: '${_num(_referral['rewarded']).toInt()}',
-                  label: 'Joined',
+                  label: 'core_rewards_joined'.tr,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildInviteStat(
                   value: _grouped(_num(_referral['earned'])),
-                  label: 'Earned MRU',
+                  label: 'core_rewards_earned_mru'.tr,
                 ),
               ),
             ],
@@ -1247,7 +1269,9 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                           Text(
                             vendor.isNotEmpty
                                 ? vendor
-                                : (basket.isNotEmpty ? basket : 'Points'),
+                                : (basket.isNotEmpty
+                                      ? basket
+                                      : 'core_rewards_points'.tr),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 14,
@@ -1271,7 +1295,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                       ),
                     ),
                     Text(
-                      '${credited ? '+' : '-'}${_grouped(points)} pts',
+                      '${credited ? '+' : '-'}${'core_rewards_pts'.trParams({'points': _grouped(points)})}',
                       style: GoogleFonts.outfit(
                         color: credited
                             ? const Color(0xFF1FAF5A)

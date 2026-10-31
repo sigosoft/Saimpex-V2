@@ -80,7 +80,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Edit Profile',
+              'core_profile_title'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -113,8 +113,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             clipBehavior: Clip.antiAlias,
             child: Obx(() => _buildAvatarImage(controller)),
           ),
-          Positioned(
-            right: 2,
+          PositionedDirectional(
+            end: 2,
             bottom: 2,
             child: GestureDetector(
               onTap: controller.pickAvatar,
@@ -155,7 +155,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'NAME',
+          'core_profile_name'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF5D534A),
             fontSize: 11,
@@ -211,7 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'WHATSAPP NUMBER',
+          'core_profile_whatsapp'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF5D534A),
             fontSize: 11,
@@ -302,7 +302,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
       ),
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: child,
     );
   }
@@ -314,14 +314,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.edit_outlined,
-            color: Color(0xFFFF5E00),
-            size: 15,
-          ),
+          const Icon(Icons.edit_outlined, color: Color(0xFFFF5E00), size: 15),
           const SizedBox(width: 4),
           Text(
-            'Edit',
+            'core_profile_edit'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 13,
@@ -372,7 +368,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 )
               : Text(
-                  'Update',
+                  'core_profile_update'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 16,
@@ -402,11 +398,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Image.network(
       remote,
       fit: BoxFit.cover,
-      errorBuilder: (_, _, _) => const Icon(
-        Icons.person_rounded,
-        size: 56,
-        color: Color(0xFFA59A94),
-      ),
+      errorBuilder: (_, _, _) =>
+          const Icon(Icons.person_rounded, size: 56, color: Color(0xFFA59A94)),
     );
   }
 
@@ -427,7 +420,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Select Country',
+                  'core_profile_select_country'.tr,
                   style: GoogleFonts.outfit(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/network/api_constants.dart';
@@ -64,11 +65,13 @@ int _variantPrice(Map<String, dynamic> variant) {
 }
 
 String _variantLabel(Map<String, dynamic>? variant) {
-  if (variant == null) return 'Regular';
+  if (variant == null) return 'core_food_regular'.tr;
   final name = _localizedText(variant, 'variant_name');
   if (name.isNotEmpty) return name;
   final attribute = variant['attribute_value']?.toString().trim() ?? '';
-  return attribute.isNotEmpty && attribute != 'null' ? attribute : 'Regular';
+  return attribute.isNotEmpty && attribute != 'null'
+      ? attribute
+      : 'core_food_regular'.tr;
 }
 
 Widget _radio({required bool selected}) {
@@ -331,7 +334,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
     if (items.isEmpty) return null;
     return {
       'option_group_id': _extrasGroupId,
-      'name': 'Add Extras',
+      'name': 'core_food_add_extras'.tr,
       'selection_requirement': 'optional',
       'min_selections': 0,
       'max_selections': extras['max_selections'] ?? 0,
@@ -402,12 +405,12 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
 
   String _variantPriceLabel(Map<String, dynamic> variant) =>
       _variantInStock(variant)
-      ? '${_variantPrice(variant)} MRU'
-      : 'Out of stock';
+      ? 'mru'.trParams({'amount': '${_variantPrice(variant)}'})
+      : 'core_food_out_of_stock'.tr;
 
   void _selectVariant(int index) {
     if (!_variantInStock(_variants[index])) {
-      showAppToast('This portion is out of stock');
+      showAppToast('core_food_portion_out_of_stock'.tr);
       return;
     }
     setState(() => _variantIndex = index);
@@ -424,12 +427,16 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
   void _addToCart() {
     final selected = _selectedVariant;
     if (selected != null && !_variantInStock(selected)) {
-      showAppToast('This portion is out of stock');
+      showAppToast('core_food_portion_out_of_stock'.tr);
       return;
     }
     final missing = _missingRequiredGroup();
     if (missing != null) {
-      showAppToast('Please choose ${missing['name'] ?? 'an option'}');
+      showAppToast(
+        'core_food_please_choose'.trParams({
+          'name': '${missing['name'] ?? 'core_food_an_option'.tr}',
+        }),
+      );
       return;
     }
     // Option groups and extras are sent under different keys (option_ids / extra_ids)
@@ -460,9 +467,9 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sectionHeader(
-          title: 'Choose Your Portion',
-          badge: 'Mandatory',
-          trailing: 'Select 1',
+          title: 'core_food_choose_portion'.tr,
+          badge: 'core_food_mandatory'.tr,
+          trailing: 'core_food_select_one'.tr,
           trailingHighlight: false,
         ),
         const SizedBox(height: 12),
@@ -528,10 +535,12 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
     final isExtras = _intOf(group['option_group_id']) == _extrasGroupId;
     final single = max == 1 && !isExtras;
     final trailing = required
-        ? 'Min ${min > 0 ? min : 1} required'
+        ? 'core_food_min_required'.trParams({'count': '${min > 0 ? min : 1}'})
         : single
-        ? 'Select 1'
-        : 'Max ${max > 0 ? max : options.length} items';
+        ? 'core_food_select_one'.tr
+        : 'core_food_max_items'.trParams({
+            'count': '${max > 0 ? max : options.length}',
+          });
     final chosen = _chosen(group);
 
     Widget optionCard(Map<String, dynamic> option) {
@@ -556,7 +565,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
       children: [
         _sectionHeader(
           title: group['name']?.toString() ?? '',
-          badge: required ? 'Mandatory' : 'Optional',
+          badge: required ? 'core_food_mandatory'.tr : 'core_food_optional'.tr,
           badgeHighlight: required,
           trailing: trailing,
           trailingHighlight: required,
@@ -601,9 +610,9 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                   height: 96,
                   radius: BorderRadius.circular(16),
                 ),
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: Container(
                     width: 22,
                     height: 22,
@@ -634,7 +643,9 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
               ),
             ),
             Text(
-              price > 0 ? '+ $price MRU' : 'Included',
+              price > 0
+                  ? 'core_food_plus_price'.trParams({'amount': '$price'})
+                  : 'core_food_included'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 12,
@@ -693,7 +704,9 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    price > 0 ? '+$price MRU' : 'Included',
+                    price > 0
+                        ? 'core_food_plus_price'.trParams({'amount': '$price'})
+                        : 'core_food_included'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 13,
@@ -859,7 +872,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(23),
                                   ),
-                                  alignment: Alignment.centerLeft,
+                                  alignment: AlignmentDirectional.centerStart,
                                   child: TextField(
                                     controller: _qtyNoteController,
                                     style: GoogleFonts.outfit(
@@ -867,7 +880,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                       color: const Color(0xFF1A1A1A),
                                     ),
                                     decoration: InputDecoration(
-                                      hintText: 'Customize your quantity here',
+                                      hintText: 'core_food_qty_hint'.tr,
                                       hintStyle: GoogleFonts.outfit(
                                         color: const Color(0xFFA59A94),
                                         fontSize: 13,
@@ -883,7 +896,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                 ],
                                 const SizedBox(height: 10),
                                 Text(
-                                  'Add Order Notes',
+                                  'core_food_add_order_notes'.tr,
                                   style: GoogleFonts.outfit(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,
@@ -894,12 +907,13 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                   children: [
                                     Container(
                                       width: double.infinity,
-                                      padding: const EdgeInsets.fromLTRB(
-                                        14,
-                                        12,
-                                        48,
-                                        12,
-                                      ),
+                                      padding:
+                                          const EdgeInsetsDirectional.fromSTEB(
+                                            14,
+                                            12,
+                                            48,
+                                            12,
+                                          ),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(18),
@@ -912,8 +926,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                           color: const Color(0xFF1A1A1A),
                                         ),
                                         decoration: InputDecoration(
-                                          hintText:
-                                              'Add notes (e.g., no onions, extra spicy...)',
+                                          hintText: 'core_food_notes_hint'.tr,
                                           hintStyle: GoogleFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 13,
@@ -923,8 +936,8 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                         ),
                                       ),
                                     ),
-                                    Positioned(
-                                      right: 10,
+                                    PositionedDirectional(
+                                      end: 10,
                                       bottom: 10,
                                       child: Container(
                                         width: 32,
@@ -1065,7 +1078,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'ADD',
+                                    'core_food_add'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 15,

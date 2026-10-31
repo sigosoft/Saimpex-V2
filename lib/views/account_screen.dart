@@ -223,10 +223,16 @@ class _AccountScreenState extends State<AccountScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Quick Actions', style: AppTextStyles.title()),
+                          Text(
+                            'core_account_quick_actions'.tr,
+                            style: AppTextStyles.title(),
+                          ),
                           _buildQuickActions(),
                           const SizedBox(height: 24),
-                          Text('Settings', style: AppTextStyles.title()),
+                          Text(
+                            'core_account_settings'.tr,
+                            style: AppTextStyles.title(),
+                          ),
                           const SizedBox(height: 12),
                           _buildSettingsCard(context),
                           const SizedBox(height: 28),
@@ -245,7 +251,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Check for update',
+                                  'core_account_check_update'.tr,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFFA59A94),
                                     fontSize: 12,
@@ -279,9 +285,9 @@ class _AccountScreenState extends State<AccountScreen> {
                     child: const SizedBox.expand(),
                   ),
                 ),
-                Positioned(
+                PositionedDirectional(
                   top: MediaQuery.of(context).padding.top + 52,
-                  right: 16,
+                  end: 16,
                   child: _buildDeleteMenuPopup(),
                 ),
               ],
@@ -321,7 +327,7 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
               const SizedBox(width: 10),
               Text(
-                'Delete Account',
+                'core_account_delete_account'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 14,
@@ -382,7 +388,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 ),
               Expanded(
                 child: Text(
-                  'Account',
+                  'core_account_title'.tr,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.heading(color: Colors.white),
                 ),
@@ -466,9 +472,9 @@ class _AccountScreenState extends State<AccountScreen> {
               Expanded(
                 child: _buildStatCard(
                   iconAsset: 'lib/assets/images/wallet_profile.png',
-                  label: 'WALLET',
+                  label: 'core_account_wallet'.tr,
                   value: _walletAmount,
-                  unit: 'MRU',
+                  unit: 'core_account_mru'.tr,
                   animateIcon: true,
                   onTap: () async {
                     await Get.to(() => const WalletScreen());
@@ -480,7 +486,7 @@ class _AccountScreenState extends State<AccountScreen> {
               Expanded(
                 child: _buildStatCard(
                   iconAsset: 'lib/assets/images/Coin.png',
-                  label: 'REWARD POINTS',
+                  label: 'core_account_reward_points'.tr,
                   value: _rewardPoints,
                   animateIcon: true,
                   onTap: () async {
@@ -522,8 +528,8 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
         child: Stack(
           children: [
-            Positioned(
-              right: -22,
+            PositionedDirectional(
+              end: -22,
               bottom: -26,
               child: Opacity(
                 opacity: 0.50,
@@ -623,35 +629,41 @@ class _AccountScreenState extends State<AccountScreen> {
     final actions = [
       {
         'label': 'Orders',
+        'text': 'core_account_orders'.tr,
         'icon': Icons.assignment_outlined,
         'bg': const Color(0xFFF1E9FF),
         'fg': const Color(0xFF8B5CF6),
       },
       {
         'label': 'My Favourite',
+        'text': 'core_account_my_favourite'.tr,
         'icon': Icons.favorite_border_rounded,
         'bg': const Color(0xFFFFE8EC),
         'fg': const Color(0xFFEF4444),
       },
       {
         'label': 'My Schedules',
+        'text': 'core_account_my_schedules'.tr,
         'icon': Icons.calendar_today_outlined,
         'bg': const Color(0xFFE8F1FF),
         'fg': const Color(0xFF3B82F6),
       },
       {
         'label': 'Reward & Referral',
+        'text': 'core_account_reward_referral'.tr,
         'asset': 'lib/assets/images/reward.png',
         'bg': const Color(0xFFFFF0E6),
       },
       {
         'label': 'Saved Addresses',
+        'text': 'core_account_saved_addresses'.tr,
         'icon': Icons.location_on_outlined,
         'bg': const Color(0xFFFFF6E0),
         'fg': const Color(0xFFF59E0B),
       },
       {
         'label': 'My Subscriptions',
+        'text': 'core_account_my_subscriptions'.tr,
         'asset': 'lib/assets/images/subscriptions.png',
         'bg': const Color(0xFFFFE8F3),
       },
@@ -733,8 +745,10 @@ class _AccountScreenState extends State<AccountScreen> {
                           final count = homeController.favouritesCount;
                           return Text(
                             count > 0
-                                ? 'My Favourite ($count)'
-                                : 'My Favourite',
+                                ? 'core_account_my_favourite_count'.trParams({
+                                    'count': '$count',
+                                  })
+                                : 'core_account_my_favourite'.tr,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.outfit(
@@ -746,7 +760,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           );
                         })
                       : Text(
-                          action['label'] as String,
+                          (action['text'] ?? action['label']) as String,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.outfit(
@@ -767,7 +781,12 @@ class _AccountScreenState extends State<AccountScreen> {
 
   Widget _buildSettingsCard(BuildContext context) {
     final items = [
-      {'label': 'Language', 'icon': Icons.language_rounded, 'isLogout': false},
+      {
+        'label': 'Language',
+        'text': 'core_account_language'.tr,
+        'icon': Icons.language_rounded,
+        'isLogout': false,
+      },
       // Not in Figma: where unpaid Pay After Delivery orders are paid.
       {
         'label': 'Pay Later',
@@ -777,30 +796,40 @@ class _AccountScreenState extends State<AccountScreen> {
       },
       {
         'label': 'App Preferences',
+        'text': 'core_account_app_preferences'.tr,
         'icon': Icons.settings_outlined,
         'isLogout': false,
       },
       {
         'label': 'Help & Support',
+        'text': 'core_account_help_support'.tr,
         'icon': Icons.help_outline_rounded,
         'isLogout': false,
       },
       {
         'label': 'Terms & Conditions',
+        'text': 'core_account_terms'.tr,
         'icon': Icons.description_outlined,
         'isLogout': false,
       },
       {
         'label': 'Privacy & Security',
+        'text': 'core_account_privacy'.tr,
         'asset': 'lib/assets/images/sheild_icon.png',
         'isLogout': false,
       },
       {
         'label': 'About Us',
+        'text': 'core_account_about_us'.tr,
         'icon': Icons.info_outline_rounded,
         'isLogout': false,
       },
-      {'label': 'Logout', 'icon': Icons.logout_rounded, 'isLogout': true},
+      {
+        'label': 'Logout',
+        'text': 'core_account_logout'.tr,
+        'icon': Icons.logout_rounded,
+        'isLogout': true,
+      },
     ];
 
     return Container(
@@ -836,15 +865,15 @@ class _AccountScreenState extends State<AccountScreen> {
                     );
                   } else if (item['label'] == 'Privacy & Security') {
                     Get.to(
-                      () => const TermsConditionsScreen(
-                        title: 'Privacy & Security',
+                      () => TermsConditionsScreen(
+                        title: 'core_account_privacy'.tr,
                         isPrivacyPolicy: true,
                       ),
                     );
                   } else if (item['label'] == 'About Us') {
                     Get.to(
-                      () => const TermsConditionsScreen(
-                        title: 'About Us',
+                      () => TermsConditionsScreen(
+                        title: 'core_account_about_us'.tr,
                         isAboutUs: true,
                       ),
                     );
@@ -1010,7 +1039,7 @@ class _DeleteAccountSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Delete Account',
+            'core_account_delete_account'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 20,
@@ -1019,7 +1048,7 @@ class _DeleteAccountSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Are you sure you want to delete your account?',
+            'core_account_delete_confirm'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFF7A6A60),
@@ -1058,7 +1087,7 @@ class _DeleteAccountSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: Text(
-                      'Yes',
+                      'core_account_yes'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
@@ -1084,7 +1113,7 @@ class _DeleteAccountSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: Text(
-                      'No',
+                      'core_account_no'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 15,
@@ -1140,9 +1169,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
       }
       Get.offAll(() => const LoginScreen());
       showAppToast(
-        toastMsg?.isNotEmpty == true
-            ? toastMsg!
-            : 'You are logged out successfully.',
+        toastMsg?.isNotEmpty == true ? toastMsg! : 'core_account_logged_out'.tr,
         backgroundColor: AppColors.primaryOrange,
       );
     }
@@ -1166,7 +1193,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Logout',
+            'core_account_logout'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 20,
@@ -1175,7 +1202,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Are you sure you want to logout?',
+            'core_account_logout_confirm'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
@@ -1198,7 +1225,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: Text(
-                      'No',
+                      'core_account_no'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
@@ -1235,7 +1262,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
                             ),
                           )
                         : Text(
-                            'Yes',
+                            'core_account_yes'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 15,

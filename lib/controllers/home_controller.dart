@@ -288,17 +288,17 @@ class HomeController extends GetxController {
     if (title.isNotEmpty) return title;
     switch (key) {
       case 'trending':
-        return 'Trending in your area';
+        return 'core_home_trending'.tr;
       case 'recent_orders':
-        return 'Recent Orders';
+        return 'core_home_recent_orders'.tr;
       case 'under_30_minutes':
-        return 'Under 30 Minutes';
+        return 'core_home_under_30'.tr;
       case 'top_grocery':
-        return 'Top Grocery Stores Near You';
+        return 'core_home_top_grocery'.tr;
       case 'trusted_pharmacies':
-        return 'Trusted Pharmacies';
+        return 'core_home_trusted_pharmacies'.tr;
       case 'top_rated_suppliers':
-        return 'Top Rated Suppliers';
+        return 'core_home_top_suppliers'.tr;
       default:
         return '';
     }

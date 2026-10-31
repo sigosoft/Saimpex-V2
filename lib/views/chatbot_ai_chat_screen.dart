@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/colors.dart';
@@ -10,10 +11,7 @@ import '../widgets/app_back_button.dart';
 class ChatBotAiChatScreen extends StatefulWidget {
   final String languageCode;
 
-  const ChatBotAiChatScreen({
-    super.key,
-    this.languageCode = 'EN',
-  });
+  const ChatBotAiChatScreen({super.key, this.languageCode = 'EN'});
 
   @override
   State<ChatBotAiChatScreen> createState() => _ChatBotAiChatScreenState();
@@ -86,7 +84,12 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     return '$hour:$minute $period';
   }
 
-  void _sendMessage([String? preset, IconData? icon, String? iconAsset]) {
+  void _sendMessage([
+    String? preset,
+    IconData? icon,
+    String? iconAsset,
+    String? intent,
+  ]) {
     final text = (preset ?? _messageController.text).trim();
     if (text.isEmpty) return;
 
@@ -110,7 +113,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
 
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      _addBotReply(text);
+      _addBotReply(intent ?? text);
     });
   }
 
@@ -186,9 +189,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
               'Thanks! I\'m here to help with orders, deliveries, and offers.';
       }
       setState(() {
-        _messages.add(
-          _ChatItem.text(text: reply, isUser: false, time: now),
-        );
+        _messages.add(_ChatItem.text(text: reply, isUser: false, time: now));
       });
     }
     _scrollToBottom();
@@ -241,8 +242,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                   title: Text(
                     lang.label,
                     style: GoogleFonts.outfit(
-                      fontWeight:
-                          selected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                       color: selected
                           ? AppColors.primaryOrange
                           : const Color(0xFF1A1A1A),
@@ -288,11 +288,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFF4EE),
-              Color(0xFFFAF6F0),
-              Color(0xFFFFE8DC),
-            ],
+            colors: [Color(0xFFFFF4EE), Color(0xFFFAF6F0), Color(0xFFFFE8DC)],
             stops: [0.0, 0.45, 1.0],
           ),
         ),
@@ -365,9 +361,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
             ),
             Row(
               children: [
-                AppBackButton(
-                  onTap: () => Navigator.of(context).pop(),
-                ),
+                AppBackButton(onTap: () => Navigator.of(context).pop()),
                 const Spacer(),
                 GestureDetector(
                   onTap: _showLanguagePicker,
@@ -467,10 +461,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
         if (item.type == _ChatItemType.orderCard) {
           return _OrderTrackingCard(timeLabel: _formatTime(item.time));
         }
-        return _MessageBubble(
-          message: item,
-          timeLabel: _formatTime(item.time),
-        );
+        return _MessageBubble(message: item, timeLabel: _formatTime(item.time));
       },
     );
   }
@@ -478,30 +469,33 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
   Widget _buildQuickActions() {
     final actions = [
       _QuickAction(
-        label: 'Track my order',
+        label: 'core_chatbot_track_order'.tr,
         iconAsset: 'lib/assets/images/track_order.png',
         onTap: () => _sendMessage(
-          'Track my order',
+          'core_chatbot_track_order'.tr,
           null,
           'lib/assets/images/track_order.png',
+          'Track my order',
         ),
       ),
       _QuickAction(
-        label: 'Cancel order',
+        label: 'core_chatbot_cancel_order'.tr,
         iconAsset: 'lib/assets/images/close.png',
         onTap: () => _sendMessage(
-          'Cancel order',
+          'core_chatbot_cancel_order'.tr,
           null,
           'lib/assets/images/close.png',
+          'Cancel order',
         ),
       ),
       _QuickAction(
-        label: 'Offers',
+        label: 'core_chatbot_offers'.tr,
         iconAsset: 'lib/assets/images/offers.png',
         onTap: () => _sendMessage(
-          'Offers',
+          'core_chatbot_offers'.tr,
           null,
           'lib/assets/images/offers.png',
+          'Offers',
         ),
       ),
     ];
@@ -555,15 +549,16 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                         color: const Color(0xFF1A1A1A),
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Type a message...',
+                        hintText: 'core_chatbot_type_message'.tr,
                         hintStyle: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
                         ),
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -675,7 +670,7 @@ class _QuickActionChip extends StatelessWidget {
     return GestureDetector(
       onTap: action.onTap,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(6, 6, 14, 6),
+        padding: const EdgeInsetsDirectional.fromSTEB(6, 6, 14, 6),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
@@ -709,11 +704,7 @@ class _QuickActionChip extends StatelessWidget {
                           : 16,
                       fit: BoxFit.contain,
                     )
-                  : Icon(
-                      action.icon,
-                      color: const Color(0xFFFF5E00),
-                      size: 16,
-                    ),
+                  : Icon(action.icon, color: const Color(0xFFFF5E00), size: 16),
             ),
             const SizedBox(width: 8),
             Text(
@@ -735,25 +726,25 @@ class _MessageBubble extends StatelessWidget {
   final _ChatItem message;
   final String timeLabel;
 
-  const _MessageBubble({
-    required this.message,
-    required this.timeLabel,
-  });
+  const _MessageBubble({required this.message, required this.timeLabel});
 
   @override
   Widget build(BuildContext context) {
     final isUser = message.isUser;
 
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isUser
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.78,
         ),
         child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -777,12 +768,12 @@ class _MessageBubble extends StatelessWidget {
                     if (message.iconAsset != null)
                       Image.asset(
                         message.iconAsset!,
-                        width: message.iconAsset ==
-                                'lib/assets/images/close.png'
+                        width:
+                            message.iconAsset == 'lib/assets/images/close.png'
                             ? 22
                             : 18,
-                        height: message.iconAsset ==
-                                'lib/assets/images/close.png'
+                        height:
+                            message.iconAsset == 'lib/assets/images/close.png'
                             ? 22
                             : 18,
                         fit: BoxFit.contain,
@@ -851,29 +842,29 @@ class _OrderTrackingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final steps = [
       _TrackStep(
-        label: 'Your order has been received',
+        label: 'core_chatbot_step_received'.tr,
         icon: Icons.check_rounded,
         done: true,
       ),
       _TrackStep(
-        label: 'The restaurant is preparing your food',
+        label: 'core_chatbot_step_preparing'.tr,
         icon: Icons.soup_kitchen_outlined,
         done: true,
       ),
       _TrackStep(
-        label: 'Your order has been picked up for delivery',
+        label: 'core_chatbot_step_picked_up'.tr,
         icon: Icons.delivery_dining_rounded,
         done: true,
       ),
       _TrackStep(
-        label: 'Your order has been delivered',
+        label: 'core_chatbot_step_delivered'.tr,
         icon: Icons.check_circle_outline,
         done: false,
       ),
     ];
 
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         width: MediaQuery.sizeOf(context).width * 0.86,
@@ -932,7 +923,7 @@ class _OrderTrackingCard extends StatelessWidget {
                   ),
                   Text(
                     '22 OCT 2025,\n10:00 AM',
-                    textAlign: TextAlign.right,
+                    textAlign: TextAlign.end,
                     style: GoogleFonts.outfit(
                       fontSize: 11,
                       color: const Color(0xFF7A6A60),
@@ -948,10 +939,7 @@ class _OrderTrackingCard extends StatelessWidget {
               child: Column(
                 children: [
                   for (var i = 0; i < steps.length; i++)
-                    _TimelineRow(
-                      step: steps[i],
-                      isLast: i == steps.length - 1,
-                    ),
+                    _TimelineRow(step: steps[i], isLast: i == steps.length - 1),
                 ],
               ),
             ),
@@ -969,7 +957,7 @@ class _OrderTrackingCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Arriving 12 mins',
+                          'core_chatbot_arriving_mins'.trParams({'mins': '12'}),
                           style: GoogleFonts.outfit(
                             color: AppColors.primaryOrange,
                             fontSize: 14,
@@ -978,7 +966,7 @@ class _OrderTrackingCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Your order has been received',
+                          'core_chatbot_step_received'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 12,
@@ -1004,7 +992,7 @@ class _OrderTrackingCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, bottom: 10),
+              padding: const EdgeInsetsDirectional.only(start: 16, bottom: 10),
               child: Text(
                 timeLabel,
                 style: GoogleFonts.outfit(
@@ -1041,8 +1029,7 @@ class _TimelineRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = step.done;
-    final color =
-        active ? AppColors.primaryOrange : const Color(0xFFD0C6BE);
+    final color = active ? AppColors.primaryOrange : const Color(0xFFD0C6BE);
 
     return IntrinsicHeight(
       child: Row(

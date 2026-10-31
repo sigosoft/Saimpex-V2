@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../constants/colors.dart';
@@ -61,12 +62,10 @@ class _ChatBotHeadState extends State<ChatBotHead>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    _sizeAnimation = Tween<double>(
-      begin: _expandedSize,
-      end: _shrunkSize,
-    ).animate(
-      CurvedAnimation(parent: _sizeController, curve: Curves.easeInOutBack),
-    );
+    _sizeAnimation = Tween<double>(begin: _expandedSize, end: _shrunkSize)
+        .animate(
+          CurvedAnimation(parent: _sizeController, curve: Curves.easeInOutBack),
+        );
 
     _bubbleController = AnimationController(
       vsync: this,
@@ -153,7 +152,8 @@ class _ChatBotHeadState extends State<ChatBotHead>
     final maxX = screen.width - half - 8 - rightBubbleInset;
     final minY = padding.top + half + 8;
     // Keep circle + bubble above the floating bottom nav
-    final maxY = screen.height -
+    final maxY =
+        screen.height -
         padding.bottom -
         _navBarClearance -
         _bubbleClearance -
@@ -196,8 +196,10 @@ class _ChatBotHeadState extends State<ChatBotHead>
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
           const curve = Curves.fastOutSlowIn;
-          final tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          final tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
           return SlideTransition(
             position: animation.drive(tween),
             child: child,
@@ -295,16 +297,16 @@ class _ChatBotHeadState extends State<ChatBotHead>
                             border: Border.all(color: Colors.white, width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color:
-                                    AppColors.primaryOrange.withOpacity(0.4),
+                                color: AppColors.primaryOrange.withOpacity(0.4),
                                 blurRadius: 15,
                                 spreadRadius: 2,
                                 offset: const Offset(0, 4),
                               ),
                               if (_isShrunk)
                                 BoxShadow(
-                                  color: AppColors.primaryOrange
-                                      .withOpacity(0.6),
+                                  color: AppColors.primaryOrange.withOpacity(
+                                    0.6,
+                                  ),
                                   blurRadius: glowRadius,
                                   spreadRadius: glowRadius / 2,
                                 ),
@@ -356,7 +358,7 @@ class _ChatBotHeadState extends State<ChatBotHead>
                                       ],
                                     ),
                                     child: Text(
-                                      'How can I help you?',
+                                      'core_chatbot_help_bubble'.tr,
                                       style: GoogleFonts.rubik(
                                         color: Colors.black,
                                         fontSize: 11,

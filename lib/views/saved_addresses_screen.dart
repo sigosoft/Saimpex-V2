@@ -68,10 +68,12 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         language: apiLanguageCode(),
       );
       if (!mounted) return;
-      setState(() => _addresses = [
-        for (final row in _addresses)
-          if (_id(row) != id) row,
-      ]);
+      setState(
+        () => _addresses = [
+          for (final row in _addresses)
+            if (_id(row) != id) row,
+        ],
+      );
       showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
     } on ApiException catch (error) {
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -86,7 +88,10 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     final text = '${address['address'] ?? ''}'.trim();
     final latitude = _coord(address['latitude']);
     final longitude = _coord(address['longitude']);
-    if (id == null || latitude == null || longitude == null || _busyId != null) {
+    if (id == null ||
+        latitude == null ||
+        longitude == null ||
+        _busyId != null) {
       return;
     }
     setState(() => _busyId = id);
@@ -106,7 +111,11 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         Get.find<HomeController>().loadHome();
       }
       showAppToast(
-        'Delivering to ${address['label'] ?? 'this address'}',
+        'core_addresses_delivering_to'.trParams({
+          'label': address['label'] == null
+              ? 'core_addresses_this_address'.tr
+              : _labelText('${address['label']}'),
+        }),
         backgroundColor: const Color(0xFFFF5E00),
       );
       Get.back();
@@ -205,7 +214,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
       child: Text(
-        _error ?? 'No saved addresses yet',
+        _error ?? 'core_addresses_empty'.tr,
         textAlign: TextAlign.center,
         style: GoogleFonts.outfit(
           color: const Color(0xFFA59A94),
@@ -229,7 +238,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Saved Addresses',
+              'core_addresses_title'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -249,6 +258,14 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     'Office' => Icons.work_outline_rounded,
     'Other' => Icons.location_on_outlined,
     _ => Icons.home_outlined,
+  };
+
+  /// Translates the standard labels; a custom label is shown as typed.
+  static String _labelText(String label) => switch (label) {
+    'Home' => 'core_addresses_home'.tr,
+    'Office' => 'core_addresses_office'.tr,
+    'Other' => 'core_addresses_other'.tr,
+    _ => label,
   };
 
   Widget _buildAddressCard(Map<String, dynamic> address) {
@@ -296,7 +313,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        label,
+                        _labelText(label),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 16,
@@ -334,7 +351,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                 GestureDetector(
                   onTap: () => _deleteAddress(address),
                   child: Text(
-                    'Delete',
+                    'core_addresses_delete'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 14,
@@ -346,7 +363,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                 GestureDetector(
                   onTap: () => _openPicker(editing: address),
                   child: Text(
-                    'Edit',
+                    'core_addresses_edit'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 14,
@@ -385,7 +402,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
           ],
         ),
         child: Text(
-          'Add New Address',
+          'core_addresses_add_new'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 16,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/order_tracking.dart';
@@ -12,14 +13,15 @@ class TrackingSummary extends StatelessWidget {
     required this.tracking,
     this.error,
     this.fallbackOrderCode = '',
-    this.preparingLabel = 'Preparing',
+    this.preparingLabel = 'core_tracking_preparing',
   });
 
   final OrderTracking? tracking;
   final String? error;
   final String fallbackOrderCode;
 
-  /// Second step's label, e.g. "Picking Items" for groceries.
+  /// Second step's label, e.g. "Picking Items" for groceries. Translated
+  /// when shown, so a translation key works here too.
   final String preparingLabel;
 
   @override
@@ -46,7 +48,10 @@ class TrackingSummary extends StatelessWidget {
 
     final code = data.orderCode.isNotEmpty ? data.orderCode : fallbackOrderCode;
     final tag = [
-      if (code.isNotEmpty) 'Order ${code.startsWith('#') ? code : '#$code'}',
+      if (code.isNotEmpty)
+        'core_tracking_order'.trParams({
+          'code': code.startsWith('#') ? code : '#$code',
+        }),
       if (data.vendorName.isNotEmpty) data.vendorName,
     ].join(' • ');
     final badgeColor = data.isCancelled
@@ -98,7 +103,7 @@ class TrackingSummary extends StatelessWidget {
         if (!data.isCancelled) _progress(data),
         const SizedBox(height: 20),
         Text(
-          'Your Driver',
+          'core_tracking_your_driver'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
@@ -126,26 +131,38 @@ class TrackingSummary extends StatelessWidget {
           top: 18,
           left: 30,
           right: 30,
-          child: Row(children: [line(stage >= 1), line(stage >= 2), line(stage >= 3)]),
+          child: Row(
+            children: [line(stage >= 1), line(stage >= 2), line(stage >= 3)],
+          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _node(stage >= 0, Icons.check, 'Order placed', data.placedAt),
+            _node(
+              stage >= 0,
+              Icons.check,
+              'core_tracking_placed'.tr,
+              data.placedAt,
+            ),
             _node(
               stage >= 1,
               Icons.shopping_bag_outlined,
-              preparingLabel,
+              preparingLabel.tr,
               data.timeOf(3).isNotEmpty ? data.timeOf(3) : data.timeOf(2),
             ),
             _node(
               stage >= 2,
               Icons.delivery_dining_rounded,
-              'On the way',
+              'core_tracking_on_the_way'.tr,
               data.timeOf(7),
             ),
-            _node(stage >= 3, Icons.check, 'Delivered', data.timeOf(9)),
+            _node(
+              stage >= 3,
+              Icons.check,
+              'core_tracking_delivered'.tr,
+              data.timeOf(9),
+            ),
           ],
         ),
       ],
@@ -226,8 +243,8 @@ class TrackingSummary extends StatelessWidget {
       child: !data.hasDriver
           ? Text(
               data.isFinished
-                  ? 'No driver for this order'
-                  : 'A driver will be assigned soon',
+                  ? 'core_tracking_no_driver'.tr
+                  : 'core_tracking_driver_soon'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
@@ -253,7 +270,9 @@ class TrackingSummary extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        data.driverName.isEmpty ? 'Driver' : data.driverName,
+                        data.driverName.isEmpty
+                            ? 'core_tracking_driver'.tr
+                            : data.driverName,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 15,
@@ -272,7 +291,7 @@ class TrackingSummary extends StatelessWidget {
                           Text(
                             data.driverRating > 0
                                 ? data.driverRating.toStringAsFixed(1)
-                                : 'New',
+                                : 'core_tracking_new'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 13,
@@ -281,7 +300,7 @@ class TrackingSummary extends StatelessWidget {
                           ),
                           if (data.driverReviews > 0)
                             Text(
-                              ' (${data.driverReviews} reviews)',
+                              ' ${'core_tracking_reviews'.trParams({'count': '${data.driverReviews}'})}',
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 12,
@@ -295,9 +314,7 @@ class TrackingSummary extends StatelessWidget {
                 GestureDetector(
                   // The scope calls for a masked number, which needs a
                   // calling provider the backend doesn't have yet.
-                  onTap: () => showAppToast(
-                    'Calling your driver from the app is coming soon',
-                  ),
+                  onTap: () => showAppToast('core_tracking_call_soon'.tr),
                   child: Container(
                     width: 44,
                     height: 44,
@@ -305,7 +322,11 @@ class TrackingSummary extends StatelessWidget {
                       color: Color(0xFFFF5E00),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.call, color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.call,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
               ],

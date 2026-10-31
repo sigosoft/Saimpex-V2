@@ -56,7 +56,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   AppBackButton(onTap: () => Get.back()),
                   const SizedBox(width: 12),
                   Text(
-                    'Notifications',
+                    'core_notifications_title'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
@@ -88,7 +88,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             const SizedBox(height: 120),
             Center(
               child: Text(
-                'No notifications',
+                'core_notifications_empty'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 14,

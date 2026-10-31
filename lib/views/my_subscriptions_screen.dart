@@ -49,33 +49,34 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
     }
   }
 
-  /// Adds the labels each card shows for its subscription state.
+  /// Adds the labels each card shows for its subscription state. Labels are
+  /// translation keys, translated when the card is drawn.
   Map<String, dynamic> _cardData(Map<String, dynamic> sub) {
     final state = '${sub['state']}';
     final card = Map<String, dynamic>.from(sub);
     switch (state) {
       case 'paused':
         card.addAll({
-          'leftLabel': 'Paused Until',
+          'leftLabel': 'core_subscriptions_paused_until',
           'leftValue': _orDash(sub['pauseUntil']),
-          'rightLabel': 'Type',
+          'rightLabel': 'core_subscriptions_type',
           'rightValue': _orDash(sub['frequency']),
-          'action': 'Resume Subscription',
+          'action': 'core_subscriptions_resume',
           'actionIcon': Icons.play_arrow_rounded,
         });
       case 'cancelled':
         card.addAll({
-          'leftLabel': 'Started On',
+          'leftLabel': 'core_subscriptions_started_on',
           'leftValue': _orDash(sub['startDate']),
-          'rightLabel': 'Ends On',
+          'rightLabel': 'core_subscriptions_ends_on',
           'rightValue': _orDash(sub['endDate']),
-          'action': 'Subscribe Again',
+          'action': 'core_subscriptions_subscribe_again',
         });
       default:
         card.addAll({
-          'leftLabel': 'Next Delivery',
+          'leftLabel': 'core_subscriptions_next_delivery',
           'leftValue': _orDash(sub['nextDelivery']),
-          'rightLabel': 'Type',
+          'rightLabel': 'core_subscriptions_type',
           'rightValue': _orDash(sub['frequency']),
         });
     }
@@ -115,16 +116,16 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Cancel subscription?'),
-        content: const Text('Future deliveries for this plan will stop.'),
+        title: Text('core_subscriptions_cancel_title'.tr),
+        content: Text('core_subscriptions_cancel_body'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('No'),
+            child: Text('core_subscriptions_no'.tr),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Yes, cancel'),
+            child: Text('core_subscriptions_yes_cancel'.tr),
           ),
         ],
       ),
@@ -201,8 +202,8 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                   ? Center(
                       child: Text(
                         _selectedTab == 0
-                            ? 'No active subscriptions'
-                            : 'No inactive subscriptions',
+                            ? 'core_subscriptions_no_active'.tr
+                            : 'core_subscriptions_no_inactive'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
@@ -246,7 +247,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
           ),
           Expanded(
             child: Text(
-              'My Subscriptions',
+              'core_subscriptions_title'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -279,7 +280,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
         children: [
           Expanded(
             child: _buildTabItem(
-              label: 'Active Subscriptions',
+              label: 'core_subscriptions_tab_active'.tr,
               index: 0,
               badgeCount: _subscriptions
                   .where((sub) => _isActiveState('${sub['state']}'))
@@ -288,7 +289,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
           ),
           Expanded(
             child: _buildTabItem(
-              label: 'Inactive Subscriptions',
+              label: 'core_subscriptions_tab_inactive'.tr,
               index: 1,
               badgeCount: _subscriptions
                   .where((sub) => !_isActiveState('${sub['state']}'))
@@ -330,9 +331,9 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             ),
           ),
           if (selected && badgeCount > 0)
-            Positioned(
+            PositionedDirectional(
               top: -5,
-              right: 6,
+              end: 6,
               child: Container(
                 width: 18,
                 height: 18,
@@ -399,10 +400,12 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
     final isExpired = item['state'] == 'cancelled';
     final isActive = _isActiveState('${item['state']}');
     final busy = _busyId != null && _busyId == item['id'];
-    final primaryText =
-        isExpired ? const Color(0xFF6B6662) : const Color(0xFF1A1A1A);
-    final secondaryText =
-        isExpired ? const Color(0xFF8A847E) : const Color(0xFF8C7E75);
+    final primaryText = isExpired
+        ? const Color(0xFF6B6662)
+        : const Color(0xFF1A1A1A);
+    final secondaryText = isExpired
+        ? const Color(0xFF8A847E)
+        : const Color(0xFF8C7E75);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -445,7 +448,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             children: [
               Expanded(
                 child: _buildInfoBox(
-                  label: (item['leftLabel'] ?? '').toString(),
+                  label: (item['leftLabel'] ?? '').toString().tr,
                   value: (item['leftValue'] ?? '').toString(),
                   muted: isExpired,
                 ),
@@ -453,7 +456,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildInfoBox(
-                  label: (item['rightLabel'] ?? '').toString(),
+                  label: (item['rightLabel'] ?? '').toString().tr,
                   value: (item['rightValue'] ?? '').toString(),
                   muted: isExpired,
                 ),
@@ -466,7 +469,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               children: [
                 Expanded(
                   child: _buildCancelButton(
-                    label: 'Cancel Subscription',
+                    label: 'core_subscriptions_cancel'.tr,
                     onTap: busy ? () {} : () => _confirmCancel(item),
                   ),
                 ),
@@ -474,7 +477,9 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                 Expanded(
                   child: _buildGradientButton(
                     icon: Icons.pause_rounded,
-                    label: busy ? 'Please wait...' : 'Pause Subscription',
+                    label: busy
+                        ? 'core_subscriptions_please_wait'.tr
+                        : 'core_subscriptions_pause'.tr,
                     onTap: busy
                         ? () {}
                         : () => _changeSubscription(
@@ -493,8 +498,10 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             _buildGradientButton(
               icon: item['actionIcon'] as IconData?,
               label: busy
-                  ? 'Please wait...'
-                  : (item['action'] ?? 'Subscribe Again').toString(),
+                  ? 'core_subscriptions_please_wait'.tr
+                  : (item['action'] ?? 'core_subscriptions_subscribe_again')
+                        .toString()
+                        .tr,
               onTap: busy ? () {} : () => _onInactiveAction(item),
               fullWidth: true,
             ),
@@ -656,17 +663,11 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               const SizedBox(height: 4),
               Text(
                 (item['subtitle'] ?? '').toString(),
-                style: GoogleFonts.outfit(
-                  color: secondaryText,
-                  fontSize: 12,
-                ),
+                style: GoogleFonts.outfit(color: secondaryText, fontSize: 12),
               ),
               Text(
                 (item['size'] ?? '').toString(),
-                style: GoogleFonts.outfit(
-                  color: secondaryText,
-                  fontSize: 12,
-                ),
+                style: GoogleFonts.outfit(color: secondaryText, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Row(

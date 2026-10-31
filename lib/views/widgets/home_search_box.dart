@@ -62,10 +62,10 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
           _stopListeningUi();
           if (error.errorMsg == 'error_no_match' ||
               error.errorMsg == 'error_speech_timeout') {
-            showAppToast('Didn\'t catch that. Try again.');
+            showAppToast('core_home_search_no_match'.tr);
             return;
           }
-          showAppToast('Voice search isn\'t available right now.');
+          showAppToast('core_home_search_voice_unavailable'.tr);
         },
         onStatus: (status) {
           if (!mounted) return;
@@ -82,16 +82,16 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
       );
     } on MissingPluginException {
       _stopListeningUi();
-      showAppToast('Stop the app and run it again to use voice search.');
+      showAppToast('core_home_search_restart_app'.tr);
       return;
     } catch (_) {
       _stopListeningUi();
-      showAppToast('Voice search isn\'t available right now.');
+      showAppToast('core_home_search_voice_unavailable'.tr);
       return;
     }
     if (!_speechReady) {
       _stopListeningUi();
-      showAppToast('Allow microphone access to use voice search.');
+      showAppToast('core_home_search_allow_mic'.tr);
       return;
     }
     if (!mounted || !_listening) return;
@@ -125,10 +125,10 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
       );
     } on MissingPluginException {
       _stopListeningUi();
-      showAppToast('Stop the app and run it again to use voice search.');
+      showAppToast('core_home_search_restart_app'.tr);
     } catch (_) {
       _stopListeningUi();
-      showAppToast('Voice search isn\'t available right now.');
+      showAppToast('core_home_search_voice_unavailable'.tr);
     }
   }
 
@@ -186,8 +186,8 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
               onSubmitted: _search,
               decoration: InputDecoration(
                 hintText: _listening
-                    ? 'Listening...'
-                    : 'What do you need today?',
+                    ? 'core_home_search_listening'.tr
+                    : 'core_home_search_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: _listening
                       ? const Color(0xFFFF5E00)
@@ -331,7 +331,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Recording',
+                  'core_home_search_recording'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
@@ -339,7 +339,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
                   ),
                 ),
                 Text(
-                  'Listening... tap the mic to stop',
+                  'core_home_search_tap_to_stop'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,

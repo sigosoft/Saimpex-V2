@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Centered dialog shown when adding an item from a different restaurant
@@ -32,7 +33,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
   String _displayName(String name) {
     final trimmed = name.trim();
     if (trimmed.toLowerCase().endsWith('restaurant')) return trimmed;
-    return '$trimmed Restaurant';
+    return 'core_replace_cart_restaurant_name'.trParams({'name': trimmed});
   }
 
   @override
@@ -73,7 +74,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Replace cart item?',
+                    'core_replace_cart_title'.tr,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
@@ -83,8 +84,10 @@ class ReplaceCartItemDialog extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    'Your cart has dishes from $fromName. '
-                    'Do you want to replace them with dishes from $toName?',
+                    'core_replace_cart_body'.trParams({
+                      'from': fromName,
+                      'to': toName,
+                    }),
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
@@ -107,7 +110,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              'No',
+                              'core_replace_cart_no'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 15,
@@ -132,8 +135,9 @@ class ReplaceCartItemDialog extends StatelessWidget {
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFFF5E00)
-                                      .withValues(alpha: 0.28),
+                                  color: const Color(
+                                    0xFFFF5E00,
+                                  ).withValues(alpha: 0.28),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -141,7 +145,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              'Yes',
+                              'core_replace_cart_yes'.tr,
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 15,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RedeemDetailSheet extends StatelessWidget {
@@ -102,9 +103,9 @@ class RedeemDetailSheet extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Positioned(
+                                PositionedDirectional(
                                   top: 16,
-                                  left: 16,
+                                  start: 16,
                                   child: Row(
                                     children: [
                                       Container(
@@ -174,7 +175,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                         children: [
                                           Expanded(
                                             child: Text(
-                                              'REWARD VALUE',
+                                              'core_redeem_reward_value'.tr,
                                               style: GoogleFonts.outfit(
                                                 color: const Color(0xFFA59A94),
                                                 fontSize: 11,
@@ -229,7 +230,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      "What's inside",
+                                      'core_redeem_whats_inside'.tr,
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFF1A1A1A),
                                         fontSize: 16,
@@ -352,7 +353,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(28),
                                     ),
                                     child: Text(
-                                      'Redeem',
+                                      'core_redeem_redeem'.tr,
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 16,

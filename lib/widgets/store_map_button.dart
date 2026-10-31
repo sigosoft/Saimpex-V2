@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class StoreMapButton extends StatelessWidget {
@@ -19,7 +20,7 @@ class StoreMapButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Store Map',
+            'core_store_map_button'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 14,

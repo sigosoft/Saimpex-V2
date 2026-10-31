@@ -84,7 +84,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
             vendor['title']?.toString() ??
             vendor['name_en']?.toString() ??
             vendor['name_ar']?.toString() ??
-            (vendorId != null ? 'Vendor #$vendorId' : 'Vendor');
+            (vendorId != null
+                ? 'core_messages_vendor_id'.trParams({'id': vendorId})
+                : 'core_messages_vendor'.tr);
 
         final rawImg =
             vendor['image']?.toString() ??
@@ -107,8 +109,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
         final subtitle =
             lastMsg?['message']?.toString() ??
             (lastMsg?['message_type'] == 'voice'
-                ? 'Voice note'
-                : 'Conversation started');
+                ? 'core_messages_voice_note'.tr
+                : 'core_messages_conversation_started'.tr);
 
         final timeStr = _formatTimestamp(
           lastMsg?['created_at'] ?? conv['updated_at'] ?? conv['created_at'],
@@ -197,12 +199,15 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 alignment: Alignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: widget.showBottomNav
                         ? AppBackButton(onTap: () => Navigator.pop(context))
                         : const SizedBox(width: 38),
                   ),
-                  Text('Messages', style: AppTextStyles.heading()),
+                  Text(
+                    'core_messages_title'.tr,
+                    style: AppTextStyles.heading(),
+                  ),
                 ],
               ),
             ),
@@ -227,7 +232,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           setState(() => activeChipIndex = index);
                         },
                         child: Container(
-                          margin: const EdgeInsets.only(right: 10),
+                          margin: const EdgeInsetsDirectional.only(end: 10),
                           padding: const EdgeInsets.symmetric(horizontal: 22),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
@@ -243,7 +248,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             ),
                           ),
                           child: Text(
-                            chips[index],
+                            // Internal value stays English (used to filter);
+                            // only the label is translated.
+                            'core_messages_chip_${chips[index].toLowerCase()}'
+                                .tr,
                             style: GoogleFonts.outfit(
                               color: isSelected
                                   ? Colors.white
@@ -281,7 +289,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                           0.4,
                                       child: Center(
                                         child: Text(
-                                          'No conversations yet',
+                                          'core_messages_empty'.tr,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 14,
@@ -403,9 +411,9 @@ class _MessageCard extends StatelessWidget {
                   ),
                 ),
                 if (chat['isOnline'] == true)
-                  Positioned(
+                  PositionedDirectional(
                     bottom: 1,
-                    right: 1,
+                    end: 1,
                     child: Container(
                       width: 12,
                       height: 12,
@@ -449,7 +457,7 @@ class _MessageCard extends StatelessWidget {
                   onTap: onDelete,
                   behavior: HitTestBehavior.opaque,
                   child: const Padding(
-                    padding: EdgeInsets.only(left: 8, bottom: 4),
+                    padding: EdgeInsetsDirectional.only(start: 8, bottom: 4),
                     child: Icon(
                       Icons.delete_outline_rounded,
                       color: Color(0xFFFF5E00),

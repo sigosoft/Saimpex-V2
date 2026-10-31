@@ -263,7 +263,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
                           child: TextField(
                             style: GoogleFonts.outfit(fontSize: 13),
                             decoration: InputDecoration(
-                              hintText: 'Search restaurants, stores...',
+                              hintText: 'core_store_map_search_hint'.tr,
                               hintStyle: GoogleFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 12.5,
@@ -293,7 +293,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
                 onPageChanged: (index) => setState(() => selectedIndex = index),
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsetsDirectional.only(end: 12),
                     child: _buildStoreCard(stores[index]),
                   );
                 },
@@ -329,8 +329,8 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
             border: border != null
                 ? Border.all(color: border, width: 2)
                 : isSelected
-                    ? Border.all(color: const Color(0xFFFF5E00), width: 2)
-                    : null,
+                ? Border.all(color: const Color(0xFFFF5E00), width: 2)
+                : null,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.12),
@@ -389,7 +389,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
     return GestureDetector(
       onTap: () => Get.to(() => RestaurantDetailsScreen(restaurant: store)),
       child: Container(
-        margin: const EdgeInsets.only(left: 16),
+        margin: const EdgeInsetsDirectional.only(start: 16),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.white,

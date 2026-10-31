@@ -141,7 +141,7 @@ class OnboardingScreen extends StatelessWidget {
                     ],
                   ),
                   child: Text(
-                    'SKIP',
+                    'core_onboarding_skip'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
@@ -277,7 +277,7 @@ class OnboardingScreen extends StatelessWidget {
                     ],
                   ),
                   child: Text(
-                    'SKIP',
+                    'core_onboarding_skip'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
@@ -290,10 +290,10 @@ class OnboardingScreen extends StatelessWidget {
           ),
         ),
         // Shared Bottom Navigation Overlay
-        Positioned(
+        PositionedDirectional(
           bottom: padding.bottom + 16,
-          right: 32,
-          left: size.width * 0.5 + 32,
+          end: 32,
+          start: size.width * 0.5 + 32,
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [PageIndicator(), NextButton()],
@@ -358,8 +358,7 @@ class _OnboardingImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallback =
-        'lib/assets/images/Onboard${(index % 3) + 1}.png';
+    final fallback = 'lib/assets/images/Onboard${(index % 3) + 1}.png';
     if (path.startsWith('http://') || path.startsWith('https://')) {
       return Image.network(
         path,
@@ -367,9 +366,6 @@ class _OnboardingImage extends StatelessWidget {
         errorBuilder: (_, _, _) => Image.asset(fallback, fit: BoxFit.cover),
       );
     }
-    return Image.asset(
-      path.isEmpty ? fallback : path,
-      fit: BoxFit.cover,
-    );
+    return Image.asset(path.isEmpty ? fallback : path, fit: BoxFit.cover);
   }
 }

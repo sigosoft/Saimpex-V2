@@ -12,6 +12,16 @@ const List<Map<String, String>> kCountryCodeOptions = [
   {'name': 'United Kingdom', 'code': '+44', 'flag': '🇬🇧'},
 ];
 
+/// Display names for [kCountryCodeOptions]; the English 'name' stays as data.
+const _countryNameKeys = {
+  'Mauritania': 'core_country_mauritania',
+  'India': 'core_country_india',
+  'United Arab Emirates': 'core_country_uae',
+  'Saudi Arabia': 'core_country_saudi_arabia',
+  'United States': 'core_country_usa',
+  'United Kingdom': 'core_country_uk',
+};
+
 /// Opens the country list as a bottom sheet and reports the chosen code and flag.
 void showCountryCodePicker({
   required void Function(String code, String flag) onSelected,
@@ -32,7 +42,7 @@ void showCountryCodePicker({
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Select Country',
+                'core_country_select'.tr,
                 style: GoogleFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -53,7 +63,8 @@ void showCountryCodePicker({
                         style: const TextStyle(fontSize: 22),
                       ),
                       title: Text(
-                        country['name']!,
+                        _countryNameKeys[country['name']]?.tr ??
+                            country['name']!,
                         style: GoogleFonts.outfit(
                           color: Colors.black87,
                           fontWeight: FontWeight.w500,
