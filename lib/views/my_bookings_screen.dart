@@ -15,6 +15,7 @@ import 'rate_order_screen.dart';
 import 'services/car_wash_screen.dart';
 import 'services/home_cleaning_screen.dart';
 import 'services/laundry_services_screen.dart';
+import 'services/gas_screen.dart';
 import '../widgets/cancel_booking_bottom_sheet.dart';
 import 'services/car_wash_booking_detail_screen.dart';
 import 'services/home_cleaning_booking_detail_screen.dart';
@@ -32,7 +33,13 @@ class MyBookingsScreen extends StatefulWidget {
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
   int _selectedFilter = 0;
 
-  static const _filters = ['All', 'Home Cleaning', 'Car Wash', 'Laundry'];
+  static const _filters = [
+    'All',
+    'Home Cleaning',
+    'Car Wash',
+    'Laundry',
+    'Gas',
+  ];
 
   /// Shown text for a category value (the values stay English for matching).
   static String _categoryLabel(String category) => switch (category) {
@@ -40,6 +47,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     'Home Cleaning' => 'orders_cat_home_cleaning'.tr,
     'Car Wash' => 'orders_cat_car_wash'.tr,
     'Laundry' => 'orders_cat_laundry'.tr,
+    'Gas' => 'orders_cat_gas'.tr,
     'Service' => 'orders_cat_service'.tr,
     _ => category,
   };
@@ -89,6 +97,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     ServiceRepository.homeCleaning: ('Home Cleaning', 0xFFFF5E00),
     ServiceRepository.carWash: ('Car Wash', 0xFF2B7DE9),
     ServiceRepository.laundry: ('Laundry', 0xFF7B4FD6),
+    ServiceRepository.gas: ('Gas', 0xFF00A86B),
   };
 
   /// A service/bookings row shaped for the booking cards and detail screens.
@@ -144,6 +153,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         Get.to(() => const CarWashScreen());
       case 'Laundry':
         Get.to(() => const LaundryServicesScreen());
+      case 'Gas':
+        Get.to(() => const GasScreen());
       default:
         Get.to(() => const HomeCleaningScreen());
     }

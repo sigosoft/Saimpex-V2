@@ -12,6 +12,10 @@ class ServiceBookingDraft {
   /// including its spaces, addons and garments catalogs.
   static Map<String, dynamic> item = const {};
 
+  /// An online booking for this service that was created but not paid: paying
+  /// again reopens its payment page instead of booking a second time.
+  static int? unpaidOrderId;
+
   static int? get serviceItemId {
     final id = item['id'];
     return id is int ? id : int.tryParse('${id ?? ''}');
@@ -27,6 +31,7 @@ class ServiceBookingDraft {
     ServiceBookingDraft.vendorId = vendorId;
     ServiceBookingDraft.providerName = providerName;
     ServiceBookingDraft.item = item;
+    unpaidOrderId = null;
   }
 
   static void clear() {
@@ -34,6 +39,7 @@ class ServiceBookingDraft {
     vendorId = null;
     providerName = '';
     item = const {};
+    unpaidOrderId = null;
   }
 
   /// Catalog entry names for one list on the item (spaces, addons, garments),
