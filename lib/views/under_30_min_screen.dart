@@ -18,10 +18,23 @@ class Under30MinScreen extends StatelessWidget {
     final controller = Get.find<HomeController>();
 
     final filters = [
-      {'label': 'Filter', 'icon': Image.asset("lib/assets/images/Filter.png")},
-      {'label': 'Veg', 'isVeg': true},
-      {'label': 'Offers', 'icon': Image.asset("lib/assets/images/Offer.png")},
-      {'label': 'Ratings 4.0+', 'icon': Icons.star_rounded},
+      // 'label' is matched below; 'text' is what the chip shows.
+      {
+        'label': 'Filter',
+        'text': 'orders_chip_filter'.tr,
+        'icon': Image.asset("lib/assets/images/Filter.png"),
+      },
+      {'label': 'Veg', 'text': 'orders_chip_veg'.tr, 'isVeg': true},
+      {
+        'label': 'Offers',
+        'text': 'orders_chip_offers'.tr,
+        'icon': Image.asset("lib/assets/images/Offer.png"),
+      },
+      {
+        'label': 'Ratings 4.0+',
+        'text': 'orders_chip_ratings'.trParams({'rating': '4.0'}),
+        'icon': Icons.star_rounded,
+      },
     ];
 
     // Restaurants that deliver within 30 minutes, from homeHub's
@@ -70,7 +83,7 @@ class Under30MinScreen extends StatelessWidget {
                         // Back button card
                         AppBackButton(onTap: () => Get.back()),
                         Text(
-                          title,
+                          title == 'Food' ? 'search_vertical_food'.tr : title,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 18,
@@ -117,7 +130,7 @@ class Under30MinScreen extends StatelessWidget {
                           child: TextField(
                             controller: controller,
                             decoration: InputDecoration(
-                              hintText: 'What do you need today?',
+                              hintText: 'orders_search_hint'.tr,
                               hintStyle: GoogleFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 13,
@@ -164,7 +177,7 @@ class Under30MinScreen extends StatelessWidget {
               children: [
                 for (final filter in filters)
                   AppFilterChip(
-                    label: filter['label'] as String,
+                    label: filter['text'] as String,
                     onTap: () {
                       if (filter['label'] == 'Filter') {
                         _showFilterBottomSheet(context);
@@ -196,7 +209,7 @@ class Under30MinScreen extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    'Under 30 Minutes',
+                    'orders_under_30_title'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 16,
@@ -285,9 +298,9 @@ class Under30MinScreen extends StatelessWidget {
                                         ),
                                       ),
                                       // Discount Overlay
-                                      Positioned(
+                                      PositionedDirectional(
                                         top: 10,
-                                        left: 10,
+                                        start: 10,
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
@@ -310,9 +323,9 @@ class Under30MinScreen extends StatelessWidget {
                                         ),
                                       ),
                                       // Star Rating overlay
-                                      Positioned(
+                                      PositionedDirectional(
                                         top: 10,
-                                        left: 70,
+                                        start: 70,
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 6,
@@ -348,9 +361,9 @@ class Under30MinScreen extends StatelessWidget {
                                         ),
                                       ),
                                       // Heart overlay
-                                      Positioned(
+                                      PositionedDirectional(
                                         top: 10,
-                                        right: 10,
+                                        end: 10,
                                         child: Obx(() {
                                           final liked = controller.isLiked(
                                             item['id']!,
@@ -379,9 +392,9 @@ class Under30MinScreen extends StatelessWidget {
                                         }),
                                       ),
                                       // Bottom Left Points overlay with Coin.png
-                                      Positioned(
+                                      PositionedDirectional(
                                         bottom: 8,
-                                        left: 10,
+                                        start: 10,
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
@@ -417,9 +430,9 @@ class Under30MinScreen extends StatelessWidget {
                                         ),
                                       ),
                                       // Bottom Right 30m overlay with clock icon
-                                      Positioned(
+                                      PositionedDirectional(
                                         bottom: 8,
-                                        right: 10,
+                                        end: 10,
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
@@ -443,7 +456,7 @@ class Under30MinScreen extends StatelessWidget {
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
-                                                '30m',
+                                                'orders_30_min'.tr,
                                                 style: GoogleFonts.outfit(
                                                   color: Colors.white,
                                                   fontSize: 8,
@@ -582,7 +595,7 @@ class Under30MinScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Closed',
+                  'orders_closed'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
@@ -603,7 +616,7 @@ class Under30MinScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Opens $opensAt',
+                      'orders_opens_at'.trParams({'time': opensAt}),
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -665,7 +678,7 @@ class Under30MinScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Temporarily not accepting',
+                      'orders_temp_closed_line1'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -676,7 +689,7 @@ class Under30MinScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  'orders',
+                  'orders_temp_closed_line2'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
@@ -746,6 +759,23 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
     'Cost: High to Low',
   ];
 
+  /// Shown text for a chip value (the values stay English for matching).
+  static String _chipText(String value) => switch (value) {
+    'Spicy' => 'orders_tag_spicy'.tr,
+    'Non Spicy' => 'orders_tag_non_spicy'.tr,
+    'Sugar Free' => 'orders_tag_sugar_free'.tr,
+    'Mild Sugar' => 'orders_tag_mild_sugar'.tr,
+    'Offers' => 'orders_chip_offers'.tr,
+    'Ratings: 4.5+' => 'orders_sheet_ratings'.trParams({'rating': '4.5'}),
+    'Ratings: 4.0+' => 'orders_sheet_ratings'.trParams({'rating': '4.0'}),
+    'Ratings: 3.5+' => 'orders_sheet_ratings'.trParams({'rating': '3.5'}),
+    'Relevance' => 'orders_sort_relevance'.tr,
+    'Delivery Time' => 'orders_sort_delivery_time'.tr,
+    'Cost: Low to High' => 'orders_sort_cost_low_high'.tr,
+    'Cost: High to Low' => 'orders_sort_cost_high_low'.tr,
+    _ => value,
+  };
+
   Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -762,7 +792,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
           ),
         ),
         child: Text(
-          label,
+          _chipText(label),
           style: GoogleFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5E00)
@@ -788,7 +818,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         children: tags.map((tag) {
           final isSelected = selectedList.contains(tag);
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: _buildChip(tag, isSelected, () => onSelected(tag)),
           );
         }).toList(),
@@ -809,7 +839,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         children: options.map((option) {
           final isSelected = selectedOption == option;
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: _buildChip(option, isSelected, () => onSelected(option)),
           );
         }).toList(),
@@ -844,7 +874,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       children: [
                         const SizedBox(width: 60),
                         Text(
-                          'Filters',
+                          'orders_filters'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 16,
@@ -860,7 +890,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                             });
                           },
                           child: Text(
-                            'Clear all',
+                            'orders_clear_all_link'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 12,
@@ -904,7 +934,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Price Range',
+                          'orders_price_range'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
@@ -912,7 +942,8 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           ),
                         ),
                         Text(
-                          '${priceRange.start.round()} MRU - ${priceRange.end.round()} MRU',
+                          '${'mru'.trParams({'amount': '${priceRange.start.round()}'})} - '
+                          '${'mru'.trParams({'amount': '${priceRange.end.round()}'})}',
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 14,
@@ -962,7 +993,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '0 MRU',
+                          'mru'.trParams({'amount': '0'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
@@ -970,7 +1001,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           ),
                         ),
                         Text(
-                          '3000 MRU',
+                          'mru'.trParams({'amount': '3000'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
@@ -985,7 +1016,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                   // Sort by Header
                   Center(
                     child: Text(
-                      'Sort by',
+                      'orders_sort_by'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
@@ -1026,7 +1057,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Clear All',
+                                  'orders_clear_all'.tr,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFFFF5E00),
                                     fontSize: 14,
@@ -1068,7 +1099,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Apply',
+                                  'orders_apply'.tr,
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 14,

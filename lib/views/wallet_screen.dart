@@ -235,7 +235,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: 'wallet_topup_amount'.tr,
-                            suffixText: 'MRU',
+                            suffixText: 'orders_currency'.tr,
                           ),
                         ),
                       ),

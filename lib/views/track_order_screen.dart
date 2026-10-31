@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -151,7 +152,9 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
       points.add(
         LatLng(
           u * u * p0.latitude + 2 * u * t * p1.latitude + t * t * p2.latitude,
-          u * u * p0.longitude + 2 * u * t * p1.longitude + t * t * p2.longitude,
+          u * u * p0.longitude +
+              2 * u * t * p1.longitude +
+              t * t * p2.longitude,
         ),
       );
     }
@@ -162,19 +165,21 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
     final controller = _mapController;
     if (controller == null) return;
 
-    final lats = [
-      restaurantLoc.latitude,
-      riderLoc.latitude,
-      homeLoc.latitude,
-    ];
+    final lats = [restaurantLoc.latitude, riderLoc.latitude, homeLoc.latitude];
     final lngs = [
       restaurantLoc.longitude,
       riderLoc.longitude,
       homeLoc.longitude,
     ];
     final bounds = LatLngBounds(
-      southwest: LatLng(lats.reduce(math.min) - 0.0008, lngs.reduce(math.min) - 0.0008),
-      northeast: LatLng(lats.reduce(math.max) + 0.0008, lngs.reduce(math.max) + 0.0008),
+      southwest: LatLng(
+        lats.reduce(math.min) - 0.0008,
+        lngs.reduce(math.min) - 0.0008,
+      ),
+      northeast: LatLng(
+        lats.reduce(math.max) + 0.0008,
+        lngs.reduce(math.max) + 0.0008,
+      ),
     );
     await controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 88));
   }
@@ -232,13 +237,11 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
             alignment: Alignment.center,
             children: [
               Align(
-                alignment: Alignment.centerLeft,
-                child: AppBackButton(
-                  onTap: () => Navigator.pop(context),
-                ),
+                alignment: AlignmentDirectional.centerStart,
+                child: AppBackButton(onTap: () => Navigator.pop(context)),
               ),
               Text(
-                'Track Order ${widget.orderId}',
+                'orders_track_order'.trParams({'code': widget.orderId}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
@@ -300,16 +303,8 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
             ),
           ),
 
-          _routePin(
-            screen: _storeScreen,
-            icon: Icons.restaurant,
-            size: 34,
-          ),
-          _routePin(
-            screen: _homeScreen,
-            icon: Icons.home_rounded,
-            size: 34,
-          ),
+          _routePin(screen: _storeScreen, icon: Icons.restaurant, size: 34),
+          _routePin(screen: _homeScreen, icon: Icons.home_rounded, size: 34),
           _routePin(
             screen: _riderScreen,
             icon: Icons.delivery_dining_rounded,

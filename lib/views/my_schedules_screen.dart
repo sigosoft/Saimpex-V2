@@ -17,6 +17,14 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
 
   final filters = const ['All', 'Food', 'Grocery', 'Pharmacy'];
 
+  // Translation keys for [filters], same order (the values above match data).
+  static const _filterLabels = [
+    'orders_filter_all',
+    'search_vertical_food',
+    'search_vertical_grocery',
+    'search_vertical_pharmacy',
+  ];
+
   // Waiting for a customer endpoint that lists pre-orders (only
   // vendorapp/preorders exists). Until then the list is empty rather than
   // showing sample schedules.
@@ -90,7 +98,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'My Schedules',
+              'orders_my_schedules'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -129,7 +137,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     : Border.all(color: const Color(0xFFE8DFD6)),
               ),
               child: Text(
-                filters[index],
+                _filterLabels[index].tr,
                 style: GoogleFonts.outfit(
                   color: selected ? Colors.white : const Color(0xFF2C2520),
                   fontSize: 13,
@@ -222,7 +230,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      (item['status'] ?? 'Scheduled').toString(),
+                      (item['status'] ?? 'orders_scheduled'.tr).toString(),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1FAF5A),
                         fontSize: 11,
@@ -299,7 +307,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
-                    'Cancel',
+                    'cancel'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
@@ -329,7 +337,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     ],
                   ),
                   child: Text(
-                    'Reschedule',
+                    'orders_reschedule'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,

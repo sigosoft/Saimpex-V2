@@ -32,12 +32,17 @@ class MyBookingsScreen extends StatefulWidget {
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
   int _selectedFilter = 0;
 
-  static const _filters = [
-    'All',
-    'Home Cleaning',
-    'Car Wash',
-    'Laundry',
-  ];
+  static const _filters = ['All', 'Home Cleaning', 'Car Wash', 'Laundry'];
+
+  /// Shown text for a category value (the values stay English for matching).
+  static String _categoryLabel(String category) => switch (category) {
+    'All' => 'orders_filter_all'.tr,
+    'Home Cleaning' => 'orders_cat_home_cleaning'.tr,
+    'Car Wash' => 'orders_cat_car_wash'.tr,
+    'Laundry' => 'orders_cat_laundry'.tr,
+    'Service' => 'orders_cat_service'.tr,
+    _ => category,
+  };
 
   List<Map<String, dynamic>> _bookings = const [];
   bool _loading = true;
@@ -104,7 +109,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       'id': code.isEmpty ? text(row['id']) : code,
       'apiOrderId': int.tryParse(text(row['id'])),
       'provider': text(row['provider_name']).isEmpty
-          ? 'Service provider'
+          ? 'orders_service_provider'.tr
           : text(row['provider_name']),
       'category': category.$1,
       'categoryColor': category.$2,
@@ -114,11 +119,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       // 9 is delivered/completed in the order status codes.
       'status': status == 9 ? 'Completed' : text(row['status_label']),
       'datetime': slot,
-      'slot': text(row['slot_window']).isEmpty ? slot : text(row['slot_window']),
+      'slot': text(row['slot_window']).isEmpty
+          ? slot
+          : text(row['slot_window']),
       'location': location,
       'locationTitle': location,
       'rooms': text(row['summary']),
-      'price': '${total.round()} MRU',
+      'price': 'mru'.trParams({'amount': '${total.round()}'}),
       'canCancel': row['can_cancel'] == true,
       'notes': text(row['notes']),
       'payment': text(row['payment_type_label']),
@@ -183,53 +190,54 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       ),
       child: HomeBackgroundBlend(
         child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 8),
-              _buildFilters(),
-              const SizedBox(height: 14),
-              Expanded(
-                child: _loading && _bookings.isEmpty
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFFFF5E00),
-                        ),
-                      )
-                    : list.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No bookings found',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF9A8E86),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 8),
+                _buildFilters(),
+                const SizedBox(height: 14),
+                Expanded(
+                  child: _loading && _bookings.isEmpty
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFFF5E00),
                           ),
+                        )
+                      : list.isEmpty
+                      ? Center(
+                          child: Text(
+                            'orders_no_bookings'.tr,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF9A8E86),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          physics: const BouncingScrollPhysics(),
+                          padding: EdgeInsets.fromLTRB(
+                            16,
+                            0,
+                            16,
+                            120 + bottomInset,
+                          ),
+                          itemCount: list.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            return _buildBookingCard(list[index]);
+                          },
                         ),
-                      )
-                    : ListView.separated(
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.fromLTRB(
-                          16,
-                          0,
-                          16,
-                          120 + bottomInset,
-                        ),
-                        itemCount: list.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          return _buildBookingCard(list[index]);
-                        },
-                      ),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -241,7 +249,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: widget.showBottomNav
                 ? AppBackButton(
                     onTap: () {
@@ -256,10 +264,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   )
                 : const SizedBox(width: 38),
           ),
-          Text(
-            'My Bookings',
-            style: AppTextStyles.heading(),
-          ),
+          Text('orders_my_bookings'.tr, style: AppTextStyles.heading()),
         ],
       ),
     );
@@ -290,7 +295,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 ),
               ),
               child: Text(
-                _filters[index],
+                _categoryLabel(_filters[index]),
                 style: GoogleFonts.outfit(
                   color: selected ? Colors.white : const Color(0xFF2C2520),
                   fontSize: 13,
@@ -347,7 +352,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  isCompleted ? 'Completed' : statusText.toUpperCase(),
+                  isCompleted
+                      ? 'orders_status_completed'.tr
+                      : statusText.toUpperCase(),
                   style: GoogleFonts.outfit(
                     color: _statusFg(statusText),
                     fontSize: 11,
@@ -371,7 +378,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               ),
               const SizedBox(width: 5),
               Text(
-                category,
+                _categoryLabel(category),
                 style: GoogleFonts.outfit(
                   color: categoryColor,
                   fontSize: 12,
@@ -403,7 +410,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         borderRadius: BorderRadius.circular(22),
                       ),
                       child: Text(
-                        'Reorder',
+                        'orders_reorder'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13.5,
@@ -429,7 +436,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         borderRadius: BorderRadius.circular(22),
                       ),
                       child: Text(
-                        'Rate',
+                        'orders_rate'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13.5,
@@ -529,7 +536,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'BALANCE DUE',
+                            'orders_balance_due_badge'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 9.5,
@@ -545,7 +552,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Estimated Weight: 3.0 kg',
+                          'orders_estimated_weight'.trParams({'weight': '3.0'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 12,
@@ -574,7 +581,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                             children: [
-                              const TextSpan(text: 'Actual Scale Weight: '),
+                              TextSpan(text: 'orders_actual_weight'.tr),
                               TextSpan(
                                 text: '3.6 kg',
                                 style: GoogleFonts.outfit(
@@ -615,7 +622,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Balance Due',
+                          'orders_balance_due'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 13,
@@ -624,7 +631,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Amount due after final weighing',
+                          'orders_balance_due_hint'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 10.5,
@@ -647,7 +654,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               const SizedBox(height: 14),
               GestureDetector(
                 // Balance payments aren't in the service API yet.
-                onTap: () => showAppToast('Balance payment is not available yet'),
+                onTap: () => showAppToast('orders_balance_unavailable'.tr),
                 child: Container(
                   width: double.infinity,
                   height: 46,
@@ -666,7 +673,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     ],
                   ),
                   child: Text(
-                    'Pay ${booking['balanceDue'] ?? '85 MRU'}',
+                    'orders_pay_amount'.trParams({
+                      'amount': '${booking['balanceDue'] ?? '85 MRU'}',
+                    }),
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,
@@ -677,31 +686,31 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               ),
             ] else ...[
               if (booking['canCancel'] == true)
-              GestureDetector(
-                onTap: () => showCancelBookingBottomSheet(
-                  context,
-                  bookingId: booking['id'] as String?,
-                  apiOrderId: booking['apiOrderId'] as int?,
-                  onCancelled: _load,
-                ),
-                child: Container(
-                  width: double.infinity,
-                  height: 44,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3EBE3),
-                    borderRadius: BorderRadius.circular(22),
+                GestureDetector(
+                  onTap: () => showCancelBookingBottomSheet(
+                    context,
+                    bookingId: booking['id'] as String?,
+                    apiOrderId: booking['apiOrderId'] as int?,
+                    onCancelled: _load,
                   ),
-                  child: Text(
-                    'Cancel',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
+                  child: Container(
+                    width: double.infinity,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3EBE3),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Text(
+                      'cancel'.tr,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
-              ),
               if (booking['canCancel'] == true) const SizedBox(height: 14),
               Center(
                 child: GestureDetector(
@@ -725,7 +734,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'View Booking Details',
+                        'orders_view_booking_details'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 12.5,

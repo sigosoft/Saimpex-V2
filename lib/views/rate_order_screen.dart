@@ -27,15 +27,16 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
   final Set<String> selectedRestaurantTags = {};
   final Set<String> selectedDeliveryTags = {};
 
+  // Translation keys; the comment sent to the server uses the shown text.
   final List<String> restaurantTags = [
-    'Tasty Food',
-    'Clean packaging',
-    'Good portion size',
+    'orders_tag_tasty_food',
+    'orders_tag_clean_packaging',
+    'orders_tag_good_portion',
   ];
   final List<String> deliveryTags = [
-    'Fast Delivery',
-    'Polite',
-    'Safe Handling',
+    'orders_tag_fast_delivery',
+    'orders_tag_polite',
+    'orders_tag_safe_handling',
   ];
 
   final TextEditingController _reviewController = TextEditingController();
@@ -48,20 +49,20 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
         orderId < 1 ||
         !Get.isRegistered<OrderRepository>()) {
       showAppToast(
-        'This order cannot be rated right now',
+        'orders_cannot_rate'.tr,
         backgroundColor: const Color(0xFFEF4444),
       );
       return;
     }
     if (restaurantRating < 1) {
       showAppToast(
-        'Please rate the store before submitting',
+        'orders_rate_store_first'.tr,
         backgroundColor: const Color(0xFFEF4444),
       );
       return;
     }
     String comment(Set<String> tags, String text) =>
-        [...tags, if (text.isNotEmpty) text].join(', ');
+        [...tags.map((tag) => tag.tr), if (text.isNotEmpty) text].join(', ');
     setState(() => _submitting = true);
     try {
       final message = await Get.find<OrderRepository>().submitRating(
@@ -77,7 +78,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
       );
       if (!mounted) return;
       showAppToast(
-        message.isEmpty ? 'Rating submitted successfully!' : message,
+        message.isEmpty ? 'orders_rating_submitted'.tr : message,
         backgroundColor: const Color(0xFF00B25C),
       );
       Get.off(() => RatingReviewsScreen(target: widget.reviewTarget));
@@ -112,11 +113,11 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
             alignment: Alignment.center,
             children: [
               Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: AppBackButton(onTap: () => Navigator.pop(context)),
               ),
               Text(
-                'Rate Your Order',
+                'orders_rate_your_order'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
@@ -139,7 +140,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   _buildExperienceCard(
                     imageUrl:
                         'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&auto=format&fit=crop',
-                    title: 'Rate Restaurant Review',
+                    title: 'orders_rate_restaurant'.tr,
                     rating: restaurantRating,
                     onRatingChanged: (value) {
                       setState(() => restaurantRating = value);
@@ -152,7 +153,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                     imageUrl:
                         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
                     fallbackAsset: 'lib/assets/images/delivery_icon.png',
-                    title: 'Rate Your Delivery Experience',
+                    title: 'orders_rate_delivery'.tr,
                     rating: deliveryRating,
                     onRatingChanged: (value) {
                       setState(() => deliveryRating = value);
@@ -164,7 +165,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   // sent; the order rating covers the store and delivery.
                   const SizedBox(height: 20),
                   Text(
-                    'Detailed Review',
+                    'orders_detailed_review'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
@@ -186,7 +187,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                         fontSize: 13,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Type your review here....',
+                        hintText: 'orders_review_hint'.tr,
                         hintStyle: GoogleFonts.outfit(
                           color: const Color(0xFFC4B8B0),
                           fontSize: 13,
@@ -227,7 +228,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'Submit Rating',
+                  'orders_submit_rating'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 16,
@@ -345,7 +346,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                         : null,
                   ),
                   child: Text(
-                    tag,
+                    tag.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 11,
@@ -374,7 +375,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
         return GestureDetector(
           onTap: () => onRatingChanged(starIndex),
           child: Padding(
-            padding: const EdgeInsets.only(right: 6),
+            padding: const EdgeInsetsDirectional.only(end: 6),
             child: Icon(
               isFilled ? Icons.star_rounded : Icons.star_border_rounded,
               color: isFilled
