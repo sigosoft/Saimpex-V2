@@ -9,6 +9,9 @@ import 'home_cleaning_booking_success_screen.dart';
 import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
 import '../../utils/wallet_balance.dart';
+import '../../utils/payment_methods.dart';
+import '../../utils/toast_helper.dart';
+import '../../widgets/no_payment_method_note.dart';
 
 /// Display text for a home-cleaning space, extra or pest label. The labels
 /// stay English in the booking data (they are matched against the catalog);
@@ -94,6 +97,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   late String _productsProvider;
   bool _usePoints = false;
   int _paymentIndex = 0; // mandatory — Wallet selected by default
+  bool _noPaymentMethod = false;
   final _couponController = TextEditingController();
 
   static const _tax = 10;
@@ -115,9 +119,23 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
     'Dish Washing': 150,
   };
 
+  /// Keeps the choice on a method Admin has switched on (wallet or online).
+  void _applyPaymentMethods() {
+    final type = PaymentMethods.keepOrFirstOn(
+      _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
+      const [paymentTypeWallet, paymentTypeOnline],
+    );
+    _noPaymentMethod = type == null;
+    if (type != null) _paymentIndex = type == paymentTypeOnline ? 1 : 0;
+  }
+
   @override
   void initState() {
     super.initState();
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
     _slotDate = widget.slotDate;
     _slotLabel = widget.slotLabel;
     _productsProvider = widget.productsProvider;
@@ -132,6 +150,13 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   bool _booking = false;
 
   Future<void> _placeBooking() async {
+    if (_noPaymentMethod) {
+      showAppToast(
+        'payment_no_method'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
     if (_booking) return;
     setState(() => _booking = true);
     List<Map<String, dynamic>> rows(List<Map<String, dynamic>> source) => [
@@ -338,19 +363,23 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       const SizedBox(height: 22),
                       _sectionTitle('svc_payment'.tr),
                       const SizedBox(height: 12),
-                      _buildPaymentOption(
-                        index: 0,
-                        imageAsset: 'lib/assets/images/wallet.png',
-                        title: 'wallet_title'.tr,
-                        subtitle: walletBalanceSubtitle(),
-                      ),
-                      const SizedBox(height: 10),
-                      _buildPaymentOption(
-                        index: 1,
-                        imageAsset: 'lib/assets/images/currency.png',
-                        title: 'svc_online_payment'.tr,
-                        subtitle: 'svc_card_mobile_money'.tr,
-                      ),
+                      if (PaymentMethods.isOn(paymentTypeWallet)) ...[
+                        _buildPaymentOption(
+                          index: 0,
+                          imageAsset: 'lib/assets/images/wallet.png',
+                          title: 'wallet_title'.tr,
+                          subtitle: walletBalanceSubtitle(),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                      if (PaymentMethods.isOn(paymentTypeOnline))
+                        _buildPaymentOption(
+                          index: 1,
+                          imageAsset: 'lib/assets/images/currency.png',
+                          title: 'svc_online_payment'.tr,
+                          subtitle: 'svc_card_mobile_money'.tr,
+                        ),
+                      if (_noPaymentMethod) const NoPaymentMethodNote(),
                       const SizedBox(height: 22),
                       _buildPaymentDetailsCard(),
                     ],

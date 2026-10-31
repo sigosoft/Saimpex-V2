@@ -19,7 +19,9 @@ import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 import 'pharmacy/widgets/attach_prescription_sheet.dart';
+import '../utils/payment_methods.dart';
 import '../utils/wallet_balance.dart';
+import '../widgets/no_payment_method_note.dart';
 import 'widgets/coupons_sheet.dart';
 import 'pay_later_screen.dart';
 
@@ -82,6 +84,41 @@ class _CartScreenState extends State<CartScreen> {
   Worker? _cartTabWorker;
   // 0 Wallet, 1 Online, 2 Cash on Delivery, 3 Pay After Delivery.
   late int selectedPaymentIndex;
+  bool _noPaymentMethod = false;
+  static const _indexTypes = [
+    paymentTypeWallet,
+    paymentTypeOnline,
+    paymentTypeCash,
+    paymentTypePayAfterDelivery,
+  ];
+
+  /// Keeps the choice on a method this checkout offers and Admin has
+  /// switched on. Pay After Delivery stays only if it was picked; it is never
+  /// the fallback.
+  void _applyPaymentMethods() {
+    final offered = [
+      paymentTypeWallet,
+      paymentTypeOnline,
+      if (isDelivery) paymentTypeCash,
+      if (isDelivery && _padCanUse) paymentTypePayAfterDelivery,
+    ];
+    final current = _indexTypes[selectedPaymentIndex];
+    String? type;
+    if (offered.contains(current) && PaymentMethods.isOn(current)) {
+      type = current;
+    } else {
+      for (final option in offered) {
+        if (option != paymentTypePayAfterDelivery &&
+            PaymentMethods.isOn(option)) {
+          type = option;
+          break;
+        }
+      }
+    }
+    _noPaymentMethod = type == null;
+    if (type != null) selectedPaymentIndex = _indexTypes.indexOf(type);
+  }
+
   String scheduleText = "Pick a delivery time";
   // Pre-order delivery time (sent as scheduled_for); null delivers now.
   DateTime? _scheduledFor;
@@ -139,7 +176,7 @@ class _CartScreenState extends State<CartScreen> {
       if (!mounted) return;
       setState(() {
         _padStatus = status;
-        if (!_padCanUse && selectedPaymentIndex == 3) selectedPaymentIndex = 0;
+        _applyPaymentMethods();
       });
     } on ApiException {
       // Guests and failed loads just don't see the option.
@@ -152,6 +189,10 @@ class _CartScreenState extends State<CartScreen> {
     // Wallet by default; Pay After Delivery is never the default.
     selectedPaymentIndex = 0;
     _loadPayAfterDelivery();
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
     final controller = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>()
         : null;
@@ -515,6 +556,13 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _placeOrder(int payable) async {
     if (_placingOrder || !Get.isRegistered<OrderRepository>()) return;
+    if (_noPaymentMethod) {
+      showAppToast(
+        'payment_no_method'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
     if (_needsPrescription && !_hasPrescription) {
       showAppToast(
         'orders_rx_before_order'.tr,
@@ -1851,6 +1899,7 @@ class _CartScreenState extends State<CartScreen> {
                                 onTap: () {
                                   setState(() {
                                     isDelivery = true;
+                                    _applyPaymentMethods();
                                   });
                                   _loadCheckoutSummary();
                                   _checkDelivery();
@@ -1930,11 +1979,8 @@ class _CartScreenState extends State<CartScreen> {
                                 onTap: () {
                                   setState(() {
                                     isDelivery = false;
-                                    if (selectedPaymentIndex == 2 ||
-                                        selectedPaymentIndex == 3) {
-                                      selectedPaymentIndex =
-                                          0; // fallback when COD / Pay After Delivery hidden
-                                    }
+                                    // Cash and Pay After Delivery are delivery only.
+                                    _applyPaymentMethods();
                                   });
                                   _loadCheckoutSummary();
                                 },
@@ -2445,11 +2491,18 @@ class _CartScreenState extends State<CartScreen> {
                         // Card 0: Pay After Delivery. Delivery only, never the
                         // default, and selectable only when the server says
                         // can_use; otherwise it says why.
-                        if (isDelivery && _padStatus != null) ...[
+                        if (isDelivery &&
+                            _padStatus != null &&
+                            PaymentMethods.isOn(
+                              paymentTypePayAfterDelivery,
+                            )) ...[
                           GestureDetector(
                             onTap: () {
                               if (_padCanUse) {
-                                setState(() => selectedPaymentIndex = 3);
+                                setState(() {
+                                  selectedPaymentIndex = 3;
+                                  _applyPaymentMethods();
+                                });
                               } else if (_padBlockedReason == 'unpaid_order') {
                                 Get.to(
                                   () => const PayLaterScreen(),
@@ -2554,189 +2607,191 @@ class _CartScreenState extends State<CartScreen> {
                         ],
 
                         // Card 1: SAIMPEX Wallet
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedPaymentIndex = 0;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: selectedPaymentIndex == 0
-                                    ? const Color(0xFFFF5E00)
-                                    : const Color(0xFFEAD8C9),
-                                width: selectedPaymentIndex == 0 ? 1.5 : 0.8,
+                        if (PaymentMethods.isOn(paymentTypeWallet))
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPaymentIndex = 0;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: selectedPaymentIndex == 0
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFEAD8C9),
+                                  width: selectedPaymentIndex == 0 ? 1.5 : 0.8,
+                                ),
                               ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFF0EA),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.account_balance_wallet_outlined,
-                                    color: Color(0xFFFF5E00),
-                                    size: 16,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'wallet_title'.tr,
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        _walletSubtitle(toPay),
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFFA59A94),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: selectedPaymentIndex == 0
-                                          ? const Color(0xFFFF5E00)
-                                          : const Color(0xFFA59A94),
-                                      width: 1.5,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFF0EA),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.account_balance_wallet_outlined,
+                                      color: Color(0xFFFF5E00),
+                                      size: 16,
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(3),
-                                  child: selectedPaymentIndex == 0
-                                      ? Container(
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFFF5E00),
-                                            shape: BoxShape.circle,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'wallet_title'.tr,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        )
-                                      : null,
-                                ),
-                              ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          _walletSubtitle(toPay),
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: selectedPaymentIndex == 0
+                                            ? const Color(0xFFFF5E00)
+                                            : const Color(0xFFA59A94),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(3),
+                                    child: selectedPaymentIndex == 0
+                                        ? Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5E00),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
                         // Card 2: Online Payment
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedPaymentIndex = 1;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: selectedPaymentIndex == 1
-                                    ? const Color(0xFFFF5E00)
-                                    : const Color(0xFFEAD8C9),
-                                width: selectedPaymentIndex == 1 ? 1.5 : 0.8,
+                        if (PaymentMethods.isOn(paymentTypeOnline))
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPaymentIndex = 1;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: selectedPaymentIndex == 1
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFEAD8C9),
+                                  width: selectedPaymentIndex == 1 ? 1.5 : 0.8,
+                                ),
                               ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFF0EA),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.credit_card_outlined,
-                                    color: Color(0xFFFF5E00),
-                                    size: 16,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'water_sub_pay_online'.tr,
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        'orders_card_mobile_money'.tr,
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFFA59A94),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: selectedPaymentIndex == 1
-                                          ? const Color(0xFFFF5E00)
-                                          : const Color(0xFFA59A94),
-                                      width: 1.5,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFF0EA),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.credit_card_outlined,
+                                      color: Color(0xFFFF5E00),
+                                      size: 16,
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(3),
-                                  child: selectedPaymentIndex == 1
-                                      ? Container(
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFFF5E00),
-                                            shape: BoxShape.circle,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'water_sub_pay_online'.tr,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        )
-                                      : null,
-                                ),
-                              ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'orders_card_mobile_money'.tr,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: selectedPaymentIndex == 1
+                                            ? const Color(0xFFFF5E00)
+                                            : const Color(0xFFA59A94),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(3),
+                                    child: selectedPaymentIndex == 1
+                                        ? Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5E00),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
                         // Card 3: Cash on Delivery (Shown ONLY if Delivery type is Delivery)
-                        if (isDelivery)
+                        if (isDelivery && PaymentMethods.isOn(paymentTypeCash))
                           GestureDetector(
                             onTap: () {
                               setState(() {
@@ -2826,6 +2881,8 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                             ),
                           ),
+
+                        if (_noPaymentMethod) const NoPaymentMethodNote(),
 
                         const SizedBox(height: 14),
 

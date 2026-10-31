@@ -12,6 +12,8 @@ import '../../widgets/app_back_button.dart';
 
 import 'courier_booking_success_screen.dart';
 import '../../utils/wallet_balance.dart';
+import '../../utils/payment_methods.dart';
+import '../../widgets/no_payment_method_note.dart';
 
 class CourierReviewBookingScreen extends StatefulWidget {
   final String pickupAddress;
@@ -59,6 +61,32 @@ class _CourierReviewBookingScreenState
   static const _extrasAvailable = false;
   bool usePoints = false;
   int selectedPaymentIndex = 0; // mandatory — Wallet selected by default
+  bool _noPaymentMethod = false;
+  static const _paymentTypes = [
+    paymentTypeWallet,
+    paymentTypeOnline,
+    paymentTypeCash,
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
+  }
+
+  /// Keeps the choice on a method Admin has switched on.
+  void _applyPaymentMethods() {
+    final type = PaymentMethods.keepOrFirstOn(
+      _paymentTypes[selectedPaymentIndex],
+      _paymentTypes,
+    );
+    _noPaymentMethod = type == null;
+    if (type != null) selectedPaymentIndex = _paymentTypes.indexOf(type);
+  }
+
   bool _placingBooking = false;
   final int redeemedPointsDiscount = 0;
   final int tax = 0;
@@ -94,6 +122,13 @@ class _CourierReviewBookingScreenState
 
   /// Books the delivery with courier/create, then shows the success screen.
   Future<void> _placeBooking() async {
+    if (_noPaymentMethod) {
+      showAppToast(
+        'payment_no_method'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
     if (_placingBooking) return;
     setState(() => _placingBooking = true);
     try {
@@ -240,24 +275,28 @@ class _CourierReviewBookingScreenState
                               ),
                             ),
                             const SizedBox(height: 10),
-                            _buildPaymentOption(
-                              index: 0,
-                              icon: Icons.account_balance_wallet_outlined,
-                              title: 'wallet_title'.tr,
-                              subtitle: walletBalanceSubtitle(),
-                            ),
-                            _buildPaymentOption(
-                              index: 1,
-                              icon: Icons.payments_outlined,
-                              title: 'st_online_payment'.tr,
-                              subtitle: 'st_card_mobile_money'.tr,
-                            ),
-                            _buildPaymentOption(
-                              index: 2,
-                              icon: Icons.monetization_on_outlined,
-                              title: 'st_cash_on_delivery'.tr,
-                              subtitle: 'st_pay_driver'.tr,
-                            ),
+                            if (PaymentMethods.isOn(_paymentTypes[0]))
+                              _buildPaymentOption(
+                                index: 0,
+                                icon: Icons.account_balance_wallet_outlined,
+                                title: 'wallet_title'.tr,
+                                subtitle: walletBalanceSubtitle(),
+                              ),
+                            if (PaymentMethods.isOn(_paymentTypes[1]))
+                              _buildPaymentOption(
+                                index: 1,
+                                icon: Icons.payments_outlined,
+                                title: 'st_online_payment'.tr,
+                                subtitle: 'st_card_mobile_money'.tr,
+                              ),
+                            if (PaymentMethods.isOn(_paymentTypes[2]))
+                              _buildPaymentOption(
+                                index: 2,
+                                icon: Icons.monetization_on_outlined,
+                                title: 'st_cash_on_delivery'.tr,
+                                subtitle: 'st_pay_driver'.tr,
+                              ),
+                            if (_noPaymentMethod) const NoPaymentMethodNote(),
                             const SizedBox(height: 14),
                             _buildPaymentDetails(),
                             const SizedBox(height: 12),

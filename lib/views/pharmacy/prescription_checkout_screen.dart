@@ -4,9 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../controllers/select_location_controller.dart';
-import '../../core/network/api_exception.dart';
-import '../../models/order_repository.dart';
-import '../../utils/api_language.dart';
+import '../../utils/payment_methods.dart';
 import '../widgets/coupons_sheet.dart';
 import 'widgets/pharmacy_background.dart';
 import '../../utils/wallet_balance.dart';
@@ -43,36 +41,22 @@ class _PrescriptionCheckoutScreenState
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _couponController = TextEditingController();
 
-  /// Payment types Admin has switched on; null until loaded. If the list can't
-  /// be loaded both options stay, and the server refuses a disabled one.
-  Set<String>? _enabledPaymentTypes;
-
-  bool get _walletEnabled =>
-      _enabledPaymentTypes?.contains(paymentTypeWallet) ?? true;
-  bool get _onlineEnabled =>
-      _enabledPaymentTypes?.contains(paymentTypeOnline) ?? true;
+  // Only the methods Admin has switched on (utils/payment_methods.dart).
+  bool get _walletEnabled => PaymentMethods.isOn(paymentTypeWallet);
+  bool get _onlineEnabled => PaymentMethods.isOn(paymentTypeOnline);
 
   @override
   void initState() {
     super.initState();
-    _loadPaymentMethods();
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
   }
 
-  Future<void> _loadPaymentMethods() async {
-    if (!Get.isRegistered<OrderRepository>()) return;
-    try {
-      final enabled = await Get.find<OrderRepository>().enabledPaymentTypes(
-        apiLanguageCode(),
-      );
-      if (!mounted) return;
-      setState(() {
-        _enabledPaymentTypes = enabled;
-        if (!_walletEnabled) selectedPaymentIndex = 1;
-        if (!_onlineEnabled) selectedPaymentIndex = 0;
-      });
-    } on ApiException {
-      // Keep both options; the server still checks the method on pay.
-    }
+  void _applyPaymentMethods() {
+    if (!_walletEnabled) selectedPaymentIndex = 1;
+    if (!_onlineEnabled) selectedPaymentIndex = 0;
   }
 
   @override

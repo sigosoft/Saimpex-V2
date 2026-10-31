@@ -9,7 +9,9 @@ import '../../models/water_repository.dart';
 import '../../utils/api_language.dart';
 import '../../utils/payment_page.dart';
 import '../../utils/toast_helper.dart';
+import '../../utils/payment_methods.dart';
 import '../../utils/wallet_balance.dart';
+import '../../widgets/no_payment_method_note.dart';
 import '../../widgets/app_back_button.dart';
 
 import 'water_subscription_success_screen.dart';
@@ -63,11 +65,28 @@ class _WaterSubscriptionCartScreenState
   // An online subscription created but not paid yet: paying again reopens
   // its payment page instead of buying a second subscription.
   ({String url, int topUpId})? _pendingPayment;
+  bool _noPaymentMethod = false;
+  static const _paymentTypes = [
+    paymentTypeCash,
+    paymentTypeOnline,
+    paymentTypeWallet,
+  ];
 
   @override
   void initState() {
     super.initState();
     quantity = widget.quantity < 1 ? 1 : widget.quantity.clamp(1, 50);
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
+  }
+
+  /// Keeps the choice on a method Admin has switched on.
+  void _applyPaymentMethods() {
+    final type = PaymentMethods.keepOrFirstOn(_paymentType, _paymentTypes);
+    _noPaymentMethod = type == null;
+    if (type != null) _paymentType = type;
   }
 
   int get _total => widget.pricePerDelivery * quantity;
@@ -109,6 +128,13 @@ class _WaterSubscriptionCartScreenState
   }
 
   Future<void> _subscribe() async {
+    if (_noPaymentMethod) {
+      showAppToast(
+        'payment_no_method'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
     if (_submitting) return;
     setState(() => _submitting = true);
     try {
@@ -754,24 +780,28 @@ class _WaterSubscriptionCartScreenState
           ),
         ),
         const SizedBox(height: 10),
-        option(
-          paymentTypeCash,
-          Icons.payments_outlined,
-          'water_sub_pay_cash'.tr,
-          'water_sub_pay_cash_hint'.tr,
-        ),
-        option(
-          paymentTypeOnline,
-          Icons.credit_card_outlined,
-          'water_sub_pay_online'.tr,
-          'pw_card_mobile_money'.tr,
-        ),
-        option(
-          paymentTypeWallet,
-          Icons.account_balance_wallet_outlined,
-          'wallet_title'.tr,
-          walletBalanceSubtitle(),
-        ),
+        if (PaymentMethods.isOn(paymentTypeCash))
+          option(
+            paymentTypeCash,
+            Icons.payments_outlined,
+            'water_sub_pay_cash'.tr,
+            'water_sub_pay_cash_hint'.tr,
+          ),
+        if (PaymentMethods.isOn(paymentTypeOnline))
+          option(
+            paymentTypeOnline,
+            Icons.credit_card_outlined,
+            'water_sub_pay_online'.tr,
+            'pw_card_mobile_money'.tr,
+          ),
+        if (PaymentMethods.isOn(paymentTypeWallet))
+          option(
+            paymentTypeWallet,
+            Icons.account_balance_wallet_outlined,
+            'wallet_title'.tr,
+            walletBalanceSubtitle(),
+          ),
+        if (_noPaymentMethod) const NoPaymentMethodNote(),
       ],
     );
   }
