@@ -411,37 +411,37 @@ AC: tab loads `customer/orders/localStore` (use the local-store `GroceryReposito
 **P1-1. Localisation EN / FR / AR with RTL.** (No backend needed.)
 AC: every visible string comes from translations (GetX `Translations` or Flutter `intl`/ARB — pick one and use it everywhere). `GetMaterialApp` sets `locale`, `fallbackLocale: en`, `supportedLocales`. Choosing Arabic flips layout to RTL (icons, paddings, back arrows, sliders). The choice is saved locally and sent with `updateLanguage`; it survives restart. API messages use the matching `message_xx`. The client reports wording issues later; do not wait for perfect copy.
 
-**P1-2. Unified search.** Blocked (contract pending).
+**P1-2. Unified search.** API ready (§6.7).
 AC: text and voice search from Home return stores and products across all categories, nearest first, only stores that deliver to the selected location. Tapping a product opens it in its store ready to add to cart.
 
-**P1-3. Image search via Google Vision.** Blocked.
+**P1-3. Image search via Google Vision.** API ready (§6.7).
 AC: capture or upload a photo → backend identifies the product → list of stores with price, distance, rating → tap opens that product in the store. On-device ML Kit may stay only as a fallback if the backend is unreachable (confirm with the backend owner).
 
 **P1-4. Wallet top-up and split payment.** API ready (backend API doc §6.8).
 AC: Wallet screen with balance and transaction history; top-up 100 – 50,000 MRU (validate both limits in the app and expect server validation) paid via Masrvi WebView; balance refreshes after success. At checkout, if the wallet is short, the app shows "Wallet X + Online Y" and pays Y by Masrvi; never place an order the wallet cannot cover without that step.
 
-**P1-5. Trusted customers / Pay After Delivery.** Blocked.
+**P1-5. Trusted customers / Pay After Delivery.** API ready (§6.9).
 AC: PAD appears only when the server says the customer is trusted. Order is placed with payment pending. The order shows "Pay now" and a 24-hour deadline; payment goes through Masrvi. If one PAD order is unpaid, PAD is hidden for new orders. Overdue status comes from the server.
 
-**P1-6. Masrvi for courier and service bookings.** Blocked.
+**P1-6. Masrvi for courier and service bookings.** API ready (`GET orders/{id}/payOnline`).
 AC: choosing Online on courier, car wash, home cleaning or laundry opens the Masrvi WebView, handles fail/cancel with retry of the same order (same pattern as `cart_screen.dart`), and shows success only after payment.
 
-**P1-7. Pre-orders (Schedule for later).** Blocked.
+**P1-7. Pre-orders (Schedule for later).** API ready (§6.10; My Schedules = `GET preorders`).
 AC: the existing "Schedule for later" sheet in `cart_screen.dart` limits dates to the server's max days (default 7) and sends the chosen time. My Schedules lists real scheduled orders.
 
-**P1-8. Grocery substitution.** Blocked.
+**P1-8. Grocery substitution.** API ready (§6.11).
 AC: when a vendor proposes a replacement, the customer gets a notification and the Figma "order updated" screen (`order_updated_detail_screen.dart`) with Accept / Reject and new totals; a visible 10-minute countdown; after 10 minutes the server auto-accepts and the app shows the accepted state.
 
-**P1-9. Pharmacy per-item quote.** Blocked.
+**P1-9. Pharmacy per-item quote.** API ready (§6.15).
 AC: quotation screen shows each item as available, partial or unavailable, any substitute with its price, and the new total; the customer accepts/rejects substitutes before paying (wallet or online only); a Decline action uses `prescription/{id}/decline`.
 
-**P1-10. Car wash location types.** Blocked (for the `place` values).
+**P1-10. Car wash location types.** API ready (§6.13).
 AC: `car_wash_service_location_screen.dart` offers Home, Workplace, Other and At Station; the address picker shows for the first three; the value is sent to quote and book; the home-service fee shown equals the server quote.
 
-**P1-11. Catalog (food) coupons.** Blocked.
+**P1-11. Catalog (food) coupons.** API ready (§6.16).
 AC: coupons apply in the food cart and are sent to `catalog/checkout`; coupons are vendor-specific (a coupon for store A is rejected in store B with the server message).
 
-**P1-12. AI chatbot (Claude).** Blocked.
+**P1-12. AI chatbot (Claude).** API ready (§6.19).
 AC: `chatbot_ai_chat_screen.dart` sends messages to the backend and shows answers; supports EN/FR/AR; can answer about the customer's own orders, wallet and points. The chat must not change the cart or place orders by itself (scope rule). No API key in the app.
 
 **P1-13. Delivery fee display.**
@@ -546,3 +546,4 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 | 31 Oct 2026 | **All Phase 1 APIs ready on dev:** car wash locations (§6.13), water subscription payment (§6.14), pharmacy per-item quote + alternatives (§6.15), food-cart coupons (§6.16), gas empty-cylinder confirmation (§6.17), WhatsApp messages are server-side (§6.18), **AI assistant** `POST customer/chatbot/message` + transcript (§6.19). | Tasks C11–C15 are unblocked. |
 | 31 Oct 2026 | **Delivery PIN:** `trackOrder` returns `delivery_pin`; for any order type `GET customer/orders/{id}/deliveryPin`. Show it big on the tracking screen: "Give this PIN to the driver" (EN/FR/AR). | §6.20 |
 | 31 Oct 2026 | Minimum order per vendor: checkout summaries return `min_order_value` + `min_order_shortfall`; placing below it → 422. `restaurantDetails.min_order_value`. | Show "Minimum order X MRU" on the store page; in the cart disable Place order and show "Add Y MRU more" while the shortfall is > 0 (§6.22). |
+| 31 Oct 2026 | **My Schedules:** `GET customer/preorders` lists open pre-orders (all types); `orderDetails`, `trackOrder`, `catalog/orderDetail` return `is_preorder` + `scheduled_for`. The P1 list above now says "API ready" for every item. | Wire My Schedules to `GET preorders`; show "Scheduled for …" on order detail/tracking (§6.10). |
