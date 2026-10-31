@@ -445,7 +445,7 @@ AC: coupons apply in the food cart and are sent to `catalog/checkout`; coupons a
 **P1-12. AI chatbot (Claude).** Blocked.
 AC: `chatbot_ai_chat_screen.dart` sends messages to the backend and shows answers; supports EN/FR/AR; can answer about the customer's own orders, wallet and points. The chat must not change the cart or place orders by itself (scope rule). No API key in the app.
 
-**P1-13. Delivery fee display.**
+**P1-13. Delivery fee display.** ✅ Done (C9, `fix/server-delivery-fee`): the cart's payment rows printed fixed values (delivery 5 MRU, tax 2 MRU, points 1 MRU) and sent `redeem_amount=1` with points on by default. Now delivery fee, tax and points come only from the checkout summary ("…" until it loads); a 0 fee shows "Free Delivery". The points card shows the server's `redeem_points_available` / `redeem_points_amount`, only when `is_reward_enabled` and the customer has points, is off by default, and sends `redeem_amount` = `redeem_points_amount`.
 AC: checkout shows the per-km delivery fee from the server summary; Gold+ customers see "Free Delivery" and 0 MRU.
 
 ### P2 — completeness and polish

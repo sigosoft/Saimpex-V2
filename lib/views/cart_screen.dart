@@ -50,7 +50,8 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   bool isDelivery = true; // default to Delivery as in reference image 2
   int quantity = 0;
-  bool usePoints = true;
+  // Off until the customer chooses to redeem store points.
+  bool usePoints = false;
   bool _cartLoading = true;
   bool _placingOrder = false;
   // Order already placed but not yet paid online. Retrying reopens payment for
@@ -67,6 +68,11 @@ class _CartScreenState extends State<CartScreen> {
   int? _summaryDelivery;
   int? _summaryTax;
   int? _summaryToPay;
+  // Store points from the checkout summary.
+  bool _rewardEnabled = false;
+  int _pointsAvailable = 0;
+  int _pointsAmount = 0;
+  int _pointsDiscount = 0;
   // From the checkout summary: the cart needs a prescription before it can be paid
   bool _needsPrescription = false;
   bool _hasPrescription = false;
@@ -334,12 +340,23 @@ class _CartScreenState extends State<CartScreen> {
         _needsPrescription = false;
         _hasPrescription = false;
         _prescriptionId = null;
+        // The food cart summary has no store points.
+        _rewardEnabled = false;
+        _pointsAvailable = 0;
+        _pointsAmount = 0;
+        _pointsDiscount = 0;
         return;
       }
       _summaryItemTotal = money(data['item_total'] ?? data['sub_total']);
       _summaryDelivery = money(data['delivery_fee']);
       _summaryTax = money(data['tax']);
       _summaryToPay = money(data['to_pay'] ?? data['payable']);
+      // Store points: what the customer has here and what they're worth.
+      _rewardEnabled = flag(data['is_reward_enabled']);
+      _pointsAvailable = money(data['redeem_points_available']) ?? 0;
+      _pointsAmount = money(data['redeem_points_amount']) ?? 0;
+      _pointsDiscount = money(data['points_discount']) ?? 0;
+      if (!_rewardEnabled || _pointsAvailable <= 0) usePoints = false;
       _needsPrescription = flag(data['needs_prescription']);
       _hasPrescription = flag(data['has_prescription']);
       _prescriptionId = _positiveId(data['prescription_id']);
@@ -556,7 +573,7 @@ class _CartScreenState extends State<CartScreen> {
         language: apiLanguageCode(),
         cartId: _cartId,
         couponCode: _appliedCoupon,
-        redeemAmount: usePoints ? '$pointDiscountValue' : '0',
+        redeemAmount: usePoints && _pointsAmount > 0 ? '$_pointsAmount' : '0',
         note: note,
         version2: version2,
         useWallet: splitWithWallet,
@@ -862,9 +879,6 @@ class _CartScreenState extends State<CartScreen> {
     return image ?? '';
   }
 
-  final int pointDiscountValue = 1;
-  final int deliveryFee = 5;
-  final int tax = 2;
   final TextEditingController _customQuantityController =
       TextEditingController();
   final Map<int, TextEditingController> _apiQuantityFields = {};
@@ -1373,10 +1387,12 @@ class _CartScreenState extends State<CartScreen> {
       );
       final itemTotal =
           _summaryItemTotal ?? (_cartLoaded ? apiTotal : basePrice * quantity);
-      final pointsOff = (usePoints && quantity > 0) ? pointDiscountValue : 0;
-      final currentDeliveryFee =
-          _summaryDelivery ?? ((isDelivery && quantity > 0) ? deliveryFee : 0);
-      final currentTax = _summaryTax ?? (quantity > 0 ? tax : 0);
+      // Fee, tax and points come from the server summary only; until it
+      // loads they count as 0 rather than made-up amounts.
+      final pointsOff = usePoints ? _pointsDiscount : 0;
+      final currentDeliveryFee = isDelivery ? (_summaryDelivery ?? 0) : 0;
+      final currentTax = _summaryTax ?? 0;
+      final summaryLoaded = _summaryToPay != null;
       final rawPay = itemTotal - pointsOff + currentDeliveryFee + currentTax;
       final toPay =
           _summaryToPay ?? ((quantity == 0 || rawPay < 0) ? 0 : rawPay);
@@ -2290,7 +2306,9 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        // Use 500 points Card
+                        // Store points card: only when the store has
+                        // rewards on and the customer has points here.
+                        if (_rewardEnabled && _pointsAvailable > 0)
                         GestureDetector(
                           onTap: () {
                             setState(() {
@@ -2333,7 +2351,9 @@ class _CartScreenState extends State<CartScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Use 500 points',
+                                        'cart_use_points'.trParams({
+                                          'points': '$_pointsAvailable',
+                                        }),
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF2C2520),
                                           fontSize: 12,
@@ -2342,7 +2362,9 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        '= 50 MRU off',
+                                        'cart_points_off'.trParams({
+                                          'amount': '$_pointsAmount',
+                                        }),
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 10,
@@ -2821,14 +2843,14 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                 ],
                               ),
-                              if (usePoints) ...[
+                              if (usePoints && pointsOff > 0) ...[
                                 const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Redeemed points',
+                                      'cart_redeemed_points'.tr,
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
@@ -2836,7 +2858,7 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '-$pointDiscountValue MRU',
+                                      '-$pointsOff MRU',
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFFFF5E00),
                                         fontSize: 12,
@@ -2853,7 +2875,7 @@ class _CartScreenState extends State<CartScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Delivery fee',
+                                      'cart_delivery_fee'.tr,
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
@@ -2861,7 +2883,13 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '$deliveryFee MRU',
+                                      // Free delivery (e.g. Gold tier or
+                                      // the store's fee rule) is a 0 fee.
+                                      !summaryLoaded
+                                          ? '…'
+                                          : currentDeliveryFee == 0
+                                          ? 'cart_free_delivery'.tr
+                                          : '$currentDeliveryFee MRU',
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
@@ -2877,7 +2905,7 @@ class _CartScreenState extends State<CartScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Tax',
+                                    'cart_tax'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -2885,7 +2913,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '$tax MRU',
+                                    summaryLoaded ? '$currentTax MRU' : '…',
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
