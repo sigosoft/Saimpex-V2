@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
+import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_constants.dart';
 import '../../core/network/api_exception.dart';
@@ -52,7 +53,9 @@ class ExpressStores {
         final label = '${group['name_en'] ?? ''}';
         for (final vendor in (group['vendors'] as List? ?? const [])) {
           final row = asJsonMap(vendor);
-          if (row != null) loaded.add(_card(row, label));
+          if (row != null && _verticalEnabled(row['vendor_type'])) {
+            loaded.add(_card(row, label));
+          }
         }
       }
       loaded.sort(
@@ -65,6 +68,19 @@ class ExpressStores {
       throw ApiException.fromDio(error, language);
     }
     return stores;
+  }
+
+  /// Leaves out vendors whose category the admin switched off.
+  static bool _verticalEnabled(dynamic vendorType) {
+    if (!Get.isRegistered<HomeController>()) return true;
+    final slug = switch (int.tryParse('${vendorType ?? ''}')) {
+      _restaurant => 'food',
+      _grocery => 'grocery',
+      _pharmacy => 'pharmacy',
+      _water => 'water',
+      _ => null,
+    };
+    return slug == null || Get.find<HomeController>().isVerticalEnabled(slug);
   }
 
   static Map<String, String> _card(Map<String, dynamic> row, String category) {
@@ -130,11 +146,7 @@ class ExpressStores {
           ),
         );
       case _water:
-        Get.to(
-          () => WaterSupplierDetailsScreen(
-            supplier: common,
-          ),
-        );
+        Get.to(() => WaterSupplierDetailsScreen(supplier: common));
       default:
         showAppToast('This store is not available right now');
     }

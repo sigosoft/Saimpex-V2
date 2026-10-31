@@ -107,28 +107,15 @@ class ServicesScreen extends StatelessWidget {
       'Vehicle\nServices',
       'lib/assets/images/vehicle_services.png',
     ),
-    _CategoryData(
-      'Pet\nServices',
-      'lib/assets/images/pet_services.png',
-    ),
+    _CategoryData('Pet\nServices', 'lib/assets/images/pet_services.png'),
     _CategoryData(
       'CCTV\nInstallation',
       'lib/assets/images/cctv.png',
       imageSize: 42,
     ),
-    _CategoryData(
-      'Computer\nRepair',
-      'lib/assets/images/computer.png',
-    ),
-    _CategoryData(
-      'Car\nWash',
-      'lib/assets/images/car_wash (2).png',
-    ),
-    _CategoryData(
-      'Plumbing',
-      'lib/assets/images/plumbng.png',
-      imageSize: 42,
-    ),
+    _CategoryData('Computer\nRepair', 'lib/assets/images/computer.png'),
+    _CategoryData('Car\nWash', 'lib/assets/images/car_wash (2).png'),
+    _CategoryData('Plumbing', 'lib/assets/images/plumbng.png', imageSize: 42),
   ];
 
   static const _emergencyServices = [
@@ -209,16 +196,15 @@ class ServicesScreen extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: showBottomNav
-                ? AppBackButton(onTap: () {
+                ? AppBackButton(
+                    onTap: () {
                       final controller = Get.find<HomeController>();
                       controller.selectNavigation(HomeController.navHome);
-                    })
+                    },
+                  )
                 : const SizedBox(width: 38),
           ),
-          Text(
-            'Services',
-            style: AppTextStyles.heading(),
-          ),
+          Text('Services', style: AppTextStyles.heading()),
         ],
       ),
     );
@@ -241,11 +227,7 @@ class ServicesScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
       child: Row(
         children: [
-          const Icon(
-            Icons.search_rounded,
-            color: Color(0xFF7A6A60),
-            size: 22,
-          ),
+          const Icon(Icons.search_rounded, color: Color(0xFF7A6A60), size: 22),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
@@ -288,63 +270,91 @@ class ServicesScreen extends StatelessWidget {
   }
 
   Widget _sectionTitle(String title) {
-    return Text(
-      title,
-      style: AppTextStyles.title(),
-    );
+    return Text(title, style: AppTextStyles.title());
   }
+
+  /// The vertical behind a card (home_cleaning, car_wash, laundry), or null
+  /// for tiles that aren't a service vertical yet.
+  static String? _verticalOf(String title) {
+    final key = title.replaceAll('\n', ' ').toLowerCase();
+    if (key.contains('cleaning')) return 'home_cleaning';
+    if (key.contains('car wash')) return 'car_wash';
+    if (key.contains('laundry')) return 'laundry';
+    return null;
+  }
+
+  /// False for a service the admin switched off (is_enabled false).
+  static bool _shown(String title) {
+    final slug = _verticalOf(title);
+    if (slug == null || !Get.isRegistered<HomeController>()) return true;
+    return Get.find<HomeController>().isVerticalEnabled(slug);
+  }
+
+  static VoidCallback? _open(String title) => switch (_verticalOf(title)) {
+    'home_cleaning' => () => Get.to(() => const HomeCleaningScreen()),
+    'car_wash' => () => Get.to(() => const CarWashScreen()),
+    'laundry' => () => Get.to(() => const LaundryServicesScreen()),
+    _ => null,
+  };
 
   Widget _buildPopularGrid() {
     const tallHeight = 168.0;
     const compactHeight = 79.0;
     const rowGap = 10.0;
+    // Switched-off services are left out and the grid closes up.
+    final tall = _tallCards.where((card) => _shown(card.title)).toList();
+    final compact = _compactCards.where((card) => _shown(card.title)).toList();
+    final rowCount = tall.length > (compact.length + 1) ~/ 2
+        ? tall.length
+        : (compact.length + 1) ~/ 2;
+
+    Widget compactCard(_PopularCardData data) => _PopularServiceCard(
+      data: data,
+      height: compactHeight,
+      borderRadius: 26,
+      titleFontSize: 14,
+      onTap: _open(data.title),
+    );
 
     return Column(
       children: [
-        for (var i = 0; i < _tallCards.length; i++) ...[
+        for (var i = 0; i < rowCount; i++) ...[
           if (i > 0) const SizedBox(height: rowGap),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _PopularServiceCard(
-                  data: _tallCards[i],
-                  height: tallHeight,
-                  borderRadius: 32,
-                  titleFontSize: 16,
-                  onTap: _tallCards[i].title.contains('Home')
-                      ? () => Get.to(() => const HomeCleaningScreen())
-                      : _tallCards[i].title.contains('Car\nWash')
-                          ? () => Get.to(() => const CarWashScreen())
-                          : null,
+              if (i < tall.length) ...[
+                Expanded(
+                  child: _PopularServiceCard(
+                    data: tall[i],
+                    height: tallHeight,
+                    borderRadius: 32,
+                    titleFontSize: 16,
+                    onTap: _open(tall[i].title),
+                  ),
                 ),
-              ),
-              const SizedBox(width: rowGap),
-              Expanded(
-                child: Column(
-                  children: [
-                    _PopularServiceCard(
-                      data: _compactCards[i * 2],
-                      height: compactHeight,
-                      borderRadius: 26,
-                      titleFontSize: 14,
-                      onTap: _compactCards[i * 2].title == 'Laundry'
-                          ? () => Get.to(() => const LaundryServicesScreen())
-                          : null,
-                    ),
-                    const SizedBox(height: rowGap),
-                    _PopularServiceCard(
-                      data: _compactCards[i * 2 + 1],
-                      height: compactHeight,
-                      borderRadius: 26,
-                      titleFontSize: 14,
-                      onTap: _compactCards[i * 2 + 1].title == 'Laundry'
-                          ? () => Get.to(() => const LaundryServicesScreen())
-                          : null,
-                    ),
-                  ],
+                const SizedBox(width: rowGap),
+                Expanded(
+                  child: Column(
+                    children: [
+                      if (i * 2 < compact.length) compactCard(compact[i * 2]),
+                      if (i * 2 + 1 < compact.length) ...[
+                        const SizedBox(height: rowGap),
+                        compactCard(compact[i * 2 + 1]),
+                      ],
+                    ],
+                  ),
                 ),
-              ),
+              ] else ...[
+                // No tall card left for this row: the small cards share it.
+                if (i * 2 < compact.length)
+                  Expanded(child: compactCard(compact[i * 2])),
+                const SizedBox(width: rowGap),
+                if (i * 2 + 1 < compact.length)
+                  Expanded(child: compactCard(compact[i * 2 + 1]))
+                else
+                  const Spacer(),
+              ],
             ],
           ),
         ],
@@ -358,65 +368,56 @@ class ServicesScreen extends StatelessWidget {
     return Wrap(
       spacing: 10,
       runSpacing: 16,
-      children: _categories.map((item) {
-        final isCleaning = item.label.contains('Cleaning');
-        final isCarWash = item.label.contains('Car\nWash');
+      children: _categories.where((item) => _shown(item.label)).map((item) {
         return SizedBox(
           width: itemWidth,
           child: GestureDetector(
-            onTap: isCleaning
-                ? () => Get.to(() => const HomeCleaningScreen())
-                : isCarWash
-                    ? () => Get.to(() => const CarWashScreen())
-                    : null,
+            onTap: _open(item.label),
             behavior: HitTestBehavior.opaque,
             child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFFFFFFFF),
-                      Color(0xFFFFF3EB),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFFFFFFF), Color(0xFFFFF3EB)],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  alignment: Alignment.center,
+                  child: _CategoryImage(
+                    asset: item.image,
+                    size: item.imageSize,
+                    clipBottomFraction: item.clipBottomFraction,
+                    alignment: item.imageAlignment,
+                    scale: item.imageScale,
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: _CategoryImage(
-                  asset: item.image,
-                  size: item.imageSize,
-                  clipBottomFraction: item.clipBottomFraction,
-                  alignment: item.imageAlignment,
-                  scale: item.imageScale,
+                const SizedBox(height: 8),
+                Text(
+                  item.label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    height: 1.15,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                item.label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w600,
-                  height: 1.15,
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
         );
       }).toList(),
@@ -427,10 +428,7 @@ class ServicesScreen extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            'Emergency Services',
-            style: AppTextStyles.title(),
-          ),
+          child: Text('Emergency Services', style: AppTextStyles.title()),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -475,11 +473,7 @@ class ServicesScreen extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [
-                Color(0xFFFFD4C4),
-                Color(0xFFFFEDE6),
-                Color(0xFFFFFFFF),
-              ],
+              colors: [Color(0xFFFFD4C4), Color(0xFFFFEDE6), Color(0xFFFFFFFF)],
               stops: [0.0, 0.38, 0.72],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
@@ -706,21 +700,14 @@ class _ServiceImage extends StatelessWidget {
     }
 
     if (scale != 1) {
-      image = Transform.scale(
-        scale: scale,
-        alignment: alignment,
-        child: image,
-      );
+      image = Transform.scale(scale: scale, alignment: alignment, child: image);
     }
 
     return SizedBox(
       width: width,
       height: height * (clipBottomFraction > 0 ? 1 - clipBottomFraction : 1),
       child: clipBottomFraction > 0
-          ? Align(
-              alignment: Alignment.bottomCenter,
-              child: image,
-            )
+          ? Align(alignment: Alignment.bottomCenter, child: image)
           : image,
     );
   }
@@ -769,11 +756,10 @@ class _CategoryData {
   final Alignment imageAlignment;
   final double imageScale;
 
-  const _CategoryData(
-    this.label,
-    this.image, {
-    this.imageSize = 44,
-  }) : imageScale = 1, imageAlignment = Alignment.center, clipBottomFraction = 0;
+  const _CategoryData(this.label, this.image, {this.imageSize = 44})
+    : imageScale = 1,
+      imageAlignment = Alignment.center,
+      clipBottomFraction = 0;
 }
 
 class _CategoryImage extends StatelessWidget {
@@ -803,11 +789,7 @@ class _CategoryImage extends StatelessWidget {
     );
 
     if (scale != 1) {
-      image = Transform.scale(
-        scale: scale,
-        alignment: alignment,
-        child: image,
-      );
+      image = Transform.scale(scale: scale, alignment: alignment, child: image);
     }
 
     if (clipBottomFraction > 0) {

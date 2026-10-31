@@ -33,6 +33,15 @@ String resolveApiMessage(
     }
     if (localized.isNotEmpty) return localized.join('\n');
 
+    // Validation-style errors nest the languages under a field name, e.g.
+    // {"is_self_pickup": {"message_en": [...]}} on a 422.
+    for (final entry in message.entries) {
+      if (entry.value is Map) {
+        final nested = resolveApiMessage(entry.value, language, fallback: '');
+        if (nested.isNotEmpty) return nested;
+      }
+    }
+
     for (final entry in message.entries) {
       final text = _readText(entry.value);
       if (text != null) return text;
@@ -66,11 +75,7 @@ class ApiEnvelope {
   final dynamic data;
   final String message;
 
-  factory ApiEnvelope.parse(
-    dynamic body,
-    String language, {
-    int? statusCode,
-  }) {
+  factory ApiEnvelope.parse(dynamic body, String language, {int? statusCode}) {
     final map = asJsonMap(body);
     if (map == null) {
       throw const FormatException('Unexpected server response');

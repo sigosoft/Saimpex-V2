@@ -266,6 +266,15 @@ class HomeController extends GetxController {
 
   int _homeRequest = 0;
 
+  /// Whether a vertical (food, laundry, car_wash, …) is switched on. homeHub
+  /// only lists enabled verticals (disabled ones are dropped when parsed), so
+  /// a slug missing from a loaded list is off. Until home loads, everything
+  /// counts as on; the server still refuses a switched-off service with 422.
+  bool isVerticalEnabled(String slug) {
+    if (homeVerticals.isEmpty) return true;
+    return homeVerticals.any((vertical) => vertical['slug'] == slug);
+  }
+
   String get walletLabel {
     final amount = walletBalance.value.trim();
     final currency = walletCurrency.value.trim();

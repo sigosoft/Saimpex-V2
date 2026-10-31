@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -78,6 +79,11 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
     'pharmacy',
     'water',
   ];
+
+  /// Switched-off categories (is_enabled false) are left out of results.
+  static bool _enabled(String vertical) =>
+      !Get.isRegistered<HomeController>() ||
+      Get.find<HomeController>().isVerticalEnabled(vertical);
 
   static String _localName(Map<String, dynamic> row, String key) {
     final language = apiLanguageCode();
@@ -156,7 +162,7 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
       if (!mounted || requestId != _requestId) return;
 
       final sections = <_Section>[];
-      for (final vertical in _verticals) {
+      for (final vertical in _verticals.where(_enabled)) {
         final rows = result.stores
             .where((store) => store['vertical'] == vertical)
             .map(_storeCard)
@@ -177,7 +183,7 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
             ? Map<String, dynamic>.from(product['store'] as Map)
             : <String, dynamic>{};
         final vertical = '${store['vertical'] ?? product['vertical'] ?? ''}';
-        if (!_verticals.contains(vertical)) continue;
+        if (!_verticals.contains(vertical) || !_enabled(vertical)) continue;
         final price = num.tryParse(
           '${product['discount_price'] ?? product['price'] ?? ''}',
         );

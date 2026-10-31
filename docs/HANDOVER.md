@@ -532,6 +532,12 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 - Whether the language is restored from the profile on login.
 - Exact JDK / Gradle requirements on a fresh machine.
 
+### Switched-off services (`fix/disabled-services`)
+
+- Home tabs come from `homeHub.verticals`; rows with `is_enabled: false` are dropped when parsed, so `HomeController.isVerticalEnabled(slug)` is true only for listed slugs (and for everything before Home has loaded).
+- The Services screen hides Home cleaning, Car wash and Laundry when their vertical is off (the grid closes up); search results and Express vendors skip switched-off categories.
+- Checkout and booking show the server's 422 message (e.g. "service unavailable") through `ApiException.message`; `resolveApiMessage` also reads messages nested under a field name (`{"field": {"message_en": [...]}}`). The 422 itself is not on `integration/v2` yet, so it wasn't tried against the server.
+
 ## Backend updates since this handover
 
 | Date | What's ready | Contract |
