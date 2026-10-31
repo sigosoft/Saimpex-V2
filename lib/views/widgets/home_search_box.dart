@@ -6,7 +6,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../utils/toast_helper.dart';
 import '../home_scanner_screen.dart';
-import '../restaurant_search_screen.dart';
+import '../all_search_screen.dart';
 import 'search_camera_button.dart';
 
 class HomeSearchBox extends StatefulWidget {
@@ -32,12 +32,11 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
     super.dispose();
   }
 
-  // There is no all-verticals search API yet, so the home box searches Food.
   void _search([String? keyword]) {
     final text = (keyword ?? _controller.text).trim();
     if (text.isEmpty) return;
     FocusManager.instance.primaryFocus?.unfocus();
-    Get.to(() => RestaurantSearchScreen(initialKeyword: text));
+    Get.to(() => AllSearchScreen(initialKeyword: text));
   }
 
   void _stopListeningUi() {
