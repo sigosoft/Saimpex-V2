@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LaundryChoosePickupSheet extends StatefulWidget {
@@ -24,29 +25,33 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
   int _selectedDateIndex = 0;
   int? _selectedSlotIndex;
 
-  static const _slots = [
-    '8–10 AM',
-    '10–12 PM',
-    '2–4 PM',
-    '4–6 PM',
-  ];
+  static const _slots = ['8–10 AM', '10–12 PM', '2–4 PM', '4–6 PM'];
 
+  // Translation keys; shown upper-case.
   static const _months = [
-    'JAN',
-    'FEB',
-    'MAR',
-    'APR',
-    'MAY',
-    'JUN',
-    'JUL',
-    'AUG',
-    'SEP',
-    'OCT',
-    'NOV',
-    'DEC',
+    'svc_month_1',
+    'svc_month_2',
+    'svc_month_3',
+    'svc_month_4',
+    'svc_month_5',
+    'svc_month_6',
+    'svc_month_7',
+    'svc_month_8',
+    'svc_month_9',
+    'svc_month_10',
+    'svc_month_11',
+    'svc_month_12',
   ];
 
-  static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  static const _weekdays = [
+    'svc_weekday_1',
+    'svc_weekday_2',
+    'svc_weekday_3',
+    'svc_weekday_4',
+    'svc_weekday_5',
+    'svc_weekday_6',
+    'svc_weekday_7',
+  ];
 
   @override
   void initState() {
@@ -57,12 +62,12 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
   }
 
   String _dayLabel(DateTime date, int index) {
-    if (index == 0) return 'Today';
-    if (index == 1) return 'Tomorrow';
-    return _weekdays[date.weekday - 1];
+    if (index == 0) return 'svc_today'.tr;
+    if (index == 1) return 'svc_tomorrow'.tr;
+    return _weekdays[date.weekday - 1].tr;
   }
 
-  String _monthLabel(DateTime date) => _months[date.month - 1];
+  String _monthLabel(DateTime date) => _months[date.month - 1].tr.toUpperCase();
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +145,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Choose Pickup Time',
+                        'svc_choose_pickup_time'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 18,
@@ -151,11 +156,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
                   ),
                 ),
               ),
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: Color(0xFFF0E8E0),
-              ),
+              const Divider(height: 1, thickness: 1, color: Color(0xFFF0E8E0)),
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 16, 20, 18 + bottomInset),
                 child: Column(
@@ -166,7 +167,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
                     _buildDateList(),
                     const SizedBox(height: 24),
                     Text(
-                      'Time Slot',
+                      'svc_time_slot'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 15,
@@ -191,7 +192,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
     return Row(
       children: [
         Text(
-          'Select Date',
+          'svc_select_date'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 15,
@@ -247,7 +248,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
               ),
               const SizedBox(width: 5),
               Text(
-                'Calendar View',
+                'svc_calendar_view'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -369,9 +370,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE6E0DA),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE6E0DA),
             width: selected ? 1.4 : 1,
           ),
         ),
@@ -427,7 +426,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
           ],
         ),
         child: Text(
-          'Continue',
+          'svc_continue'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 15.5,

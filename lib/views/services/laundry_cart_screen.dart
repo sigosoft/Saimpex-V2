@@ -69,19 +69,20 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
     Get.off(() => const LaundryBookingSuccessScreen());
   }
 
+  // Translation keys.
   static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'svc_month_1',
+    'svc_month_2',
+    'svc_month_3',
+    'svc_month_4',
+    'svc_month_5',
+    'svc_month_6',
+    'svc_month_7',
+    'svc_month_8',
+    'svc_month_9',
+    'svc_month_10',
+    'svc_month_11',
+    'svc_month_12',
   ];
 
   @override
@@ -104,20 +105,21 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
 
   String get _slotDisplay {
     final d = _slotDate;
-    return '${d.day} ${_months[d.month - 1]} ${d.year}, $_slotLabel';
+    return '${d.day} ${_months[d.month - 1].tr} ${d.year}, $_slotLabel';
   }
 
   String get _estimatedDelivery {
     final d = _slotDate.add(const Duration(days: 1));
-    final dayLabel = 'Tomorrow';
+    final dayLabel = 'svc_tomorrow'.tr;
     // Prefer tomorrow label when next day; otherwise date
     final tomorrow = DateTime.now().add(const Duration(days: 1));
-    final isTomorrow = d.year == tomorrow.year &&
+    final isTomorrow =
+        d.year == tomorrow.year &&
         d.month == tomorrow.month &&
         d.day == tomorrow.day;
     final prefix = isTomorrow
         ? dayLabel
-        : '${d.day} ${_months[d.month - 1]} ${d.year}';
+        : '${d.day} ${_months[d.month - 1].tr} ${d.year}';
     return '$prefix, $_slotLabel';
   }
 
@@ -172,14 +174,14 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                       const SizedBox(height: 12),
                       _buildServiceCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Delivery Speed'),
+                      _sectionTitle('svc_delivery_speed'.tr),
                       const SizedBox(height: 12),
                       _buildDeliveryOption(
                         index: 0,
                         icon: Icons.local_shipping_outlined,
                         iconColor: const Color(0xFFFF5E00),
-                        title: 'Standard',
-                        subtitle: 'Within 24 hours',
+                        title: 'svc_standard'.tr,
+                        subtitle: 'svc_within_24_hours'.tr,
                         feeLabel: null,
                       ),
                       const SizedBox(height: 10),
@@ -187,16 +189,18 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                         index: 1,
                         icon: Icons.bolt_rounded,
                         iconColor: const Color(0xFFFFB800),
-                        title: 'Express',
-                        subtitle: '5-6 hours',
-                        feeLabel: '+$_expressFee MRU',
+                        title: 'svc_express'.tr,
+                        subtitle: 'svc_hours_5_6'.tr,
+                        feeLabel: 'svc_plus_mru'.trParams({
+                          'amount': '$_expressFee',
+                        }),
                       ),
                       const SizedBox(height: 14),
                       _buildPickupSlotCard(),
                       const SizedBox(height: 10),
                       _buildEstimatedDeliveryCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Pickup & Delivery'),
+                      _sectionTitle('svc_pickup_delivery'.tr),
                       const SizedBox(height: 12),
                       _buildPickupDeliveryCard(),
                       const SizedBox(height: 22),
@@ -206,20 +210,20 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                       const SizedBox(height: 10),
                       _buildPointsCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Payment'),
+                      _sectionTitle('svc_payment'.tr),
                       const SizedBox(height: 12),
                       _buildPaymentOption(
                         index: 0,
                         icon: Icons.account_balance_wallet_outlined,
-                        title: 'SAIMPEX Wallet',
+                        title: 'wallet_title'.tr,
                         subtitle: walletBalanceSubtitle(),
                       ),
                       const SizedBox(height: 10),
                       _buildPaymentOption(
                         index: 1,
                         icon: Icons.credit_card_rounded,
-                        title: 'Online payment',
-                        subtitle: 'Card · Mobile Money',
+                        title: 'svc_online_payment'.tr,
+                        subtitle: 'svc_card_mobile_money'.tr,
                       ),
                       const SizedBox(height: 20),
                       _buildPaymentDetails(),
@@ -243,7 +247,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Cart',
+              'svc_cart'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
@@ -267,7 +271,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       children: [
         Expanded(
           child: Text(
-            'From ${widget.providerName}',
+            'svc_from_provider'.trParams({'provider': widget.providerName}),
             style: GoogleFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 13,
@@ -287,7 +291,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               ),
               const SizedBox(width: 4),
               Text(
-                'Clear All',
+                'svc_clear_all'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFE53935),
                   fontSize: 13,
@@ -354,7 +358,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 child: SizedBox(
                   height: 56,
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: Text(
                       widget.serviceTitle,
                       style: GoogleFonts.outfit(
@@ -369,7 +373,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               GestureDetector(
                 onTap: () => Get.back(),
                 child: Text(
-                  'Edit',
+                  'svc_edit'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13.5,
@@ -400,7 +404,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   ),
                 ),
                 Text(
-                  '${widget.basePrice} MRU',
+                  'mru'.trParams({'amount': '${widget.basePrice}'}),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
@@ -524,7 +528,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Estimated Delivery',
+                  'svc_estimated_delivery'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 13.5,
@@ -596,17 +600,17 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Column( 
+              child: Column(
                 children: [
                   _addressContent(
-                    label: 'PICKUP',
+                    label: 'svc_pickup_upper'.tr,
                     labelColor: const Color(0xFFFF5E00),
                     title: 'Sahara View Home',
                     subtitle: 'Near Marhaba Supermarket, Nouakchott',
                   ),
                   const SizedBox(height: 18),
                   _addressContent(
-                    label: 'DELIVERY',
+                    label: 'svc_delivery_upper'.tr,
                     labelColor: const Color(0xFF00B25C),
                     title: 'Sahara View Home',
                     subtitle: 'Near Marhaba Supermarket, Nouakchott',
@@ -662,7 +666,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           ),
         ),
         Text(
-          'Edit',
+          'svc_edit'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFFFF5E00),
             fontSize: 13,
@@ -704,7 +708,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Pickup Slot',
+                    'svc_pickup_slot'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 13,
@@ -737,9 +741,9 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
   Widget _buildSaveMoreHeader() {
     return Row(
       children: [
-        Expanded(child: _sectionTitle('Save More')),
+        Expanded(child: _sectionTitle('svc_save_more'.tr)),
         Text(
-          'View Coupons',
+          'svc_view_coupons'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFFFF5E00),
             fontSize: 13,
@@ -752,7 +756,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
 
   Widget _buildCouponField() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 6, 8, 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
@@ -770,7 +774,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               controller: _couponController,
               style: GoogleFonts.outfit(fontSize: 13.5),
               decoration: InputDecoration(
-                hintText: 'Enter coupon',
+                hintText: 'svc_enter_coupon'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFB0A59C),
                   fontSize: 13.5,
@@ -781,7 +785,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             ),
           ),
           Text(
-            'Apply',
+            'svc_apply'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 13.5,
@@ -827,7 +831,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Use 500 points',
+                    'svc_use_points'.trParams({'points': '500'}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF1B2B4A),
                       fontSize: 14,
@@ -835,7 +839,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     ),
                   ),
                   Text(
-                    '- $_pointsOff MRU off',
+                    '- ${'svc_points_off'.trParams({'amount': '$_pointsOff'})}',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
@@ -876,9 +880,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE8DFD6),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE8DFD6),
             width: selected ? 1.3 : 1,
           ),
         ),
@@ -942,7 +944,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
@@ -951,22 +953,24 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Total', '$_subtotal MRU'),
+          _payRow('svc_total'.tr, 'mru'.trParams({'amount': '$_subtotal'})),
           const SizedBox(height: 10),
           _payRow(
-            'Redeemed points',
-            _usePoints ? '-$_pointsOff MRU' : '0 MRU',
+            'svc_redeemed_points'.tr,
+            _usePoints
+                ? '-${'mru'.trParams({'amount': '$_pointsOff'})}'
+                : 'mru'.trParams({'amount': '0'}),
             valueColor: const Color(0xFFFF5E00),
           ),
           const SizedBox(height: 10),
-          _payRow('Tax', '$_tax MRU'),
+          _payRow('svc_tax'.tr, 'mru'.trParams({'amount': '$_tax'})),
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF4A4038), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'To Pay',
+                'svc_to_pay'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
@@ -975,7 +979,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               ),
               const Spacer(),
               Text(
-                '$_toPay MRU',
+                'mru'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 20,
@@ -1037,7 +1041,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TOTAL',
+                      'svc_total_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -1047,7 +1051,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$_toPay MRU',
+                      'mru'.trParams({'amount': '$_toPay'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 18,
@@ -1062,7 +1066,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'DURATION',
+                      'svc_duration_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -1072,7 +1076,11 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _deliverySpeed == 1 ? '1–3 hours' : widget.durationLabel,
+                      _deliverySpeed == 1
+                          ? 'svc_hours_1_3'.tr
+                          : widget.durationLabel == '24 hour'
+                          ? 'svc_24_hours'.tr
+                          : widget.durationLabel,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 16,
@@ -1107,7 +1115,9 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 ],
               ),
               child: Text(
-                _booking ? 'Booking...' : 'Pay $_toPay MRU',
+                _booking
+                    ? 'svc_booking_in_progress'.tr
+                    : 'svc_pay_amount'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,

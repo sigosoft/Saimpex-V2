@@ -27,25 +27,25 @@ class LaundryBookingDetailScreen extends StatelessWidget {
 
   static const _statusSteps = [
     {
-      'label': 'Booking\nConfirmed',
+      'label': 'svc_step_booking_confirmed',
       'time': '15 Aug 2024,\n10:02 AM',
       'icon': Icons.check_rounded,
       'done': true,
     },
     {
-      'label': 'Laundry\nCollected',
+      'label': 'svc_step_laundry_collected',
       'time': '15 Aug 2024,\n10:15 AM',
       'icon': Icons.local_laundry_service_rounded,
       'done': true,
     },
     {
-      'label': 'Cleaning\n& Folding',
+      'label': 'svc_step_cleaning_folding',
       'time': '15 Aug 2024,\n11:00 AM',
       'icon': Icons.iron_rounded,
       'done': true,
     },
     {
-      'label': 'Delivered',
+      'label': 'svc_step_delivered',
       'time': '',
       'icon': Icons.check_rounded,
       'done': false,
@@ -83,19 +83,19 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _sectionTitle('Booking Status'),
+                      _sectionTitle('svc_booking_status'.tr),
                       const SizedBox(height: 10),
                       _buildStatusCard(),
                       if (booking['hasBalanceDue'] == true) ...[
                         const SizedBox(height: 16),
-                        _sectionTitle('Balance Due Breakdown'),
+                        _sectionTitle('svc_balance_due_breakdown'.tr),
                         const SizedBox(height: 10),
                         _buildBalanceDueCard(),
                       ],
                       const SizedBox(height: 16),
                       _buildServiceCard(),
                       const SizedBox(height: 20),
-                      _sectionTitle('Pickup & Delivery'),
+                      _sectionTitle('svc_pickup_delivery'.tr),
                       const SizedBox(height: 10),
                       _buildPickupDeliveryCard(),
                       const SizedBox(height: 10),
@@ -105,19 +105,21 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                         icon: Icons.local_shipping_outlined,
                         iconBg: const Color(0xFFFFF0E6),
                         iconColor: const Color(0xFFFF5E00),
-                        label: 'Delivery Speed',
-                        value: 'Standard Delivery (Ready in $_duration)',
+                        label: 'svc_delivery_speed'.tr,
+                        value: 'svc_standard_delivery_ready_in'.trParams({
+                          'duration': _duration,
+                        }),
                       ),
                       const SizedBox(height: 10),
                       _buildInfoCard(
                         icon: Icons.calendar_month_rounded,
                         iconBg: const Color(0xFFEAF2F8),
                         iconColor: const Color(0xFF1A6BB5),
-                        label: 'Estimated Delivery',
-                        value: 'Tomorrow, 2:00 PM – 4:00 PM',
+                        label: 'svc_estimated_delivery'.tr,
+                        value: '${'svc_tomorrow'.tr}, 2:00 PM – 4:00 PM',
                       ),
                       const SizedBox(height: 20),
-                      _sectionTitle('Pickup by'),
+                      _sectionTitle('svc_pickup_by'.tr),
                       const SizedBox(height: 10),
                       _buildDriverCard(),
                       const SizedBox(height: 20),
@@ -165,7 +167,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              'Booking #$_bookingId',
+              'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
@@ -184,7 +186,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFE8DFD6)),
               ),
               child: Text(
-                'Help',
+                'svc_help'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -308,7 +310,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          step['label'] as String,
+          (step['label'] as String).tr,
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             color: const Color(0xFF1B2B4A),
@@ -473,12 +475,12 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _addressContent(
-                    label: 'PICKUP',
+                    label: 'svc_pickup_upper'.tr,
                     labelColor: const Color(0xFFFF5E00),
                   ),
                   const SizedBox(height: 18),
                   _addressContent(
-                    label: 'DELIVERY',
+                    label: 'svc_delivery_upper'.tr,
                     labelColor: const Color(0xFF00B25C),
                   ),
                 ],
@@ -552,7 +554,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Pickup Slot',
+                  'svc_pickup_slot'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13,
@@ -676,7 +678,10 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '4.6 (10k+ reviews)',
+                      'svc_rating_reviews'.trParams({
+                        'rating': '4.6',
+                        'count': '10k+',
+                      }),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 12,
@@ -718,7 +723,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
@@ -727,22 +732,22 @@ class LaundryBookingDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Total', '450 MRU'),
+          _payRow('svc_total'.tr, 'mru'.trParams({'amount': '450'})),
           const SizedBox(height: 10),
           _payRow(
-            'Redeemed points',
-            '-50 MRU',
+            'svc_redeemed_points'.tr,
+            '-${'mru'.trParams({'amount': '50'})}',
             valueColor: const Color(0xFFFF5E00),
           ),
           const SizedBox(height: 10),
-          _payRow('Tax', '10 MRU'),
+          _payRow('svc_tax'.tr, 'mru'.trParams({'amount': '10'})),
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF4A4038), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'Total paid',
+                'svc_total_paid'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
@@ -751,7 +756,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '410 MRU',
+                'mru'.trParams({'amount': '410'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 20,
@@ -827,7 +832,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'BALANCE DUE',
+                      'svc_balance_due_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 9.5,
@@ -843,7 +848,9 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Estimated Weight: ${booking['estimateLabel'] ?? '3.0 kg'}',
+                    'svc_estimated_weight'.trParams({
+                      'weight': '${booking['estimateLabel'] ?? '3.0 kg'}',
+                    }),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 12.5,
@@ -872,7 +879,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                       children: [
-                        const TextSpan(text: 'Actual Scale Weight: '),
+                        TextSpan(text: 'svc_actual_weight'.tr),
                         TextSpan(
                           text: booking['actualWeight'] ?? '3.6 kg',
                           style: GoogleFonts.outfit(
@@ -910,7 +917,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Balance Due',
+                    'svc_balance_due'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
@@ -919,7 +926,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Amount due after final weighing',
+                    'svc_amount_due_after_weighing'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 11,
@@ -978,7 +985,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Pay Balance Due',
+                            'svc_pay_balance_due'.tr,
                             style: GoogleFonts.outfit(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -987,7 +994,9 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Amount due after final weighing: $balance',
+                            'svc_amount_due_after_weighing_value'.trParams({
+                              'amount': '$balance',
+                            }),
                             style: GoogleFonts.outfit(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -1000,8 +1009,10 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                               Get.back();
                               booking['hasBalanceDue'] = false;
                               Get.snackbar(
-                                'Payment Successful',
-                                'Balance of $balance paid successfully!',
+                                'svc_payment_successful'.tr,
+                                'svc_balance_paid'.trParams({
+                                  'amount': '$balance',
+                                }),
                                 backgroundColor: const Color(0xFF2E7D32),
                                 colorText: Colors.white,
                                 snackPosition: SnackPosition.BOTTOM,
@@ -1023,7 +1034,9 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               child: Text(
-                                'Confirm & Pay $balance',
+                                'svc_confirm_pay'.trParams({
+                                  'amount': '$balance',
+                                }),
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 15,
@@ -1055,7 +1068,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                     ],
                   ),
                   child: Text(
-                    'Pay $balance',
+                    'svc_pay_value'.trParams({'amount': '$balance'}),
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 15,
@@ -1078,7 +1091,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
-                  'Cancel',
+                  'cancel'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 15,

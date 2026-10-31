@@ -68,14 +68,12 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
   String get _heroImage => 'lib/assets/images/drycleaning_detail.png';
 
   int get _totalPrice => _items.fold<int>(
-        0,
-        (sum, item) =>
-            sum +
-            ((item['price'] as int) * (_qty[item['id'] as String] ?? 0)),
-      );
+    0,
+    (sum, item) =>
+        sum + ((item['price'] as int) * (_qty[item['id'] as String] ?? 0)),
+  );
 
-  int get _totalItems =>
-      _qty.values.fold<int>(0, (sum, value) => sum + value);
+  int get _totalItems => _qty.values.fold<int>(0, (sum, value) => sum + value);
 
   String _slotRangeFromLabel(String label) {
     final match = RegExp(
@@ -98,10 +96,11 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
     Get.to(
       () => LaundryCartScreen(
         providerName: widget.providerName,
-        serviceTitle: 'Dry Cleaning',
+        serviceTitle: 'svc_dry_cleaning'.tr,
         serviceImage: _heroImage,
         estimateLabel:
-            'Estimated $_totalItems item${_totalItems == 1 ? '' : 's'}',
+            (_totalItems == 1 ? 'svc_estimated_item' : 'svc_estimated_items')
+                .trParams({'count': '$_totalItems'}),
         basePrice: _totalPrice,
         durationLabel: '24 hour',
         slotDate: date,
@@ -139,7 +138,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                       _buildHero(),
                       const SizedBox(height: 18),
                       Text(
-                        'Select the items you want to dry clean',
+                        'svc_select_dry_clean_items'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1B2B4A),
                           fontSize: 16,
@@ -171,7 +170,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Dry Cleaning',
+              'svc_dry_cleaning'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
@@ -268,7 +267,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$price MRU / item',
+                  'svc_price_per_item'.trParams({'amount': '$price'}),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 12.5,
@@ -377,7 +376,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TOTAL',
+                      'svc_total_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -387,7 +386,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$_totalPrice MRU',
+                      'mru'.trParams({'amount': '$_totalPrice'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 18,
@@ -402,7 +401,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'DURATION',
+                      'svc_duration_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -412,7 +411,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '24 hours',
+                      'svc_24_hours'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 16,
@@ -447,7 +446,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                 ],
               ),
               child: Text(
-                'Choose Pickup Time',
+                'svc_choose_pickup_time'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,

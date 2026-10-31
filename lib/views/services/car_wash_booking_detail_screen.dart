@@ -9,15 +9,13 @@ import '../../widgets/app_back_button.dart';
 class CarWashBookingDetailScreen extends StatelessWidget {
   final Map<String, dynamic> booking;
 
-  const CarWashBookingDetailScreen({
-    super.key,
-    required this.booking,
-  });
+  const CarWashBookingDetailScreen({super.key, required this.booking});
 
   String get _bookingId => (booking['id'] as String?) ?? '22789002';
 
   String get _service {
-    final raw = (booking['service'] as String?) ??
+    final raw =
+        (booking['service'] as String?) ??
         (booking['serviceTitle'] as String?) ??
         'Exterior Wash';
     // Avoid old sample labels like "Basic Wash x2".
@@ -54,7 +52,8 @@ class CarWashBookingDetailScreen extends StatelessWidget {
   }
 
   String get _servicePrice {
-    final fromBooking = (booking['servicePrice'] as String?) ??
+    final fromBooking =
+        (booking['servicePrice'] as String?) ??
         (booking['vehiclePrice'] as String?);
     if (fromBooking != null && fromBooking.isNotEmpty) return fromBooking;
     switch (_service) {
@@ -96,8 +95,8 @@ class CarWashBookingDetailScreen extends StatelessWidget {
   String get _vehicleLabel => (booking['vehicleLabel'] as String?) ?? 'Sedan';
 
   String get _vehicleImage {
-    final fromBooking = (booking['vehicleImage'] as String?) ??
-        (booking['image'] as String?);
+    final fromBooking =
+        (booking['vehicleImage'] as String?) ?? (booking['image'] as String?);
     if (fromBooking != null &&
         fromBooking.isNotEmpty &&
         !fromBooking.startsWith('http')) {
@@ -146,25 +145,25 @@ class CarWashBookingDetailScreen extends StatelessWidget {
 
   static const _statusSteps = [
     {
-      'label': 'Booking\nConfirmed',
+      'label': 'svc_step_booking_confirmed',
       'time': '15 Aug 2026,\n10:00 AM',
       'icon': Icons.check_rounded,
       'done': true,
     },
     {
-      'label': 'Vehicle\nReceived',
+      'label': 'svc_step_vehicle_received',
       'time': '15 Aug 2026,\n10:05 AM',
       'icon': Icons.directions_car_filled_rounded,
       'done': true,
     },
     {
-      'label': 'Ready for\nPickup',
+      'label': 'svc_step_ready_for_pickup',
       'time': '15 Aug 2026,\n10:10 AM',
       'icon': Icons.check_rounded,
       'done': true,
     },
     {
-      'label': 'Completed',
+      'label': 'svc_step_completed',
       'time': '',
       'icon': Icons.check_rounded,
       'done': false,
@@ -193,18 +192,22 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding:
-                      EdgeInsets.fromLTRB(16, 10, 16, 20 + bottomInset + 72),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    10,
+                    16,
+                    20 + bottomInset + 72,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStatusCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Vehicles'),
+                      _sectionTitle('svc_vehicles'.tr),
                       const SizedBox(height: 12),
                       _buildVehicleCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Washing Details'),
+                      _sectionTitle('svc_washing_details'.tr),
                       const SizedBox(height: 12),
                       _buildLocationCard(),
                       const SizedBox(height: 10),
@@ -231,7 +234,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Booking #$_bookingId',
+              'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -252,7 +255,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Help',
+                'svc_help'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -299,7 +302,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Booking Status',
+            'svc_booking_status'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 15.5,
@@ -313,10 +316,12 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               final stepWidth = constraints.maxWidth / count;
               final lineLeft = stepWidth / 2;
               final lineWidth = constraints.maxWidth - stepWidth;
-              final doneCount =
-                  _statusSteps.where((s) => s['done'] == true).length;
-              final progress =
-                  doneCount <= 1 ? 0.0 : (doneCount - 1) / (count - 1);
+              final doneCount = _statusSteps
+                  .where((s) => s['done'] == true)
+                  .length;
+              final progress = doneCount <= 1
+                  ? 0.0
+                  : (doneCount - 1) / (count - 1);
 
               return SizedBox(
                 height: 118,
@@ -394,7 +399,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          step['label'] as String,
+          (step['label'] as String).tr,
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             color: const Color(0xFF1A1A1A),
@@ -530,14 +535,10 @@ class CarWashBookingDetailScreen extends StatelessWidget {
           ],
           if (_addons.isNotEmpty) ...[
             const SizedBox(height: 14),
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: Color(0xFFEDE8E2),
-            ),
+            const Divider(height: 1, thickness: 1, color: Color(0xFFEDE8E2)),
             const SizedBox(height: 12),
             Text(
-              'Add-On Services',
+              'svc_addon_services'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF5A6B7D),
                 fontSize: 13.5,
@@ -549,9 +550,11 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               if (i > 0) const SizedBox(height: 10),
               _nestedServiceRow(
                 image: (_addons[i]['image'] as String?) ?? _serviceImage,
-                title: (_addons[i]['title'] as String?) ?? 'Add-On',
+                title: (_addons[i]['title'] as String?) ?? 'svc_addon'.tr,
                 description: (_addons[i]['description'] as String?) ?? '',
-                priceLabel: (_addons[i]['price'] as String?) ?? '+0 MRU',
+                priceLabel:
+                    (_addons[i]['price'] as String?) ??
+                    'svc_plus_mru'.trParams({'amount': '0'}),
               ),
             ],
           ],
@@ -687,7 +690,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Location',
+                  'svc_location'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
@@ -747,7 +750,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your Slot',
+                  'svc_your_slot'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13.5,
@@ -788,7 +791,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11.5,
@@ -797,22 +800,22 @@ class CarWashBookingDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Total', _total),
+          _payRow('svc_total'.tr, _total),
           const SizedBox(height: 10),
           _payRow(
-            'Redeemed points',
+            'svc_redeemed_points'.tr,
             _redeemed,
             valueColor: const Color(0xFFFF5E00),
           ),
           const SizedBox(height: 10),
-          _payRow('Tax', _tax),
+          _payRow('svc_tax'.tr, _tax),
           const SizedBox(height: 14),
           const Divider(height: 1, thickness: 1, color: Color(0xFF4A4A4A)),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'Total paid',
+                'svc_total_paid'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
@@ -878,7 +881,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
           ),
           child: Text(
-            'Cancel',
+            'cancel'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 15,

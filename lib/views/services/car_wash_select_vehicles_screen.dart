@@ -131,7 +131,7 @@ class _CarWashSelectVehiclesScreenState
                                 ),
                                 const SizedBox(height: 18),
                                 Text(
-                                  'No vehicles found',
+                                  'svc_no_vehicles_found'.tr,
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFF8A909C),
@@ -141,7 +141,7 @@ class _CarWashSelectVehiclesScreenState
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'Add a vehicle to continue',
+                                  'svc_add_vehicle_to_continue'.tr,
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFFB0B5C0),
@@ -190,7 +190,7 @@ class _CarWashSelectVehiclesScreenState
                                 ],
                               ),
                               child: Text(
-                                'Continue',
+                                'svc_continue'.tr,
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -227,7 +227,7 @@ class _CarWashSelectVehiclesScreenState
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Add New Vehicle',
+                                'svc_add_new_vehicle'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 15.5,
@@ -255,7 +255,7 @@ class _CarWashSelectVehiclesScreenState
     return GestureDetector(
       onTap: () => _toggleVehicle(index),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
         decoration: BoxDecoration(
           color: selected ? const Color(0xFFFFF3EB) : Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -360,11 +360,11 @@ class _CarWashSelectVehiclesScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
-            'Select Vehicles',
+            'svc_select_vehicles'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1F36),
               fontSize: 18,

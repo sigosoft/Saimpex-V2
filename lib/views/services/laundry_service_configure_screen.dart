@@ -66,9 +66,11 @@ class _LaundryServiceConfigureScreenState
         providerName: widget.providerName,
         serviceTitle: _title,
         serviceImage: _heroImage,
-        estimateLabel: 'Estimated $_kg kg',
+        estimateLabel: 'svc_estimated_kg'.trParams({'kg': '$_kg'}),
         basePrice: _estimatedPrice,
-        durationLabel: _durationLabel == '24 hours' ? '24 hour' : _durationLabel,
+        durationLabel: _durationLabel == '24 hours'
+            ? '24 hour'
+            : _durationLabel,
         slotDate: date,
         slotLabel: slot,
       ),
@@ -104,7 +106,7 @@ class _LaundryServiceConfigureScreenState
                       _buildHero(),
                       const SizedBox(height: 20),
                       Text(
-                        'How much laundry do you have?',
+                        'svc_how_much_laundry'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1B2B4A),
                           fontSize: 17,
@@ -237,7 +239,7 @@ class _LaundryServiceConfigureScreenState
                       ),
                     ),
                     TextSpan(
-                      text: ' kg',
+                      text: ' ${'svc_kg'.tr}',
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 18,
@@ -307,9 +309,12 @@ class _LaundryServiceConfigureScreenState
             height: 1.35,
           ),
           children: [
-            const TextSpan(text: 'Estimated Price: '),
+            TextSpan(text: 'svc_estimated_price_label'.tr),
             TextSpan(
-              text: '$_kg kg × $_pricePerKg MRU/kg = ',
+              text: 'svc_kg_times_rate'.trParams({
+                'kg': '$_kg',
+                'rate': '$_pricePerKg',
+              }),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             TextSpan(
@@ -320,9 +325,9 @@ class _LaundryServiceConfigureScreenState
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const TextSpan(
-              text: ' MRU',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            TextSpan(
+              text: 'svc_mru_suffix'.tr,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -349,7 +354,7 @@ class _LaundryServiceConfigureScreenState
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Final price will be updated after your laundry is weighed during pickup',
+              'svc_final_price_after_weighing'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF5A6A7A),
                 fontSize: 12,
@@ -387,7 +392,7 @@ class _LaundryServiceConfigureScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TOTAL',
+                      'svc_total_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -397,7 +402,7 @@ class _LaundryServiceConfigureScreenState
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$_estimatedPrice MRU',
+                      'mru'.trParams({'amount': '$_estimatedPrice'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 18,
@@ -412,7 +417,7 @@ class _LaundryServiceConfigureScreenState
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'DURATION',
+                      'svc_duration_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -422,7 +427,9 @@ class _LaundryServiceConfigureScreenState
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _durationLabel,
+                      _durationLabel == '24 hours'
+                          ? 'svc_24_hours'.tr
+                          : _durationLabel,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 16,
@@ -457,7 +464,7 @@ class _LaundryServiceConfigureScreenState
                 ],
               ),
               child: Text(
-                'Choose Pickup Time',
+                'svc_choose_pickup_time'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,

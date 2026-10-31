@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeCleaningChooseSlotSheet extends StatefulWidget {
@@ -26,29 +27,33 @@ class _HomeCleaningChooseSlotSheetState
   int? _selectedSlotIndex;
   String? _warningMessage;
 
-  static const _slots = [
-    '8-10 AM',
-    '10-12 PM',
-    '2-4 PM',
-    '4-6 PM',
-  ];
+  static const _slots = ['8-10 AM', '10-12 PM', '2-4 PM', '4-6 PM'];
 
+  // Translation keys; shown upper-case.
   static const _months = [
-    'JAN',
-    'FEB',
-    'MAR',
-    'APR',
-    'MAY',
-    'JUN',
-    'JUL',
-    'AUG',
-    'SEP',
-    'OCT',
-    'NOV',
-    'DEC',
+    'svc_month_1',
+    'svc_month_2',
+    'svc_month_3',
+    'svc_month_4',
+    'svc_month_5',
+    'svc_month_6',
+    'svc_month_7',
+    'svc_month_8',
+    'svc_month_9',
+    'svc_month_10',
+    'svc_month_11',
+    'svc_month_12',
   ];
 
-  static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  static const _weekdays = [
+    'svc_weekday_1',
+    'svc_weekday_2',
+    'svc_weekday_3',
+    'svc_weekday_4',
+    'svc_weekday_5',
+    'svc_weekday_6',
+    'svc_weekday_7',
+  ];
 
   @override
   void initState() {
@@ -59,12 +64,12 @@ class _HomeCleaningChooseSlotSheetState
   }
 
   String _dayLabel(DateTime date, int index) {
-    if (index == 0) return 'Today';
-    if (index == 1) return 'Tomorrow';
-    return _weekdays[date.weekday - 1];
+    if (index == 0) return 'svc_today'.tr;
+    if (index == 1) return 'svc_tomorrow'.tr;
+    return _weekdays[date.weekday - 1].tr;
   }
 
-  String _monthLabel(DateTime date) => _months[date.month - 1];
+  String _monthLabel(DateTime date) => _months[date.month - 1].tr.toUpperCase();
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +148,7 @@ class _HomeCleaningChooseSlotSheetState
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Choose Your Slot',
+                        'svc_choose_your_slot'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 18,
@@ -164,7 +169,7 @@ class _HomeCleaningChooseSlotSheetState
                     _buildDateList(),
                     const SizedBox(height: 24),
                     Text(
-                      'Time Slot',
+                      'svc_time_slot'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 15,
@@ -193,7 +198,7 @@ class _HomeCleaningChooseSlotSheetState
     return Row(
       children: [
         Text(
-          'Select Date',
+          'svc_select_date'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 15,
@@ -250,7 +255,7 @@ class _HomeCleaningChooseSlotSheetState
               ),
               const SizedBox(width: 5),
               Text(
-                'Calendar View',
+                'svc_calendar_view'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -376,9 +381,7 @@ class _HomeCleaningChooseSlotSheetState
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE6E0DA),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE6E0DA),
             width: selected ? 1.4 : 1,
           ),
         ),
@@ -444,7 +447,7 @@ class _HomeCleaningChooseSlotSheetState
       onTap: () {
         if (_selectedSlotIndex == null) {
           setState(() {
-            _warningMessage = 'Please select a date and time slot to continue';
+            _warningMessage = 'svc_select_date_slot_warning'.tr;
           });
           return;
         }
@@ -473,7 +476,7 @@ class _HomeCleaningChooseSlotSheetState
           ],
         ),
         child: Text(
-          'Continue',
+          'svc_continue'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 15.5,

@@ -18,23 +18,22 @@ class HomeCleaningScreen extends StatelessWidget {
 
   static const _categories = [
     {
-      'label': 'Deep\nCleaning',
+      'label': 'svc_hc_cat_deep',
       'image': 'lib/assets/images/Deep Cleaning.png',
     },
     {
-      'label': 'Kitchen\nCleaning',
+      'label': 'svc_hc_cat_kitchen',
       'image': 'lib/assets/images/Kitchen Cleaning.png',
     },
     {
-      'label': 'Bedroom\nCleaning',
+      'label': 'svc_hc_cat_bedroom',
       'image': 'lib/assets/images/bedroom_cleaning.png',
     },
     {
-      'label': 'Sofa Care',
+      'label': 'svc_hc_cat_sofa',
       'image': 'lib/assets/images/Sofa Cleaning.png',
     },
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -103,10 +102,8 @@ class HomeCleaningScreen extends StatelessWidget {
           'lib/assets/images/Home_cleaning_banner.png',
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            height: 240,
-            color: const Color(0xFFFF5E00),
-          ),
+          errorBuilder: (_, __, ___) =>
+              Container(height: 240, color: const Color(0xFFFF5E00)),
         ),
         Positioned(
           left: 16,
@@ -156,7 +153,7 @@ class HomeCleaningScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'CURRENT LOCATION',
+                    'svc_current_location'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF9A8E86),
                       fontSize: 9.5,
@@ -201,9 +198,9 @@ class HomeCleaningScreen extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsetsDirectional.only(end: 8),
                 child: Text(
-                  'Home Cleaning',
+                  'svc_home_cleaning'.tr,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A202C),
@@ -244,7 +241,7 @@ class HomeCleaningScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Professional cleaning services at your doorstep',
+            'svc_home_cleaning_subtitle'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFF718096),
@@ -280,7 +277,7 @@ class HomeCleaningScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Explore Categories',
+                'svc_explore_categories'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
@@ -330,7 +327,7 @@ class HomeCleaningScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          cat['label']!,
+          cat['label']!.tr,
           textAlign: TextAlign.center,
           maxLines: 2,
           style: GoogleFonts.outfit(
@@ -358,20 +355,16 @@ class HomeCleaningScreen extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 8, 0),
       child: Row(
         children: [
-          const Icon(
-            Icons.search_rounded,
-            color: Color(0xFF9A8E86),
-            size: 22,
-          ),
+          const Icon(Icons.search_rounded, color: Color(0xFF9A8E86), size: 22),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
               style: GoogleFonts.outfit(color: Colors.black, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'Search cleaning services...',
+                hintText: 'svc_search_cleaning_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 14,
@@ -416,7 +409,7 @@ class HomeCleaningScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Cleaning Services Near You',
+              'svc_cleaning_near_you'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 16,
@@ -449,217 +442,220 @@ class HomeCleaningScreen extends StatelessWidget {
 
   Widget _buildServiceCard(Map<String, String> item) {
     return GestureDetector(
-      onTap: () => Get.to(
-        () => HomeCleaningProviderDetailScreen(provider: item),
-      ),
+      onTap: () =>
+          Get.to(() => HomeCleaningProviderDetailScreen(provider: item)),
       child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              SizedBox(
-                height: 150,
-                width: double.infinity,
-                child: item['image']!.startsWith('http')
-                    ? Image.network(
-                        item['image']!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _providerImageFallback(),
-                      )
-                    : Image.asset(
-                        item['image']!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _providerImageFallback(),
-                      ),
-              ),
-              Positioned(
-                left: 10,
-                bottom: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        'lib/assets/images/Coin.png',
-                        width: 12,
-                        height: 12,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.monetization_on,
-                          color: Color(0xFFFFAE00),
-                          size: 12,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        item['points']!,
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item['name']!,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                SizedBox(
+                  height: 150,
+                  width: double.infinity,
+                  child: item['image']!.startsWith('http')
+                      ? Image.network(
+                          item['image']!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _providerImageFallback(),
+                        )
+                      : Image.asset(
+                          item['image']!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _providerImageFallback(),
                         ),
-                      ),
+                ),
+                PositionedDirectional(
+                  start: 10,
+                  bottom: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
                     ),
-                    Row(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.65),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Color(0xFFFFB800),
-                          size: 16,
+                        Image.asset(
+                          'lib/assets/images/Coin.png',
+                          width: 12,
+                          height: 12,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.monetization_on,
+                            color: Color(0xFFFFAE00),
+                            size: 12,
+                          ),
                         ),
-                        const SizedBox(width: 2),
+                        const SizedBox(width: 4),
                         Text(
-                          item['rating']!,
+                          item['points']!,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      color: Color(0xFFFF5E00),
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      item['distance']!,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF7A6A60),
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Starting from',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF9A8E86),
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w500,
-                            ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item['name']!,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
                           ),
-                          const SizedBox(height: 2),
-                          RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
-                                fontWeight: FontWeight.w800,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: item['price'],
-                                  style: const TextStyle(fontSize: 20),
-                                ),
-                                const TextSpan(
-                                  text: ' MRU',
-                                  style: TextStyle(fontSize: 13),
-                                ),
-                              ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFFB800),
+                            size: 16,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            item['rating']!,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Get.to(
-                        () => HomeCleaningProviderDetailScreen(provider: item),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        color: Color(0xFFFF5E00),
+                        size: 14,
                       ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                      const SizedBox(width: 4),
+                      Text(
+                        item['distance']!,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF7A6A60),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w500,
                         ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFF5E00)
-                                  .withValues(alpha: 0.25),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'svc_starting_from'.tr,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF9A8E86),
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            RichText(
+                              text: TextSpan(
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFFFF5E00),
+                                  fontWeight: FontWeight.w800,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: item['price'],
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  TextSpan(
+                                    text: 'svc_mru_suffix'.tr,
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                        child: Text(
-                          'View Services',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                      ),
+                      GestureDetector(
+                        onTap: () => Get.to(
+                          () =>
+                              HomeCleaningProviderDetailScreen(provider: item),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF5E00),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFFFF5E00,
+                                ).withValues(alpha: 0.25),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            'svc_view_services'.tr,
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 }

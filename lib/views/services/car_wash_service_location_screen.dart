@@ -219,7 +219,7 @@ class _CarWashServiceLocationScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
@@ -363,7 +363,7 @@ class _CarWashServiceLocationScreenState
           GestureDetector(
             onTap: _selectedLocation == 3 ? _pickOtherAddress : null,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 14, 12),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 14, 12),
               decoration: BoxDecoration(
                 color: const Color(0xFFF8F6F3),
                 borderRadius: BorderRadius.circular(40),

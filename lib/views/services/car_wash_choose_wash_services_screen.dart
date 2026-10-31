@@ -328,11 +328,11 @@ class _CarWashChooseWashServicesScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
-            'Choose Wash Services',
+            'svc_choose_wash_services'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
@@ -367,21 +367,21 @@ class _CarWashChooseWashServicesScreenState
         children: [
           _buildVehicleHeader(vehicle),
           const SizedBox(height: 18),
-          _sectionTitle('Services'),
+          _sectionTitle('svc_services_section'.tr),
           const SizedBox(height: 10),
           for (var i = 0; i < _services.length; i++) ...[
             if (i > 0) const SizedBox(height: 10),
             _buildServiceCard(vehicle, config, i),
           ],
           const SizedBox(height: 18),
-          _sectionTitle('Add-On Services'),
+          _sectionTitle('svc_addon_services'.tr),
           const SizedBox(height: 10),
           for (var i = 0; i < _addons.length; i++) ...[
             if (i > 0) const SizedBox(height: 10),
             _buildAddonCard(config, i),
           ],
           const SizedBox(height: 18),
-          _sectionTitle('Special Notes'),
+          _sectionTitle('svc_special_notes'.tr),
           const SizedBox(height: 10),
           _buildNotesField(config),
         ],
@@ -562,7 +562,7 @@ class _CarWashChooseWashServicesScreenState
             ),
             const SizedBox(width: 8),
             Text(
-              '$price MRU',
+              'mru'.trParams({'amount': '$price'}),
               style: GoogleFonts.outfit(
                 color: selected
                     ? const Color(0xFFFF5E00)
@@ -661,7 +661,7 @@ class _CarWashChooseWashServicesScreenState
             ),
             const SizedBox(width: 8),
             Text(
-              '+$price MRU',
+              'svc_plus_mru'.trParams({'amount': '$price'}),
               style: GoogleFonts.outfit(
                 color: selected
                     ? const Color(0xFFFF5E00)
@@ -694,7 +694,7 @@ class _CarWashChooseWashServicesScreenState
               fontSize: 13.5,
             ),
             decoration: InputDecoration(
-              hintText: 'Anything the team should know?',
+              hintText: 'svc_notes_hint'.tr,
               hintStyle: GoogleFonts.outfit(
                 color: const Color(0xFFB0A59C),
                 fontSize: 13.5,
@@ -706,7 +706,7 @@ class _CarWashChooseWashServicesScreenState
         ),
         const SizedBox(height: 8),
         Text(
-          'e.g. Please pay extra attention to the wheels',
+          'svc_notes_example_wheels'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF9A8E86),
             fontSize: 11.5,
@@ -736,7 +736,7 @@ class _CarWashChooseWashServicesScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TOTAL',
+            'svc_total_upper'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF5C6578),
               fontSize: 11,
@@ -746,7 +746,7 @@ class _CarWashChooseWashServicesScreenState
           ),
           const SizedBox(height: 2),
           Text(
-            '$_totalPrice MRU',
+            'mru'.trParams({'amount': '$_totalPrice'}),
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 20,
@@ -776,7 +776,7 @@ class _CarWashChooseWashServicesScreenState
                 ],
               ),
               child: Text(
-                'Continue to Select Slot',
+                'svc_continue_to_slot'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,

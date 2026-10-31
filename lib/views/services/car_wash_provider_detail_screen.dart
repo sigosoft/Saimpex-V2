@@ -12,10 +12,7 @@ import '../../widgets/app_back_button.dart';
 class CarWashProviderDetailScreen extends StatefulWidget {
   final Map<String, String> provider;
 
-  const CarWashProviderDetailScreen({
-    super.key,
-    required this.provider,
-  });
+  const CarWashProviderDetailScreen({super.key, required this.provider});
 
   @override
   State<CarWashProviderDetailScreen> createState() =>
@@ -40,8 +37,13 @@ class _CarWashProviderDetailScreenState
     loadProviderServices();
   }
 
-  static const _tabs = ['Services', 'Reviews', 'About'];
-  static const _reviewFilters = ['All Reviews', 'Most Recent', 'Highest Rated'];
+  // Translation keys.
+  static const _tabs = ['svc_tab_services', 'svc_tab_reviews', 'svc_tab_about'];
+  static const _reviewFilters = [
+    'svc_filter_all_reviews',
+    'svc_filter_most_recent',
+    'svc_filter_highest_rated',
+  ];
 
   static const _ratingBreakdown = [
     {'star': '5', 'pct': 0.75, 'count': '7,542'},
@@ -54,7 +56,7 @@ class _CarWashProviderDetailScreenState
   static const _reviews = [
     {
       'name': 'Aicha Mint Ahmed',
-      'time': '2 days ago',
+      'time': 'svc_two_days_ago',
       'rating': 5,
       'avatar':
           'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
@@ -63,7 +65,7 @@ class _CarWashProviderDetailScreenState
     },
     {
       'name': 'Aicha Mint Ahmed',
-      'time': '2 days ago',
+      'time': 'svc_two_days_ago',
       'rating': 5,
       'avatar':
           'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
@@ -72,10 +74,10 @@ class _CarWashProviderDetailScreenState
     },
   ];
 
-
   String get _name => widget.provider['name'] ?? 'CleanRide Car Wash';
   String get _rating => widget.provider['rating'] ?? '4.8';
-  String get _distance => widget.provider['distance'] ?? '2.4 km away';
+  String get _distance =>
+      widget.provider['distance'] ?? 'svc_km_away'.trParams({'km': '2.4'});
   String get _banner =>
       widget.provider['image'] ??
       'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=800&h=480&fit=crop';
@@ -123,9 +125,9 @@ class _CarWashProviderDetailScreenState
           width: double.infinity,
           child: _buildBannerImage(),
         ),
-        Positioned(
+        PositionedDirectional(
           top: topInset + 8,
-          left: 16,
+          start: 16,
           child: AppBackButton(onTap: () => Get.back()),
         ),
         Padding(
@@ -147,10 +149,7 @@ class _CarWashProviderDetailScreenState
         errorBuilder: (_, __, ___) => Container(
           color: const Color(0xFFFFE8DC),
           alignment: Alignment.center,
-          child: Image.asset(
-            'lib/assets/images/car_wash.png',
-            height: 80,
-          ),
+          child: Image.asset('lib/assets/images/car_wash.png', height: 80),
         ),
       );
     }
@@ -162,10 +161,7 @@ class _CarWashProviderDetailScreenState
       errorBuilder: (_, __, ___) => Container(
         color: const Color(0xFFFFE8DC),
         alignment: Alignment.center,
-        child: Image.asset(
-          'lib/assets/images/car_wash.png',
-          height: 80,
-        ),
+        child: Image.asset('lib/assets/images/car_wash.png', height: 80),
       ),
     );
   }
@@ -209,7 +205,7 @@ class _CarWashProviderDetailScreenState
                 ),
               ),
               Text(
-                '(126 Reviews)',
+                'svc_reviews_count_paren'.trParams({'count': '126'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 12.5,
@@ -247,7 +243,7 @@ class _CarWashProviderDetailScreenState
               ),
               const SizedBox(width: 5),
               Text(
-                'Open until 6:00 PM',
+                'svc_open_until'.trParams({'time': '6:00 PM'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1A6BB5),
                   fontSize: 12.5,
@@ -287,7 +283,7 @@ class _CarWashProviderDetailScreenState
           ),
           const SizedBox(width: 6),
           Text(
-            'Get Directions',
+            'svc_get_directions'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 13,
@@ -303,11 +299,7 @@ class _CarWashProviderDetailScreenState
     return GestureDetector(
       onTap: () => Get.to(
         () => ChatScreen(
-          restaurant: {
-            'name': _name,
-            'title': _name,
-            'image': _banner,
-          },
+          restaurant: {'name': _name, 'title': _name, 'image': _banner},
         ),
       ),
       child: Container(
@@ -337,7 +329,7 @@ class _CarWashProviderDetailScreenState
             ),
             const SizedBox(width: 6),
             Text(
-              'Chat',
+              'svc_chat'.tr,
               style: GoogleFonts.outfit(
                 color: Colors.white,
                 fontSize: 13.5,
@@ -367,7 +359,7 @@ class _CarWashProviderDetailScreenState
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(
-                            _tabs[i],
+                            _tabs[i].tr,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
                               color: _selectedTab == i
@@ -396,11 +388,7 @@ class _CarWashProviderDetailScreenState
             ],
           ),
         ),
-        const Divider(
-          height: 1,
-          thickness: 1,
-          color: Color(0xFFEDE4DA),
-        ),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFEDE4DA)),
       ],
     );
   }
@@ -411,10 +399,7 @@ class _CarWashProviderDetailScreenState
     void openConfigure() {
       selectService(item);
       Get.to(
-        () => CarWashServiceLocationScreen(
-          service: item,
-          providerName: _name,
-        ),
+        () => CarWashServiceLocationScreen(service: item, providerName: _name),
       );
     }
 
@@ -501,7 +486,7 @@ class _CarWashProviderDetailScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Starting from',
+                        'svc_starting_from'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF9A8E86),
                           fontSize: 12,
@@ -536,15 +521,16 @@ class _CarWashProviderDetailScreenState
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                          color: const Color(
+                            0xFFFF5E00,
+                          ).withValues(alpha: 0.28),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: Text(
-                      'ADD',
+                      'svc_add_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 13,
@@ -600,8 +586,10 @@ class _CarWashProviderDetailScreenState
           Column(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF00B25C),
                   borderRadius: BorderRadius.circular(12),
@@ -638,7 +626,7 @@ class _CarWashProviderDetailScreenState
               ),
               const SizedBox(height: 6),
               Text(
-                '126 Reviews',
+                'svc_reviews_count'.trParams({'count': '126'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 11,
@@ -726,8 +714,10 @@ class _CarWashProviderDetailScreenState
             GestureDetector(
               onTap: () => setState(() => _reviewFilter = i),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 11,
+                ),
                 decoration: BoxDecoration(
                   color: _reviewFilter == i
                       ? const Color(0xFFFF5E00)
@@ -735,7 +725,7 @@ class _CarWashProviderDetailScreenState
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Text(
-                  _reviewFilters[i],
+                  _reviewFilters[i].tr,
                   style: GoogleFonts.outfit(
                     color: _reviewFilter == i
                         ? Colors.white
@@ -806,7 +796,7 @@ class _CarWashProviderDetailScreenState
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      review['time'] as String,
+                      (review['time'] as String).tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 11,
@@ -863,7 +853,7 @@ class _CarWashProviderDetailScreenState
           ],
         ),
         child: Text(
-          'CleanRide Car Wash offers premium exterior and interior cleaning services with trusted local experts. Book a slot, arrive on time, and drive away shining.',
+          'svc_about_car_wash'.trParams({'name': _name}),
           style: GoogleFonts.outfit(
             color: const Color(0xFF7A6A60),
             fontSize: 13.5,

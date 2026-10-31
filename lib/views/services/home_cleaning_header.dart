@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Centered title block matching the Home Cleaning reference design.
@@ -34,7 +35,7 @@ class HomeCleaningHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Home Cleaning',
+                    'svc_home_cleaning'.tr,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       color: _titleColor,
@@ -70,7 +71,7 @@ class HomeCleaningHeader extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Professional cleaning services at your doorstep',
+                'svc_home_cleaning_subtitle'.tr,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   color: _subtitleColor,

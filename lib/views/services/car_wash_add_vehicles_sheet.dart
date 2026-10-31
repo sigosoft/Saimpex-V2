@@ -16,9 +16,7 @@ class CarWashAddedVehicle {
   });
 }
 
-Future<CarWashAddedVehicle?> showCarWashAddVehiclesSheet(
-  BuildContext context,
-) {
+Future<CarWashAddedVehicle?> showCarWashAddVehiclesSheet(BuildContext context) {
   return showModalBottomSheet<CarWashAddedVehicle>(
     context: context,
     isScrollControlled: true,
@@ -44,21 +42,9 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
   static const _closeGap = 12.0;
 
   static const _types = [
-    {
-      'label': 'Sedan',
-      'price': 350,
-      'image': 'lib/assets/images/Sedan.png',
-    },
-    {
-      'label': 'SUV/4x4',
-      'price': 500,
-      'image': 'lib/assets/images/SUV.png',
-    },
-    {
-      'label': 'Pickup',
-      'price': 550,
-      'image': 'lib/assets/images/Pickup.png',
-    },
+    {'label': 'Sedan', 'price': 350, 'image': 'lib/assets/images/Sedan.png'},
+    {'label': 'SUV/4x4', 'price': 500, 'image': 'lib/assets/images/SUV.png'},
+    {'label': 'Pickup', 'price': 550, 'image': 'lib/assets/images/Pickup.png'},
     {
       'label': 'Mini bus',
       'price': 750,
@@ -120,10 +106,10 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
       setState(() => _showPlateError = true);
       Get.snackbar(
         '',
-        'Please enter vehicle number',
+        'svc_enter_vehicle_number_error'.tr,
         titleText: const SizedBox.shrink(),
         messageText: Text(
-          'Please enter vehicle number',
+          'svc_enter_vehicle_number_error'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 13.5,
@@ -179,7 +165,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
                   child: Text(
-                    'Add Vehicles',
+                    'svc_add_vehicles'.tr,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
@@ -200,264 +186,270 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                      Text(
-                        'Vehicle Type',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF1A1A1A),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                        Text(
+                          'svc_vehicle_type'.tr,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF1A1A1A),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        height: 168,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: _types.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 12),
-                          itemBuilder: (context, index) {
-                            final type = _types[index];
-                            final selected = _selectedType == index;
-                            const cardRadius = 28.0;
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 168,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: _types.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              final type = _types[index];
+                              final selected = _selectedType == index;
+                              const cardRadius = 28.0;
 
-                            return GestureDetector(
-                              onTap: () =>
-                                  setState(() => _selectedType = index),
-                              child: Container(
-                                width: 132,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius:
-                                      BorderRadius.circular(cardRadius),
-                                  border: Border.all(
-                                    color: selected
-                                        ? const Color(0xFFFF5E00)
-                                        : const Color(0xFFD8DEE8),
-                                    width: selected ? 1.8 : 1.2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF9AABB8)
-                                          .withValues(alpha: 0.18),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
+                              return GestureDetector(
+                                onTap: () =>
+                                    setState(() => _selectedType = index),
+                                child: Container(
+                                  width: 132,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(
+                                      cardRadius,
                                     ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                    cardRadius - (selected ? 1.8 : 1.2),
+                                    border: Border.all(
+                                      color: selected
+                                          ? const Color(0xFFFF5E00)
+                                          : const Color(0xFFD8DEE8),
+                                      width: selected ? 1.8 : 1.2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFF9AABB8,
+                                        ).withValues(alpha: 0.18),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Expanded(
-                                        flex: 7,
-                                        child: ColoredBox(
-                                          color: const Color(0xFFE8E8E8),
-                                          child: Image.asset(
-                                            type['image'] as String,
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            errorBuilder: (_, __, ___) =>
-                                                const Center(
-                                              child: Icon(
-                                                Icons.directions_car_rounded,
-                                                color: Color(0xFFFF5E00),
-                                              ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                      cardRadius - (selected ? 1.8 : 1.2),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Expanded(
+                                          flex: 7,
+                                          child: ColoredBox(
+                                            color: const Color(0xFFE8E8E8),
+                                            child: Image.asset(
+                                              type['image'] as String,
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              errorBuilder: (_, __, ___) =>
+                                                  const Center(
+                                                    child: Icon(
+                                                      Icons
+                                                          .directions_car_rounded,
+                                                      color: Color(0xFFFF5E00),
+                                                    ),
+                                                  ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: ColoredBox(
-                                          color: Colors.white,
-                                          child: Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                16,
-                                                0,
-                                                12,
-                                                4,
-                                              ),
-                                              child: Text(
-                                                type['label'] as String,
-                                                style: GoogleFonts.outfit(
-                                                  color:
-                                                      const Color(0xFF0F1E31),
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w700,
+                                        Expanded(
+                                          flex: 3,
+                                          child: ColoredBox(
+                                            color: Colors.white,
+                                            child: Align(
+                                              alignment: AlignmentDirectional
+                                                  .centerStart,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                      16,
+                                                      0,
+                                                      12,
+                                                      4,
+                                                    ),
+                                                child: Text(
+                                                  type['label'] as String,
+                                                  style: GoogleFonts.outfit(
+                                                    color: const Color(
+                                                      0xFF0F1E31,
+                                                    ),
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                        Text(
+                          'svc_enter_vehicle_number'.tr,
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF1A1A1A),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(
+                              color: _showPlateError
+                                  ? const Color(0xFFE53935)
+                                  : const Color(0xFFE8DFD6),
+                              width: _showPlateError ? 1.5 : 1,
+                            ),
+                          ),
+                          child: TextField(
+                            controller: _plateController,
+                            textCapitalization: TextCapitalization.characters,
+                            keyboardType: TextInputType.text,
+                            onChanged: _onPlateChanged,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF1A1A1A),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.6,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'svc_plate_hint'.tr,
+                              hintStyle: GoogleFonts.outfit(
+                                color: const Color(0xFFB0A59C),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.6,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (_showPlateError) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'svc_enter_vehicle_number_error'.tr,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFE53935),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 10),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(top: 1),
+                              child: Icon(
+                                Icons.info_outline_rounded,
+                                size: 14,
+                                color: Color(0xFF9A8E86),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'svc_plate_help'.tr,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF9A8E86),
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.35,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 22),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => Navigator.pop(context),
+                                child: Container(
+                                  height: 52,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF2ECE1),
+                                    borderRadius: BorderRadius.circular(28),
+                                  ),
+                                  child: Text(
+                                    'cancel'.tr,
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF1A1A1A),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: _onAdd,
+                                child: Container(
+                                  height: 52,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(28),
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFFFF5E00),
+                                        Color(0xFFFFAE00),
+                                      ],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFFFF5E00,
+                                        ).withValues(alpha: 0.28),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
+                                  child: Text(
+                                    'svc_add'.tr,
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-                      Text(
-                        'Enter vehicle number',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF1A1A1A),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(
-                            color: _showPlateError
-                                ? const Color(0xFFE53935)
-                                : const Color(0xFFE8DFD6),
-                            width: _showPlateError ? 1.5 : 1,
-                          ),
-                        ),
-                        child: TextField(
-                          controller: _plateController,
-                          textCapitalization: TextCapitalization.characters,
-                          keyboardType: TextInputType.text,
-                          onChanged: _onPlateChanged,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF1A1A1A),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.6,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'e.g. 1234 AB 01',
-                            hintStyle: GoogleFonts.outfit(
-                              color: const Color(0xFFB0A59C),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.6,
                             ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (_showPlateError) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'Please enter vehicle number',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFE53935),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          ],
                         ),
                       ],
-                      const SizedBox(height: 10),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(top: 1),
-                            child: Icon(
-                              Icons.info_outline_rounded,
-                              size: 14,
-                              color: Color(0xFF9A8E86),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              'This helps the wash center identify your vehicle easily',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF9A8E86),
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w500,
-                                height: 1.35,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 22),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                height: 52,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF2ECE1),
-                                  borderRadius: BorderRadius.circular(28),
-                                ),
-                                child: Text(
-                                  'Cancel',
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFF1A1A1A),
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: _onAdd,
-                              child: Container(
-                                height: 52,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(28),
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFFFF5E00),
-                                      Color(0xFFFFAE00),
-                                    ],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFFFF5E00)
-                                          .withValues(alpha: 0.28),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Text(
-                                  'Add',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
-                ),
                 ),
               ],
             ),

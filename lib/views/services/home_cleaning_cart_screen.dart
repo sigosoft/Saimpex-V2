@@ -10,6 +10,31 @@ import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
 import '../../utils/wallet_balance.dart';
 
+/// Display text for a home-cleaning space, extra or pest label. The labels
+/// stay English in the booking data (they are matched against the catalog);
+/// only what is shown is translated.
+String homeCleaningLabelText(String label) {
+  const keys = {
+    'Bedrooms': 'svc_hc_bedrooms',
+    'Kitchens': 'svc_hc_kitchens',
+    'Bathrooms / WC': 'svc_hc_bathrooms',
+    'Balconies': 'svc_hc_balconies',
+    'Fridge Cleaning': 'svc_hc_fridge',
+    'Dish Washing': 'svc_hc_dish',
+    'Cockroaches': 'svc_pest_cockroaches',
+    'Ants': 'svc_pest_ants',
+    'Bed Bugs': 'svc_pest_bed_bugs',
+    'Mosquitoes': 'svc_pest_mosquitoes',
+    'Rodents': 'svc_pest_rodents',
+    'Termites': 'svc_pest_termites',
+    'General Disinfection': 'svc_pest_disinfection',
+    'Flies': 'svc_pest_flies',
+    'Other': 'svc_pest_other',
+  };
+  final key = keys[label];
+  return key == null ? label : key.tr;
+}
+
 class HomeCleaningCartScreen extends StatefulWidget {
   final String providerName;
   final String serviceTitle;
@@ -110,8 +135,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
     if (_booking) return;
     setState(() => _booking = true);
     List<Map<String, dynamic>> rows(List<Map<String, dynamic>> source) => [
-      for (final row in source)
-        {'name': row['label'], 'quantity': row['qty']},
+      for (final row in source) {'name': row['label'], 'quantity': row['qty']},
     ];
     final booking = await placeServiceBooking(
       shownTotal: _toPay,
@@ -154,35 +178,28 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
     return rows;
   }
 
-  List<Map<String, dynamic>> get _spaceRows => _allSourceRows
-      .where((s) {
-        final label = s['label'] as String? ?? '';
-        final qty = (s['qty'] as int?) ?? 0;
-        return qty > 0 && _roomLabels.contains(label);
-      })
-      .toList();
+  List<Map<String, dynamic>> get _spaceRows => _allSourceRows.where((s) {
+    final label = s['label'] as String? ?? '';
+    final qty = (s['qty'] as int?) ?? 0;
+    return qty > 0 && _roomLabels.contains(label);
+  }).toList();
 
   List<Map<String, dynamic>> get _extraRows {
     if (widget.extras.isNotEmpty) {
-      return widget.extras
-          .where((s) => ((s['qty'] as int?) ?? 0) > 0)
-          .toList();
+      return widget.extras.where((s) => ((s['qty'] as int?) ?? 0) > 0).toList();
     }
-    return _allSourceRows
-        .where((s) {
-          final label = s['label'] as String? ?? '';
-          final qty = (s['qty'] as int?) ?? 0;
-          return qty > 0 &&
-              !_roomLabels.contains(label) &&
-              label != 'Cleaning Products';
-        })
-        .toList();
+    return _allSourceRows.where((s) {
+      final label = s['label'] as String? ?? '';
+      final qty = (s['qty'] as int?) ?? 0;
+      return qty > 0 &&
+          !_roomLabels.contains(label) &&
+          label != 'Cleaning Products';
+    }).toList();
   }
 
   int _rowTotal(Map<String, dynamic> s) {
     final label = s['label'] as String? ?? '';
-    final rate =
-        (s['rate'] as int?) ?? (_defaultRates[label] ?? 0);
+    final rate = (s['rate'] as int?) ?? (_defaultRates[label] ?? 0);
     final qty = (s['qty'] as int?) ?? 0;
     return rate * qty;
   }
@@ -200,24 +217,25 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   int get _pointsDiscount => _usePoints ? _pointsOff : 0;
   int get _toPay => _subtotal - _pointsDiscount + _tax;
 
+  // Translation keys.
   static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'svc_month_1',
+    'svc_month_2',
+    'svc_month_3',
+    'svc_month_4',
+    'svc_month_5',
+    'svc_month_6',
+    'svc_month_7',
+    'svc_month_8',
+    'svc_month_9',
+    'svc_month_10',
+    'svc_month_11',
+    'svc_month_12',
   ];
 
   String get _slotDisplay {
     final d = _slotDate;
-    return '${d.day} ${_months[d.month - 1]} ${d.year}, $_slotLabel';
+    return '${d.day} ${_months[d.month - 1].tr} ${d.year}, $_slotLabel';
   }
 
   String _slotRangeFromLabel(String label) {
@@ -281,7 +299,9 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       const SizedBox(height: 22),
                       if (_spaceRows.isNotEmpty) ...[
                         _sectionTitle(
-                          _isPestControl ? 'Areas to Treat' : 'Spaces',
+                          _isPestControl
+                              ? 'svc_areas_to_treat'.tr
+                              : 'svc_spaces'.tr,
                         ),
                         const SizedBox(height: 12),
                         _buildLineItemsCard(_spaceRows),
@@ -289,13 +309,13 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       ],
                       if (_isPestControl &&
                           widget.selectedPests.isNotEmpty) ...[
-                        _sectionTitle('What are you facing?'),
+                        _sectionTitle('svc_what_facing'.tr),
                         const SizedBox(height: 12),
                         _buildSelectedPestsRow(),
                         const SizedBox(height: 22),
                       ],
                       if (!_isPestControl && _extraRows.isNotEmpty) ...[
-                        _sectionTitle('Make it extra clean'),
+                        _sectionTitle('svc_extra_clean'.tr),
                         const SizedBox(height: 12),
                         _buildLineItemsCard(_extraRows),
                         const SizedBox(height: 22),
@@ -304,7 +324,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                         _buildCleaningProductsSection(),
                         const SizedBox(height: 22),
                       ],
-                      _sectionTitle('Cleaning Details'),
+                      _sectionTitle('svc_cleaning_details'.tr),
                       const SizedBox(height: 12),
                       _buildAddressCard(),
                       const SizedBox(height: 10),
@@ -316,20 +336,20 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       const SizedBox(height: 10),
                       _buildPointsCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Payment'),
+                      _sectionTitle('svc_payment'.tr),
                       const SizedBox(height: 12),
                       _buildPaymentOption(
                         index: 0,
                         imageAsset: 'lib/assets/images/wallet.png',
-                        title: 'SAIMPEX Wallet',
+                        title: 'wallet_title'.tr,
                         subtitle: walletBalanceSubtitle(),
                       ),
                       const SizedBox(height: 10),
                       _buildPaymentOption(
                         index: 1,
                         imageAsset: 'lib/assets/images/currency.png',
-                        title: 'Online payment',
-                        subtitle: 'Card • Mobile money',
+                        title: 'svc_online_payment'.tr,
+                        subtitle: 'svc_card_mobile_money'.tr,
                       ),
                       const SizedBox(height: 22),
                       _buildPaymentDetailsCard(),
@@ -352,11 +372,11 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
-            'Cart',
+            'svc_cart'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
@@ -373,7 +393,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       children: [
         Expanded(
           child: Text(
-            'From ${widget.providerName}',
+            'svc_from_provider'.trParams({'provider': widget.providerName}),
             style: GoogleFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 13,
@@ -393,7 +413,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               ),
               const SizedBox(width: 4),
               Text(
-                'Clear All',
+                'svc_clear_all'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -477,7 +497,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                     GestureDetector(
                       onTap: () => Get.back(),
                       child: Text(
-                        'Edit',
+                        'svc_edit'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 13.5,
@@ -593,7 +613,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  label,
+                  homeCleaningLabelText(label),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -619,9 +639,11 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       children: [
         Row(
           children: [
-            Expanded(child: _sectionTitle('Cleaning Products')),
+            Expanded(child: _sectionTitle('svc_cleaning_products'.tr)),
             Text(
-              providerSelected ? '+${widget.productsFee} MRU' : '0 MRU',
+              providerSelected
+                  ? 'svc_plus_mru'.trParams({'amount': '${widget.productsFee}'})
+                  : 'mru'.trParams({'amount': '0'}),
               style: GoogleFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 14,
@@ -637,10 +659,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           decoration: BoxDecoration(
             color: const Color(0xFFFFF3EB),
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: const Color(0xFFFFD8C2),
-              width: 1,
-            ),
+            border: Border.all(color: const Color(0xFFFFD8C2), width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -676,8 +695,8 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       children: [
                         Text(
                           providerSelected
-                              ? 'Provider will provide products'
-                              : "I'll provide the products",
+                              ? 'svc_provider_provides_products'.tr
+                              : 'svc_self_provides_products'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 14,
@@ -687,8 +706,8 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                         const SizedBox(height: 4),
                         Text(
                           providerSelected
-                              ? 'Cleaning products will be provided by the service provider'
-                              : 'Standard cleaning prices apply. You provide detergents, mop, and cloths',
+                              ? 'svc_provider_products_hint'.tr
+                              : 'svc_self_products_hint'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF8A7E76),
                             fontSize: 12,
@@ -703,13 +722,14 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               const SizedBox(height: 12),
               GestureDetector(
                 onTap: () => setState(() {
-                  _productsProvider =
-                      providerSelected ? 'self' : 'provider';
+                  _productsProvider = providerSelected ? 'self' : 'provider';
                 }),
                 child: Text(
                   providerSelected
-                      ? "Switch to 'I'll provide' (0 MRU)"
-                      : "Switch to 'Provider will provide' (+${widget.productsFee} MRU)",
+                      ? 'svc_switch_to_self'.tr
+                      : 'svc_switch_to_provider'.trParams({
+                          'amount': '${widget.productsFee}',
+                        }),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13,
@@ -743,7 +763,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  label,
+                  homeCleaningLabelText(label),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14.5,
@@ -752,7 +772,10 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '$rate MRU x$qty',
+                  'svc_rate_times_qty'.trParams({
+                    'rate': '$rate',
+                    'qty': '$qty',
+                  }),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
@@ -763,7 +786,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             ),
           ),
           Text(
-            '$total MRU',
+            'mru'.trParams({'amount': '$total'}),
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 14.5,
@@ -835,7 +858,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             ),
           ),
           Text(
-            'Edit',
+            'svc_edit'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 13,
@@ -878,7 +901,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Your Slot',
+                    'svc_your_slot'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 13.5,
@@ -897,10 +920,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: Color(0xFFFF5E00),
-            ),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFFFF5E00)),
           ],
         ),
       ),
@@ -910,9 +930,9 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   Widget _buildSaveMoreHeader() {
     return Row(
       children: [
-        Expanded(child: _sectionTitle('Save More')),
+        Expanded(child: _sectionTitle('svc_save_more'.tr)),
         Text(
-          'View Coupons',
+          'svc_view_coupons'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFFFF5E00),
             fontSize: 13,
@@ -950,7 +970,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               controller: _couponController,
               style: GoogleFonts.outfit(fontSize: 13.5),
               decoration: InputDecoration(
-                hintText: 'Enter coupon',
+                hintText: 'svc_enter_coupon'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFB0A59C),
                   fontSize: 13.5,
@@ -961,7 +981,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             ),
           ),
           Text(
-            'Apply',
+            'svc_apply'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 14,
@@ -1007,7 +1027,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Use 500 points',
+                    'svc_use_points'.trParams({'points': '500'}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 14,
@@ -1015,7 +1035,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                     ),
                   ),
                   Text(
-                    '= $_pointsOff MRU off',
+                    '= ${'svc_points_off'.trParams({'amount': '$_pointsOff'})}',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
@@ -1168,7 +1188,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11.5,
@@ -1177,22 +1197,22 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          _detailRow('Total', '$_subtotal MRU'),
+          _detailRow('svc_total'.tr, 'mru'.trParams({'amount': '$_subtotal'})),
           const SizedBox(height: 10),
           _detailRow(
-            'Redeemed points',
-            '-$_pointsDiscount MRU',
+            'svc_redeemed_points'.tr,
+            '-${'mru'.trParams({'amount': '$_pointsDiscount'})}',
             valueColor: const Color(0xFFFF5E00),
           ),
           const SizedBox(height: 10),
-          _detailRow('Tax', '$_tax MRU'),
+          _detailRow('svc_tax'.tr, 'mru'.trParams({'amount': '$_tax'})),
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF4A4A4A), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'To Pay',
+                'svc_to_pay'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
@@ -1201,7 +1221,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               ),
               const Spacer(),
               Text(
-                '$_toPay MRU',
+                'mru'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -1258,7 +1278,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TOTAL',
+            'svc_total_upper'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF8A7E76),
               fontSize: 11,
@@ -1268,7 +1288,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           ),
           const SizedBox(height: 2),
           Text(
-            '$_toPay MRU',
+            'mru'.trParams({'amount': '$_toPay'}),
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 20,
@@ -1298,7 +1318,9 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ],
               ),
               child: Text(
-                _booking ? 'Booking...' : 'Pay $_toPay MRU',
+                _booking
+                    ? 'svc_booking_in_progress'.tr
+                    : 'svc_pay_amount'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,

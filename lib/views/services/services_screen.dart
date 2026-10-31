@@ -16,6 +16,27 @@ class ServicesScreen extends StatelessWidget {
 
   const ServicesScreen({super.key, this.showBottomNav = true});
 
+  /// Display keys for the card titles. The titles themselves stay English
+  /// because `_verticalOf` matches on them.
+  static const _titleKeys = {
+    'Home\nCleaning': 'svc_cat_home_cleaning',
+    'Car\nWash': 'svc_cat_car_wash',
+    'Plumbing': 'svc_cat_plumbing',
+    'Laundry': 'svc_cat_laundry',
+    'Carpentry': 'svc_cat_carpentry',
+    'Electrical': 'svc_cat_electrical',
+    'Home\nMaintenance': 'svc_cat_home_maintenance',
+    'Cleaning\nServices': 'svc_cat_cleaning_services',
+    'Vehicle\nServices': 'svc_cat_vehicle_services',
+    'Pet\nServices': 'svc_cat_pet_services',
+    'CCTV\nInstallation': 'svc_cat_cctv',
+    'Computer\nRepair': 'svc_cat_computer_repair',
+    'Plumbing\nEmergency': 'svc_cat_plumbing_emergency',
+    'Electrical\nEmergency': 'svc_cat_electrical_emergency',
+  };
+
+  static String _label(String title) => (_titleKeys[title] ?? title).tr;
+
   static const _tallCards = [
     _PopularCardData(
       title: 'Home\nCleaning',
@@ -164,11 +185,11 @@ class ServicesScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         _buildSearchBar(),
                         const SizedBox(height: 22),
-                        _sectionTitle('Popular Services'),
+                        _sectionTitle('svc_popular_services'.tr),
                         const SizedBox(height: 12),
                         _buildPopularGrid(),
                         const SizedBox(height: 16),
-                        _sectionTitle('All Service Categories'),
+                        _sectionTitle('svc_all_categories'.tr),
                         const SizedBox(height: 14),
                         _buildCategoryGrid(context),
                         const SizedBox(height: 24),
@@ -194,7 +215,7 @@ class ServicesScreen extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: showBottomNav
                 ? AppBackButton(
                     onTap: () {
@@ -204,7 +225,7 @@ class ServicesScreen extends StatelessWidget {
                   )
                 : const SizedBox(width: 38),
           ),
-          Text('Services', style: AppTextStyles.heading()),
+          Text('svc_services_title'.tr, style: AppTextStyles.heading()),
         ],
       ),
     );
@@ -224,7 +245,7 @@ class ServicesScreen extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 8, 0),
       child: Row(
         children: [
           const Icon(Icons.search_rounded, color: Color(0xFF7A6A60), size: 22),
@@ -237,7 +258,7 @@ class ServicesScreen extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
-                hintText: 'Search for services...',
+                hintText: 'svc_search_services_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFF8A8078),
                   fontSize: 14,
@@ -406,7 +427,7 @@ class ServicesScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  item.label,
+                  _label(item.label),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   style: GoogleFonts.outfit(
@@ -428,7 +449,10 @@ class ServicesScreen extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text('Emergency Services', style: AppTextStyles.title()),
+          child: Text(
+            'svc_emergency_services'.tr,
+            style: AppTextStyles.title(),
+          ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -438,7 +462,7 @@ class ServicesScreen extends StatelessWidget {
             border: Border.all(color: const Color(0xFFFFDDCF)),
           ),
           child: Text(
-            '24/7 AVAILABLE',
+            'svc_available_24_7'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 9.5,
@@ -490,12 +514,12 @@ class ServicesScreen extends StatelessWidget {
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 64, 12),
+                padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 64, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      data.title,
+                      ServicesScreen._label(data.title),
                       style: AppTextStyles.title().copyWith(
                         fontSize: 13,
                         height: 1.12,
@@ -511,7 +535,7 @@ class ServicesScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '15 min',
+                          'svc_minutes'.trParams({'count': '15'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 11,
@@ -538,8 +562,8 @@ class ServicesScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Positioned(
-                right: 6,
+              PositionedDirectional(
+                end: 6,
                 top: 0,
                 bottom: 0,
                 width: 58,
@@ -623,12 +647,12 @@ class _PopularServiceCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    Positioned(
+                    PositionedDirectional(
                       top: 16,
-                      left: 16,
-                      right: 56,
+                      start: 16,
+                      end: 56,
                       child: Text(
-                        data.title,
+                        ServicesScreen._label(data.title),
                         style: AppTextStyles.title().copyWith(
                           fontSize: titleFontSize,
                           height: 1.1,

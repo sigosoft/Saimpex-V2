@@ -50,7 +50,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
       itemId == null ||
       !Get.isRegistered<ServiceRepository>()) {
     showAppToast(
-      'Please choose a service from the provider again',
+      'svc_choose_service_again'.tr,
       backgroundColor: const Color(0xFFEF4444),
     );
     return null;
@@ -109,7 +109,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
       language: apiLanguageCode(),
     );
     showAppToast(
-      result.message.isEmpty ? 'Booking created' : result.message,
+      result.message.isEmpty ? 'svc_booking_created'.tr : result.message,
       backgroundColor: const Color(0xFFFF5E00),
     );
     return result.booking;
@@ -154,7 +154,8 @@ class _ServerPriceDialog extends StatelessWidget {
   final List<Map<String, dynamic>> lines;
   final double total;
 
-  static String _mru(num value) => '${value.round()} MRU';
+  static String _mru(num value) =>
+      'mru'.trParams({'amount': '${value.round()}'});
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +165,7 @@ class _ServerPriceDialog extends StatelessWidget {
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       title: Text(
-        "Provider's price",
+        'svc_providers_price'.tr,
         style: style(17, FontWeight.w800, const Color(0xFF2C2520)),
       ),
       content: Column(
@@ -172,7 +173,7 @@ class _ServerPriceDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your booking will be charged at the provider\'s current prices:',
+            'svc_providers_price_body'.tr,
             style: style(12.5, FontWeight.w500, const Color(0xFF7A6A60)),
           ),
           const SizedBox(height: 12),
@@ -212,7 +213,7 @@ class _ServerPriceDialog extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Total',
+                  'svc_total'.tr,
                   style: style(15, FontWeight.w800, const Color(0xFF2C2520)),
                 ),
               ),
@@ -228,14 +229,14 @@ class _ServerPriceDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Get.back(result: false),
           child: Text(
-            'Go back',
+            'svc_go_back'.tr,
             style: style(14, FontWeight.w700, const Color(0xFF7A6A60)),
           ),
         ),
         TextButton(
           onPressed: () => Get.back(result: true),
           child: Text(
-            'Book at ${_mru(total)}',
+            'svc_book_at'.trParams({'amount': _mru(total)}),
             style: style(14, FontWeight.w800, const Color(0xFFFF5E00)),
           ),
         ),
