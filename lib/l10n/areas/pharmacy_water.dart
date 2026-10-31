@@ -790,7 +790,8 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_how_enjoy_sub': 'استرخِ بينما تصلك المياه تلقائيًا في موعدها',
     'pw_how_it_works': 'كيف تعمل الخدمة',
     'pw_why_automatic': 'توصيل تلقائي',
-    'pw_why_automatic_sub': 'اضبط اشتراكك مرة واحدة ولا تقلق بعدها بشأن طلب المياه',
+    'pw_why_automatic_sub':
+        'اضبط اشتراكك مرة واحدة ولا تقلق بعدها بشأن طلب المياه',
     'pw_why_save_sub':
         'يحصل المشتركون على خصم يصل إلى 20% مقارنة بالطلبات الفردية',
     'pw_why_flexible': 'خطط مرنة',

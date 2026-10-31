@@ -349,7 +349,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             children: [
               Expanded(
                 child: Text(
-                  booking['provider'] as String? ?? 'CleanPro Elite',
+                  booking['provider'] as String? ?? '',
                   style: AppTextStyles.title(),
                 ),
               ),
@@ -503,8 +503,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    booking['location'] as String? ??
-                        'Near Marhaba Supermarket,Nouakchott',
+                    booking['location'] as String? ?? '',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF5A5048),
                       fontSize: 12.5,

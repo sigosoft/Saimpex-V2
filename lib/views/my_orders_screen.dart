@@ -1165,34 +1165,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           // Action Buttons
           Row(children: buttons),
 
-          if (onDetailsLink != null || statusText != "DELIVERED") ...[
+          if (onDetailsLink != null) ...[
             const SizedBox(height: 12),
             // Bottom details link
             Center(
               child: GestureDetector(
-                onTap:
-                    onDetailsLink ??
-                    () {
-                      final parts = detailsText.split('#');
-                      final orderId = parts.length > 1
-                          ? '#${parts[1]}'
-                          : '#22789002';
-                      if (restaurantName.contains('Water')) {
-                        Get.to(
-                          () => WaterOrderDetailsScreen(
-                            orderId: orderId,
-                            isSelfPickup: statusText == "SELF PICKUP",
-                          ),
-                        );
-                      } else {
-                        Get.to(
-                          () => OrderDetailScreen(
-                            orderId: orderId,
-                            isSelfPickup: statusText == "SELF PICKUP",
-                          ),
-                        );
-                      }
-                    },
+                onTap: onDetailsLink,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

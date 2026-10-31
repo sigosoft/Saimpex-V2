@@ -612,8 +612,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
         ? currentStore['image'].toString()
         : (widget.store['image']?.toString() ??
               'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop');
-    final storeRating =
-        (currentStore['rating'] ?? widget.store['rating'] ?? '4.6').toString();
+    final storeRating = (currentStore['rating'] ?? widget.store['rating'] ?? '')
+        .toString();
     final storeCategory =
         (currentStore['category'] ??
                 widget.store['category'] ??

@@ -20,7 +20,7 @@ class CarWashSelectVehiclesScreen extends StatefulWidget {
   const CarWashSelectVehiclesScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanRide Car Wash',
+    this.providerName = '',
     this.selectedLocation = 0,
     this.homeServiceFee = 0,
     this.homeInstructions = '',

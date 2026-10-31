@@ -851,7 +851,7 @@ class _CartScreenState extends State<CartScreen> {
       final saved = Get.find<HomeController>().lastCartItem;
       if (saved?['storeName'] != null) return saved!['storeName'].toString();
     }
-    return "Pharmacy Nasr";
+    return "";
   }
 
   String get itemTitle {

@@ -14,7 +14,7 @@ class HomeCleaningServiceConfigureScreen extends StatefulWidget {
   const HomeCleaningServiceConfigureScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanPro Elite',
+    this.providerName = '',
   });
 
   @override

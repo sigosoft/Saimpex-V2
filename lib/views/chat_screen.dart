@@ -496,7 +496,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.restaurant['title'] as String? ?? 'Pharmacy Nasr';
+    final title = widget.restaurant['title'] as String? ?? '';
     final image =
         widget.restaurant['image'] as String? ??
         'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop';

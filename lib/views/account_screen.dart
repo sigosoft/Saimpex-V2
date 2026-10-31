@@ -179,8 +179,6 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildAccountAvatar() {
-    const fallback =
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop';
     return ProfileImageView(
       size: 62,
       placeholder: Container(
@@ -188,10 +186,12 @@ class _AccountScreenState extends State<AccountScreen> {
         height: 62,
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          image: DecorationImage(
-            image: NetworkImage(fallback),
-            fit: BoxFit.cover,
-          ),
+          color: Color(0xFFFFE8DC),
+        ),
+        child: const Icon(
+          Icons.person_rounded,
+          color: Color(0xFFFF5E00),
+          size: 34,
         ),
       ),
     );

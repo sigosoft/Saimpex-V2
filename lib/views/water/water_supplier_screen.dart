@@ -188,8 +188,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                           if (Get.isRegistered<HomeController>()) {
                             Get.find<HomeController>().setCartItem(
                               storeName:
-                                  widget.supplier['title']?.toString() ??
-                                  'PureLife Water Co.',
+                                  widget.supplier['title']?.toString() ?? '',
                               itemName: product['title']?.toString(),
                               itemPortion: product['size']?.toString(),
                               basePrice: parsePrice(
@@ -559,8 +558,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                     Get.to(
                       () => ChatScreen(
                         restaurant: {
-                          'title':
-                              widget.supplier['title'] ?? 'PureLife Water Co.',
+                          'title': widget.supplier['title'] ?? '',
                           'image': headerImageForChat(),
                         },
                       ),

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'laundry_booking_success_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
 import 'service_booking_submit.dart';
+import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../widgets/app_back_button.dart';
 import '../../utils/toast_helper.dart';
@@ -31,7 +32,7 @@ class LaundryCartScreen extends StatefulWidget {
 
   const LaundryCartScreen({
     super.key,
-    this.providerName = 'CleanPro Laundry',
+    this.providerName = '',
     this.serviceTitle = 'Wash & Fold',
     this.serviceImage = 'lib/assets/images/wash&fold_detail.png',
     this.estimateLabel = 'Estimated 3 kg',
@@ -564,15 +565,15 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   _addressContent(
                     label: 'svc_pickup_upper'.tr,
                     labelColor: const Color(0xFFFF5E00),
-                    title: 'Sahara View Home',
-                    subtitle: 'Near Marhaba Supermarket, Nouakchott',
+                    title: SelectLocationController.selectedTitle,
+                    subtitle: _addressSubtitle,
                   ),
                   const SizedBox(height: 18),
                   _addressContent(
                     label: 'svc_delivery_upper'.tr,
                     labelColor: const Color(0xFF00B25C),
-                    title: 'Sahara View Home',
-                    subtitle: 'Near Marhaba Supermarket, Nouakchott',
+                    title: SelectLocationController.selectedTitle,
+                    subtitle: _addressSubtitle,
                   ),
                 ],
               ),
@@ -581,6 +582,13 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         ),
       ),
     );
+  }
+
+  // Service bookings go to the selected delivery location; pickup and
+  // delivery are the same address.
+  String get _addressSubtitle {
+    final subtitle = SelectLocationController.selectedSubtitle.trim();
+    return subtitle == SelectLocationController.selectedTitle ? '' : subtitle;
   }
 
   Widget _addressContent({

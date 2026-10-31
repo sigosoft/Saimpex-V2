@@ -111,7 +111,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       });
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().setCartItem(
-          storeName: _storeText('title', 'Pharmacy Nasr'),
+          storeName: _storeText('title', ''),
           itemName: item['title']?.toString(),
           itemPortion: portion ?? item['tag']?.toString() ?? '10 Tablets',
           basePrice: parsePrice(item['price']?.toString() ?? '50'),
@@ -507,7 +507,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     final storeId = _storeText('id', 'p1');
-    final storeTitle = _storeText('title', 'Pharmacy Nasr');
+    final storeTitle = _storeText('title', '');
     final storeImage = _storeText('image', '');
     final storeTime = _storeText('time', '30-35 min');
     final storeDistance = _storeText('dist', '10 Km');

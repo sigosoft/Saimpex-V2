@@ -65,11 +65,10 @@ class HomeCleaningCartScreen extends StatefulWidget {
 
   const HomeCleaningCartScreen({
     super.key,
-    this.providerName = 'CleanPro Elite',
-    this.serviceTitle = 'Regular Cleaning',
+    this.providerName = '',
+    this.serviceTitle = '',
     this.serviceImage = 'lib/assets/images/regular_cleaning.jpg',
-    this.serviceDescription =
-        'Standard cleaning for bedrooms, bathrooms, living...',
+    this.serviceDescription = '',
     this.bedrooms = 2,
     this.bathrooms = 2,
     this.kitchens = 0,
@@ -901,9 +900,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  SelectLocationController.selectedTitle.isNotEmpty
-                      ? SelectLocationController.selectedTitle
-                      : 'Sahara View Home',
+                  SelectLocationController.selectedTitle,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
@@ -912,9 +909,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  SelectLocationController.selectedSubtitle.isNotEmpty
-                      ? SelectLocationController.selectedSubtitle
-                      : 'Near Marhaba Supermarket, Nouakchott',
+                  SelectLocationController.selectedSubtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(

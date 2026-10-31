@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../controllers/service_booking_draft.dart';
+import '../../core/network/api_constants.dart';
 import 'car_wash_add_vehicles_sheet.dart';
 import 'car_wash_cart_screen.dart';
 import 'car_wash_choose_slot_sheet.dart';
@@ -29,7 +31,7 @@ class CarWashChooseWashServicesScreen extends StatefulWidget {
   const CarWashChooseWashServicesScreen({
     super.key,
     required this.vehicles,
-    this.providerName = 'CleanRide Car Wash',
+    this.providerName = '',
     this.selectedLocation = 0,
     this.homeServiceFee = 0,
     this.homeInstructions = '',
@@ -49,72 +51,58 @@ class _CarWashChooseWashServicesScreenState
     extends State<CarWashChooseWashServicesScreen> {
   late final List<_VehicleWashConfig> _configs;
 
-  static const _services = [
-    {
-      'title': 'Exterior Wash',
-      'description':
-          'High pressure snow foam, detailed rim cleaning & streak-free hand dry',
-      'durationMin': 30,
-      'image':
-          'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=300&h=300&fit=crop',
-    },
-    {
-      'title': 'Interior Wash',
-      'description':
-          'Deep antimicrobial vacuum, UV dashboard polish & crystal glass cleaning',
-      'durationMin': 30,
-      'image':
-          'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=300&h=300&fit=crop',
-    },
-    {
-      'title': 'Full Wash',
-      'description':
-          'Complete interior & exterior detailing with premium ceramic tire gloss',
-      'durationMin': 45,
-      'image':
-          'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop',
-    },
-  ];
+  static Map<String, dynamic> get _item => ServiceBookingDraft.item;
 
-  /// Exterior, Interior, Full — by vehicle type.
-  static const _servicePricesByType = {
-    'sedan': [350, 350, 690],
-    'suv/4x4': [500, 400, 850],
-    'pickup': [550, 450, 900],
-    'mini bus': [750, 650, 1250],
-  };
+  static String _text(dynamic value) => '${value ?? ''}'.trim();
 
-  List<int> _pricesForVehicle(CarWashAddedVehicle vehicle) {
-    final key = vehicle.label.trim().toLowerCase();
-    if (_servicePricesByType.containsKey(key)) {
-      return _servicePricesByType[key]!;
-    }
-    if (key.contains('suv') || key.contains('4x4')) {
-      return _servicePricesByType['suv/4x4']!;
-    }
-    if (key.contains('pickup')) {
-      return _servicePricesByType['pickup']!;
-    }
-    if (key.contains('mini') || key.contains('bus')) {
-      return _servicePricesByType['mini bus']!;
-    }
-    return _servicePricesByType['sedan']!;
+  static int _int(dynamic value) =>
+      (double.tryParse(_text(value)) ?? 0).round();
+
+  static List<Map<String, dynamic>> _catalog(String key) {
+    final raw = _item[key];
+    if (raw is! List) return const [];
+    return [
+      for (final entry in raw)
+        if (entry is Map) Map<String, dynamic>.from(entry),
+    ];
   }
 
+  /// The service picked on the provider screen, from the provider's catalog.
+  static List<Map<String, dynamic>> get _services {
+    final title = _text(_item['name_en']).isEmpty
+        ? _text(_item['name'])
+        : _text(_item['name_en']);
+    final description = _text(_item['description_en']).isEmpty
+        ? _text(_item['description'])
+        : _text(_item['description_en']);
+    return [
+      {
+        'title': title,
+        'description': description,
+        'durationMin': _int(_item['duration_minutes']),
+        'image': ApiConstants.mediaUrl(_text(_item['image'])) ?? '',
+      },
+    ];
+  }
+
+  /// The catalog price for this vehicle type, else the service's own price.
   int _servicePriceFor(CarWashAddedVehicle vehicle, int serviceIndex) {
-    return _pricesForVehicle(vehicle)[serviceIndex];
+    final key = vehicle.label.trim().toLowerCase();
+    for (final row in _catalog('vehicles')) {
+      if (_text(row['name']).toLowerCase() == key) return _int(row['price']);
+    }
+    return _int(_item['price']);
   }
 
-  static const _addons = [
-    {
-      'title': 'Engine Wash',
-      'description':
-          'Safe hydraulic degreasing and rinse for bay components without water damage.',
-      'price': 50,
-      'durationMin': 15,
-      'image':
-          'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=200&h=200&fit=crop',
-    },
+  static List<Map<String, dynamic>> get _addons => [
+    for (final row in _catalog('addons'))
+      {
+        'title': _text(row['name']),
+        'description': '',
+        'price': _int(row['price']),
+        'durationMin': 0,
+        'image': '',
+      },
   ];
 
   @override

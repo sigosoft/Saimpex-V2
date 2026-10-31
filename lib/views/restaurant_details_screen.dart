@@ -1357,7 +1357,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       itemName:
                           controller.lastCartItem?['itemName']?.toString() ??
                           lastAddedFood?['title']?.toString() ??
-                          'Chicken Tagine',
+                          '',
                       itemPortion:
                           controller.lastCartItem?['itemPortion']?.toString() ??
                           'Full portion',

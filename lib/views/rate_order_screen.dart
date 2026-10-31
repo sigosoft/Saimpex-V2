@@ -138,8 +138,8 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildExperienceCard(
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&auto=format&fit=crop',
+                    imageUrl: '',
+                    fallbackAsset: 'lib/assets/images/Food.png',
                     title: 'orders_rate_restaurant'.tr,
                     rating: restaurantRating,
                     onRatingChanged: (value) {
@@ -150,8 +150,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   ),
                   const SizedBox(height: 14),
                   _buildExperienceCard(
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
+                    imageUrl: '',
                     fallbackAsset: 'lib/assets/images/delivery_icon.png',
                     title: 'orders_rate_delivery'.tr,
                     rating: deliveryRating,

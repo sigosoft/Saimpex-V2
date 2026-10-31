@@ -14,7 +14,7 @@ class LaundryServiceConfigureScreen extends StatefulWidget {
   const LaundryServiceConfigureScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanPro Laundry',
+    this.providerName = '',
   });
 
   @override

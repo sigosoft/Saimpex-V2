@@ -174,9 +174,7 @@ class _WaterSupplierDetailsScreenState
         ? Get.find<HomeController>()
         : Get.put(HomeController());
     final supplierName =
-        widget.supplier['name'] ??
-        widget.supplier['title'] ??
-        'PureLife Water Co.';
+        widget.supplier['name'] ?? widget.supplier['title'] ?? '';
     final subtitle =
         widget.supplier['subtitle'] ?? 'pw_premium_purified_water'.tr;
     final rating = widget.supplier['rating'] ?? '4.6';
@@ -605,9 +603,7 @@ class _WaterSupplierDetailsScreenState
           () => CartScreen(
             showBottomNav: false,
             storeName:
-                widget.supplier['name'] ??
-                widget.supplier['title'] ??
-                'PureLife Water Co.',
+                widget.supplier['name'] ?? widget.supplier['title'] ?? '',
             itemName: title,
             itemPortion: portion,
             basePrice: parsePrice(price),
@@ -741,10 +737,7 @@ class _WaterSupplierDetailsScreenState
       });
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().setCartItem(
-          storeName:
-              widget.supplier['name'] ??
-              widget.supplier['title'] ??
-              'PureLife Water Co.',
+          storeName: widget.supplier['name'] ?? widget.supplier['title'] ?? '',
           itemName: item['title']?.toString(),
           itemPortion:
               item['bottleTag']?.toString() ??

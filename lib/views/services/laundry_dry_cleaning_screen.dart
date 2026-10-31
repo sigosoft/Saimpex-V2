@@ -16,7 +16,7 @@ class LaundryDryCleaningScreen extends StatefulWidget {
   const LaundryDryCleaningScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanPro Laundry',
+    this.providerName = '',
   });
 
   @override

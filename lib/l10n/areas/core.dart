@@ -1293,9 +1293,12 @@ const coreStrings = <String, Map<String, String>>{
     'core_rewards_invite_message':
         'انضم إلى SAIMPEX باستخدام رمزي @code وسيحصل كل منا على @amount أوقية بعد توصيل طلبك الأول.',
     'core_rewards_joined': 'انضموا',
-    'core_rewards_mission_orders': 'الطلبات المُوصَّلة هذا الأسبوع: @done/@target',
-    'core_rewards_mission_referrals': 'الإحالات المكافأة هذا الأسبوع: @done/@target',
-    'core_rewards_mission_reviews': 'التقييمات المرسلة هذا الأسبوع: @done/@target',
+    'core_rewards_mission_orders':
+        'الطلبات المُوصَّلة هذا الأسبوع: @done/@target',
+    'core_rewards_mission_referrals':
+        'الإحالات المكافأة هذا الأسبوع: @done/@target',
+    'core_rewards_mission_reviews':
+        'التقييمات المرسلة هذا الأسبوع: @done/@target',
     'core_rewards_plus_mru': '+@amount أوقية',
     'core_rewards_plus_pts': '+@points نقطة',
     'core_rewards_points': 'النقاط',

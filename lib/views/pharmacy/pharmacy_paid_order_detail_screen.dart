@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../models/order_tracking.dart';
+import '../../utils/api_language.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
@@ -13,15 +15,17 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   final String orderId;
   final int? apiOrderId;
   final bool isDelivery;
-  final String pharmacyName;
+
+  /// Shown until the order loads; the order's own pharmacy wins after that.
+  final String? pharmacyName;
   final String? prescriptionImageUrl;
 
   const PharmacyPaidOrderDetailScreen({
     super.key,
-    this.orderId = '#22789007',
+    required this.orderId,
     this.apiOrderId,
     this.isDelivery = true,
-    this.pharmacyName = 'Pharmacy Nasr',
+    this.pharmacyName,
     this.prescriptionImageUrl,
   });
 
@@ -29,38 +33,87 @@ class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PharmacyOrderDetailLoader(
       apiOrderId: apiOrderId,
-      builder: (context, detail) => _PharmacyPaidOrderDetailBody(
-        orderId: orderId,
-        apiOrderId: apiOrderId,
-        isDelivery: isDelivery,
-        pharmacyName: pharmacyName,
-        prescriptionImageUrl: prescriptionImageUrl,
-        detail: detail,
-      ),
+      builder: (context, detail) {
+        final order = detail == null ? null : OrderTracking.fromJson(detail);
+        return _PharmacyPaidOrderDetailBody(
+          orderId: orderId,
+          apiOrderId: apiOrderId,
+          // The loaded order knows whether it is self pickup.
+          isDelivery: order == null ? isDelivery : !order.isSelfPickup,
+          pharmacyName: pharmacyName,
+          prescriptionImageUrl: prescriptionImageUrl,
+          detail: detail,
+          order: order,
+        );
+      },
     );
   }
+}
+
+/// "22 Oct 2025 10:00 AM" (or with a comma) → "22 Oct 2025,\n10:00 AM".
+String _stepTime(String raw) {
+  final parts = raw.replaceAll(',', '').trim().split(RegExp(r'\s+'));
+  if (parts.length < 4) return raw.trim();
+  return '${parts.take(3).join(' ')},\n${parts.skip(3).join(' ')}';
+}
+
+/// The first non-empty time among [statuses] in the order's timeline.
+String _firstTime(OrderTracking? order, List<int> statuses) {
+  if (order == null) return '';
+  for (final status in statuses) {
+    final time = order.timeOf(status);
+    if (time.isNotEmpty) return _stepTime(time);
+  }
+  return '';
 }
 
 class _PharmacyPaidOrderDetailBody extends StatelessWidget {
   final String orderId;
   final int? apiOrderId;
   final bool isDelivery;
-  final String pharmacyName;
+  final String? pharmacyName;
   final String? prescriptionImageUrl;
   final Map<String, dynamic>? detail;
+
+  /// [detail] parsed; null until the order loads.
+  final OrderTracking? order;
 
   const _PharmacyPaidOrderDetailBody({
     required this.orderId,
     this.apiOrderId,
     this.isDelivery = true,
-    this.pharmacyName = 'Pharmacy Nasr',
+    this.pharmacyName,
     this.prescriptionImageUrl,
     this.detail,
+    this.order,
   });
 
   Map<String, dynamic> get _payment => detail?['payment'] is Map
       ? Map<String, dynamic>.from(detail!['payment'] as Map)
       : <String, dynamic>{};
+
+  bool get _hasDriver => order?.hasDriver == true;
+  String get _deliveryAddress => order?.deliveryAddress ?? '';
+
+  List<Widget> _medicineCards() {
+    final items = order?.items ?? const <Map<String, dynamic>>[];
+    final cards = <Widget>[];
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      final name = item['name_${apiLanguageCode()}'] ?? item['name_en'] ?? '';
+      final total = double.tryParse('${item['total_price'] ?? ''}');
+      if (i > 0) cards.add(const SizedBox(height: 10));
+      cards.add(
+        _buildMedicineCard(
+          title: '${i + 1}. $name',
+          unit:
+              '${item['quantity'] ?? 1} × ${orderMoneyText(item['unit_price'])}',
+          totalAmount: total == null ? '—' : '${total.round()}',
+        ),
+      );
+    }
+    return cards;
+  }
 
   Widget _prescriptionFallback() {
     return Container(
@@ -77,6 +130,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = prescriptionImageUrl ?? '';
+    final medicines = _medicineCards();
     final displayId = orderId.startsWith('#') ? orderId : '#$orderId';
 
     return PharmacyBackground(
@@ -114,56 +168,47 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildPrescriptionCard(imageUrl),
-                    const SizedBox(height: 14),
+                    if (imageUrl.isNotEmpty) ...[
+                      _buildPrescriptionCard(imageUrl),
+                      const SizedBox(height: 14),
+                    ],
                     _buildOrderStatusCard(),
-                    const SizedBox(height: 18),
-                    Text(
-                      'pw_medicines_in_quotation'.tr,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                    if (medicines.isNotEmpty) ...[
+                      const SizedBox(height: 18),
+                      Text(
+                        'pw_medicines_in_quotation'.tr,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildMedicineCard(
-                      title: '1. Paracetamol 500 mg',
-                      unit: 'Unit: 10 tablets x 50 MRU',
-                      totalAmount: '500',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildMedicineCard(
-                      title: '1. Paracetamol 650 mg',
-                      unit: 'Unit: 10 tablets x 50 MRU',
-                      totalAmount: '500',
-                      availabilityBadge: '6 of 10 available',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildMedicineCard(
-                      title: '1. Paracetamol 500 mg',
-                      unit: '10 tablets × 50 MRU',
-                      totalAmount: '500',
-                      showSuggestedAlternative: true,
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      isDelivery
-                          ? 'pw_delivery_details'.tr
-                          : 'pw_pickup_location'.tr,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                      const SizedBox(height: 12),
+                      ...medicines,
+                    ],
+                    if (!isDelivery ||
+                        _deliveryAddress.isNotEmpty ||
+                        _hasDriver) ...[
+                      const SizedBox(height: 18),
+                      Text(
+                        isDelivery
+                            ? 'pw_delivery_details'.tr
+                            : 'pw_pickup_location'.tr,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    if (isDelivery) ...[
-                      _buildAddressCard(),
-                      const SizedBox(height: 10),
-                      _buildCourierCard(),
-                    ] else
-                      _buildPickupLocationCard(),
+                      const SizedBox(height: 12),
+                      if (isDelivery) ...[
+                        if (_deliveryAddress.isNotEmpty) _buildAddressCard(),
+                        if (_deliveryAddress.isNotEmpty && _hasDriver)
+                          const SizedBox(height: 10),
+                        if (_hasDriver) _buildCourierCard(order!),
+                      ] else
+                        _buildPickupLocationCard(),
+                    ],
                     const SizedBox(height: 16),
                     _buildQuotationSummaryCard(),
                   ],
@@ -307,60 +352,53 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
   }
 
   Widget _buildOrderStatusCard() {
-    final steps = isDelivery
-        ? const [
-            _StatusStep(
-              label: 'pw_step_payment_successful',
-              time: '23 Oct 2023,\n10:20 AM',
-              done: true,
-              icon: Icons.check_rounded,
-            ),
-            _StatusStep(
-              label: 'pw_step_preparing_medicines',
-              time: '23 Oct 2023,\n10:24 AM',
-              done: true,
-              icon: Icons.medication_liquid_rounded,
-            ),
-            _StatusStep(
+    // Status codes: 1 placed, 2–3 accepted/preparing, 4 ready, 7–8 picked up
+    // / on the way, 9 delivered, 10 cancelled.
+    final status = order?.status ?? 0;
+    final cancelled = order?.isCancelled == true;
+    final placedAt = order?.placedAt ?? '';
+    final steps = [
+      _StatusStep(
+        label: 'pw_step_payment_successful',
+        time: placedAt.isEmpty ? '' : _stepTime(placedAt),
+        done: status >= 1,
+        icon: Icons.check_rounded,
+      ),
+      _StatusStep(
+        label: 'pw_step_preparing_medicines',
+        time: _firstTime(order, const [2, 3]),
+        done: !cancelled && status >= 2,
+        icon: Icons.medication_liquid_rounded,
+      ),
+      isDelivery
+          ? _StatusStep(
               label: 'pw_step_on_the_way',
-              time: '23 Oct 2023,\n10:40 AM',
-              done: true,
+              time: _firstTime(order, const [7, 8]),
+              done: !cancelled && status >= 7,
               icon: Icons.delivery_dining_rounded,
-            ),
-            _StatusStep(
-              label: 'pw_step_delivered',
-              time: '',
-              done: false,
-              icon: Icons.check_rounded,
-            ),
-          ]
-        : const [
-            _StatusStep(
-              label: 'pw_step_payment_successful',
-              time: '23 Oct 2023,\n10:20 AM',
-              done: true,
-              icon: Icons.check_rounded,
-            ),
-            _StatusStep(
-              label: 'pw_step_preparing_medicines',
-              time: '23 Oct 2023,\n10:24 AM',
-              done: true,
-              icon: Icons.medication_liquid_rounded,
-            ),
-            _StatusStep(
+            )
+          : _StatusStep(
               label: 'pw_step_ready_for_pickup',
-              time: '23 Oct 2023,\n10:40 AM',
-              done: true,
+              time: _firstTime(order, const [4]),
+              done: !cancelled && status >= 4,
               icon: Icons.shopping_bag_outlined,
-              highlight: true,
+              // Waiting at the pharmacy for the customer.
+              highlight: !cancelled && status >= 4 && status < 9,
             ),
-            _StatusStep(
+      cancelled
+          ? _StatusStep(
+              label: 'pw_cancelled',
+              time: _firstTime(order, const [10]),
+              done: true,
+              icon: Icons.close_rounded,
+            )
+          : _StatusStep(
               label: 'pw_step_delivered',
-              time: '',
-              done: false,
+              time: _firstTime(order, const [9]),
+              done: status >= 9,
               icon: Icons.check_rounded,
             ),
-          ];
+    ];
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
@@ -419,7 +457,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                           right: circle / 2,
                           child: Row(
                             children: List.generate(3, (i) {
-                              final active = i < 2;
+                              final active = steps[i + 1].done;
                               return Container(
                                 width: segment,
                                 height: 3,
@@ -529,8 +567,6 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
     required String title,
     required String unit,
     required String totalAmount,
-    String? availabilityBadge,
-    bool showSuggestedAlternative = false,
   }) {
     return Container(
       width: double.infinity,
@@ -549,266 +585,55 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            title,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF1A2338),
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 12),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text(
-                  title,
+                  'pw_unit_value'.trParams({'unit': unit}),
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF1A2338),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFFA59A94),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-              if (availabilityBadge != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF4D6),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    availabilityBadge,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFB8860B),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          if (showSuggestedAlternative) ...[
-            const SizedBox(height: 12),
-            _buildSuggestedAlternativeBox(),
-            const SizedBox(height: 14),
-            _buildUnitTotalFooter(unitValue: unit, totalAmount: totalAmount),
-          ] else ...[
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    unit.startsWith('Unit:')
-                        ? unit
-                        : 'pw_unit_value'.trParams({'unit': unit}),
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Text(
-                  'pw_total_colon'.tr,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  totalAmount,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Text(
-                  ' ${'pw_mru_suffix'.tr}',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSuggestedAlternativeBox() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F1FE),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'quote_suggested_alternative'.tr,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF8A94A6),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF4D4D),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Paracetamol 500 mg',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF8A94A6),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 0),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Container(
-                      width: 22,
-                      height: 22,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFE8DC),
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: Color(0xFFFF7A45),
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF2ECC71),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Paracetamol 650 mg',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF1A2338),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUnitTotalFooter({
-    required String unitValue,
-    required String totalAmount,
-  }) {
-    final cleanUnit = unitValue
-        .replaceFirst(RegExp(r'^Unit:\s*'), '')
-        .replaceAll('x', '×');
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
               Text(
-                'pw_unit'.tr,
+                'pw_total_colon'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF8A94A6),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                cleanUnit,
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF1A2338),
-                  fontSize: 13,
+                  color: const Color(0xFF2C2520),
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              Text(
+                totalAmount,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              Text(
+                ' ${'pw_mru_suffix'.tr}',
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              'pw_total'.tr,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF8A94A6),
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  totalAmount,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1A2338),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'pw_mru_suffix'.tr,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -847,7 +672,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sahara View Home',
+                  'pw_delivery_address'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
@@ -856,7 +681,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  'Near Marhaba Supermarket, Nouakchott',
+                  _deliveryAddress,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
@@ -872,6 +697,13 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
   }
 
   Widget _buildPickupLocationCard() {
+    final vendorName = order?.vendorName ?? '';
+    final name = vendorName.isNotEmpty
+        ? vendorName
+        : (pharmacyName == null || pharmacyName!.isEmpty)
+        ? 'pw_pharmacy'.tr
+        : pharmacyName!;
+    final address = order?.vendorAddress ?? '';
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -906,24 +738,26 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  pharmacyName,
+                  name,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  '$pharmacyName, Near Nouakchott, Mauritania',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFA59A94),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
+                if (address.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    address,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFA59A94),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -937,7 +771,14 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
     );
   }
 
-  Widget _buildCourierCard() {
+  /// Only built when the order has a driver.
+  Widget _buildCourierCard(OrderTracking order) {
+    final placeholder = Container(
+      width: 46,
+      height: 46,
+      color: const Color(0xFFF3EFEA),
+      child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
+    );
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -954,12 +795,15 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
       child: Row(
         children: [
           ClipOval(
-            child: Container(
-              width: 46,
-              height: 46,
-              color: const Color(0xFFF3EFEA),
-              child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
-            ),
+            child: order.driverImage.isEmpty
+                ? placeholder
+                : Image.network(
+                    order.driverImage,
+                    width: 46,
+                    height: 46,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => placeholder,
+                  ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -967,55 +811,48 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Amadou Sy',
+                  order.driverName.isEmpty ? 'pw_driver'.tr : order.driverName,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 3),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFAE00),
-                      size: 14,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      '4.8',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                if (order.driverRating > 0) ...[
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Color(0xFFFFAE00),
+                        size: 14,
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'pw_reviews_count'.trParams({'count': '10k +'}),
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(width: 3),
+                      Text(
+                        order.driverRating.toStringAsFixed(1),
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      if (order.driverReviews > 0) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          'pw_reviews_count'.trParams({
+                            'count': '${order.driverReviews}',
+                          }),
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFA59A94),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
               ],
-            ),
-          ),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.phone_rounded,
-              color: Colors.white,
-              size: 20,
             ),
           ),
         ],
