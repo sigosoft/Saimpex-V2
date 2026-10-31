@@ -4,6 +4,8 @@ class ApiConstants {
       'https://dev.saimpexenterprise.com/storage/';
 
   static const String splash = 'customer/splash';
+  static const String search = 'customer/search';
+  static const String imageSearch = 'customer/image-recognition/analyze';
   static const String sendOtp = 'customer/sendOtp';
   static const String verifyOtp = 'customer/verifyOtp';
   static const String customerCheck = 'customer/customerCheck';

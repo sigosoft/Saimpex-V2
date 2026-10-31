@@ -398,7 +398,7 @@ Masked calls are required (SPX-ADM-02 item 15). AC: the call-driver button in `t
 **P0-5. Water subscription purchase must not fake success.**
 AC: until the subscribe contract is confirmed, the Pay button is disabled with a clear message, or it calls `water/subscribe` and shows success only when the server says so. The nearby-suppliers list comes from the API, not the hard-coded list in `water_nearby_suppliers_screen.dart`.
 
-**P0-6. Home search must search.**
+**P0-6. Home search must search.** ✅ Done (P1-2, P1-3).
 AC: submitting the home search box (typed, voice or camera label) opens a results screen. Until unified search ships (P1-2), it may route to the Food search; after, it uses `customer/search`.
 
 **P0-7. Remove sample content customers can see.**
@@ -412,10 +412,10 @@ AC: tab loads `customer/orders/localStore` (use the local-store `GroceryReposito
 **P1-1. Localisation EN / FR / AR with RTL.** (No backend needed.)
 AC: every visible string comes from translations (GetX `Translations` or Flutter `intl`/ARB — pick one and use it everywhere). `GetMaterialApp` sets `locale`, `fallbackLocale: en`, `supportedLocales`. Choosing Arabic flips layout to RTL (icons, paddings, back arrows, sliders). The choice is saved locally and sent with `updateLanguage`; it survives restart. API messages use the matching `message_xx`. The client reports wording issues later; do not wait for perfect copy.
 
-**P1-2. Unified search.** Blocked (contract pending).
+**P1-2. Unified search.** ✅ Done (`feat/unified-search`): Home search (typed or voice) opens `AllSearchScreen`, which calls `GET customer/search` and lists stores by category (Food, Grocery, Local Store, Pharmacy, Water) then products; tapping opens that category's store screen (products open their store; opening the product sheet directly is not done yet). Laundry/car wash/home cleaning/gas store hits are not listed (no store screen to open from search).
 AC: text and voice search from Home return stores and products across all categories, nearest first, only stores that deliver to the selected location. Tapping a product opens it in its store ready to add to cart.
 
-**P1-3. Image search via Google Vision.** Blocked.
+**P1-3. Image search via Google Vision.** ✅ Done (`feat/unified-search`): the home camera photo goes to `POST image-recognition/analyze` without `type`; results show like a typed search. On-device ML Kit is no longer used by the home box.
 AC: capture or upload a photo → backend identifies the product → list of stores with price, distance, rating → tap opens that product in the store. On-device ML Kit may stay only as a fallback if the backend is unreachable (confirm with the backend owner).
 
 **P1-4. Wallet top-up and split payment.** API ready (backend API doc §6.8).

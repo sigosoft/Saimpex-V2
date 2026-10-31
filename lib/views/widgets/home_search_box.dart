@@ -7,7 +7,6 @@ import 'package:speech_to_text/speech_to_text.dart';
 import '../../utils/toast_helper.dart';
 import '../home_scanner_screen.dart';
 import '../all_search_screen.dart';
-import 'search_camera_button.dart';
 
 class HomeSearchBox extends StatefulWidget {
   const HomeSearchBox({super.key});
@@ -137,19 +136,9 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
     if (_scanning) return;
     final path = await Get.to<String>(() => const HomeScannerScreen());
     if (path == null || !mounted) return;
-
-    setState(() => _scanning = true);
-    try {
-      final text = await labelScannedImage(path);
-      if (!mounted || text == null) return;
-      _controller.value = TextEditingValue(
-        text: text,
-        selection: TextSelection.collapsed(offset: text.length),
-      );
-      _search(text);
-    } finally {
-      if (mounted) setState(() => _scanning = false);
-    }
+    // The server identifies the product in the photo (Google Vision) and
+    // answers with stores and products, like a typed search.
+    Get.to(() => AllSearchScreen(imagePath: path));
   }
 
   String _titleCase(String value) {

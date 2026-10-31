@@ -13,6 +13,15 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'search_hint': 'Search stores and products',
+  'search_prompt': 'Type what you are looking for',
+  'search_no_results': 'No results for "@query"',
+  'search_products': 'Products',
+  'search_vertical_food': 'Food',
+  'search_vertical_grocery': 'Grocery',
+  'search_vertical_local_store': 'Local Store',
+  'search_vertical_pharmacy': 'Pharmacy',
+  'search_vertical_water': 'Water',
   'language_switched': 'Language switched to @language',
   'cancel': 'Cancel',
   'retry': 'Retry',
@@ -43,6 +52,15 @@ const _en = {
 };
 
 const _fr = {
+  'search_hint': 'Rechercher des magasins et des produits',
+  'search_prompt': 'Tapez ce que vous cherchez',
+  'search_no_results': 'Aucun résultat pour « @query »',
+  'search_products': 'Produits',
+  'search_vertical_food': 'Restauration',
+  'search_vertical_grocery': 'Épicerie',
+  'search_vertical_local_store': 'Commerce local',
+  'search_vertical_pharmacy': 'Pharmacie',
+  'search_vertical_water': 'Eau',
   'language_switched': 'Langue changée : @language',
   'cancel': 'Annuler',
   'retry': 'Réessayer',
@@ -74,6 +92,15 @@ const _fr = {
 };
 
 const _ar = {
+  'search_hint': 'ابحث عن المتاجر والمنتجات',
+  'search_prompt': 'اكتب ما تبحث عنه',
+  'search_no_results': 'لا توجد نتائج لـ "@query"',
+  'search_products': 'المنتجات',
+  'search_vertical_food': 'الطعام',
+  'search_vertical_grocery': 'البقالة',
+  'search_vertical_local_store': 'المتجر المحلي',
+  'search_vertical_pharmacy': 'الصيدلية',
+  'search_vertical_water': 'المياه',
   'language_switched': 'تم تغيير اللغة إلى @language',
   'cancel': 'إلغاء',
   'retry': 'إعادة المحاولة',
