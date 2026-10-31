@@ -11,7 +11,7 @@ import '../../utils/toast_helper.dart';
 class CourierSelectRecipientLocationScreen extends StatefulWidget {
   const CourierSelectRecipientLocationScreen({
     super.key,
-    this.title = 'Select Recipient\'s Location',
+    this.title = 'st_select_recipient_location',
   });
 
   final String title;
@@ -126,13 +126,13 @@ class _CourierSelectRecipientLocationScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
-              widget.title,
+              widget.title.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -177,7 +177,7 @@ class _CourierSelectRecipientLocationScreenState
               onChanged: controller.onSearchQueryChanged,
               onSubmitted: controller.searchAddress,
               decoration: InputDecoration(
-                hintText: 'Search for area, street name.....',
+                hintText: 'st_search_area'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
@@ -353,7 +353,7 @@ class _CourierSelectRecipientLocationScreenState
               final result = controller.getSelectedAddressResult();
               if (result == null) {
                 showAppToast(
-                  'Please select a valid location on the map or from search.',
+                  'st_select_valid_location'.tr,
                   backgroundColor: Colors.redAccent,
                 );
                 return;
@@ -377,7 +377,7 @@ class _CourierSelectRecipientLocationScreenState
               ),
               alignment: Alignment.center,
               child: Text(
-                'Continue',
+                'st_continue'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,

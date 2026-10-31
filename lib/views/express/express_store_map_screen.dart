@@ -183,11 +183,7 @@ class _ExpressStoreMapScreenState extends State<ExpressStoreMapScreen> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFFFDE8DD),
-            Color(0xFFFFF3EC),
-            Color(0xFFFFFBF7),
-          ],
+          colors: [Color(0xFFFDE8DD), Color(0xFFFFF3EC), Color(0xFFFFFBF7)],
           stops: [0.0, 0.42, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -196,107 +192,110 @@ class _ExpressStoreMapScreenState extends State<ExpressStoreMapScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Stack(
-        children: [
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _MapRoadPainter(),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Stack(
-                    children: markers.map((marker) {
-                      final storeIndex = marker['storeIndex'] as int;
-                      final isSelected = selectedIndex == storeIndex;
-                      return Positioned(
-                        left: constraints.maxWidth * (marker['left'] as double),
-                        top: constraints.maxHeight * (marker['top'] as double),
-                        child: GestureDetector(
-                          onTap: () => _selectStore(storeIndex),
-                          child: _buildMapMarker(
-                            marker,
-                            isSelected: isSelected,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
-            ),
-          ),
-          Positioned(
-            top: topInset + 8,
-            left: 16,
-            right: 16,
-            child: Row(
-              children: [
-                AppBackButton(onTap: () => Get.back()),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(23),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.search_rounded,
-                          color: Color(0xFFA59A94),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            style: GoogleFonts.outfit(fontSize: 13),
-                            decoration: InputDecoration(
-                              hintText: 'Search restaurants, stores...',
-                              hintStyle: GoogleFonts.outfit(
-                                color: const Color(0xFFA59A94),
-                                fontSize: 12.5,
-                              ),
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _MapRoadPainter(),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Stack(
+                      children: markers.map((marker) {
+                        final storeIndex = marker['storeIndex'] as int;
+                        final isSelected = selectedIndex == storeIndex;
+                        return Positioned(
+                          left:
+                              constraints.maxWidth * (marker['left'] as double),
+                          top:
+                              constraints.maxHeight * (marker['top'] as double),
+                          child: GestureDetector(
+                            onTap: () => _selectStore(storeIndex),
+                            child: _buildMapMarker(
+                              marker,
+                              isSelected: isSelected,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        );
+                      }).toList(),
+                    );
+                  },
                 ),
-              ],
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: bottomInset + 12,
-            child: SizedBox(
-              height: 118,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: stores.length,
-                onPageChanged: (index) => setState(() => selectedIndex = index),
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: _buildStoreCard(stores[index]),
-                  );
-                },
               ),
             ),
-          ),
-        ],
-      ),
+            Positioned(
+              top: topInset + 8,
+              left: 16,
+              right: 16,
+              child: Row(
+                children: [
+                  AppBackButton(onTap: () => Get.back()),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Container(
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(23),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.search_rounded,
+                            color: Color(0xFFA59A94),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              style: GoogleFonts.outfit(fontSize: 13),
+                              decoration: InputDecoration(
+                                hintText: 'st_search_restaurants_stores'.tr,
+                                hintStyle: GoogleFonts.outfit(
+                                  color: const Color(0xFFA59A94),
+                                  fontSize: 12.5,
+                                ),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: bottomInset + 12,
+              child: SizedBox(
+                height: 118,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: stores.length,
+                  onPageChanged: (index) =>
+                      setState(() => selectedIndex = index),
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 12),
+                      child: _buildStoreCard(stores[index]),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -325,8 +324,8 @@ class _ExpressStoreMapScreenState extends State<ExpressStoreMapScreen> {
             border: border != null
                 ? Border.all(color: border, width: 2)
                 : isSelected
-                    ? Border.all(color: const Color(0xFFFF5E00), width: 2)
-                    : null,
+                ? Border.all(color: const Color(0xFFFF5E00), width: 2)
+                : null,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.12),
@@ -385,7 +384,7 @@ class _ExpressStoreMapScreenState extends State<ExpressStoreMapScreen> {
     return GestureDetector(
       onTap: () => Get.to(() => RestaurantDetailsScreen(restaurant: store)),
       child: Container(
-        margin: const EdgeInsets.only(left: 16),
+        margin: const EdgeInsetsDirectional.only(start: 16),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.white,

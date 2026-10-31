@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void showExpressFilterSheet(BuildContext context) {
@@ -51,6 +52,22 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
     });
   }
 
+  // Chip values stay in English; only the text shown is translated.
+  static const _chipKeys = {
+    'Spicy': 'st_tag_spicy',
+    'Non Spicy': 'st_tag_non_spicy',
+    'Sugar Free': 'st_tag_sugar_free',
+    'Mild Sugar': 'st_tag_mild_sugar',
+    'Offers': 'st_offers',
+    'Ratings 4.5+': 'st_ratings_45',
+    'Ratings 4.0+': 'st_ratings_40',
+    'Ratings 3.5+': 'st_ratings_35',
+    'Relevance': 'st_sort_relevance',
+    'Delivery Time': 'st_sort_delivery_time',
+    'Cost: Low to High': 'st_sort_cost_low_high',
+    'Cost: High to Low': 'st_sort_cost_high_low',
+  };
+
   Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -67,7 +84,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
           ),
         ),
         child: Text(
-          label,
+          _chipKeys[label]?.tr ?? label,
           style: GoogleFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5E00)
@@ -89,7 +106,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
         children: tags.map((tag) {
           final isSelected = selectedTags.contains(tag);
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: _buildChip(tag, isSelected, () {
               setState(() {
                 if (selectedTags.contains(tag)) {
@@ -130,7 +147,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                   children: [
                     const SizedBox(width: 60),
                     Text(
-                      'Filters',
+                      'st_filters'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 16,
@@ -140,7 +157,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                     GestureDetector(
                       onTap: _clearAll,
                       child: Text(
-                        'Clear all',
+                        'st_clear_all'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 12,
@@ -162,7 +179,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Price Range',
+                      'st_price_range'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
@@ -170,7 +187,10 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                       ),
                     ),
                     Text(
-                      '${priceRange.start.round()} MRU - ${priceRange.end.round()} MRU',
+                      'st_price_range_value'.trParams({
+                        'min': '${priceRange.start.round()}',
+                        'max': '${priceRange.end.round()}',
+                      }),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 14,
@@ -187,7 +207,9 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: const Color(0xFFFF5E00),
                     inactiveTrackColor: const Color(0xFFF3EFEA),
-                    overlayColor: const Color(0xFFFF5E00).withValues(alpha: 0.12),
+                    overlayColor: const Color(
+                      0xFFFF5E00,
+                    ).withValues(alpha: 0.12),
                     rangeThumbShape: const _ExpressRangeThumbShape(
                       enabledThumbRadius: 10,
                     ),
@@ -209,7 +231,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '0 MRU',
+                      'mru'.trParams({'amount': '0'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
@@ -217,7 +239,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                       ),
                     ),
                     Text(
-                      '3000 MRU',
+                      'mru'.trParams({'amount': '3000'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
@@ -230,7 +252,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
               const SizedBox(height: 22),
               Center(
                 child: Text(
-                  'Sort by',
+                  'st_sort_by'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
@@ -247,7 +269,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                   children: sortOptions.map((option) {
                     final isSelected = selectedSortBy == option;
                     return Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsetsDirectional.only(end: 8),
                       child: _buildChip(option, isSelected, () {
                         setState(() => selectedSortBy = option);
                       }),
@@ -275,7 +297,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: Text(
-                          'Clear All',
+                          'st_clear_all'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 14,
@@ -298,15 +320,16 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                             borderRadius: BorderRadius.circular(25),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFF5E00)
-                                    .withValues(alpha: 0.35),
+                                color: const Color(
+                                  0xFFFF5E00,
+                                ).withValues(alpha: 0.35),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Text(
-                            'Apply',
+                            'st_apply'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 15,

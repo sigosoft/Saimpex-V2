@@ -213,7 +213,7 @@ class _CourierReviewBookingScreenState
                             _buildRouteAndContactCard(),
                             const SizedBox(height: 18),
                             Text(
-                              'OTP Verification',
+                              'st_otp_verification'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 15,
@@ -232,7 +232,7 @@ class _CourierReviewBookingScreenState
                               const SizedBox(height: 18),
                             ],
                             Text(
-                              'Payment',
+                              'st_payment'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 15,
@@ -243,26 +243,26 @@ class _CourierReviewBookingScreenState
                             _buildPaymentOption(
                               index: 0,
                               icon: Icons.account_balance_wallet_outlined,
-                              title: 'SAIMPEX Wallet',
+                              title: 'wallet_title'.tr,
                               subtitle: walletBalanceSubtitle(),
                             ),
                             _buildPaymentOption(
                               index: 1,
                               icon: Icons.payments_outlined,
-                              title: 'Online payment',
-                              subtitle: 'Card • Mobile money',
+                              title: 'st_online_payment'.tr,
+                              subtitle: 'st_card_mobile_money'.tr,
                             ),
                             _buildPaymentOption(
                               index: 2,
                               icon: Icons.monetization_on_outlined,
-                              title: 'Cash on Delivery',
-                              subtitle: 'Pay the SAIMPEX driver',
+                              title: 'st_cash_on_delivery'.tr,
+                              subtitle: 'st_pay_driver'.tr,
                             ),
                             const SizedBox(height: 14),
                             _buildPaymentDetails(),
                             const SizedBox(height: 12),
                             Text(
-                              'By confirming, you agree to our Terms of Service. Our fleet ensures secure transit with 2026 standard infrastructure.',
+                              'st_terms_note'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 10,
@@ -297,11 +297,11 @@ class _CourierReviewBookingScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
-            'Review Booking',
+            'st_review_booking'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 17,
@@ -337,7 +337,7 @@ class _CourierReviewBookingScreenState
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(18, 20, 14, 18),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 20, 14, 18),
       child: Column(
         children: [
           IntrinsicHeight(
@@ -374,11 +374,14 @@ class _CourierReviewBookingScreenState
                   child: Column(
                     children: [
                       _buildRouteRow(
-                        label: 'PICKUP',
+                        label: 'st_pickup'.tr,
                         title: widget.pickupAddress,
                       ),
                       const SizedBox(height: 18),
-                      _buildRouteRow(label: 'DROP-OFF', title: _displayDropOff),
+                      _buildRouteRow(
+                        label: 'st_drop_off'.tr,
+                        title: _displayDropOff,
+                      ),
                     ],
                   ),
                 ),
@@ -393,7 +396,7 @@ class _CourierReviewBookingScreenState
             children: [
               Expanded(
                 child: Text(
-                  'Receiver Contact',
+                  'st_receiver_contact'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12,
@@ -402,7 +405,7 @@ class _CourierReviewBookingScreenState
                 ),
               ),
               Text(
-                'Edit',
+                'st_edit'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -533,7 +536,7 @@ class _CourierReviewBookingScreenState
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Share this 6-digit code with the recipient via call or message to ensure a secure handoff.',
+                  'st_otp_share_hint'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 11,
@@ -560,7 +563,9 @@ class _CourierReviewBookingScreenState
                   children: List.generate(6, (index) {
                     const digits = ['3', '4', '5', '6', '7', '8'];
                     return Padding(
-                      padding: EdgeInsets.only(right: index == 5 ? 0 : 10),
+                      padding: EdgeInsetsDirectional.only(
+                        end: index == 5 ? 0 : 10,
+                      ),
                       child: Text(
                         digits[index],
                         style: GoogleFonts.outfit(
@@ -611,7 +616,7 @@ class _CourierReviewBookingScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.vehicleLabel,
+                  widget.vehicleLabel.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
@@ -648,7 +653,7 @@ class _CourierReviewBookingScreenState
               ),
               const SizedBox(height: 2),
               Text(
-                '10 Km',
+                'st_km'.trParams({'km': '10'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 10,
@@ -691,7 +696,7 @@ class _CourierReviewBookingScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Schedule for Later',
+                  'st_schedule_later'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF0E5A2A),
                     fontSize: 13,
@@ -700,7 +705,7 @@ class _CourierReviewBookingScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Select a pickup time',
+                  'st_select_pickup_time'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF3BA162),
                     fontSize: 10,
@@ -728,7 +733,7 @@ class _CourierReviewBookingScreenState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Save More',
+              'st_save_more'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 15,
@@ -736,7 +741,7 @@ class _CourierReviewBookingScreenState
               ),
             ),
             Text(
-              'View Coupons',
+              'st_view_coupons'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 11,
@@ -766,7 +771,7 @@ class _CourierReviewBookingScreenState
                 child: TextField(
                   style: GoogleFonts.outfit(fontSize: 12),
                   decoration: InputDecoration(
-                    hintText: 'Enter coupon',
+                    hintText: 'st_enter_coupon'.tr,
                     hintStyle: GoogleFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 12,
@@ -777,7 +782,7 @@ class _CourierReviewBookingScreenState
                 ),
               ),
               Text(
-                'Apply',
+                'st_apply'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
@@ -815,7 +820,7 @@ class _CourierReviewBookingScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Use 500 points',
+                        'cart_use_points'.trParams({'points': '500'}),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 12,
@@ -824,7 +829,7 @@ class _CourierReviewBookingScreenState
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '= 50 MRU off',
+                        'cart_points_off'.trParams({'amount': '50'}),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 10,
@@ -963,7 +968,7 @@ class _CourierReviewBookingScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'st_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
@@ -971,14 +976,17 @@ class _CourierReviewBookingScreenState
             ),
           ),
           const SizedBox(height: 14),
-          _paymentRow('Delivery fee', '${widget.deliveryFee} MRU'),
+          _paymentRow(
+            'cart_delivery_fee'.tr,
+            'mru'.trParams({'amount': '${widget.deliveryFee}'}),
+          ),
           if (_extrasAvailable) ...[
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Redeemed points',
+                  'cart_redeemed_points'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 12,
@@ -986,7 +994,7 @@ class _CourierReviewBookingScreenState
                   ),
                 ),
                 Text(
-                  '-$redeemedPointsDiscount MRU',
+                  '-${'mru'.trParams({'amount': '$redeemedPointsDiscount'})}',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 12,
@@ -1001,14 +1009,14 @@ class _CourierReviewBookingScreenState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Points discount',
+                    'st_points_discount'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 12,
                     ),
                   ),
                   Text(
-                    '-50 MRU',
+                    '-${'mru'.trParams({'amount': '50'})}',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
@@ -1019,7 +1027,7 @@ class _CourierReviewBookingScreenState
               ),
             ],
             const SizedBox(height: 10),
-            _paymentRow('Tax', '$tax MRU'),
+            _paymentRow('cart_tax'.tr, 'mru'.trParams({'amount': '$tax'})),
           ],
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF423B36), height: 1),
@@ -1028,7 +1036,7 @@ class _CourierReviewBookingScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'To pay',
+                'st_to_pay'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
@@ -1036,7 +1044,7 @@ class _CourierReviewBookingScreenState
                 ),
               ),
               Text(
-                '$toPay MRU',
+                'mru'.trParams({'amount': '$toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -1094,7 +1102,7 @@ class _CourierReviewBookingScreenState
         ),
         alignment: Alignment.center,
         child: Text(
-          'Pay $toPay MRU',
+          'st_pay_amount'.trParams({'amount': '$toPay'}),
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 15,

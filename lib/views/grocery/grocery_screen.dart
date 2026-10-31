@@ -41,7 +41,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
   List<Map<String, dynamic>> fastDeliveryStores = [];
   List<Map<String, dynamic>> frequentlyBought = [];
 
-  String _walletText = '0 MRU';
+  String _walletText = 'mru'.trParams({'amount': '0'});
 
   bool _groceryLoading = true;
   bool _categoriesLoading = true;
@@ -77,7 +77,12 @@ class _GroceryScreenState extends State<GroceryScreen> {
     final wallet = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>().walletLabel.trim()
         : '';
-    if (mounted) setState(() => _walletText = wallet.isEmpty ? '0 MRU' : wallet);
+    if (mounted)
+      setState(
+        () => _walletText = wallet.isEmpty
+            ? 'mru'.trParams({'amount': '0'})
+            : wallet,
+      );
   }
 
   @override
@@ -181,17 +186,17 @@ class _GroceryScreenState extends State<GroceryScreen> {
     String message;
     final lower = title.toLowerCase();
     if (lower.contains('recent order')) {
-      message = 'No recent orders available';
+      message = 'st_no_recent_orders'.tr;
     } else if (lower.contains('top store') || lower.contains('store')) {
-      message = 'No grocery stores available';
+      message = 'st_no_grocery_stores'.tr;
     } else if (lower.contains('delivery') || lower.contains('15-min')) {
-      message = 'No fast delivery stores available';
+      message = 'st_no_fast_delivery'.tr;
     } else if (lower.contains('frequently') ||
         lower.contains('bought') ||
         lower.contains('product')) {
-      message = 'No products available';
+      message = 'st_no_products'.tr;
     } else {
-      message = 'No data available';
+      message = 'st_no_data'.tr;
     }
 
     return SizedBox(
@@ -275,7 +280,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         vertical: 8,
                       ),
                       child: Text(
-                        'Grocery',
+                        'st_grocery'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 22,
@@ -294,15 +299,27 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           : _buildStickySearchSubcatsSection(),
                     ),
 
-                    _buildSectionHeader('Top Stores Near You', 'See All', () {
+                    _buildSectionHeader('st_top_stores'.tr, 'See All', () {
                       Get.to(() => const GroceryStoresScreen());
                     }),
                     _buildTopStoresList(),
-                    _buildSectionHeader('Recent Orders', 'View Orders', () {}),
+                    _buildSectionHeader(
+                      'st_recent_orders'.tr,
+                      'st_view_orders',
+                      () {},
+                    ),
                     _buildRecentOrdersList(),
-                    _buildSectionHeader('15-Min Delivery', 'See All', () {}),
+                    _buildSectionHeader(
+                      'st_15_min_delivery'.tr,
+                      'See All',
+                      () {},
+                    ),
                     _buildFastDeliveryList(),
-                    _buildSectionHeader('Frequently Bought', 'See All', () {}),
+                    _buildSectionHeader(
+                      'st_frequently_bought'.tr,
+                      'See All',
+                      () {},
+                    ),
                     _buildFrequentlyBoughtList(),
                     const SizedBox(height: 36),
                   ],
@@ -362,7 +379,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Deliver To',
+                          'st_deliver_to'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 10,
@@ -480,7 +497,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
               ),
               const SizedBox(width: 10),
               Text(
-                'SAIMPEX AI • PREDICTIVE',
+                'st_ai_predictive'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
@@ -492,7 +509,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            'Your weekly eggs order is due tomorrow',
+            'st_ai_eggs_title'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 17,
@@ -502,7 +519,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Farm Fresh brown eggs (12) — you saved 18% last time with the breakfast bundle.',
+            'st_ai_eggs_body'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF6F655C),
               fontSize: 13,
@@ -540,7 +557,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Add bundle',
+                    'st_add_bundle'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
@@ -587,16 +604,14 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 ),
                 children: [
                   TextSpan(
-                    text: 'AI tip: ',
+                    text: 'st_ai_tip'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF0B7A4B),
                       fontWeight: FontWeight.w800,
                       fontSize: 12,
                     ),
                   ),
-                  const TextSpan(
-                    text: 'Your usual milk + bread is ready in one tap',
-                  ),
+                  TextSpan(text: 'st_ai_tip_text'.tr),
                 ],
               ),
             ),
@@ -631,7 +646,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Add',
+                    'st_add'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 12,
@@ -685,7 +700,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 },
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: 'What do you need today?',
+                  hintText: 'st_search_hint'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12.5,
@@ -841,7 +856,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 ),
                           const SizedBox(height: 8),
                           Text(
-                            (sub['label'] ?? '').toString(),
+                            isAll
+                                ? 'st_all'.tr
+                                : (sub['label'] ?? '').toString(),
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.visible,
@@ -932,7 +949,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
             },
             child: Container(
               width: 240,
-              margin: const EdgeInsets.only(right: 14),
+              margin: const EdgeInsetsDirectional.only(end: 14),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -1244,7 +1261,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
           return Container(
             width: 250,
-            margin: const EdgeInsets.only(right: 14),
+            margin: const EdgeInsetsDirectional.only(end: 14),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -1399,7 +1416,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              "Reorder",
+                              'st_reorder'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFFF5E00),
                                 fontSize: 9,
@@ -1466,7 +1483,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
             },
             child: Container(
               width: 240,
-              margin: const EdgeInsets.only(right: 14),
+              margin: const EdgeInsetsDirectional.only(end: 14),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -1774,7 +1791,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
           return Container(
             width: 150,
-            margin: const EdgeInsets.only(right: 14),
+            margin: const EdgeInsetsDirectional.only(end: 14),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
@@ -1930,7 +1947,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 ),
                                 const SizedBox(width: 3),
                                 Text(
-                                  "Add",
+                                  'st_add'.tr,
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 9,
@@ -1980,7 +1997,7 @@ Widget _buildSectionHeader(
                 child: Row(
                   children: [
                     Text(
-                      actionText,
+                      actionText.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 13,

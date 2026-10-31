@@ -94,14 +94,16 @@ class ExpressStores {
     return {
       'id': text(row['id']),
       'vendorType': text(row['vendor_type']),
-      'name': name.isEmpty ? 'Store' : name,
+      'name': name.isEmpty ? 'st_store'.tr : name,
       'category': category,
-      'rating': rating > 0 ? rating.toStringAsFixed(1) : 'New',
+      'rating': rating > 0 ? rating.toStringAsFixed(1) : 'st_new'.tr,
       'distanceKm': km.toStringAsFixed(1),
-      'dist': '${km.toStringAsFixed(1)} Km',
-      'time': 'Express',
-      'badgeTime': 'Express',
-      'points': fee.isEmpty ? category : 'Delivery $fee MRU',
+      'dist': 'st_km'.trParams({'km': km.toStringAsFixed(1)}),
+      'time': 'st_express'.tr,
+      'badgeTime': 'st_express'.tr,
+      'points': fee.isEmpty
+          ? category
+          : 'st_delivery_amount'.trParams({'amount': fee}),
       'image': ApiConstants.mediaUrl(text(row['image'])) ?? '',
     };
   }
@@ -110,7 +112,7 @@ class ExpressStores {
   static void open(Map<String, dynamic> store) {
     final id = int.tryParse('${store['id'] ?? ''}');
     if (id == null) {
-      showAppToast('This store is not available right now');
+      showAppToast('st_store_unavailable'.tr);
       return;
     }
     final name = '${store['name'] ?? ''}';
@@ -148,7 +150,7 @@ class ExpressStores {
       case _water:
         Get.to(() => WaterSupplierDetailsScreen(supplier: common));
       default:
-        showAppToast('This store is not available right now');
+        showAppToast('st_store_unavailable'.tr);
     }
   }
 }
