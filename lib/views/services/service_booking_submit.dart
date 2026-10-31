@@ -5,9 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../controllers/service_booking_draft.dart';
 import '../../core/network/api_exception.dart';
+import '../../models/order_repository.dart';
 import '../../models/service_repository.dart';
 import '../../utils/api_language.dart';
+import '../../utils/payment_page.dart';
 import '../../utils/toast_helper.dart';
+import '../../utils/wallet_balance.dart';
 
 /// Places the booking for the service picked on the provider screen
 /// ([ServiceBookingDraft]) through customer/service/book. Returns the created
@@ -34,6 +37,8 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   String? productSupply,
   String propertyType = '',
   num? quantity,
+  // Gas: the customer confirms one empty cylinder back per refill.
+  bool returnEmptyCylinder = false,
   String place = 'home',
   String notes = '',
   // Where the provider goes when it isn't the delivery location (car wash
@@ -52,6 +57,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     vehicles: vehicles,
     productSupply: productSupply,
     propertyType: propertyType,
+    returnEmptyCylinder: returnEmptyCylinder,
     quantity: quantity,
     place: place,
     notes: notes,
@@ -67,24 +73,62 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     return null;
   }
 
-  if (shownTotal != null && !await _confirmServerPrice(request, shownTotal)) {
-    return null;
-  }
-
   try {
+    // Booked online but not paid yet: reopen that booking's payment page.
+    final unpaid = ServiceBookingDraft.unpaidOrderId;
+    if (unpaid != null && paymentType == paymentTypeOnline) {
+      final url = await Get.find<OrderRepository>().payOnline(
+        orderId: unpaid,
+        language: apiLanguageCode(),
+      );
+      return await _payServiceBooking(unpaid, url, {'order_id': unpaid});
+    }
+
+    if (shownTotal != null && !await _confirmServerPrice(request, shownTotal)) {
+      return null;
+    }
+
     final result = await Get.find<ServiceRepository>().book(
       request: request,
       language: apiLanguageCode(),
     );
+    final booking = result.booking;
+    final url = paymentPageUrl(booking['payment_url']);
+    final orderId = int.tryParse('${booking['order_id'] ?? ''}');
+    if (url != null && orderId != null) {
+      return await _payServiceBooking(orderId, url, booking);
+    }
     showAppToast(
       result.message.isEmpty ? 'svc_booking_created'.tr : result.message,
       backgroundColor: const Color(0xFFFF5E00),
     );
-    return result.booking;
+    return booking;
   } on ApiException catch (error) {
     showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     return null;
   }
+}
+
+/// Opens the online payment page of booking [orderId]. Returns [booking] once
+/// paid; otherwise remembers the order so the next Pay retries it, says so,
+/// and returns null so the cart stays open.
+Future<Map<String, dynamic>?> _payServiceBooking(
+  int orderId,
+  String? url,
+  Map<String, dynamic> booking,
+) async {
+  final page = paymentPageUrl(url);
+  final paid = page == null ? false : await openPaymentPage(page);
+  if (paid == true) {
+    ServiceBookingDraft.unpaidOrderId = null;
+    return booking;
+  }
+  ServiceBookingDraft.unpaidOrderId = orderId;
+  showAppToast(
+    'svc_payment_not_completed'.tr,
+    backgroundColor: const Color(0xFFEF4444),
+  );
+  return null;
 }
 
 /// The server's price for the same booking [placeServiceBooking] would place
@@ -95,15 +139,36 @@ Future<Map<String, dynamic>?> quoteServiceBooking({
   required DateTime slotDate,
   required String slotLabel,
   required String paymentType,
+  List<Map<String, dynamic>> spaces = const [],
+  List<Map<String, dynamic>> addons = const [],
   List<Map<String, dynamic>> garments = const [],
+  List<Map<String, dynamic>> vehicles = const [],
+  String? productSupply,
+  String propertyType = '',
   num? quantity,
+  // Gas: the customer confirms one empty cylinder back per refill.
+  bool returnEmptyCylinder = false,
+  String place = 'home',
+  String? address,
+  double? latitude,
+  double? longitude,
 }) async {
   final request = _bookingRequest(
     slotDate: slotDate,
     slotLabel: slotLabel,
     paymentType: paymentType,
+    spaces: spaces,
+    addons: addons,
     garments: garments,
+    vehicles: vehicles,
+    productSupply: productSupply,
+    propertyType: propertyType,
+    returnEmptyCylinder: returnEmptyCylinder,
     quantity: quantity,
+    place: place,
+    address: address,
+    latitude: latitude,
+    longitude: longitude,
   );
   if (request == null) return null;
   return Get.find<ServiceRepository>().quote(
@@ -125,6 +190,8 @@ Map<String, dynamic>? _bookingRequest({
   String? productSupply,
   String propertyType = '',
   num? quantity,
+  // Gas: the customer confirms one empty cylinder back per refill.
+  bool returnEmptyCylinder = false,
   String place = 'home',
   String notes = '',
   String? address,
@@ -163,6 +230,7 @@ Map<String, dynamic>? _bookingRequest({
     'quantity': ?quantity,
     'product_supply': ?productSupply,
     if (propertyType.trim().isNotEmpty) 'property_type': propertyType.trim(),
+    if (returnEmptyCylinder) 'return_empty_cylinder': true,
   };
   final matchedSpaces = _catalogRows(spaces, 'spaces');
   if (matchedSpaces.isNotEmpty) request['spaces'] = matchedSpaces;

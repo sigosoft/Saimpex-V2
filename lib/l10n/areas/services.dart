@@ -2,6 +2,25 @@
 /// Keys start with `svc_`. Every key needs en, fr and ar.
 const servicesStrings = <String, Map<String, String>>{
   'en': {
+    'gas_title': 'Gas',
+    'gas_exchange_intro':
+        'For every refill, hand back one empty cylinder to the driver.',
+    'gas_no_suppliers': 'No gas suppliers deliver to this address yet.',
+    'gas_choose_product': 'Choose a product',
+    'gas_from_price': 'From @price',
+    'gas_order': 'Order',
+    'gas_change': 'Change',
+    'gas_delivery': 'Delivery',
+    'gas_pick_time': 'Pick a delivery time',
+    'gas_cylinders': '@count cylinder(s)',
+    'gas_confirm_empty':
+        'I will hand back @count empty cylinder(s) to the driver (one per refill).',
+    'gas_confirm_needed':
+        'Please confirm you will hand back an empty cylinder for each refill.',
+    'gas_pay_cash': 'Cash on delivery',
+    'gas_pay_cash_hint': 'Pay the driver when the gas arrives',
+    'svc_payment_not_completed':
+        'Payment not completed. Your booking is saved: tap Pay to try again.',
     // Services hub
     'svc_services_title': 'Services',
     'svc_search_services_hint': 'Search for services...',
@@ -292,6 +311,26 @@ const servicesStrings = <String, Map<String, String>>{
     'svc_book_at': 'Book at @amount',
   },
   'fr': {
+    'gas_title': 'Gaz',
+    'gas_exchange_intro':
+        'Pour chaque recharge, remettez une bouteille vide au livreur.',
+    'gas_no_suppliers':
+        "Aucun fournisseur de gaz ne livre encore à cette adresse.",
+    'gas_choose_product': 'Choisissez un produit',
+    'gas_from_price': 'À partir de @price',
+    'gas_order': 'Commander',
+    'gas_change': 'Modifier',
+    'gas_delivery': 'Livraison',
+    'gas_pick_time': 'Choisir une heure de livraison',
+    'gas_cylinders': '@count bouteille(s)',
+    'gas_confirm_empty':
+        'Je remettrai @count bouteille(s) vide(s) au livreur (une par recharge).',
+    'gas_confirm_needed':
+        'Veuillez confirmer que vous remettrez une bouteille vide par recharge.',
+    'gas_pay_cash': 'Espèces à la livraison',
+    'gas_pay_cash_hint': "Payez le livreur à l'arrivée du gaz",
+    'svc_payment_not_completed':
+        "Paiement non finalisé. Votre réservation est enregistrée : appuyez sur Payer pour réessayer.",
     // Services hub
     'svc_services_title': 'Services',
     'svc_search_services_hint': 'Rechercher des services...',
@@ -587,6 +626,23 @@ const servicesStrings = <String, Map<String, String>>{
     'svc_book_at': 'Réserver à @amount',
   },
   'ar': {
+    'gas_title': 'غاز',
+    'gas_exchange_intro': 'مقابل كل تعبئة، سلّم أسطوانة فارغة واحدة للسائق.',
+    'gas_no_suppliers': 'لا يوجد مورّدو غاز يوصلون إلى هذا العنوان بعد.',
+    'gas_choose_product': 'اختر منتجًا',
+    'gas_from_price': 'ابتداءً من @price',
+    'gas_order': 'اطلب',
+    'gas_change': 'تغيير',
+    'gas_delivery': 'التوصيل',
+    'gas_pick_time': 'اختر وقت التوصيل',
+    'gas_cylinders': '@count أسطوانة',
+    'gas_confirm_empty':
+        'سأسلّم @count أسطوانة فارغة للسائق (واحدة لكل تعبئة).',
+    'gas_confirm_needed': 'يرجى تأكيد تسليم أسطوانة فارغة مقابل كل تعبئة.',
+    'gas_pay_cash': 'الدفع نقدًا عند التوصيل',
+    'gas_pay_cash_hint': 'ادفع للسائق عند وصول الغاز',
+    'svc_payment_not_completed':
+        'لم يكتمل الدفع. تم حفظ حجزك: اضغط على ادفع للمحاولة مرة أخرى.',
     // Services hub
     'svc_services_title': 'الخدمات',
     'svc_search_services_hint': 'ابحث عن الخدمات...',
@@ -809,8 +865,7 @@ const servicesStrings = <String, Map<String, String>>{
     'svc_estimated_items': 'تقديريًا @count قطع',
     'svc_24_hours': '24 ساعة',
     'svc_select_dry_clean_items': 'اختر القطع التي تريد تنظيفها تنظيفًا جافًا',
-    'svc_no_garments':
-        'هذا المزوّد لم يضف قائمة القطع وأسعارها بعد.',
+    'svc_no_garments': 'هذا المزوّد لم يضف قائمة القطع وأسعارها بعد.',
     'svc_dry_cleaning': 'التنظيف الجاف',
     'svc_price_per_item': '@amount أوقية / قطعة',
     'svc_delivery_speed': 'سرعة التوصيل',

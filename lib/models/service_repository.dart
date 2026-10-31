@@ -15,6 +15,7 @@ class ServiceRepository {
   static const carWash = 'car_wash';
   static const homeCleaning = 'home_cleaning';
   static const laundry = 'laundry';
+  static const gas = 'gas';
 
   /// Providers near the given point, shaped for the provider cards.
   Future<List<Map<String, String>>> fetchProviders({
