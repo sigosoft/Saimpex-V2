@@ -77,6 +77,8 @@ class _CartScreenState extends State<CartScreen> {
   // 0 Wallet, 1 Online, 2 Cash on Delivery, 3 Pay After Delivery.
   late int selectedPaymentIndex;
   String scheduleText = "Pick a delivery time";
+  // Pre-order delivery time (sent as scheduled_for); null delivers now.
+  DateTime? _scheduledFor;
   // customer/payAfterDelivery: whether PAD can be offered, and why not.
   Map<String, dynamic>? _padStatus;
 
@@ -489,6 +491,7 @@ class _CartScreenState extends State<CartScreen> {
           language: apiLanguageCode(),
           note: note,
           useWallet: splitWithWallet,
+          scheduledFor: _scheduledFor,
         );
       }
       return orders.checkout(
@@ -504,6 +507,7 @@ class _CartScreenState extends State<CartScreen> {
         note: note,
         version2: version2,
         useWallet: splitWithWallet,
+        scheduledFor: _scheduledFor,
       );
     }
 
@@ -2075,7 +2079,7 @@ class _CartScreenState extends State<CartScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Schedule for later',
+                                        'preorder_title'.tr,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF0E5A2A),
                                           fontSize: 12,
@@ -2084,7 +2088,9 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        scheduleText,
+                                        _scheduledFor == null
+                                            ? 'preorder_pick'.tr
+                                            : scheduleText,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF3BA162),
                                           fontSize: 10,
@@ -2094,11 +2100,23 @@ class _CartScreenState extends State<CartScreen> {
                                     ],
                                   ),
                                 ),
-                                const Icon(
-                                  Icons.chevron_right_rounded,
-                                  color: Color(0xFF00B25C),
-                                  size: 20,
-                                ),
+                                if (_scheduledFor != null)
+                                  // Back to delivering now.
+                                  GestureDetector(
+                                    onTap: () =>
+                                        setState(() => _scheduledFor = null),
+                                    child: const Icon(
+                                      Icons.close_rounded,
+                                      color: Color(0xFF00B25C),
+                                      size: 20,
+                                    ),
+                                  )
+                                else
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: Color(0xFF00B25C),
+                                    size: 20,
+                                  ),
                               ],
                             ),
                           ),
@@ -3063,12 +3081,53 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  void _showScheduleBottomSheet(BuildContext context) {
-    final now = DateTime.now();
-    final dates = List<DateTime>.generate(
-      5,
-      (i) => DateTime(now.year, now.month, now.day).add(Duration(days: i)),
+  /// When each slot starts: the pre-order is placed for that time.
+  static const _slotStartHours = {
+    '8-10 AM': 8,
+    '10-12 PM': 10,
+    '2-4 PM': 14,
+    '4-6 PM': 16,
+    '6-8 PM': 18,
+    'Late night': 22,
+  };
+
+  Future<void> _showScheduleBottomSheet(BuildContext context) async {
+    // Only times inside the server's pre-order window can be picked.
+    final ({DateTime earliest, DateTime latest}) window;
+    try {
+      window = await Get.find<OrderRepository>().preorderWindow(
+        apiLanguageCode(),
+      );
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return;
+    }
+    if (!mounted || !context.mounted) return;
+    final firstDay = DateTime(
+      window.earliest.year,
+      window.earliest.month,
+      window.earliest.day,
     );
+    final lastDay = DateTime(
+      window.latest.year,
+      window.latest.month,
+      window.latest.day,
+    );
+    final dates = <DateTime>[
+      for (
+        var day = firstDay;
+        !day.isAfter(lastDay);
+        day = DateTime(day.year, day.month, day.day + 1)
+      )
+        day,
+    ];
+    DateTime slotStart(DateTime day, String slot) =>
+        DateTime(day.year, day.month, day.day, _slotStartHours[slot]!);
+    bool slotOpen(DateTime day, String slot) {
+      final start = slotStart(day, slot);
+      return !start.isBefore(window.earliest) && !start.isAfter(window.latest);
+    }
+
     DateTime selectedDate = dates.first;
     String? selectedTimeSlot;
 
@@ -3156,7 +3215,7 @@ class _CartScreenState extends State<CartScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Schedule Delivery',
+                                    'preorder_sheet_title'.tr,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 16,
@@ -3165,7 +3224,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Choose your preferred delivery date and time',
+                                    'preorder_sheet_subtitle'.tr,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
@@ -3187,7 +3246,7 @@ class _CartScreenState extends State<CartScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Select Date',
+                                'preorder_select_date'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
@@ -3211,9 +3270,14 @@ class _CartScreenState extends State<CartScreen> {
                                         selectedDate.day == date.day;
                                     return GestureDetector(
                                       onTap: () {
-                                        setModalState(
-                                          () => selectedDate = date,
-                                        );
+                                        setModalState(() {
+                                          selectedDate = date;
+                                          final slot = selectedTimeSlot;
+                                          if (slot != null &&
+                                              !slotOpen(date, slot)) {
+                                            selectedTimeSlot = null;
+                                          }
+                                        });
                                       },
                                       child: Container(
                                         width: 62,
@@ -3272,7 +3336,7 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                               const SizedBox(height: 22),
                               Text(
-                                'Time Slot',
+                                'preorder_time_slot'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
@@ -3289,13 +3353,17 @@ class _CartScreenState extends State<CartScreen> {
                                 mainAxisSpacing: 10,
                                 children: timeSlots.map((slot) {
                                   final isSelected = selectedTimeSlot == slot;
+                                  final open = slotOpen(selectedDate, slot);
                                   return GestureDetector(
                                     onTap: () {
+                                      if (!open) return;
                                       setModalState(
                                         () => selectedTimeSlot = slot,
                                       );
                                     },
-                                    child: Container(
+                                    child: Opacity(
+                                      opacity: open ? 1 : 0.35,
+                                      child: Container(
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(24),
@@ -3333,6 +3401,7 @@ class _CartScreenState extends State<CartScreen> {
                                         ],
                                       ),
                                     ),
+                                    ),
                                   );
                                 }).toList(),
                               ),
@@ -3344,18 +3413,28 @@ class _CartScreenState extends State<CartScreen> {
                         padding: EdgeInsets.fromLTRB(20, 8, 20, 16 + bottomPad),
                         child: GestureDetector(
                           onTap: () {
+                            final slot = selectedTimeSlot;
+                            if (slot == null || !slotOpen(selectedDate, slot)) {
+                              showAppToast(
+                                'preorder_choose_slot'.tr,
+                                backgroundColor: const Color(0xFFEF4444),
+                              );
+                              return;
+                            }
                             final month = months[selectedDate.month - 1];
                             final weekday = weekdays[selectedDate.weekday - 1];
-                            final slot = selectedTimeSlot ?? timeSlots.first;
                             Navigator.pop(context);
                             setState(() {
+                              _scheduledFor = slotStart(selectedDate, slot);
                               scheduleText =
                                   '$weekday, $month ${selectedDate.day} • $slot';
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Scheduled: $weekday, $month ${selectedDate.day} • $slot',
+                                  'preorder_scheduled'.trParams({
+                                    'time': scheduleText,
+                                  }),
                                   style: GoogleFonts.outfit(),
                                 ),
                                 backgroundColor: const Color(0xFFFF5E00),

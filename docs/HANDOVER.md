@@ -427,7 +427,7 @@ AC: PAD appears only when the server says the customer is trusted. Order is plac
 **P1-6. Masrvi for courier and service bookings.** Courier ✅ done (`fix/courier-online-payment`): Online opens `payment_url` from `courier/create`; a failed or closed payment keeps the order and the pay button retries it with `POST orders/{id}/payOnline`; success only after payment. Review total = quoted delivery fee (fake points/tax removed). Services (car wash, home cleaning, laundry): pending.
 AC: choosing Online on courier, car wash, home cleaning or laundry opens the Masrvi WebView, handles fail/cancel with retry of the same order (same pattern as `cart_screen.dart`), and shows success only after payment.
 
-**P1-7. Pre-orders (Schedule for later).** Blocked.
+**P1-7. Pre-orders (Schedule for later).** Cart part ✅ done (`feat/pre-orders`): the sheet loads `GET customer/preorder/window`, offers only the days in the window and greys out slots whose start time falls outside it; the chosen slot's start time is sent as `scheduled_for` (ISO with offset) on `checkoutV2` and `catalog/checkout`; the card's ✕ goes back to "deliver now". **Still open:** My Schedules (`my_schedules_screen.dart`) is a hard-coded list; there is no customer endpoint listing pre-orders yet (only `vendorapp/preorders`). Ask the backend for one (or `is_preorder` / `scheduled_for` on the orders lists).
 AC: the existing "Schedule for later" sheet in `cart_screen.dart` limits dates to the server's max days (default 7) and sends the chosen time. My Schedules lists real scheduled orders.
 
 **P1-8. Grocery substitution.** Blocked.

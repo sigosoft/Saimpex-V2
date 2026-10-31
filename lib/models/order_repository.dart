@@ -55,6 +55,7 @@ class OrderRepository {
     String note = '',
     bool version2 = true,
     bool useWallet = false,
+    DateTime? scheduledFor,
   }) async {
     final fields = <String, dynamic>{
       'is_self_pickup': selfPickup ? '1' : '0',
@@ -69,6 +70,9 @@ class OrderRepository {
       // Split payment: with payment_type 2 the wallet pays what it can and
       // Masrvi charges the rest (online_amount).
       if (useWallet) 'use_wallet': '1',
+      // Pre-order: delivered at this time instead of now.
+      if (scheduledFor != null)
+        'scheduled_for': scheduledForValue(scheduledFor),
     };
     if (!version2 && cartId != null) fields['cart_id'] = '$cartId';
     final envelope = await _send(
@@ -93,6 +97,7 @@ class OrderRepository {
     required String language,
     String note = '',
     bool useWallet = false,
+    DateTime? scheduledFor,
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
@@ -106,6 +111,8 @@ class OrderRepository {
           'notes': note,
           'order_note': note,
           if (useWallet) 'use_wallet': '1',
+          if (scheduledFor != null)
+            'scheduled_for': scheduledForValue(scheduledFor),
         }),
       ),
       language,
@@ -210,6 +217,35 @@ class OrderRepository {
       language,
     );
     return envelope.message;
+  }
+
+  /// The times a pre-order can be scheduled for (GET preorder/window):
+  /// `earliest` and `latest`, as local times.
+  Future<({DateTime earliest, DateTime latest})> preorderWindow(
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.preorderWindow),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final earliest = DateTime.tryParse('${data['earliest'] ?? ''}');
+    final latest = DateTime.tryParse('${data['latest'] ?? ''}');
+    if (earliest == null || latest == null) {
+      throw ApiException('Could not load delivery times. Please try again.');
+    }
+    return (earliest: earliest.toLocal(), latest: latest.toLocal());
+  }
+
+  /// [time] as ISO 8601 with the device's UTC offset, as checkout's
+  /// `scheduled_for` requires (e.g. 2026-11-02T13:30:00+00:00).
+  static String scheduledForValue(DateTime time) {
+    final local = time.toLocal();
+    final offset = local.timeZoneOffset;
+    String two(int value) => value.abs().toString().padLeft(2, '0');
+    final sign = offset.isNegative ? '-' : '+';
+    final stamp = local.toIso8601String().split('.').first;
+    return '$stamp$sign${two(offset.inHours)}:${two(offset.inMinutes % 60)}';
   }
 
   /// Whether the customer may use Pay After Delivery (`can_use`), why not

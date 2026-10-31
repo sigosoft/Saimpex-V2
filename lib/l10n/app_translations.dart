@@ -13,6 +13,14 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'preorder_title': 'Schedule for later',
+  'preorder_pick': 'Pick a delivery time',
+  'preorder_sheet_title': 'Schedule Delivery',
+  'preorder_sheet_subtitle': 'Choose your preferred delivery date and time',
+  'preorder_select_date': 'Select Date',
+  'preorder_time_slot': 'Time Slot',
+  'preorder_choose_slot': 'Choose an available time slot',
+  'preorder_scheduled': 'Scheduled: @time',
   'wallet_title': 'SAIMPEX Wallet',
   'wallet_balance': 'Available balance',
   'wallet_topup': 'Top up',
@@ -67,6 +75,14 @@ const _en = {
 };
 
 const _fr = {
+  'preorder_title': 'Planifier pour plus tard',
+  'preorder_pick': 'Choisir une heure de livraison',
+  'preorder_sheet_title': 'Planifier la livraison',
+  'preorder_sheet_subtitle': 'Choisissez la date et l’heure de livraison',
+  'preorder_select_date': 'Choisir la date',
+  'preorder_time_slot': 'Créneau horaire',
+  'preorder_choose_slot': 'Choisissez un créneau disponible',
+  'preorder_scheduled': 'Planifiée : @time',
   'wallet_title': 'Portefeuille SAIMPEX',
   'wallet_balance': 'Solde disponible',
   'wallet_topup': 'Recharger',
@@ -122,6 +138,14 @@ const _fr = {
 };
 
 const _ar = {
+  'preorder_title': 'جدولة لوقت لاحق',
+  'preorder_pick': 'اختر وقت التوصيل',
+  'preorder_sheet_title': 'جدولة التوصيل',
+  'preorder_sheet_subtitle': 'اختر تاريخ ووقت التوصيل المفضلين',
+  'preorder_select_date': 'اختر التاريخ',
+  'preorder_time_slot': 'الفترة الزمنية',
+  'preorder_choose_slot': 'اختر فترة زمنية متاحة',
+  'preorder_scheduled': 'تمت الجدولة: @time',
   'wallet_title': 'محفظة سايمبكس',
   'wallet_balance': 'الرصيد المتاح',
   'wallet_topup': 'شحن الرصيد',
