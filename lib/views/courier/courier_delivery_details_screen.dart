@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/country_code_picker.dart';
 
@@ -23,18 +24,18 @@ class CourierDeliveryDetailsScreen extends StatefulWidget {
 
   const CourierDeliveryDetailsScreen({
     super.key,
-    this.pickupAddress = 'Marhaba Supermarket, Nouakchott',
-    this.dropOffAddress = 'Saimpex Logistics Hub, Wharf Sector',
-    this.vehicleLabel = 'Bike',
-    this.vehicleTime = '30-35 min',
-    this.vehiclePrice = '50 MRU',
-    this.vehicleImage = 'lib/assets/images/bike.png',
-    this.deliveryFee = 50,
-    this.pickupLatitude = 18.0735,
-    this.pickupLongitude = -15.9582,
-    this.dropOffLatitude = 18.0800,
-    this.dropOffLongitude = -15.9600,
-    this.isExpress = false,
+    required this.pickupAddress,
+    required this.dropOffAddress,
+    required this.vehicleLabel,
+    required this.vehicleTime,
+    required this.vehiclePrice,
+    required this.vehicleImage,
+    required this.deliveryFee,
+    required this.pickupLatitude,
+    required this.pickupLongitude,
+    required this.dropOffLatitude,
+    required this.dropOffLongitude,
+    required this.isExpress,
   });
 
   @override
@@ -421,14 +422,19 @@ class _CourierDeliveryDetailsScreenState
       onTap: () {
         final name = _nameController.text.trim();
         final phone = _phoneController.text.trim();
+        if (name.isEmpty || phone.isEmpty) {
+          showAppToast(
+            'Enter the recipient\'s name and phone number',
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          return;
+        }
         Get.to(
           () => CourierReviewBookingScreen(
             pickupAddress: widget.pickupAddress,
             dropOffAddress: widget.dropOffAddress,
-            recipientName: name.isEmpty ? 'Sidi' : name,
-            recipientPhone: phone.isEmpty
-                ? '+222 22 34 56 78'
-                : '$countryCode $phone',
+            recipientName: name,
+            recipientPhone: '$countryCode $phone',
             vehicleLabel: widget.vehicleLabel,
             vehicleTime: widget.vehicleTime,
             vehiclePrice: widget.vehiclePrice,

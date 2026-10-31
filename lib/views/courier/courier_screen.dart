@@ -18,14 +18,12 @@ class CourierScreen extends StatefulWidget {
   State<CourierScreen> createState() => _CourierScreenState();
 }
 
-// Placeholder pickup point until the app reads the store location from the API
-const _pickupAddress = 'Marhaba Supermarket, Nouakchott';
-const _pickupLatitude = 18.0735;
-const _pickupLongitude = -15.9582;
-
 class _CourierScreenState extends State<CourierScreen> {
   final _courier = Get.find<CourierRepository>();
   int selectedVehicleIndex = 0;
+  String? pickupAddress;
+  double? pickupLatitude;
+  double? pickupLongitude;
   String? dropOffAddress;
   double? dropOffLatitude;
   double? dropOffLongitude;
@@ -60,14 +58,24 @@ class _CourierScreenState extends State<CourierScreen> {
     final latitude = dropOffLatitude;
     final longitude = dropOffLongitude;
     final address = dropOffAddress;
+    final fromLatitude = pickupLatitude;
+    final fromLongitude = pickupLongitude;
+    final fromAddress = pickupAddress;
     if (latitude == null || longitude == null || address == null) return;
-    setState(() => _quoteLoading = true);
+    if (fromLatitude == null || fromLongitude == null || fromAddress == null) {
+      return;
+    }
+    setState(() {
+      _quoteLoading = true;
+      _fees.clear();
+      _distanceKm = null;
+    });
     try {
       final language = apiLanguageCode();
-      final pickup = const CourierStop(
-        address: _pickupAddress,
-        latitude: _pickupLatitude,
-        longitude: _pickupLongitude,
+      final pickup = CourierStop(
+        address: fromAddress,
+        latitude: fromLatitude,
+        longitude: fromLongitude,
       );
       final dropoff = CourierStop(
         address: address,
@@ -286,8 +294,9 @@ class _CourierScreenState extends State<CourierScreen> {
                 children: [
                   _buildRouteRow(
                     label: 'PICKUP',
-                    title: 'Marhaba Supermarket,\nNouakchott',
-                    isPlaceholder: false,
+                    title: pickupAddress ?? 'Add pickup location',
+                    isPlaceholder: pickupAddress == null,
+                    onTap: _openPickupLocation,
                     maxLines: 2,
                   ),
                   const SizedBox(height: 18),
@@ -319,6 +328,31 @@ class _CourierScreenState extends State<CourierScreen> {
         decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
       ),
     );
+  }
+
+  Future<void> _openPickupLocation() async {
+    final result = await Get.to<Map<String, dynamic>>(
+      () => const CourierSelectRecipientLocationScreen(
+        title: 'Select Pickup Location',
+      ),
+    );
+    if (!mounted || result == null) return;
+
+    final title = result['title']?.toString();
+    final subtitle = result['subtitle']?.toString();
+    final latitude = double.tryParse('${result['latitude']}');
+    final longitude = double.tryParse('${result['longitude']}');
+    if (title != null &&
+        title.isNotEmpty &&
+        latitude != null &&
+        longitude != null) {
+      setState(() {
+        pickupAddress = _formatDropOffAddress(title, subtitle);
+        pickupLatitude = latitude;
+        pickupLongitude = longitude;
+      });
+      _loadQuote();
+    }
   }
 
   Future<void> _openDropOffLocation() async {
@@ -581,6 +615,13 @@ class _CourierScreenState extends State<CourierScreen> {
     return GestureDetector(
       onTap: () {
         final fee = _fees[isExpress];
+        if (pickupAddress == null || pickupLatitude == null) {
+          showAppToast(
+            'Add a pickup location first',
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          return;
+        }
         if (dropOffAddress == null || dropOffLatitude == null) {
           showAppToast(
             'Add a drop-off destination first',
@@ -600,10 +641,10 @@ class _CourierScreenState extends State<CourierScreen> {
         }
         Get.to(
           () => CourierDeliveryDetailsScreen(
-            pickupAddress: _pickupAddress,
+            pickupAddress: pickupAddress!,
             dropOffAddress: dropOffAddress!,
-            pickupLatitude: _pickupLatitude,
-            pickupLongitude: _pickupLongitude,
+            pickupLatitude: pickupLatitude!,
+            pickupLongitude: pickupLongitude!,
             dropOffLatitude: dropOffLatitude!,
             dropOffLongitude: dropOffLongitude!,
             vehicleLabel: vehicle['label']!.toString(),

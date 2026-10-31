@@ -536,6 +536,26 @@ class SelectLocationController extends GetxController {
     unawaited(_saveDeliveryAddress());
   }
 
+  /// The customer's delivery location, for screens that only borrow the map
+  /// picker (courier pickup and drop-off) and must put it back afterwards.
+  static ({String title, String subtitle, double latitude, double longitude})
+  snapshot() => (
+    title: selectedTitle,
+    subtitle: selectedSubtitle,
+    latitude: selectedLatitude,
+    longitude: selectedLongitude,
+  );
+
+  static void restore(
+    ({String title, String subtitle, double latitude, double longitude}) saved,
+  ) {
+    selectedTitle = saved.title;
+    selectedSubtitle = saved.subtitle;
+    selectedLatitude = saved.latitude;
+    selectedLongitude = saved.longitude;
+    unawaited(_saveDeliveryAddress());
+  }
+
   static bool _isPlaceholder(String value) {
     final text = value.trim();
     return text.isEmpty ||

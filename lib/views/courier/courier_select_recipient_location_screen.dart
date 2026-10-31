@@ -9,7 +9,12 @@ import '../../controllers/select_location_controller.dart';
 import '../../utils/toast_helper.dart';
 
 class CourierSelectRecipientLocationScreen extends StatefulWidget {
-  const CourierSelectRecipientLocationScreen({super.key});
+  const CourierSelectRecipientLocationScreen({
+    super.key,
+    this.title = 'Select Recipient\'s Location',
+  });
+
+  final String title;
 
   @override
   State<CourierSelectRecipientLocationScreen> createState() =>
@@ -19,6 +24,8 @@ class CourierSelectRecipientLocationScreen extends StatefulWidget {
 class _CourierSelectRecipientLocationScreenState
     extends State<CourierSelectRecipientLocationScreen> {
   late final SelectLocationController controller;
+  // The picker moves the shared delivery location; put the customer's back.
+  final _savedDeliveryLocation = SelectLocationController.snapshot();
 
   @override
   void initState() {
@@ -27,6 +34,12 @@ class _CourierSelectRecipientLocationScreenState
       Get.delete<SelectLocationController>(force: true);
     }
     controller = Get.put(SelectLocationController());
+  }
+
+  @override
+  void dispose() {
+    SelectLocationController.restore(_savedDeliveryLocation);
+    super.dispose();
   }
 
   @override
@@ -119,7 +132,7 @@ class _CourierSelectRecipientLocationScreenState
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
-              'Select Recipient\'s Location',
+              widget.title,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
