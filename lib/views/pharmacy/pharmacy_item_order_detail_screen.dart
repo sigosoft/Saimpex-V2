@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../core/network/api_constants.dart';
+import '../../models/order_tracking.dart';
+import '../../utils/api_language.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
@@ -20,7 +22,7 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
 
   const PharmacyItemOrderDetailScreen({
     super.key,
-    this.orderId = '#22789009',
+    required this.orderId,
     this.apiOrderId,
     this.isDelivery = true,
     this.storeName,
@@ -30,15 +32,37 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PharmacyOrderDetailLoader(
       apiOrderId: apiOrderId,
-      builder: (context, detail) => _PharmacyItemOrderDetailBody(
-        orderId: orderId,
-        apiOrderId: apiOrderId,
-        isDelivery: isDelivery,
-        storeName: storeName,
-        detail: detail,
-      ),
+      builder: (context, detail) {
+        final order = detail == null ? null : OrderTracking.fromJson(detail);
+        return _PharmacyItemOrderDetailBody(
+          orderId: orderId,
+          apiOrderId: apiOrderId,
+          // The loaded order knows whether it is self pickup.
+          isDelivery: order == null ? isDelivery : !order.isSelfPickup,
+          storeName: storeName,
+          detail: detail,
+          order: order,
+        );
+      },
     );
   }
+}
+
+/// "22 Oct 2025 10:00 AM" (or with a comma) → "22 Oct 2025,\n10:00 AM".
+String _stepTime(String raw) {
+  final parts = raw.replaceAll(',', '').trim().split(RegExp(r'\s+'));
+  if (parts.length < 4) return raw.trim();
+  return '${parts.take(3).join(' ')},\n${parts.skip(3).join(' ')}';
+}
+
+/// The first non-empty time among [statuses] in the order's timeline.
+String _firstTime(OrderTracking? order, List<int> statuses) {
+  if (order == null) return '';
+  for (final status in statuses) {
+    final time = order.timeOf(status);
+    if (time.isNotEmpty) return _stepTime(time);
+  }
+  return '';
 }
 
 class _PharmacyItemOrderDetailBody extends StatelessWidget {
@@ -48,13 +72,20 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
   final String? storeName;
   final Map<String, dynamic>? detail;
 
+  /// [detail] parsed; null until the order loads.
+  final OrderTracking? order;
+
   const _PharmacyItemOrderDetailBody({
     required this.orderId,
     this.apiOrderId,
     this.isDelivery = true,
     this.storeName,
     this.detail,
+    this.order,
   });
+
+  bool get _hasDriver => order?.hasDriver == true;
+  String get _deliveryAddress => order?.deliveryAddress ?? '';
 
   Map<String, dynamic> get _payment => detail?['payment'] is Map
       ? Map<String, dynamic>.from(detail!['payment'] as Map)
@@ -78,7 +109,8 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
       rows.add(
         _itemRow(
           imageUrl: ApiConstants.mediaUrl(item['image']?.toString()) ?? '',
-          title: '${item['name_en'] ?? ''}',
+          title:
+              '${item['name_${apiLanguageCode()}'] ?? item['name_en'] ?? ''}',
           subtitle: 'pw_price_each'.trParams({
             'price': orderMoneyText(item['unit_price']),
           }),
@@ -193,24 +225,29 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     _buildOrderStatusCard(),
-                    const SizedBox(height: 18),
-                    Text(
-                      isDelivery
-                          ? 'pw_delivery_details'.tr
-                          : 'pw_pickup_location'.tr,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                    if (!isDelivery ||
+                        _deliveryAddress.isNotEmpty ||
+                        _hasDriver) ...[
+                      const SizedBox(height: 18),
+                      Text(
+                        isDelivery
+                            ? 'pw_delivery_details'.tr
+                            : 'pw_pickup_location'.tr,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    if (isDelivery) ...[
-                      _buildAddressCard(),
                       const SizedBox(height: 10),
-                      _buildCourierCard(),
-                    ] else
-                      _buildPickupLocationCard(),
+                      if (isDelivery) ...[
+                        if (_deliveryAddress.isNotEmpty) _buildAddressCard(),
+                        if (_deliveryAddress.isNotEmpty && _hasDriver)
+                          const SizedBox(height: 10),
+                        if (_hasDriver) _buildCourierCard(order!),
+                      ] else
+                        _buildPickupLocationCard(),
+                    ],
                     const SizedBox(height: 18),
                     Text(
                       'pw_order_summary'.tr,
@@ -318,59 +355,51 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
   }
 
   Widget _buildOrderStatusCard() {
-    final steps = isDelivery
-        ? const [
-            _StatusStep(
-              label: 'pw_step_order_placed',
-              time: '22 Oct 2023,\n10:20 AM',
-              done: true,
-              icon: Icons.check_rounded,
-            ),
-            _StatusStep(
-              label: 'pw_step_preparing',
-              time: '22 Oct 2023,\n10:28 AM',
-              done: true,
-              icon: Icons.assignment_outlined,
-            ),
-            _StatusStep(
+    // Status codes: 1 placed, 2–3 accepted/preparing, 4 ready, 7–8 picked up
+    // / on the way, 9 delivered, 10 cancelled.
+    final status = order?.status ?? 0;
+    final cancelled = order?.isCancelled == true;
+    final placedAt = order?.placedAt ?? '';
+    final steps = [
+      _StatusStep(
+        label: 'pw_step_order_placed',
+        time: placedAt.isEmpty ? '' : _stepTime(placedAt),
+        done: status >= 1,
+        icon: Icons.check_rounded,
+      ),
+      _StatusStep(
+        label: 'pw_step_preparing',
+        time: _firstTime(order, const [2, 3]),
+        done: !cancelled && status >= 2,
+        icon: Icons.assignment_outlined,
+      ),
+      isDelivery
+          ? _StatusStep(
               label: 'pw_step_on_the_way',
-              time: '22 Oct 2023,\n10:30 AM',
-              done: true,
+              time: _firstTime(order, const [7, 8]),
+              done: !cancelled && status >= 7,
               icon: Icons.delivery_dining_rounded,
-            ),
-            _StatusStep(
-              label: 'pw_step_delivered',
-              time: '',
-              done: false,
-              icon: Icons.check_rounded,
-            ),
-          ]
-        : const [
-            _StatusStep(
-              label: 'pw_step_order_placed',
-              time: '22 Oct 2024,\n10:15 AM',
-              done: true,
-              icon: Icons.check_rounded,
-            ),
-            _StatusStep(
-              label: 'pw_step_preparing',
-              time: '22 Oct 2024,\n10:20 AM',
-              done: true,
-              icon: Icons.assignment_outlined,
-            ),
-            _StatusStep(
+            )
+          : _StatusStep(
               label: 'pw_step_ready_for_pickup',
-              time: '22 Oct 2024,\n10:25 AM',
-              done: true,
+              time: _firstTime(order, const [4]),
+              done: !cancelled && status >= 4,
               icon: Icons.local_shipping_outlined,
             ),
-            _StatusStep(
+      cancelled
+          ? _StatusStep(
+              label: 'pw_cancelled',
+              time: _firstTime(order, const [10]),
+              done: true,
+              icon: Icons.close_rounded,
+            )
+          : _StatusStep(
               label: 'pw_step_delivered',
-              time: '',
-              done: false,
+              time: _firstTime(order, const [9]),
+              done: status >= 9,
               icon: Icons.check_rounded,
             ),
-          ];
+    ];
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
@@ -396,14 +425,14 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               SizedBox(
                 height: circle,
                 child: Stack(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   children: [
                     Positioned(
                       left: circle / 2,
                       right: circle / 2,
                       child: Row(
                         children: List.generate(3, (i) {
-                          final active = i < 2;
+                          final active = steps[i + 1].done;
                           return Container(
                             width: segment,
                             height: 3,
@@ -434,7 +463,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                                     width: 18,
                                     height: 18,
                                     color: Colors.white,
-                                    errorBuilder: (_, __, ___) => Icon(
+                                    errorBuilder: (_, _, _) => Icon(
                                       steps[i].icon,
                                       color: Colors.white,
                                       size: 18,
@@ -531,7 +560,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sahara View Home',
+                  'pw_delivery_address'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
@@ -540,7 +569,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  'Near Marhaba Supermarket, Nouakchott',
+                  _deliveryAddress,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
@@ -556,6 +585,13 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
   }
 
   Widget _buildPickupLocationCard() {
+    final vendorName = order?.vendorName ?? '';
+    final name = vendorName.isNotEmpty
+        ? vendorName
+        : (storeName == null || storeName!.isEmpty)
+        ? 'pw_store'.tr
+        : storeName!;
+    final address = order?.vendorAddress ?? '';
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -590,15 +626,26 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  (storeName == null || storeName!.isEmpty)
-                      ? 'pw_store'.tr
-                      : storeName!,
+                  name,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+                if (address.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    address,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFA59A94),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -612,7 +659,14 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
     );
   }
 
-  Widget _buildCourierCard() {
+  /// Only built when the order has a driver.
+  Widget _buildCourierCard(OrderTracking order) {
+    final placeholder = Container(
+      width: 46,
+      height: 46,
+      color: const Color(0xFFF3EFEA),
+      child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
+    );
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -629,12 +683,15 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
       child: Row(
         children: [
           ClipOval(
-            child: Container(
-              width: 46,
-              height: 46,
-              color: const Color(0xFFF3EFEA),
-              child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
-            ),
+            child: order.driverImage.isEmpty
+                ? placeholder
+                : Image.network(
+                    order.driverImage,
+                    width: 46,
+                    height: 46,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => placeholder,
+                  ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -642,55 +699,48 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Amadou Sy',
+                  order.driverName.isEmpty ? 'pw_driver'.tr : order.driverName,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 3),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFAE00),
-                      size: 14,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      '4.6',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                if (order.driverRating > 0) ...[
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Color(0xFFFFAE00),
+                        size: 14,
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'pw_reviews_count'.trParams({'count': '10k +'}),
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(width: 3),
+                      Text(
+                        order.driverRating.toStringAsFixed(1),
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      if (order.driverReviews > 0) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          'pw_reviews_count'.trParams({
+                            'count': '${order.driverReviews}',
+                          }),
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFA59A94),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
               ],
-            ),
-          ),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.phone_rounded,
-              color: Colors.white,
-              size: 20,
             ),
           ),
         ],
@@ -733,7 +783,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
             width: 54,
             height: 54,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               width: 54,
               height: 54,
               color: const Color(0xFFF3EFEA),

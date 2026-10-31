@@ -17,7 +17,7 @@ class CarWashServiceLocationScreen extends StatefulWidget {
   const CarWashServiceLocationScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanRide Car Wash',
+    this.providerName = '',
   });
 
   @override

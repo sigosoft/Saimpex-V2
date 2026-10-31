@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -343,7 +344,7 @@ class PharmacyRepository {
     final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
     final menu = asJsonMap(data['menu']);
     if (menu == null) {
-      throw const ApiException('Unexpected server response');
+      throw ApiException('core_unexpected_response'.tr);
     }
     final variants = data['variants'];
     final variant = variants is List && variants.isNotEmpty
@@ -1140,9 +1141,7 @@ class PharmacyRepository {
         );
       } on FormatException catch (error) {
         throw ApiException(
-          error.message.isEmpty
-              ? 'Request failed. Please try again.'
-              : error.message,
+          error.message.isEmpty ? 'core_request_failed'.tr : error.message,
           statusCode: response.statusCode,
         );
       }

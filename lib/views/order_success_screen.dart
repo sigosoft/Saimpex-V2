@@ -9,7 +9,7 @@ class OrderSuccessScreen extends StatelessWidget {
   /// Store points this order will earn once delivered (0 hides the line).
   final int pointsToEarn;
 
-  const OrderSuccessScreen({Key? key, this.pointsToEarn = 0}) : super(key: key);
+  const OrderSuccessScreen({super.key, this.pointsToEarn = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class OrderSuccessScreen extends StatelessWidget {
                         'lib/assets/images/Success.png',
                         width: 80,
                         height: 80,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           width: 80,
                           height: 80,
                           decoration: const BoxDecoration(

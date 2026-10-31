@@ -52,7 +52,7 @@ class LaundryBookingSuccessScreen extends StatelessWidget {
                   'lib/assets/images/Success.png',
                   width: 110,
                   height: 110,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 110,
                     height: 110,
                     decoration: const BoxDecoration(

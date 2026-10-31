@@ -52,7 +52,7 @@ class HomeCleaningBookingSuccessScreen extends StatelessWidget {
                   'lib/assets/images/Success.png',
                   width: 96,
                   height: 96,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 96,
                     height: 96,
                     decoration: const BoxDecoration(

@@ -249,8 +249,8 @@ class _ChatBotHeadState extends State<ChatBotHead>
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            Positioned(
-              left: left,
+            PositionedDirectional(
+              start: left,
               top: top,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -297,15 +297,17 @@ class _ChatBotHeadState extends State<ChatBotHead>
                             border: Border.all(color: Colors.white, width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primaryOrange.withOpacity(0.4),
+                                color: AppColors.primaryOrange.withValues(
+                                  alpha: 0.4,
+                                ),
                                 blurRadius: 15,
                                 spreadRadius: 2,
                                 offset: const Offset(0, 4),
                               ),
                               if (_isShrunk)
                                 BoxShadow(
-                                  color: AppColors.primaryOrange.withOpacity(
-                                    0.6,
+                                  color: AppColors.primaryOrange.withValues(
+                                    alpha: 0.6,
                                   ),
                                   blurRadius: glowRadius,
                                   spreadRadius: glowRadius / 2,
@@ -350,7 +352,7 @@ class _ChatBotHeadState extends State<ChatBotHead>
                                       boxShadow: [
                                         BoxShadow(
                                           color: AppColors.primaryOrange
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                           blurRadius: 12,
                                           spreadRadius: 1,
                                           offset: const Offset(0, 4),

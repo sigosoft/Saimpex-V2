@@ -22,10 +22,7 @@ class BottomNavRouter {
 
   /// Returns to the existing shell when possible (avoids rebuilding all tabs).
   /// Falls back to [MainShellScreen] only when the shell is not in the stack.
-  static void returnToShell({
-    required int tabIndex,
-    int? ordersCategoryIndex,
-  }) {
+  static void returnToShell({required int tabIndex, int? ordersCategoryIndex}) {
     final controller = _controller();
 
     if (ordersCategoryIndex != null) {

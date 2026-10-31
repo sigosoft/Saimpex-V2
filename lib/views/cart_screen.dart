@@ -35,7 +35,7 @@ class CartScreen extends StatefulWidget {
   final bool isFoodOrGrocery;
 
   const CartScreen({
-    Key? key,
+    super.key,
     this.storeName,
     this.itemName,
     this.itemPortion,
@@ -43,7 +43,7 @@ class CartScreen extends StatefulWidget {
     this.itemImage,
     this.showBottomNav = false,
     this.isFoodOrGrocery = false,
-  }) : super(key: key);
+  });
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -715,7 +715,7 @@ class _CartScreenState extends State<CartScreen> {
         selectedPaymentIndex == 1 ||
         placed['payment_required'] == true ||
         placed['payment_required'] == 1 ||
-        '$checkoutMessage'.toLowerCase().contains('complete online payment');
+        checkoutMessage.toLowerCase().contains('complete online payment');
     final url =
         paymentUrl ??
         (needsOnlinePayment && orderId != null
@@ -851,7 +851,7 @@ class _CartScreenState extends State<CartScreen> {
       final saved = Get.find<HomeController>().lastCartItem;
       if (saved?['storeName'] != null) return saved!['storeName'].toString();
     }
-    return "Pharmacy Nasr";
+    return "";
   }
 
   String get itemTitle {
@@ -871,8 +871,9 @@ class _CartScreenState extends State<CartScreen> {
     if (widget.itemPortion != null) return widget.itemPortion!;
     if (Get.isRegistered<HomeController>()) {
       final saved = Get.find<HomeController>().lastCartItem;
-      if (saved?['itemPortion'] != null)
+      if (saved?['itemPortion'] != null) {
         return saved!['itemPortion'].toString();
+      }
     }
     return "10 Tablets";
   }
@@ -889,8 +890,9 @@ class _CartScreenState extends State<CartScreen> {
       final saved = Get.find<HomeController>().lastCartItem;
       final priceVal = saved?['basePrice'];
       if (priceVal is num) return priceVal.toInt();
-      if (priceVal is String)
+      if (priceVal is String) {
         return int.tryParse(priceVal.replaceAll(RegExp(r'[^0-9]'), '')) ?? 50;
+      }
     }
     return 50;
   }
@@ -1539,7 +1541,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.02),
+                                color: Colors.black.withValues(alpha: 0.02),
                                 blurRadius: 6,
                                 offset: const Offset(0, 3),
                               ),
@@ -1848,8 +1850,9 @@ class _CartScreenState extends State<CartScreen> {
                                 WidgetsBinding.instance.addPostFrameCallback((
                                   _,
                                 ) {
-                                  if (mounted)
+                                  if (mounted) {
                                     _deliveryNoteFocus.requestFocus();
+                                  }
                                 });
                               },
                               child: CustomPaint(
@@ -3068,7 +3071,7 @@ class _CartScreenState extends State<CartScreen> {
                                 BoxShadow(
                                   color: const Color(
                                     0xFFFF5E00,
-                                  ).withOpacity(0.3),
+                                  ).withValues(alpha: 0.3),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -3693,7 +3696,7 @@ class _CartScreenState extends State<CartScreen> {
                                 BoxShadow(
                                   color: const Color(
                                     0xFFFF5E00,
-                                  ).withOpacity(0.35),
+                                  ).withValues(alpha: 0.35),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -3725,7 +3728,7 @@ class _CartScreenState extends State<CartScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),

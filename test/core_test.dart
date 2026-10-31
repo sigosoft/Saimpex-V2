@@ -11,6 +11,7 @@ import 'package:saimpex_v2/core/network/api_message.dart';
 import 'package:saimpex_v2/core/network/dio_client.dart';
 import 'package:saimpex_v2/core/storage/session_store.dart';
 import 'package:saimpex_v2/models/chatbot_repository.dart';
+import 'package:saimpex_v2/models/service_booking_detail.dart';
 import 'package:saimpex_v2/utils/payment_methods.dart';
 import 'package:saimpex_v2/utils/wallet_balance.dart';
 import 'package:saimpex_v2/views/services/service_booking_submit.dart';
@@ -240,6 +241,65 @@ void main() {
 
     test('an unreadable label gives null', () {
       expect(serviceSlotWindow(day, 'Tomorrow'), isNull);
+    });
+  });
+
+  group('ServiceBookingDetail', () {
+    ServiceBookingDetail parse(int status, List<int> logged) =>
+        ServiceBookingDetail.fromJson({
+          'booking': {
+            'id': 42,
+            'order_code': 'SB42',
+            'status': status,
+            'payment_status': 1,
+            'total': '575.00',
+            'lines': [
+              {
+                'kind': 'space',
+                'name': 'Bedrooms',
+                'quantity': 2,
+                'price': 100,
+              },
+              {
+                'kind': 'addon',
+                'name': 'Fridge Cleaning',
+                'quantity': 1,
+                'price': 50,
+              },
+            ],
+          },
+          'timeline': [
+            for (final s in logged)
+              {'status': s, 'created_at': '2026-10-31 14:05:00'},
+          ],
+        });
+
+    test('lines are split by kind with their totals', () {
+      final detail = parse(1, [1]);
+      expect(detail.lines('space').single.total, 200);
+      expect(detail.lines('addon').single.name, 'Fridge Cleaning');
+      expect(detail.lines('vehicle'), isEmpty);
+    });
+
+    test('a step counts as reached from the timeline or a later finish', () {
+      final arriving = parse(3, [1, 2, 8, 3]);
+      expect(arriving.reached(8), isTrue);
+      expect(arriving.reached(9), isFalse);
+      expect(parse(9, [1]).reached(8), isTrue);
+    });
+
+    test('a cancelled booking only shows the first step reached', () {
+      final cancelled = parse(10, [1, 2, 10]);
+      expect(cancelled.isCancelled, isTrue);
+      expect(cancelled.reached(1), isTrue);
+      expect(cancelled.reached(2), isFalse);
+      expect(cancelled.timeOf(10), '31 Oct 2026,\n2:05 PM');
+    });
+
+    test('unpaid bookings are not paid', () {
+      final detail = parse(1, [1]);
+      expect(detail.isPaid, isFalse);
+      expect(detail.total, 575);
     });
   });
 }

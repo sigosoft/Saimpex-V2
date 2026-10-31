@@ -132,7 +132,7 @@ void showCancelOrderBottomSheet(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: cancelReasons.length,
-                              separatorBuilder: (_, __) =>
+                              separatorBuilder: (_, _) =>
                                   const SizedBox(height: 10),
                               itemBuilder: (context, index) {
                                 final isSelected = selectedReasonIndex == index;

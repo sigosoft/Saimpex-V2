@@ -15,8 +15,7 @@ class TrackOrderScreen extends StatefulWidget {
   /// Numeric order id for customer/trackOrder.
   final int? apiOrderId;
 
-  const TrackOrderScreen({Key? key, this.orderId = '', this.apiOrderId})
-    : super(key: key);
+  const TrackOrderScreen({super.key, this.orderId = '', this.apiOrderId});
 
   @override
   State<TrackOrderScreen> createState() => _TrackOrderScreenState();
@@ -190,8 +189,8 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
     double size = 34,
   }) {
     if (screen == null) return const SizedBox.shrink();
-    return Positioned(
-      left: screen.dx - size / 2,
+    return PositionedDirectional(
+      start: screen.dx - size / 2,
       top: screen.dy - size / 2,
       child: IgnorePointer(
         child: Container(
@@ -327,7 +326,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
                 border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),

@@ -34,8 +34,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
       widget.isAboutUs || widget.title.toLowerCase().trim() == 'about us';
 
   bool get _shouldFetchPrivacyPolicy =>
-      widget.isPrivacyPolicy ||
-      widget.title.toLowerCase().contains('privacy');
+      widget.isPrivacyPolicy || widget.title.toLowerCase().contains('privacy');
 
   bool get _shouldFetchTerms =>
       widget.isTermsAndConditions ||

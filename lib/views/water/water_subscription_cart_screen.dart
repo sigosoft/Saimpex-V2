@@ -201,7 +201,7 @@ class _WaterSubscriptionCartScreenState
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
                     'pw_from_pharmacy'.trParams({'name': widget.storeName}),
                     style: GoogleFonts.outfit(

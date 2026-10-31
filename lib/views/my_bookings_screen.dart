@@ -238,7 +238,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                             120 + bottomInset,
                           ),
                           itemCount: list.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             return _buildBookingCard(list[index]);
@@ -289,7 +289,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: _filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final selected = _selectedFilter == index;
           return GestureDetector(
@@ -349,7 +349,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             children: [
               Expanded(
                 child: Text(
-                  booking['provider'] as String? ?? 'CleanPro Elite',
+                  booking['provider'] as String? ?? '',
                   style: AppTextStyles.title(),
                 ),
               ),
@@ -503,8 +503,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    booking['location'] as String? ??
-                        'Near Marhaba Supermarket,Nouakchott',
+                    booking['location'] as String? ?? '',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF5A5048),
                       fontSize: 12.5,
@@ -727,19 +726,23 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 child: GestureDetector(
                   onTap: () {
                     final category = booking['category'] as String?;
-                    if (category == 'Car Wash') {
-                      Get.to(
-                        () => CarWashBookingDetailScreen(booking: booking),
-                      );
-                    } else if (category == 'Laundry') {
-                      Get.to(
-                        () => LaundryBookingDetailScreen(booking: booking),
-                      );
-                    } else {
-                      Get.to(
-                        () => HomeCleaningBookingDetailScreen(booking: booking),
-                      );
-                    }
+                    // Gas uses the home cleaning screen, which shows
+                    // cylinders instead of spaces for gas bookings.
+                    final Widget Function() screen = switch (category) {
+                      'Car Wash' => () => CarWashBookingDetailScreen(
+                        booking: booking,
+                      ),
+                      'Laundry' => () => LaundryBookingDetailScreen(
+                        booking: booking,
+                      ),
+                      _ => () => HomeCleaningBookingDetailScreen(
+                        booking: booking,
+                      ),
+                    };
+                    // true when the booking was cancelled there.
+                    Get.to(screen)?.then((result) {
+                      if (result == true) _load();
+                    });
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

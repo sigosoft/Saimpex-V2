@@ -23,7 +23,7 @@ void showWaterProductDetailsSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (context) {
       bool isFavorite = false;
       return StatefulBuilder(
@@ -179,7 +179,9 @@ void showWaterProductDetailsSheet(
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.03,
+                                      ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 3),
                                     ),
@@ -234,7 +236,7 @@ void showWaterProductDetailsSheet(
                           color: const Color(0xFFFAF6F0),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, -4),
                             ),
@@ -272,7 +274,7 @@ void showWaterProductDetailsSheet(
                                       BoxShadow(
                                         color: const Color(
                                           0xFFFF5E00,
-                                        ).withOpacity(0.35),
+                                        ).withValues(alpha: 0.35),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -319,7 +321,9 @@ void showWaterProductDetailsSheet(
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.04,
+                                      ),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -356,7 +360,7 @@ void showWaterProductDetailsSheet(
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black.withValues(alpha: 0.15),
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
@@ -392,7 +396,7 @@ Widget _buildFeatureCard({
       border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.02),
+          color: Colors.black.withValues(alpha: 0.02),
           blurRadius: 6,
           offset: const Offset(0, 2),
         ),

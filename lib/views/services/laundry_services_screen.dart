@@ -100,7 +100,7 @@ class LaundryServicesScreen extends StatelessWidget {
               width: double.infinity,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
-              errorBuilder: (_, __, ___) =>
+              errorBuilder: (_, _, _) =>
                   Container(height: 240, color: const Color(0xFFFF5E00)),
             ),
           ),
@@ -297,7 +297,7 @@ class LaundryServicesScreen extends StatelessWidget {
             width: 66,
             height: 66,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               width: 66,
               height: 66,
               color: const Color(0xFFFFF3EB),
@@ -374,7 +374,7 @@ class LaundryServicesScreen extends StatelessWidget {
               width: 15,
               height: 15,
               color: const Color(0xFFFF5E00),
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.mic_rounded,
                 color: Color(0xFFFF5E00),
                 size: 16,
@@ -456,7 +456,7 @@ class LaundryServicesScreen extends StatelessWidget {
                     Image.network(
                       item['image']!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _providerImageFallback(),
+                      errorBuilder: (_, _, _) => _providerImageFallback(),
                     ),
                     PositionedDirectional(
                       start: 10,
@@ -477,7 +477,7 @@ class LaundryServicesScreen extends StatelessWidget {
                               'lib/assets/images/Coin.png',
                               width: 14,
                               height: 14,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, _, _) => const Icon(
                                 Icons.monetization_on,
                                 color: Color(0xFFFFAE00),
                                 size: 14,

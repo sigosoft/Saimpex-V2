@@ -82,7 +82,9 @@ class GroceryRepository {
       final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
       final rows = data['stores'] is List && (data['stores'] as List).isNotEmpty
           ? data['stores'] as List
-          : (data['nearby_stores'] is List ? data['nearby_stores'] as List : []);
+          : (data['nearby_stores'] is List
+                ? data['nearby_stores'] as List
+                : []);
       return rows
           .map((entry) => asJsonMap(entry))
           .whereType<Map<String, dynamic>>()
@@ -346,7 +348,12 @@ class GroceryRepository {
                   raw['store_id'] ??
                   '')
               .toString(),
-      'grocery_id': _asInt(raw['grocery_id'] ?? raw['local_store_id'] ?? raw['id'] ?? raw['vendor_id']),
+      'grocery_id': _asInt(
+        raw['grocery_id'] ??
+            raw['local_store_id'] ??
+            raw['id'] ??
+            raw['vendor_id'],
+      ),
       'name': title.isEmpty ? 'Store' : title,
       'title': title.isEmpty ? 'Store' : title,
       'category': category.isEmpty ? 'Hypermarket' : category,
@@ -836,7 +843,10 @@ class GroceryRepository {
     return {
       ...store,
       'grocery_id': _asInt(
-        data['grocery_id'] ?? data['local_store_id'] ?? data['id'] ?? data['vendor_id'],
+        data['grocery_id'] ??
+            data['local_store_id'] ??
+            data['id'] ??
+            data['vendor_id'],
       ),
       'address': data['address']?.toString() ?? '',
       'rating_count': _asInt(data['rating_count']),
@@ -940,9 +950,12 @@ class GroceryRepository {
 
       list.add({
         'productId': _asInt(m['product_id'] ?? m['item_id']),
-        'attributeId': (m['grocery_attribute_id'] ?? m['local_store_attribute_id']) == null
+        'attributeId':
+            (m['grocery_attribute_id'] ?? m['local_store_attribute_id']) == null
             ? null
-            : _asInt(m['grocery_attribute_id'] ?? m['local_store_attribute_id']),
+            : _asInt(
+                m['grocery_attribute_id'] ?? m['local_store_attribute_id'],
+              ),
         'label': label,
         'price': _moneyText(selling),
         'sellingPrice': selling,

@@ -163,7 +163,7 @@ mixin OrderTrackingMixin<T extends StatefulWidget> on State<T> {
 
   void startTracking(int? orderId) {
     if (orderId == null || orderId < 1) {
-      setState(() => trackingError = 'Live tracking is not available');
+      setState(() => trackingError = 'core_live_tracking_unavailable'.tr);
       return;
     }
     _loadTracking(orderId);

@@ -632,9 +632,9 @@ class _PopularServiceCard extends StatelessWidget {
                   clipBehavior: Clip.hardEdge,
                   children: [
                     if (data.showGhost)
-                      Positioned(
+                      PositionedDirectional(
                         top: data.ghostTop,
-                        right: data.ghostRight,
+                        end: data.ghostRight,
                         child: Opacity(
                           opacity: 0.09,
                           child: _ServiceImage(
@@ -659,8 +659,8 @@ class _PopularServiceCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(
-                      right: data.imageRight,
+                    PositionedDirectional(
+                      end: data.imageRight,
                       bottom: data.imageBottom,
                       child: _ServiceImage(
                         asset: data.image,

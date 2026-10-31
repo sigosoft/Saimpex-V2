@@ -121,7 +121,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final selected = _selectedFilter == index;
           return GestureDetector(
@@ -160,7 +160,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -330,7 +330,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF5E00).withOpacity(0.25),
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.25),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),

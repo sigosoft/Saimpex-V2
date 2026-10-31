@@ -37,7 +37,7 @@ class RedeemDetailSheet extends StatelessWidget {
         (reward['subtitle'] ?? 'Reach 5000 points to redeem your basket reward')
             .toString();
     final points = (reward['points'] ?? '5,000 pts').toString();
-    final progress = ((reward['progress'] as num?)?.toDouble() ?? 0.6).clamp(
+    final progress = ((reward['progress'] as num?)?.toDouble() ?? 0).clamp(
       0.0,
       1.0,
     );
@@ -51,7 +51,7 @@ class RedeemDetailSheet extends StatelessWidget {
         (reward['insides'] as List<dynamic>?)
             ?.map((e) => e.toString())
             .toList() ??
-        const ['Chicken Pasta', 'Chicken Tagine', 'Milk Dessert'];
+        const <String>[];
 
     final bottomPad = MediaQuery.of(context).padding.bottom;
     final screenH = MediaQuery.sizeOf(context).height;
@@ -94,7 +94,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                 Image.network(
                                   imageUrl,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
+                                  errorBuilder: (_, _, _) => Container(
                                     color: const Color(0xFFF0EAE3),
                                     child: const Icon(
                                       Icons.card_giftcard_rounded,
@@ -220,26 +220,29 @@ class RedeemDetailSheet extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.shopping_basket_outlined,
-                                      color: Color(0xFFFF5E00),
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'core_redeem_whats_inside'.tr,
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF1A1A1A),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
+                                if (insides.isNotEmpty)
+                                  const SizedBox(height: 20),
+                                if (insides.isNotEmpty)
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.shopping_basket_outlined,
+                                        color: Color(0xFFFF5E00),
+                                        size: 20,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'core_redeem_whats_inside'.tr,
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF1A1A1A),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (insides.isNotEmpty)
+                                  const SizedBox(height: 12),
                                 ...insides.map(
                                   (item) => Padding(
                                     padding: const EdgeInsets.only(bottom: 10),

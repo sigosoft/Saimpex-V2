@@ -116,7 +116,7 @@ Widget _networkImage(
       width: width,
       height: height,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => fallback,
+      errorBuilder: (_, _, _) => fallback,
     ),
   );
 }
@@ -507,7 +507,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 itemCount: variants.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
                 itemBuilder: (context, i) => SizedBox(
                   width: needed[i] > 180 ? needed[i] : 180,
                   child: _portionCard(
@@ -578,7 +578,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: options.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
               itemBuilder: (context, index) => optionCard(options[index]),
             ),
           )
@@ -770,7 +770,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                   image,
                                   fit: BoxFit.cover,
                                   alignment: Alignment.center,
-                                  errorBuilder: (_, __, ___) =>
+                                  errorBuilder: (_, _, _) =>
                                       Container(color: const Color(0xFFFFE8DC)),
                                 ),
                               ),

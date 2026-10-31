@@ -125,7 +125,7 @@ class OnboardingController extends GetxController {
     await AppLocale.change(language);
     showAppToast(
       'language_switched'.trParams({'language': language}),
-      backgroundColor: Colors.white.withOpacity(0.9),
+      backgroundColor: Colors.white.withValues(alpha: 0.9),
     );
   }
 

@@ -645,8 +645,7 @@ class _CourierReviewBookingScreenState
             child: Image.asset(
               widget.vehicleImage,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) =>
-                  const Icon(Icons.two_wheeler_outlined),
+              errorBuilder: (_, _, _) => const Icon(Icons.two_wheeler_outlined),
             ),
           ),
           const SizedBox(width: 12),
@@ -847,7 +846,7 @@ class _CourierReviewBookingScreenState
                   'lib/assets/images/Coin.png',
                   width: 22,
                   height: 22,
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (_, _, _) => const Icon(
                     Icons.monetization_on_outlined,
                     color: Color(0xFFFF5E00),
                     size: 18,

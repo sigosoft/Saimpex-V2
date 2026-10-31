@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -18,7 +19,7 @@ class ProfileRepository {
     );
     final data = asJsonMap(envelope.data);
     if (data == null) {
-      throw const ApiException('Unexpected server response');
+      throw ApiException('core_unexpected_response'.tr);
     }
     final userMap =
         asJsonMap(data['user']) ?? asJsonMap(data['profile']) ?? data;
@@ -61,7 +62,7 @@ class ProfileRepository {
     final data = asJsonMap(envelope.data);
     final userJson = asJsonMap(data?['user']);
     if (userJson == null) {
-      throw const ApiException('Unexpected server response');
+      throw ApiException('core_unexpected_response'.tr);
     }
 
     final user = AuthUser.fromJson(userJson).copyWith(countryCode: countryCode);
@@ -414,9 +415,7 @@ class ProfileRepository {
         );
       } on FormatException catch (error) {
         throw ApiException(
-          error.message.isEmpty
-              ? 'Request failed. Please try again.'
-              : error.message,
+          error.message.isEmpty ? 'core_request_failed'.tr : error.message,
           statusCode: response.statusCode,
         );
       }

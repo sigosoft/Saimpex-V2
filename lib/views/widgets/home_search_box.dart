@@ -20,7 +20,7 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
   final SpeechToText _speech = SpeechToText();
 
   bool _listening = false;
-  bool _scanning = false;
+  final bool _scanning = false;
   bool _speechReady = false;
   bool _heardListening = false;
 

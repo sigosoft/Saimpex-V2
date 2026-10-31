@@ -3,58 +3,188 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LaundryBookingDetailScreen extends StatelessWidget {
+import '../../core/network/api_exception.dart';
+import '../../models/service_booking_detail.dart';
+import '../../utils/toast_helper.dart';
+import '../../widgets/cancel_booking_bottom_sheet.dart';
+
+class LaundryBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
 
   const LaundryBookingDetailScreen({super.key, required this.booking});
 
-  String get _bookingId => (booking['id'] as String?) ?? '22789002';
-  String get _service => (booking['service'] as String?) ?? 'Wash & Fold';
-  String get _estimate =>
-      (booking['estimateLabel'] as String?) ?? 'Estimated 3 kg';
-  String get _paid => (booking['price'] as String?) ?? '410 MRU';
-  String get _slot =>
-      (booking['slot'] as String?) ?? '15 Aug 2024, 2:00 PM – 4:00 PM';
-  String get _locationTitle =>
-      (booking['locationTitle'] as String?) ?? 'Sahara View Home';
-  String get _location =>
-      (booking['location'] as String?) ??
-      'Near Marhaba Supermarket, Nouakchott';
-  String get _image =>
-      (booking['image'] as String?) ?? 'lib/assets/images/wash&fold_detail.png';
-  String get _status => (booking['status'] as String?) ?? 'Confirmed';
-  String get _duration => (booking['duration'] as String?) ?? '24 hours';
+  @override
+  State<LaundryBookingDetailScreen> createState() =>
+      _LaundryBookingDetailScreenState();
+}
 
-  static const _statusSteps = [
-    {
-      'label': 'svc_step_booking_confirmed',
-      'time': '15 Aug 2024,\n10:02 AM',
-      'icon': Icons.check_rounded,
-      'done': true,
-    },
-    {
-      'label': 'svc_step_laundry_collected',
-      'time': '15 Aug 2024,\n10:15 AM',
-      'icon': Icons.local_laundry_service_rounded,
-      'done': true,
-    },
-    {
-      'label': 'svc_step_cleaning_folding',
-      'time': '15 Aug 2024,\n11:00 AM',
-      'icon': Icons.iron_rounded,
-      'done': true,
-    },
-    {
-      'label': 'svc_step_delivered',
-      'time': '',
-      'icon': Icons.check_rounded,
-      'done': false,
-    },
+class _LaundryBookingDetailScreenState
+    extends State<LaundryBookingDetailScreen> {
+  ServiceBookingDetail? _detail;
+
+  Map<String, dynamic> get booking => widget.booking;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final detail = await loadServiceBooking(booking['apiOrderId'] as int?);
+      if (!mounted || detail == null) return;
+      setState(() => _detail = detail);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  String _bookingText(String key) => '${booking[key] ?? ''}'.trim();
+
+  String _raw(String key) => '${_detail?[key] ?? ''}'.trim();
+
+  double? _number(String key) => double.tryParse(_raw(key));
+
+  String _trimNumber(double value) =>
+      value == value.roundToDouble() ? '${value.round()}' : '$value';
+
+  String get _bookingId {
+    final code = _detail?.orderCode ?? '';
+    return code.isNotEmpty ? code : _bookingText('id');
+  }
+
+  String get _service {
+    final name = _detail?.serviceName ?? '';
+    return name.isNotEmpty ? name : _bookingText('service');
+  }
+
+  String get _estimate {
+    final quantity = _number('estimate_quantity') ?? 0;
+    if (quantity <= 0) return '';
+    final count = _trimNumber(quantity);
+    switch (_raw('unit')) {
+      case 'kg':
+        return 'svc_estimated_kg'.trParams({'kg': count});
+      case 'piece':
+      case 'item':
+        return (quantity == 1 ? 'svc_estimated_item' : 'svc_estimated_items')
+            .trParams({'count': count});
+    }
+    return '';
+  }
+
+  String get _price {
+    final detail = _detail;
+    return detail != null ? serviceMru(detail.total) : _bookingText('price');
+  }
+
+  String get _status {
+    final label = _detail?.statusLabel ?? '';
+    return label.isNotEmpty ? label : _bookingText('status');
+  }
+
+  String get _image => _raw('service_image');
+
+  String get _addressLabel => _detail?.addressLabel ?? '';
+
+  String get _pickupAddress {
+    for (final value in [
+      _raw('pickup_address'),
+      _detail?.address ?? '',
+      _detail?.location ?? '',
+      _bookingText('location'),
+    ]) {
+      if (value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
+  String get _deliveryAddress {
+    final address = _raw('delivery_address');
+    return address.isNotEmpty ? address : _pickupAddress;
+  }
+
+  String get _slot {
+    for (final value in [
+      _raw('pickup_slot'),
+      _detail?.slot ?? '',
+      _bookingText('slot'),
+      _bookingText('datetime'),
+    ]) {
+      if (value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
+  String get _deliverySpeed {
+    final turnaround = _raw('turnaround');
+    if (turnaround == 'Standard (24h)') {
+      return 'svc_standard_delivery_ready_in'.trParams({
+        'duration': 'svc_24_hours'.tr,
+      });
+    }
+    if (turnaround == 'Express') return 'svc_express'.tr;
+    return _raw('processing_label');
+  }
+
+  String get _estimatedDelivery => _raw('delivery_turnaround');
+
+  double get _balanceDue {
+    if (_detail?.isCancelled ?? true) return 0;
+    return _number('additional_payment') ?? 0;
+  }
+
+  bool get _canCancel => _detail?.canCancel ?? booking['canCancel'] == true;
+
+  List<Map<String, dynamic>> get _statusSteps {
+    const steps = [
+      (1, 'svc_step_booking_confirmed', Icons.check_rounded),
+      (3, 'svc_step_laundry_collected', Icons.local_laundry_service_rounded),
+      (4, 'svc_step_cleaning_folding', Icons.iron_rounded),
+      (9, 'svc_step_delivered', Icons.check_rounded),
+    ];
+    final detail = _detail;
+    final cancelled = detail?.isCancelled ?? false;
+    return [
+      for (var i = 0; i < steps.length; i++)
+        if (cancelled && i == steps.length - 1)
+          {
+            'label': 'svc_step_cancelled',
+            'time': detail!.timeOf(10),
+            'icon': Icons.close_rounded,
+            'done': true,
+          }
+        else
+          {
+            'label': steps[i].$2,
+            'time': detail?.timeOf(steps[i].$1) ?? '',
+            'icon': steps[i].$3,
+            'done': detail?.reached(steps[i].$1) ?? i == 0,
+          },
+    ];
+  }
+
+  List<Map<String, String>> _rows(String kind) => [
+    for (final line in _detail?.lines(kind) ?? const <ServiceBookingLine>[])
+      {
+        'label': line.name,
+        'detail': '${serviceMru(line.price)} x ${_trimNumber(line.quantity)}',
+        'total': serviceMru(line.total),
+      },
   ];
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    final garments = _rows('garment');
+    final addons = _rows('addon');
+    final hasPickupDelivery =
+        _pickupAddress.isNotEmpty ||
+        _slot.isNotEmpty ||
+        _deliverySpeed.isNotEmpty ||
+        _estimatedDelivery.isNotEmpty;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -86,7 +216,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                       _sectionTitle('svc_booking_status'.tr),
                       const SizedBox(height: 10),
                       _buildStatusCard(),
-                      if (booking['hasBalanceDue'] == true) ...[
+                      if (_balanceDue > 0) ...[
                         const SizedBox(height: 16),
                         _sectionTitle('svc_balance_due_breakdown'.tr),
                         const SizedBox(height: 10),
@@ -94,36 +224,52 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                       ],
                       const SizedBox(height: 16),
                       _buildServiceCard(),
-                      const SizedBox(height: 20),
-                      _sectionTitle('svc_pickup_delivery'.tr),
-                      const SizedBox(height: 10),
-                      _buildPickupDeliveryCard(),
-                      const SizedBox(height: 10),
-                      _buildPickupSlotCard(),
-                      const SizedBox(height: 10),
-                      _buildInfoCard(
-                        icon: Icons.local_shipping_outlined,
-                        iconBg: const Color(0xFFFFF0E6),
-                        iconColor: const Color(0xFFFF5E00),
-                        label: 'svc_delivery_speed'.tr,
-                        value: 'svc_standard_delivery_ready_in'.trParams({
-                          'duration': _duration,
-                        }),
-                      ),
-                      const SizedBox(height: 10),
-                      _buildInfoCard(
-                        icon: Icons.calendar_month_rounded,
-                        iconBg: const Color(0xFFEAF2F8),
-                        iconColor: const Color(0xFF1A6BB5),
-                        label: 'svc_estimated_delivery'.tr,
-                        value: '${'svc_tomorrow'.tr}, 2:00 PM – 4:00 PM',
-                      ),
-                      const SizedBox(height: 20),
-                      _sectionTitle('svc_pickup_by'.tr),
-                      const SizedBox(height: 10),
-                      _buildDriverCard(),
-                      const SizedBox(height: 20),
-                      _buildPaymentDetails(),
+                      if (garments.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        _buildLineItemsCard(garments),
+                      ],
+                      if (addons.isNotEmpty) ...[
+                        const SizedBox(height: 20),
+                        _sectionTitle('svc_addon_services'.tr),
+                        const SizedBox(height: 10),
+                        _buildLineItemsCard(addons),
+                      ],
+                      if (hasPickupDelivery) ...[
+                        const SizedBox(height: 20),
+                        _sectionTitle('svc_pickup_delivery'.tr),
+                      ],
+                      if (_pickupAddress.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        _buildPickupDeliveryCard(),
+                      ],
+                      if (_slot.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        _buildPickupSlotCard(),
+                      ],
+                      if (_deliverySpeed.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        _buildInfoCard(
+                          icon: Icons.local_shipping_outlined,
+                          iconBg: const Color(0xFFFFF0E6),
+                          iconColor: const Color(0xFFFF5E00),
+                          label: 'svc_delivery_speed'.tr,
+                          value: _deliverySpeed,
+                        ),
+                      ],
+                      if (_estimatedDelivery.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        _buildInfoCard(
+                          icon: Icons.calendar_month_rounded,
+                          iconBg: const Color(0xFFEAF2F8),
+                          iconColor: const Color(0xFF1A6BB5),
+                          label: 'svc_estimated_delivery'.tr,
+                          value: _estimatedDelivery,
+                        ),
+                      ],
+                      if (_detail != null) ...[
+                        const SizedBox(height: 20),
+                        _buildPaymentDetails(_detail!),
+                      ],
                     ],
                   ),
                 ),
@@ -131,7 +277,9 @@ class LaundryBookingDetailScreen extends StatelessWidget {
             ],
           ),
         ),
-        bottomNavigationBar: _buildCancelBar(bottomInset),
+        bottomNavigationBar: _canCancel || _balanceDue > 0
+            ? _buildCancelBar(bottomInset)
+            : null,
       ),
     );
   }
@@ -214,6 +362,8 @@ class LaundryBookingDetailScreen extends StatelessWidget {
   Widget _buildStatusCard() {
     const circleSize = 36.0;
     const lineTop = circleSize / 2;
+    final steps = _statusSteps;
+    final lastDone = steps.lastIndexWhere((step) => step['done'] == true);
 
     return Container(
       width: double.infinity,
@@ -231,18 +381,21 @@ class LaundryBookingDetailScreen extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final count = _statusSteps.length;
+          final count = steps.length;
           final stepWidth = constraints.maxWidth / count;
           final lineLeft = stepWidth / 2;
           final lineWidth = constraints.maxWidth - stepWidth;
+          final progress = count > 1 && lastDone > 0
+              ? lastDone / (count - 1)
+              : 0.0;
 
           return SizedBox(
             height: 118,
             child: Stack(
               children: [
-                Positioned(
+                PositionedDirectional(
                   top: lineTop - 1.5,
-                  left: lineLeft,
+                  start: lineLeft,
                   width: lineWidth,
                   child: Container(
                     height: 3,
@@ -252,10 +405,10 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(
+                PositionedDirectional(
                   top: lineTop - 1.5,
-                  left: lineLeft,
-                  width: lineWidth * (2 / 3),
+                  start: lineLeft,
+                  width: lineWidth * progress,
                   child: Container(
                     height: 3,
                     decoration: BoxDecoration(
@@ -267,7 +420,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final step in _statusSteps)
+                    for (final step in steps)
                       Expanded(child: _statusStep(step, circleSize)),
                   ],
                 ),
@@ -336,7 +489,21 @@ class LaundryBookingDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _imagePlaceholder() {
+    return Container(
+      width: 64,
+      height: 64,
+      color: const Color(0xFFFFF3EB),
+      child: const Icon(
+        Icons.local_laundry_service_rounded,
+        color: Color(0xFFFF5E00),
+      ),
+    );
+  }
+
   Widget _buildServiceCard() {
+    final cancelled = _detail?.isCancelled ?? false;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -354,72 +521,129 @@ class LaundryBookingDetailScreen extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(14),
-            child: Image.asset(
-              _image,
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 64,
-                height: 64,
-                color: const Color(0xFFFFF3EB),
-                child: const Icon(
-                  Icons.local_laundry_service_rounded,
-                  color: Color(0xFFFF5E00),
-                ),
-              ),
-            ),
+            child: _image.isEmpty
+                ? _imagePlaceholder()
+                : Image.network(
+                    _image,
+                    width: 64,
+                    height: 64,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _imagePlaceholder(),
+                  ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (_service.isNotEmpty)
+                  Text(
+                    _service,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF1B2B4A),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                if (_estimate.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    _estimate,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF9A8E86),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+                if (_price.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    _price,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFFF5E00),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (_status.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: cancelled
+                    ? const Color(0xFFFDECEC)
+                    : const Color(0xFFE6F6EC),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _status.toUpperCase(),
+                style: GoogleFonts.outfit(
+                  color: cancelled
+                      ? const Color(0xFFD32F2F)
+                      : const Color(0xFF1B7A3E),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLineItemsCard(List<Map<String, String>> rows) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        rows[i]['label']!,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1B2B4A),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        rows[i]['detail']!,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF9A8E86),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Text(
-                  _service,
+                  rows[i]['total']!,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1B2B4A),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _estimate,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF9A8E86),
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _paid,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 14,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE6F6EC),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              _status.toUpperCase(),
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF1B7A3E),
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ),
+          ],
         ],
       ),
     );
@@ -427,6 +651,12 @@ class LaundryBookingDetailScreen extends StatelessWidget {
 
   Widget _buildPickupDeliveryCard() {
     const iconSize = 22.0;
+    final label = _addressLabel;
+    final pickup = _pickupAddress;
+    final delivery = _deliveryAddress;
+    final pickupTitle = label.isNotEmpty ? label : pickup;
+    final pickupSubtitle = label.isNotEmpty ? pickup : '';
+    final sameAddress = delivery == pickup;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
@@ -477,11 +707,15 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   _addressContent(
                     label: 'svc_pickup_upper'.tr,
                     labelColor: const Color(0xFFFF5E00),
+                    title: pickupTitle,
+                    subtitle: pickupSubtitle,
                   ),
                   const SizedBox(height: 18),
                   _addressContent(
                     label: 'svc_delivery_upper'.tr,
                     labelColor: const Color(0xFF00B25C),
+                    title: sameAddress ? pickupTitle : delivery,
+                    subtitle: sameAddress ? pickupSubtitle : '',
                   ),
                 ],
               ),
@@ -492,36 +726,45 @@ class LaundryBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _addressContent({required String label, required Color labelColor}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.outfit(
-            color: labelColor,
-            fontSize: 10.5,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.4,
+  Widget _addressContent({
+    required String label,
+    required Color labelColor,
+    required String title,
+    required String subtitle,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.outfit(
+              color: labelColor,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.4,
+            ),
           ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          _locationTitle,
-          style: GoogleFonts.outfit(
-            color: const Color(0xFF1B2B4A),
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
+          const SizedBox(height: 2),
+          Text(
+            title,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF1B2B4A),
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-        ),
-        Text(
-          _location,
-          style: GoogleFonts.outfit(
-            color: const Color(0xFF8A7E76),
-            fontSize: 11.5,
-          ),
-        ),
-      ],
+          if (subtitle.isNotEmpty)
+            Text(
+              subtitle,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF8A7E76),
+                fontSize: 11.5,
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -632,86 +875,10 @@ class LaundryBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDriverCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        children: [
-          ClipOval(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
-              width: 48,
-              height: 48,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 48,
-                height: 48,
-                color: const Color(0xFFFFF3EB),
-                child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Amadou Sy',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFB800),
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'svc_rating_reviews'.trParams({
-                        'rating': '4.6',
-                        'count': '10k+',
-                      }),
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF8A7E76),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.phone_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildPaymentDetails(ServiceBookingDetail detail) {
+    final paid = detail.isPaid;
+    final amount = paid ? detail.totalPaid : detail.total;
 
-  Widget _buildPaymentDetails() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
@@ -732,22 +899,24 @@ class LaundryBookingDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('svc_total'.tr, 'mru'.trParams({'amount': '450'})),
+          if (detail.paymentLabel.isNotEmpty) ...[
+            _payRow('svc_payment'.tr, detail.paymentLabel),
+            const SizedBox(height: 10),
+          ],
+          _payRow('svc_subtotal'.tr, serviceMru(detail.subtotal)),
           const SizedBox(height: 10),
-          _payRow(
-            'svc_redeemed_points'.tr,
-            '-${'mru'.trParams({'amount': '50'})}',
-            valueColor: const Color(0xFFFF5E00),
-          ),
-          const SizedBox(height: 10),
-          _payRow('svc_tax'.tr, 'mru'.trParams({'amount': '10'})),
+          _payRow('svc_tax'.tr, serviceMru(detail.tax)),
+          if (amount != detail.total) ...[
+            const SizedBox(height: 10),
+            _payRow('svc_total'.tr, serviceMru(detail.total)),
+          ],
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF4A4038), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'svc_total_paid'.tr,
+                (paid ? 'svc_total_paid' : 'svc_to_pay').tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
@@ -756,7 +925,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                'mru'.trParams({'amount': '410'}),
+                serviceMru(amount),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 20,
@@ -795,9 +964,14 @@ class LaundryBookingDetailScreen extends StatelessWidget {
   }
 
   Widget _buildBalanceDueCard() {
+    final rate = _number('rate') ?? 0;
+    final estimate = _number('estimate_kg') ?? 0;
+    final actual = _number('actual_kg');
+
     return Column(
       children: [
         Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -843,63 +1017,69 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'svc_estimated_weight'.trParams({
-                      'weight': '${booking['estimateLabel'] ?? '3.0 kg'}',
-                    }),
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF7A6A60),
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    booking['estimatedPrice'] ?? '460 MRU',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF7A6A60),
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  RichText(
-                    text: TextSpan(
+              if (estimate > 0) ...[
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'svc_estimated_weight'.trParams({
+                        'weight': '${_trimNumber(estimate)} ${'svc_kg'.tr}',
+                      }),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w500,
                       ),
-                      children: [
-                        TextSpan(text: 'svc_actual_weight'.tr),
-                        TextSpan(
-                          text: booking['actualWeight'] ?? '3.6 kg',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontWeight: FontWeight.w800,
-                          ),
+                    ),
+                    if (rate > 0)
+                      Text(
+                        serviceMru(estimate * rate),
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF7A6A60),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
+                      ),
+                  ],
+                ),
+              ],
+              if (actual != null) ...[
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF7A6A60),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        children: [
+                          TextSpan(text: 'svc_actual_weight'.tr),
+                          TextSpan(
+                            text: '${_trimNumber(actual)} ${'svc_kg'.tr}',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFFF5E00),
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Text(
-                    booking['price'] ?? '545 MRU',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
+                    if (rate > 0)
+                      Text(
+                        serviceMru(actual * rate),
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -936,7 +1116,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 ],
               ),
               Text(
-                booking['balanceDue'] ?? '85 MRU',
+                serviceMru(_balanceDue),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 17,
@@ -951,106 +1131,17 @@ class LaundryBookingDetailScreen extends StatelessWidget {
   }
 
   Widget _buildCancelBar(double bottomInset) {
-    final balance = booking['balanceDue'] ?? '85 MRU';
-    final hasBalance = booking['hasBalanceDue'] == true;
+    final balance = _balanceDue;
 
     return Container(
       padding: EdgeInsets.fromLTRB(16, 10, 16, 12 + bottomInset),
       color: const Color(0xFFFAF6F0),
       child: Row(
         children: [
-          if (hasBalance) ...[
+          if (balance > 0) ...[
             Expanded(
               child: GestureDetector(
-                onTap: () {
-                  Get.bottomSheet(
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(24),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE0E0E0),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'svc_pay_balance_due'.tr,
-                            style: GoogleFonts.outfit(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF2C2520),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'svc_amount_due_after_weighing_value'.trParams({
-                              'amount': '$balance',
-                            }),
-                            style: GoogleFonts.outfit(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF7A6A60),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          GestureDetector(
-                            onTap: () {
-                              Get.back();
-                              booking['hasBalanceDue'] = false;
-                              Get.snackbar(
-                                'svc_payment_successful'.tr,
-                                'svc_balance_paid'.trParams({
-                                  'amount': '$balance',
-                                }),
-                                backgroundColor: const Color(0xFF2E7D32),
-                                colorText: Colors.white,
-                                snackPosition: SnackPosition.BOTTOM,
-                                margin: const EdgeInsets.all(16),
-                                borderRadius: 12,
-                              );
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              height: 48,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFFF5E00),
-                                    Color(0xFFFFAE00),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              child: Text(
-                                'svc_confirm_pay'.trParams({
-                                  'amount': '$balance',
-                                }),
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => showAppToast('orders_balance_unavailable'.tr),
                 child: Container(
                   height: 48,
                   alignment: Alignment.center,
@@ -1068,7 +1159,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                     ],
                   ),
                   child: Text(
-                    'svc_pay_value'.trParams({'amount': '$balance'}),
+                    'svc_pay_value'.trParams({'amount': serviceMru(balance)}),
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 15,
@@ -1078,29 +1169,35 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            if (_canCancel) const SizedBox(width: 12),
           ],
-          Expanded(
-            child: GestureDetector(
-              onTap: () {},
-              child: Container(
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF2ECE1),
-                  borderRadius: BorderRadius.circular(30),
+          if (_canCancel)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => showCancelBookingBottomSheet(
+                  context,
+                  bookingId: _bookingId,
+                  apiOrderId: booking['apiOrderId'] as int?,
+                  onCancelled: () => Navigator.of(context).pop(true),
                 ),
-                child: Text(
-                  'cancel'.tr,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1B2B4A),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                child: Container(
+                  height: 48,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF2ECE1),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Text(
+                    'cancel'.tr,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF1B2B4A),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

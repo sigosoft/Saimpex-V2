@@ -65,7 +65,7 @@ class OnboardingScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Colors.black.withOpacity(0.35),
+                          Colors.black.withValues(alpha: 0.35),
                           Colors.transparent,
                           const Color(0xFF0E0E0E),
                         ],
@@ -100,7 +100,7 @@ class OnboardingScreen extends StatelessWidget {
                       Text(
                         page.description,
                         style: GoogleFonts.outfit(
-                          color: Colors.white.withOpacity(0.65),
+                          color: Colors.white.withValues(alpha: 0.65),
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
                           height: 1.45,
@@ -134,7 +134,7 @@ class OnboardingScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -195,7 +195,7 @@ class OnboardingScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Colors.black.withOpacity(0.3),
+                              Colors.black.withValues(alpha: 0.3),
                               Colors.transparent,
                               const Color(0xFF0E0E0E),
                             ],
@@ -235,7 +235,7 @@ class OnboardingScreen extends StatelessWidget {
                         Text(
                           page.description,
                           style: GoogleFonts.outfit(
-                            color: Colors.white.withOpacity(0.65),
+                            color: Colors.white.withValues(alpha: 0.65),
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             height: 1.4,
@@ -270,7 +270,7 @@ class OnboardingScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
