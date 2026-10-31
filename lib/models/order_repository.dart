@@ -236,6 +236,24 @@ class OrderRepository {
     return data;
   }
 
+  /// A new Masrvi `payment_url` for an unpaid online courier order or service
+  /// booking (orders/{id}/payOnline). 404 when nothing is due.
+  Future<String?> payOnline({
+    required int orderId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.orderPayOnline(orderId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final url = '${asJsonMap(envelope.data)?['payment_url'] ?? ''}'.trim();
+    return url.isEmpty || url == 'null' ? null : url;
+  }
+
   Future<Map<String, dynamic>> trackOrder({
     required int orderId,
     required String language,

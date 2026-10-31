@@ -38,6 +38,8 @@ const _en = {
   'pad_pay_wallet': 'Pay from wallet',
   'pad_pay_online': 'Pay online',
   'pad_paid': 'Payment received. Thank you!',
+  'courier_payment_retry':
+      'Payment not completed. Tap the pay button to pay for this order.',
 };
 
 const _fr = {
@@ -67,6 +69,8 @@ const _fr = {
   'pad_pay_wallet': 'Payer avec le portefeuille',
   'pad_pay_online': 'Payer en ligne',
   'pad_paid': 'Paiement reçu. Merci !',
+  'courier_payment_retry':
+      'Paiement non effectué. Touchez le bouton de paiement pour régler cette commande.',
 };
 
 const _ar = {
@@ -92,4 +96,6 @@ const _ar = {
   'pad_pay_wallet': 'الدفع من المحفظة',
   'pad_pay_online': 'الدفع عبر الإنترنت',
   'pad_paid': 'تم استلام الدفع. شكرًا لك!',
+  'courier_payment_retry':
+      'لم تكتمل عملية الدفع. اضغط زر الدفع لدفع هذا الطلب.',
 };

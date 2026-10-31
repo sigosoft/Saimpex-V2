@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/courier_repository.dart';
+import '../../models/order_repository.dart';
 import '../../utils/api_language.dart';
+import '../../utils/payment_page.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 
@@ -52,18 +54,60 @@ class CourierReviewBookingScreen extends StatefulWidget {
 
 class _CourierReviewBookingScreenState
     extends State<CourierReviewBookingScreen> {
+  // Courier orders have no points, coupon or tax step on the server: the
+  // amount charged is the quoted delivery fee.
+  static const _extrasAvailable = false;
   bool usePoints = false;
   int selectedPaymentIndex = 0; // mandatory — Wallet selected by default
   bool _placingBooking = false;
-  final int redeemedPointsDiscount = 1;
-  final int tax = 2;
+  final int redeemedPointsDiscount = 0;
+  final int tax = 0;
+  // Booked with online payment but not paid yet: paying again reuses this
+  // order (orders/{id}/payOnline) instead of booking a second one.
+  int? _unpaidOrderId;
+
+  /// Opens the payment page; on success shows the success screen, otherwise
+  /// keeps the order for another try.
+  Future<void> _payOnline(int orderId, String? url) async {
+    final page = paymentPageUrl(url);
+    if (page == null) {
+      _unpaidOrderId = orderId;
+      showAppToast(
+        'payment_page_failed'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
+    final paid = await openPaymentPage(page);
+    if (!mounted) return;
+    if (paid == true) {
+      _unpaidOrderId = null;
+      Get.off(() => const CourierBookingSuccessScreen());
+      return;
+    }
+    _unpaidOrderId = orderId;
+    showAppToast(
+      'courier_payment_retry'.tr,
+      backgroundColor: const Color(0xFFEF4444),
+    );
+  }
 
   /// Books the delivery with courier/create, then shows the success screen.
   Future<void> _placeBooking() async {
     if (_placingBooking) return;
     setState(() => _placingBooking = true);
     try {
-      // Online payment is 2; wallet and cash on delivery are 1, as in the cart
+      final unpaid = _unpaidOrderId;
+      if (unpaid != null) {
+        final url = await Get.find<OrderRepository>().payOnline(
+          orderId: unpaid,
+          language: apiLanguageCode(),
+        );
+        if (!mounted) return;
+        await _payOnline(unpaid, url);
+        return;
+      }
+      // Wallet 3 (paid at booking), online 2 (payment page), cash 1.
       final paymentType = switch (selectedPaymentIndex) {
         0 => paymentTypeWallet,
         1 => paymentTypeOnline,
@@ -88,7 +132,12 @@ class _CourierReviewBookingScreenState
       );
       if (!mounted) return;
       showAppToast(result.message, backgroundColor: const Color(0xFFFF5E00));
-      Get.to(() => const CourierBookingSuccessScreen());
+      final orderId = result.orderId;
+      if (paymentType == paymentTypeOnline && orderId != null) {
+        await _payOnline(orderId, result.paymentUrl);
+        return;
+      }
+      Get.off(() => const CourierBookingSuccessScreen());
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -97,8 +146,7 @@ class _CourierReviewBookingScreenState
     }
   }
 
-  int get toPay =>
-      widget.deliveryFee - redeemedPointsDiscount - (usePoints ? 50 : 0) + tax;
+  int get toPay => widget.deliveryFee;
 
   String get _displayDropOff {
     final address = widget.dropOffAddress;
@@ -179,8 +227,10 @@ class _CourierReviewBookingScreenState
                             const SizedBox(height: 14),
                             _buildScheduleCard(),
                             const SizedBox(height: 18),
-                            _buildSaveMoreSection(),
-                            const SizedBox(height: 18),
+                            if (_extrasAvailable) ...[
+                              _buildSaveMoreSection(),
+                              const SizedBox(height: 18),
+                            ],
                             Text(
                               'Payment',
                               style: GoogleFonts.outfit(
@@ -922,39 +972,21 @@ class _CourierReviewBookingScreenState
           ),
           const SizedBox(height: 14),
           _paymentRow('Delivery fee', '${widget.deliveryFee} MRU'),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Redeemed points',
-                style: GoogleFonts.outfit(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                '-$redeemedPointsDiscount MRU',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-          if (usePoints) ...[
+          if (_extrasAvailable) ...[
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Points discount',
-                  style: GoogleFonts.outfit(color: Colors.white, fontSize: 12),
+                  'Redeemed points',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 Text(
-                  '-50 MRU',
+                  '-$redeemedPointsDiscount MRU',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 12,
@@ -963,9 +995,32 @@ class _CourierReviewBookingScreenState
                 ),
               ],
             ),
+            if (usePoints) ...[
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Points discount',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    '-50 MRU',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFFF5E00),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 10),
+            _paymentRow('Tax', '$tax MRU'),
           ],
-          const SizedBox(height: 10),
-          _paymentRow('Tax', '$tax MRU'),
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF423B36), height: 1),
           const SizedBox(height: 14),

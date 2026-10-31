@@ -80,6 +80,8 @@ class ApiConstants {
   static const String orderDetails = 'customer/orderDetails';
   static const String cancelOrder = 'customer/cancelOrder';
   static const String payAfterDelivery = 'customer/payAfterDelivery';
+  static String orderPayOnline(int orderId) =>
+      'customer/orders/$orderId/payOnline';
   static String payAfterDeliveryPay(int orderId) =>
       'customer/payAfterDelivery/orders/$orderId/pay';
   static const String trackOrder = 'customer/trackOrder';

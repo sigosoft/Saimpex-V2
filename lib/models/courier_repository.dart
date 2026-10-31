@@ -42,8 +42,9 @@ class CourierRepository {
     );
   }
 
-  /// Books a courier delivery. Needs a session. Returns the server message and the order id if sent.
-  Future<({String message, int? orderId})> create({
+  /// Books a courier delivery. Needs a session. Returns the server message,
+  /// the order id, and for online payment the Masrvi `payment_url`.
+  Future<({String message, int? orderId, String? paymentUrl})> create({
     required CourierStop pickup,
     required CourierStop dropoff,
     required bool isExpress,
@@ -69,7 +70,12 @@ class CourierRepository {
     );
     final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
     final id = data['order_id'] ?? data['id'];
-    return (message: envelope.message, orderId: id is num ? id.toInt() : null);
+    final url = '${data['payment_url'] ?? ''}'.trim();
+    return (
+      message: envelope.message,
+      orderId: id is num ? id.toInt() : int.tryParse('$id'),
+      paymentUrl: url.isEmpty || url == 'null' ? null : url,
+    );
   }
 
   /// The customer's courier orders, newest first, one page at a time.

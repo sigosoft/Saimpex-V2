@@ -392,7 +392,7 @@ AC: Only Wallet and Online are shown for prescription orders. What the customer 
 **P0-3. Keep the driver call button for masked calls.**
 Masked calls are required (SPX-ADM-02 item 15). AC: the call-driver button in `tracking_widgets.dart`, `courier_order_detail_screen.dart`, `water_order_details_screen.dart`. starts a masked call through the backend API once it lands; until then keep the button and its \"coming soon\" message.
 
-**P0-4. Courier pickup must be the customer's choice.**
+**P0-4. Courier pickup must be the customer's choice.** ✅ Done (pickup picker; fake totals removed in `fix/courier-online-payment`).
 `lib/views/courier/courier_screen.dart` hard-codes the pickup. AC: customer picks pickup on the map/saved addresses (same picker as drop-off); quote and create use that point. Remove the fake `redeemedPointsDiscount = 1` and `tax = 2` in `courier_review_booking_screen.dart`; the total shown equals the server quote.
 
 **P0-5. Water subscription purchase must not fake success.**
@@ -424,7 +424,7 @@ AC: Wallet screen with balance and transaction history; top-up 100 – 50,000 MR
 **P1-5. Trusted customers / Pay After Delivery.** ✅ Done (`fix/pay-after-delivery`): the cart loads `GET customer/payAfterDelivery`; PAD is selectable only when `can_use`, otherwise it shows why (tap opens Pay Later when an order is unpaid); never the default (Wallet is); sends `payment_type=4`. **Pay Later** screen (Account → Pay Later, built without a Figma screen) lists `unpaid_orders` and pays them online (Masrvi) or from the wallet (`POST payAfterDelivery/orders/{id}/pay`).
 AC: PAD appears only when the server says the customer is trusted. Order is placed with payment pending. The order shows "Pay now" and a 24-hour deadline; payment goes through Masrvi. If one PAD order is unpaid, PAD is hidden for new orders. Overdue status comes from the server.
 
-**P1-6. Masrvi for courier and service bookings.** Blocked.
+**P1-6. Masrvi for courier and service bookings.** Courier ✅ done (`fix/courier-online-payment`): Online opens `payment_url` from `courier/create`; a failed or closed payment keeps the order and the pay button retries it with `POST orders/{id}/payOnline`; success only after payment. Review total = quoted delivery fee (fake points/tax removed). Services (car wash, home cleaning, laundry): pending.
 AC: choosing Online on courier, car wash, home cleaning or laundry opens the Masrvi WebView, handles fail/cancel with retry of the same order (same pattern as `cart_screen.dart`), and shows success only after payment.
 
 **P1-7. Pre-orders (Schedule for later).** Blocked.
