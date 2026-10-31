@@ -401,10 +401,10 @@ AC: until the subscribe contract is confirmed, the Pay button is disabled with a
 **P0-6. Home search must search.** ✅ Done (P1-2, P1-3).
 AC: submitting the home search box (typed, voice or camera label) opens a results screen. Until unified search ships (P1-2), it may route to the Food search; after, it uses `customer/search`.
 
-**P0-7. Remove sample content customers can see.**
+**P0-7. Remove sample content customers can see.** Mostly done (C5, `fix/remove-sample-content`): Under 30 minutes lists homeHub's `under_30_minutes` (empty state when none); My Schedules shows an empty state (no customer pre-order list endpoint yet); the rate screen's sample item cards (never submitted) are gone; the redeem sheet no longer shows "Lorem Ipsum" or a made-up reward value. **Still sample:** the laundry dry-cleaning garment list and the two store maps (C18 / P2-6, P2-7).
 AC: no hard-coded stores/items/garments/images in `under_30_min_screen.dart`, `laundry_dry_cleaning_screen.dart`, `rate_order_screen.dart` (item cards), `my_schedules_screen.dart`, `store_map_screen.dart`, `express/express_store_map_screen.dart`; no "Lorem Ipsum" in `redeem_detail_sheet.dart`. Show real data or an empty state.
 
-**P0-8. My Orders → Local Store tab.**
+**P0-8. My Orders → Local Store tab.** ✅ Done (C5): loads `customer/orders/localStore` through the local-store `GroceryRepository` and shows the grocery order cards (detail, cancel, track, rate); also listed on the All tab.
 AC: tab loads `customer/orders/localStore` (use the local-store `GroceryRepository`), with detail, cancel and rate like Grocery.
 
 ### P1 — client decisions for this phase

@@ -17,30 +17,10 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
 
   final filters = const ['All', 'Food', 'Grocery', 'Pharmacy'];
 
-  final List<Map<String, dynamic>> _schedules = [
-    {
-      'title': '19L Water',
-      'subtitle': 'PureLife Water Co.',
-      'category': 'Water',
-      'status': 'Scheduled',
-      'frequency': 'WEEKLY - MON',
-      'frequencyBg': const Color(0xFFE8F1FF),
-      'frequencyFg': const Color(0xFF3B82F6),
-      'time': '10:00 AM - 12:00 PM',
-      'icon': Icons.water_drop_outlined,
-    },
-    {
-      'title': 'Milk, Bread, Eggs...',
-      'subtitle': 'Sahara Supermarket',
-      'category': 'Grocery',
-      'status': 'Scheduled',
-      'frequency': 'DAILY',
-      'frequencyBg': const Color(0xFFFFE8EC),
-      'frequencyFg': const Color(0xFFE11D48),
-      'time': '10:00 AM - 12:00 PM',
-      'icon': Icons.shopping_cart_outlined,
-    },
-  ];
+  // Waiting for a customer endpoint that lists pre-orders (only
+  // vendorapp/preorders exists). Until then the list is empty rather than
+  // showing sample schedules.
+  final List<Map<String, dynamic>> _schedules = const [];
 
   List<Map<String, dynamic>> get _filtered {
     if (_selectedFilter == 0) return _schedules;
@@ -74,7 +54,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
               child: list.isEmpty
                   ? Center(
                       child: Text(
-                        'No schedules found',
+                        'schedules_empty'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,

@@ -13,6 +13,8 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'under30_empty': 'No restaurants deliver in under 30 minutes right now',
+  'schedules_empty': 'No scheduled orders yet',
   'quote_line': 'Qty: @qty • Unit Price: @unit',
   'quote_partial': 'Only @qty of @requested available • Unit Price: @unit',
   'quote_unavailable': 'Not available at this pharmacy',
@@ -149,6 +151,9 @@ const _en = {
 };
 
 const _fr = {
+  'under30_empty':
+      'Aucun restaurant ne livre en moins de 30 minutes pour le moment',
+  'schedules_empty': 'Aucune commande planifiée pour le moment',
   'quote_line': 'Qté : @qty • Prix unitaire : @unit',
   'quote_partial':
       'Seulement @qty sur @requested disponibles • Prix unitaire : @unit',
@@ -288,6 +293,8 @@ const _fr = {
 };
 
 const _ar = {
+  'under30_empty': 'لا توجد مطاعم توصّل في أقل من 30 دقيقة حاليًا',
+  'schedules_empty': 'لا توجد طلبات مجدولة بعد',
   'quote_line': 'الكمية: @qty • سعر الوحدة: @unit',
   'quote_partial': 'متوفر @qty فقط من @requested • سعر الوحدة: @unit',
   'quote_unavailable': 'غير متوفر في هذه الصيدلية',

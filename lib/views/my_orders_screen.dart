@@ -67,6 +67,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   bool _waterOrdersLoading = false;
   List<Map<String, dynamic>> _courierOrders = const [];
   bool _courierOrdersLoading = false;
+  List<Map<String, dynamic>> _localStoreOrders = const [];
+  bool _localStoreOrdersLoading = false;
 
   @override
   void initState() {
@@ -77,6 +79,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _loadGroceryOrders();
     _loadWaterOrders();
     _loadCourierOrders();
+    _loadLocalStoreOrders();
     if (Get.isRegistered<HomeController>()) {
       final home = Get.find<HomeController>();
       _ordersCategoryWorker = ever<int>(home.pendingOrdersCategoryIndex, (
@@ -101,6 +104,44 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _loadGroceryOrders();
     _loadWaterOrders();
     _loadCourierOrders();
+    _loadLocalStoreOrders();
+  }
+
+  /// customer/orders/localStore, through the local-store GroceryRepository
+  /// (same order shape as grocery).
+  Future<void> _loadLocalStoreOrders() async {
+    if (!Get.isRegistered<GroceryRepository>(
+      tag: GroceryRepository.localStoreTag,
+    )) {
+      return;
+    }
+    setState(() => _localStoreOrdersLoading = true);
+    try {
+      final repository = Get.find<GroceryRepository>(
+        tag: GroceryRepository.localStoreTag,
+      );
+      final language = apiLanguageCode();
+      final first = await repository.fetchGroceryOrders(language: language);
+      final orders = [...first.orders];
+      var page = first.currentPage;
+      var lastPage = first.lastPage;
+      while (page < lastPage && page < 5) {
+        page += 1;
+        final next = await repository.fetchGroceryOrders(
+          language: language,
+          page: page,
+        );
+        orders.addAll(next.orders);
+        lastPage = next.lastPage;
+      }
+      if (!mounted) return;
+      setState(() => _localStoreOrders = orders);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _localStoreOrdersLoading = false);
+    }
   }
 
   @override
@@ -424,9 +465,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           _buildOrderButton(
             text: "Rate",
             onTap: () => Get.to(
-              () => RateOrderScreen(
-                orderId: order['numericOrderId'] as int?,
-              ),
+              () => RateOrderScreen(orderId: order['numericOrderId'] as int?),
             ),
           ),
       ],
@@ -527,9 +566,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           _buildOrderButton(
             text: "Rate",
             onTap: () => Get.to(
-              () => RateOrderScreen(
-                orderId: order['numericOrderId'] as int?,
-              ),
+              () => RateOrderScreen(orderId: order['numericOrderId'] as int?),
             ),
           )
         else if (!cancelled) ...[
@@ -900,13 +937,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         if (!cancelled)
           _buildGradientButton(
             text: 'Track Order',
-            onTap: () =>
-                Get.to(
-                  () => WaterTrackOrderScreen(
-                    orderId: '#$orderId',
-                    apiOrderId: order['numericOrderId'] as int?,
-                  ),
-                ),
+            onTap: () => Get.to(
+              () => WaterTrackOrderScreen(
+                orderId: '#$orderId',
+                apiOrderId: order['numericOrderId'] as int?,
+              ),
+            ),
           ),
       ],
       onDetailsLink: () => Get.to(
@@ -1003,9 +1039,26 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
-  // Local Store orders aren't loaded from the API yet, so this tab shows an
-  // empty state instead of sample orders.
-  Widget _buildOtherCategoryOrders() => _buildUnloadedOrders();
+  /// Local Store orders (customer/orders/localStore), in the grocery cards.
+  Widget _buildOtherCategoryOrders() {
+    final onAllTab = selectedCategoryIndex == 0;
+    if (_localStoreOrdersLoading && _localStoreOrders.isEmpty) {
+      return onAllTab
+          ? const SizedBox.shrink()
+          : const Padding(
+              padding: EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              ),
+            );
+    }
+    if (_localStoreOrders.isEmpty) return _buildUnloadedOrders();
+    return Column(
+      children: [
+        for (final order in _localStoreOrders) _groceryOrderCard(order),
+      ],
+    );
+  }
 
   Widget _buildUnloadedOrders() {
     if (selectedCategoryIndex == 0) return const SizedBox.shrink();

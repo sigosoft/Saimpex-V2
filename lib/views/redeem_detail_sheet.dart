@@ -193,27 +193,29 @@ class RedeemDetailSheet extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 10),
                                       Text(
-                                        (reward['rewardValue'] ??
-                                                'Free up to 1,000 MRU')
-                                            .toString(),
+                                        '${reward['rewardValue'] ?? ''}',
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFFFF5E00),
                                           fontSize: 20,
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        (reward['rewardDescription'] ??
-                                                'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.')
-                                            .toString(),
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF6B635C),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.45,
+                                      // No description from the server: show
+                                      // nothing rather than placeholder text.
+                                      if ('${reward['rewardDescription'] ?? ''}'
+                                          .trim()
+                                          .isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '${reward['rewardDescription']}',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF6B635C),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.45,
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ],
                                   ),
                                 ),
