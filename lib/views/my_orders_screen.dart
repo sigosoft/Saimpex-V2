@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_detail_screen.dart';
+import 'order_updated_detail_screen.dart';
 import 'water/water_order_details_screen.dart';
 import 'courier/courier_order_detail_screen.dart';
 import 'courier/courier_track_order_screen.dart';
@@ -59,6 +60,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   List<Map<String, dynamic>> _restaurantOrders = const [];
   bool _restaurantOrdersLoading = false;
   List<Map<String, dynamic>> _groceryOrders = const [];
+  // Grocery order id → store proposals waiting and amount due.
+  Map<int, ({int pending, num due})> _groceryChanges = const {};
   bool _groceryOrdersLoading = false;
   List<Map<String, dynamic>> _waterOrders = const [];
   bool _waterOrdersLoading = false;
@@ -295,12 +298,56 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       }
       if (!mounted) return;
       setState(() => _groceryOrders = orders);
+      _loadGroceryChanges(orders);
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     } finally {
       if (mounted) setState(() => _groceryOrdersLoading = false);
     }
+  }
+
+  /// For active grocery orders: proposals waiting for an answer and any
+  /// amount due from a pricier substitute (orders/{id}/substitutions).
+  Future<void> _loadGroceryChanges(List<Map<String, dynamic>> orders) async {
+    if (!Get.isRegistered<OrderRepository>()) return;
+    final changes = <int, ({int pending, num due})>{};
+    for (final order in orders) {
+      final id = order['numericOrderId'];
+      if (id is! int ||
+          order['isCancelled'] == true ||
+          order['isDelivered'] == true) {
+        continue;
+      }
+      try {
+        final data = await Get.find<OrderRepository>().substitutions(
+          orderId: id,
+          language: apiLanguageCode(),
+        );
+        final rows = data['substitutions'];
+        final pending = rows is List
+            ? rows.whereType<Map>().where((row) => row['status'] == 'pending')
+            : const <Map>[];
+        final due = num.tryParse('${data['amount_due'] ?? ''}') ?? 0;
+        if (pending.isNotEmpty || due > 0) {
+          changes[id] = (pending: pending.length, due: due);
+        }
+      } on ApiException {
+        // An order without substitutions just shows its normal buttons.
+      }
+    }
+    if (mounted) setState(() => _groceryChanges = changes);
+  }
+
+  Future<void> _openGroceryChanges(Map<String, dynamic> order) async {
+    await Get.to(
+      () => OrderUpdatedDetailScreen(
+        orderId: order['numericOrderId'] as int,
+        orderCode: '${order['orderId'] ?? ''}',
+        storeName: '${order['restaurantName'] ?? ''}',
+      ),
+    );
+    if (mounted) _loadGroceryOrders();
   }
 
   Widget _buildGroceryOrders() {
@@ -356,10 +403,18 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       onDetailsLink: () => _showGroceryOrderDetail(order),
       buttons: [
         if (!delivered && !cancelled) ...[
-          _buildOrderButton(
-            text: "Cancel",
-            onTap: () => _cancelRestaurantOrder(order),
-          ),
+          // The store proposed changes (or a substitute left an amount due):
+          // reviewing them comes first.
+          if (_groceryChanges.containsKey(order['numericOrderId']))
+            _buildOrderButton(
+              text: 'subs_review'.tr,
+              onTap: () => _openGroceryChanges(order),
+            )
+          else
+            _buildOrderButton(
+              text: "Cancel",
+              onTap: () => _cancelRestaurantOrder(order),
+            ),
           const SizedBox(width: 12),
           _buildGradientButton(
             text: "Track Order",

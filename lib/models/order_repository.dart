@@ -219,6 +219,57 @@ class OrderRepository {
     return envelope.message;
   }
 
+  /// What the store proposed for a grocery order (orders/{id}/substitutions):
+  /// `order_total`, `amount_due`, `timeout_minutes` and `substitutions[]`.
+  Future<Map<String, dynamic>> substitutions({
+    required int orderId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.orderSubstitutions(orderId)),
+      language,
+    );
+    return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
+  /// Accepts or rejects one proposal. Returns the updated substitution with
+  /// `order_total` and `amount_due`. 409 when it was already decided.
+  Future<Map<String, dynamic>> respondSubstitution({
+    required int substitutionId,
+    required bool accept,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.substitutionRespond(substitutionId),
+        data: {'accept': accept ? 1 : 0},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    data['message'] = envelope.message;
+    return data;
+  }
+
+  /// Pays an order's `amount_due` online instead of cash at the door
+  /// (orders/{id}/payDue). Returns the Masrvi `payment_url`.
+  Future<String?> payDue({
+    required int orderId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.orderPayDue(orderId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final url = '${asJsonMap(envelope.data)?['payment_url'] ?? ''}'.trim();
+    return url.isEmpty || url == 'null' ? null : url;
+  }
+
   /// The times a pre-order can be scheduled for (GET preorder/window):
   /// `earliest` and `latest`, as local times.
   Future<({DateTime earliest, DateTime latest})> preorderWindow(
