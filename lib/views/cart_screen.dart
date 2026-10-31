@@ -20,6 +20,7 @@ import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 import 'pharmacy/widgets/attach_prescription_sheet.dart';
 import '../utils/wallet_balance.dart';
+import 'widgets/coupons_sheet.dart';
 
 class CartScreen extends StatefulWidget {
   final String? storeName;
@@ -2036,16 +2037,11 @@ class _CartScreenState extends State<CartScreen> {
                           children: [
                             Text('Save More', style: AppTextStyles.title()),
                             GestureDetector(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Opening Coupons Screen...',
-                                      style: GoogleFonts.outfit(),
-                                    ),
-                                    backgroundColor: const Color(0xFFFF5E00),
-                                  ),
-                                );
+                              onTap: () async {
+                                final code = await showCouponsSheet(context);
+                                if (code == null || !mounted) return;
+                                _couponController.text = code;
+                                _applyCoupon(itemTotal);
                               },
                               child: Text(
                                 'View Coupons',

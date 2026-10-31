@@ -236,14 +236,24 @@ class OrderRepository {
     for (final entry in raw) {
       final coupon = asJsonMap(entry);
       if (coupon == null) continue;
-      final code = coupon['coupon_code'] ?? coupon['code'] ?? coupon['name'];
+      final code = '${coupon['code'] ?? coupon['coupon_code'] ?? ''}'.trim();
+      if (code.isEmpty) continue;
+      final name = '${coupon['name_$language'] ?? coupon['name_en'] ?? ''}'
+          .trim();
+      // type 1 is a flat amount off, type 2 a percentage of the order.
+      final value = num.tryParse('${coupon['discount_value'] ?? ''}') ?? 0;
+      final shown = value == value.roundToDouble()
+          ? '${value.toInt()}'
+          : '$value';
+      final discount = '${coupon['type']}' == '2'
+          ? '$shown% off'
+          : '$shown MRU off';
+      final validUpto = '${coupon['valid_upto'] ?? ''}'.split(' ').first;
       coupons.add({
-        'code': '$code',
-        'title': '${coupon['title'] ?? coupon['name'] ?? code ?? 'Coupon'}',
-        'subtitle':
-            '${coupon['description'] ?? coupon['subtitle'] ?? coupon['details'] ?? ''}',
-        'discount': '${coupon['discount'] ?? coupon['offer'] ?? ''}',
-        'image': ApiConstants.mediaUrl(coupon['image']?.toString()) ?? '',
+        'code': code,
+        'title': name.isEmpty ? code : name,
+        'subtitle': validUpto.isEmpty ? '' : 'Valid until $validUpto',
+        'discount': value > 0 ? discount : '',
       });
     }
     return coupons;

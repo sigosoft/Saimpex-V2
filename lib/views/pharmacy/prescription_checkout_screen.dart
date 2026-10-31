@@ -3,10 +3,19 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../controllers/select_location_controller.dart';
+import '../widgets/coupons_sheet.dart';
 import 'widgets/pharmacy_background.dart';
 import '../../utils/wallet_balance.dart';
 
-/// Last step before paying a quotation. Pops with true for delivery, false for pickup.
+/// What the customer chose on [PrescriptionCheckoutScreen]. [paymentType] is
+/// wallet (3) or online (2); the server doesn't take cash for prescriptions.
+typedef PrescriptionCheckoutChoice = ({
+  bool delivery,
+  String paymentType,
+  String couponCode,
+});
+
+/// Last step before paying a quotation. Pops with a [PrescriptionCheckoutChoice].
 class PrescriptionCheckoutScreen extends StatefulWidget {
   final String pharmacyName;
   final num quoteAmount;
@@ -25,15 +34,10 @@ class PrescriptionCheckoutScreen extends StatefulWidget {
 class _PrescriptionCheckoutScreenState
     extends State<PrescriptionCheckoutScreen> {
   bool isDelivery = true;
-  bool usePoints = true;
-  int selectedPaymentIndex = 0; // 0 wallet, 1 online, 2 COD
+  int selectedPaymentIndex = 0; // 0 wallet, 1 online
   String scheduleText = 'Pick a delivery time';
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _couponController = TextEditingController();
-
-  static const int _pointDiscount = 1;
-  static const int _deliveryFee = 5;
-  static const int _tax = 2;
 
   @override
   void dispose() {
@@ -127,8 +131,6 @@ class _PrescriptionCheckoutScreenState
               _buildSaveMoreHeader(),
               const SizedBox(height: 10),
               _buildCouponField(),
-              const SizedBox(height: 10),
-              _buildPointsCard(),
               const SizedBox(height: 18),
               Text(
                 'Payment',
@@ -152,15 +154,6 @@ class _PrescriptionCheckoutScreenState
                 title: 'Online payment',
                 subtitle: 'Card • Mobile money',
               ),
-              if (isDelivery) ...[
-                const SizedBox(height: 10),
-                _buildPaymentOption(
-                  index: 2,
-                  icon: Icons.payments_outlined,
-                  title: 'Cash on Delivery',
-                  subtitle: 'Pay the SAIMPEX driver',
-                ),
-              ],
               const SizedBox(height: 16),
               _buildSummaryCard(),
               const SizedBox(height: 20),
@@ -221,7 +214,6 @@ class _PrescriptionCheckoutScreenState
             onTap: () {
               setState(() {
                 isDelivery = false;
-                if (selectedPaymentIndex == 2) selectedPaymentIndex = 0;
               });
             },
           ),
@@ -527,12 +519,19 @@ class _PrescriptionCheckoutScreenState
           ),
         ),
         const Spacer(),
-        Text(
-          'View Coupons',
-          style: GoogleFonts.outfit(
-            color: const Color(0xFFFF5E00),
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+        GestureDetector(
+          onTap: () async {
+            final code = await showCouponsSheet(context);
+            if (code == null || !mounted) return;
+            setState(() => _couponController.text = code);
+          },
+          child: Text(
+            'View Coupons',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFFF5E00),
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],
@@ -574,74 +573,7 @@ class _PrescriptionCheckoutScreenState
               ),
             ),
           ),
-          Text(
-            'Apply',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPointsCard() {
-    return GestureDetector(
-      onTap: () => setState(() => usePoints = !usePoints),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: usePoints
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFEAD8C9),
-            width: usePoints ? 1.5 : 0.8,
-          ),
-        ),
-        child: Row(
-          children: [
-            Image.asset(
-              'lib/assets/images/Coin.png',
-              width: 28,
-              height: 28,
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.monetization_on_rounded,
-                color: Color(0xFFFFAE00),
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Use 500 points',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '= 50 MRU off',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _radio(usePoints),
-          ],
-        ),
       ),
     );
   }
@@ -730,20 +662,16 @@ class _PrescriptionCheckoutScreenState
           ),
           const SizedBox(height: 14),
           _summaryRow('Item total', '$_itemTotal MRU'),
-          if (isDelivery) ...[
-            const SizedBox(height: 10),
-            _summaryRow('Delivery fee', '$_deliveryFee MRU'),
-          ],
-          if (usePoints) ...[
-            const SizedBox(height: 10),
-            _summaryRow(
-              'Redeemed points',
-              '-$_pointDiscount MRU',
-              valueColor: const Color(0xFFFF5E00),
-            ),
-          ],
           const SizedBox(height: 10),
-          _summaryRow('Tax', '$_tax MRU'),
+          Text(
+            'Any delivery fee and coupon discount are worked out when you '
+            'pay.',
+            style: GoogleFonts.outfit(
+              color: Colors.white.withValues(alpha: 0.75),
+              fontSize: 11.5,
+              height: 1.35,
+            ),
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(height: 1, color: Color(0xFF3A434E)),
@@ -800,11 +728,12 @@ class _PrescriptionCheckoutScreenState
 
   Widget _buildPayButton() {
     return GestureDetector(
-      // Returns (delivery?, payment type). Prescription orders are paid online
-      // or from the wallet; the server doesn't take cash for them.
-      onTap: () => Navigator.pop(context, (
-        isDelivery,
-        selectedPaymentIndex == 0 ? paymentTypeWallet : paymentTypeOnline,
+      onTap: () => Navigator.pop<PrescriptionCheckoutChoice>(context, (
+        delivery: isDelivery,
+        paymentType: selectedPaymentIndex == 0
+            ? paymentTypeWallet
+            : paymentTypeOnline,
+        couponCode: _couponController.text.trim(),
       )),
       child: Container(
         height: 52,

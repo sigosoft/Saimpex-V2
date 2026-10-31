@@ -185,14 +185,13 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       final repository = Get.find<PharmacyRepository>();
       final language = apiLanguageCode();
       // Review first: the customer confirms delivery or pickup on the checkout page
-      final choice = await Get.to<(bool, String)>(
+      final choice = await Get.to<PrescriptionCheckoutChoice>(
         () => PrescriptionCheckoutScreen(
           pharmacyName: _pharmacyName,
           quoteAmount: _quoteAmount,
         ),
       );
       if (choice == null || !mounted) return;
-      final (isDelivery, paymentType) = choice;
       // Accepting twice fails on the server, so only accept a quote not yet accepted
       if (_status != 'accepted') {
         await repository.acceptPrescription(
@@ -206,12 +205,13 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
           : SelectLocationController.selectedSubtitle;
       final placed = await repository.payPrescription(
         prescriptionId: id,
-        selfPickup: !isDelivery,
+        selfPickup: !choice.delivery,
         latitude: SelectLocationController.selectedLatitude,
         longitude: SelectLocationController.selectedLongitude,
         location: location,
-        paymentType: paymentType,
+        paymentType: choice.paymentType,
         language: language,
+        couponCode: choice.couponCode,
       );
       if (!mounted) return;
       await _finishPaidPrescription(placed);

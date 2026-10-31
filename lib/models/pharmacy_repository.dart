@@ -515,6 +515,7 @@ class PharmacyRepository {
     required String location,
     String paymentType = '2',
     required String language,
+    String couponCode = '',
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
@@ -525,6 +526,7 @@ class PharmacyRepository {
           'long': longitude.toString(),
           'location': location,
           'payment_type': paymentType,
+          if (couponCode.isNotEmpty) 'coupon_code': couponCode,
         },
         options: Options(contentType: Headers.jsonContentType),
       ),
