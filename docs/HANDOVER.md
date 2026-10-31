@@ -232,7 +232,11 @@ Note: "models" holds **repositories** (API classes), not plain data classes. Mos
 - `lib/l10n/app_translations.dart` (`AppTranslations`, GetX `Translations`) has the EN/FR/AR strings. Use `'key'.tr` / `'key'.trParams({...})`; **add every new string there in all three languages.**
 - `GetMaterialApp` sets `translations`, `locale`, `fallbackLocale: en`, `supportedLocales` and the Flutter localisation delegates, so Arabic lays the app out right to left. Screens built with `EdgeInsets.fromLTRB` / `Alignment.centerLeft` don't flip yet: use `EdgeInsetsDirectional` / `AlignmentDirectional` when converting a screen.
 - The language picker (`lib/views/widgets/language_selector.dart`) calls `customer/updateLanguage` (when logged in) and `AppLocale.change`. `apiLanguageCode()` returns `AppLocale.code`.
-- **Pending (P1-1):** move the hard-coded English in existing screens into `AppTranslations`, screen by screen.
+- Screen strings live in `lib/l10n/areas/` (`core`, `orders`, `pharmacy_water`, `services`, `stores`; key prefixes `core_`, `orders_`, `pw_`, `svc_`, `st_`), merged by `AppTranslations`. About 1,400 keys per language.
+- `test/translations_test.dart` fails if FR/AR miss a key, drop an `@placeholder`, or the code uses an undefined key. Run `flutter test` after adding strings.
+- Labels that code compares or sends to the API (e.g. account menu `label`, service card titles, home-cleaning room names, delivery slots, cancel reasons) stay English internally and are translated only when drawn.
+- **Not translated on purpose:** server data, and sample/mock data still in some screens (to be replaced by real data, not translated).
+- **Still to do:** review by a native Arabic/French speaker (client QA, 16–25 Nov); finish RTL on screens with custom painters, gradients and maps (only mechanical directional swaps were made).
 
 See pending item P1-1.
 
@@ -409,7 +413,7 @@ AC: tab loads `customer/orders/localStore` (use the local-store `GroceryReposito
 
 ### P1 — client decisions for this phase
 
-**P1-1. Localisation EN / FR / AR with RTL.** (No backend needed.)
+**P1-1. Localisation EN / FR / AR with RTL.** ✅ Done in code (`feat/translate-screens`, see 3.5); needs native-speaker review and an RTL pass on a device.
 AC: every visible string comes from translations (GetX `Translations` or Flutter `intl`/ARB — pick one and use it everywhere). `GetMaterialApp` sets `locale`, `fallbackLocale: en`, `supportedLocales`. Choosing Arabic flips layout to RTL (icons, paddings, back arrows, sliders). The choice is saved locally and sent with `updateLanguage`; it survives restart. API messages use the matching `message_xx`. The client reports wording issues later; do not wait for perfect copy.
 
 **P1-2. Unified search.** ✅ Done (`feat/unified-search`): Home search (typed or voice) opens `AllSearchScreen`, which calls `GET customer/search` and lists stores by category (Food, Grocery, Local Store, Pharmacy, Water) then products; tapping opens that category's store screen (products open their store; opening the product sheet directly is not done yet). Laundry/car wash/home cleaning/gas store hits are not listed (no store screen to open from search).
