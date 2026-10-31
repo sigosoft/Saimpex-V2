@@ -86,6 +86,7 @@ class ApiConstants {
   static const String orderDetails = 'customer/orderDetails';
   static const String cancelOrder = 'customer/cancelOrder';
   static const String payAfterDelivery = 'customer/payAfterDelivery';
+  static const String paymentMethods = 'customer/paymentMethods';
   static const String preorderWindow = 'customer/preorder/window';
   static String orderSubstitutions(int orderId) =>
       'customer/orders/$orderId/substitutions';

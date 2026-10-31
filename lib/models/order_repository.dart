@@ -339,6 +339,28 @@ class OrderRepository {
     return asJsonMap(envelope.data) ?? <String, dynamic>{};
   }
 
+  /// Payment types Admin has switched on (customer/paymentMethods), e.g.
+  /// {'1', '2', '3'}. Throws when the server doesn't send the list.
+  Future<Set<String>> enabledPaymentTypes(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.paymentMethods),
+      language,
+    );
+    final methods = (asJsonMap(envelope.data) ?? {})['payment_methods'];
+    if (methods is! List) {
+      throw const ApiException('Payment methods are missing.');
+    }
+    final enabled = <String>{};
+    for (final method in methods) {
+      final map = asJsonMap(method);
+      if (map == null) continue;
+      if (map['enabled'] == true || map['enabled'] == 1) {
+        enabled.add('${map['payment_type']}');
+      }
+    }
+    return enabled;
+  }
+
   /// Pays a delivered Pay After Delivery order. [method] is `online` (returns
   /// `payment_url`) or `wallet` (paid now; returns the new `balance`).
   Future<Map<String, dynamic>> payAfterDeliveryPay({

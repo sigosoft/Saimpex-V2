@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../controllers/select_location_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/order_repository.dart';
+import '../../utils/api_language.dart';
 import '../widgets/coupons_sheet.dart';
 import 'widgets/pharmacy_background.dart';
 import '../../utils/wallet_balance.dart';
@@ -14,6 +17,7 @@ typedef PrescriptionCheckoutChoice = ({
   bool delivery,
   String paymentType,
   String couponCode,
+  String note,
 });
 
 /// Last step before paying a quotation. Pops with a [PrescriptionCheckoutChoice].
@@ -36,10 +40,40 @@ class _PrescriptionCheckoutScreenState
     extends State<PrescriptionCheckoutScreen> {
   bool isDelivery = true;
   int selectedPaymentIndex = 0; // 0 wallet, 1 online
-  // A translation key; translated when shown.
-  String scheduleText = 'preorder_pick';
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _couponController = TextEditingController();
+
+  /// Payment types Admin has switched on; null until loaded. If the list can't
+  /// be loaded both options stay, and the server refuses a disabled one.
+  Set<String>? _enabledPaymentTypes;
+
+  bool get _walletEnabled =>
+      _enabledPaymentTypes?.contains(paymentTypeWallet) ?? true;
+  bool get _onlineEnabled =>
+      _enabledPaymentTypes?.contains(paymentTypeOnline) ?? true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPaymentMethods();
+  }
+
+  Future<void> _loadPaymentMethods() async {
+    if (!Get.isRegistered<OrderRepository>()) return;
+    try {
+      final enabled = await Get.find<OrderRepository>().enabledPaymentTypes(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _enabledPaymentTypes = enabled;
+        if (!_walletEnabled) selectedPaymentIndex = 1;
+        if (!_onlineEnabled) selectedPaymentIndex = 0;
+      });
+    } on ApiException {
+      // Keep both options; the server still checks the method on pay.
+    }
+  }
 
   @override
   void dispose() {
@@ -127,8 +161,6 @@ class _PrescriptionCheckoutScreenState
                 _buildAddressCard()
               else
                 _buildPharmacyPickupCard(),
-              const SizedBox(height: 10),
-              _buildScheduleCard(),
               const SizedBox(height: 18),
               _buildSaveMoreHeader(),
               const SizedBox(height: 10),
@@ -142,20 +174,35 @@ class _PrescriptionCheckoutScreenState
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 10),
-              _buildPaymentOption(
-                index: 0,
-                icon: Icons.account_balance_wallet_outlined,
-                title: 'wallet_title'.tr,
-                subtitle: walletBalanceSubtitle(),
-              ),
-              const SizedBox(height: 10),
-              _buildPaymentOption(
-                index: 1,
-                icon: Icons.credit_card_rounded,
-                title: 'water_sub_pay_online'.tr,
-                subtitle: 'pw_card_mobile_money'.tr,
-              ),
+              if (_walletEnabled) ...[
+                const SizedBox(height: 10),
+                _buildPaymentOption(
+                  index: 0,
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: 'wallet_title'.tr,
+                  subtitle: walletBalanceSubtitle(),
+                ),
+              ],
+              if (_onlineEnabled) ...[
+                const SizedBox(height: 10),
+                _buildPaymentOption(
+                  index: 1,
+                  icon: Icons.credit_card_rounded,
+                  title: 'water_sub_pay_online'.tr,
+                  subtitle: 'pw_card_mobile_money'.tr,
+                ),
+              ],
+              if (!_walletEnabled && !_onlineEnabled) ...[
+                const SizedBox(height: 10),
+                Text(
+                  'pw_no_payment_method'.tr,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFFEF4444),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               _buildSummaryCard(),
               const SizedBox(height: 20),
@@ -434,81 +481,6 @@ class _PrescriptionCheckoutScreenState
     );
   }
 
-  Widget _buildScheduleCard() {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          scheduleText = isDelivery
-              ? 'pw_slot_tomorrow_morning'
-              : 'pw_slot_tomorrow_afternoon';
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'preorder_scheduled'.trParams({'time': scheduleText.tr}),
-              style: GoogleFonts.outfit(),
-            ),
-            backgroundColor: const Color(0xFF00B25C),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE8F8EE),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: const BoxDecoration(
-                color: Color(0xFFCEF5DA),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.calendar_month_outlined,
-                color: Color(0xFF00B25C),
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'preorder_title'.tr,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF0E5A2A),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    scheduleText.tr,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF3BA162),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: Color(0xFF00B25C),
-              size: 22,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSaveMoreHeader() {
     return Row(
       children: [
@@ -731,19 +703,26 @@ class _PrescriptionCheckoutScreenState
   }
 
   Widget _buildPayButton() {
+    final canPay = _walletEnabled || _onlineEnabled;
     return GestureDetector(
-      onTap: () => Navigator.pop<PrescriptionCheckoutChoice>(context, (
-        delivery: isDelivery,
-        paymentType: selectedPaymentIndex == 0
-            ? paymentTypeWallet
-            : paymentTypeOnline,
-        couponCode: _couponController.text.trim(),
-      )),
+      onTap: !canPay
+          ? null
+          : () => Navigator.pop<PrescriptionCheckoutChoice>(context, (
+              delivery: isDelivery,
+              paymentType: selectedPaymentIndex == 0
+                  ? paymentTypeWallet
+                  : paymentTypeOnline,
+              couponCode: _couponController.text.trim(),
+              // The note field only shows for delivery.
+              note: isDelivery ? _noteController.text.trim() : '',
+            )),
       child: Container(
         height: 52,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+          gradient: LinearGradient(
+            colors: canPay
+                ? const [Color(0xFFFF5E00), Color(0xFFFFAE00)]
+                : const [Color(0xFFD9D0C8), Color(0xFFD9D0C8)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),

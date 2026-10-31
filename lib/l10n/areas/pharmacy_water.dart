@@ -149,8 +149,8 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_self_pickup': 'Self Pickup',
     'pw_ready_in_15': 'Ready in 15 min',
     'pw_edit': 'Edit',
-    'pw_slot_tomorrow_morning': 'Tomorrow, 10:00 - 11:00 AM',
-    'pw_slot_tomorrow_afternoon': 'Tomorrow, 4:00 - 5:00 PM',
+    'pw_no_payment_method':
+        "Prescription payment isn't available right now. Please try again later.",
     'pw_save_more': 'Save More',
     'pw_view_coupons': 'View Coupons',
     'pw_enter_coupon': 'Enter coupon',
@@ -437,8 +437,8 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_self_pickup': 'Retrait sur place',
     'pw_ready_in_15': 'Prêt dans 15 min',
     'pw_edit': 'Modifier',
-    'pw_slot_tomorrow_morning': 'Demain, 10h00 - 11h00',
-    'pw_slot_tomorrow_afternoon': 'Demain, 16h00 - 17h00',
+    'pw_no_payment_method':
+        "Le paiement des ordonnances n'est pas disponible pour le moment. Veuillez réessayer plus tard.",
     'pw_save_more': 'Économisez plus',
     'pw_view_coupons': 'Voir les coupons',
     'pw_enter_coupon': 'Saisir un coupon',
@@ -727,8 +727,8 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_self_pickup': 'استلام ذاتي',
     'pw_ready_in_15': 'جاهز خلال 15 دقيقة',
     'pw_edit': 'تعديل',
-    'pw_slot_tomorrow_morning': 'غدًا، 10:00 - 11:00 صباحًا',
-    'pw_slot_tomorrow_afternoon': 'غدًا، 4:00 - 5:00 مساءً',
+    'pw_no_payment_method':
+        'دفع الوصفات الطبية غير متاح حاليًا. يرجى المحاولة لاحقًا.',
     'pw_save_more': 'وفّر أكثر',
     'pw_view_coupons': 'عرض القسائم',
     'pw_enter_coupon': 'أدخل رمز القسيمة',

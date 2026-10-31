@@ -246,6 +246,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         paymentType: choice.paymentType,
         language: language,
         couponCode: choice.couponCode,
+        note: choice.note,
       );
       if (!mounted) return;
       await _finishPaidPrescription(placed);

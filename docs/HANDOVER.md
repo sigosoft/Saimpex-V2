@@ -389,7 +389,7 @@ Each item has acceptance criteria (AC) that follow the client decisions. "Blocke
 `lib/views/cart_screen.dart` shows "Pay After Delivery", makes it the default for food/grocery (`selectedPaymentIndex = widget.isFoodOrGrocery ? 3 : 0`), and sends `paymentTypeCash`.
 AC: PAD is hidden until the backend exposes the trusted flag (P1-4). Default selection is a real method (Wallet or Online). No order is ever placed as cash when the customer picked something else.
 
-**P0-2. Prescription checkout must not offer cash.**
+**P0-2. Prescription checkout must not offer cash.** ✅ Done (C2, `feature/prescription-payment-methods`): Wallet and Online only, and only the ones Admin has switched on (`GET customer/paymentMethods`, API §6.30; if the list can't load both stay and the server's translated 422 is shown). With both off the Pay button is disabled with a message. The delivery note is now sent (`notes`/`order_note`); the fake "tomorrow 10–11 AM" schedule card was removed (`prescription/{id}/pay` has no scheduled time).
 `lib/views/pharmacy/prescription_checkout_screen.dart` shows "Cash on Delivery" but silently sends online.
 AC: Only Wallet and Online are shown for prescription orders. What the customer picks is what is sent.
 

@@ -516,6 +516,7 @@ class PharmacyRepository {
     String paymentType = '2',
     required String language,
     String couponCode = '',
+    String note = '',
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
@@ -527,6 +528,8 @@ class PharmacyRepository {
           'location': location,
           'payment_type': paymentType,
           if (couponCode.isNotEmpty) 'coupon_code': couponCode,
+          // Same as checkout: the delivery note goes in both fields.
+          if (note.isNotEmpty) ...{'notes': note, 'order_note': note},
         },
         options: Options(contentType: Headers.jsonContentType),
       ),
