@@ -339,8 +339,8 @@ These come from Phase 0/1 of the plan in `V2_DECISIONS_AND_PLAN.md`. **Do not bu
 |---|---|---|
 | **Unified search** (stores + products, nearest first, only stores that deliver) | `GET customer/search?q=&latitude=&longitude=` returning `stores[]` + `products[]` | **Ready** on backend `integration/v2` (738ecc6). Contract: `saimpex-backend-new/docs/SAIMPEX_V2_CUSTOMER_API.md` §6.7. Image search: send the photo to `POST customer/image-recognition/analyze` without `type` to get `stores[]` + `products[]` from Google Vision. |
 | **Image search** via Google Vision | Backend endpoint taking an image and returning matching products/stores (likely an evolution of `scan-image`) | **Contract pending from backend.** |
-| **Wallet top-up** (100 – 50,000 MRU via Masrvi) | top-up init + Masrvi session + wallet transactions list | **Contract pending from backend.** |
-| **Split payment** (wallet + Masrvi remainder) | checkout change | **Contract pending from backend.** |
+| **Wallet top-up** (100 – 50,000 MRU via Masrvi) | `GET wallet`, `POST wallet/topup`, `GET wallet/topup/{id}` | **Ready** on backend `integration/v2` (62c3c64). Contract: backend `docs/SAIMPEX_V2_CUSTOMER_API.md` §6.8. |
+| **Split payment** (wallet + Masrvi remainder) | `use_wallet=1` with `payment_type=2` on `checkoutV2` / `catalog/checkout`; response `wallet_amount`, `online_amount` | **Ready** (62c3c64), §6.8. |
 | **Trusted customer / Pay After Delivery** | trusted flag on profile/checkout; PAD payment type or flag; pay-later endpoint for a pending order | **Contract pending from backend.** |
 | **Masrvi for courier and services** | payment session for courier orders and service bookings | **Contract pending from backend.** |
 | **Pre-orders** (up to 7 days) | scheduled time on checkout; list of scheduled orders | **Contract pending from backend.** |
@@ -396,7 +396,7 @@ AC: text and voice search from Home return stores and products across all catego
 **P1-3. Image search via Google Vision.** Blocked.
 AC: capture or upload a photo → backend identifies the product → list of stores with price, distance, rating → tap opens that product in the store. On-device ML Kit may stay only as a fallback if the backend is unreachable (confirm with the backend owner).
 
-**P1-4. Wallet top-up and split payment.** Blocked.
+**P1-4. Wallet top-up and split payment.** API ready (backend API doc §6.8).
 AC: Wallet screen with balance and transaction history; top-up 100 – 50,000 MRU (validate both limits in the app and expect server validation) paid via Masrvi WebView; balance refreshes after success. At checkout, if the wallet is short, the app shows "Wallet X + Online Y" and pays Y by Masrvi; never place an order the wallet cannot cover without that step.
 
 **P1-5. Trusted customers / Pay After Delivery.** Blocked.
