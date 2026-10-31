@@ -17,6 +17,55 @@ import '../payment_webview_screen.dart';
 import 'prescription_checkout_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
+/// Asks the customer to confirm, then declines the quotation on the server.
+/// Returns true once it is declined.
+Future<bool> declineQuotation(BuildContext context, int prescriptionId) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(
+        'Decline quotation?',
+        style: GoogleFonts.outfit(fontWeight: FontWeight.w800),
+      ),
+      content: Text(
+        'The pharmacy will be told you don\'t want this quotation.',
+        style: GoogleFonts.outfit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: Text('Keep', style: GoogleFonts.outfit()),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, true),
+          child: Text(
+            'Decline',
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFEF4444),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return false;
+  try {
+    final message = await Get.find<PharmacyRepository>().declinePrescription(
+      prescriptionId: prescriptionId,
+      language: apiLanguageCode(),
+    );
+    showAppToast(
+      message.isEmpty ? 'Quotation declined' : message,
+      backgroundColor: const Color(0xFFFF5E00),
+    );
+    return true;
+  } on ApiException catch (error) {
+    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    return false;
+  }
+}
+
 class QuotationDetailScreen extends StatefulWidget {
   final String orderId;
   final String pharmacyName;
@@ -26,11 +75,11 @@ class QuotationDetailScreen extends StatefulWidget {
 
   const QuotationDetailScreen({
     super.key,
-    this.orderId = '#22789007',
-    this.pharmacyName = 'Pharmacy Nasr',
-    this.expiresIn = const Duration(hours: 2, minutes: 45, seconds: 9),
+    required this.orderId,
+    required this.pharmacyName,
+    required this.expiresIn,
     this.prescriptionId,
-    this.amount = '0 MRU',
+    this.amount = '',
   });
 
   @override
@@ -1064,7 +1113,15 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       children: [
         Expanded(
           child: GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () async {
+              final id = widget.prescriptionId;
+              if (id == null || _status != 'quoted') {
+                Navigator.pop(context);
+                return;
+              }
+              final declined = await declineQuotation(context, id);
+              if (declined && mounted) Navigator.pop(context, true);
+            },
             child: Container(
               height: 46,
               decoration: BoxDecoration(

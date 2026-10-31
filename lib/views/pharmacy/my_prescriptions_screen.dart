@@ -43,11 +43,12 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
     final requestId = ++_requestId;
     setState(() => _loading = true);
     try {
-      final result = await Get.find<PharmacyRepository>().fetchPrescriptionsList(
-        language: apiLanguageCode(),
-        status: _filters[_filterIndex].$2,
-        limit: 50,
-      );
+      final result = await Get.find<PharmacyRepository>()
+          .fetchPrescriptionsList(
+            language: apiLanguageCode(),
+            status: _filters[_filterIndex].$2,
+            limit: 50,
+          );
       if (!mounted || requestId != _requestId) return;
       setState(() => _items = result.prescriptions);
     } on ApiException catch (error) {
@@ -73,10 +74,10 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
     return remaining.isNegative ? Duration.zero : remaining;
   }
 
-  void _openItem(Map<String, dynamic> item) {
+  Future<void> _openItem(Map<String, dynamic> item) async {
     if (item['status'] != 'quoted') return;
     final id = item['prescriptionId'] as int;
-    Get.to(
+    final declined = await Get.to<bool>(
       () => QuotationDetailScreen(
         orderId: '#$id',
         pharmacyName: '${item['pharmacyName']}',
@@ -85,6 +86,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
         amount: '${item['quoteAmountText']}',
       ),
     );
+    if (declined == true && mounted) _load();
   }
 
   @override
@@ -141,9 +143,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                             ? const Color(0xFFFF5E00)
                             : Colors.white,
                         borderRadius: BorderRadius.circular(22),
-                        border: Border.all(
-                          color: const Color(0xFFE8DFD6),
-                        ),
+                        border: Border.all(color: const Color(0xFFE8DFD6)),
                       ),
                       child: Text(
                         _filters[index].$1,
@@ -263,10 +263,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
               ),
             if (quoted) ...[
               const SizedBox(width: 8),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFFA59A94),
-              ),
+              const Icon(Icons.chevron_right_rounded, color: Color(0xFFA59A94)),
             ],
           ],
         ),

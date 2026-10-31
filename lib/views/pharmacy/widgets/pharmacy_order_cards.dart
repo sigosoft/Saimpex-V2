@@ -23,14 +23,17 @@ class PharmacyQuotationReadyCard extends StatefulWidget {
   final String amount;
   final Duration expiresIn;
   final int? prescriptionId;
+  // Called after the quotation is declined, so the list can reload.
+  final VoidCallback? onChanged;
 
   const PharmacyQuotationReadyCard({
     super.key,
-    this.pharmacyName = 'Pharmacy Nasr',
-    this.orderId = '#22789007',
-    this.amount = '0 MRU',
-    this.expiresIn = const Duration(hours: 2, minutes: 45, seconds: 9),
+    required this.pharmacyName,
+    required this.orderId,
+    required this.amount,
+    required this.expiresIn,
     this.prescriptionId,
+    this.onChanged,
   });
 
   @override
@@ -220,7 +223,12 @@ class _PharmacyQuotationReadyCardState
                       child: _SoftButton(
                         label: 'Decline Quotation',
                         outlined: true,
-                        onTap: () {},
+                        onTap: () async {
+                          final id = widget.prescriptionId;
+                          if (id == null) return;
+                          final declined = await declineQuotation(context, id);
+                          if (declined) widget.onChanged?.call();
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -271,8 +279,8 @@ class _PharmacyQuotationReadyCardState
             ),
           ),
           GestureDetector(
-            onTap: () {
-              Get.to(
+            onTap: () async {
+              final declined = await Get.to<bool>(
                 () => QuotationDetailScreen(
                   orderId: widget.orderId,
                   pharmacyName: widget.pharmacyName,
@@ -281,6 +289,7 @@ class _PharmacyQuotationReadyCardState
                   amount: widget.amount,
                 ),
               );
+              if (declined == true) widget.onChanged?.call();
             },
             child: Container(
               width: double.infinity,

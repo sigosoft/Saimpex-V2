@@ -550,6 +550,22 @@ class PharmacyRepository {
     return envelope.message;
   }
 
+  /// Declines a quotation (status quoted → rejected).
+  Future<String> declinePrescription({
+    required int prescriptionId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.prescriptionDecline(prescriptionId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
   Map<String, dynamic> _prescriptionItem(
     Map<String, dynamic> item,
     String language,

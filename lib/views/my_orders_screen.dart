@@ -709,6 +709,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 (order['prescriptionId'] as int) > 0
             ? order['prescriptionId'] as int
             : null,
+        onChanged: _loadPharmacyOrders,
       );
     }
     final badge = _pharmacyStatusColors(
