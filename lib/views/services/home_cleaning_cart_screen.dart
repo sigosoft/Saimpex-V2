@@ -8,6 +8,7 @@ import 'home_cleaning_choose_slot_sheet.dart';
 import 'home_cleaning_booking_success_screen.dart';
 import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
+import '../../core/network/api_exception.dart';
 import '../../utils/wallet_balance.dart';
 import '../../utils/payment_methods.dart';
 import '../../utils/toast_helper.dart';
@@ -95,13 +96,8 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   late DateTime _slotDate;
   late String _slotLabel;
   late String _productsProvider;
-  bool _usePoints = false;
   int _paymentIndex = 0; // mandatory — Wallet selected by default
   bool _noPaymentMethod = false;
-  final _couponController = TextEditingController();
-
-  static const _tax = 10;
-  static const _pointsOff = 50;
 
   static const _roomLabels = {
     'Bedrooms',
@@ -139,13 +135,51 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
     _slotDate = widget.slotDate;
     _slotLabel = widget.slotLabel;
     _productsProvider = widget.productsProvider;
+    _loadQuote();
   }
 
-  @override
-  void dispose() {
-    _couponController.dispose();
-    super.dispose();
+  String get _paymentType =>
+      _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet;
+
+  /// `{name, quantity}` rows as customer/service/book takes them.
+  List<Map<String, dynamic>> _bookingRows(List<Map<String, dynamic>> rows) => [
+    for (final row in rows) {'name': row['label'], 'quantity': row['qty']},
+  ];
+
+  String get _productSupply =>
+      _productsProvider == 'provider' ? 'vendor' : 'customer';
+
+  /// The server's price for this booking (customer/service/quote):
+  /// `subtotal`, `tax`, `total`. Null while loading or when it failed.
+  Map<String, dynamic>? _quote;
+  String? _quoteError;
+
+  Future<void> _loadQuote() async {
+    setState(() {
+      _quote = null;
+      _quoteError = null;
+    });
+    try {
+      final quote = await quoteServiceBooking(
+        slotDate: _slotDate,
+        slotLabel: _slotLabel,
+        paymentType: _paymentType,
+        spaces: _bookingRows(_spaceRows),
+        addons: _bookingRows(_extraRows),
+        productSupply: _productSupply,
+        propertyType: widget.propertyType,
+      );
+      if (!mounted) return;
+      setState(() {
+        _quote = quote;
+        if (quote == null) _quoteError = 'svc_choose_service_again'.tr;
+      });
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _quoteError = error.message);
+    }
   }
+
+  num? _quoted(String key) => num.tryParse('${_quote?[key] ?? ''}');
 
   bool _booking = false;
 
@@ -158,18 +192,21 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       return;
     }
     if (_booking) return;
+    if (_quote == null) {
+      if (_quoteError != null) {
+        showAppToast(_quoteError!, backgroundColor: const Color(0xFFEF4444));
+      }
+      return;
+    }
     setState(() => _booking = true);
-    List<Map<String, dynamic>> rows(List<Map<String, dynamic>> source) => [
-      for (final row in source) {'name': row['label'], 'quantity': row['qty']},
-    ];
     final booking = await placeServiceBooking(
       shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
-      paymentType: _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
-      spaces: rows(_spaceRows),
-      addons: rows(_extraRows),
-      productSupply: _productsProvider == 'provider' ? 'vendor' : 'customer',
+      paymentType: _paymentType,
+      spaces: _bookingRows(_spaceRows),
+      addons: _bookingRows(_extraRows),
+      productSupply: _productSupply,
       propertyType: widget.propertyType,
       notes: widget.notes,
     );
@@ -238,9 +275,13 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   int get _productsTotal =>
       _productsProvider == 'provider' ? widget.productsFee : 0;
 
-  int get _subtotal => _spacesTotal + _extrasTotal + _productsTotal;
-  int get _pointsDiscount => _usePoints ? _pointsOff : 0;
-  int get _toPay => _subtotal - _pointsDiscount + _tax;
+  /// The provider's price before tax; the cart's own estimate until the
+  /// server answers.
+  int get _subtotal =>
+      (_quoted('subtotal') ?? _spacesTotal + _extrasTotal + _productsTotal)
+          .round();
+  int? get _tax => _quoted('tax')?.round();
+  int get _toPay => (_quoted('total') ?? _subtotal).round();
 
   // Translation keys.
   static const _months = [
@@ -282,6 +323,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       _slotDate = result['date'] as DateTime;
       _slotLabel = _slotRangeFromLabel(result['slot'] as String);
     });
+    _loadQuote();
   }
 
   bool get _isPestControl =>
@@ -354,12 +396,6 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       _buildAddressCard(),
                       const SizedBox(height: 10),
                       _buildSlotCard(),
-                      const SizedBox(height: 22),
-                      _buildSaveMoreHeader(),
-                      const SizedBox(height: 12),
-                      _buildCouponField(),
-                      const SizedBox(height: 10),
-                      _buildPointsCard(),
                       const SizedBox(height: 22),
                       _sectionTitle('svc_payment'.tr),
                       const SizedBox(height: 12),
@@ -750,9 +786,12 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               ),
               const SizedBox(height: 12),
               GestureDetector(
-                onTap: () => setState(() {
-                  _productsProvider = providerSelected ? 'self' : 'provider';
-                }),
+                onTap: () {
+                  setState(() {
+                    _productsProvider = providerSelected ? 'self' : 'provider';
+                  });
+                  _loadQuote();
+                },
                 child: Text(
                   providerSelected
                       ? 'svc_switch_to_self'.tr
@@ -956,153 +995,6 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
     );
   }
 
-  Widget _buildSaveMoreHeader() {
-    return Row(
-      children: [
-        Expanded(child: _sectionTitle('svc_save_more'.tr)),
-        Text(
-          'svc_view_coupons'.tr,
-          style: GoogleFonts.outfit(
-            color: const Color(0xFFFF5E00),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCouponField() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.local_offer_outlined,
-            color: Color(0xFFFF5E00),
-            size: 20,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: _couponController,
-              style: GoogleFonts.outfit(fontSize: 13.5),
-              decoration: InputDecoration(
-                hintText: 'svc_enter_coupon'.tr,
-                hintStyle: GoogleFonts.outfit(
-                  color: const Color(0xFFB0A59C),
-                  fontSize: 13.5,
-                ),
-                border: InputBorder.none,
-                isDense: true,
-              ),
-            ),
-          ),
-          Text(
-            'svc_apply'.tr,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPointsCard() {
-    return GestureDetector(
-      onTap: () => setState(() => _usePoints = !_usePoints),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Image.asset(
-              'lib/assets/images/Coin.png',
-              width: 28,
-              height: 28,
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.monetization_on_rounded,
-                color: Color(0xFFFF5E00),
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'svc_use_points'.trParams({'points': '500'}),
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1A1A1A),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    '= ${'svc_points_off'.trParams({'amount': '$_pointsOff'})}',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF8A7E76),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: _usePoints
-                      ? const Color(0xFFFF5E00)
-                      : const Color(0xFFC4B8AF),
-                  width: 1.8,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: _usePoints
-                  ? Container(
-                      width: 12,
-                      height: 12,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
-                        shape: BoxShape.circle,
-                      ),
-                    )
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildPaymentOption({
     required int index,
     required String imageAsset,
@@ -1228,13 +1120,22 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           const SizedBox(height: 14),
           _detailRow('svc_total'.tr, 'mru'.trParams({'amount': '$_subtotal'})),
           const SizedBox(height: 10),
+          // "…" until the server has priced the booking.
           _detailRow(
-            'svc_redeemed_points'.tr,
-            '-${'mru'.trParams({'amount': '$_pointsDiscount'})}',
-            valueColor: const Color(0xFFFF5E00),
+            'svc_tax'.tr,
+            _tax == null ? '…' : 'mru'.trParams({'amount': '$_tax'}),
           ),
-          const SizedBox(height: 10),
-          _detailRow('svc_tax'.tr, 'mru'.trParams({'amount': '$_tax'})),
+          if (_quoteError != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              _quoteError!,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFFF8A80),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF4A4A4A), height: 1),
           const SizedBox(height: 14),

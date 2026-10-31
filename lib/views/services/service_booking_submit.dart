@@ -95,15 +95,33 @@ Future<Map<String, dynamic>?> quoteServiceBooking({
   required DateTime slotDate,
   required String slotLabel,
   required String paymentType,
+  List<Map<String, dynamic>> spaces = const [],
+  List<Map<String, dynamic>> addons = const [],
   List<Map<String, dynamic>> garments = const [],
+  List<Map<String, dynamic>> vehicles = const [],
+  String? productSupply,
+  String propertyType = '',
   num? quantity,
+  String place = 'home',
+  String? address,
+  double? latitude,
+  double? longitude,
 }) async {
   final request = _bookingRequest(
     slotDate: slotDate,
     slotLabel: slotLabel,
     paymentType: paymentType,
+    spaces: spaces,
+    addons: addons,
     garments: garments,
+    vehicles: vehicles,
+    productSupply: productSupply,
+    propertyType: propertyType,
     quantity: quantity,
+    place: place,
+    address: address,
+    latitude: latitude,
+    longitude: longitude,
   );
   if (request == null) return null;
   return Get.find<ServiceRepository>().quote(
