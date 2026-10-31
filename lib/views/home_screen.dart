@@ -9,6 +9,10 @@ import '../controllers/select_location_controller.dart';
 import '../core/network/api_constants.dart';
 import 'category_screen.dart';
 import 'water/water_screen.dart';
+import 'services/car_wash_screen.dart';
+import 'services/gas_screen.dart';
+import 'services/home_cleaning_screen.dart';
+import 'services/laundry_services_screen.dart';
 import 'grocery/grocery_screen.dart';
 import 'pharmacy/pharmacy_screen.dart';
 import 'express/express_screen.dart';
@@ -657,6 +661,16 @@ class HomeScreen extends StatelessWidget {
     switch (slug) {
       case 'grocery':
         Get.to(() => const GroceryScreen());
+      // Service verticals have their own screens; without these cases they
+      // fell through to the food category screen.
+      case 'gas':
+        Get.to(() => const GasScreen());
+      case 'laundry':
+        Get.to(() => const LaundryServicesScreen());
+      case 'car_wash':
+        Get.to(() => const CarWashScreen());
+      case 'home_cleaning':
+        Get.to(() => const HomeCleaningScreen());
       case 'pharmacy':
         Get.to(() => const PharmacyScreen());
       case 'water':

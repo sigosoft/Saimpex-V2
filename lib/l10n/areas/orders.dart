@@ -2,6 +2,7 @@
 /// Keys start with `orders_`. Every key needs en, fr and ar.
 const ordersStrings = <String, Map<String, String>>{
   'en': {
+    'orders_cat_gas': 'Gas',
     'orders_placed_title': 'Order Placed Successfully!',
     'orders_earn_points_on_delivery':
         'You will earn +@points points once your order is delivered',
@@ -187,6 +188,7 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_late': 'Late night',
   },
   'fr': {
+    'orders_cat_gas': 'Gaz',
     'orders_placed_title': 'Commande passée avec succès !',
     'orders_earn_points_on_delivery':
         'Vous gagnerez +@points points dès la livraison de votre commande',
@@ -374,6 +376,7 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_late': 'Tard le soir',
   },
   'ar': {
+    'orders_cat_gas': 'غاز',
     'orders_placed_title': 'تم تقديم طلبك بنجاح!',
     'orders_earn_points_on_delivery': 'ستحصل على @points نقطة عند توصيل طلبك',
     'orders_back_to_home': 'العودة إلى الرئيسية',
