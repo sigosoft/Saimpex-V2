@@ -11,10 +11,7 @@ import '../navigation/bottom_nav_router.dart';
 class OrderCancelledSuccessScreen extends StatelessWidget {
   final String? orderId;
 
-  const OrderCancelledSuccessScreen({
-    super.key,
-    this.orderId,
-  });
+  const OrderCancelledSuccessScreen({super.key, this.orderId});
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +31,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppBackButton(
-                  onTap: () => _goHome(context),
-                ),
+                AppBackButton(onTap: () => _goHome(context)),
                 const Spacer(),
                 Center(
                   child: Column(
@@ -62,7 +57,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 28),
                       Text(
-                        'Order Cancelled',
+                        'orders_cancelled_title'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 22,
@@ -72,10 +67,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'Your order has been cancelled\n'
-                        'successfully.\n'
-                        'The paid amount has been refunded to\n'
-                        'your SAIMPEX Wallet.',
+                        'orders_cancelled_refunded'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF8C7D73),
                           fontSize: 14,
@@ -103,7 +95,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'Back to Home',
+                      'orders_back_to_home'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 15,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 Future<bool> showNoVehicleWarningDialog(BuildContext context) {
@@ -34,7 +35,7 @@ Future<bool> showNoVehicleWarningDialog(BuildContext context) {
               ),
               const SizedBox(height: 28),
               Text(
-                'No vehicles found',
+                'svc_no_vehicles_found'.tr,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
@@ -44,7 +45,7 @@ Future<bool> showNoVehicleWarningDialog(BuildContext context) {
               ),
               const SizedBox(height: 10),
               Text(
-                'Select a vehicle type and add a vehicle',
+                'svc_no_vehicles_hint'.tr,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFBDBDBD),
@@ -65,7 +66,7 @@ Future<bool> showNoVehicleWarningDialog(BuildContext context) {
                     borderRadius: BorderRadius.circular(28),
                   ),
                   child: Text(
-                    'Add vehicle',
+                    'svc_add_vehicle'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 16,

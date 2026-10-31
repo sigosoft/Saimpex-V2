@@ -80,7 +80,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Find Supplier',
+                          'pw_find_supplier'.tr,
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 16,
@@ -116,7 +116,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Subscription',
+              'pw_subscription'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -135,35 +135,32 @@ class WaterSubscriptionScreen extends StatelessWidget {
   Widget _buildHowItWorksSection() {
     final steps = [
       {
-        'title': 'Choose Supplier',
-        'subtitle': 'Browse top rated local water providers in your location',
+        'title': 'pw_how_choose_supplier'.tr,
+        'subtitle': 'pw_how_choose_supplier_sub'.tr,
         'icon': Image.asset("lib/assets/images/choose supplier.png"),
         'isFilled': false,
       },
       {
-        'title': 'Select Products',
-        'subtitle':
-            'Pick your preferred bottle sizes and water mineral balance',
+        'title': 'pw_how_select_products'.tr,
+        'subtitle': 'pw_how_select_products_sub'.tr,
         'icon': Image.asset("lib/assets/images/select product.png"),
         'isFilled': false,
       },
       {
-        'title': 'Choose a Delivery Plan',
-        'subtitle':
-            'Select any subscription plan like daily, weekly or monthly',
+        'title': 'pw_how_delivery_plan'.tr,
+        'subtitle': 'pw_how_delivery_plan_sub'.tr,
         'icon': Image.asset("lib/assets/images/delivery plan.png"),
         'isFilled': false,
       },
       {
-        'title': 'Choose Schedule',
-        'subtitle':
-            'Set your delivery days and preferred morning or evening slots',
+        'title': 'pw_how_schedule'.tr,
+        'subtitle': 'pw_how_schedule_sub'.tr,
         'icon': Image.asset("lib/assets/images/schedule.png"),
         'isFilled': false,
       },
       {
-        'title': 'Enjoy Delivery',
-        'subtitle': 'Relax as your water arrives automatically on schedule',
+        'title': 'pw_how_enjoy'.tr,
+        'subtitle': 'pw_how_enjoy_sub'.tr,
         'icon': Image.asset("lib/assets/images/Enjoy delivery.png"),
         'isFilled': true,
       },
@@ -175,7 +172,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
         children: [
           // Section Heading
           Text(
-            'How It Works',
+            'pw_how_it_works'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 18,
@@ -320,24 +317,23 @@ class WaterSubscriptionScreen extends StatelessWidget {
   Widget _buildWhySubscribeSection() {
     final features = [
       {
-        'title': 'Automatic Deliveries',
-        'subtitle': 'Set it once and never worry about ordering water again',
+        'title': 'pw_why_automatic'.tr,
+        'subtitle': 'pw_why_automatic_sub'.tr,
         'icon': Icons.autorenew_rounded,
       },
       {
-        'title': 'Save More',
-        'subtitle': 'Subscribers get up to 20% off compared to one-time orders',
+        'title': 'pw_save_more'.tr,
+        'subtitle': 'pw_why_save_sub'.tr,
         'icon': Icons.local_offer_outlined,
       },
       {
-        'title': 'Flexible Plans',
-        'subtitle':
-            'Pause, resume, or cancel your subscription whenever needed',
+        'title': 'pw_why_flexible'.tr,
+        'subtitle': 'pw_why_flexible_sub'.tr,
         'icon': Icons.calendar_month_outlined,
       },
       {
-        'title': 'Home & Office',
-        'subtitle': 'Tailored solutions for homes and corporate workplaces',
+        'title': 'pw_why_home_office'.tr,
+        'subtitle': 'pw_why_home_office_sub'.tr,
         'icon': Icons.domain_outlined,
       },
     ];
@@ -348,7 +344,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
         children: [
           // Section Heading
           Text(
-            'Why Subscribe?',
+            'pw_why_subscribe'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 18,

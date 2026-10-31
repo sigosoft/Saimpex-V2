@@ -23,14 +23,17 @@ class PharmacyQuotationReadyCard extends StatefulWidget {
   final String amount;
   final Duration expiresIn;
   final int? prescriptionId;
+  // Called after the quotation is declined, so the list can reload.
+  final VoidCallback? onChanged;
 
   const PharmacyQuotationReadyCard({
     super.key,
-    this.pharmacyName = 'Pharmacy Nasr',
-    this.orderId = '#22789007',
-    this.amount = '0 MRU',
-    this.expiresIn = const Duration(hours: 2, minutes: 45, seconds: 9),
+    required this.pharmacyName,
+    required this.orderId,
+    required this.amount,
+    required this.expiresIn,
     this.prescriptionId,
+    this.onChanged,
   });
 
   @override
@@ -107,7 +110,7 @@ class _PharmacyQuotationReadyCardState
                       ),
                     ),
                     _StatusBadge(
-                      text: 'QUOTATION READY',
+                      text: 'pw_quotation_ready_caps'.tr,
                       color: const Color(0xFF00A854),
                       bgColor: const Color(0xFFDDF7E8),
                     ),
@@ -115,7 +118,7 @@ class _PharmacyQuotationReadyCardState
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Prescription • ${widget.orderId}',
+                  'pw_prescription_order'.trParams({'id': widget.orderId}),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
@@ -149,7 +152,7 @@ class _PharmacyQuotationReadyCardState
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'Quote Expires in:',
+                        'pw_quote_expires_in'.tr,
                         style: GoogleFonts.outfit(
                           color: Colors.white,
                           fontSize: 12,
@@ -181,7 +184,7 @@ class _PharmacyQuotationReadyCardState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Quotation Summary',
+                        'pw_quotation_summary'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13,
@@ -192,7 +195,7 @@ class _PharmacyQuotationReadyCardState
                       Row(
                         children: [
                           Text(
-                            'Item total',
+                            'pw_item_total'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF8A7F77),
                               fontSize: 12,
@@ -218,9 +221,14 @@ class _PharmacyQuotationReadyCardState
                   children: [
                     Expanded(
                       child: _SoftButton(
-                        label: 'Decline Quotation',
+                        label: 'pw_decline_quotation'.tr,
                         outlined: true,
-                        onTap: () {},
+                        onTap: () async {
+                          final id = widget.prescriptionId;
+                          if (id == null) return;
+                          final declined = await declineQuotation(context, id);
+                          if (declined) widget.onChanged?.call();
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -253,7 +261,7 @@ class _PharmacyQuotationReadyCardState
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Chat with Pharmacy',
+                                'pw_chat_with_pharmacy'.tr,
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 11,
@@ -271,8 +279,8 @@ class _PharmacyQuotationReadyCardState
             ),
           ),
           GestureDetector(
-            onTap: () {
-              Get.to(
+            onTap: () async {
+              final declined = await Get.to<bool>(
                 () => QuotationDetailScreen(
                   orderId: widget.orderId,
                   pharmacyName: widget.pharmacyName,
@@ -281,6 +289,7 @@ class _PharmacyQuotationReadyCardState
                   amount: widget.amount,
                 ),
               );
+              if (declined == true) widget.onChanged?.call();
             },
             child: Container(
               width: double.infinity,
@@ -296,7 +305,7 @@ class _PharmacyQuotationReadyCardState
               child: Row(
                 children: [
                   Text(
-                    'Review & Pay',
+                    'pw_review_and_pay'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,
@@ -427,33 +436,33 @@ class PharmacyActiveOrderCard extends StatelessWidget {
             }
 
             return AlertDialog(
-              title: Text('Rate order', style: GoogleFonts.outfit()),
+              title: Text('pw_rate_order'.tr, style: GoogleFonts.outfit()),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Pharmacy', style: GoogleFonts.outfit()),
+                  Text('pw_pharmacy'.tr, style: GoogleFonts.outfit()),
                   stars(vendorRating, (value) => vendorRating = value),
                   TextField(
                     controller: vendorComment,
-                    decoration: const InputDecoration(hintText: 'Comment'),
+                    decoration: InputDecoration(hintText: 'pw_comment'.tr),
                   ),
                   const SizedBox(height: 8),
-                  Text('Driver', style: GoogleFonts.outfit()),
+                  Text('pw_driver'.tr, style: GoogleFonts.outfit()),
                   stars(driverRating, (value) => driverRating = value),
                   TextField(
                     controller: driverComment,
-                    decoration: const InputDecoration(hintText: 'Comment'),
+                    decoration: InputDecoration(hintText: 'pw_comment'.tr),
                   ),
                 ],
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext, false),
-                  child: const Text('Cancel'),
+                  child: Text('cancel'.tr),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext, true),
-                  child: const Text('Submit'),
+                  child: Text('pw_submit'.tr),
                 ),
               ],
             );
@@ -587,7 +596,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                'View Full Prescription',
+                                'pw_view_full_prescription'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 11,
@@ -614,35 +623,12 @@ class PharmacyActiveOrderCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _SoftButton(
-                    label: 'Cancel',
+                    label: 'cancel'.tr,
                     onTap: () {
                       showCancelOrderBottomSheet(
                         context,
                         orderId: orderId,
-                        onConfirm: () async {
-                          final id = apiOrderId;
-                          if (id == null ||
-                              id < 1 ||
-                              !Get.isRegistered<OrderRepository>()) {
-                            return;
-                          }
-                          try {
-                            final message = await Get.find<OrderRepository>()
-                                .cancelOrder(
-                                  orderId: id,
-                                  language: apiLanguageCode(),
-                                );
-                            showAppToast(
-                              message,
-                              backgroundColor: const Color(0xFFFF5E00),
-                            );
-                          } on ApiException catch (error) {
-                            showAppToast(
-                              error.message,
-                              backgroundColor: const Color(0xFFEF4444),
-                            );
-                          }
-                        },
+                        apiOrderId: apiOrderId,
                       );
                     },
                   ),
@@ -680,7 +666,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Track Order',
+                          'pw_track_order'.tr,
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 12,
@@ -705,7 +691,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                     border: Border.all(color: const Color(0xFFFF5E00)),
                   ),
                   child: Text(
-                    'Rate Order',
+                    'pw_rate_order'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
@@ -723,7 +709,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'View Order Status & Details',
+                      'pw_view_order_status_details'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 11,

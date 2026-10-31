@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../l10n/app_locale.dart';
 
 /// Shows the AI chatbot welcome / language bottom sheet.
 /// Returns the selected language code (`EN`, `FR`, `AR`) or `null` if closed.
@@ -22,7 +24,10 @@ class ChatBotWelcomeSheet extends StatefulWidget {
 }
 
 class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
-  int _selectedIndex = 0;
+  // Starts on the app's language.
+  int _selectedIndex = AppLocale.supportedCodes
+      .indexOf(AppLocale.code)
+      .clamp(0, 2);
 
   static const _languages = [
     _LangOption(code: 'EN', label: 'English'),
@@ -54,11 +59,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.close,
-              color: Color(0xFFE53935),
-              size: 20,
-            ),
+            child: const Icon(Icons.close, color: Color(0xFFE53935), size: 20),
           ),
         ),
         const SizedBox(height: 14),
@@ -121,7 +122,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                       const SizedBox(height: 14),
 
                       Text(
-                        'Hey there! 👋',
+                        'core_chatbot_greeting'.tr,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF111111),
@@ -132,7 +133,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        "I'm Saimpex. How can I help you today?",
+                        'core_chatbot_intro'.tr,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2A2A2A),
@@ -144,9 +145,9 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                       const SizedBox(height: 28),
 
                       Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: Text(
-                          "Let's chat in your language",
+                          'core_chatbot_choose_language'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF111111),
                             fontSize: 15,
@@ -163,8 +164,8 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                           final selected = _selectedIndex == index;
                           return Expanded(
                             child: Padding(
-                              padding: EdgeInsets.only(
-                                right: index < _languages.length - 1 ? 8 : 0,
+                              padding: EdgeInsetsDirectional.only(
+                                end: index < _languages.length - 1 ? 8 : 0,
                               ),
                               child: _LanguageChip(
                                 code: lang.code,
@@ -183,8 +184,9 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                       // Continue button — orange → yellow gradient
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context)
-                              .pop(_languages[_selectedIndex].code);
+                          Navigator.of(
+                            context,
+                          ).pop(_languages[_selectedIndex].code);
                         },
                         child: Container(
                           width: double.infinity,
@@ -192,16 +194,15 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFFFF5E00),
-                                Color(0xFFFFAE00),
-                              ],
+                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFF5E00).withOpacity(0.38),
+                                color: const Color(
+                                  0xFFFF5E00,
+                                ).withOpacity(0.38),
                                 blurRadius: 16,
                                 offset: const Offset(0, 7),
                               ),
@@ -209,7 +210,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            'Continue',
+                            'core_chatbot_continue'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 16,
@@ -261,9 +262,7 @@ class _LanguageChip extends StatelessWidget {
           color: selected ? const Color(0xFFFFF3EC) : Colors.white,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF7043)
-                : const Color(0xFFE6E0DB),
+            color: selected ? const Color(0xFFFF7043) : const Color(0xFFE6E0DB),
             width: selected ? 1.4 : 1.1,
           ),
         ),
@@ -293,7 +292,7 @@ class _LanguageChip extends StatelessWidget {
             Expanded(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: Text(
                   label,
                   maxLines: 1,

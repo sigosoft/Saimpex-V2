@@ -7,16 +7,19 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../models/order_tracking.dart';
+import '../widgets/tracking_widgets.dart';
+
 class CourierTrackOrderScreen extends StatefulWidget {
   final String orderId;
-  final String vehicleLabel;
-  final String amount;
+
+  /// Numeric order id for customer/trackOrder.
+  final int? apiOrderId;
 
   const CourierTrackOrderScreen({
     super.key,
-    this.orderId = '#227890011',
-    this.vehicleLabel = 'Bike Delivery',
-    this.amount = '50 MRU',
+    this.orderId = '',
+    this.apiOrderId,
   });
 
   @override
@@ -24,12 +27,29 @@ class CourierTrackOrderScreen extends StatefulWidget {
       _CourierTrackOrderScreenState();
 }
 
-class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
+class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen>
+    with OrderTrackingMixin<CourierTrackOrderScreen> {
   GoogleMapController? _mapController;
 
-  final LatLng pickupLoc = const LatLng(18.0836, -15.9802);
-  final LatLng riderLoc = const LatLng(18.0858, -15.9768);
-  final LatLng dropOffLoc = const LatLng(18.0884, -15.9746);
+  // Placeholder positions until the first tracking response arrives.
+  LatLng pickupLoc = const LatLng(18.0836, -15.9802);
+  LatLng riderLoc = const LatLng(18.0858, -15.9768);
+  LatLng dropOffLoc = const LatLng(18.0884, -15.9746);
+
+  @override
+  void onTrackingUpdated(OrderTracking tracking) {
+    final pickup = tracking.pickup.location ?? pickupLoc;
+    final dropOff =
+        tracking.dropoff.location ?? tracking.deliveryLocation ?? dropOffLoc;
+    // Without a driver location the rider pin waits at the pickup.
+    final rider = tracking.driverLocation ?? pickup;
+    setState(() {
+      pickupLoc = pickup;
+      dropOffLoc = dropOff;
+      riderLoc = rider;
+    });
+    _initMapData();
+  }
 
   Set<Polyline> _polylines = {};
   Offset? _pickupScreen;
@@ -58,11 +78,20 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initMapData());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initMapData();
+      startTracking(widget.apiOrderId);
+    });
   }
 
-  String get _displayOrderId =>
-      widget.orderId.startsWith('#') ? widget.orderId : '#${widget.orderId}';
+  String get _displayOrderId {
+    final id =
+        (tracking?.orderCode.isNotEmpty == true
+                ? tracking!.orderCode
+                : widget.orderId)
+            .trim();
+    return id.startsWith('#') ? id : '#$id';
+  }
 
   Future<void> _initMapData() async {
     setState(() {
@@ -281,7 +310,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
                         ),
                         _routePin(
                           screen: _pickupScreen,
-                          icon: Icons.restaurant_rounded,
+                          icon: Icons.inventory_2_rounded,
                         ),
                         _routePin(
                           screen: _dropOffScreen,
@@ -321,7 +350,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
         AppBackButton(onTap: () => Get.back()),
         Expanded(
           child: Text(
-            'Track Order $_displayOrderId',
+            'st_track_order'.trParams({'id': _displayOrderId}),
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
@@ -351,301 +380,11 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen> {
         ],
       ),
       padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFF5E00),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              'ON THE WAY',
-              style: GoogleFonts.outfit(
-                color: Colors.white,
-                fontSize: 8.5,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '12 min',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'ETA',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFFA59A94),
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${widget.vehicleLabel} • ${widget.amount} • $_displayOrderId',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF7A6A60),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildProgressTracker(),
-          const SizedBox(height: 20),
-          Text(
-            'Your Driver',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildDriverCard(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressTracker() {
-    return Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        Positioned(
-          top: 18,
-          left: 30,
-          right: 30,
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(height: 2, color: const Color(0xFFFF5E00)),
-              ),
-              Expanded(
-                child: Container(height: 2, color: const Color(0xFFFF5E00)),
-              ),
-              Expanded(
-                child: Container(height: 2, color: const Color(0xFFEAD8C9)),
-              ),
-            ],
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildStepperNode(
-              isActive: true,
-              icon: Icons.check_rounded,
-              title: 'Booking\nConfirmed',
-              time: '22 Oct 2023,\n10:00 AM',
-            ),
-            _buildStepperNode(
-              isActive: true,
-              icon: Icons.location_on_rounded,
-              title: 'At Pickup',
-              time: '22 Oct 2023,\n10:05 AM',
-            ),
-            _buildStepperNode(
-              isActive: true,
-              icon: Icons.delivery_dining_rounded,
-              title: 'On the way',
-              time: '22 Oct 2023,\n10:10 AM',
-              useDeliveryAsset: true,
-            ),
-            _buildStepperNode(
-              isActive: false,
-              icon: Icons.check_rounded,
-              title: 'Delivered',
-              time: '',
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStepperNode({
-    required bool isActive,
-    required IconData icon,
-    required String title,
-    required String time,
-    bool useDeliveryAsset = false,
-  }) {
-    return SizedBox(
-      width: 72,
-      child: Column(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: isActive
-                  ? const Color(0xFFFF5E00)
-                  : const Color(0xFFEAD8C9),
-              shape: BoxShape.circle,
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-            ),
-            alignment: Alignment.center,
-            child: useDeliveryAsset && isActive
-                ? Image.asset(
-                    'lib/assets/images/delivery_icon.png',
-                    width: 18,
-                    height: 18,
-                    color: Colors.white,
-                    errorBuilder: (_, __, ___) =>
-                        Icon(icon, color: Colors.white, size: 18),
-                  )
-                : Icon(icon, color: Colors.white, size: 18),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: GoogleFonts.outfit(
-              color: isActive
-                  ? const Color(0xFF2C2520)
-                  : const Color(0xFFA59A94),
-              fontSize: 8.5,
-              fontWeight: FontWeight.bold,
-              height: 1.2,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (time.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Text(
-              time,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFFA59A94),
-                fontSize: 6.5,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDriverCard() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipOval(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop',
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 64,
-                height: 64,
-                color: const Color(0xFFEAD8C9),
-                child: const Icon(Icons.person, color: Colors.white, size: 32),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Amadou Sy',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF2C2520),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFAE00),
-                      size: 16,
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      '4.6',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      ' (10k + reviews)',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Calling Amadou Sy...',
-                    style: GoogleFonts.outfit(),
-                  ),
-                  backgroundColor: const Color(0xFFFF5E00),
-                ),
-              );
-            },
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.call, color: Colors.white, size: 20),
-            ),
-          ),
-        ],
+      child: TrackingSummary(
+        tracking: tracking,
+        error: trackingError,
+        fallbackOrderCode: widget.orderId,
+        preparingLabel: 'st_accepted'.tr,
       ),
     );
   }

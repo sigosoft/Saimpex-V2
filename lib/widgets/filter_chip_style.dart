@@ -14,7 +14,7 @@ class AppFilterChip extends StatelessWidget {
     required this.label,
     this.leading,
     this.onTap,
-    this.margin = const EdgeInsets.only(right: 10),
+    this.margin = const EdgeInsetsDirectional.only(end: 10),
     this.selected = false,
   });
 

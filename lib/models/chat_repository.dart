@@ -51,10 +51,7 @@ class ChatRepository {
     }
 
     final envelope = await _send(
-      () => _client.dio.post(
-        ApiConstants.chatGetConversation,
-        data: body,
-      ),
+      () => _client.dio.post(ApiConstants.chatGetConversation, data: body),
       language,
     );
 
@@ -137,6 +134,34 @@ class ChatRepository {
     );
 
     return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
+  /// Marks the vendor's messages in [conversationId] as read (chat/markAsRead).
+  Future<void> markAsRead({
+    required dynamic conversationId,
+    required String language,
+  }) async {
+    await _send(
+      () => _client.dio.post(
+        ApiConstants.chatMarkAsRead,
+        data: {'conversation_id': conversationId.toString()},
+      ),
+      language,
+    );
+  }
+
+  /// Deletes the conversation for good (chat/deleteConversation, a GET).
+  Future<void> deleteConversation({
+    required dynamic conversationId,
+    required String language,
+  }) async {
+    await _send(
+      () => _client.dio.get(
+        ApiConstants.chatDeleteConversation,
+        queryParameters: {'conversation_id': conversationId.toString()},
+      ),
+      language,
+    );
   }
 
   Future<ApiEnvelope> _send(

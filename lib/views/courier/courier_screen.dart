@@ -18,14 +18,12 @@ class CourierScreen extends StatefulWidget {
   State<CourierScreen> createState() => _CourierScreenState();
 }
 
-// Placeholder pickup point until the app reads the store location from the API
-const _pickupAddress = 'Marhaba Supermarket, Nouakchott';
-const _pickupLatitude = 18.0735;
-const _pickupLongitude = -15.9582;
-
 class _CourierScreenState extends State<CourierScreen> {
   final _courier = Get.find<CourierRepository>();
   int selectedVehicleIndex = 0;
+  String? pickupAddress;
+  double? pickupLatitude;
+  double? pickupLongitude;
   String? dropOffAddress;
   double? dropOffLatitude;
   double? dropOffLongitude;
@@ -37,12 +35,12 @@ class _CourierScreenState extends State<CourierScreen> {
   // Standard and Express are the two options the quote API prices (is_express).
   final vehicles = [
     {
-      'label': 'Standard',
+      'label': 'st_standard',
       'isExpress': false,
       'image': 'lib/assets/images/bike.png',
     },
     {
-      'label': 'Express',
+      'label': 'st_express',
       'isExpress': true,
       'image': 'lib/assets/images/minivan.png',
     },
@@ -50,24 +48,37 @@ class _CourierScreenState extends State<CourierScreen> {
 
   String _priceText(bool isExpress) {
     final fee = _fees[isExpress];
-    return fee == null ? '— MRU' : '${fee.round()} MRU';
+    return fee == null
+        ? 'mru'.trParams({'amount': '—'})
+        : 'mru'.trParams({'amount': '${fee.round()}'});
   }
 
-  String get _timeText =>
-      _distanceKm == null ? '' : '${_distanceKm!.toStringAsFixed(1)} km';
+  String get _timeText => _distanceKm == null
+      ? ''
+      : 'st_km'.trParams({'km': _distanceKm!.toStringAsFixed(1)});
 
   Future<void> _loadQuote() async {
     final latitude = dropOffLatitude;
     final longitude = dropOffLongitude;
     final address = dropOffAddress;
+    final fromLatitude = pickupLatitude;
+    final fromLongitude = pickupLongitude;
+    final fromAddress = pickupAddress;
     if (latitude == null || longitude == null || address == null) return;
-    setState(() => _quoteLoading = true);
+    if (fromLatitude == null || fromLongitude == null || fromAddress == null) {
+      return;
+    }
+    setState(() {
+      _quoteLoading = true;
+      _fees.clear();
+      _distanceKm = null;
+    });
     try {
       final language = apiLanguageCode();
-      final pickup = const CourierStop(
-        address: _pickupAddress,
-        latitude: _pickupLatitude,
-        longitude: _pickupLongitude,
+      final pickup = CourierStop(
+        address: fromAddress,
+        latitude: fromLatitude,
+        longitude: fromLongitude,
       );
       final dropoff = CourierStop(
         address: address,
@@ -154,7 +165,7 @@ class _CourierScreenState extends State<CourierScreen> {
                             _buildPickupDropCard(),
                             const SizedBox(height: 22),
                             Text(
-                              'Choose Vehicle',
+                              'st_choose_vehicle'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 16,
@@ -165,7 +176,7 @@ class _CourierScreenState extends State<CourierScreen> {
                             _buildVehicleCards(),
                             const SizedBox(height: 22),
                             Text(
-                              'Exclusive Offers',
+                              'st_exclusive_offers'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 16,
@@ -201,11 +212,11 @@ class _CourierScreenState extends State<CourierScreen> {
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
-            'Courier',
+            'st_courier'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 18,
@@ -249,7 +260,7 @@ class _CourierScreenState extends State<CourierScreen> {
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(18, 20, 14, 20),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 20, 14, 20),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -285,15 +296,16 @@ class _CourierScreenState extends State<CourierScreen> {
               child: Column(
                 children: [
                   _buildRouteRow(
-                    label: 'PICKUP',
-                    title: 'Marhaba Supermarket,\nNouakchott',
-                    isPlaceholder: false,
+                    label: 'st_pickup'.tr,
+                    title: pickupAddress ?? 'st_add_pickup'.tr,
+                    isPlaceholder: pickupAddress == null,
+                    onTap: _openPickupLocation,
                     maxLines: 2,
                   ),
                   const SizedBox(height: 18),
                   _buildRouteRow(
-                    label: 'DROP-OFF',
-                    title: dropOffAddress ?? 'Add destination',
+                    label: 'st_drop_off'.tr,
+                    title: dropOffAddress ?? 'st_add_destination'.tr,
                     isPlaceholder: dropOffAddress == null,
                     onTap: _openDropOffLocation,
                     maxLines: 2,
@@ -319,6 +331,31 @@ class _CourierScreenState extends State<CourierScreen> {
         decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
       ),
     );
+  }
+
+  Future<void> _openPickupLocation() async {
+    final result = await Get.to<Map<String, dynamic>>(
+      () => const CourierSelectRecipientLocationScreen(
+        title: 'st_select_pickup_location',
+      ),
+    );
+    if (!mounted || result == null) return;
+
+    final title = result['title']?.toString();
+    final subtitle = result['subtitle']?.toString();
+    final latitude = double.tryParse('${result['latitude']}');
+    final longitude = double.tryParse('${result['longitude']}');
+    if (title != null &&
+        title.isNotEmpty &&
+        latitude != null &&
+        longitude != null) {
+      setState(() {
+        pickupAddress = _formatDropOffAddress(title, subtitle);
+        pickupLatitude = latitude;
+        pickupLongitude = longitude;
+      });
+      _loadQuote();
+    }
   }
 
   Future<void> _openDropOffLocation() async {
@@ -423,7 +460,7 @@ class _CourierScreenState extends State<CourierScreen> {
 
         return Expanded(
           child: Padding(
-            padding: EdgeInsets.only(right: index == 0 ? 10 : 0),
+            padding: EdgeInsetsDirectional.only(end: index == 0 ? 10 : 0),
             child: GestureDetector(
               onTap: () => setState(() => selectedVehicleIndex = index),
               child: Stack(
@@ -473,7 +510,7 @@ class _CourierScreenState extends State<CourierScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                vehicle['label']!.toString(),
+                                vehicle['label']!.toString().tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
@@ -505,9 +542,9 @@ class _CourierScreenState extends State<CourierScreen> {
                     ),
                   ),
                   if (isSelected)
-                    Positioned(
+                    PositionedDirectional(
                       top: -4,
-                      right: -4,
+                      end: -4,
                       child: Container(
                         width: 20,
                         height: 20,
@@ -550,7 +587,7 @@ class _CourierScreenState extends State<CourierScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(right: 16),
+        padding: const EdgeInsetsDirectional.only(end: 16),
         itemCount: offers.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
@@ -581,18 +618,23 @@ class _CourierScreenState extends State<CourierScreen> {
     return GestureDetector(
       onTap: () {
         final fee = _fees[isExpress];
+        if (pickupAddress == null || pickupLatitude == null) {
+          showAppToast(
+            'st_pickup_first'.tr,
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          return;
+        }
         if (dropOffAddress == null || dropOffLatitude == null) {
           showAppToast(
-            'Add a drop-off destination first',
+            'st_drop_off_first'.tr,
             backgroundColor: const Color(0xFFEF4444),
           );
           return;
         }
         if (fee == null) {
           showAppToast(
-            _quoteLoading
-                ? 'Getting the delivery price…'
-                : 'Could not get the price. Try again.',
+            _quoteLoading ? 'st_getting_price'.tr : 'st_price_failed'.tr,
             backgroundColor: const Color(0xFFEF4444),
           );
           if (!_quoteLoading) _loadQuote();
@@ -600,10 +642,10 @@ class _CourierScreenState extends State<CourierScreen> {
         }
         Get.to(
           () => CourierDeliveryDetailsScreen(
-            pickupAddress: _pickupAddress,
+            pickupAddress: pickupAddress!,
             dropOffAddress: dropOffAddress!,
-            pickupLatitude: _pickupLatitude,
-            pickupLongitude: _pickupLongitude,
+            pickupLatitude: pickupLatitude!,
+            pickupLongitude: pickupLongitude!,
             dropOffLatitude: dropOffLatitude!,
             dropOffLongitude: dropOffLongitude!,
             vehicleLabel: vehicle['label']!.toString(),
@@ -632,7 +674,7 @@ class _CourierScreenState extends State<CourierScreen> {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Confirm Pickup',
+          'st_confirm_pickup'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 15,

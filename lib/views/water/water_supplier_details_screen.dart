@@ -130,7 +130,7 @@ class _WaterSupplierDetailsScreenState
                 controller: _searchController,
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: 'Find something from this Supplier',
+                  hintText: 'pw_find_from_supplier'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
@@ -178,7 +178,7 @@ class _WaterSupplierDetailsScreenState
         widget.supplier['title'] ??
         'PureLife Water Co.';
     final subtitle =
-        widget.supplier['subtitle'] ?? 'Premium purified drinking water';
+        widget.supplier['subtitle'] ?? 'pw_premium_purified_water'.tr;
     final rating = widget.supplier['rating'] ?? '4.6';
     final time = widget.supplier['time'] ?? '30-35 min';
     final dist = widget.supplier['dist'] ?? '10 Km';
@@ -421,7 +421,7 @@ class _WaterSupplierDetailsScreenState
                                             ),
                                             const SizedBox(width: 8),
                                             Text(
-                                              'Chat with Supplier',
+                                              'pw_chat_with_supplier'.tr,
                                               style: GoogleFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 14,
@@ -486,7 +486,7 @@ class _WaterSupplierDetailsScreenState
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Products',
+                        'pw_products'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 18,
@@ -509,7 +509,7 @@ class _WaterSupplierDetailsScreenState
                           : products.isEmpty
                           ? Center(
                               child: Text(
-                                'No products available',
+                                'pw_no_products_available'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF6B6B6B),
                                 ),
@@ -555,9 +555,9 @@ class _WaterSupplierDetailsScreenState
 
             // Floating back button (hidden while sticky is pinned)
             if (!_showStickySearch)
-              Positioned(
+              PositionedDirectional(
                 top: topInset + 10,
-                left: 16,
+                start: 16,
                 child: AppBackButton(onTap: () => Get.back()),
               ),
 
@@ -590,7 +590,7 @@ class _WaterSupplierDetailsScreenState
     final title =
         lastItem?['title']?.toString() ??
         lastItem?['itemName']?.toString() ??
-        'Drinking Water 19L';
+        'pw_drinking_water_19l'.tr;
     final portion =
         lastItem?['bottleTag']?.toString() ??
         lastItem?['sizeTag']?.toString() ??
@@ -666,7 +666,7 @@ class _WaterSupplierDetailsScreenState
                         : 1;
                     final displayCount = count > 0 ? count : 1;
                     return Text(
-                      'View Cart • $displayCount items',
+                      'pw_view_cart_items'.trParams({'count': '$displayCount'}),
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 13,
@@ -675,7 +675,7 @@ class _WaterSupplierDetailsScreenState
                     );
                   }),
                   Text(
-                    'Ready in $readyIn',
+                    'pw_ready_in'.trParams({'time': readyIn}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 10,
@@ -717,7 +717,7 @@ class _WaterSupplierDetailsScreenState
       if (productId == 0) {
         // Sample items on this screen have no server id, so they can't be ordered yet
         showAppToast(
-          'This product is not available to order yet',
+          'pw_product_not_orderable'.tr,
           backgroundColor: const Color(0xFFEF4444),
         );
         return;
@@ -757,7 +757,7 @@ class _WaterSupplierDetailsScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${item['title']} added to cart!',
+            'pw_added_to_cart'.trParams({'name': '${item['title']}'}),
             style: GoogleFonts.outfit(),
           ),
           backgroundColor: const Color(0xFFFF5E00),
@@ -805,9 +805,9 @@ class _WaterSupplierDetailsScreenState
                 ),
 
                 // Discount Tag (Top Left)
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  left: 8,
+                  start: 8,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -969,7 +969,7 @@ class _WaterSupplierDetailsScreenState
                             ),
                             child: Center(
                               child: Text(
-                                'SUBSCRIBE',
+                                'pw_subscribe_caps'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 9,
@@ -1013,7 +1013,7 @@ class _WaterSupplierDetailsScreenState
                                 ),
                                 const SizedBox(width: 3),
                                 Text(
-                                  'ADD',
+                                  'pw_add_caps'.tr,
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 9,

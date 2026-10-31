@@ -350,7 +350,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                 controller: searchController,
                 onChanged: _onSearchChanged,
                 decoration: InputDecoration(
-                  hintText: 'Find something from this restaurant',
+                  hintText: 'core_restaurant_find_hint'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12,
@@ -386,7 +386,19 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     _ => false,
   };
 
-  String _chipLabel(String label) => _isFilterOn(label) ? '✓ $label' : label;
+  /// Filter labels stay English internally; this is the text shown on the chip.
+  String _filterText(String label) => switch (label) {
+    'Filter' => 'core_restaurant_filter'.tr,
+    'Veg' => 'core_restaurant_veg'.tr,
+    'Offers' => 'core_restaurant_offers'.tr,
+    'Ratings 4.0+' => 'core_restaurant_ratings_4'.tr,
+    _ => label,
+  };
+
+  String _chipLabel(String label) {
+    final text = _filterText(label);
+    return _isFilterOn(label) ? '✓ $text' : text;
+  }
 
   void _toggleFilter(String label) {
     setState(() {
@@ -544,9 +556,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     );
     if (replace == true && Get.isRegistered<CartRepository>()) {
       try {
-        final message = await Get.find<CartRepository>().replaceCart(
-          apiLanguageCode(),
-        );
+        final repo = Get.find<CartRepository>();
+        final message = await repo.replaceCart(apiLanguageCode());
+        // The replace call doesn't clear restaurant lines, so the previous
+        // restaurant's items would stay in the cart without this.
+        await repo.clearCatalogCart(language: apiLanguageCode());
         final text = message.trim();
         if (text.isNotEmpty) {
           showAppToast(text, backgroundColor: const Color(0xFFFF5E00));
@@ -555,6 +569,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
         return false;
       }
+      controller.clearCart();
     }
     return replace == true;
   }
@@ -593,7 +608,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
     final restaurantId = _parsedRestaurantId;
     if (variantId == null || variantId < 1 || restaurantId < 1) {
-      showAppToast('Unable to add this item');
+      showAppToast('core_restaurant_unable_to_add'.tr);
       return;
     }
     try {
@@ -653,7 +668,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${food['title']} added to cart!',
+          'core_restaurant_added_to_cart'.trParams({
+            'name': '${food['title']}',
+          }),
           style: GoogleFonts.outfit(),
         ),
         backgroundColor: const Color(0xFFFF5E00),
@@ -698,7 +715,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              'No items available',
+              'core_restaurant_no_items'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
@@ -973,7 +990,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Text(
-                                                  'Chat with Restaurant',
+                                                  'core_restaurant_chat'.tr,
                                                   style: GoogleFonts.outfit(
                                                     color: Colors.white,
                                                     fontSize: 13,
@@ -1079,9 +1096,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                         );
                                       },
                                       child: Padding(
-                                        padding: EdgeInsets.only(
-                                          right:
-                                              index == subcategories.length - 1
+                                        padding: EdgeInsetsDirectional.only(
+                                          end: index == subcategories.length - 1
                                               ? 0
                                               : 10,
                                         ),
@@ -1165,7 +1181,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                         ),
                                                   const SizedBox(height: 8),
                                                   Text(
-                                                    sub['label'] as String,
+                                                    isAll
+                                                        ? 'core_restaurant_all'
+                                                              .tr
+                                                        : sub['label']
+                                                              as String,
                                                     textAlign: TextAlign.center,
                                                     maxLines: 1,
                                                     overflow:
@@ -1240,9 +1260,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: Text(
-                          'All Items from This Restaurant',
+                          'core_restaurant_all_items'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
@@ -1309,9 +1329,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
           // Floating Back Button (hidden while sticky search is pinned)
           if (!_showStickySearch)
-            Positioned(
+            PositionedDirectional(
               top: topInset + 10,
-              left: 16,
+              start: 16,
               child: const AppBackButton(),
             ),
 
@@ -1389,7 +1409,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'View Cart • ${controller.cartItemCount.value} items',
+                              'core_restaurant_view_cart'.trParams({
+                                'count': '${controller.cartItemCount.value}',
+                              }),
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -1397,7 +1419,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                               ),
                             ),
                             Text(
-                              'Ready in 15-20 min',
+                              'core_restaurant_ready_in'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 11,
@@ -1408,7 +1430,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         ),
                       ),
                       Text(
-                        '${_cartAmountText(controller.cartAmount.value)} MRU',
+                        'mru'.trParams({
+                          'amount': _cartAmountText(
+                            controller.cartAmount.value,
+                          ),
+                        }),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 13,
@@ -1527,7 +1553,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             // Food Info details
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(4, 12, 12, 12),
+                padding: const EdgeInsetsDirectional.fromSTEB(4, 12, 12, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1560,7 +1586,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       ],
                     ),
                     Text(
-                      title.isNotEmpty ? title : 'Item',
+                      title.isNotEmpty ? title : 'core_restaurant_item'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
@@ -1635,7 +1661,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           // ADD goes straight to the customize sheet; card tap still opens details
                           onTap: () {
                             if (food['inStock'] == false) {
-                              showAppToast('This item is out of stock');
+                              showAppToast('core_restaurant_out_of_stock'.tr);
                               return;
                             }
                             _showCustomizeBottomSheet(
@@ -1674,7 +1700,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  food['inStock'] == false ? 'SOLD OUT' : 'ADD',
+                                  food['inStock'] == false
+                                      ? 'core_restaurant_sold_out'.tr
+                                      : 'core_restaurant_add'.tr,
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 10,

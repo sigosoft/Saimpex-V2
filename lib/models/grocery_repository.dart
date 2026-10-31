@@ -26,9 +26,72 @@ class GroceryHomeResult {
 }
 
 class GroceryRepository {
-  GroceryRepository(this._client);
+  GroceryRepository(this._client) : localStore = false;
+
+  /// The same store, item and cart calls against the local store API, which
+  /// mirrors grocery's with local_store paths and a local_store_id key.
+  GroceryRepository.localStore(this._client) : localStore = true;
+
+  /// Get tag of the local store instance.
+  static const localStoreTag = 'localStore';
 
   final DioClient _client;
+  final bool localStore;
+
+  String get _idKey => localStore ? 'local_store_id' : 'grocery_id';
+
+  static const _localStorePaths = {
+    ApiConstants.groceryDetails: ApiConstants.localStoreDetails,
+    ApiConstants.groceryStoreCategories: ApiConstants.localStoreCategories,
+    ApiConstants.grocerySubCategories: ApiConstants.localStoreSubCategories,
+    ApiConstants.groceryItems: ApiConstants.localStoreItems,
+    ApiConstants.groceryItemsSearch: ApiConstants.localStoreItemsSearch,
+    ApiConstants.groceryItemsBarcodeSearch:
+        ApiConstants.localStoreItemsBarcodeSearch,
+    ApiConstants.groceryItemDetail: ApiConstants.localStoreItemDetail,
+    ApiConstants.groceryMenuVariants: ApiConstants.localStoreMenuVariants,
+    ApiConstants.cartGroceryAdd: ApiConstants.cartLocalStoreAdd,
+    ApiConstants.cartGroceryRemove: ApiConstants.cartLocalStoreRemove,
+    ApiConstants.groceryOrders: ApiConstants.localStoreOrders,
+  };
+
+  String _path(String groceryPath) =>
+      localStore ? (_localStorePaths[groceryPath] ?? groceryPath) : groceryPath;
+
+  /// Local stores near a point, shaped like the grocery store cards.
+  Future<List<Map<String, dynamic>>> fetchLocalStores({
+    required double latitude,
+    required double longitude,
+    required String language,
+    int limit = 30,
+  }) async {
+    try {
+      final response = await _client.dio.post(
+        ApiConstants.localStoreHome,
+        queryParameters: {
+          'latitude': latitude,
+          'longitude': longitude,
+          'limit': limit,
+        },
+      );
+      final envelope = ApiEnvelope.parse(
+        response.data,
+        language,
+        statusCode: response.statusCode,
+      );
+      final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+      final rows = data['stores'] is List && (data['stores'] as List).isNotEmpty
+          ? data['stores'] as List
+          : (data['nearby_stores'] is List ? data['nearby_stores'] as List : []);
+      return rows
+          .map((entry) => asJsonMap(entry))
+          .whereType<Map<String, dynamic>>()
+          .map((raw) => {..._parseStore(raw, language), 'isLocalStore': true})
+          .toList();
+    } on DioException catch (error) {
+      throw ApiException.fromDio(error, language);
+    }
+  }
 
   Future<GroceryHomeResult> fetchGroceryHomeV2({
     required double latitude,
@@ -283,7 +346,7 @@ class GroceryRepository {
                   raw['store_id'] ??
                   '')
               .toString(),
-      'grocery_id': _asInt(raw['grocery_id'] ?? raw['id'] ?? raw['vendor_id']),
+      'grocery_id': _asInt(raw['grocery_id'] ?? raw['local_store_id'] ?? raw['id'] ?? raw['vendor_id']),
       'name': title.isEmpty ? 'Store' : title,
       'title': title.isEmpty ? 'Store' : title,
       'category': category.isEmpty ? 'Hypermarket' : category,
@@ -359,9 +422,9 @@ class GroceryRepository {
   }) async {
     final envelope = await _send(
       () => _client.dio.get(
-        ApiConstants.groceryDetails,
+        _path(ApiConstants.groceryDetails),
         queryParameters: {
-          'grocery_id': groceryId.toString(),
+          _idKey: groceryId.toString(),
           'lat': latitude.toString(),
           'long': longitude.toString(),
         },
@@ -381,8 +444,8 @@ class GroceryRepository {
   }) async {
     final envelope = await _send(
       () => _client.dio.get(
-        ApiConstants.groceryStoreCategories,
-        queryParameters: {'grocery_id': '$groceryId', 'keyword': keyword},
+        _path(ApiConstants.groceryStoreCategories),
+        queryParameters: {_idKey: '$groceryId', 'keyword': keyword},
       ),
       language,
     );
@@ -398,9 +461,9 @@ class GroceryRepository {
   }) async {
     final envelope = await _send(
       () => _client.dio.get(
-        ApiConstants.grocerySubCategories,
+        _path(ApiConstants.grocerySubCategories),
         queryParameters: {
-          'grocery_id': '$groceryId',
+          _idKey: '$groceryId',
           'category_id': '$categoryId',
           'keyword': keyword,
         },
@@ -480,10 +543,10 @@ class GroceryRepository {
     final envelope = await _send(
       () => _client.dio.post(
         hasSubCategory
-            ? ApiConstants.groceryItems
-            : ApiConstants.groceryItemsSearch,
+            ? _path(ApiConstants.groceryItems)
+            : _path(ApiConstants.groceryItemsSearch),
         data: {
-          'grocery_id': '$groceryId',
+          _idKey: '$groceryId',
           'category_id': hasCategory ? '$categoryId' : '',
           'sub_category_id': hasSubCategory ? '$subCategoryId' : '',
           'keyword': keyword.trim(),
@@ -511,9 +574,9 @@ class GroceryRepository {
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
-        ApiConstants.groceryItemsBarcodeSearch,
+        _path(ApiConstants.groceryItemsBarcodeSearch),
         data: {
-          'grocery_id': '$groceryId',
+          _idKey: '$groceryId',
           'category_id': categoryIds.map((id) => '$id').toList(),
           'sub_category_id': subCategoryIds.map((id) => '$id').toList(),
           'keyword': keyword.trim(),
@@ -550,8 +613,8 @@ class GroceryRepository {
   }) async {
     final envelope = await _send(
       () => _client.dio.get(
-        ApiConstants.groceryItemDetail,
-        queryParameters: {'menu_id': '$menuId', 'grocery_id': '$groceryId'},
+        _path(ApiConstants.groceryItemDetail),
+        queryParameters: {'menu_id': '$menuId', _idKey: '$groceryId'},
       ),
       language,
     );
@@ -577,8 +640,8 @@ class GroceryRepository {
   }) async {
     try {
       final response = await _client.dio.get(
-        ApiConstants.groceryMenuVariants,
-        queryParameters: {'menu_id': '$menuId', 'grocery_id': '$groceryId'},
+        _path(ApiConstants.groceryMenuVariants),
+        queryParameters: {'menu_id': '$menuId', _idKey: '$groceryId'},
       );
       final body = asJsonMap(response.data) ?? <String, dynamic>{};
       return _parseVariants(body['variants'], language);
@@ -645,9 +708,9 @@ class GroceryRepository {
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
-        ApiConstants.cartGroceryAdd,
+        _path(ApiConstants.cartGroceryAdd),
         data: {
-          'grocery_id': '$groceryId',
+          _idKey: '$groceryId',
           'product_id': '$productId',
           'quantity': '$quantity',
           'unit_price': unitPrice.toString(),
@@ -668,8 +731,8 @@ class GroceryRepository {
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
-        ApiConstants.cartGroceryRemove,
-        data: {'grocery_id': '$groceryId', 'product_id': '$productId'},
+        _path(ApiConstants.cartGroceryRemove),
+        data: {_idKey: '$groceryId', 'product_id': '$productId'},
         options: Options(contentType: Headers.jsonContentType),
       ),
       language,
@@ -682,7 +745,7 @@ class GroceryRepository {
   fetchGroceryOrders({required String language, int page = 1}) async {
     final envelope = await _send(
       () => _client.dio.get(
-        ApiConstants.groceryOrders,
+        _path(ApiConstants.groceryOrders),
         queryParameters: {'limit': 20, 'page': page},
       ),
       language,
@@ -773,7 +836,7 @@ class GroceryRepository {
     return {
       ...store,
       'grocery_id': _asInt(
-        data['grocery_id'] ?? data['id'] ?? data['vendor_id'],
+        data['grocery_id'] ?? data['local_store_id'] ?? data['id'] ?? data['vendor_id'],
       ),
       'address': data['address']?.toString() ?? '',
       'rating_count': _asInt(data['rating_count']),
@@ -877,9 +940,9 @@ class GroceryRepository {
 
       list.add({
         'productId': _asInt(m['product_id'] ?? m['item_id']),
-        'attributeId': m['grocery_attribute_id'] == null
+        'attributeId': (m['grocery_attribute_id'] ?? m['local_store_attribute_id']) == null
             ? null
-            : _asInt(m['grocery_attribute_id']),
+            : _asInt(m['grocery_attribute_id'] ?? m['local_store_attribute_id']),
         'label': label,
         'price': _moneyText(selling),
         'sellingPrice': selling,

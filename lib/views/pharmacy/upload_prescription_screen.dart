@@ -80,11 +80,11 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   alignment: Alignment.center,
                   children: [
                     Align(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       child: AppBackButton(onTap: () => Navigator.pop(context)),
                     ),
                     Text(
-                      'Upload Prescription',
+                      'pw_upload_prescription'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 17,
@@ -103,7 +103,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'A licensed pharmacist will review your prescription and send you a priced quotation',
+                      'pw_upload_prescription_intro'.tr,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
@@ -120,7 +120,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                     _buildCallToggle(),
                     const SizedBox(height: 18),
                     Text(
-                      'Choose a Pharmacy',
+                      'pw_choose_pharmacy'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
@@ -131,7 +131,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                     _buildPharmacyDropdown(),
                     const SizedBox(height: 16),
                     Text(
-                      'Enter Contact Number',
+                      'pw_enter_contact_number'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
@@ -175,7 +175,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                                 ),
                               )
                             : Text(
-                                'Submit for Quotation',
+                                'pw_submit_for_quotation'.tr,
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -251,8 +251,8 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   ],
                 ),
               ),
-            Positioned(
-              right: 22,
+            PositionedDirectional(
+              end: 22,
               bottom: 10,
               child: Container(
                 width: 40,
@@ -285,7 +285,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
 
   Widget _docLine({required double widthFactor}) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: FractionallySizedBox(
         widthFactor: widthFactor,
         child: Container(
@@ -321,7 +321,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
             children: [
               Expanded(
                 child: Text(
-                  'Add your prescription',
+                  'pw_add_your_prescription'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 15,
@@ -352,7 +352,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           const SizedBox(height: 8),
           if (uploadedLabel != null)
             Text(
-              'Selected: $uploadedLabel',
+              'pw_selected_file'.trParams({'name': uploadedLabel!}),
               style: GoogleFonts.outfit(
                 color: const Color(0xFF00B25C),
                 fontSize: 12,
@@ -370,9 +370,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   fontWeight: FontWeight.w500,
                 ),
                 children: [
-                  const TextSpan(
-                    text: 'Take a clear photo or upload a file. We accept ',
-                  ),
+                  TextSpan(text: 'pw_accept_files_prefix'.tr),
                   TextSpan(
                     text: 'JPG, PNG',
                     style: GoogleFonts.outfit(
@@ -381,7 +379,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const TextSpan(text: ' and '),
+                  TextSpan(text: 'pw_accept_files_and'.tr),
                   TextSpan(
                     text: 'PDF',
                     style: GoogleFonts.outfit(
@@ -398,7 +396,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
             children: [
               Expanded(
                 child: _buildUploadAction(
-                  label: 'Take Photo',
+                  label: 'pw_take_photo'.tr,
                   icon: Icons.photo_camera_outlined,
                   filled: true,
                   onTap: isPickingFile ? null : _takePhoto,
@@ -407,7 +405,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildUploadAction(
-                  label: 'Upload File',
+                  label: 'pw_upload_file'.tr,
                   icon: Icons.file_upload_outlined,
                   filled: false,
                   onTap: isPickingFile ? null : _uploadFile,
@@ -492,7 +490,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
         children: [
           Expanded(
             child: Text(
-              'Call me before suggesting an alternative medicine',
+              'pw_call_before_alternative'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 12,
@@ -531,7 +529,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           children: [
             Expanded(
               child: Text(
-                selectedPharmacy ?? 'Choose a Pharmacy',
+                selectedPharmacy ?? 'pw_choose_pharmacy'.tr,
                 style: GoogleFonts.outfit(
                   color: selectedPharmacy == null
                       ? const Color(0xFFA59A94)
@@ -573,7 +571,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFFE5D9CE), width: 1),
         ),
-        alignment: Alignment.centerLeft,
+        alignment: AlignmentDirectional.centerStart,
         child: Row(
           children: [
             GestureDetector(
@@ -639,7 +637,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
       uploadedLabel = path.split(Platform.pathSeparator).last;
       uploadedIsImage = true;
     });
-    _showToast('Prescription photo captured');
+    _showToast('pw_photo_captured'.tr);
   }
 
   Future<void> _uploadFile() async {
@@ -667,7 +665,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
       }
 
       if (path == null || path.isEmpty) {
-        _showToast('Could not read selected file', isError: true);
+        _showToast('pw_could_not_read_file'.tr, isError: true);
         return;
       }
 
@@ -676,12 +674,9 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
         uploadedLabel = name;
         uploadedIsImage = false;
       });
-      _showToast('Prescription PDF uploaded');
+      _showToast('pw_pdf_uploaded'.tr);
     } catch (_) {
-      _showToast(
-        'Unable to open file picker. Please fully restart the app and try again.',
-        isError: true,
-      );
+      _showToast('pw_file_picker_restart'.tr, isError: true);
     } finally {
       if (mounted) setState(() => isPickingFile = false);
     }
@@ -727,7 +722,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                         children: [
                           const SizedBox(height: 22),
                           Text(
-                            'Choose a Pharmacy',
+                            'pw_choose_pharmacy'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 18,
@@ -775,7 +770,8 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                                       decoration: InputDecoration(
                                         isDense: true,
                                         border: InputBorder.none,
-                                        hintText: 'Search near Nouakchott...',
+                                        hintText:
+                                            'pw_search_near_nouakchott'.tr,
                                         hintStyle: GoogleFonts.outfit(
                                           color: const Color(0xFFB0A59C),
                                           fontSize: 13,
@@ -793,7 +789,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                             child: filtered.isEmpty
                                 ? Center(
                                     child: Text(
-                                      'No pharmacies found',
+                                      'pw_no_pharmacies_found'.tr,
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFFA59A94),
                                         fontSize: 13,
@@ -913,9 +909,9 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           child: _pharmacyImage(pharmacy['image'] ?? ''),
                         ),
                       ),
-                      Positioned(
+                      PositionedDirectional(
                         top: -2,
-                        left: -4,
+                        start: -4,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 5,
@@ -986,7 +982,9 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                               borderRadius: BorderRadius.circular(99),
                             ),
                             child: Text(
-                              pharmacy['status']!,
+                              pharmacy['status'] == 'CLOSED'
+                                  ? 'pw_closed_caps'.tr
+                                  : 'pw_open_caps'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF00A854),
                                 fontSize: 9,
@@ -1090,7 +1088,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           loaded.every((pharmacy) => pharmacy['id'] != '$initialId')) {
         loaded.insert(0, {
           'id': '$initialId',
-          'title': widget.initialPharmacy ?? 'Pharmacy',
+          'title': widget.initialPharmacy ?? 'pw_pharmacy'.tr,
           'rating': '',
           'time': '',
           'dist': '',
@@ -1125,7 +1123,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
   Map<String, String> _pickerPharmacy(Map<String, dynamic> card) {
     return {
       'id': '${card['id'] ?? ''}',
-      'title': '${card['title'] ?? 'Pharmacy'}',
+      'title': '${card['title'] ?? 'pw_pharmacy'.tr}',
       'rating': '${card['rating'] ?? ''}',
       'time': '${card['time'] ?? ''}',
       'dist': '${card['dist'] ?? ''}',
@@ -1137,20 +1135,20 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
   Future<void> _submitQuotation() async {
     if (isSubmitting) return;
     if (uploadedPath == null) {
-      _showToast('Please add your prescription first', isError: true);
+      _showToast('pw_add_prescription_first'.tr, isError: true);
       return;
     }
     if (selectedPharmacyId == null) {
-      _showToast('Please choose a pharmacy', isError: true);
+      _showToast('pw_please_choose_pharmacy'.tr, isError: true);
       return;
     }
     final contactNumber = contactController.text.trim();
     if (contactNumber.isEmpty) {
-      _showToast('Please enter your contact number', isError: true);
+      _showToast('pw_please_enter_contact'.tr, isError: true);
       return;
     }
     if (!File(uploadedPath!).existsSync()) {
-      _showToast('Could not read selected file', isError: true);
+      _showToast('pw_could_not_read_file'.tr, isError: true);
       return;
     }
 

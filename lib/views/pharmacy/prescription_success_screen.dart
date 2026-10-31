@@ -22,23 +22,23 @@ class PrescriptionSuccessScreen extends StatelessWidget {
 
   String _formatSubmittedAt(DateTime date) {
     const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+      'pw_month_jan',
+      'pw_month_feb',
+      'pw_month_mar',
+      'pw_month_apr',
+      'pw_month_may',
+      'pw_month_jun',
+      'pw_month_jul',
+      'pw_month_aug',
+      'pw_month_sep',
+      'pw_month_oct',
+      'pw_month_nov',
+      'pw_month_dec',
     ];
     final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
     final minute = date.minute.toString().padLeft(2, '0');
-    final period = date.hour >= 12 ? 'PM' : 'AM';
-    return '${date.day} ${months[date.month - 1]} ${date.year}, $hour:$minute $period';
+    final period = date.hour >= 12 ? 'pw_pm'.tr : 'pw_am'.tr;
+    return '${date.day} ${months[date.month - 1].tr} ${date.year}, $hour:$minute $period';
   }
 
   @override
@@ -49,111 +49,115 @@ class PrescriptionSuccessScreen extends StatelessWidget {
 
     return PharmacyBackground(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          SizedBox(height: topInset + 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: AppBackButton(onTap: () => Navigator.pop(context),),
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, bottomInset + 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildSuccessCard(context),
-                  const SizedBox(height: 12),
-                  _buildInfoBanner(),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Order Progress',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildProgressCard(submittedAt),
-                  const SizedBox(height: 12),
-                  _buildTrackCard(),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Container(
-                            height: 50,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(26),
-                              border: Border.all(
-                                color: const Color(0xFFD9CFC6),
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              'Cancel',
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: GestureDetector(
-                          onTap: () => Get.to(() => const MyOrdersScreen()),
-                          child: Container(
-                            height: 50,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                              borderRadius: BorderRadius.circular(26),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFFFF5E00)
-                                      .withValues(alpha: 0.3),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              'View Order',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            SizedBox(height: topInset + 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: AppBackButton(onTap: () => Navigator.pop(context)),
               ),
             ),
-          ),
-        ],
-      ),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(16, 12, 16, bottomInset + 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildSuccessCard(context),
+                    const SizedBox(height: 12),
+                    _buildInfoBanner(),
+                    const SizedBox(height: 18),
+                    Text(
+                      'pw_order_progress'.tr,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildProgressCard(submittedAt),
+                    const SizedBox(height: 12),
+                    _buildTrackCard(),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              height: 50,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(26),
+                                border: Border.all(
+                                  color: const Color(0xFFD9CFC6),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                'cancel'.tr,
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: GestureDetector(
+                            onTap: () => Get.to(() => const MyOrdersScreen()),
+                            child: Container(
+                              height: 50,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFFFF5E00),
+                                    Color(0xFFFFAE00),
+                                  ],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(26),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFFF5E00,
+                                    ).withValues(alpha: 0.3),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                'pw_view_order'.tr,
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -177,10 +181,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
           Container(
             width: 80,
             height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-             
-            ),
+            decoration: BoxDecoration(shape: BoxShape.circle),
             child: Image.asset(
               'lib/assets/images/submitted_icon_seal.png',
               width: 80,
@@ -191,7 +192,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'Prescription Submitted',
+            'pw_prescription_submitted'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
@@ -201,7 +202,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Your prescription has been uploaded successfully. Our pharmacist will review it and prepare your quotation within approximately 5 minutes.',
+            'pw_prescription_submitted_body'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFF8A7F77),
@@ -224,13 +225,11 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                   child: SizedBox(
                     width: 48,
                     height: 48,
-                    child: isImage &&
+                    child:
+                        isImage &&
                             filePath != null &&
                             File(filePath!).existsSync()
-                        ? Image.file(
-                            File(filePath!),
-                            fit: BoxFit.cover,
-                          )
+                        ? Image.file(File(filePath!), fit: BoxFit.cover)
                         : Container(
                             color: Colors.white,
                             alignment: Alignment.center,
@@ -264,7 +263,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'View Full Prescription',
+                              'pw_view_full_prescription'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFFF5E00),
                                 fontSize: 12,
@@ -305,9 +304,9 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   child: Image.file(File(filePath!), fit: BoxFit.contain),
                 ),
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
@@ -336,7 +335,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Opening $fileName',
+          'pw_opening_file'.trParams({'name': fileName}),
           style: GoogleFonts.outfit(),
         ),
         backgroundColor: const Color(0xFFFF5E00),
@@ -375,7 +374,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Prescription unclear or missing something? The pharmacist will contact you directly to confirm details.',
+              'pw_prescription_unclear_info'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF5A5048),
                 fontSize: 12,
@@ -487,20 +486,18 @@ class PrescriptionSuccessScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: _ProgressLabel(
-                  label: 'Prescription Sent',
+                  label: 'pw_step_prescription_sent',
                   subtitle: submittedAt,
                   emphasized: true,
                 ),
               ),
               const Expanded(
-                child: _ProgressLabel(label: 'Under Review'),
+                child: _ProgressLabel(label: 'pw_step_under_review'),
               ),
               const Expanded(
-                child: _ProgressLabel(label: 'Quotation Ready'),
+                child: _ProgressLabel(label: 'pw_step_quotation_ready'),
               ),
-              const Expanded(
-                child: _ProgressLabel(label: 'Preparing'),
-              ),
+              const Expanded(child: _ProgressLabel(label: 'pw_step_preparing')),
             ],
           ),
         ],
@@ -537,7 +534,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Track Your Request',
+                  'pw_track_your_request'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
@@ -546,7 +543,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'You can view your prescription status, quotation, and delivery progress anytime from Orders.',
+                  'pw_track_your_request_body'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF6F655D),
                     fontSize: 11,
@@ -569,10 +566,7 @@ class _ProgressConnector extends StatelessWidget {
   final double width;
   final _ConnectorStyle style;
 
-  const _ProgressConnector({
-    required this.width,
-    required this.style,
-  });
+  const _ProgressConnector({required this.width, required this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -606,10 +600,7 @@ class _ProgressCircle extends StatelessWidget {
   final bool active;
   final Widget child;
 
-  const _ProgressCircle({
-    required this.active,
-    required this.child,
-  });
+  const _ProgressCircle({required this.active, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -652,7 +643,7 @@ class _ProgressLabel extends StatelessWidget {
     return Column(
       children: [
         Text(
-          label,
+          label.tr,
           textAlign: TextAlign.center,
           maxLines: 2,
           style: GoogleFonts.outfit(

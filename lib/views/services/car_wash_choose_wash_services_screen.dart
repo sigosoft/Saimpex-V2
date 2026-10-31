@@ -23,6 +23,8 @@ class CarWashChooseWashServicesScreen extends StatefulWidget {
   final int homeServiceFee;
   final String homeInstructions;
   final String serviceAddress;
+  final double? serviceLatitude;
+  final double? serviceLongitude;
 
   const CarWashChooseWashServicesScreen({
     super.key,
@@ -32,6 +34,8 @@ class CarWashChooseWashServicesScreen extends StatefulWidget {
     this.homeServiceFee = 0,
     this.homeInstructions = '',
     this.serviceAddress = '',
+    this.serviceLatitude,
+    this.serviceLongitude,
   });
 
   CarWashAddedVehicle get vehicle => vehicles.first;
@@ -225,9 +229,24 @@ class _CarWashChooseWashServicesScreenState
       }
     }
 
+    // Every selected vehicle is booked, each with its own add-ons; the API
+    // prices them all from the provider's catalog.
+    final bookingVehicles = [
+      for (var i = 0; i < widget.vehicles.length; i++)
+        {
+          'name': widget.vehicles[i].label,
+          'plate': widget.vehicles[i].plateNumber,
+          'addons': [
+            for (final ai in _configs[i].selectedAddons)
+              {'name': _addons[ai]['title'], 'quantity': 1},
+          ],
+        },
+    ];
+
     Get.to(
       () => CarWashCartScreen(
         providerName: widget.providerName,
+        bookingVehicles: bookingVehicles,
         serviceTitle: service['title'] as String,
         serviceDescription: service['description'] as String,
         serviceImage: service['image'] as String,
@@ -242,6 +261,9 @@ class _CarWashChooseWashServicesScreenState
         selectedAddons: [...addons, ...extraAddons],
         selectedLocation: widget.selectedLocation,
         serviceAddress: widget.serviceAddress,
+        serviceLatitude: widget.serviceLatitude,
+        serviceLongitude: widget.serviceLongitude,
+        homeInstructions: widget.homeInstructions,
         homeServiceFee: widget.homeServiceFee,
       ),
     );
@@ -267,11 +289,7 @@ class _CarWashChooseWashServicesScreenState
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFFFE5D9),
-                Color(0xFFFFF3EB),
-                Color(0xFFFFFBF9),
-              ],
+              colors: [Color(0xFFFFE5D9), Color(0xFFFFF3EB), Color(0xFFFFFBF9)],
               stops: [0.0, 0.28, 1.0],
             ),
           ),
@@ -310,11 +328,11 @@ class _CarWashChooseWashServicesScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
-            'Choose Wash Services',
+            'svc_choose_wash_services'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
@@ -349,21 +367,21 @@ class _CarWashChooseWashServicesScreenState
         children: [
           _buildVehicleHeader(vehicle),
           const SizedBox(height: 18),
-          _sectionTitle('Services'),
+          _sectionTitle('svc_services_section'.tr),
           const SizedBox(height: 10),
           for (var i = 0; i < _services.length; i++) ...[
             if (i > 0) const SizedBox(height: 10),
             _buildServiceCard(vehicle, config, i),
           ],
           const SizedBox(height: 18),
-          _sectionTitle('Add-On Services'),
+          _sectionTitle('svc_addon_services'.tr),
           const SizedBox(height: 10),
           for (var i = 0; i < _addons.length; i++) ...[
             if (i > 0) const SizedBox(height: 10),
             _buildAddonCard(config, i),
           ],
           const SizedBox(height: 18),
-          _sectionTitle('Special Notes'),
+          _sectionTitle('svc_special_notes'.tr),
           const SizedBox(height: 10),
           _buildNotesField(config),
         ],
@@ -444,9 +462,7 @@ class _CarWashChooseWashServicesScreenState
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected
-              ? const Color(0xFFFF5E00)
-              : const Color(0xFFC4B8AF),
+          color: selected ? const Color(0xFFFF5E00) : const Color(0xFFC4B8AF),
           width: selected ? 1.8 : 1.4,
         ),
       ),
@@ -482,9 +498,7 @@ class _CarWashChooseWashServicesScreenState
           color: selected ? const Color(0xFFFFF2E9) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE5E5E5),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE5E5E5),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -548,7 +562,7 @@ class _CarWashChooseWashServicesScreenState
             ),
             const SizedBox(width: 8),
             Text(
-              '$price MRU',
+              'mru'.trParams({'amount': '$price'}),
               style: GoogleFonts.outfit(
                 color: selected
                     ? const Color(0xFFFF5E00)
@@ -583,9 +597,7 @@ class _CarWashChooseWashServicesScreenState
           color: selected ? const Color(0xFFFFF2E9) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE5E5E5),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE5E5E5),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -649,7 +661,7 @@ class _CarWashChooseWashServicesScreenState
             ),
             const SizedBox(width: 8),
             Text(
-              '+$price MRU',
+              'svc_plus_mru'.trParams({'amount': '$price'}),
               style: GoogleFonts.outfit(
                 color: selected
                     ? const Color(0xFFFF5E00)
@@ -682,7 +694,7 @@ class _CarWashChooseWashServicesScreenState
               fontSize: 13.5,
             ),
             decoration: InputDecoration(
-              hintText: 'Anything the team should know?',
+              hintText: 'svc_notes_hint'.tr,
               hintStyle: GoogleFonts.outfit(
                 color: const Color(0xFFB0A59C),
                 fontSize: 13.5,
@@ -694,7 +706,7 @@ class _CarWashChooseWashServicesScreenState
         ),
         const SizedBox(height: 8),
         Text(
-          'e.g. Please pay extra attention to the wheels',
+          'svc_notes_example_wheels'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF9A8E86),
             fontSize: 11.5,
@@ -724,7 +736,7 @@ class _CarWashChooseWashServicesScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TOTAL',
+            'svc_total_upper'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF5C6578),
               fontSize: 11,
@@ -734,7 +746,7 @@ class _CarWashChooseWashServicesScreenState
           ),
           const SizedBox(height: 2),
           Text(
-            '$_totalPrice MRU',
+            'mru'.trParams({'amount': '$_totalPrice'}),
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 20,
@@ -764,7 +776,7 @@ class _CarWashChooseWashServicesScreenState
                 ],
               ),
               child: Text(
-                'Continue to Select Slot',
+                'svc_continue_to_slot'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,

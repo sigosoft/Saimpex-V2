@@ -5,7 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'laundry_booking_success_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
+import 'service_booking_submit.dart';
+import '../../core/network/api_exception.dart';
 import '../../widgets/app_back_button.dart';
+import '../../utils/toast_helper.dart';
+import '../../utils/wallet_balance.dart';
+import '../../utils/payment_methods.dart';
+import '../../widgets/no_payment_method_note.dart';
 
 class LaundryCartScreen extends StatefulWidget {
   final String providerName;
@@ -17,6 +23,12 @@ class LaundryCartScreen extends StatefulWidget {
   final DateTime slotDate;
   final String slotLabel;
 
+  /// Per-piece services: `{name, quantity}` for each garment picked.
+  final List<Map<String, dynamic>> garments;
+
+  /// Pieces or kg to book; null reads it from [estimateLabel].
+  final num? quantity;
+
   const LaundryCartScreen({
     super.key,
     this.providerName = 'CleanPro Laundry',
@@ -27,6 +39,8 @@ class LaundryCartScreen extends StatefulWidget {
     this.durationLabel = '24 hour',
     required this.slotDate,
     required this.slotLabel,
+    this.garments = const [],
+    this.quantity,
   });
 
   @override
@@ -36,64 +50,146 @@ class LaundryCartScreen extends StatefulWidget {
 class _LaundryCartScreenState extends State<LaundryCartScreen> {
   late DateTime _slotDate;
   late String _slotLabel;
-  int _deliverySpeed = 0; // 0 standard, 1 express
-  bool _usePoints = true;
   int _paymentIndex = 0; // mandatory — Wallet selected by default
-  final _couponController = TextEditingController();
+  bool _noPaymentMethod = false;
+  bool _booking = false;
 
-  static const _tax = 10;
-  static const _pointsOff = 50;
-  static const _expressFee = 300;
+  /// The server's price for this booking (customer/service/quote):
+  /// `subtotal`, `tax`, `total`. Null while loading or when it failed.
+  Map<String, dynamic>? _quote;
+  String? _quoteError;
 
+  String get _paymentType =>
+      _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet;
+
+  /// Pieces for per-item services; otherwise the "Estimated 3 kg" → 3 the
+  /// customer chose (the server re-prices after weighing at pickup).
+  num? get _quantity =>
+      widget.quantity ??
+      num.tryParse(
+        RegExp(r'[\d.]+').firstMatch(widget.estimateLabel)?.group(0) ?? '',
+      );
+
+  Future<void> _loadQuote() async {
+    setState(() {
+      _quote = null;
+      _quoteError = null;
+    });
+    try {
+      final quote = await quoteServiceBooking(
+        slotDate: _slotDate,
+        slotLabel: _slotLabel,
+        paymentType: _paymentType,
+        garments: widget.garments,
+        quantity: _quantity,
+      );
+      if (!mounted) return;
+      setState(() {
+        _quote = quote;
+        if (quote == null) _quoteError = 'svc_choose_service_again'.tr;
+      });
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _quoteError = error.message);
+    }
+  }
+
+  Future<void> _placeBooking() async {
+    if (_noPaymentMethod) {
+      showAppToast(
+        'payment_no_method'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
+    if (_booking) return;
+    if (_quote == null) {
+      if (_quoteError != null) {
+        showAppToast(_quoteError!, backgroundColor: const Color(0xFFEF4444));
+      }
+      return;
+    }
+    setState(() => _booking = true);
+    final booking = await placeServiceBooking(
+      shownTotal: _toPay,
+      slotDate: _slotDate,
+      slotLabel: _slotLabel,
+      paymentType: _paymentType,
+      garments: widget.garments,
+      quantity: _quantity,
+    );
+    if (!mounted) return;
+    setState(() => _booking = false);
+    if (booking == null) return;
+    Get.off(() => const LaundryBookingSuccessScreen());
+  }
+
+  // Translation keys.
   static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'svc_month_1',
+    'svc_month_2',
+    'svc_month_3',
+    'svc_month_4',
+    'svc_month_5',
+    'svc_month_6',
+    'svc_month_7',
+    'svc_month_8',
+    'svc_month_9',
+    'svc_month_10',
+    'svc_month_11',
+    'svc_month_12',
   ];
+
+  /// Keeps the choice on a method Admin has switched on (wallet or online).
+  void _applyPaymentMethods() {
+    final type = PaymentMethods.keepOrFirstOn(
+      _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
+      const [paymentTypeWallet, paymentTypeOnline],
+    );
+    _noPaymentMethod = type == null;
+    if (type != null) _paymentIndex = type == paymentTypeOnline ? 1 : 0;
+  }
 
   @override
   void initState() {
     super.initState();
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
     _slotDate = widget.slotDate;
     _slotLabel = widget.slotLabel;
+    _loadQuote();
   }
 
-  @override
-  void dispose() {
-    _couponController.dispose();
-    super.dispose();
-  }
+  num? _quoted(String key) => num.tryParse('${_quote?[key] ?? ''}');
 
-  int get _deliveryFee => _deliverySpeed == 1 ? _expressFee : 0;
-  int get _subtotal => widget.basePrice + _deliveryFee;
-  int get _pointsDiscount => _usePoints ? _pointsOff : 0;
-  int get _toPay => _subtotal - _pointsDiscount + _tax;
+  /// The provider's price before tax; the cart's own estimate until the
+  /// server answers.
+  int get _subtotal => (_quoted('subtotal') ?? widget.basePrice).round();
+  int? get _tax => _quoted('tax')?.round();
+  int get _toPay => (_quoted('total') ?? _subtotal).round();
+
+  /// "…" until the server has priced the booking.
+  String _mruOrPending(int? amount) =>
+      amount == null ? '…' : 'mru'.trParams({'amount': '$amount'});
 
   String get _slotDisplay {
     final d = _slotDate;
-    return '${d.day} ${_months[d.month - 1]} ${d.year}, $_slotLabel';
+    return '${d.day} ${_months[d.month - 1].tr} ${d.year}, $_slotLabel';
   }
 
   String get _estimatedDelivery {
     final d = _slotDate.add(const Duration(days: 1));
-    final dayLabel = 'Tomorrow';
+    final dayLabel = 'svc_tomorrow'.tr;
     // Prefer tomorrow label when next day; otherwise date
     final tomorrow = DateTime.now().add(const Duration(days: 1));
-    final isTomorrow = d.year == tomorrow.year &&
+    final isTomorrow =
+        d.year == tomorrow.year &&
         d.month == tomorrow.month &&
         d.day == tomorrow.day;
     final prefix = isTomorrow
         ? dayLabel
-        : '${d.day} ${_months[d.month - 1]} ${d.year}';
+        : '${d.day} ${_months[d.month - 1].tr} ${d.year}';
     return '$prefix, $_slotLabel';
   }
 
@@ -116,6 +212,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       _slotDate = result['date'] as DateTime;
       _slotLabel = _slotRangeFromLabel(result['slot'] as String);
     });
+    _loadQuote();
   }
 
   @override
@@ -148,55 +245,33 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                       const SizedBox(height: 12),
                       _buildServiceCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Delivery Speed'),
-                      const SizedBox(height: 12),
-                      _buildDeliveryOption(
-                        index: 0,
-                        icon: Icons.local_shipping_outlined,
-                        iconColor: const Color(0xFFFF5E00),
-                        title: 'Standard',
-                        subtitle: 'Within 24 hours',
-                        feeLabel: null,
-                      ),
-                      const SizedBox(height: 10),
-                      _buildDeliveryOption(
-                        index: 1,
-                        icon: Icons.bolt_rounded,
-                        iconColor: const Color(0xFFFFB800),
-                        title: 'Express',
-                        subtitle: '5-6 hours',
-                        feeLabel: '+$_expressFee MRU',
-                      ),
-                      const SizedBox(height: 14),
                       _buildPickupSlotCard(),
                       const SizedBox(height: 10),
                       _buildEstimatedDeliveryCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Pickup & Delivery'),
+                      _sectionTitle('svc_pickup_delivery'.tr),
                       const SizedBox(height: 12),
                       _buildPickupDeliveryCard(),
                       const SizedBox(height: 22),
-                      _buildSaveMoreHeader(),
+                      _sectionTitle('svc_payment'.tr),
                       const SizedBox(height: 12),
-                      _buildCouponField(),
-                      const SizedBox(height: 10),
-                      _buildPointsCard(),
-                      const SizedBox(height: 22),
-                      _sectionTitle('Payment'),
-                      const SizedBox(height: 12),
-                      _buildPaymentOption(
-                        index: 0,
-                        icon: Icons.account_balance_wallet_outlined,
-                        title: 'SAIMPEX Wallet',
-                        subtitle: 'Balance: 2,450 MRU',
-                      ),
-                      const SizedBox(height: 10),
-                      _buildPaymentOption(
-                        index: 1,
-                        icon: Icons.credit_card_rounded,
-                        title: 'Online payment',
-                        subtitle: 'Card · Mobile Money',
-                      ),
+                      if (PaymentMethods.isOn(paymentTypeWallet)) ...[
+                        _buildPaymentOption(
+                          index: 0,
+                          icon: Icons.account_balance_wallet_outlined,
+                          title: 'wallet_title'.tr,
+                          subtitle: walletBalanceSubtitle(),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                      if (PaymentMethods.isOn(paymentTypeOnline))
+                        _buildPaymentOption(
+                          index: 1,
+                          icon: Icons.credit_card_rounded,
+                          title: 'svc_online_payment'.tr,
+                          subtitle: 'svc_card_mobile_money'.tr,
+                        ),
+                      if (_noPaymentMethod) const NoPaymentMethodNote(),
                       const SizedBox(height: 20),
                       _buildPaymentDetails(),
                     ],
@@ -219,7 +294,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Cart',
+              'svc_cart'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
@@ -243,7 +318,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       children: [
         Expanded(
           child: Text(
-            'From ${widget.providerName}',
+            'svc_from_provider'.trParams({'provider': widget.providerName}),
             style: GoogleFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 13,
@@ -263,7 +338,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               ),
               const SizedBox(width: 4),
               Text(
-                'Clear All',
+                'svc_clear_all'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFE53935),
                   fontSize: 13,
@@ -330,7 +405,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 child: SizedBox(
                   height: 56,
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: Text(
                       widget.serviceTitle,
                       style: GoogleFonts.outfit(
@@ -345,7 +420,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               GestureDetector(
                 onTap: () => Get.back(),
                 child: Text(
-                  'Edit',
+                  'svc_edit'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13.5,
@@ -376,7 +451,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   ),
                 ),
                 Text(
-                  '${widget.basePrice} MRU',
+                  'mru'.trParams({'amount': '${widget.basePrice}'}),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
@@ -387,94 +462,6 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDeliveryOption({
-    required int index,
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required String? feeLabel,
-  }) {
-    final selected = _deliverySpeed == index;
-    return GestureDetector(
-      onTap: () => setState(() => _deliverySpeed = index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: selected
-              ? Border.all(color: const Color(0xFFFF5E00), width: 1.4)
-              : Border.all(color: Colors.transparent, width: 1.4),
-          boxShadow: selected
-              ? null
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: iconColor, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1A1A1A),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Text(
-                        subtitle,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF8A7E76),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      if (feeLabel != null) ...[
-                        const Spacer(),
-                        Text(
-                          feeLabel,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            Icon(
-              selected
-                  ? Icons.radio_button_checked_rounded
-                  : Icons.radio_button_off_rounded,
-              color: selected
-                  ? const Color(0xFFFF5E00)
-                  : const Color(0xFFB0A59C),
-              size: 22,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -500,7 +487,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Estimated Delivery',
+                  'svc_estimated_delivery'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 13.5,
@@ -572,17 +559,17 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Column( 
+              child: Column(
                 children: [
                   _addressContent(
-                    label: 'PICKUP',
+                    label: 'svc_pickup_upper'.tr,
                     labelColor: const Color(0xFFFF5E00),
                     title: 'Sahara View Home',
                     subtitle: 'Near Marhaba Supermarket, Nouakchott',
                   ),
                   const SizedBox(height: 18),
                   _addressContent(
-                    label: 'DELIVERY',
+                    label: 'svc_delivery_upper'.tr,
                     labelColor: const Color(0xFF00B25C),
                     title: 'Sahara View Home',
                     subtitle: 'Near Marhaba Supermarket, Nouakchott',
@@ -638,7 +625,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           ),
         ),
         Text(
-          'Edit',
+          'svc_edit'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFFFF5E00),
             fontSize: 13,
@@ -680,7 +667,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Pickup Slot',
+                    'svc_pickup_slot'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 13,
@@ -710,130 +697,6 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
     );
   }
 
-  Widget _buildSaveMoreHeader() {
-    return Row(
-      children: [
-        Expanded(child: _sectionTitle('Save More')),
-        Text(
-          'View Coupons',
-          style: GoogleFonts.outfit(
-            color: const Color(0xFFFF5E00),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCouponField() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.local_offer_outlined,
-            color: Color(0xFFFF5E00),
-            size: 20,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: _couponController,
-              style: GoogleFonts.outfit(fontSize: 13.5),
-              decoration: InputDecoration(
-                hintText: 'Enter coupon',
-                hintStyle: GoogleFonts.outfit(
-                  color: const Color(0xFFB0A59C),
-                  fontSize: 13.5,
-                ),
-                border: InputBorder.none,
-                isDense: true,
-              ),
-            ),
-          ),
-          Text(
-            'Apply',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPointsCard() {
-    return GestureDetector(
-      onTap: () => setState(() => _usePoints = !_usePoints),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFF0E6),
-                shape: BoxShape.circle,
-              ),
-              padding: const EdgeInsets.all(8),
-              child: Image.asset(
-                'lib/assets/images/Coin.png',
-                errorBuilder: (_, __, ___) => const Icon(
-                  Icons.monetization_on_rounded,
-                  color: Color(0xFFFF5E00),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Use 500 points',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF1B2B4A),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    '- $_pointsOff MRU off',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF8A7E76),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              _usePoints
-                  ? Icons.radio_button_checked_rounded
-                  : Icons.radio_button_off_rounded,
-              color: _usePoints
-                  ? const Color(0xFFFF5E00)
-                  : const Color(0xFFB0A59C),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildPaymentOption({
     required int index,
     required IconData icon,
@@ -852,9 +715,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE8DFD6),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE8DFD6),
             width: selected ? 1.3 : 1,
           ),
         ),
@@ -918,7 +779,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
@@ -927,22 +788,27 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Total', '$_subtotal MRU'),
+          _payRow('svc_total'.tr, 'mru'.trParams({'amount': '$_subtotal'})),
           const SizedBox(height: 10),
-          _payRow(
-            'Redeemed points',
-            _usePoints ? '-$_pointsOff MRU' : '0 MRU',
-            valueColor: const Color(0xFFFF5E00),
-          ),
-          const SizedBox(height: 10),
-          _payRow('Tax', '$_tax MRU'),
+          _payRow('svc_tax'.tr, _mruOrPending(_tax)),
+          if (_quoteError != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              _quoteError!,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFFF8A80),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF4A4038), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'To Pay',
+                'svc_to_pay'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
@@ -951,7 +817,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               ),
               const Spacer(),
               Text(
-                '$_toPay MRU',
+                'mru'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 20,
@@ -1013,7 +879,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TOTAL',
+                      'svc_total_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -1023,7 +889,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$_toPay MRU',
+                      'mru'.trParams({'amount': '$_toPay'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 18,
@@ -1038,7 +904,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'DURATION',
+                      'svc_duration_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -1048,7 +914,9 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _deliverySpeed == 1 ? '1–3 hours' : widget.durationLabel,
+                      widget.durationLabel == '24 hour'
+                          ? 'svc_24_hours'.tr
+                          : widget.durationLabel,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 16,
@@ -1062,9 +930,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           ),
           const SizedBox(height: 14),
           GestureDetector(
-            onTap: () => Get.off(
-              () => const LaundryBookingSuccessScreen(),
-            ),
+            onTap: _placeBooking,
             child: Container(
               width: double.infinity,
               height: 52,
@@ -1085,7 +951,9 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 ],
               ),
               child: Text(
-                'Pay $_toPay MRU',
+                _booking
+                    ? 'svc_booking_in_progress'.tr
+                    : 'svc_pay_amount'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,

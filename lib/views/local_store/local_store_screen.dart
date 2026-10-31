@@ -7,7 +7,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
-import 'local_store_details_screen.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/grocery_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
+import '../grocery/grocery_details_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/store_map_button.dart';
 import '../../widgets/see_all_button.dart';
@@ -41,6 +45,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   final List<Map<String, dynamic>> categories = [
     {
       'label': 'All',
+      'key': 'st_cat_all',
       'icon': 'lib/assets/images/All.png',
       'gradient': const LinearGradient(
         colors: [Color(0xFFFE5102), Color(0xFFFFAE00)],
@@ -50,6 +55,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
     },
     {
       'label': 'Bakery',
+      'key': 'st_cat_bakery',
       'icon': 'lib/assets/images/croissant.png',
       'gradient': const LinearGradient(
         colors: [Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
@@ -59,15 +65,17 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
     },
     {
       'label': 'Spice Trade',
+      'key': 'st_cat_spice_trade',
       'icon': 'lib/assets/images/Spices.png',
       'gradient': const LinearGradient(
-        colors:[Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
+        colors: [Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
     },
     {
       'label': 'Florist',
+      'key': 'st_cat_florist',
       'icon': 'lib/assets/images/Flowers.png',
       'gradient': const LinearGradient(
         colors: [Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
@@ -77,15 +85,17 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
     },
     {
       'label': 'Fish Market',
+      'key': 'st_cat_fish_market',
       'icon': 'lib/assets/images/Fish.png',
       'gradient': const LinearGradient(
-        colors:[Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
+        colors: [Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ),
     },
     {
       'label': 'Stationery',
+      'key': 'st_cat_stationery',
       'icon': 'lib/assets/images/Stationery.png',
       'gradient': const LinearGradient(
         colors: [Color.fromARGB(255, 180, 142, 105), Color(0xFFFFFFFF)],
@@ -95,78 +105,55 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> nearbyStores = [
-    {
-      'id': 'ls_1',
-      'name': 'Golden Bakery',
-      'subtitle': 'Bakery - Pastries',
-      'rating': '4.6',
-      'time': '35 min',
-      'dist': '1.8 Km',
-      'discount': '50% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/golden_bakery.png',
-      'isFavorite': false,
-    },
-    {
-      'id': 'ls_2',
-      'name': 'Fresh Fish Market',
-      'subtitle': 'Fish & Seafood',
-      'rating': '4.5',
-      'time': '20 min',
-      'dist': '2.5 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/Fish.png',
-      'isFavorite': false,
-      'isClosed': true,
-      'opensAt': '10 AM',
-    },
-  ];
+  List<Map<String, dynamic>> nearbyStores = const [];
+  List<Map<String, dynamic>> allStores = const [];
+  bool _storesLoading = true;
 
-  final List<Map<String, dynamic>> allStores = [
-    {
-      'id': 'ls_3',
-      'name': 'City Florist',
-      'subtitle': 'Flowers',
-      'rating': '4.7',
-      'time': '35 min',
-      'dist': '1.8 Km',
-      'discount': '30% OFF',
-      'points': '250 Points Available',
-      'image': 'lib/assets/images/city_florist.png',
-      'isFavorite': false,
-    },
-    {
-      'id': 'ls_4',
-      'name': 'Nouakchott Stationery',
-      'subtitle': 'Books',
-      'rating': '4.7',
-      'time': '35 min',
-      'dist': '1.8 Km',
-      'discount': '30% OFF',
-      'points': '200 Points Available',
-      'image': 'lib/assets/images/browse_stationery.png',
-      'isFavorite': false,
-    },
-    {
-      'id': 'ls_5',
-      'name': 'Dessert Sweets',
-      'subtitle': 'Sweets',
-      'rating': '4.7',
-      'time': '35 min',
-      'dist': '1.8 Km',
-      'discount': '30% OFF',
-      'points': '250 Points Available',
-      'image': 'lib/assets/images/dessert_sweet.png',
-      'isFavorite': false,
-    },
-  ];
+  Future<void> _loadStores() async {
+    const tag = GroceryRepository.localStoreTag;
+    if (!Get.isRegistered<GroceryRepository>(tag: tag)) {
+      setState(() => _storesLoading = false);
+      return;
+    }
+    setState(() => _storesLoading = true);
+    try {
+      final stores = await Get.find<GroceryRepository>(tag: tag)
+          .fetchLocalStores(
+            latitude: SelectLocationController.selectedLatitude,
+            longitude: SelectLocationController.selectedLongitude,
+            language: apiLanguageCode(),
+          );
+      if (!mounted) return;
+      setState(() {
+        allStores = stores
+            .map((store) => {...store, 'subtitle': store['category']})
+            .toList();
+        nearbyStores = allStores.take(5).toList();
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _storesLoading = false);
+    }
+  }
+
+  Widget _storeImage(
+    String path, {
+    BoxFit fit = BoxFit.cover,
+    ImageErrorWidgetBuilder? errorBuilder,
+  }) {
+    if (path.startsWith('http')) {
+      return Image.network(path, fit: fit, errorBuilder: errorBuilder);
+    }
+    return Image.asset(path, fit: fit, errorBuilder: errorBuilder);
+  }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_handleScroll);
+    _loadStores();
   }
 
   @override
@@ -224,7 +211,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                   fontSize: 13,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'What do you need today?',
+                  hintText: 'st_search_hint'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA0938A),
                     fontSize: 13,
@@ -289,130 +276,142 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         children: [
                           const SizedBox(height: 10),
                           Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          children: [
-                            AppBackButton(onTap: () => Navigator.pop(context)),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  await Get.to(
-                                    () => const SelectLocationScreen(),
-                                  );
-                                  if (mounted) setState(() {});
-                                },
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.home_outlined,
-                                      color: Color(0xFFFF5E00),
-                                      size: 22,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Deliver To:',
-                                                style: GoogleFonts.outfit(
-                                                  color:
-                                                      const Color(0xFF8C7D73),
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Flexible(
-                                                child: Text(
-                                                  SelectLocationController
-                                                      .deliveryLabel.value,
-                                                  style: GoogleFonts.outfit(
-                                                    color: const Color(
-                                                      0xFF2C2520,
-                                                    ),
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 2),
-                                              const Icon(
-                                                Icons
-                                                    .keyboard_arrow_down_rounded,
-                                                color: Color(0xFF2C2520),
-                                                size: 16,
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () =>
-                              Get.to(() => const RewardsReferralScreen()),
-                          child: Container(
-                            height: 36,
-                            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF5E00),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Container(
-                                  width: 28,
-                                  height: 28,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Image.asset(
-                                    'lib/assets/images/wallet_home.png',
-                                    width: 16,
-                                    height: 16,
+                                AppBackButton(
+                                  onTap: () => Navigator.pop(context),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      await Get.to(
+                                        () => const SelectLocationScreen(),
+                                      );
+                                      if (mounted) setState(() {});
+                                    },
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.home_outlined,
+                                          color: Color(0xFFFF5E00),
+                                          size: 22,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'st_deliver_to_colon'.tr,
+                                                    style: GoogleFonts.outfit(
+                                                      color: const Color(
+                                                        0xFF8C7D73,
+                                                      ),
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Flexible(
+                                                    child: Text(
+                                                      SelectLocationController
+                                                          .deliveryLabel
+                                                          .value,
+                                                      style: GoogleFonts.outfit(
+                                                        color: const Color(
+                                                          0xFF2C2520,
+                                                        ),
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 2),
+                                                  const Icon(
+                                                    Icons
+                                                        .keyboard_arrow_down_rounded,
+                                                    color: Color(0xFF2C2520),
+                                                    size: 16,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(width: 3),
-                                Text(
-                                  '300 MRU',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () => Get.to(
+                                    () => const RewardsReferralScreen(),
+                                  ),
+                                  child: Container(
+                                    height: 36,
+                                    padding: const EdgeInsets.fromLTRB(
+                                      4,
+                                      4,
+                                      6,
+                                      4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFF5E00),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 28,
+                                          height: 28,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Image.asset(
+                                            'lib/assets/images/wallet_home.png',
+                                            width: 16,
+                                            height: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 3),
+                                        Text(
+                                          'mru'.trParams({'amount': '300'}),
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
                           const SizedBox(height: 16),
 
                           // Title: Local Stores
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              'Local Stores',
+                              'st_local_stores'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 20,
@@ -502,189 +501,230 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
 
                           const SizedBox(height: 20),
 
-              // 5. Category Icons Grid matching Pharmacy screen design
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: categories.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.30,
-                  ),
-                  itemBuilder: (context, index) {
-                    final cat = categories[index];
-                    final isSelected = _selectedCategoryIndex == index;
-
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedCategoryIndex = index;
-                        });
-                      },
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          // 1. Card Background (Starts 16px from top)
-                          Positioned(
-                            top: 16,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: isSelected
-                                    ? const LinearGradient(
-                                        colors: [
-                                          Color(0xFFFE5102),
-                                          Color(0xFFFFAE00),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      )
-                                    : (cat['gradient'] as Gradient?),
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 3),
+                          // 5. Category Icons Grid matching Pharmacy screen design
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: categories.length,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 16,
+                                    childAspectRatio: 1.30,
                                   ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.only(bottom: 8),
-                              alignment: Alignment.bottomCenter,
-                              child: Text(
-                                cat['label'] as String,
-                                style: GoogleFonts.outfit(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : const Color(0xFF2C2520),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              itemBuilder: (context, index) {
+                                final cat = categories[index];
+                                final isSelected =
+                                    _selectedCategoryIndex == index;
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedCategoryIndex = index;
+                                    });
+                                  },
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      // 1. Card Background (Starts 16px from top)
+                                      Positioned(
+                                        top: 16,
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: isSelected
+                                                ? const LinearGradient(
+                                                    colors: [
+                                                      Color(0xFFFE5102),
+                                                      Color(0xFFFFAE00),
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  )
+                                                : (cat['gradient']
+                                                      as Gradient?),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.04,
+                                                ),
+                                                blurRadius: 6,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          padding: const EdgeInsets.only(
+                                            bottom: 8,
+                                          ),
+                                          alignment: Alignment.bottomCenter,
+                                          child: Text(
+                                            (cat['key'] as String).tr,
+                                            style: GoogleFonts.outfit(
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : const Color(0xFF2C2520),
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // 2. Overlapping Illustration Image
+                                      Positioned(
+                                        top: (cat['label'] == 'All')
+                                            ? 12
+                                            : (cat['label'] == 'Stationery'
+                                                  ? -2
+                                                  : 0),
+                                        left: (cat['label'] == 'All')
+                                            ? 0
+                                            : (cat['label'] == 'Stationery'
+                                                  ? 18
+                                                  : 24),
+                                        right: (cat['label'] == 'All')
+                                            ? 0
+                                            : (cat['label'] == 'Stationery'
+                                                  ? 18
+                                                  : 24),
+                                        bottom: (cat['label'] == 'All')
+                                            ? 22
+                                            : 22,
+                                        child: (cat['label'] == 'All')
+                                            ? Center(
+                                                child: Image.asset(
+                                                  cat['icon'] as String,
+                                                  width: 28,
+                                                  height: 28,
+                                                  color: isSelected
+                                                      ? Colors.white
+                                                      : const Color(0xFFFF5E00),
+                                                ),
+                                              )
+                                            : Image.asset(
+                                                cat['icon'] as String,
+                                                fit: BoxFit.contain,
+                                                errorBuilder: (_, __, ___) =>
+                                                    const Icon(
+                                                      Icons.store_rounded,
+                                                      color: Color(0xFFFF5E00),
+                                                      size: 24,
+                                                    ),
+                                              ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                          // 2. Overlapping Illustration Image
-                          Positioned(
-                            top: (cat['label'] == 'All')
-                                ? 12
-                                : (cat['label'] == 'Stationery' ? -2 : 0),
-                            left: (cat['label'] == 'All')
-                                ? 0
-                                : (cat['label'] == 'Stationery' ? 18 : 24),
-                            right: (cat['label'] == 'All')
-                                ? 0
-                                : (cat['label'] == 'Stationery' ? 18 : 24),
-                            bottom: (cat['label'] == 'All') ? 22 : 22,
-                            child: (cat['label'] == 'All')
-                                ? Center(
-                                    child: Image.asset(
-                                      cat['icon'] as String,
-                                      width: 28,
-                                      height: 28,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : const Color(0xFFFF5E00),
-                                    ),
-                                  )
-                                : Image.asset(
-                                    cat['icon'] as String,
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (_, __, ___) => const Icon(
-                                      Icons.store_rounded,
-                                      color: Color(0xFFFF5E00),
-                                      size: 24,
-                                    ),
+
+                          const SizedBox(height: 24),
+
+                          // 6. "Local Stores Nearby" Header
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'st_local_stores_nearby'.tr,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
+                                ),
+                                const SeeAllButton(),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
 
-              const SizedBox(height: 24),
+                          const SizedBox(height: 12),
 
-              // 6. "Local Stores Nearby" Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Local Stores Nearby',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SeeAllButton(),
-                  ],
-                ),
-              ),
+                          // Local Stores Nearby Horizontal List
+                          SizedBox(
+                            height: 240,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              itemCount: nearbyStores.length,
+                              itemBuilder: (context, index) {
+                                final store = nearbyStores[index];
+                                return _buildHorizontalStoreCard(store);
+                              },
+                            ),
+                          ),
 
-              const SizedBox(height: 12),
+                          const SizedBox(height: 24),
 
-              // Local Stores Nearby Horizontal List
-              SizedBox(
-                height: 240,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: nearbyStores.length,
-                  itemBuilder: (context, index) {
-                    final store = nearbyStores[index];
-                    return _buildHorizontalStoreCard(store);
-                  },
-                ),
-              ),
+                          // 7. "Browse All Stores" Header
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'st_browse_all_stores'.tr,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const StoreMapButton(),
+                              ],
+                            ),
+                          ),
 
-              const SizedBox(height: 24),
+                          const SizedBox(height: 14),
 
-              // 7. "Browse All Stores" Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Browse All Stores',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const StoreMapButton(),
-                  ],
-                ),
-              ),
+                          // Browse All Stores Vertical List
+                          if (_storesLoading || allStores.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 28),
+                              child: Center(
+                                child: _storesLoading
+                                    ? const CircularProgressIndicator(
+                                        color: Color(0xFFFF5E00),
+                                      )
+                                    : Text(
+                                        'st_no_local_stores'.tr,
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFFA59A94),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                              ),
+                            )
+                          else
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: allStores.length,
+                                itemBuilder: (context, index) {
+                                  final store = allStores[index];
+                                  return _buildVerticalStoreCard(store);
+                                },
+                              ),
+                            ),
 
-              const SizedBox(height: 14),
-
-              // Browse All Stores Vertical List
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: allStores.length,
-                  itemBuilder: (context, index) {
-                    final store = allStores[index];
-                    return _buildVerticalStoreCard(store);
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 30),
+                          const SizedBox(height: 30),
                         ],
                       ),
                     ),
@@ -719,15 +759,13 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
 
     return GestureDetector(
       onTap: () {
-        Get.to(() => LocalStoreDetailsScreen(store: store));
+        Get.to(() => GroceryDetailsScreen(store: store));
       },
       child: Container(
         width: 250,
-        margin: const EdgeInsets.only(right: 14),
+        margin: const EdgeInsetsDirectional.only(end: 14),
         decoration: BoxDecoration(
-          color: isClosed
-              ? Colors.white.withValues(alpha: 0.72)
-              : Colors.white,
+          color: isClosed ? Colors.white.withValues(alpha: 0.72) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -763,7 +801,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                 Colors.black.withValues(alpha: 0.22),
                                 BlendMode.darken,
                               ),
-                              child: Image.asset(
+                              child: _storeImage(
                                 store['image'],
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, __, ___) => Container(
@@ -777,7 +815,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               ),
                             ),
                           )
-                        : Image.asset(
+                        : _storeImage(
                             store['image'],
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Container(
@@ -925,9 +963,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 if (isClosed)
-                  Positioned.fill(
-                    child: _buildClosedOverlay(opensAt),
-                  ),
+                  Positioned.fill(child: _buildClosedOverlay(opensAt)),
               ],
             ),
 
@@ -1026,7 +1062,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Closed',
+                  'st_closed'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
@@ -1047,7 +1083,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Opens $opensAt',
+                      'st_opens_at'.trParams({'time': opensAt}),
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -1079,7 +1115,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   Widget _buildVerticalStoreCard(Map<String, dynamic> store) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => LocalStoreDetailsScreen(store: store));
+        Get.to(() => GroceryDetailsScreen(store: store));
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -1107,7 +1143,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                   child: SizedBox(
                     height: 150,
                     width: double.infinity,
-                    child: Image.asset(
+                    child: _storeImage(
                       store['image'],
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(

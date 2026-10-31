@@ -196,6 +196,50 @@ class WaterRepository {
     return envelope.message;
   }
 
+  /// Buys a subscription to a supplier's plan (water/subscribe); amount =
+  /// plan price × [quantity]. [paymentType] 1 cash on the first delivery,
+  /// 2 online (status pending_payment; returns `payment_url`), 3 wallet (paid
+  /// now; 422 if short). Returns the server message and the response data.
+  /// Needs a session.
+  Future<({String message, Map<String, dynamic> data})> subscribe({
+    required int planId,
+    required int quantity,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String deliverySlot,
+    required String address,
+    required double latitude,
+    required double longitude,
+    required String paymentType,
+    required String language,
+  }) async {
+    String day(DateTime date) =>
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.waterSubscribe,
+        data: {
+          'plan_id': planId,
+          'quantity': quantity,
+          'start_date': day(startDate),
+          'end_date': day(endDate),
+          'delivery_slot': deliverySlot,
+          'address_line1': address,
+          'latitude': latitude,
+          'longitude': longitude,
+          'payment_type': paymentType,
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return (
+      message: envelope.message,
+      data: asJsonMap(envelope.data) ?? <String, dynamic>{},
+    );
+  }
+
   /// The customer's water subscriptions (water/subscriptions). Needs a session.
   Future<List<Map<String, dynamic>>> fetchSubscriptions({
     required String language,
@@ -206,7 +250,77 @@ class WaterRepository {
     );
     final data = envelope.data;
     final raw = data is Map ? (data['data'] ?? data['subscriptions']) : data;
-    return _list(raw).map(_plan).toList();
+    return _list(raw).map(_subscription).toList();
+  }
+
+  Future<String> pauseSubscription({
+    required int subscriptionId,
+    required String language,
+  }) => _changeSubscription(
+    ApiConstants.waterSubscriptionPause,
+    subscriptionId,
+    language,
+  );
+
+  Future<String> resumeSubscription({
+    required int subscriptionId,
+    required String language,
+  }) => _changeSubscription(
+    ApiConstants.waterSubscriptionResume,
+    subscriptionId,
+    language,
+  );
+
+  Future<String> cancelSubscription({
+    required int subscriptionId,
+    required String language,
+  }) => _changeSubscription(
+    ApiConstants.waterSubscriptionCancel,
+    subscriptionId,
+    language,
+  );
+
+  Future<String> _changeSubscription(
+    String path,
+    int subscriptionId,
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        path,
+        data: {'subscription_id': subscriptionId},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// A subscription shaped for the My Subscriptions cards.
+  Map<String, dynamic> _subscription(Map<String, dynamic> item) {
+    final status = '${item['status'] ?? ''}'.toLowerCase();
+    final bottles = _asInt(item['bottles_per_delivery']);
+    final slot = '${item['delivery_slot'] ?? ''}'.trim();
+    final frequency = '${item['frequency_label'] ?? ''}'.trim();
+    String text(dynamic value) => '${value ?? ''}'.trim();
+    return {
+      'id': _asInt(item['subscription_id']),
+      'state': status,
+      'title': text(item['vendor_name']).isEmpty
+          ? 'Water supplier'
+          : text(item['vendor_name']),
+      'subtitle': _localized(item, 'product_name', fallback: ''),
+      'size': text(item['package_label']),
+      'qty': bottles > 0 ? 'x$bottles' : '',
+      'status': text(item['status_label']),
+      'imageUrl':
+          ApiConstants.mediaUrl(item['product_image']?.toString()) ?? '',
+      'frequency': slot.isEmpty ? frequency : '$frequency ($slot)',
+      'nextDelivery': text(item['next_delivery_at']).split(' ').first,
+      'startDate': text(item['start_date']),
+      'endDate': text(item['end_date']),
+      'pauseUntil': text(item['pause_until']).split(' ').first,
+    };
   }
 
   Map<String, dynamic> _supplier(Map<String, dynamic> item) {
@@ -315,6 +429,11 @@ class WaterRepository {
       'price': _amount(item['price']) > 0
           ? '${_amount(item['price']).round()} MRU'
           : '— MRU',
+      'priceValue': _amount(item['price']),
+      'productId': _asInt(item['product_id']),
+      'frequencyKey': '${item['frequency_key'] ?? ''}',
+      'frequencyLabel': '${item['frequency_label'] ?? ''}',
+      'bottlesPerDelivery': _asInt(item['bottles_per_delivery']),
       'status':
           item['status_text']?.toString() ?? item['status']?.toString() ?? '',
     };

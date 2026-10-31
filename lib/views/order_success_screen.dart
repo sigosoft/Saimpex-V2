@@ -6,7 +6,10 @@ import '../widgets/app_back_button.dart';
 import 'my_orders_screen.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
-  const OrderSuccessScreen({Key? key}) : super(key: key);
+  /// Store points this order will earn once delivered (0 hides the line).
+  final int pointsToEarn;
+
+  const OrderSuccessScreen({Key? key, this.pointsToEarn = 0}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +31,7 @@ class OrderSuccessScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 1. Top-Left custom Back Button
-                AppBackButton(
-                  onTap: () => Navigator.pop(context),
-                ),
+                AppBackButton(onTap: () => Navigator.pop(context)),
 
                 const Spacer(),
 
@@ -60,7 +61,7 @@ class OrderSuccessScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Order Placed Successfully!',
+                        'orders_placed_title'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 20,
@@ -68,16 +69,21 @@ class OrderSuccessScreen extends StatelessWidget {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Congratulations! You\'ve earned 10 points',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF8C7D73),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      if (pointsToEarn > 0) ...[
+                        const SizedBox(height: 8),
+                        // Points are credited only after delivery (scope §4).
+                        Text(
+                          'orders_earn_points_on_delivery'.trParams({
+                            'points': '$pointsToEarn',
+                          }),
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF8C7D73),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -107,7 +113,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            'Back to Home',
+                            'orders_back_to_home'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 13,
@@ -144,7 +150,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            'View Order',
+                            'orders_view_order'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 13,

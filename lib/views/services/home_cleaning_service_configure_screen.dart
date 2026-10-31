@@ -29,6 +29,7 @@ class _HomeCleaningServiceConfigureScreenState
   int _kitchens = 1;
   int _bathrooms = 0;
   int _balconies = 0;
+
   /// `self` = customer provides, `provider` = provider provides (+120)
   String _productsProvider = 'self';
   final _notesController = TextEditingController();
@@ -40,25 +41,25 @@ class _HomeCleaningServiceConfigureScreenState
     {
       'key': 'bedrooms',
       'label': 'Bedrooms',
-      'unitLabel': '100 MRU / Room',
+      'unitLabel': 'svc_rate_per_room',
       'rate': 100,
     },
     {
       'key': 'kitchens',
       'label': 'Kitchens',
-      'unitLabel': '150 MRU / Room',
+      'unitLabel': 'svc_rate_per_room',
       'rate': 150,
     },
     {
       'key': 'bathrooms',
       'label': 'Bathrooms / WC',
-      'unitLabel': '80 MRU / Room',
+      'unitLabel': 'svc_rate_per_room',
       'rate': 80,
     },
     {
       'key': 'balconies',
       'label': 'Balconies',
-      'unitLabel': '60 MRU / Unit',
+      'unitLabel': 'svc_rate_per_unit',
       'rate': 60,
     },
   ];
@@ -67,13 +68,13 @@ class _HomeCleaningServiceConfigureScreenState
     {
       'key': 'fridge',
       'label': 'Fridge Cleaning',
-      'unitLabel': '100 MRU / Unit',
+      'unitLabel': 'svc_rate_per_unit',
       'rate': 100,
     },
     {
       'key': 'dish',
       'label': 'Dish Washing',
-      'unitLabel': '150 MRU / Unit',
+      'unitLabel': 'svc_rate_per_unit',
       'rate': 150,
     },
   ];
@@ -84,11 +85,7 @@ class _HomeCleaningServiceConfigureScreenState
       'label': 'Cockroaches',
       'image': 'lib/assets/images/Cockroach.png',
     },
-    {
-      'id': 'ants',
-      'label': 'Ants',
-      'image': 'lib/assets/images/Ant.png',
-    },
+    {'id': 'ants', 'label': 'Ants', 'image': 'lib/assets/images/Ant.png'},
     {
       'id': 'bed_bugs',
       'label': 'Bed Bugs',
@@ -114,15 +111,8 @@ class _HomeCleaningServiceConfigureScreenState
       'label': 'General Disinfection',
       'image': 'lib/assets/images/BlueShield.png',
     },
-    {
-      'id': 'flies',
-      'label': 'Flies',
-      'image': 'lib/assets/images/Fly.png',
-    },
-    {
-      'id': 'other',
-      'label': 'Other',
-    },
+    {'id': 'flies', 'label': 'Flies', 'image': 'lib/assets/images/Fly.png'},
+    {'id': 'other', 'label': 'Other'},
   ];
 
   String get _title => widget.service['title'] ?? 'Regular Cleaning';
@@ -203,8 +193,8 @@ class _HomeCleaningServiceConfigureScreenState
         serviceTitle: _title,
         serviceImage: _heroImage,
         serviceDescription: _isPestControl
-            ? 'Pest control & disinfection handled by a specialized team'
-            : 'Standard cleaning for bedrooms, bathrooms, living...',
+            ? 'svc_pest_service_desc'.tr
+            : 'svc_regular_service_desc'.tr,
         bedrooms: _bedrooms,
         bathrooms: _bathrooms,
         kitchens: _kitchens,
@@ -221,31 +211,25 @@ class _HomeCleaningServiceConfigureScreenState
         ],
         extras: [
           if (!_isPestControl && _fridgeCleaning > 0)
-            {
-              'label': 'Fridge Cleaning',
-              'rate': 100,
-              'qty': _fridgeCleaning,
-            },
+            {'label': 'Fridge Cleaning', 'rate': 100, 'qty': _fridgeCleaning},
           if (!_isPestControl && _dishWashing > 0)
-            {
-              'label': 'Dish Washing',
-              'rate': 150,
-              'qty': _dishWashing,
-            },
+            {'label': 'Dish Washing', 'rate': 150, 'qty': _dishWashing},
         ],
         productsProvider: _isPestControl ? 'self' : _productsProvider,
+        propertyType: _propertyType,
+        notes: _notesController.text,
         productsFee: 120,
         selectedPests: _isPestControl
             ? _pestIssues
-                .where((p) => _selectedPests.contains(p['id']))
-                .map(
-                  (p) => {
-                    'id': p['id'],
-                    'label': p['label'],
-                    if (p['image'] != null) 'image': p['image'],
-                  },
-                )
-                .toList()
+                  .where((p) => _selectedPests.contains(p['id']))
+                  .map(
+                    (p) => {
+                      'id': p['id'],
+                      'label': p['label'],
+                      if (p['image'] != null) 'image': p['image'],
+                    },
+                  )
+                  .toList()
             : const [],
         basePrice: _totalPrice,
         baseDurationMin: _totalDurationMin,
@@ -286,7 +270,12 @@ class _HomeCleaningServiceConfigureScreenState
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + bottomInset + 10),
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      8,
+                      16,
+                      12 + bottomInset + 10,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -331,7 +320,7 @@ class _HomeCleaningServiceConfigureScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
@@ -381,7 +370,7 @@ class _HomeCleaningServiceConfigureScreenState
       children: [
         _infoChip(
           imageAsset: 'lib/assets/images/currency.png',
-          label: 'From $_basePrice MRU',
+          label: 'svc_from_price'.trParams({'amount': '$_basePrice'}),
         ),
       ],
     );
@@ -453,7 +442,7 @@ class _HomeCleaningServiceConfigureScreenState
             ),
           ),
           TextSpan(
-            text: ' (Optional)',
+            text: ' (${'svc_optional'.tr})',
             style: GoogleFonts.outfit(
               color: const Color(0xFF6B6B6B),
               fontSize: 13,
@@ -469,7 +458,7 @@ class _HomeCleaningServiceConfigureScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitleWithOptional('Property Type'),
+        _sectionTitleWithOptional('svc_property_type'.tr),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -481,10 +470,7 @@ class _HomeCleaningServiceConfigureScreenState
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _propertyCard(
-                type: 'Villa',
-                icon: Icons.home_rounded,
-              ),
+              child: _propertyCard(type: 'Villa', icon: Icons.home_rounded),
             ),
           ],
         ),
@@ -531,7 +517,7 @@ class _HomeCleaningServiceConfigureScreenState
             const SizedBox(width: 8),
             Flexible(
               child: Text(
-                type,
+                type == 'Villa' ? 'svc_villa'.tr : 'svc_apartment'.tr,
                 style: GoogleFonts.outfit(
                   color: selected
                       ? const Color(0xFFFF5E00)
@@ -551,7 +537,7 @@ class _HomeCleaningServiceConfigureScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('Tell us about your home'),
+        _sectionTitle('svc_tell_us_home'.tr),
         const SizedBox(height: 12),
         _buildRoomRatesCard(),
       ],
@@ -562,7 +548,7 @@ class _HomeCleaningServiceConfigureScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('Select Areas to Treat'),
+        _sectionTitle('svc_select_areas_to_treat'.tr),
         const SizedBox(height: 12),
         for (var i = 0; i < _roomRates.length; i++) ...[
           if (i > 0) const SizedBox(height: 10),
@@ -612,7 +598,7 @@ class _HomeCleaningServiceConfigureScreenState
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 14, 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -631,7 +617,7 @@ class _HomeCleaningServiceConfigureScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  room['label'] as String,
+                  homeCleaningLabelText(room['label'] as String),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 14.5,
@@ -640,7 +626,7 @@ class _HomeCleaningServiceConfigureScreenState
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  room['unitLabel'] as String,
+                  (room['unitLabel'] as String).trParams({'rate': '$rate'}),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
@@ -659,7 +645,7 @@ class _HomeCleaningServiceConfigureScreenState
           SizedBox(
             width: 72,
             child: Text(
-              '$lineTotal MRU',
+              'mru'.trParams({'amount': '$lineTotal'}),
               textAlign: TextAlign.right,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
@@ -699,11 +685,7 @@ class _HomeCleaningServiceConfigureScreenState
             ),
           ),
         ),
-        _stepperButton(
-          icon: Icons.add_rounded,
-          filled: true,
-          onTap: onPlus,
-        ),
+        _stepperButton(icon: Icons.add_rounded, filled: true, onTap: onPlus),
       ],
     );
   }
@@ -712,7 +694,7 @@ class _HomeCleaningServiceConfigureScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('What are you facing?'),
+        _sectionTitle('svc_what_facing'.tr),
         const SizedBox(height: 12),
         GridView.builder(
           shrinkWrap: true,
@@ -807,7 +789,7 @@ class _HomeCleaningServiceConfigureScreenState
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      item['label'] as String,
+                      homeCleaningLabelText(item['label'] as String),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -878,7 +860,7 @@ class _HomeCleaningServiceConfigureScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  room['label'] as String,
+                  homeCleaningLabelText(room['label'] as String),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 14.5,
@@ -887,7 +869,7 @@ class _HomeCleaningServiceConfigureScreenState
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  room['unitLabel'] as String,
+                  (room['unitLabel'] as String).trParams({'rate': '$rate'}),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
@@ -906,7 +888,7 @@ class _HomeCleaningServiceConfigureScreenState
           SizedBox(
             width: 72,
             child: Text(
-              '$lineTotal MRU',
+              'mru'.trParams({'amount': '$lineTotal'}),
               textAlign: TextAlign.right,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
@@ -951,11 +933,7 @@ class _HomeCleaningServiceConfigureScreenState
               ),
             ),
           ),
-          _stepperButton(
-            icon: Icons.add_rounded,
-            filled: true,
-            onTap: onPlus,
-          ),
+          _stepperButton(icon: Icons.add_rounded, filled: true, onTap: onPlus),
         ],
       ),
     );
@@ -965,23 +943,21 @@ class _HomeCleaningServiceConfigureScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('Who provides the cleaning products?'),
+        _sectionTitle('svc_who_provides_products'.tr),
         const SizedBox(height: 12),
         _productOptionCard(
           id: 'self',
-          title: "I'll provide the products",
-          description:
-              'Standard cleaning prices apply. You provide detergents, mop, and cloths',
-          priceLabel: '0 MRU',
+          title: 'svc_self_provides_products'.tr,
+          description: 'svc_self_products_hint'.tr,
+          priceLabel: 'mru'.trParams({'amount': '0'}),
           priceOrange: false,
         ),
         const SizedBox(height: 12),
         _productOptionCard(
           id: 'provider',
-          title: 'Provider will provide products',
-          description:
-              'Cleaning products will be provided by the service provider',
-          priceLabel: '+120MRU',
+          title: 'svc_provider_provides_products'.tr,
+          description: 'svc_provider_products_hint'.tr,
+          priceLabel: 'svc_plus_mru'.trParams({'amount': '120'}),
           priceOrange: true,
         ),
       ],
@@ -1005,9 +981,7 @@ class _HomeCleaningServiceConfigureScreenState
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFEDE4DA),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEDE4DA),
             width: selected ? 1.5 : 1,
           ),
           boxShadow: [
@@ -1125,7 +1099,7 @@ class _HomeCleaningServiceConfigureScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('Special Notes'),
+        _sectionTitle('svc_special_notes'.tr),
         const SizedBox(height: 12),
         Container(
           height: 120,
@@ -1152,20 +1126,24 @@ class _HomeCleaningServiceConfigureScreenState
                   fontSize: 13.5,
                 ),
                 decoration: InputDecoration(
-                  hintText:
-                      '(e.g. Please pay extra attention to the kitchen)',
+                  hintText: 'svc_notes_example_kitchen'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFB0A59C),
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.fromLTRB(16, 14, 52, 14),
+                  contentPadding: const EdgeInsetsDirectional.fromSTEB(
+                    16,
+                    14,
+                    52,
+                    14,
+                  ),
                 ),
               ),
-              Positioned(
+              PositionedDirectional(
                 top: 10,
-                right: 10,
+                end: 10,
                 child: Container(
                   width: 34,
                   height: 34,
@@ -1198,7 +1176,7 @@ class _HomeCleaningServiceConfigureScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitleWithOptional('Make it extra clean'),
+        _sectionTitleWithOptional('svc_extra_clean'.tr),
         const SizedBox(height: 12),
         Container(
           width: double.infinity,
@@ -1259,7 +1237,7 @@ class _HomeCleaningServiceConfigureScreenState
     final lineTotal = count * rate;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 12, 12),
       decoration: BoxDecoration(
         color: const Color(0xFFF7F5F2),
         borderRadius: BorderRadius.circular(16),
@@ -1271,7 +1249,7 @@ class _HomeCleaningServiceConfigureScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item['label'] as String,
+                  homeCleaningLabelText(item['label'] as String),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
@@ -1280,7 +1258,7 @@ class _HomeCleaningServiceConfigureScreenState
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  item['unitLabel'] as String,
+                  (item['unitLabel'] as String).trParams({'rate': '$rate'}),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
@@ -1299,7 +1277,7 @@ class _HomeCleaningServiceConfigureScreenState
           SizedBox(
             width: 64,
             child: Text(
-              '$lineTotal MRU',
+              'mru'.trParams({'amount': '$lineTotal'}),
               textAlign: TextAlign.right,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -1317,7 +1295,10 @@ class _HomeCleaningServiceConfigureScreenState
     return Container(
       padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomInset),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
         color: Colors.white,
         boxShadow: [
           BoxShadow(
@@ -1337,7 +1318,7 @@ class _HomeCleaningServiceConfigureScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TOTAL',
+                      'svc_total_upper'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
@@ -1347,7 +1328,7 @@ class _HomeCleaningServiceConfigureScreenState
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$_totalPrice MRU',
+                      'mru'.trParams({'amount': '$_totalPrice'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 18,
@@ -1382,7 +1363,7 @@ class _HomeCleaningServiceConfigureScreenState
                 ],
               ),
               child: Text(
-                'Choose Your Slot',
+                'svc_choose_your_slot'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,

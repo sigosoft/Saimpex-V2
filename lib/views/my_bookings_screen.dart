@@ -7,7 +7,15 @@ import '../widgets/app_back_button.dart';
 import '../widgets/home_background_blend.dart';
 import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
-import '../controllers/car_wash_bookings_store.dart';
+import '../core/network/api_exception.dart';
+import '../models/service_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
+import 'rate_order_screen.dart';
+import 'services/car_wash_screen.dart';
+import 'services/home_cleaning_screen.dart';
+import 'services/laundry_services_screen.dart';
+import 'services/gas_screen.dart';
 import '../widgets/cancel_booking_bottom_sheet.dart';
 import 'services/car_wash_booking_detail_screen.dart';
 import 'services/home_cleaning_booking_detail_screen.dart';
@@ -30,246 +38,126 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     'Home Cleaning',
     'Car Wash',
     'Laundry',
-    'Plumbing',
-    'Carpentry',
-    'Electrical',
+    'Gas',
   ];
 
-  final List<Map<String, dynamic>> _bookings = [
-    {
-      'id': '22789002',
-      'provider': 'CleanPro Elite',
-      'category': 'Home Cleaning',
-      'categoryColor': 0xFFFF5E00,
-      'service': 'Regular Cleaning',
-      'status': 'Confirmed',
-      'datetime': 'Today, 15 Aug 2026, 2:00–4:00 PM',
-      'slot': '15 Aug 2026, 2:00 PM – 4:00 PM',
-      'location': 'Near Marhaba Supermarket,Nouakchott',
-      'locationTitle': 'Sahara View Home',
-      'rooms': '2 Bedrooms · 2 Bathrooms',
-      'price': '750 MRU',
-      'image': 'lib/assets/images/regular_cleaning.jpg',
-    },
-    {
-      'id': '22789003',
-      'provider': 'CleanRide Car Wash',
-      'category': 'Car Wash',
-      'categoryColor': 0xFF2B7DE9,
-      'service': 'Full Wash',
-      'status': 'Confirmed',
-      'datetime': 'Today, 15 Aug 2026, 2:00–4:00 PM',
-      'slot': '15 Aug 2026, 2:00 - 4:00 PM',
-      'location': 'CleanRide Car Wash, Near Nouakchott, Mauritania',
-      'locationTitle': 'CleanRide Car Wash',
-      'rooms': 'Sedan',
-      'price': '510 MRU',
-      'vehicleLabel': 'Sedan',
-      'vehicleImage': 'lib/assets/images/Sedan.png',
-      'plateNumber': '1234 AB 01',
-      'vehiclePrice': '1000 MRU',
-      'servicePrice': '1000 MRU',
-      'serviceDescription':
-          'Complete interior & exterior detailing with premium ceramic tire gloss',
-      'serviceImage':
-          'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop',
-      'duration': '45 min',
-      'image': 'lib/assets/images/Sedan.png',
-      'washServices': [
-        {
-          'title': 'Full Wash',
-          'description':
-              'Complete interior & exterior detailing with premium ceramic tire gloss',
-          'price': '1000 MRU',
-          'image':
-              'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop',
-        },
-      ],
-      'addons': [
-        {
-          'title': 'Engine Wash',
-          'description':
-              'Safe hydraulic degreasing and rinse for bay components without water damage.',
-          'price': '+50 MRU',
-          'image':
-              'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=200&h=200&fit=crop',
-        },
-      ],
-      'total': '1050 MRU',
-      'redeemed': '-50 MRU',
-      'tax': '10 MRU',
-      'totalPaid': '1010 MRU',
-    },
-    {
-      'id': '22789004',
-      'provider': 'CleanPro Laundry',
-      'category': 'Laundry',
-      'categoryColor': 0xFF7B5CFF,
-      'service': 'Wash & Fold',
-      'status': 'Confirmed',
-      'datetime': 'Today, 15 Aug 2026, 2:00–4:00 PM',
-      'slot': '15 Aug 2026, 2:00 PM – 4:00 PM',
-      'location': 'Near Marhaba Supermarket,Nouakchott',
-      'locationTitle': 'Sahara View Home',
-      'price': '450 MRU',
-      'estimateLabel': 'Estimated 3 kg',
-      'duration': '24 hour',
-      'image': 'lib/assets/images/wash&fold_detail.png',
-    },
-    {
-      'id': '22789005',
-      'provider': 'CleanPro Laundry',
-      'category': 'Laundry',
-      'categoryColor': 0xFF7B5CFF,
-      'service': 'Wash & Fold',
-      'status': 'Confirmed',
-      'datetime': 'Today, 15 Aug 2026, 2:00–4:00 PM',
-      'slot': '15 Aug 2026, 2:00 PM – 4:00 PM',
-      'location': 'Near Marhaba Supermarket,Nouakchott',
-      'locationTitle': 'Sahara View Home',
-      'price': '545 MRU',
-      'estimateLabel': 'Estimated 3.0 kg',
-      'estimatedPrice': '460 MRU',
-      'actualWeight': '3.6 kg',
-      'balanceDue': '85 MRU',
-      'hasBalanceDue': true,
-      'image': 'lib/assets/images/wash&fold_detail.png',
-    },
-    {
-      'id': '22789006',
-      'provider': 'QuickFix Plumbing',
-      'category': 'Plumbing',
-      'categoryColor': 0xFF00A896,
-      'service': 'Pipe Repair & Leak Fix',
-      'status': 'Confirmed',
-      'datetime': 'Tomorrow, 16 Aug 2026, 10:00–12:00 PM',
-      'slot': '16 Aug 2026, 10:00 AM – 12:00 PM',
-      'location': 'Near Marhaba Supermarket,Nouakchott',
-      'locationTitle': 'Sahara View Home',
-      'price': '600 MRU',
-    },
-    {
-      'id': '22789007',
-      'provider': 'CraftWood Carpentry',
-      'category': 'Carpentry',
-      'categoryColor': 0xFFD97706,
-      'service': 'Custom Cabinet Repair',
-      'status': 'Confirmed',
-      'datetime': 'Tomorrow, 16 Aug 2026, 2:00–4:00 PM',
-      'slot': '16 Aug 2026, 2:00 PM – 4:00 PM',
-      'location': 'Near Marhaba Supermarket,Nouakchott',
-      'locationTitle': 'Sahara View Home',
-      'price': '850 MRU',
-    },
-    {
-      'id': '22789008',
-      'provider': 'VoltMaster Electrical',
-      'category': 'Electrical',
-      'categoryColor': 0xFFEAB308,
-      'service': 'Circuit Inspection & Wiring',
-      'status': 'Confirmed',
-      'datetime': '17 Aug 2026, 9:00–11:00 AM',
-      'slot': '17 Aug 2026, 9:00 AM – 11:00 AM',
-      'location': 'Near Marhaba Supermarket,Nouakchott',
-      'locationTitle': 'Sahara View Home',
-      'price': '500 MRU',
-    },
-  ];
+  /// Shown text for a category value (the values stay English for matching).
+  static String _categoryLabel(String category) => switch (category) {
+    'All' => 'orders_filter_all'.tr,
+    'Home Cleaning' => 'orders_cat_home_cleaning'.tr,
+    'Car Wash' => 'orders_cat_car_wash'.tr,
+    'Laundry' => 'orders_cat_laundry'.tr,
+    'Gas' => 'orders_cat_gas'.tr,
+    'Service' => 'orders_cat_service'.tr,
+    _ => category,
+  };
 
-  List<Map<String, dynamic>> get _allBookings => [
-        ...CarWashBookingsStore.instance.bookings,
-        ..._bookings,
-      ];
+  List<Map<String, dynamic>> _bookings = const [];
+  bool _loading = true;
 
-  List<Map<String, dynamic>> get _filtered {
-    if (_selectedFilter == 0) return _allBookings;
-    final key = _filters[_selectedFilter];
-    return _allBookings.where((b) => b['category'] == key).toList();
+  @override
+  void initState() {
+    super.initState();
+    _load();
   }
 
-  void _payBalance(Map<String, dynamic> booking) {
-    final balance = booking['balanceDue'] ?? '85 MRU';
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE0E0E0),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Pay Balance Due',
-              style: GoogleFonts.outfit(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF2C2520),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Amount due after final weighing: $balance',
-              style: GoogleFonts.outfit(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF7A6A60),
-              ),
-            ),
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: () {
-                Get.back();
-                setState(() {
-                  booking['hasBalanceDue'] = false;
-                  booking['price'] = booking['estimatedPrice'] != null
-                      ? '${booking['price']} (Paid)'
-                      : booking['price'];
-                });
-                Get.snackbar(
-                  'Payment Successful',
-                  'Balance of $balance paid successfully!',
-                  backgroundColor: const Color(0xFF2E7D32),
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.BOTTOM,
-                  margin: const EdgeInsets.all(16),
-                  borderRadius: 12,
-                );
-              },
-              child: Container(
-                width: double.infinity,
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Text(
-                  'Confirm & Pay $balance',
-                  style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-        ),
-      ),
-    );
+  Future<void> _load() async {
+    if (!Get.isRegistered<ServiceRepository>()) {
+      setState(() => _loading = false);
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      final repository = Get.find<ServiceRepository>();
+      final language = apiLanguageCode();
+      final first = await repository.fetchBookings(language: language);
+      final rows = [...first.bookings];
+      var page = first.currentPage;
+      var lastPage = first.lastPage;
+      while (page < lastPage && page < 5) {
+        page += 1;
+        final next = await repository.fetchBookings(
+          language: language,
+          page: page,
+        );
+        rows.addAll(next.bookings);
+        lastPage = next.lastPage;
+      }
+      if (!mounted) return;
+      setState(() => _bookings = rows.map(_fromApi).toList());
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  static const _categoryByVertical = {
+    ServiceRepository.homeCleaning: ('Home Cleaning', 0xFFFF5E00),
+    ServiceRepository.carWash: ('Car Wash', 0xFF2B7DE9),
+    ServiceRepository.laundry: ('Laundry', 0xFF7B4FD6),
+    ServiceRepository.gas: ('Gas', 0xFF00A86B),
+  };
+
+  /// A service/bookings row shaped for the booking cards and detail screens.
+  Map<String, dynamic> _fromApi(Map<String, dynamic> row) {
+    String text(dynamic value) => '${value ?? ''}'.trim();
+    final category =
+        _categoryByVertical[text(row['vertical'])] ?? ('Service', 0xFFFF5E00);
+    final status = int.tryParse(text(row['status'])) ?? 0;
+    final code = text(row['order_code']);
+    final total = double.tryParse(text(row['total'])) ?? 0;
+    final location = text(row['location']).isEmpty
+        ? text(row['address'])
+        : text(row['location']);
+    final slot = text(row['slot']).isEmpty
+        ? text(row['scheduled_for'])
+        : text(row['slot']);
+    return {
+      'id': code.isEmpty ? text(row['id']) : code,
+      'apiOrderId': int.tryParse(text(row['id'])),
+      'provider': text(row['provider_name']).isEmpty
+          ? 'orders_service_provider'.tr
+          : text(row['provider_name']),
+      'category': category.$1,
+      'categoryColor': category.$2,
+      'service': text(row['service_name_en']).isEmpty
+          ? category.$1
+          : text(row['service_name_en']),
+      // 9 is delivered/completed in the order status codes.
+      'status': status == 9 ? 'Completed' : text(row['status_label']),
+      'datetime': slot,
+      'slot': text(row['slot_window']).isEmpty
+          ? slot
+          : text(row['slot_window']),
+      'location': location,
+      'locationTitle': location,
+      'rooms': text(row['summary']),
+      'price': 'mru'.trParams({'amount': '${total.round()}'}),
+      'canCancel': row['can_cancel'] == true,
+      'notes': text(row['notes']),
+      'payment': text(row['payment_type_label']),
+    };
+  }
+
+  List<Map<String, dynamic>> get _filtered {
+    if (_selectedFilter == 0) return _bookings;
+    final key = _filters[_selectedFilter];
+    return _bookings.where((b) => b['category'] == key).toList();
+  }
+
+  void _reorder(Map<String, dynamic> booking) {
+    switch (booking['category']) {
+      case 'Car Wash':
+        Get.to(() => const CarWashScreen());
+      case 'Laundry':
+        Get.to(() => const LaundryServicesScreen());
+      case 'Gas':
+        Get.to(() => const GasScreen());
+      default:
+        Get.to(() => const HomeCleaningScreen());
+    }
   }
 
   Color _statusBg(String status) {
@@ -313,47 +201,54 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       ),
       child: HomeBackgroundBlend(
         child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 8),
-              _buildFilters(),
-              const SizedBox(height: 14),
-              Expanded(
-                child: list.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No bookings found',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF9A8E86),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 8),
+                _buildFilters(),
+                const SizedBox(height: 14),
+                Expanded(
+                  child: _loading && _bookings.isEmpty
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFFF5E00),
                           ),
+                        )
+                      : list.isEmpty
+                      ? Center(
+                          child: Text(
+                            'orders_no_bookings'.tr,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF9A8E86),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          physics: const BouncingScrollPhysics(),
+                          padding: EdgeInsets.fromLTRB(
+                            16,
+                            0,
+                            16,
+                            120 + bottomInset,
+                          ),
+                          itemCount: list.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            return _buildBookingCard(list[index]);
+                          },
                         ),
-                      )
-                    : ListView.separated(
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.fromLTRB(
-                          16,
-                          0,
-                          16,
-                          120 + bottomInset,
-                        ),
-                        itemCount: list.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          return _buildBookingCard(list[index]);
-                        },
-                      ),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -365,7 +260,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: widget.showBottomNav
                 ? AppBackButton(
                     onTap: () {
@@ -380,10 +275,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   )
                 : const SizedBox(width: 38),
           ),
-          Text(
-            'My Bookings',
-            style: AppTextStyles.heading(),
-          ),
+          Text('orders_my_bookings'.tr, style: AppTextStyles.heading()),
         ],
       ),
     );
@@ -414,7 +306,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 ),
               ),
               child: Text(
-                _filters[index],
+                _categoryLabel(_filters[index]),
                 style: GoogleFonts.outfit(
                   color: selected ? Colors.white : const Color(0xFF2C2520),
                   fontSize: 13,
@@ -471,7 +363,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  isCompleted ? 'Completed' : statusText.toUpperCase(),
+                  isCompleted
+                      ? 'orders_status_completed'.tr
+                      : statusText.toUpperCase(),
                   style: GoogleFonts.outfit(
                     color: _statusFg(statusText),
                     fontSize: 11,
@@ -495,7 +389,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               ),
               const SizedBox(width: 5),
               Text(
-                category,
+                _categoryLabel(category),
                 style: GoogleFonts.outfit(
                   color: categoryColor,
                   fontSize: 12,
@@ -518,7 +412,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () => _reorder(booking),
                     child: Container(
                       height: 44,
                       alignment: Alignment.center,
@@ -527,7 +421,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         borderRadius: BorderRadius.circular(22),
                       ),
                       child: Text(
-                        'Reorder',
+                        'orders_reorder'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13.5,
@@ -540,7 +434,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () => Get.to(
+                      () => RateOrderScreen(
+                        orderId: booking['apiOrderId'] as int?,
+                      ),
+                    ),
                     child: Container(
                       height: 44,
                       alignment: Alignment.center,
@@ -549,7 +447,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         borderRadius: BorderRadius.circular(22),
                       ),
                       child: Text(
-                        'Rate',
+                        'orders_rate'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13.5,
@@ -649,7 +547,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'BALANCE DUE',
+                            'orders_balance_due_badge'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 9.5,
@@ -665,7 +563,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Estimated Weight: 3.0 kg',
+                          'orders_estimated_weight'.trParams({'weight': '3.0'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 12,
@@ -694,7 +592,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                             children: [
-                              const TextSpan(text: 'Actual Scale Weight: '),
+                              TextSpan(text: 'orders_actual_weight'.tr),
                               TextSpan(
                                 text: '3.6 kg',
                                 style: GoogleFonts.outfit(
@@ -735,7 +633,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Balance Due',
+                          'orders_balance_due'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 13,
@@ -744,7 +642,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Amount due after final weighing',
+                          'orders_balance_due_hint'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 10.5,
@@ -766,7 +664,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               ),
               const SizedBox(height: 14),
               GestureDetector(
-                onTap: () => _payBalance(booking),
+                // Balance payments aren't in the service API yet.
+                onTap: () => showAppToast('orders_balance_unavailable'.tr),
                 child: Container(
                   width: double.infinity,
                   height: 46,
@@ -785,7 +684,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     ],
                   ),
                   child: Text(
-                    'Pay ${booking['balanceDue'] ?? '85 MRU'}',
+                    'orders_pay_amount'.trParams({
+                      'amount': '${booking['balanceDue'] ?? '85 MRU'}',
+                    }),
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,
@@ -795,30 +696,33 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 ),
               ),
             ] else ...[
-              GestureDetector(
-                onTap: () => showCancelBookingBottomSheet(
-                  context,
-                  bookingId: booking['id'] as String?,
-                ),
-                child: Container(
-                  width: double.infinity,
-                  height: 44,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3EBE3),
-                    borderRadius: BorderRadius.circular(22),
+              if (booking['canCancel'] == true)
+                GestureDetector(
+                  onTap: () => showCancelBookingBottomSheet(
+                    context,
+                    bookingId: booking['id'] as String?,
+                    apiOrderId: booking['apiOrderId'] as int?,
+                    onCancelled: _load,
                   ),
-                  child: Text(
-                    'Cancel',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
+                  child: Container(
+                    width: double.infinity,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3EBE3),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Text(
+                      'cancel'.tr,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 14),
+              if (booking['canCancel'] == true) const SizedBox(height: 14),
               Center(
                 child: GestureDetector(
                   onTap: () {
@@ -841,7 +745,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'View Booking Details',
+                        'orders_view_booking_details'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 12.5,

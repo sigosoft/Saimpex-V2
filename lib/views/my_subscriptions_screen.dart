@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../core/network/api_exception.dart';
+import '../models/water_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import 'home_screen.dart';
+import 'water/water_subscription_screen.dart';
 
 class MySubscriptionsScreen extends StatefulWidget {
   const MySubscriptionsScreen({super.key});
@@ -14,73 +19,159 @@ class MySubscriptionsScreen extends StatefulWidget {
 
 class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
   int _selectedTab = 0; // 0 = Active, 1 = Inactive
+  List<Map<String, dynamic>> _subscriptions = const [];
+  bool _loading = true;
+  int? _busyId;
 
-  final List<Map<String, dynamic>> _activeSubscriptions = [
-    {
-      'title': 'PureLife Water Co.',
-      'subtitle': 'Drinking Water',
-      'size': '19L',
-      'qty': 'x1',
-      'rating': '4.6',
-      'status': 'Active',
-      'leftLabel': 'Next Delivery',
-      'leftValue': 'Tomorrow',
-      'rightLabel': 'Type',
-      'rightValue': 'Daily (8:00 - 10:00 AM)',
-      'image': 'lib/assets/images/19L water.png',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
 
-  final List<Map<String, dynamic>> _inactiveSubscriptions = [
-    {
-      'title': 'PureLife Water Co.',
-      'subtitle': 'Drinking Water',
-      'size': '19L',
-      'qty': 'x1',
-      'rating': '4.6',
-      'status': 'Cancelled',
-      'leftLabel': 'Last Delivery',
-      'leftValue': '31-Jun-2026',
-      'rightLabel': 'Cancelled On',
-      'rightValue': '01-May-2026',
-      'action': 'Subscribe Again',
-      'image': 'lib/assets/images/19L water.png',
-    },
-    {
-      'title': 'PureLife Water Co.',
-      'subtitle': 'Drinking Water',
-      'size': '19L',
-      'qty': 'x1',
-      'rating': '4.6',
-      'status': 'Expired',
-      'leftLabel': 'Started On',
-      'leftValue': '01-Jun-2026',
-      'rightLabel': 'Ended On',
-      'rightValue': '31-Dec-2026',
-      'action': 'Renew Plan',
-      'image': 'lib/assets/images/19L water.png',
-    },
-    {
-      'title': 'PureLife Water Co.',
-      'subtitle': 'Drinking Water',
-      'size': '19L',
-      'qty': 'x1',
-      'rating': '4.6',
-      'status': 'Paused',
-      'leftLabel': 'Next Delivery',
-      'leftValue': '01-Jun-2026',
-      'rightLabel': 'Paused On',
-      'rightValue': '31-May-2026',
-      'action': 'Resume Subscription',
-      'actionIcon': Icons.play_arrow_rounded,
-      'image': 'lib/assets/images/19L water.png',
-    },
-  ];
+  Future<void> _load() async {
+    if (!Get.isRegistered<WaterRepository>()) {
+      setState(() => _loading = false);
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      final list = await Get.find<WaterRepository>().fetchSubscriptions(
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() => _subscriptions = list.map(_cardData).toList());
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  /// Adds the labels each card shows for its subscription state. Labels are
+  /// translation keys, translated when the card is drawn.
+  Map<String, dynamic> _cardData(Map<String, dynamic> sub) {
+    final state = '${sub['state']}';
+    final card = Map<String, dynamic>.from(sub);
+    switch (state) {
+      case 'paused':
+        card.addAll({
+          'leftLabel': 'core_subscriptions_paused_until',
+          'leftValue': _orDash(sub['pauseUntil']),
+          'rightLabel': 'core_subscriptions_type',
+          'rightValue': _orDash(sub['frequency']),
+          'action': 'core_subscriptions_resume',
+          'actionIcon': Icons.play_arrow_rounded,
+        });
+      case 'cancelled':
+        card.addAll({
+          'leftLabel': 'core_subscriptions_started_on',
+          'leftValue': _orDash(sub['startDate']),
+          'rightLabel': 'core_subscriptions_ends_on',
+          'rightValue': _orDash(sub['endDate']),
+          'action': 'core_subscriptions_subscribe_again',
+        });
+      default:
+        card.addAll({
+          'leftLabel': 'core_subscriptions_next_delivery',
+          'leftValue': _orDash(sub['nextDelivery']),
+          'rightLabel': 'core_subscriptions_type',
+          'rightValue': _orDash(sub['frequency']),
+        });
+    }
+    return card;
+  }
+
+  String _orDash(dynamic value) {
+    final text = '${value ?? ''}'.trim();
+    return text.isEmpty ? '—' : text;
+  }
+
+  bool _isActiveState(String state) => state == 'active' || state == 'new';
+
+  Future<void> _changeSubscription(
+    Map<String, dynamic> item,
+    Future<String> Function(WaterRepository repo, int id) action,
+  ) async {
+    final id = item['id'];
+    if (id is! int || id < 1 || _busyId != null) return;
+    setState(() => _busyId = id);
+    try {
+      final message = await action(Get.find<WaterRepository>(), id);
+      if (!mounted) return;
+      if (message.isNotEmpty) {
+        showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      }
+      await _load();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _busyId = null);
+    }
+  }
+
+  Future<void> _confirmCancel(Map<String, dynamic> item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('core_subscriptions_cancel_title'.tr),
+        content: Text('core_subscriptions_cancel_body'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text('core_subscriptions_no'.tr),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text('core_subscriptions_yes_cancel'.tr),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await _changeSubscription(
+      item,
+      (repo, id) => repo.cancelSubscription(
+        subscriptionId: id,
+        language: apiLanguageCode(),
+      ),
+    );
+  }
+
+  void _onInactiveAction(Map<String, dynamic> item) {
+    if (item['state'] == 'paused') {
+      _changeSubscription(
+        item,
+        (repo, id) => repo.resumeSubscription(
+          subscriptionId: id,
+          language: apiLanguageCode(),
+        ),
+      );
+      return;
+    }
+    Get.to(() => const WaterSubscriptionScreen());
+  }
+
+  Widget _subscriptionImage(Map<String, dynamic> item) {
+    final url = '${item['imageUrl'] ?? ''}';
+    const fallback = 'lib/assets/images/19L water.png';
+    if (url.isEmpty) return Image.asset(fallback, fit: BoxFit.contain);
+    return Image.network(
+      url,
+      fit: BoxFit.contain,
+      errorBuilder: (_, _, _) => Image.asset(fallback, fit: BoxFit.contain),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final list =
-        _selectedTab == 0 ? _activeSubscriptions : _inactiveSubscriptions;
+    final list = _subscriptions
+        .where(
+          (sub) => _isActiveState('${sub['state']}') == (_selectedTab == 0),
+        )
+        .toList();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -101,12 +192,18 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               child: _buildTabs(),
             ),
             Expanded(
-              child: list.isEmpty
+              child: _loading && _subscriptions.isEmpty
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF5E00),
+                      ),
+                    )
+                  : list.isEmpty
                   ? Center(
                       child: Text(
                         _selectedTab == 0
-                            ? 'No active subscriptions'
-                            : 'No inactive subscriptions',
+                            ? 'core_subscriptions_no_active'.tr
+                            : 'core_subscriptions_no_inactive'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
@@ -150,7 +247,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
           ),
           Expanded(
             child: Text(
-              'My Subscriptions',
+              'core_subscriptions_title'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -183,16 +280,20 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
         children: [
           Expanded(
             child: _buildTabItem(
-              label: 'Active Subscriptions',
+              label: 'core_subscriptions_tab_active'.tr,
               index: 0,
-              badgeCount: _activeSubscriptions.length,
+              badgeCount: _subscriptions
+                  .where((sub) => _isActiveState('${sub['state']}'))
+                  .length,
             ),
           ),
           Expanded(
             child: _buildTabItem(
-              label: 'Inactive Subscriptions',
+              label: 'core_subscriptions_tab_inactive'.tr,
               index: 1,
-              badgeCount: _inactiveSubscriptions.length,
+              badgeCount: _subscriptions
+                  .where((sub) => !_isActiveState('${sub['state']}'))
+                  .length,
             ),
           ),
         ],
@@ -230,9 +331,9 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             ),
           ),
           if (selected && badgeCount > 0)
-            Positioned(
+            PositionedDirectional(
               top: -5,
-              right: 6,
+              end: 6,
               child: Container(
                 width: 18,
                 height: 18,
@@ -296,12 +397,15 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
 
   Widget _buildSubscriptionCard(Map<String, dynamic> item) {
     final status = (item['status'] ?? '').toString();
-    final isExpired = status == 'Expired';
-    final isActive = status == 'Active';
-    final primaryText =
-        isExpired ? const Color(0xFF6B6662) : const Color(0xFF1A1A1A);
-    final secondaryText =
-        isExpired ? const Color(0xFF8A847E) : const Color(0xFF8C7E75);
+    final isExpired = item['state'] == 'cancelled';
+    final isActive = _isActiveState('${item['state']}');
+    final busy = _busyId != null && _busyId == item['id'];
+    final primaryText = isExpired
+        ? const Color(0xFF6B6662)
+        : const Color(0xFF1A1A1A);
+    final secondaryText = isExpired
+        ? const Color(0xFF8A847E)
+        : const Color(0xFF8C7E75);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -344,7 +448,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             children: [
               Expanded(
                 child: _buildInfoBox(
-                  label: (item['leftLabel'] ?? '').toString(),
+                  label: (item['leftLabel'] ?? '').toString().tr,
                   value: (item['leftValue'] ?? '').toString(),
                   muted: isExpired,
                 ),
@@ -352,7 +456,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildInfoBox(
-                  label: (item['rightLabel'] ?? '').toString(),
+                  label: (item['rightLabel'] ?? '').toString().tr,
                   value: (item['rightValue'] ?? '').toString(),
                   muted: isExpired,
                 ),
@@ -365,16 +469,26 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               children: [
                 Expanded(
                   child: _buildCancelButton(
-                    label: 'Cancel Subscription',
-                    onTap: () {},
+                    label: 'core_subscriptions_cancel'.tr,
+                    onTap: busy ? () {} : () => _confirmCancel(item),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildGradientButton(
                     icon: Icons.pause_rounded,
-                    label: 'Pause Subscription',
-                    onTap: () {},
+                    label: busy
+                        ? 'core_subscriptions_please_wait'.tr
+                        : 'core_subscriptions_pause'.tr,
+                    onTap: busy
+                        ? () {}
+                        : () => _changeSubscription(
+                            item,
+                            (repo, id) => repo.pauseSubscription(
+                              subscriptionId: id,
+                              language: apiLanguageCode(),
+                            ),
+                          ),
                     pill: true,
                   ),
                 ),
@@ -383,8 +497,12 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
           else
             _buildGradientButton(
               icon: item['actionIcon'] as IconData?,
-              label: (item['action'] ?? 'Subscribe Again').toString(),
-              onTap: () {},
+              label: busy
+                  ? 'core_subscriptions_please_wait'.tr
+                  : (item['action'] ?? 'core_subscriptions_subscribe_again')
+                        .toString()
+                        .tr,
+              onTap: busy ? () {} : () => _onInactiveAction(item),
               fullWidth: true,
             ),
         ],
@@ -404,10 +522,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.all(6),
-          child: Image.asset(
-            (item['image'] ?? 'lib/assets/images/19L water.png').toString(),
-            fit: BoxFit.contain,
-          ),
+          child: _subscriptionImage(item),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -473,7 +588,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            _buildStatusBadge('Active'),
+            _buildStatusBadge('${item['status'] ?? 'Active'}'),
           ],
         ),
       ],
@@ -500,10 +615,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             borderRadius: BorderRadius.circular(14),
           ),
           padding: const EdgeInsets.all(6),
-          child: Image.asset(
-            (item['image'] ?? 'lib/assets/images/19L water.png').toString(),
-            fit: BoxFit.contain,
-          ),
+          child: _subscriptionImage(item),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -551,17 +663,11 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               const SizedBox(height: 4),
               Text(
                 (item['subtitle'] ?? '').toString(),
-                style: GoogleFonts.outfit(
-                  color: secondaryText,
-                  fontSize: 12,
-                ),
+                style: GoogleFonts.outfit(color: secondaryText, fontSize: 12),
               ),
               Text(
                 (item['size'] ?? '').toString(),
-                style: GoogleFonts.outfit(
-                  color: secondaryText,
-                  fontSize: 12,
-                ),
+                style: GoogleFonts.outfit(color: secondaryText, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Row(

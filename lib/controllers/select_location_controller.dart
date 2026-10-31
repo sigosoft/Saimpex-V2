@@ -20,6 +20,11 @@ import '../views/main_shell_screen.dart';
 class SelectLocationController extends GetxController {
   bool isInitialSetup = false;
 
+  /// Opened from Saved Addresses: Continue also saves the spot to the
+  /// address book under [selectedAddressType], editing [editAddressId].
+  bool saveToAddressBook = false;
+  int? editAddressId;
+
   // Track selected address type: 'Home', 'Office', or 'Other'
   final selectedAddressType = 'Home'.obs;
 
@@ -40,6 +45,20 @@ class SelectLocationController extends GetxController {
       'Marhaba Supermarket, Nouakchott, Mauritania';
   static double selectedLatitude = defaultCenter.latitude;
   static double selectedLongitude = defaultCenter.longitude;
+
+  /// Status texts kept in [addressTitle]/[addressSubtitle] (the placeholder
+  /// checks below compare them), with the key each is shown with.
+  static const _placeholderKeys = {
+    'Loading current location...': 'core_location_loading_current',
+    'Please approve location access if prompted.':
+        'core_location_approve_access',
+    'Fetching address...': 'core_location_fetching_address',
+    'Fetching GPS coordinates...': 'core_location_fetching_gps',
+    'Selected Location': 'core_location_selected_location',
+  };
+
+  /// [value] as shown on screen: status texts in the app language.
+  static String display(String value) => _placeholderKeys[value]?.tr ?? value;
 
   static const _titleKey = 'delivery_title';
   static const _subtitleKey = 'delivery_subtitle';
@@ -98,12 +117,23 @@ class SelectLocationController extends GetxController {
 
     isUpdatingLocation.value = true;
     try {
-      final message = await Get.find<ProfileRepository>().updateLocation(
+      final profile = Get.find<ProfileRepository>();
+      var message = await profile.updateLocation(
         latitude: selectedLatitude,
         longitude: selectedLongitude,
         address: selectedTitle,
         language: apiLanguageCode(),
       );
+      if (saveToAddressBook) {
+        message = await profile.saveAddress(
+          addressId: editAddressId,
+          label: selectedAddressType.value,
+          address: selectedTitle,
+          latitude: selectedLatitude,
+          longitude: selectedLongitude,
+          language: apiLanguageCode(),
+        );
+      }
       if (_isDisposed) return;
       showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
       if (isInitialSetup || Get.key.currentState?.canPop() != true) {
@@ -263,7 +293,7 @@ class SelectLocationController extends GetxController {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         showAppToast(
-          'Location services are disabled. Please enable GPS.',
+          'core_location_services_disabled'.tr,
           backgroundColor: Colors.redAccent,
         );
         _useDefaultFallback();
@@ -275,7 +305,7 @@ class SelectLocationController extends GetxController {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           showAppToast(
-            'Location permission denied.',
+            'core_location_permission_denied'.tr,
             backgroundColor: Colors.redAccent,
           );
           _useDefaultFallback();
@@ -285,7 +315,7 @@ class SelectLocationController extends GetxController {
 
       if (permission == LocationPermission.deniedForever) {
         showAppToast(
-          'Location permissions are permanently denied. Please enable them in settings.',
+          'core_location_permission_forever'.tr,
           backgroundColor: Colors.redAccent,
         );
         _useDefaultFallback();
@@ -308,7 +338,7 @@ class SelectLocationController extends GetxController {
       unawaited(_animateMapTo(latLng, 16));
     } catch (e) {
       showAppToast(
-        'Error fetching current location: $e',
+        'core_location_fetch_error'.trParams({'error': '$e'}),
         backgroundColor: Colors.redAccent,
       );
       _useDefaultFallback();
@@ -466,7 +496,7 @@ class SelectLocationController extends GetxController {
         final coordinates = await _placeCoordinates(placeId);
         if (_pickedLabel != label) return;
         if (coordinates == null) {
-          showAppToast('Could not select this address');
+          showAppToast('core_location_select_failed'.tr);
           return;
         }
         latitude = coordinates.$1;
@@ -517,6 +547,26 @@ class SelectLocationController extends GetxController {
       selectedLatitude = camera.latitude;
       selectedLongitude = camera.longitude;
     }
+    unawaited(_saveDeliveryAddress());
+  }
+
+  /// The customer's delivery location, for screens that only borrow the map
+  /// picker (courier pickup and drop-off) and must put it back afterwards.
+  static ({String title, String subtitle, double latitude, double longitude})
+  snapshot() => (
+    title: selectedTitle,
+    subtitle: selectedSubtitle,
+    latitude: selectedLatitude,
+    longitude: selectedLongitude,
+  );
+
+  static void restore(
+    ({String title, String subtitle, double latitude, double longitude}) saved,
+  ) {
+    selectedTitle = saved.title;
+    selectedSubtitle = saved.subtitle;
+    selectedLatitude = saved.latitude;
+    selectedLongitude = saved.longitude;
     unawaited(_saveDeliveryAddress());
   }
 

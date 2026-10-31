@@ -16,6 +16,27 @@ class ServicesScreen extends StatelessWidget {
 
   const ServicesScreen({super.key, this.showBottomNav = true});
 
+  /// Display keys for the card titles. The titles themselves stay English
+  /// because `_verticalOf` matches on them.
+  static const _titleKeys = {
+    'Home\nCleaning': 'svc_cat_home_cleaning',
+    'Car\nWash': 'svc_cat_car_wash',
+    'Plumbing': 'svc_cat_plumbing',
+    'Laundry': 'svc_cat_laundry',
+    'Carpentry': 'svc_cat_carpentry',
+    'Electrical': 'svc_cat_electrical',
+    'Home\nMaintenance': 'svc_cat_home_maintenance',
+    'Cleaning\nServices': 'svc_cat_cleaning_services',
+    'Vehicle\nServices': 'svc_cat_vehicle_services',
+    'Pet\nServices': 'svc_cat_pet_services',
+    'CCTV\nInstallation': 'svc_cat_cctv',
+    'Computer\nRepair': 'svc_cat_computer_repair',
+    'Plumbing\nEmergency': 'svc_cat_plumbing_emergency',
+    'Electrical\nEmergency': 'svc_cat_electrical_emergency',
+  };
+
+  static String _label(String title) => (_titleKeys[title] ?? title).tr;
+
   static const _tallCards = [
     _PopularCardData(
       title: 'Home\nCleaning',
@@ -107,28 +128,15 @@ class ServicesScreen extends StatelessWidget {
       'Vehicle\nServices',
       'lib/assets/images/vehicle_services.png',
     ),
-    _CategoryData(
-      'Pet\nServices',
-      'lib/assets/images/pet_services.png',
-    ),
+    _CategoryData('Pet\nServices', 'lib/assets/images/pet_services.png'),
     _CategoryData(
       'CCTV\nInstallation',
       'lib/assets/images/cctv.png',
       imageSize: 42,
     ),
-    _CategoryData(
-      'Computer\nRepair',
-      'lib/assets/images/computer.png',
-    ),
-    _CategoryData(
-      'Car\nWash',
-      'lib/assets/images/car_wash (2).png',
-    ),
-    _CategoryData(
-      'Plumbing',
-      'lib/assets/images/plumbng.png',
-      imageSize: 42,
-    ),
+    _CategoryData('Computer\nRepair', 'lib/assets/images/computer.png'),
+    _CategoryData('Car\nWash', 'lib/assets/images/car_wash (2).png'),
+    _CategoryData('Plumbing', 'lib/assets/images/plumbng.png', imageSize: 42),
   ];
 
   static const _emergencyServices = [
@@ -177,11 +185,11 @@ class ServicesScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         _buildSearchBar(),
                         const SizedBox(height: 22),
-                        _sectionTitle('Popular Services'),
+                        _sectionTitle('svc_popular_services'.tr),
                         const SizedBox(height: 12),
                         _buildPopularGrid(),
                         const SizedBox(height: 16),
-                        _sectionTitle('All Service Categories'),
+                        _sectionTitle('svc_all_categories'.tr),
                         const SizedBox(height: 14),
                         _buildCategoryGrid(context),
                         const SizedBox(height: 24),
@@ -207,18 +215,17 @@ class ServicesScreen extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: showBottomNav
-                ? AppBackButton(onTap: () {
+                ? AppBackButton(
+                    onTap: () {
                       final controller = Get.find<HomeController>();
                       controller.selectNavigation(HomeController.navHome);
-                    })
+                    },
+                  )
                 : const SizedBox(width: 38),
           ),
-          Text(
-            'Services',
-            style: AppTextStyles.heading(),
-          ),
+          Text('svc_services_title'.tr, style: AppTextStyles.heading()),
         ],
       ),
     );
@@ -238,14 +245,10 @@ class ServicesScreen extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 8, 0),
       child: Row(
         children: [
-          const Icon(
-            Icons.search_rounded,
-            color: Color(0xFF7A6A60),
-            size: 22,
-          ),
+          const Icon(Icons.search_rounded, color: Color(0xFF7A6A60), size: 22),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
@@ -255,7 +258,7 @@ class ServicesScreen extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
-                hintText: 'Search for services...',
+                hintText: 'svc_search_services_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFF8A8078),
                   fontSize: 14,
@@ -288,63 +291,91 @@ class ServicesScreen extends StatelessWidget {
   }
 
   Widget _sectionTitle(String title) {
-    return Text(
-      title,
-      style: AppTextStyles.title(),
-    );
+    return Text(title, style: AppTextStyles.title());
   }
+
+  /// The vertical behind a card (home_cleaning, car_wash, laundry), or null
+  /// for tiles that aren't a service vertical yet.
+  static String? _verticalOf(String title) {
+    final key = title.replaceAll('\n', ' ').toLowerCase();
+    if (key.contains('cleaning')) return 'home_cleaning';
+    if (key.contains('car wash')) return 'car_wash';
+    if (key.contains('laundry')) return 'laundry';
+    return null;
+  }
+
+  /// False for a service the admin switched off (is_enabled false).
+  static bool _shown(String title) {
+    final slug = _verticalOf(title);
+    if (slug == null || !Get.isRegistered<HomeController>()) return true;
+    return Get.find<HomeController>().isVerticalEnabled(slug);
+  }
+
+  static VoidCallback? _open(String title) => switch (_verticalOf(title)) {
+    'home_cleaning' => () => Get.to(() => const HomeCleaningScreen()),
+    'car_wash' => () => Get.to(() => const CarWashScreen()),
+    'laundry' => () => Get.to(() => const LaundryServicesScreen()),
+    _ => null,
+  };
 
   Widget _buildPopularGrid() {
     const tallHeight = 168.0;
     const compactHeight = 79.0;
     const rowGap = 10.0;
+    // Switched-off services are left out and the grid closes up.
+    final tall = _tallCards.where((card) => _shown(card.title)).toList();
+    final compact = _compactCards.where((card) => _shown(card.title)).toList();
+    final rowCount = tall.length > (compact.length + 1) ~/ 2
+        ? tall.length
+        : (compact.length + 1) ~/ 2;
+
+    Widget compactCard(_PopularCardData data) => _PopularServiceCard(
+      data: data,
+      height: compactHeight,
+      borderRadius: 26,
+      titleFontSize: 14,
+      onTap: _open(data.title),
+    );
 
     return Column(
       children: [
-        for (var i = 0; i < _tallCards.length; i++) ...[
+        for (var i = 0; i < rowCount; i++) ...[
           if (i > 0) const SizedBox(height: rowGap),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _PopularServiceCard(
-                  data: _tallCards[i],
-                  height: tallHeight,
-                  borderRadius: 32,
-                  titleFontSize: 16,
-                  onTap: _tallCards[i].title.contains('Home')
-                      ? () => Get.to(() => const HomeCleaningScreen())
-                      : _tallCards[i].title.contains('Car\nWash')
-                          ? () => Get.to(() => const CarWashScreen())
-                          : null,
+              if (i < tall.length) ...[
+                Expanded(
+                  child: _PopularServiceCard(
+                    data: tall[i],
+                    height: tallHeight,
+                    borderRadius: 32,
+                    titleFontSize: 16,
+                    onTap: _open(tall[i].title),
+                  ),
                 ),
-              ),
-              const SizedBox(width: rowGap),
-              Expanded(
-                child: Column(
-                  children: [
-                    _PopularServiceCard(
-                      data: _compactCards[i * 2],
-                      height: compactHeight,
-                      borderRadius: 26,
-                      titleFontSize: 14,
-                      onTap: _compactCards[i * 2].title == 'Laundry'
-                          ? () => Get.to(() => const LaundryServicesScreen())
-                          : null,
-                    ),
-                    const SizedBox(height: rowGap),
-                    _PopularServiceCard(
-                      data: _compactCards[i * 2 + 1],
-                      height: compactHeight,
-                      borderRadius: 26,
-                      titleFontSize: 14,
-                      onTap: _compactCards[i * 2 + 1].title == 'Laundry'
-                          ? () => Get.to(() => const LaundryServicesScreen())
-                          : null,
-                    ),
-                  ],
+                const SizedBox(width: rowGap),
+                Expanded(
+                  child: Column(
+                    children: [
+                      if (i * 2 < compact.length) compactCard(compact[i * 2]),
+                      if (i * 2 + 1 < compact.length) ...[
+                        const SizedBox(height: rowGap),
+                        compactCard(compact[i * 2 + 1]),
+                      ],
+                    ],
+                  ),
                 ),
-              ),
+              ] else ...[
+                // No tall card left for this row: the small cards share it.
+                if (i * 2 < compact.length)
+                  Expanded(child: compactCard(compact[i * 2])),
+                const SizedBox(width: rowGap),
+                if (i * 2 + 1 < compact.length)
+                  Expanded(child: compactCard(compact[i * 2 + 1]))
+                else
+                  const Spacer(),
+              ],
             ],
           ),
         ],
@@ -358,65 +389,56 @@ class ServicesScreen extends StatelessWidget {
     return Wrap(
       spacing: 10,
       runSpacing: 16,
-      children: _categories.map((item) {
-        final isCleaning = item.label.contains('Cleaning');
-        final isCarWash = item.label.contains('Car\nWash');
+      children: _categories.where((item) => _shown(item.label)).map((item) {
         return SizedBox(
           width: itemWidth,
           child: GestureDetector(
-            onTap: isCleaning
-                ? () => Get.to(() => const HomeCleaningScreen())
-                : isCarWash
-                    ? () => Get.to(() => const CarWashScreen())
-                    : null,
+            onTap: _open(item.label),
             behavior: HitTestBehavior.opaque,
             child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFFFFFFFF),
-                      Color(0xFFFFF3EB),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFFFFFFF), Color(0xFFFFF3EB)],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  alignment: Alignment.center,
+                  child: _CategoryImage(
+                    asset: item.image,
+                    size: item.imageSize,
+                    clipBottomFraction: item.clipBottomFraction,
+                    alignment: item.imageAlignment,
+                    scale: item.imageScale,
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: _CategoryImage(
-                  asset: item.image,
-                  size: item.imageSize,
-                  clipBottomFraction: item.clipBottomFraction,
-                  alignment: item.imageAlignment,
-                  scale: item.imageScale,
+                const SizedBox(height: 8),
+                Text(
+                  _label(item.label),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    height: 1.15,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                item.label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w600,
-                  height: 1.15,
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
         );
       }).toList(),
@@ -428,7 +450,7 @@ class ServicesScreen extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            'Emergency Services',
+            'svc_emergency_services'.tr,
             style: AppTextStyles.title(),
           ),
         ),
@@ -440,7 +462,7 @@ class ServicesScreen extends StatelessWidget {
             border: Border.all(color: const Color(0xFFFFDDCF)),
           ),
           child: Text(
-            '24/7 AVAILABLE',
+            'svc_available_24_7'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 9.5,
@@ -475,11 +497,7 @@ class ServicesScreen extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [
-                Color(0xFFFFD4C4),
-                Color(0xFFFFEDE6),
-                Color(0xFFFFFFFF),
-              ],
+              colors: [Color(0xFFFFD4C4), Color(0xFFFFEDE6), Color(0xFFFFFFFF)],
               stops: [0.0, 0.38, 0.72],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
@@ -496,12 +514,12 @@ class ServicesScreen extends StatelessWidget {
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 64, 12),
+                padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 64, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      data.title,
+                      ServicesScreen._label(data.title),
                       style: AppTextStyles.title().copyWith(
                         fontSize: 13,
                         height: 1.12,
@@ -517,7 +535,7 @@ class ServicesScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '15 min',
+                          'svc_minutes'.trParams({'count': '15'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 11,
@@ -544,8 +562,8 @@ class ServicesScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Positioned(
-                right: 6,
+              PositionedDirectional(
+                end: 6,
                 top: 0,
                 bottom: 0,
                 width: 58,
@@ -629,12 +647,12 @@ class _PopularServiceCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    Positioned(
+                    PositionedDirectional(
                       top: 16,
-                      left: 16,
-                      right: 56,
+                      start: 16,
+                      end: 56,
                       child: Text(
-                        data.title,
+                        ServicesScreen._label(data.title),
                         style: AppTextStyles.title().copyWith(
                           fontSize: titleFontSize,
                           height: 1.1,
@@ -706,21 +724,14 @@ class _ServiceImage extends StatelessWidget {
     }
 
     if (scale != 1) {
-      image = Transform.scale(
-        scale: scale,
-        alignment: alignment,
-        child: image,
-      );
+      image = Transform.scale(scale: scale, alignment: alignment, child: image);
     }
 
     return SizedBox(
       width: width,
       height: height * (clipBottomFraction > 0 ? 1 - clipBottomFraction : 1),
       child: clipBottomFraction > 0
-          ? Align(
-              alignment: Alignment.bottomCenter,
-              child: image,
-            )
+          ? Align(alignment: Alignment.bottomCenter, child: image)
           : image,
     );
   }
@@ -769,11 +780,10 @@ class _CategoryData {
   final Alignment imageAlignment;
   final double imageScale;
 
-  const _CategoryData(
-    this.label,
-    this.image, {
-    this.imageSize = 44,
-  }) : imageScale = 1, imageAlignment = Alignment.center, clipBottomFraction = 0;
+  const _CategoryData(this.label, this.image, {this.imageSize = 44})
+    : imageScale = 1,
+      imageAlignment = Alignment.center,
+      clipBottomFraction = 0;
 }
 
 class _CategoryImage extends StatelessWidget {
@@ -803,11 +813,7 @@ class _CategoryImage extends StatelessWidget {
     );
 
     if (scale != 1) {
-      image = Transform.scale(
-        scale: scale,
-        alignment: alignment,
-        child: image,
-      );
+      image = Transform.scale(scale: scale, alignment: alignment, child: image);
     }
 
     if (clipBottomFraction > 0) {

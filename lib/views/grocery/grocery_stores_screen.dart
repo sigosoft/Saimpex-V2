@@ -515,7 +515,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        'No grocery stores available',
+                                        'st_no_grocery_stores'.tr,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF7A6A60),
                                           fontSize: 13,
@@ -563,7 +563,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
         children: [
           AppBackButton(onTap: () => Get.back()),
           Text(
-            "Grocery",
+            'st_grocery'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 18,
@@ -653,7 +653,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                               ),
                         const SizedBox(height: 8),
                         Text(
-                          sub['label'] as String,
+                          isAll ? 'st_all'.tr : sub['label'] as String,
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           overflow: TextOverflow.visible,
@@ -729,7 +729,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                 onSubmitted: (_) => _loadStores(),
                 style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: 'What do you need today?',
+                  hintText: 'st_search_hint'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12.5,
@@ -776,7 +776,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
     return AppFilterChipsRow(
       children: [
         AppFilterChip(
-          label: 'Filter',
+          label: 'st_filter'.tr,
           leading: AppFilterChip.widgetLeading(
             Image.asset("lib/assets/images/Filter.png"),
           ),
@@ -806,7 +806,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Top Stores Near You',
+            'st_top_stores'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15,
@@ -834,7 +834,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Closed',
+                  'st_closed'.tr,
                   style: GoogleFonts.outfit(
                     color: Color(0xFFFFFCF8),
                     fontSize: 10,
@@ -855,7 +855,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Opens $opensAt',
+                      'st_opens_at'.trParams({'time': opensAt}),
                       style: GoogleFonts.outfit(
                         color: Color(0xFFFFFCF8),
                         fontSize: 8,
@@ -910,7 +910,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Temporarily not accepting',
+                      'st_temporarily_not_accepting'.tr,
                       style: GoogleFonts.outfit(
                         color: Color(0xFFFFFCF8),
                         fontSize: 8,
@@ -921,7 +921,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  'orders',
+                  'st_orders_lower'.tr,
                   style: GoogleFonts.outfit(
                     color: Color(0xFFFFFCF8),
                     fontSize: 8,

@@ -2,19 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/network/api_exception.dart';
+import '../models/service_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../views/booking_cancelled_success_screen.dart';
 
+/// [bookingId] is the booking code shown to the customer; [apiOrderId] is
+/// the numeric id service/cancel needs. The success screen only opens once
+/// the server confirms the cancellation.
 void showCancelBookingBottomSheet(
   BuildContext context, {
-  VoidCallback? onConfirm,
   String? bookingId,
+  int? apiOrderId,
+  VoidCallback? onCancelled,
 }) {
   int selectedReasonIndex = -1;
+  var cancelling = false;
   const cancelReasons = [
     'Changed my mind',
     'Found a better price',
     'Wait time too long',
     'Other',
+  ];
+  // The English reason is what the server receives; these keys are only for display.
+  const cancelReasonKeys = [
+    'core_cancel_reason_changed_mind',
+    'core_cancel_reason_better_price',
+    'core_cancel_reason_wait_too_long',
+    'core_cancel_reason_other',
   ];
 
   showModalBottomSheet(
@@ -50,9 +66,7 @@ void showCancelBookingBottomSheet(
               Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFFFDF9F0),
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(32),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -67,7 +81,7 @@ void showCancelBookingBottomSheet(
                         ),
                       ),
                       child: Text(
-                        'Cancel Booking',
+                        'core_cancel_booking_title'.tr,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5216),
@@ -87,9 +101,9 @@ void showCancelBookingBottomSheet(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Align(
-                            alignment: Alignment.centerLeft,
+                            alignment: AlignmentDirectional.centerStart,
                             child: Text(
-                              'Are you sure you want to cancel this booking?',
+                              'core_cancel_booking_confirm'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF1A1A1A),
                                 fontSize: 15,
@@ -99,9 +113,9 @@ void showCancelBookingBottomSheet(
                           ),
                           const SizedBox(height: 6),
                           Align(
-                            alignment: Alignment.centerLeft,
+                            alignment: AlignmentDirectional.centerStart,
                             child: Text(
-                              'Please let us know why you need to cancel this booking. Your feedback helps us improve',
+                              'core_cancel_booking_reason_hint'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF9A8A84),
                                 fontSize: 12.5,
@@ -138,7 +152,7 @@ void showCancelBookingBottomSheet(
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          cancelReasons[index],
+                                          cancelReasonKeys[index].tr,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFF626465),
                                             fontSize: 14,
@@ -194,7 +208,7 @@ void showCancelBookingBottomSheet(
                                     ),
                                     alignment: Alignment.center,
                                     child: Text(
-                                      'No',
+                                      'core_cancel_no'.tr,
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFF1B1B1B),
                                         fontSize: 15,
@@ -211,14 +225,15 @@ void showCancelBookingBottomSheet(
                                   builder: (context) {
                                     final canConfirm = selectedReasonIndex >= 0;
                                     return GestureDetector(
-                                      onTap: () {
+                                      onTap: () async {
+                                        if (cancelling) return;
                                         if (!canConfirm) {
                                           Get.snackbar(
                                             '',
-                                            'Please select a reason to cancel',
+                                            'core_cancel_select_reason'.tr,
                                             titleText: const SizedBox.shrink(),
                                             messageText: Text(
-                                              'Please select a reason to cancel',
+                                              'core_cancel_select_reason'.tr,
                                               style: GoogleFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 13.5,
@@ -226,16 +241,27 @@ void showCancelBookingBottomSheet(
                                               ),
                                             ),
                                             snackPosition: SnackPosition.TOP,
-                                            backgroundColor:
-                                                const Color(0xFF2C2520),
+                                            backgroundColor: const Color(
+                                              0xFF2C2520,
+                                            ),
                                             margin: const EdgeInsets.all(16),
                                             borderRadius: 12,
-                                            duration: const Duration(seconds: 2),
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
                                           );
                                           return;
                                         }
+                                        setModalState(() => cancelling = true);
+                                        final cancelled = await _cancelBooking(
+                                          apiOrderId,
+                                          cancelReasons[selectedReasonIndex],
+                                        );
+                                        if (!context.mounted) return;
+                                        setModalState(() => cancelling = false);
+                                        if (!cancelled) return;
                                         Navigator.pop(context);
-                                        onConfirm?.call();
+                                        onCancelled?.call();
                                         Get.to(
                                           () => BookingCancelledSuccessScreen(
                                             bookingId: bookingId,
@@ -253,12 +279,13 @@ void showCancelBookingBottomSheet(
                                             begin: Alignment.centerLeft,
                                             end: Alignment.centerRight,
                                           ),
-                                          borderRadius:
-                                              BorderRadius.circular(25),
+                                          borderRadius: BorderRadius.circular(
+                                            25,
+                                          ),
                                         ),
                                         alignment: Alignment.center,
                                         child: Text(
-                                          'Cancel Booking',
+                                          'core_cancel_booking_title'.tr,
                                           style: GoogleFonts.outfit(
                                             color: Colors.white,
                                             fontSize: 15,
@@ -284,4 +311,31 @@ void showCancelBookingBottomSheet(
       );
     },
   );
+}
+
+Future<bool> _cancelBooking(int? orderId, String reason) async {
+  if (orderId == null ||
+      orderId < 1 ||
+      !Get.isRegistered<ServiceRepository>()) {
+    showAppToast(
+      'core_cancel_booking_unavailable'.tr,
+      backgroundColor: const Color(0xFFEF4444),
+    );
+    return false;
+  }
+  try {
+    final message = await Get.find<ServiceRepository>().cancelBooking(
+      orderId: orderId,
+      reason: reason,
+      language: apiLanguageCode(),
+    );
+    showAppToast(
+      message.isEmpty ? 'core_cancel_booking_done'.tr : message,
+      backgroundColor: const Color(0xFFFF5E00),
+    );
+    return true;
+  } on ApiException catch (error) {
+    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    return false;
+  }
 }

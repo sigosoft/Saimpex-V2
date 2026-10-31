@@ -42,8 +42,9 @@ class CourierRepository {
     );
   }
 
-  /// Books a courier delivery. Needs a session. Returns the server message and the order id if sent.
-  Future<({String message, int? orderId})> create({
+  /// Books a courier delivery. Needs a session. Returns the server message,
+  /// the order id, and for online payment the Masrvi `payment_url`.
+  Future<({String message, int? orderId, String? paymentUrl})> create({
     required CourierStop pickup,
     required CourierStop dropoff,
     required bool isExpress,
@@ -69,8 +70,70 @@ class CourierRepository {
     );
     final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
     final id = data['order_id'] ?? data['id'];
-    return (message: envelope.message, orderId: id is num ? id.toInt() : null);
+    final url = '${data['payment_url'] ?? ''}'.trim();
+    return (
+      message: envelope.message,
+      orderId: id is num ? id.toInt() : int.tryParse('$id'),
+      paymentUrl: url.isEmpty || url == 'null' ? null : url,
+    );
   }
+
+  /// The customer's courier orders, newest first, one page at a time.
+  Future<({List<Map<String, dynamic>> orders, int currentPage, int lastPage})>
+  fetchOrders({required String language, int page = 1, int limit = 20}) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.courierOrders,
+        queryParameters: {'page': page, 'limit': limit},
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final raw = data['data'] is List ? data['data'] as List : const [];
+    final orders = raw
+        .map((entry) => asJsonMap(entry))
+        .whereType<Map<String, dynamic>>()
+        .map(_courierOrder)
+        .toList();
+    return (
+      orders: orders,
+      currentPage: _asInt(data['current_page']) ?? page,
+      lastPage: _asInt(data['last_page']) ?? page,
+    );
+  }
+
+  // Order status codes used by the backend order lists.
+  static const _statusText = {
+    1: 'Placed',
+    2: 'Accepted',
+    3: 'Preparing',
+    4: 'Ready',
+    5: 'Assigned',
+    6: 'Arrived',
+    7: 'Picked Up',
+    8: 'On the way',
+    9: 'Delivered',
+    10: 'Cancelled',
+  };
+
+  Map<String, dynamic> _courierOrder(Map<String, dynamic> item) {
+    final status = _asInt(item['status']) ?? 0;
+    final code = item['order_code']?.toString().trim() ?? '';
+    return {
+      'orderId': code.isEmpty ? '${item['order_id'] ?? ''}' : code,
+      'numericOrderId': _asInt(item['order_id']),
+      'statusText': _statusText[status] ?? '',
+      'isCancelled': status == 10,
+      'isDelivered': status == 9,
+      'isExpress': item['is_express'] == true || item['is_express'] == 1,
+      'total': '${_asDouble(item['total']).round()} MRU',
+      'pickupAddress': item['pickup_address']?.toString() ?? '',
+      'dropoffAddress': item['dropoff_address']?.toString() ?? '',
+    };
+  }
+
+  int? _asInt(dynamic value) =>
+      value is num ? value.toInt() : int.tryParse('${value ?? ''}');
 
   double _asDouble(dynamic value) => double.tryParse('${value ?? ''}') ?? 0;
 

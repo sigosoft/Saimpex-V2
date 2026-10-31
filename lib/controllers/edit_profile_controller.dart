@@ -45,8 +45,9 @@ class EditProfileController extends GetxController {
     if (token == null || token.isEmpty) return;
 
     try {
-      final profile = (await _profile.fetchProfile(apiLanguageCode()))
-          .mergedWith(cached);
+      final profile = (await _profile.fetchProfile(
+        apiLanguageCode(),
+      )).mergedWith(cached);
       if (!_edited) {
         _fill(profile);
       }
@@ -113,14 +114,14 @@ class EditProfileController extends GetxController {
 
     final extension = photo.path.split('.').last.toLowerCase();
     if (extension != 'jpg' && extension != 'jpeg' && extension != 'png') {
-      showAppToast('Please choose a JPG or PNG image');
+      showAppToast('core_profile_image_type'.tr);
       return;
     }
 
     final file = File(photo.path);
     final bytes = await file.length();
     if (bytes > 2048 * 1024) {
-      showAppToast('Image must be smaller than 2 MB');
+      showAppToast('core_profile_image_size'.tr);
       return;
     }
 
@@ -137,17 +138,17 @@ class EditProfileController extends GetxController {
     final name = nameController.text.trim();
     final mobile = phoneController.text.replaceAll(RegExp(r'\D'), '');
     if (name.length < 3 || name.length > 100) {
-      showAppToast('Name must be between 3 and 100 characters');
+      showAppToast('core_profile_name_length'.tr);
       return;
     }
     if (mobile.isEmpty) {
-      showAppToast('Please enter your WhatsApp number');
+      showAppToast('core_profile_enter_whatsapp'.tr);
       return;
     }
 
     final token = _session.token;
     if (token == null || token.isEmpty) {
-      showAppToast('Please login to update your profile');
+      showAppToast('core_profile_login_required'.tr);
       return;
     }
 
@@ -163,10 +164,7 @@ class EditProfileController extends GetxController {
       await _session.saveSession(token: token, user: result.user);
       _fill(result.user);
       localImagePath.value = null;
-      showAppToast(
-        result.message,
-        backgroundColor: AppColors.primaryOrange,
-      );
+      showAppToast(result.message, backgroundColor: AppColors.primaryOrange);
       Get.back(result: true);
     } on ApiException catch (error) {
       showAppToast(error.message);

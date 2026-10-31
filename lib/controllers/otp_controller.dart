@@ -83,7 +83,7 @@ class OtpController extends GetxController {
   Future<void> resendCode() async {
     if (secondsRemaining.value > 0 || isLoading.value) return;
     if (args.mobile.isEmpty) {
-      showAppToast('Phone number is missing. Go back and try again.');
+      showAppToast('core_otp_phone_missing'.tr);
       return;
     }
 
@@ -113,11 +113,11 @@ class OtpController extends GetxController {
 
     final code = codeControllers.map((controller) => controller.text).join();
     if (code.length != 6) {
-      showAppToast('Please enter the 6-digit verification code');
+      showAppToast('core_otp_enter_code'.tr);
       return;
     }
     if (args.mobile.isEmpty) {
-      showAppToast('Phone number is missing. Go back and try again.');
+      showAppToast('core_otp_phone_missing'.tr);
       return;
     }
 

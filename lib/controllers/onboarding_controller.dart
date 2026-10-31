@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../core/network/api_exception.dart';
+import '../l10n/app_locale.dart';
 import '../models/general_repository.dart';
 import '../models/onboarding_model.dart';
 import '../views/login_screen.dart';
@@ -9,29 +10,36 @@ import '../utils/toast_helper.dart';
 class OnboardingController extends GetxController {
   final pageController = PageController();
   final currentIndex = 0.obs;
-  final selectedLanguage = 'English'.obs;
+  final selectedLanguage = AppLocale.label.obs;
   final splashSlides = <Map<String, dynamic>>[].obs;
 
+  /// Built-in slides; title and description hold translation keys.
   static final List<OnboardingModel> localPages = [
     OnboardingModel(
-      title: 'Order Anything,\nAnytime',
-      description:
-          'Food, groceries, pharmacy, water, courier, and local stores—all delivered fast from trusted nearby businesses',
+      title: 'core_onboarding_title_1',
+      description: 'core_onboarding_desc_1',
       imagePath: 'lib/assets/images/Onboard1.png',
     ),
     OnboardingModel(
-      title: 'Everything\ndelivered, fast',
-      description:
-          'Enjoy a seamless delivery experience with real-time tracking and trusted service',
+      title: 'core_onboarding_title_2',
+      description: 'core_onboarding_desc_2',
       imagePath: 'lib/assets/images/Onboard2.png',
     ),
     OnboardingModel(
-      title: 'Unlock\nExclusive Offers',
-      description:
-          'Save more on every order with exciting deals, special rewards, and exclusive offers made just for you',
+      title: 'core_onboarding_title_3',
+      description: 'core_onboarding_desc_3',
       imagePath: 'lib/assets/images/Onboard3.png',
     ),
   ];
+
+  static OnboardingModel _localPage(int index) {
+    final page = localPages[index];
+    return OnboardingModel(
+      title: page.title.tr,
+      description: page.description.tr,
+      imagePath: page.imagePath,
+    );
+  }
 
   int get pageCount =>
       splashSlides.isEmpty ? localPages.length : splashSlides.length;
@@ -40,7 +48,7 @@ class OnboardingController extends GetxController {
 
   OnboardingModel pageAt(int index) {
     if (splashSlides.isEmpty) {
-      return localPages[index.clamp(0, localPages.length - 1)];
+      return _localPage(index.clamp(0, localPages.length - 1));
     }
     final slide = splashSlides[index.clamp(0, splashSlides.length - 1)];
     final content = _localizedContent(slide);
@@ -49,7 +57,7 @@ class OnboardingController extends GetxController {
     final description = parts.length > 1
         ? parts.sublist(1).join('\n\n').trim()
         : '';
-    final fallback = localPages[index % localPages.length];
+    final fallback = _localPage(index % localPages.length);
     final image = slide['image']?.toString() ?? '';
     if (title.isEmpty && description.isEmpty && image.isEmpty) {
       return fallback;
@@ -70,14 +78,7 @@ class OnboardingController extends GetxController {
     return '';
   }
 
-  String _languageCode(String language) {
-    final selected = language.trim().toLowerCase();
-    if (selected == 'fr' || selected == 'français' || selected == 'francais') {
-      return 'fr';
-    }
-    if (selected == 'ar' || selected == 'العربية') return 'ar';
-    return 'en';
-  }
+  String _languageCode(String language) => AppLocale.codeFor(language);
 
   bool _splashRequested = false;
 
@@ -119,10 +120,11 @@ class OnboardingController extends GetxController {
     Get.offAll(() => const LoginScreen(), transition: Transition.fadeIn);
   }
 
-  void setLanguage(String language) {
+  Future<void> setLanguage(String language) async {
     selectedLanguage.value = language;
+    await AppLocale.change(language);
     showAppToast(
-      'Language switched to $language',
+      'language_switched'.trParams({'language': language}),
       backgroundColor: Colors.white.withOpacity(0.9),
     );
   }

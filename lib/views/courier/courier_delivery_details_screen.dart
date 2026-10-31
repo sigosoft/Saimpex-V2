@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/country_code_picker.dart';
 
@@ -23,18 +24,18 @@ class CourierDeliveryDetailsScreen extends StatefulWidget {
 
   const CourierDeliveryDetailsScreen({
     super.key,
-    this.pickupAddress = 'Marhaba Supermarket, Nouakchott',
-    this.dropOffAddress = 'Saimpex Logistics Hub, Wharf Sector',
-    this.vehicleLabel = 'Bike',
-    this.vehicleTime = '30-35 min',
-    this.vehiclePrice = '50 MRU',
-    this.vehicleImage = 'lib/assets/images/bike.png',
-    this.deliveryFee = 50,
-    this.pickupLatitude = 18.0735,
-    this.pickupLongitude = -15.9582,
-    this.dropOffLatitude = 18.0800,
-    this.dropOffLongitude = -15.9600,
-    this.isExpress = false,
+    required this.pickupAddress,
+    required this.dropOffAddress,
+    required this.vehicleLabel,
+    required this.vehicleTime,
+    required this.vehiclePrice,
+    required this.vehicleImage,
+    required this.deliveryFee,
+    required this.pickupLatitude,
+    required this.pickupLongitude,
+    required this.dropOffLatitude,
+    required this.dropOffLongitude,
+    required this.isExpress,
   });
 
   @override
@@ -133,13 +134,13 @@ class _CourierDeliveryDetailsScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 44),
             child: Text(
-              'Delivery Details & Guidelines',
+              'st_delivery_details_guidelines'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -166,7 +167,7 @@ class _CourierDeliveryDetailsScreenState
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(18, 20, 14, 20),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 20, 14, 20),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -200,9 +201,15 @@ class _CourierDeliveryDetailsScreenState
             Expanded(
               child: Column(
                 children: [
-                  _buildRouteRow(label: 'PICKUP', title: widget.pickupAddress),
+                  _buildRouteRow(
+                    label: 'st_pickup'.tr,
+                    title: widget.pickupAddress,
+                  ),
                   const SizedBox(height: 18),
-                  _buildRouteRow(label: 'DROP-OFF', title: _displayDropOff),
+                  _buildRouteRow(
+                    label: 'st_drop_off'.tr,
+                    title: _displayDropOff,
+                  ),
                 ],
               ),
             ),
@@ -287,7 +294,7 @@ class _CourierDeliveryDetailsScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Recipient',
+            'st_recipient'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15,
@@ -296,7 +303,7 @@ class _CourierDeliveryDetailsScreenState
           ),
           const SizedBox(height: 16),
           Text(
-            'Recipient’s Name',
+            'st_recipient_name'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 11,
@@ -312,7 +319,7 @@ class _CourierDeliveryDetailsScreenState
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
             ),
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: TextField(
               controller: _nameController,
               style: GoogleFonts.outfit(
@@ -321,7 +328,7 @@ class _CourierDeliveryDetailsScreenState
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
-                hintText: 'Enter Recipient’s name',
+                hintText: 'st_recipient_name_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
@@ -334,7 +341,7 @@ class _CourierDeliveryDetailsScreenState
           ),
           const SizedBox(height: 16),
           Text(
-            'Phone Number',
+            'st_phone_number'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 11,
@@ -397,7 +404,7 @@ class _CourierDeliveryDetailsScreenState
                       fontWeight: FontWeight.w500,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Enter your phone number',
+                      hintText: 'st_phone_hint'.tr,
                       hintStyle: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 12,
@@ -421,14 +428,19 @@ class _CourierDeliveryDetailsScreenState
       onTap: () {
         final name = _nameController.text.trim();
         final phone = _phoneController.text.trim();
+        if (name.isEmpty || phone.isEmpty) {
+          showAppToast(
+            'st_recipient_required'.tr,
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          return;
+        }
         Get.to(
           () => CourierReviewBookingScreen(
             pickupAddress: widget.pickupAddress,
             dropOffAddress: widget.dropOffAddress,
-            recipientName: name.isEmpty ? 'Sidi' : name,
-            recipientPhone: phone.isEmpty
-                ? '+222 22 34 56 78'
-                : '$countryCode $phone',
+            recipientName: name,
+            recipientPhone: '$countryCode $phone',
             vehicleLabel: widget.vehicleLabel,
             vehicleTime: widget.vehicleTime,
             vehiclePrice: widget.vehiclePrice,
@@ -459,7 +471,7 @@ class _CourierDeliveryDetailsScreenState
         ),
         alignment: Alignment.center,
         child: Text(
-          'Confirm Pickup',
+          'st_confirm_pickup'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 15,
@@ -477,7 +489,7 @@ class _CourierDeliveryDetailsScreenState
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
-            'Guidelines',
+            'st_guidelines'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 14,
@@ -492,9 +504,9 @@ class _CourierDeliveryDetailsScreenState
 
   Widget _buildSafetyGuidelinesCard() {
     const items = [
-      'Package must be securely sealed.',
-      'Weight should not exceed the selected vehicle limit.',
-      'Fragile items must be clearly marked.',
+      'st_guideline_sealed',
+      'st_guideline_weight',
+      'st_guideline_fragile',
     ];
 
     return Container(
@@ -509,7 +521,7 @@ class _CourierDeliveryDetailsScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Safety Guidelines',
+            'st_safety_guidelines'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2F80ED),
               fontSize: 14,
@@ -536,7 +548,7 @@ class _CourierDeliveryDetailsScreenState
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      items[index],
+                      items[index].tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 12,
@@ -567,7 +579,7 @@ class _CourierDeliveryDetailsScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Restricted Items',
+            'st_restricted_items'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF8B2E2E),
               fontSize: 14,
@@ -576,7 +588,7 @@ class _CourierDeliveryDetailsScreenState
           ),
           const SizedBox(height: 10),
           Text(
-            'The following items are prohibited: Illegal substances, weapons, flammable liquids, and hazardous chemicals.',
+            'st_restricted_text'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 12,
@@ -588,7 +600,7 @@ class _CourierDeliveryDetailsScreenState
           Row(
             children: [
               Text(
-                'View Full Courier Policy',
+                'st_view_policy'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,

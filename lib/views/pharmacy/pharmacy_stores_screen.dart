@@ -26,33 +26,33 @@ class PharmacyStoresScreen extends StatelessWidget {
 
     return PharmacyBackground(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          SizedBox(height: topInset + 10),
-          _PharmacyTitleBar(title: title),
-          Expanded(
-            child: ListView.separated(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset + 20),
-              itemCount: stores.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final store = stores[index];
-                return _PharmacyStoreTile(
-                  store: store,
-                  onTap: () => Get.to(
-                    () => PharmacyItemsScreen(
-                      store: store,
-                      initialCategoryId: categoryId,
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            SizedBox(height: topInset + 10),
+            _PharmacyTitleBar(title: title),
+            Expanded(
+              child: ListView.separated(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset + 20),
+                itemCount: stores.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final store = stores[index];
+                  return _PharmacyStoreTile(
+                    store: store,
+                    onTap: () => Get.to(
+                      () => PharmacyItemsScreen(
+                        store: store,
+                        initialCategoryId: categoryId,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -136,55 +136,56 @@ class _PharmacyMapScreenState extends State<PharmacyMapScreen> {
 
     return PharmacyBackground(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          SizedBox(height: topInset + 10),
-          _PharmacyTitleBar(title: widget.title),
-          const SizedBox(height: 12),
-          Expanded(
-            child: stores.isEmpty
-                ? Center(
-                    child: Text(
-                      'No pharmacies to show',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  )
-                : GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: _point(stores.first),
-                      zoom: 14,
-                    ),
-                    markers: {
-                      for (var index = 0; index < stores.length; index++)
-                        Marker(
-                          markerId: MarkerId('${stores[index]['id']}_$index'),
-                          position: _point(stores[index]),
-                          onTap: () => setState(() => _selectedIndex = index),
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            SizedBox(height: topInset + 10),
+            _PharmacyTitleBar(title: widget.title),
+            const SizedBox(height: 12),
+            Expanded(
+              child: stores.isEmpty
+                  ? Center(
+                      child: Text(
+                        'pw_no_pharmacies_to_show'.tr,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFA59A94),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
-                    },
-                    zoomControlsEnabled: false,
-                    myLocationButtonEnabled: false,
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                      _frameStores();
-                    },
-                  ),
-          ),
-          if (selected != null)
-            Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, bottomInset + 16),
-              child: _PharmacyStoreTile(
-                store: selected,
-                onTap: () => Get.to(() => PharmacyItemsScreen(store: selected)),
-              ),
+                      ),
+                    )
+                  : GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: _point(stores.first),
+                        zoom: 14,
+                      ),
+                      markers: {
+                        for (var index = 0; index < stores.length; index++)
+                          Marker(
+                            markerId: MarkerId('${stores[index]['id']}_$index'),
+                            position: _point(stores[index]),
+                            onTap: () => setState(() => _selectedIndex = index),
+                          ),
+                      },
+                      zoomControlsEnabled: false,
+                      myLocationButtonEnabled: false,
+                      onMapCreated: (controller) {
+                        _mapController = controller;
+                        _frameStores();
+                      },
+                    ),
             ),
-        ],
-      ),
+            if (selected != null)
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 12, 16, bottomInset + 16),
+                child: _PharmacyStoreTile(
+                  store: selected,
+                  onTap: () =>
+                      Get.to(() => PharmacyItemsScreen(store: selected)),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -205,7 +206,7 @@ class _PharmacyTitleBar extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: AppBackButton(onTap: () => Navigator.pop(context)),
             ),
             Padding(
@@ -334,10 +335,7 @@ class _ImageFallback extends StatelessWidget {
   Widget build(BuildContext context) {
     return const ColoredBox(
       color: Color(0xFFF3EFEA),
-      child: Icon(
-        Icons.local_pharmacy_outlined,
-        color: Color(0xFFA59A94),
-      ),
+      child: Icon(Icons.local_pharmacy_outlined, color: Color(0xFFA59A94)),
     );
   }
 }

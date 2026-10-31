@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'select_location_controller.dart';
 import '../core/network/api_exception.dart';
+import '../core/storage/session_store.dart';
 import '../models/general_repository.dart';
+import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 
@@ -141,14 +145,23 @@ class HomeController extends GetxController {
     pharmacyBannerSliderIndex.value = index;
   }
 
+  bool get _signedIn {
+    if (!Get.isRegistered<SessionStore>()) return false;
+    final token = Get.find<SessionStore>().token;
+    return token != null && token.isNotEmpty;
+  }
+
+  /// Hearts or un-hearts a card. Signed-in customers' favourites are saved
+  /// with customer/favourites/toggle; a failed save is undone.
   void toggleLike(String itemId, [Map<String, dynamic>? item]) {
     if (itemId.isEmpty) return;
 
     final existingIndex = favourites.indexWhere(
       (e) => (e['id'] ?? '').toString() == itemId,
     );
+    final removed = existingIndex >= 0 ? favourites[existingIndex] : null;
 
-    if (existingIndex >= 0) {
+    if (removed != null) {
       favourites.removeAt(existingIndex);
       likedItems.remove(itemId);
     } else {
@@ -162,17 +175,71 @@ class HomeController extends GetxController {
       }
       data.putIfAbsent('title', () => 'Favourite');
       data.putIfAbsent('subtitle', () => '');
-      data.putIfAbsent('rating', () => '4.5');
-      data.putIfAbsent('time', () => '30–35 min');
-      data.putIfAbsent('dist', () => '10 Km');
-      data.putIfAbsent('discount', () => '50% OFF');
-      data.putIfAbsent('points', () => '200 Points Available');
       data.putIfAbsent('image', () => '');
       favourites.add(data);
       if (!likedItems.contains(itemId)) {
         likedItems.add(itemId);
       }
     }
+
+    if (!_signedIn || !Get.isRegistered<ProfileRepository>()) return;
+    final added = removed == null;
+    Get.find<ProfileRepository>()
+        .setFavourite(
+          itemId: itemId,
+          favourite: added,
+          card: added
+              ? {
+                  for (final entry in favourites.last.entries)
+                    if (entry.key != 'id' &&
+                        (entry.value is String || entry.value is num))
+                      entry.key: entry.value,
+                }
+              : const {},
+          language: apiLanguageCode(),
+        )
+        .catchError((Object error) {
+          // Put the heart back the way it was.
+          if (added) {
+            favourites.removeWhere((e) => (e['id'] ?? '').toString() == itemId);
+            likedItems.remove(itemId);
+          } else {
+            favourites.add(removed);
+            if (!likedItems.contains(itemId)) likedItems.add(itemId);
+          }
+          if (error is ApiException) {
+            showAppToast(
+              error.message,
+              backgroundColor: const Color(0xFFEF4444),
+            );
+          }
+        });
+  }
+
+  /// The signed-in customer's saved favourites (customer/favourites).
+  Future<void> loadFavourites() async {
+    if (!_signedIn || !Get.isRegistered<ProfileRepository>()) return;
+    try {
+      final rows = await Get.find<ProfileRepository>().favourites(
+        apiLanguageCode(),
+      );
+      favourites.assignAll(rows);
+      likedItems.assignAll([
+        for (final row in rows) (row['id'] ?? '').toString(),
+      ]);
+    } on ApiException {
+      // Keep whatever is shown; the next home load retries.
+    }
+  }
+
+  /// Forgets the signed-out customer's favourites, wallet and profile.
+  void resetForLogout() {
+    favourites.clear();
+    likedItems.clear();
+    walletBalance.value = '';
+    walletCurrency.value = '';
+    unreadNotifications.value = 0;
+    profileImage.value = '';
   }
 
   bool isLiked(String itemId) {
@@ -199,6 +266,15 @@ class HomeController extends GetxController {
 
   int _homeRequest = 0;
 
+  /// Whether a vertical (food, laundry, car_wash, …) is switched on. homeHub
+  /// only lists enabled verticals (disabled ones are dropped when parsed), so
+  /// a slug missing from a loaded list is off. Until home loads, everything
+  /// counts as on; the server still refuses a switched-off service with 422.
+  bool isVerticalEnabled(String slug) {
+    if (homeVerticals.isEmpty) return true;
+    return homeVerticals.any((vertical) => vertical['slug'] == slug);
+  }
+
   String get walletLabel {
     final amount = walletBalance.value.trim();
     final currency = walletCurrency.value.trim();
@@ -212,17 +288,17 @@ class HomeController extends GetxController {
     if (title.isNotEmpty) return title;
     switch (key) {
       case 'trending':
-        return 'Trending in your area';
+        return 'core_home_trending'.tr;
       case 'recent_orders':
-        return 'Recent Orders';
+        return 'core_home_recent_orders'.tr;
       case 'under_30_minutes':
-        return 'Under 30 Minutes';
+        return 'core_home_under_30'.tr;
       case 'top_grocery':
-        return 'Top Grocery Stores Near You';
+        return 'core_home_top_grocery'.tr;
       case 'trusted_pharmacies':
-        return 'Trusted Pharmacies';
+        return 'core_home_trusted_pharmacies'.tr;
       case 'top_rated_suppliers':
-        return 'Top Rated Suppliers';
+        return 'core_home_top_suppliers'.tr;
       default:
         return '';
     }
@@ -264,6 +340,7 @@ class HomeController extends GetxController {
 
   Future<void> loadHome() async {
     if (!Get.isRegistered<GeneralRepository>()) return;
+    unawaited(loadFavourites());
     final request = ++_homeRequest;
     homeLoading.value = true;
     try {

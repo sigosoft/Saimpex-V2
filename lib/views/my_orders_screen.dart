@@ -4,28 +4,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'order_detail_screen.dart';
 import 'order_updated_detail_screen.dart';
 import 'water/water_order_details_screen.dart';
+import 'courier/courier_order_detail_screen.dart';
+import 'courier/courier_track_order_screen.dart';
 import 'water/water_track_order_screen.dart';
-import 'track_order_screen.dart';
 import 'rate_order_screen.dart';
 import 'pharmacy/my_prescriptions_screen.dart';
 import 'pharmacy/widgets/pharmacy_order_cards.dart';
 import '../core/network/api_exception.dart';
 import '../models/grocery_repository.dart';
 import 'pharmacy/pharmacy_item_order_detail_screen.dart';
+import '../models/courier_repository.dart';
 import '../models/food_repository.dart';
 import '../models/order_repository.dart';
 import '../models/pharmacy_repository.dart';
 import '../models/water_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
-import 'courier/widgets/courier_order_cards.dart';
 import '../controllers/home_controller.dart';
 import '../constants/text_styles.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
-import '../widgets/cancel_order_bottom_sheet.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   final bool showBottomNav;
@@ -44,14 +44,15 @@ class MyOrdersScreen extends StatefulWidget {
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
   // Matches design: All, Food, Pharmacy, Water, Courier, Local Store
   late int selectedCategoryIndex;
+  // Translation keys; tabs are matched by index, never by text.
   final List<String> categories = [
-    "All",
-    "Food",
-    "Grocery",
-    "Pharmacy",
-    "Water",
-    "Courier",
-    "Local Store",
+    'orders_filter_all',
+    'search_vertical_food',
+    'search_vertical_grocery',
+    'search_vertical_pharmacy',
+    'search_vertical_water',
+    'orders_cat_courier',
+    'search_vertical_local_store',
   ];
   Worker? _ordersCategoryWorker;
   Worker? _navWorker;
@@ -60,9 +61,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   List<Map<String, dynamic>> _restaurantOrders = const [];
   bool _restaurantOrdersLoading = false;
   List<Map<String, dynamic>> _groceryOrders = const [];
+  // Grocery order id → store proposals waiting and amount due.
+  Map<int, ({int pending, num due})> _groceryChanges = const {};
   bool _groceryOrdersLoading = false;
   List<Map<String, dynamic>> _waterOrders = const [];
   bool _waterOrdersLoading = false;
+  List<Map<String, dynamic>> _courierOrders = const [];
+  bool _courierOrdersLoading = false;
+  List<Map<String, dynamic>> _localStoreOrders = const [];
+  bool _localStoreOrdersLoading = false;
 
   @override
   void initState() {
@@ -72,6 +79,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _loadRestaurantOrders();
     _loadGroceryOrders();
     _loadWaterOrders();
+    _loadCourierOrders();
+    _loadLocalStoreOrders();
     if (Get.isRegistered<HomeController>()) {
       final home = Get.find<HomeController>();
       _ordersCategoryWorker = ever<int>(home.pendingOrdersCategoryIndex, (
@@ -95,6 +104,45 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _loadRestaurantOrders();
     _loadGroceryOrders();
     _loadWaterOrders();
+    _loadCourierOrders();
+    _loadLocalStoreOrders();
+  }
+
+  /// customer/orders/localStore, through the local-store GroceryRepository
+  /// (same order shape as grocery).
+  Future<void> _loadLocalStoreOrders() async {
+    if (!Get.isRegistered<GroceryRepository>(
+      tag: GroceryRepository.localStoreTag,
+    )) {
+      return;
+    }
+    setState(() => _localStoreOrdersLoading = true);
+    try {
+      final repository = Get.find<GroceryRepository>(
+        tag: GroceryRepository.localStoreTag,
+      );
+      final language = apiLanguageCode();
+      final first = await repository.fetchGroceryOrders(language: language);
+      final orders = [...first.orders];
+      var page = first.currentPage;
+      var lastPage = first.lastPage;
+      while (page < lastPage && page < 5) {
+        page += 1;
+        final next = await repository.fetchGroceryOrders(
+          language: language,
+          page: page,
+        );
+        orders.addAll(next.orders);
+        lastPage = next.lastPage;
+      }
+      if (!mounted) return;
+      setState(() => _localStoreOrders = orders);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _localStoreOrdersLoading = false);
+    }
   }
 
   @override
@@ -145,12 +193,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               alignment: Alignment.center,
               children: [
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: widget.showBottomNav
                       ? AppBackButton(onTap: () => _handleBack(context))
                       : const SizedBox(width: 38),
                 ),
-                Text('My Orders', style: AppTextStyles.heading()),
+                Text('orders_my_orders'.tr, style: AppTextStyles.heading()),
               ],
             ),
           ),
@@ -184,7 +232,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               });
                             },
                             child: Container(
-                              margin: const EdgeInsets.only(right: 10),
+                              margin: const EdgeInsetsDirectional.only(end: 10),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 22,
                               ),
@@ -202,7 +250,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                categories[index],
+                                categories[index].tr,
                                 style: GoogleFonts.outfit(
                                   color: isSelected
                                       ? Colors.white
@@ -261,8 +309,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Widget _buildAllOrders() {
     return Column(
       children: [
-        _buildOrderUpdatedCard(),
-        _buildPaymentPendingCard(),
         _buildFoodOrders(),
         _buildGroceryOrders(),
         _buildPharmacyOrders(),
@@ -294,12 +340,56 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       }
       if (!mounted) return;
       setState(() => _groceryOrders = orders);
+      _loadGroceryChanges(orders);
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     } finally {
       if (mounted) setState(() => _groceryOrdersLoading = false);
     }
+  }
+
+  /// For active grocery orders: proposals waiting for an answer and any
+  /// amount due from a pricier substitute (orders/{id}/substitutions).
+  Future<void> _loadGroceryChanges(List<Map<String, dynamic>> orders) async {
+    if (!Get.isRegistered<OrderRepository>()) return;
+    final changes = <int, ({int pending, num due})>{};
+    for (final order in orders) {
+      final id = order['numericOrderId'];
+      if (id is! int ||
+          order['isCancelled'] == true ||
+          order['isDelivered'] == true) {
+        continue;
+      }
+      try {
+        final data = await Get.find<OrderRepository>().substitutions(
+          orderId: id,
+          language: apiLanguageCode(),
+        );
+        final rows = data['substitutions'];
+        final pending = rows is List
+            ? rows.whereType<Map>().where((row) => row['status'] == 'pending')
+            : const <Map>[];
+        final due = num.tryParse('${data['amount_due'] ?? ''}') ?? 0;
+        if (pending.isNotEmpty || due > 0) {
+          changes[id] = (pending: pending.length, due: due);
+        }
+      } on ApiException {
+        // An order without substitutions just shows its normal buttons.
+      }
+    }
+    if (mounted) setState(() => _groceryChanges = changes);
+  }
+
+  Future<void> _openGroceryChanges(Map<String, dynamic> order) async {
+    await Get.to(
+      () => OrderUpdatedDetailScreen(
+        orderId: order['numericOrderId'] as int,
+        orderCode: '${order['orderId'] ?? ''}',
+        storeName: '${order['restaurantName'] ?? ''}',
+      ),
+    );
+    if (mounted) _loadGroceryOrders();
   }
 
   Widget _buildGroceryOrders() {
@@ -316,7 +406,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         padding: const EdgeInsets.symmetric(vertical: 28),
         child: Center(
           child: Text(
-            'No orders',
+            'orders_no_orders'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -339,15 +429,16 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final delivered = order['isDelivered'] == true;
     final badge = _pharmacyStatusColors(statusText, cancelled);
     final details = [
-      order['isSelfPickup'] == true ? 'Pickup' : 'Delivery',
+      order['isSelfPickup'] == true ? 'orders_pickup'.tr : 'orders_delivery'.tr,
       if ('${order['totalText'] ?? ''}'.isNotEmpty) '${order['totalText']}',
       if ((order['itemsCount'] is int) && (order['itemsCount'] as int) > 0)
-        '${order['itemsCount']} items',
+        'orders_items_count'.trParams({'count': '${order['itemsCount']}'}),
       if ('${order['orderId'] ?? ''}'.isNotEmpty) '${order['orderId']}',
     ].join(' • ');
 
     return _buildOrderCard(
-      restaurantName: '${order['restaurantName'] ?? 'Grocery'}',
+      restaurantName:
+          '${order['restaurantName'] ?? 'search_vertical_grocery'.tr}',
       statusText: statusText,
       statusColor: badge.$1,
       statusBgColor: badge.$2,
@@ -355,19 +446,29 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       onDetailsLink: () => _showGroceryOrderDetail(order),
       buttons: [
         if (!delivered && !cancelled) ...[
-          _buildOrderButton(
-            text: "Cancel",
-            onTap: () => _cancelRestaurantOrder(order),
-          ),
+          // The store proposed changes (or a substitute left an amount due):
+          // reviewing them comes first.
+          if (_groceryChanges.containsKey(order['numericOrderId']))
+            _buildOrderButton(
+              text: 'subs_review'.tr,
+              onTap: () => _openGroceryChanges(order),
+            )
+          else
+            _buildOrderButton(
+              text: 'cancel'.tr,
+              onTap: () => _cancelRestaurantOrder(order),
+            ),
           const SizedBox(width: 12),
           _buildGradientButton(
-            text: "Track Order",
+            text: 'orders_track_order_btn'.tr,
             onTap: () => _trackRestaurantOrder(order),
           ),
         ] else if (delivered)
           _buildOrderButton(
-            text: "Rate",
-            onTap: () => Get.to(() => const RateOrderScreen()),
+            text: 'orders_rate'.tr,
+            onTap: () => Get.to(
+              () => RateOrderScreen(orderId: order['numericOrderId'] as int?),
+            ),
           ),
       ],
     );
@@ -416,7 +517,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         padding: const EdgeInsets.symmetric(vertical: 28),
         child: Center(
           child: Text(
-            'No orders',
+            'orders_no_orders'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -448,15 +549,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final orderId = '${order['orderId'] ?? ''}';
     final badge = _pharmacyStatusColors(statusText, cancelled);
     final details = [
-      order['isSelfPickup'] == true ? 'Pickup' : 'Delivery',
+      order['isSelfPickup'] == true ? 'orders_pickup'.tr : 'orders_delivery'.tr,
       if ('${order['totalText'] ?? ''}'.isNotEmpty) '${order['totalText']}',
       if ((order['itemsCount'] is int) && (order['itemsCount'] as int) > 0)
-        '${order['itemsCount']} items',
+        'orders_items_count'.trParams({'count': '${order['itemsCount']}'}),
       if (orderId.isNotEmpty) orderId,
     ].join(' • ');
 
     return _buildOrderCard(
-      restaurantName: '${order['restaurantName'] ?? 'Restaurant'}',
+      restaurantName: '${order['restaurantName'] ?? 'orders_restaurant'.tr}',
       statusText: statusText,
       statusColor: badge.$1,
       statusBgColor: badge.$2,
@@ -465,17 +566,19 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       buttons: [
         if (delivered)
           _buildOrderButton(
-            text: "Rate",
-            onTap: () => Get.to(() => const RateOrderScreen()),
+            text: 'orders_rate'.tr,
+            onTap: () => Get.to(
+              () => RateOrderScreen(orderId: order['numericOrderId'] as int?),
+            ),
           )
         else if (!cancelled) ...[
           _buildOrderButton(
-            text: "Cancel",
+            text: 'cancel'.tr,
             onTap: () => _cancelRestaurantOrder(order),
           ),
           const SizedBox(width: 12),
           _buildGradientButton(
-            text: "Track Order",
+            text: 'orders_track_order_btn'.tr,
             onTap: () => _trackRestaurantOrder(order),
           ),
         ],
@@ -491,7 +594,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Future<void> _trackRestaurantOrder(Map<String, dynamic> order) async {
     final orderId = _restaurantOrderId(order);
     if (orderId == null) {
-      showAppToast('Order tracking unavailable');
+      showAppToast('orders_tracking_unavailable'.tr);
       return;
     }
     try {
@@ -514,21 +617,21 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Future<void> _cancelRestaurantOrder(Map<String, dynamic> order) async {
     final orderId = _restaurantOrderId(order);
     if (orderId == null) {
-      showAppToast('Order cannot be cancelled');
+      showAppToast('orders_cannot_cancel'.tr);
       return;
     }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Cancel this order?'),
+        title: Text('orders_cancel_confirm'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('No'),
+            child: Text('orders_no'.tr),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Yes, cancel'),
+            child: Text('orders_yes_cancel'.tr),
           ),
         ],
       ),
@@ -541,7 +644,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       );
       if (!mounted) return;
       showAppToast(
-        message.isEmpty ? 'Order cancelled' : message,
+        message.isEmpty ? 'orders_cancelled_title'.tr : message,
         backgroundColor: const Color(0xFFFF5E00),
       );
       _loadRestaurantOrders();
@@ -555,7 +658,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   void _showGroceryOrderDetail(Map<String, dynamic> order) {
     final orderId = order['numericOrderId'];
     if (orderId is! int || orderId < 1) {
-      showAppToast('Order details unavailable');
+      showAppToast('orders_details_unavailable'.tr);
       return;
     }
     Get.to(
@@ -571,7 +674,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Future<void> _showRestaurantOrderDetail(Map<String, dynamic> order) async {
     final orderId = order['numericOrderId'];
     if (orderId is! int || orderId < 1) {
-      showAppToast('Order details unavailable');
+      showAppToast('orders_details_unavailable'.tr);
       return;
     }
     try {
@@ -583,7 +686,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       // catalogOrderDetail already returns the order fields, not the envelope
       final orderCode = detail['order_code'];
       if (orderCode == null) {
-        showAppToast('Order details unavailable');
+        showAppToast('orders_details_unavailable'.tr);
         return;
       }
       Get.to(() => OrderDetailScreen(orderId: '$orderCode', detail: detail));
@@ -636,7 +739,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'My Prescriptions  ›',
+              'orders_my_prescriptions'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 13,
@@ -665,7 +768,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         padding: const EdgeInsets.symmetric(vertical: 28),
         child: Center(
           child: Text(
-            'No orders',
+            'orders_no_orders'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -683,16 +786,17 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Widget _pharmacyOrderCard(Map<String, dynamic> order) {
-    final pharmacyName = '${order['pharmacyName'] ?? 'Pharmacy'}';
+    final pharmacyName =
+        '${order['pharmacyName'] ?? 'search_vertical_pharmacy'.tr}';
     final orderId = '${order['orderId'] ?? ''}';
     final statusText = '${order['statusText'] ?? ''}';
     if (order['isQuotation'] == true) {
       final seconds = order['expiresInSeconds'];
       return PharmacyQuotationReadyCard(
         pharmacyName: pharmacyName,
-        orderId: orderId.isEmpty ? 'Prescription' : orderId,
+        orderId: orderId.isEmpty ? 'orders_prescription'.tr : orderId,
         amount: '${order['amount'] ?? ''}'.isEmpty
-            ? '0 MRU'
+            ? 'mru'.trParams({'amount': '0'})
             : '${order['amount']}',
         expiresIn: Duration(seconds: seconds is int ? seconds : 0),
         prescriptionId:
@@ -700,6 +804,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 (order['prescriptionId'] as int) > 0
             ? order['prescriptionId'] as int
             : null,
+        onChanged: _loadPharmacyOrders,
       );
     }
     final badge = _pharmacyStatusColors(
@@ -732,15 +837,20 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   String _pharmacyDetails(Map<String, dynamic> order) {
     if (order['isPrescription'] == true) {
       final orderId = '${order['orderId'] ?? ''}';
-      return orderId.isEmpty ? 'Prescription' : 'Prescription • $orderId';
+      return orderId.isEmpty
+          ? 'orders_prescription'.tr
+          : '${'orders_prescription'.tr} • $orderId';
     }
     final total = '${order['totalText'] ?? ''}';
     final items = order['itemsCount'];
     final orderId = '${order['orderId'] ?? ''}';
     return [
-      order['isSelfPickup'] == true ? 'Self Pickup' : 'Delivery',
+      order['isSelfPickup'] == true
+          ? 'orders_self_pickup'.tr
+          : 'orders_delivery'.tr,
       if (total.isNotEmpty) total,
-      if (items is int && items > 0) '$items items',
+      if (items is int && items > 0)
+        'orders_items_count'.trParams({'count': '$items'}),
       if (orderId.isNotEmpty) orderId,
     ].join(' • ');
   }
@@ -799,7 +909,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         padding: const EdgeInsets.symmetric(vertical: 28),
         child: Center(
           child: Text(
-            'No orders',
+            'orders_no_orders'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -830,488 +940,150 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       statusColor: statusColor,
       statusBgColor: statusBgColor,
       detailsText:
-          'Water • ${order['total']} • ${order['itemsCount']} items • #$orderId',
+          '${'search_vertical_water'.tr} • ${order['total']} • '
+          '${'orders_items_count'.trParams({'count': '${order['itemsCount']}'})} • #$orderId',
       buttons: [
         if (!cancelled)
           _buildGradientButton(
-            text: 'Track Order',
-            onTap: () =>
-                Get.to(() => WaterTrackOrderScreen(orderId: '#$orderId')),
+            text: 'orders_track_order_btn'.tr,
+            onTap: () => Get.to(
+              () => WaterTrackOrderScreen(
+                orderId: '#$orderId',
+                apiOrderId: order['numericOrderId'] as int?,
+              ),
+            ),
           ),
       ],
-      onDetailsLink: () =>
-          Get.to(() => WaterOrderDetailsScreen(orderId: '#$orderId')),
+      onDetailsLink: () => Get.to(
+        () => WaterOrderDetailsScreen(
+          orderId: '#$orderId',
+          apiOrderId: order['numericOrderId'] as int?,
+        ),
+      ),
     );
+  }
+
+  Future<void> _loadCourierOrders() async {
+    if (!Get.isRegistered<CourierRepository>()) return;
+    setState(() => _courierOrdersLoading = true);
+    try {
+      final repository = Get.find<CourierRepository>();
+      final language = apiLanguageCode();
+      final first = await repository.fetchOrders(language: language);
+      final orders = [...first.orders];
+      var page = first.currentPage;
+      var lastPage = first.lastPage;
+      while (page < lastPage && page < 5) {
+        page += 1;
+        final next = await repository.fetchOrders(
+          language: language,
+          page: page,
+        );
+        orders.addAll(next.orders);
+        lastPage = next.lastPage;
+      }
+      if (!mounted) return;
+      setState(() => _courierOrders = orders);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _courierOrdersLoading = false);
+    }
   }
 
   Widget _buildCourierOrders() {
-    return Column(
-      children: [
-        CourierActiveOrderCard(
-          statusText: 'ON THE WAY',
-          statusColor: const Color(0xFFFF8A00),
-          statusBgColor: const Color(0xFFFFF4EC),
-          detailsText: 'Bike Delivery • 50 MRU • #227890011',
-          orderId: '#227890011',
+    if (_courierOrdersLoading && _courierOrders.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 28),
+        child: Center(
+          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
         ),
+      );
+    }
+    if (_courierOrders.isEmpty) return _buildUnloadedOrders();
+    return Column(children: _courierOrders.map(_courierOrderCard).toList());
+  }
+
+  Widget _courierOrderCard(Map<String, dynamic> order) {
+    final orderId = '${order['orderId']}';
+    final cancelled = order['isCancelled'] == true;
+    final delivered = order['isDelivered'] == true;
+    final (Color statusColor, Color statusBgColor) = cancelled
+        ? (const Color(0xFFEF4444), const Color(0xFFFDECEC))
+        : delivered
+        ? (const Color(0xFF00B25C), const Color(0xFFE8F8EE))
+        : (const Color(0xFFFF8A00), const Color(0xFFFFF4EC));
+    final dropoff = '${order['dropoffAddress']}'.trim();
+    return _buildOrderCard(
+      restaurantName: dropoff.isEmpty
+          ? 'orders_courier_delivery'.tr
+          : 'orders_to_address'.trParams({'address': dropoff}),
+      statusText: '${order['statusText']}'.toUpperCase(),
+      statusColor: statusColor,
+      statusBgColor: statusBgColor,
+      detailsText: [
+        order['isExpress'] == true ? 'orders_express'.tr : 'orders_standard'.tr,
+        '${order['total']}',
+        '#$orderId',
+      ].join(' • '),
+      buttons: [
+        if (!cancelled && !delivered)
+          _buildGradientButton(
+            text: 'orders_track_delivery'.tr,
+            onTap: () => Get.to(
+              () => CourierTrackOrderScreen(
+                orderId: '#$orderId',
+                apiOrderId: order['numericOrderId'] as int?,
+              ),
+            ),
+          ),
       ],
+      onDetailsLink: () => Get.to(
+        () => CourierOrderDetailScreen(
+          orderId: '#$orderId',
+          apiOrderId: order['numericOrderId'] as int?,
+          pickupAddress: '${order['pickupAddress']}',
+          dropOffAddress: dropoff,
+        ),
+      ),
     );
   }
 
+  /// Local Store orders (customer/orders/localStore), in the grocery cards.
   Widget _buildOtherCategoryOrders() {
+    final onAllTab = selectedCategoryIndex == 0;
+    if (_localStoreOrdersLoading && _localStoreOrders.isEmpty) {
+      return onAllTab
+          ? const SizedBox.shrink()
+          : const Padding(
+              padding: EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              ),
+            );
+    }
+    if (_localStoreOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [
-        if (selectedCategoryIndex != 0) ...[
-          _buildOrderUpdatedCard(),
-          _buildPaymentPendingCard(),
-        ],
-        // 1. Golden Bakery - ON THE WAY (Delivery)
-        _buildOrderCard(
-          restaurantName: "Golden Bakery",
-          statusText: "ON THE WAY",
-          statusColor: const Color(0xFFFF8A00),
-          statusBgColor: const Color(0xFFFFF4EC),
-          detailsText: "Delivery • 200 MRU • 4 items • #22789002",
-          buttons: [
-            _buildOrderButton(
-              text: "Cancel",
-              onTap: () => _showCancelDialog(orderId: "#22789002"),
-            ),
-            const SizedBox(width: 12),
-            _buildGradientButton(
-              text: "Track Order",
-              onTap: () {
-                Get.to(() => const TrackOrderScreen(orderId: "#22789002"));
-              },
-            ),
-          ],
-        ),
-
-        // 2. Golden Bakery - SELF PICKUP (Pickup)
-        _buildOrderCard(
-          restaurantName: "Golden Bakery",
-          statusText: "SELF PICKUP",
-          statusColor: const Color(0xFF007DFE),
-          statusBgColor: const Color(0xFFECF5FF),
-          detailsText: "Pickup • 200 MRU • 4 items • #22789001",
-          buttons: [
-            _buildOrderButton(
-              text: "Cancel",
-              onTap: () => _showCancelDialog(orderId: "#22789001"),
-            ),
-          ],
-        ),
-
-        // 3. City Florist - DELIVERED (Delivery)
-        _buildOrderCard(
-          restaurantName: "City Florist",
-          statusText: "DELIVERED",
-          statusColor: const Color(0xFF00B25C),
-          statusBgColor: const Color(0xFFE8F8EE),
-          detailsText: "Delivery • 1500 MRU • 10 items • #22789000",
-          buttons: [
-            _buildOrderButton(
-              text: "Reorder",
-              onTap: () => _showReorderSnackBar(),
-            ),
-            const SizedBox(width: 12),
-            _buildOrderButton(
-              text: "Rate",
-              onTap: () {
-                Get.to(() => const RateOrderScreen());
-              },
-            ),
-          ],
-        ),
+        for (final order in _localStoreOrders) _groceryOrderCard(order),
       ],
     );
   }
 
-  Widget _buildPaymentPendingCard() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+  Widget _buildUnloadedOrders() {
+    if (selectedCategoryIndex == 0) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 28),
+      child: Center(
+        child: Text(
+          'orders_no_orders'.tr,
+          style: GoogleFonts.outfit(
+            color: const Color(0xFFA59A94),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text('Salam Supermarket', style: AppTextStyles.title()),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF4EC),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text.rich(
-                  TextSpan(
-                    style: GoogleFonts.outfit(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.2,
-                    ),
-                    children: const [
-                      TextSpan(
-                        text: 'DELIVERED',
-                        style: TextStyle(color: Color(0xFF00B25C)),
-                      ),
-                      TextSpan(
-                        text: ' • ',
-                        style: TextStyle(color: Color(0xFFFF5E00)),
-                      ),
-                      TextSpan(
-                        text: 'PAYMENT PENDING',
-                        style: TextStyle(color: Color(0xFFFF5E00)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Delivery • 1500 MRU • 10 items • #22789000',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _buildOrderButton(
-                text: 'Reorder',
-                onTap: () => _showReorderSnackBar(),
-              ),
-              const SizedBox(width: 12),
-              _buildOrderButton(
-                text: 'Rate',
-                onTap: () {
-                  Get.to(() => const RateOrderScreen());
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              width: double.infinity,
-              height: 46,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                'Pay Now',
-                style: GoogleFonts.outfit(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOrderUpdatedCard() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text('Salam Supermarket', style: AppTextStyles.title()),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAF0FF),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.to(
-                      () => const OrderUpdatedDetailScreen(
-                        orderId: '#22789000',
-                        storeName: 'Salam Supermarket',
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'REVIEW CHANGES',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF3B6FE8),
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Delivery • 210 MRU • 4 items • #22789002',
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEEF2FF),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 22,
-                      height: 22,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.sync_problem_rounded,
-                        color: Colors.white,
-                        size: 13,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Order Updated',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Salam Supermarket adjusted unavailable items. Please review and approve the changes before your order continues.',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF5C656F),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.account_balance_wallet_outlined,
-                        color: Color(0xFFFF5E00),
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Adjustment Difference:',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF0EA),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '+10 MRU Credit Due',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3EFEA),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Reject',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF2C2520),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Get.to(
-                      () => const OrderUpdatedDetailScreen(
-                        orderId: '#22789000',
-                        storeName: 'Salam Supermarket',
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 46,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(
-                            0xFFFF5E00,
-                          ).withValues(alpha: 0.28),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Approve Changes',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                Get.to(
-                  () => const OrderUpdatedDetailScreen(
-                    orderId: '#22789000',
-                    storeName: 'Salam Supermarket',
-                  ),
-                );
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'View Order Status & Details',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: Color(0xFFFF5E00),
-                    size: 18,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -1425,7 +1197,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'View Order Status & Details',
+                      'orders_view_status_details'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 10.5,
@@ -1512,20 +1284,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       ),
     );
   }
-
-  // SnackBar notifications
-  void _showCancelDialog({String? orderId}) {
-    showCancelOrderBottomSheet(context, orderId: orderId);
-  }
-
-  void _showReorderSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Items added for reorder!', style: GoogleFonts.outfit()),
-        backgroundColor: const Color(0xFF00B25C),
-      ),
-    );
-  }
 }
 
 /// Shows a tracking response as key/value lines until a tracking design exists.
@@ -1555,7 +1313,7 @@ class _TrackingSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Order tracking',
+            'orders_tracking_title'.tr,
             style: GoogleFonts.outfit(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -1564,7 +1322,7 @@ class _TrackingSheet extends StatelessWidget {
           const SizedBox(height: 12),
           if (data.isEmpty)
             Text(
-              '${detail['message'] ?? 'No details'}',
+              '${detail['message'] ?? 'orders_no_details'.tr}',
               style: GoogleFonts.outfit(fontSize: 13),
             )
           else

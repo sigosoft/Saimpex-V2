@@ -4,6 +4,8 @@ class ApiConstants {
       'https://dev.saimpexenterprise.com/storage/';
 
   static const String splash = 'customer/splash';
+  static const String search = 'customer/search';
+  static const String imageSearch = 'customer/image-recognition/analyze';
   static const String sendOtp = 'customer/sendOtp';
   static const String verifyOtp = 'customer/verifyOtp';
   static const String customerCheck = 'customer/customerCheck';
@@ -18,6 +20,17 @@ class ApiConstants {
   static const String userPoints = 'customer/userPoints';
   static const String updateLocation = 'customer/updateLocation';
   static const String fetchLocation = 'customer/fetchLocation';
+  static const String addresses = 'customer/addresses';
+  static const String saveAddress = 'customer/addresses/save';
+  static const String deleteAddress = 'customer/addresses/delete';
+  static const String favourites = 'customer/favourites';
+  static const String toggleFavourite = 'customer/favourites/toggle';
+  static const String loyalty = 'customer/loyalty';
+  static const String applyReferral = 'customer/referral/apply';
+  static const String claimMission = 'customer/missions/claim';
+  static const String rewardList = 'customer/rewardList';
+  static const String redeemBasket = 'customer/redeemBasket';
+  static const String rewardHistory = 'customer/transactionHistory';
   static const String pharmacyHome = 'customer/pharmacyHome';
   static const String pharmacyHomeCategories =
       'customer/pharmacyHomeCategories';
@@ -39,6 +52,10 @@ class ApiConstants {
   static String prescriptionPay(int id) => 'customer/prescription/$id/pay';
   static String prescriptionAccept(int id) =>
       'customer/prescription/$id/accept';
+  static String prescriptionDecline(int id) =>
+      'customer/prescription/$id/decline';
+  static String prescriptionAlternatives(int id) =>
+      'customer/prescription/$id/alternatives';
   static const String pharmacyOrders = 'customer/orders/pharmacy';
   static const String restaurantOrders = 'customer/orders/restaurant';
   static const String cartList = 'customer/cart/list';
@@ -53,6 +70,8 @@ class ApiConstants {
       'customer/catalog/cart/item/delete';
   static const String catalogCartUpdate = 'customer/catalog/cart/update';
   static const String catalogCheckout = 'customer/catalog/checkout';
+  static const String catalogCheckoutSummary =
+      'customer/catalog/checkoutSummary';
   static const String catalogOrderDetail = 'customer/catalog/orderDetail';
   static const String cartPharmacyAttachPrescription =
       'customer/cart/pharmacy/attachPrescription';
@@ -66,6 +85,25 @@ class ApiConstants {
   static const String masrviInit = 'customer/payments/masrvi/init';
   static const String orderDetails = 'customer/orderDetails';
   static const String cancelOrder = 'customer/cancelOrder';
+  static const String payAfterDelivery = 'customer/payAfterDelivery';
+  static const String paymentMethods = 'customer/paymentMethods';
+  static const String chatbotMessage = 'customer/chatbot/message';
+  static const String chatbotConversations = 'customer/chatbot/conversations';
+  static String chatbotConversation(int id) =>
+      'customer/chatbot/conversations/$id';
+  static const String preorderWindow = 'customer/preorder/window';
+  static String orderSubstitutions(int orderId) =>
+      'customer/orders/$orderId/substitutions';
+  static String substitutionRespond(int id) =>
+      'customer/substitutions/$id/respond';
+  static String orderPayDue(int orderId) => 'customer/orders/$orderId/payDue';
+  static const String wallet = 'customer/wallet';
+  static const String walletTopUp = 'customer/wallet/topup';
+  static String walletTopUpStatus(int id) => 'customer/wallet/topup/$id';
+  static String orderPayOnline(int orderId) =>
+      'customer/orders/$orderId/payOnline';
+  static String payAfterDeliveryPay(int orderId) =>
+      'customer/payAfterDelivery/orders/$orderId/pay';
   static const String trackOrder = 'customer/trackOrder';
   static const String coupons = 'customer/coupons';
   static const String applyCoupon = 'customer/applyCoupon';
@@ -120,12 +158,44 @@ class ApiConstants {
   static const String waterSearchV2 = 'customer/waterSearchV2';
   static const String waterPlans = 'customer/water/plans';
   static const String waterSubscriptions = 'customer/water/subscriptions';
+  static const String waterSubscribe = 'customer/water/subscribe';
+  static const String serviceProviders = 'customer/serviceProviders';
+  static const String serviceProvider = 'customer/serviceProvider';
+  static const String serviceSlots = 'customer/serviceSlots';
+  static const String serviceQuote = 'customer/service/quote';
+  static const String serviceBook = 'customer/service/book';
+  static const String serviceBookings = 'customer/service/bookings';
+  static const String serviceBooking = 'customer/service/booking';
+  static const String serviceCancel = 'customer/service/cancel';
+  static const String waterSubscriptionPause =
+      'customer/water/subscription/pause';
+  static const String waterSubscriptionResume =
+      'customer/water/subscription/resume';
+  static const String waterSubscriptionCancel =
+      'customer/water/subscription/cancel';
   static const String waterCategories = 'customer/water/categories';
   static const String waterItems = 'customer/water/items';
   static const String waterOrders = 'customer/orders/water';
   static const String cartWaterAdd = 'customer/cart/water/add';
   static const String cartGroceryAdd = 'customer/cart/grocery/add';
   static const String cartGroceryRemove = 'customer/cart/grocery/remove';
+  static const String localStoreHome = 'customer/localStoreHome';
+  static const String localStoreDetails = 'customer/localStore/details';
+  static const String localStoreCategories = 'customer/localStore/categories';
+  static const String localStoreSubCategories =
+      'customer/localStore/subCategories';
+  static const String localStoreItems = 'customer/localStore/items';
+  static const String localStoreItemsSearch =
+      'customer/localStore/items/search';
+  static const String localStoreItemsBarcodeSearch =
+      'customer/localStore/items/barcode/search';
+  static const String localStoreItemDetail = 'customer/localStore/item/detail';
+  static const String localStoreMenuVariants =
+      'customer/localStore/getMenuItemVariants';
+  static const String cartLocalStoreAdd = 'customer/cart/localStore/add';
+  static const String cartLocalStoreRemove = 'customer/cart/localStore/remove';
+  static const String localStoreOrders = 'customer/orders/localStore';
+  static const String expressHome = 'customer/expressHome';
   static const String homeHub = 'customer/homeHub';
   static const String reviews = 'customer/reviews';
   static const String getAbout = 'customer/getAbout';
@@ -135,6 +205,9 @@ class ApiConstants {
   static const String chatAllConversations = 'customer/chat/allConversations';
   static const String chatGetConversation = 'customer/chat/getConversation';
   static const String chatSendMessage = 'customer/chat/sendMessage';
+  static const String chatMarkAsRead = 'customer/chat/markAsRead';
+  static const String chatDeleteConversation =
+      'customer/chat/deleteConversation';
 
   static String? mediaUrl(String? path) {
     if (path == null) return null;

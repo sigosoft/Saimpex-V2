@@ -114,7 +114,7 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
       () => PharmacyItemsScreen(
         store: {
           'id': '$pharmacyId',
-          'title': product['pharmacyName'] ?? 'Pharmacy',
+          'title': product['pharmacyName'] ?? 'pw_pharmacy'.tr,
           'image': product['pharmacyImage'] ?? '',
           'subtitle': '',
         },
@@ -200,7 +200,7 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
                   : !hasResults
                   ? Center(
                       child: Text(
-                        'No results',
+                        'pw_no_results'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 13,
@@ -218,7 +218,7 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
                       ),
                       children: [
                         if (_pharmacies.isNotEmpty) ...[
-                          _sectionTitle('Pharmacies'),
+                          _sectionTitle('pw_pharmacies'.tr),
                           const SizedBox(height: 10),
                           for (final pharmacy in _pharmacies) ...[
                             _resultTile(
@@ -238,7 +238,7 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
                         ],
                         if (_products.isNotEmpty) ...[
                           if (_pharmacies.isNotEmpty) const SizedBox(height: 8),
-                          _sectionTitle('Products'),
+                          _sectionTitle('pw_products'.tr),
                           const SizedBox(height: 10),
                           for (final product in _products) ...[
                             _resultTile(
@@ -285,7 +285,7 @@ class _PharmacySearchScreenState extends State<PharmacySearchScreen> {
                 height: 1,
               ),
               decoration: InputDecoration(
-                hintText: 'What do you need today?',
+                hintText: 'pw_what_do_you_need'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12.5,

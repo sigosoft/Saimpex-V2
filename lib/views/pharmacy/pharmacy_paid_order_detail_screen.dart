@@ -3,10 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
-import '../../core/network/api_exception.dart';
-import '../../models/order_repository.dart';
-import '../../utils/api_language.dart';
-import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
@@ -78,20 +74,6 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
     );
   }
 
-  Future<void> _cancelOrder() async {
-    final id = apiOrderId;
-    if (id == null || id < 1 || !Get.isRegistered<OrderRepository>()) return;
-    try {
-      final message = await Get.find<OrderRepository>().cancelOrder(
-        orderId: id,
-        language: apiLanguageCode(),
-      );
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
-    } on ApiException catch (error) {
-      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final imageUrl = prescriptionImageUrl ?? '';
@@ -110,11 +92,11 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     Align(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       child: AppBackButton(onTap: () => Navigator.pop(context)),
                     ),
                     Text(
-                      'Order $displayId',
+                      'pw_order_id'.trParams({'id': displayId}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 17,
@@ -137,7 +119,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                     _buildOrderStatusCard(),
                     const SizedBox(height: 18),
                     Text(
-                      'Medicines In Your Quotation',
+                      'pw_medicines_in_quotation'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
@@ -166,7 +148,9 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      isDelivery ? 'Delivery Details' : 'Pickup Location',
+                      isDelivery
+                          ? 'pw_delivery_details'.tr
+                          : 'pw_pickup_location'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
@@ -215,7 +199,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         showCancelOrderBottomSheet(
           context,
           orderId: orderId,
-          onConfirm: () => _cancelOrder(),
+          apiOrderId: apiOrderId,
         );
       },
       child: Container(
@@ -226,7 +210,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Cancel',
+          'cancel'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
@@ -266,7 +250,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Track Order',
+          'pw_track_order'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 14,
@@ -296,7 +280,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Prescription',
+            'pw_prescription'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 14,
@@ -326,25 +310,25 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
     final steps = isDelivery
         ? const [
             _StatusStep(
-              label: 'Payment\nSuccessful',
+              label: 'pw_step_payment_successful',
               time: '23 Oct 2023,\n10:20 AM',
               done: true,
               icon: Icons.check_rounded,
             ),
             _StatusStep(
-              label: 'Preparing\nMedicines',
+              label: 'pw_step_preparing_medicines',
               time: '23 Oct 2023,\n10:24 AM',
               done: true,
               icon: Icons.medication_liquid_rounded,
             ),
             _StatusStep(
-              label: 'On the way',
+              label: 'pw_step_on_the_way',
               time: '23 Oct 2023,\n10:40 AM',
               done: true,
               icon: Icons.delivery_dining_rounded,
             ),
             _StatusStep(
-              label: 'Delivered',
+              label: 'pw_step_delivered',
               time: '',
               done: false,
               icon: Icons.check_rounded,
@@ -352,26 +336,26 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           ]
         : const [
             _StatusStep(
-              label: 'Payment\nSuccessful',
+              label: 'pw_step_payment_successful',
               time: '23 Oct 2023,\n10:20 AM',
               done: true,
               icon: Icons.check_rounded,
             ),
             _StatusStep(
-              label: 'Preparing\nMedicines',
+              label: 'pw_step_preparing_medicines',
               time: '23 Oct 2023,\n10:24 AM',
               done: true,
               icon: Icons.medication_liquid_rounded,
             ),
             _StatusStep(
-              label: 'Ready for\nPickup',
+              label: 'pw_step_ready_for_pickup',
               time: '23 Oct 2023,\n10:40 AM',
               done: true,
               icon: Icons.shopping_bag_outlined,
               highlight: true,
             ),
             _StatusStep(
-              label: 'Delivered',
+              label: 'pw_step_delivered',
               time: '',
               done: false,
               icon: Icons.check_rounded,
@@ -396,7 +380,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Order Status',
+                'pw_order_status'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
@@ -405,7 +389,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                isDelivery ? 'Delivery' : 'Self Pickup',
+                isDelivery ? 'pw_delivery'.tr : 'pw_self_pickup'.tr,
                 style: GoogleFonts.outfit(
                   color: isDelivery
                       ? const Color(0xFFFF5E00)
@@ -503,7 +487,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                         child: Column(
                           children: [
                             Text(
-                              step.label,
+                              step.label.tr,
                               textAlign: TextAlign.center,
                               style: GoogleFonts.outfit(
                                 color: step.done
@@ -610,7 +594,9 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    unit.startsWith('Unit:') ? unit : 'Unit: $unit',
+                    unit.startsWith('Unit:')
+                        ? unit
+                        : 'pw_unit_value'.trParams({'unit': unit}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 11,
@@ -619,7 +605,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Total: ',
+                  'pw_total_colon'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 12,
@@ -635,7 +621,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  ' MRU',
+                  ' ${'pw_mru_suffix'.tr}',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 12,
@@ -662,7 +648,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Suggested Alternative',
+            'quote_suggested_alternative'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF8A94A6),
               fontSize: 12,
@@ -702,9 +688,9 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Padding(
-                  padding: const EdgeInsets.only(left: 0),
+                  padding: const EdgeInsetsDirectional.only(start: 0),
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: Container(
                       width: 22,
                       height: 22,
@@ -767,7 +753,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Unit',
+                'pw_unit'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF8A94A6),
                   fontSize: 11,
@@ -790,7 +776,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              'Total',
+              'pw_total'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF8A94A6),
                 fontSize: 11,
@@ -811,7 +797,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'MRU',
+                  'pw_mru_suffix'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13,
@@ -1007,7 +993,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '(10k + reviews)',
+                      'pw_reviews_count'.trParams({'count': '10k +'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
@@ -1049,7 +1035,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'QUOTATION SUMMARY',
+            'pw_quotation_summary_caps'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
@@ -1058,14 +1044,17 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Item total', orderMoneyText(_payment['item_total'])),
-          const SizedBox(height: 10),
-          _payRow('Delivery fee', orderMoneyText(_payment['delivery_fee'])),
-          const SizedBox(height: 10),
-          _payRow('Tax', orderMoneyText(_payment['tax'])),
+          _payRow('pw_item_total'.tr, orderMoneyText(_payment['item_total'])),
           const SizedBox(height: 10),
           _payRow(
-            'Redeemed points',
+            'cart_delivery_fee'.tr,
+            orderMoneyText(_payment['delivery_fee']),
+          ),
+          const SizedBox(height: 10),
+          _payRow('cart_tax'.tr, orderMoneyText(_payment['tax'])),
+          const SizedBox(height: 10),
+          _payRow(
+            'cart_redeemed_points'.tr,
             orderMoneyText(_payment['redeemed_points'], negative: true),
             valueColor: const Color(0xFFFF5E00),
             labelColor: const Color(0xFFFF5E00),
@@ -1077,7 +1066,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Total Paid',
+                'pw_total_paid'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,

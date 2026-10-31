@@ -101,6 +101,181 @@ class ProfileRepository {
     return envelope.message;
   }
 
+  /// The address book: `{id, label, address, latitude, longitude}` rows.
+  Future<List<Map<String, dynamic>>> savedAddresses(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.addresses),
+      language,
+    );
+    return _rows(asJsonMap(envelope.data)?['addresses']);
+  }
+
+  /// Creates a saved address, or edits [addressId]. [label] is Home, Office
+  /// or Other; saving a second Home/Office replaces the first.
+  Future<String> saveAddress({
+    int? addressId,
+    required String label,
+    required String address,
+    required double latitude,
+    required double longitude,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.saveAddress,
+        data: {
+          'address_id': ?addressId,
+          'label': label,
+          'address': address,
+          'latitude': latitude,
+          'longitude': longitude,
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  Future<String> deleteAddress({
+    required int addressId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.deleteAddress,
+        data: {'address_id': addressId},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Hearted cards: the card fields saved with each, plus `id`.
+  Future<List<Map<String, dynamic>>> favourites(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.favourites),
+      language,
+    );
+    return _rows(asJsonMap(envelope.data)?['favourites']);
+  }
+
+  /// Sets whether [itemId] is a favourite, saving [card] for My Favourites.
+  Future<void> setFavourite({
+    required String itemId,
+    required bool favourite,
+    Map<String, dynamic> card = const {},
+    required String language,
+  }) async {
+    await _send(
+      () => _client.dio.post(
+        ApiConstants.toggleFavourite,
+        data: {'item_id': itemId, 'favourite': favourite, 'card': card},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+  }
+
+  /// Tier, weekly missions and referral (customer/loyalty).
+  Future<Map<String, dynamic>> loyalty(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.loyalty,
+        queryParameters: {'language': language},
+      ),
+      language,
+    );
+    return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
+  Future<String> applyReferral({
+    required String code,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.applyReferral,
+        data: {'code': code},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  Future<String> claimMission({
+    required int missionId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.claimMission,
+        data: {'mission_id': missionId},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Baskets redeemable with store points near [latitude]/[longitude].
+  Future<List<Map<String, dynamic>>> rewardBaskets({
+    required double latitude,
+    required double longitude,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.rewardList,
+        queryParameters: {
+          'limit': 20,
+          'latitude': latitude,
+          'longitude': longitude,
+        },
+      ),
+      language,
+    );
+    return _rows(asJsonMap(envelope.data)?['data']);
+  }
+
+  /// Adds a points basket to the cart.
+  Future<String> redeemBasket({
+    required int basketId,
+    required int vendorId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.redeemBasket,
+        data: {'basket_id': basketId, 'vendor_id': vendorId},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Store points earned and spent, newest first.
+  Future<List<Map<String, dynamic>>> rewardHistory(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.rewardHistory,
+        queryParameters: {'limit': 20},
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    return _rows(data?['data'] ?? asJsonMap(data?['logs'])?['data']);
+  }
+
+  static List<Map<String, dynamic>> _rows(dynamic value) => [
+    if (value is List)
+      for (final row in value)
+        if (asJsonMap(row) != null) asJsonMap(row)!,
+  ];
+
   Future<({String address, double? latitude, double? longitude})> fetchLocation(
     String language,
   ) async {

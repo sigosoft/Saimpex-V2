@@ -46,6 +46,13 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   static const double _searchFiltersExtent = 98;
 
   GroceryRepository _getGroceryRepo() {
+    // Local stores reuse this screen against the local store API.
+    if (widget.store['isLocalStore'] == true &&
+        Get.isRegistered<GroceryRepository>(
+          tag: GroceryRepository.localStoreTag,
+        )) {
+      return Get.find<GroceryRepository>(tag: GroceryRepository.localStoreTag);
+    }
     if (Get.isRegistered<GroceryRepository>()) {
       return Get.find<GroceryRepository>();
     }
@@ -145,8 +152,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     try {
       final repo = _getGroceryRepo();
       final lang = currentApiLanguage();
-      final lat = SelectLocationController.selectedLatitude ?? 18.0735;
-      final lng = SelectLocationController.selectedLongitude ?? -15.9582;
+      final lat = SelectLocationController.selectedLatitude;
+      final lng = SelectLocationController.selectedLongitude;
       final groceryId = _groceryId();
 
       final details = await repo.fetchGroceryDetails(
@@ -304,7 +311,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               ? null
               : int.tryParse('${sub['sub_category_id'] ?? sub['id']}');
           final selected = _activeSubCategoryId == subId;
-          final label = sub == null ? 'All' : (sub['label'] ?? '').toString();
+          final label = sub == null
+              ? 'st_all'.tr
+              : (sub['label'] ?? '').toString();
 
           return GestureDetector(
             onTap: () => _selectSubCategory(subId),
@@ -339,13 +348,13 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     String message;
     final lower = title.toLowerCase();
     if (lower.contains('item') || lower.contains('product')) {
-      message = 'No items available from this store';
+      message = 'st_no_store_items'.tr;
     } else if (lower.contains('bundle')) {
-      message = 'No smart bundles available';
+      message = 'st_no_smart_bundles'.tr;
     } else if (lower.contains('categor')) {
-      message = 'No categories available';
+      message = 'st_no_categories'.tr;
     } else {
-      message = 'No data available';
+      message = 'st_no_data'.tr;
     }
 
     return SizedBox(
@@ -444,7 +453,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 textInputAction: TextInputAction.search,
                 onSubmitted: (_) => _loadGroceryItems(),
                 decoration: InputDecoration(
-                  hintText: 'Find something from this Store',
+                  hintText: 'st_find_in_store'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12,
@@ -480,14 +489,14 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     return AppFilterChipsRow(
       children: [
         AppFilterChip(
-          label: 'Filter',
+          label: 'st_filter'.tr,
           onTap: () => _showFilterBottomSheet(),
           leading: AppFilterChip.widgetLeading(
             Image.asset("lib/assets/images/Filter.png"),
           ),
         ),
         AppFilterChip(
-          label: 'Under 200 MRU',
+          label: 'st_under_200'.tr,
           selected: filters.priceRange == 'under_200',
           onTap: () => _changeFilters(
             filters.priceRange == 'under_200'
@@ -497,7 +506,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
           leading: AppFilterChip.mruLeading(),
         ),
         AppFilterChip(
-          label: 'Offers',
+          label: 'st_offers'.tr,
           selected: filters.offersOnly,
           onTap: () =>
               _changeFilters(filters.copyWith(offersOnly: !filters.offersOnly)),
@@ -506,7 +515,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
           ),
         ),
         AppFilterChip(
-          label: 'Rating',
+          label: 'st_rating'.tr,
           selected: filters.rating == 4.0,
           onTap: () => _changeFilters(
             filters.rating == 4.0
@@ -605,7 +614,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     final storeRating =
         (currentStore['rating'] ?? widget.store['rating'] ?? '4.6').toString();
     final storeCategory =
-        (currentStore['category'] ?? widget.store['category'] ?? 'Grocery')
+        (currentStore['category'] ??
+                widget.store['category'] ??
+                'st_grocery'.tr)
             .toString();
     final storeTime =
         (currentStore['time'] ?? widget.store['time'] ?? '30-35 min')
@@ -833,8 +844,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                           Expanded(
                                             child: Text(
                                               isTemporarilyClosed
-                                                  ? 'Temporarily not accepting orders'
-                                                  : 'Currently Closed',
+                                                  ? 'st_temporarily_closed'.tr
+                                                  : 'st_currently_closed'.tr,
                                               style: GoogleFonts.outfit(
                                                 color: const Color(0xFFEF4444),
                                                 fontSize: 11,
@@ -894,7 +905,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Text(
-                                                  'Chat with Store',
+                                                  'st_chat_with_store'.tr,
                                                   style: GoogleFonts.outfit(
                                                     color: Colors.white,
                                                     fontSize: 13,
@@ -1088,8 +1099,10 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                           ),
                                                     const SizedBox(height: 8),
                                                     Text(
-                                                      (sub['label'] ?? '')
-                                                          .toString(),
+                                                      isAll
+                                                          ? 'st_all'.tr
+                                                          : (sub['label'] ?? '')
+                                                                .toString(),
                                                       textAlign:
                                                           TextAlign.center,
                                                       maxLines: 1,
@@ -1169,9 +1182,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: Text(
-                          'Smart Bundles',
+                          'st_smart_bundles'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
@@ -1203,9 +1216,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: Text(
-                          'All Items from This Store',
+                          'st_all_store_items'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
@@ -1352,7 +1365,12 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'View Cart • ${controller.cartItemCount.value} ${controller.cartItemCount.value == 1 ? 'item' : 'items'}',
+                              controller.cartItemCount.value == 1
+                                  ? 'st_view_cart_one'.tr
+                                  : 'st_view_cart_many'.trParams({
+                                      'count':
+                                          '${controller.cartItemCount.value}',
+                                    }),
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -1360,7 +1378,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               ),
                             ),
                             Text(
-                              'Ready in 30-35 min',
+                              'st_ready_in'.trParams({'time': '30-35'}),
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 10,
@@ -1374,7 +1392,10 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '${_cartAmountText(controller.cartAmount.value)} MRU',
+                            'mru'.trParams({
+                              'amount':
+                                  '${_cartAmountText(controller.cartAmount.value)}',
+                            }),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 13,
@@ -1496,7 +1517,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          'Store is currently closed or temporarily not accepting orders.',
+                          'st_store_not_accepting'.tr,
                           style: GoogleFonts.outfit(),
                         ),
                         backgroundColor: const Color(0xFFEF4444),
@@ -1564,7 +1585,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    isNotAccepting ? 'CLOSED' : 'ADD',
+                    isNotAccepting ? 'st_closed_caps'.tr : 'st_add_caps'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 11,
@@ -1645,7 +1666,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    inStock ? '${variant['price']}' : 'Out of stock',
+                    inStock ? '${variant['price']}' : 'st_out_of_stock'.tr,
                     style: GoogleFonts.outfit(
                       color: inStock
                           ? const Color(0xFFFF5E00)
@@ -1793,7 +1814,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    'Store is currently closed or temporarily not accepting orders.',
+                                    'st_store_not_accepting'.tr,
                                     style: GoogleFonts.outfit(),
                                   ),
                                   backgroundColor: const Color(0xFFEF4444),
@@ -1838,10 +1859,10 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             const SizedBox(width: 4),
                             Text(
                               isNotAccepting
-                                  ? 'CLOSED'
+                                  ? 'st_closed_caps'.tr
                                   : (food['inStock'] == false
-                                        ? 'SOLD OUT'
-                                        : 'ADD'),
+                                        ? 'st_sold_out_caps'.tr
+                                        : 'st_add_caps'.tr),
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 11,
@@ -1998,7 +2019,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               const SizedBox(height: 14),
 
                               Text(
-                                'Premium quality fresh product sourced directly from local producers, ensuring high nutritional value and clean packaging.',
+                                'st_product_description'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF7A6A60),
                                   fontSize: 12,
@@ -2019,7 +2040,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               ).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                    'Store is currently closed or temporarily not accepting orders.',
+                                                    'st_store_not_accepting'.tr,
                                                     style: GoogleFonts.outfit(),
                                                   ),
                                                   backgroundColor: const Color(
@@ -2078,8 +2099,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                             const SizedBox(width: 8),
                                             Text(
                                               isNotAccepting
-                                                  ? 'CLOSED'
-                                                  : 'ADD TO CART',
+                                                  ? 'st_closed_caps'.tr
+                                                  : 'st_add_to_cart_caps'.tr,
                                               style: GoogleFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 13,
@@ -2218,7 +2239,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     final variants = await _loadVariants(food);
     if (!mounted || !context.mounted) return;
     if (variants.isEmpty) {
-      ToastHelper.showError('No sizes are available for this item');
+      ToastHelper.showError('st_no_sizes'.tr);
       return;
     }
 
@@ -2276,7 +2297,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             children: [
                               // Quantity Section
                               Text(
-                                'Quantity',
+                                'st_quantity'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
@@ -2335,14 +2356,14 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
-                                alignment: Alignment.centerLeft,
+                                alignment: AlignmentDirectional.centerStart,
                                 child: TextField(
                                   style: GoogleFonts.outfit(
                                     fontSize: 12,
                                     color: const Color(0xFF2C2520),
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: 'Customize  your quantity here',
+                                    hintText: 'st_customize_quantity'.tr,
                                     hintStyle: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
@@ -2357,7 +2378,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
 
                               // Add Order Notes Section
                               Text(
-                                'Add Order Notes',
+                                'st_add_order_notes'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
@@ -2393,8 +2414,17 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                           color: const Color(0xFF2C2520),
                                         ),
                                         decoration: InputDecoration(
-                                          hintText:
-                                              'Add notes (e.g, fresh ${title.toLowerCase().replaceAll(RegExp(r'\s*\d+\s*[kKgGlL]+'), '')} only...)',
+                                          hintText: 'st_add_notes_hint'
+                                              .trParams({
+                                                'item': title
+                                                    .toLowerCase()
+                                                    .replaceAll(
+                                                      RegExp(
+                                                        r'\s*\d+\s*[kKgGlL]+',
+                                                      ),
+                                                      '',
+                                                    ),
+                                              }),
                                           hintStyle: GoogleFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 12,
@@ -2527,7 +2557,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       variants[selectedQuantityIndex];
                                   if (variant['inStock'] != true) {
                                     ToastHelper.showError(
-                                      'This size is out of stock',
+                                      'st_size_out_of_stock'.tr,
                                     );
                                     return;
                                   }
@@ -2595,7 +2625,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        '${food['title']} added to cart!',
+                                        'st_added_to_cart'.trParams({
+                                          'item': '${food['title']}',
+                                        }),
                                         style: GoogleFonts.outfit(),
                                       ),
                                       backgroundColor: const Color(0xFFFF5E00),
@@ -2635,7 +2667,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        'ADD',
+                                        'st_add_caps'.tr,
                                         style: GoogleFonts.outfit(
                                           color: Colors.white,
                                           fontSize: 13,
@@ -2815,6 +2847,19 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
     );
   }
 
+  // Chip values stay in English (they drive the filters); only the text
+  // shown is translated. Store tags come from the server as they are.
+  static const _chipKeys = {
+    'Offers': 'st_offers',
+    'Ratings 4.5+': 'st_ratings_45',
+    'Ratings 4.0+': 'st_ratings_40',
+    'Ratings 3.0+': 'st_ratings_30',
+    'Relevance': 'st_sort_relevance',
+    'Delivery Time': 'st_sort_delivery_time',
+    'Cost: Low to High': 'st_sort_cost_low_high',
+    'Cost: High to Low': 'st_sort_cost_high_low',
+  };
+
   Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -2831,7 +2876,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
           ),
         ),
         child: Text(
-          label,
+          _chipKeys[label]?.tr ?? label,
           style: GoogleFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5E00)
@@ -2870,7 +2915,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                     children: [
                       const SizedBox(width: 60),
                       Text(
-                        'Filters',
+                        'st_filters'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 16,
@@ -2880,7 +2925,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                       GestureDetector(
                         onTap: _clearAll,
                         child: Text(
-                          'Clear all',
+                          'st_clear_all'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 12,
@@ -2900,7 +2945,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                     children: filterTags.map((tag) {
                       final isSelected = selectedTags.contains(tag);
                       return Padding(
-                        padding: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsetsDirectional.only(end: 8),
                         child: _buildChip(tag, isSelected, () {
                           setState(() {
                             if (selectedTags.contains(tag)) {
@@ -2927,7 +2972,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Price Range',
+                        'st_price_range'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
@@ -2935,7 +2980,10 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                         ),
                       ),
                       Text(
-                        '${priceRange.start.round()} MRU - ${priceRange.end.round()} MRU',
+                        'st_price_range_value'.trParams({
+                          'min': '${priceRange.start.round()}',
+                          'max': '${priceRange.end.round()}',
+                        }),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 14,
@@ -2974,7 +3022,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '0 MRU',
+                        'mru'.trParams({'amount': '0'}),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 11,
@@ -2982,7 +3030,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                         ),
                       ),
                       Text(
-                        '3000 MRU',
+                        'mru'.trParams({'amount': '3000'}),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 11,
@@ -2995,7 +3043,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                 const SizedBox(height: 22),
                 Center(
                   child: Text(
-                    'Sort by',
+                    'st_sort_by'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
@@ -3012,7 +3060,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                     children: sortOptions.map((option) {
                       final isSelected = selectedSortBy == option;
                       return Padding(
-                        padding: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsetsDirectional.only(end: 8),
                         child: _buildChip(option, isSelected, () {
                           setState(() => selectedSortBy = option);
                         }),
@@ -3042,7 +3090,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                             borderRadius: BorderRadius.circular(25),
                           ),
                           child: Text(
-                            'Clear All',
+                            'st_clear_all'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 14,
@@ -3076,7 +3124,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                               ],
                             ),
                             child: Text(
-                              'Apply',
+                              'st_apply'.tr,
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 15,

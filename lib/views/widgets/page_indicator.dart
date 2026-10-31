@@ -12,24 +12,21 @@ class PageIndicator extends StatelessWidget {
     return Obx(
       () => Row(
         mainAxisSize: MainAxisSize.min,
-        children: List.generate(
-          controller.pageCount,
-          (index) {
-            final isActive = controller.currentIndex.value == index;
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              margin: const EdgeInsets.only(right: 6),
-              height: 6,
-              width: isActive ? 24 : 6,
-              decoration: BoxDecoration(
-                color: isActive
-                    ? const Color(0xFFFF5E00)
-                    : Colors.white.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(3),
-              ),
-            );
-          },
-        ),
+        children: List.generate(controller.pageCount, (index) {
+          final isActive = controller.currentIndex.value == index;
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            margin: const EdgeInsetsDirectional.only(end: 6),
+            height: 6,
+            width: isActive ? 24 : 6,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? const Color(0xFFFF5E00)
+                  : Colors.white.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          );
+        }),
       ),
     );
   }

@@ -40,24 +40,28 @@ class OtpScreen extends StatelessWidget {
       builder: (context, constraints) {
         return SingleChildScrollView(
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-            ),
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: IntrinsicHeight(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Back Button top left
-                    Align(alignment: Alignment.centerLeft, child: _buildBackButton()),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: _buildBackButton(),
+                    ),
                     const Spacer(flex: 1),
                     // Shield graphic
                     _buildShieldGraphic(),
                     const SizedBox(height: 36),
                     // Heading
                     Text(
-                      'OTP Verification',
+                      'core_otp_title'.tr,
                       style: GoogleFonts.playfairDisplay(
                         color: const Color(0xFF2C2520),
                         fontSize: 26,
@@ -69,7 +73,9 @@ class OtpScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        "We've sent a 6-digit verification code to your WhatsApp number ${controller.phoneNumber}",
+                        'core_otp_subtitle'.trParams({
+                          'phone': controller.phoneNumber,
+                        }),
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
                           color: AppColors.textMuted,
@@ -111,14 +117,14 @@ class OtpScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: _buildBackButton(),
                 ),
                 const SizedBox(height: 16),
                 _buildShieldGraphic(size: 80),
                 const SizedBox(height: 16),
                 Text(
-                  'OTP Verification',
+                  'core_otp_title'.tr,
                   style: GoogleFonts.playfairDisplay(
                     color: const Color(0xFF2C2520),
                     fontSize: 22,
@@ -127,7 +133,9 @@ class OtpScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "We've sent a 6-digit verification code to your WhatsApp number ${controller.phoneNumber}",
+                  'core_otp_subtitle'.trParams({
+                    'phone': controller.phoneNumber,
+                  }),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     color: AppColors.textMuted,
@@ -230,7 +238,7 @@ class OtpScreen extends StatelessWidget {
       return Column(
         children: [
           Text(
-            "Didn't receive the code?",
+            'core_otp_not_received'.tr,
             style: GoogleFonts.outfit(
               color: AppColors.textMuted,
               fontSize: 13,
@@ -241,7 +249,9 @@ class OtpScreen extends StatelessWidget {
           GestureDetector(
             onTap: isTimerActive ? null : controller.resendCode,
             child: Text(
-              isTimerActive ? 'Resend Code ($timeStr)' : 'Resend Code',
+              isTimerActive
+                  ? 'core_otp_resend_in'.trParams({'time': timeStr})
+                  : 'core_otp_resend'.tr,
               style: GoogleFonts.outfit(
                 color: AppColors.primaryOrange,
                 fontSize: 14,
@@ -291,7 +301,7 @@ class OtpScreen extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    'Continue',
+                    'core_otp_continue'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 16,

@@ -39,7 +39,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
   /// search(48) + gap(16) + filters(34) + bottom gap(12)
   static const double _searchFiltersExtent = 110;
 
-  bool _foodCategoriesLoaded = false;
   bool _foodCategoriesLoading = false;
   List<Map<String, dynamic>> subcategories = const [];
 
@@ -159,7 +158,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
       setState(() {
         _foodCategoriesLoading = false;
         subcategories = categories;
-        _foodCategoriesLoaded = true;
       });
       if (categories.isNotEmpty && Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().selectSubcategory(0);
@@ -205,6 +203,18 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  /// Category names the app passes in English; translated only for display.
+  String _titleLabel(String title) {
+    switch (title.trim().toLowerCase()) {
+      case 'food':
+        return 'core_category_food'.tr;
+      case 'all':
+        return 'core_category_all'.tr;
+      default:
+        return title;
+    }
+  }
+
   void _handleScroll() {
     if (!mounted) return;
     final ctx = _searchAnchorKey.currentContext;
@@ -221,16 +231,28 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   /// Filter chips. Chips with a param toggle that search filter in place.
   List<Map<String, dynamic>> get _filters => [
-    {'label': 'Filter', 'icon': Image.asset("lib/assets/images/Filter.png")},
-    {'label': 'Veg', 'param': 'veg', 'value': '1', 'isVeg': true},
+    {
+      'label': 'Filter',
+      'labelKey': 'core_category_filter',
+      'icon': Image.asset("lib/assets/images/Filter.png"),
+    },
+    {
+      'label': 'Veg',
+      'labelKey': 'core_category_veg',
+      'param': 'veg',
+      'value': '1',
+      'isVeg': true,
+    },
     {
       'label': 'Offers',
+      'labelKey': 'core_category_offers',
       'param': 'offers',
       'value': '1',
       'icon': Image.asset("lib/assets/images/Offer.png"),
     },
     {
       'label': 'Ratings 4.0+',
+      'labelKey': 'core_category_ratings_4',
       'param': 'rating',
       'value': '4',
       'icon': Icons.star_rounded,
@@ -300,7 +322,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 textInputAction: TextInputAction.search,
                 onSubmitted: (_) => _reloadRestaurants(),
                 decoration: InputDecoration(
-                  hintText: 'What do you need today?',
+                  hintText: 'core_category_search_hint'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
@@ -346,7 +368,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       children: [
         for (final filter in filters)
           AppFilterChip(
-            label: filter['label'] as String,
+            label: (filter['labelKey'] as String).tr,
             selected:
                 filter['param'] != null &&
                 _searchFilters[filter['param']] == filter['value'],
@@ -410,7 +432,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 children: [
                   AppBackButton(onTap: () => Get.back()),
                   Text(
-                    displayTitle,
+                    _titleLabel(displayTitle),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
@@ -457,10 +479,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               _reloadRestaurants();
                             },
                             child: Padding(
-                              padding: EdgeInsets.only(
-                                right: index == subcategories.length - 1
-                                    ? 0
-                                    : 10,
+                              padding: EdgeInsetsDirectional.only(
+                                end: index == subcategories.length - 1 ? 0 : 10,
                               ),
                               child: SizedBox(
                                 width: 62,
@@ -716,7 +736,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               Text(
                 trendingTitle.isNotEmpty
                     ? trendingTitle
-                    : 'Trending in Nouakchott',
+                    : 'core_category_trending_in_city'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
@@ -734,7 +754,16 @@ class _CategoryScreenState extends State<CategoryScreen> {
           if (showSeeAll)
             SeeAllButton(onTap: onSeeAll)
           else
-            StoreMapButton(onTap: () => Get.to(() => const StoreMapScreen())),
+            StoreMapButton(
+              // The home's map pins, else the restaurants listed here.
+              onTap: () => Get.to(
+                () => StoreMapScreen(
+                  stores: mapStores.isNotEmpty ? mapStores : items,
+                  onOpen: (store) =>
+                      Get.to(() => RestaurantDetailsScreen(restaurant: store)),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -798,9 +827,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           ),
                   ),
                   if ((item['discount'] ?? '').toString().trim().isNotEmpty)
-                    Positioned(
+                    PositionedDirectional(
                       top: 10,
-                      left: 10,
+                      start: 10,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -820,9 +849,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         ),
                       ),
                     ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: (item['discount'] ?? '').toString().trim().isNotEmpty
+                    start: (item['discount'] ?? '').toString().trim().isNotEmpty
                         ? 70
                         : 10,
                     child: Container(
@@ -855,9 +884,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    right: 10,
+                    end: 10,
                     child: Obx(() {
                       final liked = controller.isLiked(itemId);
                       return GestureDetector(
@@ -879,9 +908,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       );
                     }),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     bottom: 8,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -1004,11 +1033,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
     String message;
     final lower = title.toLowerCase();
     if (lower.contains('under 30')) {
-      message = 'No items available under 30 minutes';
+      message = 'core_category_empty_under_30'.tr;
     } else if (lower.contains('trending')) {
-      message = 'No trending restaurants available';
+      message = 'core_category_empty_trending'.tr;
     } else {
-      message = 'No restaurants available';
+      message = 'core_category_empty_restaurants'.tr;
     }
 
     return SizedBox(
@@ -1052,7 +1081,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Under 30 Minutes',
+                'core_category_under_30'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
@@ -1103,7 +1132,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       },
       child: Container(
         width: 190,
-        margin: const EdgeInsets.only(right: 14),
+        margin: const EdgeInsetsDirectional.only(end: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -1146,9 +1175,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           ),
                   ),
                   if ((item['discount'] ?? '').toString().trim().isNotEmpty)
-                    Positioned(
+                    PositionedDirectional(
                       top: 10,
-                      left: 10,
+                      start: 10,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -1168,9 +1197,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         ),
                       ),
                     ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    right: 10,
+                    end: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -1201,10 +1230,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     bottom: 8,
-                    left: 8,
-                    right: 8,
+                    start: 8,
+                    end: 8,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -1342,7 +1371,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Closed',
+                  'core_category_closed'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
@@ -1363,7 +1392,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Opens $opensAt',
+                      'core_category_opens_at'.trParams({'time': opensAt}),
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -1425,7 +1454,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Temporarily not accepting',
+                      'core_category_temp_closed_line1'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -1436,7 +1465,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  'orders',
+                  'core_category_temp_closed_line2'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
@@ -1485,25 +1514,25 @@ class _FilterBottomSheetContent extends StatefulWidget {
 class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   final List<String> selectedFoodTags = [];
   RangeValues priceRange = const RangeValues(65, 1500);
-  String selectedSortBy = 'Relevance';
+  String selectedSortBy = 'core_category_sort_relevance';
 
   final List<String> foodTags1 = [
-    'Spicy',
-    'Non Spicy',
-    'Sugar Free',
-    'Mild Sugar',
+    'core_category_tag_spicy',
+    'core_category_tag_non_spicy',
+    'core_category_tag_sugar_free',
+    'core_category_tag_mild_sugar',
   ];
   final List<String> foodTags2 = [
-    'Offers',
-    'Ratings: 4.5+',
-    'Ratings: 4.0+',
-    'Ratings: 3.5+',
+    'core_category_offers',
+    'core_category_tag_rating_45',
+    'core_category_tag_rating_40',
+    'core_category_tag_rating_35',
   ];
   final List<String> sortOptions = [
-    'Relevance',
-    'Delivery Time',
-    'Cost: Low to High',
-    'Cost: High to Low',
+    'core_category_sort_relevance',
+    'core_category_sort_delivery_time',
+    'core_category_sort_cost_low_high',
+    'core_category_sort_cost_high_low',
   ];
 
   Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
@@ -1522,7 +1551,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
           ),
         ),
         child: Text(
-          label,
+          label.tr,
           style: GoogleFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5E00)
@@ -1548,7 +1577,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         children: tags.map((tag) {
           final isSelected = selectedList.contains(tag);
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: _buildChip(tag, isSelected, () => onSelected(tag)),
           );
         }).toList(),
@@ -1569,7 +1598,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         children: options.map((option) {
           final isSelected = selectedOption == option;
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: _buildChip(option, isSelected, () => onSelected(option)),
           );
         }).toList(),
@@ -1609,7 +1638,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       children: [
                         const SizedBox(width: 60),
                         Text(
-                          'Filters',
+                          'core_category_filters'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 16,
@@ -1621,11 +1650,11 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                             setState(() {
                               selectedFoodTags.clear();
                               priceRange = const RangeValues(65, 1500);
-                              selectedSortBy = 'Relevance';
+                              selectedSortBy = 'core_category_sort_relevance';
                             });
                           },
                           child: Text(
-                            'Clear all',
+                            'core_category_clear_all'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 12,
@@ -1669,7 +1698,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Price Range',
+                          'core_category_price_range'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
@@ -1677,7 +1706,10 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           ),
                         ),
                         Text(
-                          '${priceRange.start.round()} MRU - ${priceRange.end.round()} MRU',
+                          'core_category_price_between'.trParams({
+                            'min': '${priceRange.start.round()}',
+                            'max': '${priceRange.end.round()}',
+                          }),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 14,
@@ -1727,7 +1759,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '0 MRU',
+                          'mru'.trParams({'amount': '0'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
@@ -1735,7 +1767,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           ),
                         ),
                         Text(
-                          '3000 MRU',
+                          'mru'.trParams({'amount': '3000'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
@@ -1750,7 +1782,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                   // Sort by Header
                   Center(
                     child: Text(
-                      'Sort by',
+                      'core_category_sort_by'.tr,
                       style: GoogleFonts.instrumentSans(
                         color: const Color(0xFF2C2520),
                         fontSize: 18,
@@ -1780,7 +1812,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               setState(() {
                                 selectedFoodTags.clear();
                                 priceRange = const RangeValues(65, 1500);
-                                selectedSortBy = 'Relevance';
+                                selectedSortBy = 'core_category_sort_relevance';
                               });
                             },
                             child: Container(
@@ -1791,7 +1823,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Clear All',
+                                  'core_category_clear_all'.tr,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFFFF5E00),
                                     fontSize: 14,
@@ -1833,7 +1865,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Apply',
+                                  'core_category_apply'.tr,
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 14,

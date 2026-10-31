@@ -11,10 +11,7 @@ import '../navigation/bottom_nav_router.dart';
 class BookingCancelledSuccessScreen extends StatelessWidget {
   final String? bookingId;
 
-  const BookingCancelledSuccessScreen({
-    super.key,
-    this.bookingId,
-  });
+  const BookingCancelledSuccessScreen({super.key, this.bookingId});
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +33,8 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
             child: Column(
               children: [
                 Align(
-                  alignment: Alignment.centerLeft,
-                  child: AppBackButton(
-                    onTap: () => _goHome(context),
-                  ),
+                  alignment: AlignmentDirectional.centerStart,
+                  child: AppBackButton(onTap: () => _goHome(context)),
                 ),
                 const Spacer(flex: 2),
                 Image.asset(
@@ -63,7 +58,7 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Booking Cancelled',
+                  'core_cancelled_title'.tr,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
@@ -73,9 +68,7 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Your booking has been cancelled successfully.\n'
-                  'The paid amount has been refunded to your\n'
-                  'SAIMPEX Wallet.',
+                  'core_cancelled_message'.tr,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF6E6E6E),
@@ -100,7 +93,7 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Back to Home',
+                      'core_cancelled_back_home'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 15,

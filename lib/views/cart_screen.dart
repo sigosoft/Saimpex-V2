@@ -7,6 +7,7 @@ import 'order_success_screen.dart';
 import 'payment_webview_screen.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
+import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../models/cart_repository.dart';
 import '../models/order_repository.dart';
@@ -18,6 +19,11 @@ import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 import 'pharmacy/widgets/attach_prescription_sheet.dart';
+import '../utils/payment_methods.dart';
+import '../utils/wallet_balance.dart';
+import '../widgets/no_payment_method_note.dart';
+import 'widgets/coupons_sheet.dart';
+import 'pay_later_screen.dart';
 
 class CartScreen extends StatefulWidget {
   final String? storeName;
@@ -46,9 +52,13 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   bool isDelivery = true; // default to Delivery as in reference image 2
   int quantity = 0;
-  bool usePoints = true;
+  // Off until the customer chooses to redeem store points.
+  bool usePoints = false;
   bool _cartLoading = true;
   bool _placingOrder = false;
+  // Order already placed but not yet paid online. Retrying reopens payment for
+  // it instead of checking out again, which would create a duplicate order.
+  Map<String, dynamic>? _unpaidOrder;
   bool _cartLoaded = false;
   // Restaurant carts use their own line totals, not the general checkout summary
   bool _isCatalogCart = false;
@@ -60,6 +70,11 @@ class _CartScreenState extends State<CartScreen> {
   int? _summaryDelivery;
   int? _summaryTax;
   int? _summaryToPay;
+  // Store points from the checkout summary.
+  bool _rewardEnabled = false;
+  int _pointsAvailable = 0;
+  int _pointsAmount = 0;
+  int _pointsDiscount = 0;
   // From the checkout summary: the cart needs a prescription before it can be paid
   bool _needsPrescription = false;
   bool _hasPrescription = false;
@@ -67,13 +82,117 @@ class _CartScreenState extends State<CartScreen> {
   String _appliedCoupon = '';
   final TextEditingController _couponController = TextEditingController();
   Worker? _cartTabWorker;
+  // 0 Wallet, 1 Online, 2 Cash on Delivery, 3 Pay After Delivery.
   late int selectedPaymentIndex;
+  bool _noPaymentMethod = false;
+  static const _indexTypes = [
+    paymentTypeWallet,
+    paymentTypeOnline,
+    paymentTypeCash,
+    paymentTypePayAfterDelivery,
+  ];
+
+  /// Keeps the choice on a method this checkout offers and Admin has
+  /// switched on. Pay After Delivery stays only if it was picked; it is never
+  /// the fallback.
+  void _applyPaymentMethods() {
+    final offered = [
+      paymentTypeWallet,
+      paymentTypeOnline,
+      if (isDelivery) paymentTypeCash,
+      if (isDelivery && _padCanUse) paymentTypePayAfterDelivery,
+    ];
+    final current = _indexTypes[selectedPaymentIndex];
+    String? type;
+    if (offered.contains(current) && PaymentMethods.isOn(current)) {
+      type = current;
+    } else {
+      for (final option in offered) {
+        if (option != paymentTypePayAfterDelivery &&
+            PaymentMethods.isOn(option)) {
+          type = option;
+          break;
+        }
+      }
+    }
+    _noPaymentMethod = type == null;
+    if (type != null) selectedPaymentIndex = _indexTypes.indexOf(type);
+  }
+
   String scheduleText = "Pick a delivery time";
+  // Pre-order delivery time (sent as scheduled_for); null delivers now.
+  DateTime? _scheduledFor;
+  // customer/payAfterDelivery: whether PAD can be offered, and why not.
+  Map<String, dynamic>? _padStatus;
+
+  bool get _padCanUse => _padStatus?['can_use'] == true;
+  String? get _padBlockedReason => _padStatus?['blocked_reason']?.toString();
+
+  String get _padSubtitle {
+    if (_padCanUse) return 'pad_option_hint'.tr;
+    return switch (_padBlockedReason) {
+      'unpaid_order' => 'pad_blocked_unpaid'.tr,
+      'trust_removed' => 'pad_blocked_removed'.tr,
+      _ => 'pad_blocked_not_trusted'.trParams({
+        'done': '${_padStatus?['paid_orders'] ?? 0}',
+        'needed': '${_padStatus?['paid_orders_needed'] ?? ''}',
+      }),
+    };
+  }
+
+  /// The wallet balance loaded with Home, or null before it has loaded.
+  num? get _walletBalance {
+    if (!Get.isRegistered<HomeController>()) return null;
+    final raw = Get.find<HomeController>().walletBalance.value;
+    return num.tryParse(raw.replaceAll(RegExp(r'[^0-9.]'), ''));
+  }
+
+  /// True when Wallet is chosen but can't cover [payable]: the wallet pays
+  /// what it has and Masrvi charges the rest (split payment).
+  bool _walletShort(int payable) {
+    final balance = _walletBalance;
+    return balance != null && balance < payable;
+  }
+
+  String _walletSubtitle(int payable) {
+    final balance = _walletBalance;
+    if (balance == null || !_walletShort(payable)) {
+      return walletBalanceSubtitle();
+    }
+    String money(num value) =>
+        value == value.roundToDouble() ? '${value.toInt()}' : '$value';
+    return 'wallet_split'.trParams({
+      'wallet': money(balance),
+      'online': money(payable - balance),
+    });
+  }
+
+  Future<void> _loadPayAfterDelivery() async {
+    if (!Get.isRegistered<OrderRepository>()) return;
+    try {
+      final status = await Get.find<OrderRepository>().payAfterDeliveryStatus(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _padStatus = status;
+        _applyPaymentMethods();
+      });
+    } on ApiException {
+      // Guests and failed loads just don't see the option.
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    selectedPaymentIndex = widget.isFoodOrGrocery ? 3 : 0;
+    // Wallet by default; Pay After Delivery is never the default.
+    selectedPaymentIndex = 0;
+    _loadPayAfterDelivery();
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
     final controller = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>()
         : null;
@@ -166,11 +285,48 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  /// Restaurant (catalog) cart totals with the applied coupon. A coupon the
+  /// server now refuses (422) is dropped and the totals load without it.
+  Future<void> _loadCatalogSummary() async {
+    final orders = Get.find<OrderRepository>();
+    final location = SelectLocationController.selectedSubtitle.trim().isEmpty
+        ? SelectLocationController.deliveryLabel.value
+        : SelectLocationController.selectedSubtitle;
+    Future<Map<String, dynamic>> load(String coupon) =>
+        orders.catalogCheckoutSummary(
+          selfPickup: !isDelivery,
+          latitude: SelectLocationController.selectedLatitude,
+          longitude: SelectLocationController.selectedLongitude,
+          location: location,
+          language: apiLanguageCode(),
+          couponCode: coupon,
+        );
+    try {
+      _applySummary(await load(_appliedCoupon));
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      if (error.statusCode == 422 && _appliedCoupon.isNotEmpty) {
+        setState(() {
+          _appliedCoupon = '';
+          _couponController.clear();
+        });
+        try {
+          _applySummary(await load(''));
+        } on ApiException {
+          _applySummary(const {});
+        }
+      } else {
+        _applySummary(const {});
+      }
+    }
+  }
+
   Future<void> _loadCheckoutSummary() async {
     if (!Get.isRegistered<OrderRepository>() || !mounted) return;
-    // The general checkout summary has no restaurant cart and answers "cart not found".
+    // Restaurant carts have their own summary (catalog/checkoutSummary).
     if (_isCatalogCart) {
-      _applySummary(const {});
+      await _loadCatalogSummary();
       return;
     }
     final orders = Get.find<OrderRepository>();
@@ -217,19 +373,31 @@ class _CartScreenState extends State<CartScreen> {
     if (!mounted) return;
     setState(() {
       if (_isCatalogCart) {
-        _summaryItemTotal = null;
-        _summaryDelivery = null;
-        _summaryTax = null;
-        _summaryToPay = null;
+        // catalog/checkoutSummary; grand_total is after the coupon.
+        _summaryItemTotal = money(data['sub_total']);
+        _summaryDelivery = money(data['delivery_charge']);
+        _summaryTax = money(data['tax']);
+        _summaryToPay = money(data['grand_total']);
         _needsPrescription = false;
         _hasPrescription = false;
         _prescriptionId = null;
+        // The food cart summary has no store points.
+        _rewardEnabled = false;
+        _pointsAvailable = 0;
+        _pointsAmount = 0;
+        _pointsDiscount = 0;
         return;
       }
       _summaryItemTotal = money(data['item_total'] ?? data['sub_total']);
       _summaryDelivery = money(data['delivery_fee']);
       _summaryTax = money(data['tax']);
       _summaryToPay = money(data['to_pay'] ?? data['payable']);
+      // Store points: what the customer has here and what they're worth.
+      _rewardEnabled = flag(data['is_reward_enabled']);
+      _pointsAvailable = money(data['redeem_points_available']) ?? 0;
+      _pointsAmount = money(data['redeem_points_amount']) ?? 0;
+      _pointsDiscount = money(data['points_discount']) ?? 0;
+      if (!_rewardEnabled || _pointsAvailable <= 0) usePoints = false;
       _needsPrescription = flag(data['needs_prescription']);
       _hasPrescription = flag(data['has_prescription']);
       _prescriptionId = _positiveId(data['prescription_id']);
@@ -240,7 +408,7 @@ class _CartScreenState extends State<CartScreen> {
     final vendorId = _vendorId;
     if (vendorId == null) {
       showAppToast(
-        'Pharmacy not found for this cart. Please try again.',
+        'orders_rx_pharmacy_missing'.tr,
         backgroundColor: const Color(0xFFEF4444),
       );
       return;
@@ -291,7 +459,7 @@ class _CartScreenState extends State<CartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  attached ? 'Prescription attached' : 'Prescription required',
+                  attached ? 'orders_rx_attached'.tr : 'orders_rx_required'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
@@ -302,9 +470,11 @@ class _CartScreenState extends State<CartScreen> {
                 Text(
                   attached
                       ? (_prescriptionId == null
-                            ? 'A pharmacist will review it before checkout'
-                            : 'Prescription #$_prescriptionId')
-                      : 'Upload a prescription for the medicine in your cart',
+                            ? 'orders_rx_review'.tr
+                            : 'orders_rx_number'.trParams({
+                                'id': '$_prescriptionId',
+                              }))
+                      : 'orders_rx_upload_hint'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
@@ -318,7 +488,7 @@ class _CartScreenState extends State<CartScreen> {
             GestureDetector(
               onTap: _attachPrescription,
               child: Text(
-                'Upload',
+                'orders_upload'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
@@ -354,6 +524,20 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _applyCoupon(int orderAmount) async {
     final code = _couponController.text.trim();
     if (code.isEmpty || !Get.isRegistered<OrderRepository>()) return;
+    if (_isCatalogCart) {
+      // Restaurant carts check the coupon through their own summary; an
+      // invalid code comes back as a 422 with the reason.
+      final previous = _appliedCoupon;
+      setState(() => _appliedCoupon = code);
+      await _loadCatalogSummary();
+      if (mounted && _appliedCoupon == code && code != previous) {
+        showAppToast(
+          'coupon_applied'.tr,
+          backgroundColor: const Color(0xFFFF5E00),
+        );
+      }
+      return;
+    }
     try {
       final message = await Get.find<OrderRepository>().applyCoupon(
         couponCode: code,
@@ -372,22 +556,49 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _placeOrder(int payable) async {
     if (_placingOrder || !Get.isRegistered<OrderRepository>()) return;
+    if (_noPaymentMethod) {
+      showAppToast(
+        'payment_no_method'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
     if (_needsPrescription && !_hasPrescription) {
       showAppToast(
-        'Upload your prescription before placing the order',
+        'orders_rx_before_order'.tr,
         backgroundColor: const Color(0xFFEF4444),
       );
       return;
     }
     _placingOrder = true;
+    final unpaid = _unpaidOrder;
+    if (unpaid != null) {
+      try {
+        await _finishPlacedOrder(unpaid, payable);
+      } finally {
+        _placingOrder = false;
+      }
+      return;
+    }
     final orders = Get.find<OrderRepository>();
     final location = SelectLocationController.selectedSubtitle.trim().isEmpty
         ? SelectLocationController.deliveryLabel.value
         : SelectLocationController.selectedSubtitle;
     final note = _deliveryNoteController.text.trim();
-    // The API takes 2 for online payment only. Cash on Delivery and Pay After
-    // Delivery send 1, so they don't open the payment page.
-    final paymentType = selectedPaymentIndex == 1 ? '2' : '1';
+    // Wallet (0) is paid from the wallet when the order is placed; Online (1)
+    // opens the payment page; Cash on Delivery (2) is 1; Pay After Delivery
+    // (3) is 4, which the server refuses when the customer can't use it.
+    // A wallet that can't cover the order splits it: payment_type 2 with
+    // use_wallet=1, so the wallet pays what it has and Masrvi the rest.
+    final splitWithWallet = selectedPaymentIndex == 0 && _walletShort(payable);
+    final paymentType = splitWithWallet
+        ? paymentTypeOnline
+        : switch (selectedPaymentIndex) {
+            0 => paymentTypeWallet,
+            1 => paymentTypeOnline,
+            3 => paymentTypePayAfterDelivery,
+            _ => paymentTypeCash,
+          };
     Future<Map<String, dynamic>> place(bool version2) {
       if (_isCatalogCart) {
         return orders.catalogCheckout(
@@ -398,6 +609,9 @@ class _CartScreenState extends State<CartScreen> {
           paymentType: paymentType,
           language: apiLanguageCode(),
           note: note,
+          useWallet: splitWithWallet,
+          scheduledFor: _scheduledFor,
+          couponCode: _appliedCoupon,
         );
       }
       return orders.checkout(
@@ -409,9 +623,11 @@ class _CartScreenState extends State<CartScreen> {
         language: apiLanguageCode(),
         cartId: _cartId,
         couponCode: _appliedCoupon,
-        redeemAmount: usePoints ? '$pointDiscountValue' : '0',
+        redeemAmount: usePoints && _pointsAmount > 0 ? '$_pointsAmount' : '0',
         note: note,
         version2: version2,
+        useWallet: splitWithWallet,
+        scheduledFor: _scheduledFor,
       );
     }
 
@@ -437,9 +653,47 @@ class _CartScreenState extends State<CartScreen> {
       }
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      // Refused Pay After Delivery: refresh why, which may hide the option.
+      if (selectedPaymentIndex == 3) _loadPayAfterDelivery();
+      if (error.statusCode == 422) await _recheckCartAfterRefusal(payable);
     } finally {
       _placingOrder = false;
     }
+  }
+
+  /// Checkout refused the order (422): the coupon may be used up, or a
+  /// product may have been hidden by the store. The server's message is
+  /// already shown; drop a coupon that no longer applies and reload the cart
+  /// and totals so what's on screen is what can actually be ordered.
+  Future<void> _recheckCartAfterRefusal(int payable) async {
+    final coupon = _appliedCoupon;
+    // Restaurant carts re-check the coupon in their summary on reload.
+    if (coupon.isNotEmpty &&
+        !_isCatalogCart &&
+        Get.isRegistered<OrderRepository>()) {
+      try {
+        await Get.find<OrderRepository>().applyCoupon(
+          couponCode: coupon,
+          orderAmount: payable,
+          language: apiLanguageCode(),
+        );
+      } on ApiException catch (error) {
+        // 4xx: the coupon itself is refused now. Network errors keep it.
+        final status = error.statusCode ?? 0;
+        if (mounted && status >= 400 && status < 500) {
+          setState(() {
+            _appliedCoupon = '';
+            _couponController.clear();
+          });
+          showAppToast(
+            'coupon_removed'.trParams({'code': coupon}),
+            backgroundColor: const Color(0xFFEF4444),
+          );
+        }
+      }
+    }
+    if (!mounted) return;
+    await _loadCart();
   }
 
   Future<void> _finishPlacedOrder(
@@ -466,19 +720,38 @@ class _CartScreenState extends State<CartScreen> {
         paymentUrl ??
         (needsOnlinePayment && orderId != null
             ? _paymentPageUrl(
-                'https://dev.saimpexenterprise.com/pay/masrvi/payment/session?order_id=$orderId',
+                '$_apiOrigin/pay/masrvi/payment/session?order_id=$orderId',
               )
             : null);
-    if (needsOnlinePayment && url != null) {
+    if (needsOnlinePayment) {
+      _unpaidOrder = placed;
+      if (url == null) {
+        showAppToast(
+          'orders_payment_page_failed_retry'.tr,
+          backgroundColor: const Color(0xFFEF4444),
+        );
+        return;
+      }
       Get.closeAllSnackbars();
       await Future<void>.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
       final paid = await Get.to<bool>(() => PaymentWebViewScreen(url: url));
-      if (!mounted || paid != true) return;
+      if (!mounted) return;
+      if (paid != true) {
+        showAppToast(
+          paid == false
+              ? 'orders_payment_failed_retry'.tr
+              : 'orders_payment_not_completed_retry'.tr,
+          backgroundColor: const Color(0xFFEF4444),
+        );
+        return;
+      }
+      _unpaidOrder = null;
     }
     _syncHomeCartBadgeCount(0);
     // Replaces this cart screen, so the placed items don't stay visible behind the success screen.
-    Get.off(() => const OrderSuccessScreen());
+    final points = int.tryParse('${placed['reward_points_earned'] ?? ''}') ?? 0;
+    Get.off(() => OrderSuccessScreen(pointsToEarn: points));
   }
 
   Future<String?> _startMasrviPayment(
@@ -547,13 +820,16 @@ class _CartScreenState extends State<CartScreen> {
     if (wrongHost && uri.path.contains('/pay/')) {
       return Uri(
         scheme: 'https',
-        host: 'dev.saimpexenterprise.com',
+        host: Uri.parse(ApiConstants.baseUrl).host,
         path: uri.path,
         query: uri.hasQuery ? uri.query : null,
       ).toString();
     }
     return uri.toString();
   }
+
+  // Payment pages are served by the same backend as the API.
+  String get _apiOrigin => Uri.parse(ApiConstants.baseUrl).origin;
 
   int? _positiveId(dynamic value) {
     final number = value is int ? value : int.tryParse('$value');
@@ -653,9 +929,6 @@ class _CartScreenState extends State<CartScreen> {
     return image ?? '';
   }
 
-  final int pointDiscountValue = 1;
-  final int deliveryFee = 5;
-  final int tax = 2;
   final TextEditingController _customQuantityController =
       TextEditingController();
   final Map<int, TextEditingController> _apiQuantityFields = {};
@@ -995,7 +1268,9 @@ class _CartScreenState extends State<CartScreen> {
                     if ('${item['addOns'] ?? ''}'.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Add-ons: ${item['addOns']}',
+                        'orders_addons'.trParams({
+                          'addons': '${item['addOns']}',
+                        }),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 11,
@@ -1005,7 +1280,7 @@ class _CartScreenState extends State<CartScreen> {
                     ],
                     const SizedBox(height: 8),
                     Text(
-                      '$total MRU',
+                      'mru'.trParams({'amount': '$total'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 13,
@@ -1087,7 +1362,7 @@ class _CartScreenState extends State<CartScreen> {
               border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: TextField(
               controller: cartItemId < 1 ? null : _apiQuantityField(cartItemId),
               keyboardType: TextInputType.number,
@@ -1097,7 +1372,7 @@ class _CartScreenState extends State<CartScreen> {
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
-                hintText: 'Customize your quantity here',
+                hintText: 'orders_quantity_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 11,
@@ -1164,10 +1439,12 @@ class _CartScreenState extends State<CartScreen> {
       );
       final itemTotal =
           _summaryItemTotal ?? (_cartLoaded ? apiTotal : basePrice * quantity);
-      final pointsOff = (usePoints && quantity > 0) ? pointDiscountValue : 0;
-      final currentDeliveryFee =
-          _summaryDelivery ?? ((isDelivery && quantity > 0) ? deliveryFee : 0);
-      final currentTax = _summaryTax ?? (quantity > 0 ? tax : 0);
+      // Fee, tax and points come from the server summary only; until it
+      // loads they count as 0 rather than made-up amounts.
+      final pointsOff = usePoints ? _pointsDiscount : 0;
+      final currentDeliveryFee = isDelivery ? (_summaryDelivery ?? 0) : 0;
+      final currentTax = _summaryTax ?? 0;
+      final summaryLoaded = _summaryToPay != null;
       final rawPay = itemTotal - pointsOff + currentDeliveryFee + currentTax;
       final toPay =
           _summaryToPay ?? ((quantity == 0 || rawPay < 0) ? 0 : rawPay);
@@ -1190,7 +1467,7 @@ class _CartScreenState extends State<CartScreen> {
                 alignment: Alignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: (widget.showBottomNav || canPop)
                         ? AppBackButton(
                             onTap: () {
@@ -1203,7 +1480,7 @@ class _CartScreenState extends State<CartScreen> {
                           )
                         : const SizedBox(width: 38),
                   ),
-                  Text('Cart', style: AppTextStyles.heading()),
+                  Text('orders_cart'.tr, style: AppTextStyles.heading()),
                 ],
               ),
             ),
@@ -1229,7 +1506,7 @@ class _CartScreenState extends State<CartScreen> {
                       ] else if (_cartLoaded && _apiItems.isNotEmpty) ...[
                         if (storeName.isNotEmpty) ...[
                           Text(
-                            'From $storeName',
+                            'orders_from_vendor'.trParams({'name': storeName}),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 12,
@@ -1243,7 +1520,7 @@ class _CartScreenState extends State<CartScreen> {
                           _buildPrescriptionSection(),
                       ] else if (quantity > 0) ...[
                         Text(
-                          'From $storeName',
+                          'orders_from_vendor'.trParams({'name': storeName}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 12,
@@ -1350,7 +1627,9 @@ class _CartScreenState extends State<CartScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          '${basePrice * quantity} MRU',
+                                          'mru'.trParams({
+                                            'amount': '${basePrice * quantity}',
+                                          }),
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFFFF5E00),
                                             fontSize: 13,
@@ -1439,7 +1718,7 @@ class _CartScreenState extends State<CartScreen> {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
-                                alignment: Alignment.centerLeft,
+                                alignment: AlignmentDirectional.centerStart,
                                 child: TextField(
                                   controller: _customQuantityController,
                                   keyboardType: TextInputType.number,
@@ -1449,7 +1728,7 @@ class _CartScreenState extends State<CartScreen> {
                                     fontWeight: FontWeight.w500,
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: 'Customize your quantity here',
+                                    hintText: 'orders_quantity_hint'.tr,
                                     hintStyle: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
@@ -1490,7 +1769,7 @@ class _CartScreenState extends State<CartScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'Your cart is empty',
+                                  'orders_cart_empty'.tr,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,
@@ -1502,7 +1781,7 @@ class _CartScreenState extends State<CartScreen> {
                                 GestureDetector(
                                   onTap: () => _setQuantity(1),
                                   child: Text(
-                                    'Add Product',
+                                    'orders_add_product'.tr,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFFF5E00),
                                       fontSize: 12,
@@ -1529,7 +1808,7 @@ class _CartScreenState extends State<CartScreen> {
                                 constraints: const BoxConstraints(
                                   minHeight: 88,
                                 ),
-                                alignment: Alignment.topLeft,
+                                alignment: AlignmentDirectional.topStart,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 18,
                                   vertical: 12,
@@ -1549,7 +1828,7 @@ class _CartScreenState extends State<CartScreen> {
                                     fontWeight: FontWeight.w500,
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: 'Add a note for the driver',
+                                    hintText: 'orders_delivery_note_hint'.tr,
                                     hintStyle: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
@@ -1580,7 +1859,7 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                                 child: Container(
                                   height: 48,
-                                  alignment: Alignment.centerLeft,
+                                  alignment: AlignmentDirectional.centerStart,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 18,
                                   ),
@@ -1589,7 +1868,7 @@ class _CartScreenState extends State<CartScreen> {
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                   child: Text(
-                                    '+ Add delivery note (Optional)',
+                                    'orders_add_delivery_note'.tr,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
@@ -1604,7 +1883,7 @@ class _CartScreenState extends State<CartScreen> {
 
                         // 3. Delivery Type
                         Text(
-                          'Delivery type',
+                          'orders_delivery_type'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
@@ -1620,6 +1899,7 @@ class _CartScreenState extends State<CartScreen> {
                                 onTap: () {
                                   setState(() {
                                     isDelivery = true;
+                                    _applyPaymentMethods();
                                   });
                                   _loadCheckoutSummary();
                                   _checkDelivery();
@@ -1669,7 +1949,7 @@ class _CartScreenState extends State<CartScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Delivery',
+                                            'orders_delivery'.tr,
                                             style: GoogleFonts.outfit(
                                               color: const Color(0xFF2C2520),
                                               fontSize: 12,
@@ -1678,7 +1958,7 @@ class _CartScreenState extends State<CartScreen> {
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            '30-35 min',
+                                            'orders_delivery_eta'.tr,
                                             style: GoogleFonts.outfit(
                                               color: const Color(0xFFA59A94),
                                               fontSize: 9,
@@ -1699,11 +1979,8 @@ class _CartScreenState extends State<CartScreen> {
                                 onTap: () {
                                   setState(() {
                                     isDelivery = false;
-                                    if (selectedPaymentIndex == 2 ||
-                                        selectedPaymentIndex == 3) {
-                                      selectedPaymentIndex =
-                                          0; // fallback when COD / Pay After Delivery hidden
-                                    }
+                                    // Cash and Pay After Delivery are delivery only.
+                                    _applyPaymentMethods();
                                   });
                                   _loadCheckoutSummary();
                                 },
@@ -1752,7 +2029,7 @@ class _CartScreenState extends State<CartScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Self Pickup',
+                                            'orders_self_pickup'.tr,
                                             style: GoogleFonts.outfit(
                                               color: const Color(0xFF2C2520),
                                               fontSize: 12,
@@ -1761,7 +2038,7 @@ class _CartScreenState extends State<CartScreen> {
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            'Ready in 15 min',
+                                            'orders_pickup_ready'.tr,
                                             style: GoogleFonts.outfit(
                                               color: const Color(0xFFA59A94),
                                               fontSize: 9,
@@ -1816,8 +2093,14 @@ class _CartScreenState extends State<CartScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      // The delivery location the order is
+                                      // placed with (was sample text).
                                       Text(
-                                        'Sahara View Home',
+                                        SelectLocationController
+                                            .deliveryLabel
+                                            .value,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF2C2520),
                                           fontSize: 12,
@@ -1826,7 +2109,17 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        'Near Marhaba Supermarket, Nouakchott.',
+                                        SelectLocationController
+                                                .selectedSubtitle
+                                                .trim()
+                                                .isEmpty
+                                            ? SelectLocationController
+                                                  .deliveryLabel
+                                                  .value
+                                            : SelectLocationController
+                                                  .selectedSubtitle,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 10,
@@ -1839,7 +2132,7 @@ class _CartScreenState extends State<CartScreen> {
                                 GestureDetector(
                                   onTap: () {},
                                   child: Text(
-                                    'Edit',
+                                    'orders_edit'.tr,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFFF5E00),
                                       fontSize: 11,
@@ -1890,7 +2183,7 @@ class _CartScreenState extends State<CartScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Pickup Location',
+                                        'orders_pickup_location'.tr,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF2C2520),
                                           fontSize: 13,
@@ -1899,7 +2192,9 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        '$storeName, Near Nouakchott, Mauritania',
+                                        'orders_pickup_near'.trParams({
+                                          'store': storeName,
+                                        }),
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 11,
@@ -1959,7 +2254,7 @@ class _CartScreenState extends State<CartScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Schedule for later',
+                                        'preorder_title'.tr,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF0E5A2A),
                                           fontSize: 12,
@@ -1968,7 +2263,9 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        scheduleText,
+                                        _scheduledFor == null
+                                            ? 'preorder_pick'.tr
+                                            : scheduleText,
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFF3BA162),
                                           fontSize: 10,
@@ -1978,11 +2275,23 @@ class _CartScreenState extends State<CartScreen> {
                                     ],
                                   ),
                                 ),
-                                const Icon(
-                                  Icons.chevron_right_rounded,
-                                  color: Color(0xFF00B25C),
-                                  size: 20,
-                                ),
+                                if (_scheduledFor != null)
+                                  // Back to delivering now.
+                                  GestureDetector(
+                                    onTap: () =>
+                                        setState(() => _scheduledFor = null),
+                                    child: const Icon(
+                                      Icons.close_rounded,
+                                      color: Color(0xFF00B25C),
+                                      size: 20,
+                                    ),
+                                  )
+                                else
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: Color(0xFF00B25C),
+                                    size: 20,
+                                  ),
                               ],
                             ),
                           ),
@@ -1994,21 +2303,19 @@ class _CartScreenState extends State<CartScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Save More', style: AppTextStyles.title()),
+                            Text(
+                              'orders_save_more'.tr,
+                              style: AppTextStyles.title(),
+                            ),
                             GestureDetector(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Opening Coupons Screen...',
-                                      style: GoogleFonts.outfit(),
-                                    ),
-                                    backgroundColor: const Color(0xFFFF5E00),
-                                  ),
-                                );
+                              onTap: () async {
+                                final code = await showCouponsSheet(context);
+                                if (code == null || !mounted) return;
+                                _couponController.text = code;
+                                _applyCoupon(itemTotal);
                               },
                               child: Text(
-                                'View Coupons',
+                                'orders_view_coupons'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 11,
@@ -2047,7 +2354,7 @@ class _CartScreenState extends State<CartScreen> {
                                     color: const Color(0xFF2C2520),
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: 'Enter coupon',
+                                    hintText: 'orders_enter_coupon'.tr,
                                     hintStyle: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
@@ -2060,7 +2367,7 @@ class _CartScreenState extends State<CartScreen> {
                               GestureDetector(
                                 onTap: () => _applyCoupon(itemTotal),
                                 child: Text(
-                                  'Apply',
+                                  'orders_apply'.tr,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFFFF5E00),
                                     fontSize: 12,
@@ -2072,100 +2379,106 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        // Use 500 points Card
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              usePoints = !usePoints;
-                            });
-                            _loadCheckoutSummary();
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: const Color(0xFFEAD8C9),
-                                width: 0.8,
+                        // Store points card: only when the store has
+                        // rewards on and the customer has points here.
+                        if (_rewardEnabled && _pointsAvailable > 0)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                usePoints = !usePoints;
+                              });
+                              _loadCheckoutSummary();
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: const Color(0xFFEAD8C9),
+                                  width: 0.8,
+                                ),
                               ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 26,
-                                  height: 26,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFF0EA),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.monetization_on_outlined,
-                                    color: Color(0xFFFF5E00),
-                                    size: 15,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Use 500 points',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        '= 50 MRU off',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFFA59A94),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: usePoints
-                                          ? const Color(0xFFFF5E00)
-                                          : const Color(0xFFA59A94),
-                                      width: 1.5,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 26,
+                                    height: 26,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFF0EA),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.monetization_on_outlined,
+                                      color: Color(0xFFFF5E00),
+                                      size: 15,
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(3),
-                                  child: usePoints
-                                      ? Container(
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFFF5E00),
-                                            shape: BoxShape.circle,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'cart_use_points'.trParams({
+                                            'points': '$_pointsAvailable',
+                                          }),
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        )
-                                      : null,
-                                ),
-                              ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'cart_points_off'.trParams({
+                                            'amount': '$_pointsAmount',
+                                          }),
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: usePoints
+                                            ? const Color(0xFFFF5E00)
+                                            : const Color(0xFFA59A94),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(3),
+                                    child: usePoints
+                                        ? Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5E00),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
                         const SizedBox(height: 18),
 
                         // 7. Payment Header
                         Text(
-                          'Payment',
+                          'water_sub_payment'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
@@ -2175,13 +2488,26 @@ class _CartScreenState extends State<CartScreen> {
                         const SizedBox(height: 10),
 
                         // Payment Cards list
-                        if (widget.isFoodOrGrocery && isDelivery) ...[
-                          // Card 0: Pay After Delivery (Delivery only — select, no schedule popup)
+                        // Card 0: Pay After Delivery. Delivery only, never the
+                        // default, and selectable only when the server says
+                        // can_use; otherwise it says why.
+                        if (isDelivery &&
+                            _padStatus != null &&
+                            PaymentMethods.isOn(
+                              paymentTypePayAfterDelivery,
+                            )) ...[
                           GestureDetector(
                             onTap: () {
-                              setState(() {
-                                selectedPaymentIndex = 3;
-                              });
+                              if (_padCanUse) {
+                                setState(() {
+                                  selectedPaymentIndex = 3;
+                                  _applyPaymentMethods();
+                                });
+                              } else if (_padBlockedReason == 'unpaid_order') {
+                                Get.to(
+                                  () => const PayLaterScreen(),
+                                )?.then((_) => _loadPayAfterDelivery());
+                              }
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 10),
@@ -2229,18 +2555,22 @@ class _CartScreenState extends State<CartScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Pay After Delivery',
+                                          'pad_option'.tr,
                                           style: GoogleFonts.outfit(
-                                            color: const Color(0xFF2C2520),
+                                            color: _padCanUse
+                                                ? const Color(0xFF2C2520)
+                                                : const Color(0xFFA59A94),
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         const SizedBox(height: 3),
                                         Text(
-                                          "Enjoy your order first. Complete your payment whenever it's convenient after delivery.",
+                                          _padSubtitle,
                                           style: GoogleFonts.outfit(
-                                            color: const Color(0xFF8C7D73),
+                                            color: _padCanUse
+                                                ? const Color(0xFF8C7D73)
+                                                : const Color(0xFFEF4444),
                                             fontSize: 10,
                                           ),
                                         ),
@@ -2277,189 +2607,191 @@ class _CartScreenState extends State<CartScreen> {
                         ],
 
                         // Card 1: SAIMPEX Wallet
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedPaymentIndex = 0;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: selectedPaymentIndex == 0
-                                    ? const Color(0xFFFF5E00)
-                                    : const Color(0xFFEAD8C9),
-                                width: selectedPaymentIndex == 0 ? 1.5 : 0.8,
+                        if (PaymentMethods.isOn(paymentTypeWallet))
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPaymentIndex = 0;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: selectedPaymentIndex == 0
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFEAD8C9),
+                                  width: selectedPaymentIndex == 0 ? 1.5 : 0.8,
+                                ),
                               ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFF0EA),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.account_balance_wallet_outlined,
-                                    color: Color(0xFFFF5E00),
-                                    size: 16,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'SAIMPEX Wallet',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        'Balance: 2,450 MRU',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFFA59A94),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: selectedPaymentIndex == 0
-                                          ? const Color(0xFFFF5E00)
-                                          : const Color(0xFFA59A94),
-                                      width: 1.5,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFF0EA),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.account_balance_wallet_outlined,
+                                      color: Color(0xFFFF5E00),
+                                      size: 16,
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(3),
-                                  child: selectedPaymentIndex == 0
-                                      ? Container(
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFFF5E00),
-                                            shape: BoxShape.circle,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'wallet_title'.tr,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        )
-                                      : null,
-                                ),
-                              ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          _walletSubtitle(toPay),
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: selectedPaymentIndex == 0
+                                            ? const Color(0xFFFF5E00)
+                                            : const Color(0xFFA59A94),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(3),
+                                    child: selectedPaymentIndex == 0
+                                        ? Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5E00),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
                         // Card 2: Online Payment
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedPaymentIndex = 1;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: selectedPaymentIndex == 1
-                                    ? const Color(0xFFFF5E00)
-                                    : const Color(0xFFEAD8C9),
-                                width: selectedPaymentIndex == 1 ? 1.5 : 0.8,
+                        if (PaymentMethods.isOn(paymentTypeOnline))
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPaymentIndex = 1;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: selectedPaymentIndex == 1
+                                      ? const Color(0xFFFF5E00)
+                                      : const Color(0xFFEAD8C9),
+                                  width: selectedPaymentIndex == 1 ? 1.5 : 0.8,
+                                ),
                               ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFF0EA),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.credit_card_outlined,
-                                    color: Color(0xFFFF5E00),
-                                    size: 16,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Online payment',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF2C2520),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        'Card • Mobile money',
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFFA59A94),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: selectedPaymentIndex == 1
-                                          ? const Color(0xFFFF5E00)
-                                          : const Color(0xFFA59A94),
-                                      width: 1.5,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFF0EA),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.credit_card_outlined,
+                                      color: Color(0xFFFF5E00),
+                                      size: 16,
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(3),
-                                  child: selectedPaymentIndex == 1
-                                      ? Container(
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFFF5E00),
-                                            shape: BoxShape.circle,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'water_sub_pay_online'.tr,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        )
-                                      : null,
-                                ),
-                              ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'orders_card_mobile_money'.tr,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: selectedPaymentIndex == 1
+                                            ? const Color(0xFFFF5E00)
+                                            : const Color(0xFFA59A94),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(3),
+                                    child: selectedPaymentIndex == 1
+                                        ? Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFFF5E00),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
                         // Card 3: Cash on Delivery (Shown ONLY if Delivery type is Delivery)
-                        if (isDelivery)
+                        if (isDelivery && PaymentMethods.isOn(paymentTypeCash))
                           GestureDetector(
                             onTap: () {
                               setState(() {
@@ -2504,7 +2836,7 @@ class _CartScreenState extends State<CartScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Cash on Delivery',
+                                          'orders_cash_on_delivery'.tr,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 12,
@@ -2513,7 +2845,7 @@ class _CartScreenState extends State<CartScreen> {
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          'Pay the SAIMPEX driver',
+                                          'orders_pay_driver'.tr,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 10,
@@ -2550,6 +2882,8 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                           ),
 
+                        if (_noPaymentMethod) const NoPaymentMethodNote(),
+
                         const SizedBox(height: 14),
 
                         // 8. Payment Details Box
@@ -2563,7 +2897,7 @@ class _CartScreenState extends State<CartScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'PAYMENT DETAILS',
+                                'orders_payment_details'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 11,
@@ -2576,7 +2910,7 @@ class _CartScreenState extends State<CartScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Item total',
+                                    'orders_item_total'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -2584,7 +2918,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '$itemTotal MRU',
+                                    'mru'.trParams({'amount': '$itemTotal'}),
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -2593,14 +2927,14 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                 ],
                               ),
-                              if (usePoints) ...[
+                              if (usePoints && pointsOff > 0) ...[
                                 const SizedBox(height: 10),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Redeemed points',
+                                      'cart_redeemed_points'.tr,
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
@@ -2608,7 +2942,7 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '-$pointDiscountValue MRU',
+                                      '-${'mru'.trParams({'amount': '$pointsOff'})}',
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFFFF5E00),
                                         fontSize: 12,
@@ -2625,7 +2959,7 @@ class _CartScreenState extends State<CartScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Delivery fee',
+                                      'cart_delivery_fee'.tr,
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
@@ -2633,7 +2967,15 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '$deliveryFee MRU',
+                                      // Free delivery (e.g. Gold tier or
+                                      // the store's fee rule) is a 0 fee.
+                                      !summaryLoaded
+                                          ? '…'
+                                          : currentDeliveryFee == 0
+                                          ? 'cart_free_delivery'.tr
+                                          : 'mru'.trParams({
+                                              'amount': '$currentDeliveryFee',
+                                            }),
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
@@ -2649,7 +2991,7 @@ class _CartScreenState extends State<CartScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Tax',
+                                    'cart_tax'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -2657,7 +2999,11 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '$tax MRU',
+                                    summaryLoaded
+                                        ? 'mru'.trParams({
+                                            'amount': '$currentTax',
+                                          })
+                                        : '…',
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -2677,7 +3023,7 @@ class _CartScreenState extends State<CartScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'To pay',
+                                    'orders_to_pay'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 15,
@@ -2685,7 +3031,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '$toPay MRU',
+                                    'mru'.trParams({'amount': '$toPay'}),
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 18,
@@ -2731,8 +3077,12 @@ class _CartScreenState extends State<CartScreen> {
                             alignment: Alignment.center,
                             child: Text(
                               selectedPaymentIndex == 3
-                                  ? 'Order Now'
-                                  : 'Pay $toPay MRU',
+                                  ? 'orders_order_now'.tr
+                                  : 'orders_pay_amount'.trParams({
+                                      'amount': 'mru'.trParams({
+                                        'amount': '$toPay',
+                                      }),
+                                    }),
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -2846,7 +3196,9 @@ class _CartScreenState extends State<CartScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Minimum order: 500 MRU',
+                            'orders_min_order'.trParams({
+                              'amount': 'mru'.trParams({'amount': '500'}),
+                            }),
                             maxLines: 1,
                             softWrap: false,
                             style: GoogleFonts.outfit(
@@ -2868,15 +3220,15 @@ class _CartScreenState extends State<CartScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                         children: [
-                          const TextSpan(text: 'Add '),
+                          TextSpan(text: 'orders_min_add_prefix'.tr),
                           TextSpan(
-                            text: '$remaining MRU',
+                            text: 'mru'.trParams({'amount': '$remaining'}),
                             style: const TextStyle(
                               color: Color(0xFFAB2F00),
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const TextSpan(text: ' more to place your order'),
+                          TextSpan(text: 'orders_min_add_suffix'.tr),
                         ],
                       ),
                     ),
@@ -2888,7 +3240,7 @@ class _CartScreenState extends State<CartScreen> {
                         color: const Color(0xFFE6E2DE),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       child: FractionallySizedBox(
                         widthFactor: progress == 0 ? 0.001 : progress,
                         child: Container(
@@ -2923,7 +3275,7 @@ class _CartScreenState extends State<CartScreen> {
                           borderRadius: BorderRadius.circular(28),
                         ),
                         child: Text(
-                          'Continue to Shoping',
+                          'orders_continue_shopping'.tr,
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 16,
@@ -2942,30 +3294,91 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  void _showScheduleBottomSheet(BuildContext context) {
-    final now = DateTime.now();
-    final dates = List<DateTime>.generate(
-      5,
-      (i) => DateTime(now.year, now.month, now.day).add(Duration(days: i)),
+  /// When each slot starts: the pre-order is placed for that time.
+  static const _slotStartHours = {
+    '8-10 AM': 8,
+    '10-12 PM': 10,
+    '2-4 PM': 14,
+    '4-6 PM': 16,
+    '6-8 PM': 18,
+    'Late night': 22,
+  };
+
+  /// Shown text for a slot value (the values stay English: they key the hours).
+  static String _slotText(String slot) => switch (slot) {
+    '8-10 AM' => 'orders_slot_8_10'.tr,
+    '10-12 PM' => 'orders_slot_10_12'.tr,
+    '2-4 PM' => 'orders_slot_2_4'.tr,
+    '4-6 PM' => 'orders_slot_4_6'.tr,
+    '6-8 PM' => 'orders_slot_6_8'.tr,
+    'Late night' => 'orders_slot_late'.tr,
+    _ => slot,
+  };
+
+  Future<void> _showScheduleBottomSheet(BuildContext context) async {
+    // Only times inside the server's pre-order window can be picked.
+    final ({DateTime earliest, DateTime latest}) window;
+    try {
+      window = await Get.find<OrderRepository>().preorderWindow(
+        apiLanguageCode(),
+      );
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return;
+    }
+    if (!mounted || !context.mounted) return;
+    final firstDay = DateTime(
+      window.earliest.year,
+      window.earliest.month,
+      window.earliest.day,
     );
+    final lastDay = DateTime(
+      window.latest.year,
+      window.latest.month,
+      window.latest.day,
+    );
+    final dates = <DateTime>[
+      for (
+        var day = firstDay;
+        !day.isAfter(lastDay);
+        day = DateTime(day.year, day.month, day.day + 1)
+      )
+        day,
+    ];
+    DateTime slotStart(DateTime day, String slot) =>
+        DateTime(day.year, day.month, day.day, _slotStartHours[slot]!);
+    bool slotOpen(DateTime day, String slot) {
+      final start = slotStart(day, slot);
+      return !start.isBefore(window.earliest) && !start.isAfter(window.latest);
+    }
+
     DateTime selectedDate = dates.first;
     String? selectedTimeSlot;
 
+    // Translation keys, shown with .tr.
     const months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
+      'orders_month_jan',
+      'orders_month_feb',
+      'orders_month_mar',
+      'orders_month_apr',
+      'orders_month_may',
+      'orders_month_jun',
+      'orders_month_jul',
+      'orders_month_aug',
+      'orders_month_sep',
+      'orders_month_oct',
+      'orders_month_nov',
+      'orders_month_dec',
     ];
-    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const weekdays = [
+      'orders_day_mon',
+      'orders_day_tue',
+      'orders_day_wed',
+      'orders_day_thu',
+      'orders_day_fri',
+      'orders_day_sat',
+      'orders_day_sun',
+    ];
     const timeSlots = [
       '8-10 AM',
       '10-12 PM',
@@ -3035,7 +3448,7 @@ class _CartScreenState extends State<CartScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Schedule Delivery',
+                                    'preorder_sheet_title'.tr,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 16,
@@ -3044,7 +3457,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Choose your preferred delivery date and time',
+                                    'preorder_sheet_subtitle'.tr,
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
@@ -3066,7 +3479,7 @@ class _CartScreenState extends State<CartScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Select Date',
+                                'preorder_select_date'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
@@ -3090,9 +3503,14 @@ class _CartScreenState extends State<CartScreen> {
                                         selectedDate.day == date.day;
                                     return GestureDetector(
                                       onTap: () {
-                                        setModalState(
-                                          () => selectedDate = date,
-                                        );
+                                        setModalState(() {
+                                          selectedDate = date;
+                                          final slot = selectedTimeSlot;
+                                          if (slot != null &&
+                                              !slotOpen(date, slot)) {
+                                            selectedTimeSlot = null;
+                                          }
+                                        });
                                       },
                                       child: Container(
                                         width: 62,
@@ -3113,7 +3531,7 @@ class _CartScreenState extends State<CartScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              months[date.month - 1],
+                                              months[date.month - 1].tr,
                                               style: GoogleFonts.outfit(
                                                 color: isSelected
                                                     ? const Color(0xFFFF5E00)
@@ -3133,7 +3551,7 @@ class _CartScreenState extends State<CartScreen> {
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              weekdays[date.weekday - 1],
+                                              weekdays[date.weekday - 1].tr,
                                               style: GoogleFonts.outfit(
                                                 color: isSelected
                                                     ? const Color(0xFFFF5E00)
@@ -3151,7 +3569,7 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                               const SizedBox(height: 22),
                               Text(
-                                'Time Slot',
+                                'preorder_time_slot'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
@@ -3168,48 +3586,57 @@ class _CartScreenState extends State<CartScreen> {
                                 mainAxisSpacing: 10,
                                 children: timeSlots.map((slot) {
                                   final isSelected = selectedTimeSlot == slot;
+                                  final open = slotOpen(selectedDate, slot);
                                   return GestureDetector(
                                     onTap: () {
+                                      if (!open) return;
                                       setModalState(
                                         () => selectedTimeSlot = slot,
                                       );
                                     },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(24),
-                                        border: Border.all(
-                                          color: isSelected
-                                              ? const Color(0xFFFF5E00)
-                                              : const Color(0xFFE6E0DB),
-                                          width: isSelected ? 1.5 : 1,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.access_time_rounded,
-                                            color: Color(0xFFFF5E00),
-                                            size: 16,
+                                    child: Opacity(
+                                      opacity: open ? 1 : 0.35,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            24,
                                           ),
-                                          const SizedBox(width: 6),
-                                          Flexible(
-                                            child: Text(
-                                              slot,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: GoogleFonts.outfit(
-                                                color: const Color(0xFFFF5E00),
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
+                                          border: Border.all(
+                                            color: isSelected
+                                                ? const Color(0xFFFF5E00)
+                                                : const Color(0xFFE6E0DB),
+                                            width: isSelected ? 1.5 : 1,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons.access_time_rounded,
+                                              color: Color(0xFFFF5E00),
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Flexible(
+                                              child: Text(
+                                                _slotText(slot),
+                                                overflow: TextOverflow.ellipsis,
+                                                style: GoogleFonts.outfit(
+                                                  color: const Color(
+                                                    0xFFFF5E00,
+                                                  ),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   );
@@ -3223,18 +3650,29 @@ class _CartScreenState extends State<CartScreen> {
                         padding: EdgeInsets.fromLTRB(20, 8, 20, 16 + bottomPad),
                         child: GestureDetector(
                           onTap: () {
-                            final month = months[selectedDate.month - 1];
-                            final weekday = weekdays[selectedDate.weekday - 1];
-                            final slot = selectedTimeSlot ?? timeSlots.first;
+                            final slot = selectedTimeSlot;
+                            if (slot == null || !slotOpen(selectedDate, slot)) {
+                              showAppToast(
+                                'preorder_choose_slot'.tr,
+                                backgroundColor: const Color(0xFFEF4444),
+                              );
+                              return;
+                            }
+                            final month = months[selectedDate.month - 1].tr;
+                            final weekday =
+                                weekdays[selectedDate.weekday - 1].tr;
                             Navigator.pop(context);
                             setState(() {
+                              _scheduledFor = slotStart(selectedDate, slot);
                               scheduleText =
-                                  '$weekday, $month ${selectedDate.day} • $slot';
+                                  '$weekday, $month ${selectedDate.day} • ${_slotText(slot)}';
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Scheduled: $weekday, $month ${selectedDate.day} • $slot',
+                                  'preorder_scheduled'.trParams({
+                                    'time': scheduleText,
+                                  }),
                                   style: GoogleFonts.outfit(),
                                 ),
                                 backgroundColor: const Color(0xFFFF5E00),
@@ -3262,7 +3700,7 @@ class _CartScreenState extends State<CartScreen> {
                               ],
                             ),
                             child: Text(
-                              'Continue',
+                              'orders_continue'.tr,
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 15,

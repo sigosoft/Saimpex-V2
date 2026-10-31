@@ -11,61 +11,21 @@ import '../../navigation/bottom_nav_router.dart';
 import '../../widgets/app_bottom_nav_bar.dart';
 import '../../widgets/see_all_button.dart';
 import '../select_location_screen.dart';
+import '../../models/service_repository.dart';
 import 'laundry_provider_detail_screen.dart';
+import 'service_provider_list.dart';
 
 class LaundryServicesScreen extends StatelessWidget {
   const LaundryServicesScreen({super.key});
 
   static const _quickServices = [
+    {'label': 'svc_ls_wash_fold', 'image': 'lib/assets/images/Wash & Fold.png'},
+    {'label': 'svc_ls_ironing', 'image': 'lib/assets/images/Ironing.png'},
     {
-      'label': 'Wash & Fold',
-      'image': 'lib/assets/images/Wash & Fold.png',
-    },
-    {
-      'label': 'Ironing',
-      'image': 'lib/assets/images/Ironing.png',
-    },
-    {
-      'label': 'Dry Cleaning',
+      'label': 'svc_ls_dry_cleaning',
       'image': 'lib/assets/images/Dry Cleaning.png',
     },
-    {
-      'label': 'Wash & Iron',
-      'image': 'lib/assets/images/Wash & Iron.png',
-    },
-  ];
-
-  static const _nearbyServices = [
-    {
-      'name': 'CleanPro Laundry',
-      'rating': '4.4',
-      'distance': '2.4 km away',
-      'ready': 'Ready in 24 hours',
-      'points': '200 Points Available',
-      'tag1': 'Wash & Fold',
-      'price1': '150 MRU/kg',
-      'tag2': 'Wash & Iron',
-      'price2': '200 MRU/kg',
-      'tag3': 'Ironing',
-      'price3': '120 MRU/kg',
-      'image':
-          'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=800&h=480&fit=crop',
-    },
-    {
-      'name': 'Oasis Laundry Hub',
-      'rating': '4.6',
-      'distance': '3.4 km away',
-      'ready': 'Ready in 24 hours',
-      'points': '200 Points Available',
-      'tag1': 'Dry Cleaning',
-      'price1': '180 MRU/kg',
-      'tag2': 'Ironing',
-      'price2': '120 MRU/kg',
-      'tag3': 'Wash & Fold',
-      'price3': '150 MRU/kg',
-      'image':
-          'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=800&h=480&fit=crop',
-    },
+    {'label': 'svc_ls_wash_iron', 'image': 'lib/assets/images/Wash & Iron.png'},
   ];
 
   @override
@@ -140,10 +100,8 @@ class LaundryServicesScreen extends StatelessWidget {
               width: double.infinity,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
-              errorBuilder: (_, __, ___) => Container(
-                height: 240,
-                color: const Color(0xFFFF5E00),
-              ),
+              errorBuilder: (_, __, ___) =>
+                  Container(height: 240, color: const Color(0xFFFF5E00)),
             ),
           ),
         ),
@@ -206,7 +164,7 @@ class LaundryServicesScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'CURRENT LOCATION',
+                          'svc_current_location'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF9A8E86),
                             fontSize: 10,
@@ -252,7 +210,7 @@ class LaundryServicesScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
-                'Laundry Services',
+                'svc_laundry_services'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1D2635),
                   fontSize: 18,
@@ -266,7 +224,7 @@ class LaundryServicesScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Professional laundry care delivered to your doorstep',
+          'svc_laundry_subtitle'.tr,
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             color: const Color(0xFF7A6A60),
@@ -308,7 +266,7 @@ class LaundryServicesScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Quick Services',
+          'svc_quick_services'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 16,
@@ -354,7 +312,7 @@ class LaundryServicesScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          item['label']!,
+          item['label']!.tr,
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -386,17 +344,13 @@ class LaundryServicesScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         children: [
-          const Icon(
-            Icons.search_rounded,
-            color: Color(0xFFA59A94),
-            size: 22,
-          ),
+          const Icon(Icons.search_rounded, color: Color(0xFFA59A94), size: 22),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
               style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
               decoration: InputDecoration(
-                hintText: 'Search services...',
+                hintText: 'svc_search_short_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12.5,
@@ -440,7 +394,7 @@ class LaundryServicesScreen extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Laundry Services Near You',
+                'svc_laundry_near_you'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF122037),
                   fontSize: 16,
@@ -452,10 +406,10 @@ class LaundryServicesScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        for (var i = 0; i < _nearbyServices.length; i++) ...[
-          if (i > 0) const SizedBox(height: 14),
-          _buildProviderCard(_nearbyServices[i]),
-        ],
+        ServiceProviderList(
+          vertical: ServiceRepository.laundry,
+          cardBuilder: _buildProviderCard,
+        ),
       ],
     );
   }
@@ -474,9 +428,7 @@ class LaundryServicesScreen extends StatelessWidget {
 
   Widget _buildProviderCard(Map<String, String> item) {
     return GestureDetector(
-      onTap: () => Get.to(
-        () => LaundryProviderDetailScreen(provider: item),
-      ),
+      onTap: () => Get.to(() => LaundryProviderDetailScreen(provider: item)),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -506,8 +458,8 @@ class LaundryServicesScreen extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _providerImageFallback(),
                     ),
-                    Positioned(
-                      left: 10,
+                    PositionedDirectional(
+                      start: 10,
                       bottom: 10,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -596,11 +548,7 @@ class LaundryServicesScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: Color(0xFFEDE8E2),
-            ),
+            const Divider(height: 1, thickness: 1, color: Color(0xFFEDE8E2)),
             const SizedBox(height: 12),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -619,11 +567,10 @@ class LaundryServicesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Align(
-              alignment: Alignment.centerRight,
+              alignment: AlignmentDirectional.centerEnd,
               child: GestureDetector(
-                onTap: () => Get.to(
-                  () => LaundryProviderDetailScreen(provider: item),
-                ),
+                onTap: () =>
+                    Get.to(() => LaundryProviderDetailScreen(provider: item)),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 22,
@@ -634,15 +581,14 @@ class LaundryServicesScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                        color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
                     ],
                   ),
                   child: Text(
-                    'View Services',
+                    'svc_view_services'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,

@@ -6,7 +6,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../utils/toast_helper.dart';
 import '../home_scanner_screen.dart';
-import 'search_camera_button.dart';
+import '../all_search_screen.dart';
 
 class HomeSearchBox extends StatefulWidget {
   const HomeSearchBox({super.key});
@@ -29,6 +29,13 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
     _speech.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _search([String? keyword]) {
+    final text = (keyword ?? _controller.text).trim();
+    if (text.isEmpty) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    Get.to(() => AllSearchScreen(initialKeyword: text));
   }
 
   void _stopListeningUi() {
@@ -55,10 +62,10 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
           _stopListeningUi();
           if (error.errorMsg == 'error_no_match' ||
               error.errorMsg == 'error_speech_timeout') {
-            showAppToast('Didn\'t catch that. Try again.');
+            showAppToast('core_home_search_no_match'.tr);
             return;
           }
-          showAppToast('Voice search isn\'t available right now.');
+          showAppToast('core_home_search_voice_unavailable'.tr);
         },
         onStatus: (status) {
           if (!mounted) return;
@@ -75,16 +82,16 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
       );
     } on MissingPluginException {
       _stopListeningUi();
-      showAppToast('Stop the app and run it again to use voice search.');
+      showAppToast('core_home_search_restart_app'.tr);
       return;
     } catch (_) {
       _stopListeningUi();
-      showAppToast('Voice search isn\'t available right now.');
+      showAppToast('core_home_search_voice_unavailable'.tr);
       return;
     }
     if (!_speechReady) {
       _stopListeningUi();
-      showAppToast('Allow microphone access to use voice search.');
+      showAppToast('core_home_search_allow_mic'.tr);
       return;
     }
     if (!mounted || !_listening) return;
@@ -101,6 +108,11 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
               selection: TextSelection.collapsed(offset: text.length),
             );
           }
+          if (result.finalResult) {
+            _stopListeningUi();
+            _search();
+            return;
+          }
           setState(() => _listening = true);
         },
         listenOptions: SpeechListenOptions(
@@ -113,10 +125,10 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
       );
     } on MissingPluginException {
       _stopListeningUi();
-      showAppToast('Stop the app and run it again to use voice search.');
+      showAppToast('core_home_search_restart_app'.tr);
     } catch (_) {
       _stopListeningUi();
-      showAppToast('Voice search isn\'t available right now.');
+      showAppToast('core_home_search_voice_unavailable'.tr);
     }
   }
 
@@ -124,18 +136,9 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
     if (_scanning) return;
     final path = await Get.to<String>(() => const HomeScannerScreen());
     if (path == null || !mounted) return;
-
-    setState(() => _scanning = true);
-    try {
-      final text = await labelScannedImage(path);
-      if (!mounted || text == null) return;
-      _controller.value = TextEditingValue(
-        text: text,
-        selection: TextSelection.collapsed(offset: text.length),
-      );
-    } finally {
-      if (mounted) setState(() => _scanning = false);
-    }
+    // The server identifies the product in the photo (Google Vision) and
+    // answers with stores and products, like a typed search.
+    Get.to(() => AllSearchScreen(imagePath: path));
   }
 
   String _titleCase(String value) {
@@ -164,91 +167,88 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
 
   Widget _searchField() {
     return Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 1.5),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.search_rounded,
-              color: Color(0xFFA59A94),
-              size: 22,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  hintText: _listening
-                      ? 'Listening...'
-                      : 'What do you need today?',
-                  hintStyle: GoogleFonts.outfit(
-                    color: _listening
-                        ? const Color(0xFFFF5E00)
-                        : const Color(0xFFA59A94),
-                    fontSize: 12.5,
-                  ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: _scanning ? null : _scanImage,
-              behavior: HitTestBehavior.opaque,
-              child: SizedBox(
-                width: 28,
-                height: 32,
-                child: Center(
-                  child: _scanning
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Color(0xFFFF5E00),
-                          ),
-                        )
-                      : Image.asset(
-                          'lib/assets/images/Camera.png',
-                          width: 20,
-                          height: 20,
-                          color: Colors.black,
-                        ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            GestureDetector(
-              onTap: _toggleVoiceSearch,
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 1.5),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          const Icon(Icons.search_rounded, color: Color(0xFFA59A94), size: 22),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+              textInputAction: TextInputAction.search,
+              onSubmitted: _search,
+              decoration: InputDecoration(
+                hintText: _listening
+                    ? 'core_home_search_listening'.tr
+                    : 'core_home_search_hint'.tr,
+                hintStyle: GoogleFonts.outfit(
                   color: _listening
                       ? const Color(0xFFFF5E00)
-                      : const Color(0xFFFFF0E0),
-                  shape: BoxShape.circle,
+                      : const Color(0xFFA59A94),
+                  fontSize: 12.5,
                 ),
-                alignment: Alignment.center,
-                child: Image.asset(
-                  'lib/assets/images/Voice.png',
-                  width: 16,
-                  height: 16,
-                  color: _listening ? Colors.white : const Color(0xFFFF5E00),
-                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
               ),
             ),
-          ],
-        ),
+          ),
+          GestureDetector(
+            onTap: _scanning ? null : _scanImage,
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 28,
+              height: 32,
+              child: Center(
+                child: _scanning
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFFFF5E00),
+                        ),
+                      )
+                    : Image.asset(
+                        'lib/assets/images/Camera.png',
+                        width: 20,
+                        height: 20,
+                        color: Colors.black,
+                      ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: _toggleVoiceSearch,
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: _listening
+                    ? const Color(0xFFFF5E00)
+                    : const Color(0xFFFFF0E0),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Image.asset(
+                'lib/assets/images/Voice.png',
+                width: 16,
+                height: 16,
+                color: _listening ? Colors.white : const Color(0xFFFF5E00),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -301,9 +301,9 @@ class _RecordingBannerState extends State<_RecordingBanner>
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF5E00).withValues(
-                      alpha: 0.18 + (_pulse.value * 0.25),
-                    ),
+                    color: const Color(
+                      0xFFFF5E00,
+                    ).withValues(alpha: 0.18 + (_pulse.value * 0.25)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -318,7 +318,11 @@ class _RecordingBannerState extends State<_RecordingBanner>
                 color: Color(0xFFFF5E00),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.mic_rounded, color: Colors.white, size: 14),
+              child: const Icon(
+                Icons.mic_rounded,
+                color: Colors.white,
+                size: 14,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -327,7 +331,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Recording',
+                  'core_home_search_recording'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
@@ -335,7 +339,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
                   ),
                 ),
                 Text(
-                  'Listening... tap the mic to stop',
+                  'core_home_search_tap_to_stop'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,

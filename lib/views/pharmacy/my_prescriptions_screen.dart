@@ -19,12 +19,12 @@ class MyPrescriptionsScreen extends StatefulWidget {
 
 class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
   static const _filters = <(String, String?)>[
-    ('All', null),
-    ('Under Review', 'uploaded'),
-    ('Quoted', 'quoted'),
-    ('Accepted', 'accepted'),
-    ('Ordered', 'ordered'),
-    ('Rejected', 'rejected'),
+    ('pw_filter_all', null),
+    ('pw_filter_under_review', 'uploaded'),
+    ('pw_filter_quoted', 'quoted'),
+    ('pw_filter_accepted', 'accepted'),
+    ('pw_filter_ordered', 'ordered'),
+    ('pw_filter_rejected', 'rejected'),
   ];
 
   int _filterIndex = 0;
@@ -43,11 +43,12 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
     final requestId = ++_requestId;
     setState(() => _loading = true);
     try {
-      final result = await Get.find<PharmacyRepository>().fetchPrescriptionsList(
-        language: apiLanguageCode(),
-        status: _filters[_filterIndex].$2,
-        limit: 50,
-      );
+      final result = await Get.find<PharmacyRepository>()
+          .fetchPrescriptionsList(
+            language: apiLanguageCode(),
+            status: _filters[_filterIndex].$2,
+            limit: 50,
+          );
       if (!mounted || requestId != _requestId) return;
       setState(() => _items = result.prescriptions);
     } on ApiException catch (error) {
@@ -73,10 +74,10 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
     return remaining.isNegative ? Duration.zero : remaining;
   }
 
-  void _openItem(Map<String, dynamic> item) {
+  Future<void> _openItem(Map<String, dynamic> item) async {
     if (item['status'] != 'quoted') return;
     final id = item['prescriptionId'] as int;
-    Get.to(
+    final declined = await Get.to<bool>(
       () => QuotationDetailScreen(
         orderId: '#$id',
         pharmacyName: '${item['pharmacyName']}',
@@ -85,6 +86,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
         amount: '${item['quoteAmountText']}',
       ),
     );
+    if (declined == true && mounted) _load();
   }
 
   @override
@@ -104,11 +106,11 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                 alignment: Alignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: AppBackButton(onTap: () => Navigator.pop(context)),
                   ),
                   Text(
-                    'My Prescriptions',
+                    'pw_my_prescriptions'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 17,
@@ -141,12 +143,10 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                             ? const Color(0xFFFF5E00)
                             : Colors.white,
                         borderRadius: BorderRadius.circular(22),
-                        border: Border.all(
-                          color: const Color(0xFFE8DFD6),
-                        ),
+                        border: Border.all(color: const Color(0xFFE8DFD6)),
                       ),
                       child: Text(
-                        _filters[index].$1,
+                        _filters[index].$1.tr,
                         style: GoogleFonts.outfit(
                           color: selected
                               ? Colors.white
@@ -177,7 +177,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
     if (_items.isEmpty) {
       return Center(
         child: Text(
-          'No prescriptions found',
+          'pw_no_prescriptions'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 13,
@@ -222,7 +222,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    pharmacy.isEmpty ? 'Pharmacy' : pharmacy,
+                    pharmacy.isEmpty ? 'pw_pharmacy'.tr : pharmacy,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
@@ -231,7 +231,10 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Prescription #${item['prescriptionId']} • ${item['createdAt']}',
+                    'pw_prescription_no_date'.trParams({
+                      'id': '${item['prescriptionId']}',
+                      'date': '${item['createdAt']}',
+                    }),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 11,
@@ -263,10 +266,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
               ),
             if (quoted) ...[
               const SizedBox(width: 8),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFFA59A94),
-              ),
+              const Icon(Icons.chevron_right_rounded, color: Color(0xFFA59A94)),
             ],
           ],
         ),

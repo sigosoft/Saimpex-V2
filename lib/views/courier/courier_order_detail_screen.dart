@@ -4,53 +4,136 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../core/network/api_exception.dart';
+import '../../models/order_tracking.dart';
+import '../../utils/toast_helper.dart';
 import '../help_support_screen.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'courier_track_order_screen.dart';
 
-class CourierOrderDetailScreen extends StatelessWidget {
+/// A courier or express order's status, route, driver and payment, from
+/// customer/orderDetails.
+class CourierOrderDetailScreen extends StatefulWidget {
+  /// Order code shown to the customer, used until the details load.
   final String orderId;
+
+  /// Numeric order id for customer/orderDetails.
+  final int? apiOrderId;
+
+  /// Shown until the details load (e.g. from the My Orders list).
   final String pickupAddress;
   final String dropOffAddress;
-  final String deliveryFee;
-  final String totalToPay;
 
   const CourierOrderDetailScreen({
     super.key,
-    this.orderId = '#227890011',
-    this.pickupAddress = 'Marhaba Supermarket, Nouakchott',
-    this.dropOffAddress = 'Saimpex Logistics Hub, Wharf Sector',
-    this.deliveryFee = '50 MRU',
-    this.totalToPay = '51 MRU',
+    this.orderId = '',
+    this.apiOrderId,
+    this.pickupAddress = '',
+    this.dropOffAddress = '',
   });
 
-  static const _steps = [
-    _StatusStep(
-      label: 'Booking\nConfirmed',
-      time: '22 Oct 2025,\n10:00 AM',
-      done: true,
-      icon: Icons.check_rounded,
-    ),
-    _StatusStep(
-      label: 'At Pickup',
-      time: '22 Oct 2025,\n10:05 AM',
-      done: true,
-      icon: Icons.location_on_outlined,
-    ),
-    _StatusStep(
-      label: 'On the way',
-      time: '22 Oct 2025,\n10:10 AM',
-      done: true,
-      icon: Icons.two_wheeler_rounded,
-      useDeliveryIcon: true,
-    ),
-    _StatusStep(
-      label: 'Delivered',
-      time: '',
-      done: false,
-      icon: Icons.check_rounded,
-    ),
-  ];
+  @override
+  State<CourierOrderDetailScreen> createState() =>
+      _CourierOrderDetailScreenState();
+}
+
+class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
+  OrderTracking? _detail;
+  String? _error;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final detail = await loadOrderDetail(widget.apiOrderId);
+      if (!mounted) return;
+      setState(() {
+        _detail = detail;
+        _error = detail == null ? 'st_order_details_unavailable'.tr : null;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _error = error.message);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String get _displayId {
+    final code = _detail?.orderCode.isNotEmpty == true
+        ? _detail!.orderCode
+        : widget.orderId.trim();
+    if (code.isEmpty) return '';
+    return code.startsWith('#') ? code : '#$code';
+  }
+
+  // Cancel is only accepted before a driver is assigned (status 1–2).
+  bool get _canCancel {
+    final detail = _detail;
+    return detail != null && detail.status <= 2 && !detail.hasDriver;
+  }
+
+  bool get _canTrack => _detail != null && !_detail!.isCancelled;
+
+  List<_StatusStep> get _steps {
+    final detail = _detail;
+    final status = detail?.status ?? 0;
+    String time(int code) => _stepTime(detail?.timeOf(code) ?? '');
+    final cancelled = detail?.isCancelled == true;
+    return [
+      _StatusStep(
+        label: 'st_step_booking_confirmed'.tr,
+        time: _stepTime(detail?.placedAt ?? ''),
+        done: status >= 1,
+        icon: Icons.check_rounded,
+      ),
+      _StatusStep(
+        label: 'st_step_at_pickup'.tr,
+        time: time(6),
+        done: !cancelled && status >= 6,
+        icon: Icons.location_on_outlined,
+      ),
+      _StatusStep(
+        label: 'st_step_on_the_way'.tr,
+        time: time(7).isNotEmpty ? time(7) : time(8),
+        done: !cancelled && status >= 7,
+        icon: Icons.two_wheeler_rounded,
+        useDeliveryIcon: true,
+      ),
+      cancelled
+          ? _StatusStep(
+              label: 'st_step_cancelled'.tr,
+              time: time(10),
+              done: true,
+              icon: Icons.close_rounded,
+            )
+          : _StatusStep(
+              label: 'st_step_delivered'.tr,
+              time: time(9),
+              done: status >= 9,
+              icon: Icons.check_rounded,
+            ),
+    ];
+  }
+
+  /// "22 Oct 2025 10:00 AM" (or with a comma) → "22 Oct 2025,\n10:00 AM".
+  static String _stepTime(String raw) {
+    final parts = raw.replaceAll(',', '').trim().split(RegExp(r'\s+'));
+    if (parts.length < 4) return raw.trim();
+    return '${parts.take(3).join(' ')},\n${parts.skip(3).join(' ')}';
+  }
+
+  static String _money(dynamic value, {bool negative = false}) {
+    final number = double.tryParse('${value ?? ''}');
+    if (number == null) return 'mru'.trParams({'amount': '—'});
+    final text = 'mru'.trParams({'amount': '${number.round()}'});
+    return negative && number > 0 ? '-$text' : text;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,41 +155,74 @@ class CourierOrderDetailScreen extends StatelessWidget {
               _buildHeader(),
               const SizedBox(height: 12),
               Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                child: _detail == null
+                    ? _buildPlaceholder()
+                    : SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _sectionTitle('st_order_status'.tr),
+                            const SizedBox(height: 10),
+                            _buildOrderStatusCard(),
+                            const SizedBox(height: 18),
+                            _sectionTitle('st_delivery_details'.tr),
+                            const SizedBox(height: 10),
+                            _buildDeliveryRouteCard(),
+                            if (_detail!.packageDescription.isNotEmpty ||
+                                _detail!.packageSize.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              _buildPackageCard(),
+                            ],
+                            const SizedBox(height: 10),
+                            _buildDriverCard(),
+                            const SizedBox(height: 18),
+                            _buildPaymentCard(),
+                          ],
+                        ),
+                      ),
+              ),
+              if (_canCancel || _canTrack)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    8,
+                    16,
+                    12 + bottomInset * 0.2,
+                  ),
+                  child: Row(
                     children: [
-                      _sectionTitle('Order Status'),
-                      const SizedBox(height: 10),
-                      _buildOrderStatusCard(),
-                      const SizedBox(height: 18),
-                      _sectionTitle('Delivery Details'),
-                      const SizedBox(height: 10),
-                      _buildDeliveryRouteCard(),
-                      const SizedBox(height: 10),
-                      _buildDriverCard(),
-                      const SizedBox(height: 18),
-                      _buildPaymentCard(),
+                      if (_canCancel)
+                        Expanded(child: _buildCancelButton(context)),
+                      if (_canCancel && _canTrack) const SizedBox(width: 12),
+                      if (_canTrack) Expanded(child: _buildTrackButton()),
                     ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + bottomInset * 0.2),
-                child: Row(
-                  children: [
-                    Expanded(child: _buildCancelButton(context)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildTrackButton()),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Center(
+      child: _loading
+          ? const CircularProgressIndicator(color: Color(0xFFFF5E00))
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                _error ?? 'st_order_details_unavailable'.tr,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFA59A94),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
     );
   }
 
@@ -129,7 +245,9 @@ class CourierOrderDetailScreen extends StatelessWidget {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Order $orderId',
+              _displayId.isEmpty
+                  ? 'st_order'.tr
+                  : 'st_order_id'.trParams({'id': _displayId}),
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -148,7 +266,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFEAD8C9)),
               ),
               child: Text(
-                'Help',
+                'st_help'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
@@ -163,6 +281,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
   }
 
   Widget _buildOrderStatusCard() {
+    final steps = _steps;
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
       decoration: BoxDecoration(
@@ -194,7 +313,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
                       right: circle / 2,
                       child: Row(
                         children: List.generate(3, (i) {
-                          final active = i < 2;
+                          final active = steps[i + 1].done;
                           return Container(
                             width: segment,
                             height: 3,
@@ -208,32 +327,32 @@ class CourierOrderDetailScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        for (var i = 0; i < _steps.length; i++)
+                        for (final step in steps)
                           Container(
                             width: circle,
                             height: circle,
                             decoration: BoxDecoration(
-                              color: _steps[i].done
+                              color: step.done
                                   ? const Color(0xFFFF5E00)
                                   : const Color(0xFFEFE8E1),
                               shape: BoxShape.circle,
                             ),
                             alignment: Alignment.center,
-                            child: _steps[i].useDeliveryIcon && _steps[i].done
+                            child: step.useDeliveryIcon && step.done
                                 ? Image.asset(
                                     'lib/assets/images/delivery_icon.png',
                                     width: 18,
                                     height: 18,
                                     color: Colors.white,
-                                    errorBuilder: (_, __, ___) => Icon(
-                                      _steps[i].icon,
+                                    errorBuilder: (_, _, _) => Icon(
+                                      step.icon,
                                       color: Colors.white,
                                       size: 18,
                                     ),
                                   )
                                 : Icon(
-                                    _steps[i].icon,
-                                    color: _steps[i].done
+                                    step.icon,
+                                    color: step.done
                                         ? Colors.white
                                         : const Color(0xFFB0A59C),
                                     size: 18,
@@ -246,7 +365,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Row(
-                children: _steps.map((step) {
+                children: steps.map((step) {
                   return Expanded(
                     child: Column(
                       children: [
@@ -288,6 +407,15 @@ class CourierOrderDetailScreen extends StatelessWidget {
   }
 
   Widget _buildDeliveryRouteCard() {
+    final detail = _detail!;
+    final pickup = detail.pickup;
+    final dropoff = detail.dropoff;
+    final pickupAddress = pickup.address.isNotEmpty
+        ? pickup.address
+        : widget.pickupAddress;
+    final dropOffAddress = dropoff.address.isNotEmpty
+        ? dropoff.address
+        : widget.dropOffAddress;
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
       decoration: BoxDecoration(
@@ -335,9 +463,17 @@ class CourierOrderDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildRouteRow(label: 'PICKUP', title: pickupAddress),
+                  _buildRouteRow(
+                    label: 'st_pickup'.tr,
+                    title: pickupAddress.isEmpty ? '—' : pickupAddress,
+                    contact: _contactLine(pickup),
+                  ),
                   const SizedBox(height: 18),
-                  _buildRouteRow(label: 'DROP-OFF', title: dropOffAddress),
+                  _buildRouteRow(
+                    label: 'st_drop_off'.tr,
+                    title: dropOffAddress.isEmpty ? '—' : dropOffAddress,
+                    contact: _contactLine(dropoff),
+                  ),
                 ],
               ),
             ),
@@ -346,6 +482,11 @@ class CourierOrderDetailScreen extends StatelessWidget {
       ),
     );
   }
+
+  static String _contactLine(CourierStop stop) => [
+    if (stop.contactName.isNotEmpty) stop.contactName,
+    if (stop.contactPhone.isNotEmpty) stop.contactPhone,
+  ].join(' • ');
 
   Widget _routeDot({required Color fill, required Color halo}) {
     return Container(
@@ -361,7 +502,11 @@ class CourierOrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRouteRow({required String label, required String title}) {
+  Widget _buildRouteRow({
+    required String label,
+    required String title,
+    String contact = '',
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -384,12 +529,33 @@ class CourierOrderDetailScreen extends StatelessWidget {
             height: 1.3,
           ),
         ),
+        if (contact.isNotEmpty) ...[
+          const SizedBox(height: 3),
+          Text(
+            contact,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFF7A6A60),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildDriverCard() {
+  Widget _buildPackageCard() {
+    final detail = _detail!;
+    final size = detail.packageSize;
+    final title = [
+      if (size.isNotEmpty)
+        'st_parcel'.trParams({
+          'size': '${size[0].toUpperCase()}${size.substring(1)}',
+        }),
+      detail.isExpress ? 'st_express'.tr : 'st_standard'.tr,
+    ].join(' • ');
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -403,20 +569,12 @@ class CourierOrderDetailScreen extends StatelessWidget {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipOval(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop',
-              width: 46,
-              height: 46,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 46,
-                height: 46,
-                color: const Color(0xFFF3EFEA),
-                child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
-              ),
-            ),
+          const Icon(
+            Icons.inventory_2_outlined,
+            color: Color(0xFFFF5E00),
+            size: 22,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -424,46 +582,25 @@ class CourierOrderDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Amadou Sy',
+                  title,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 3),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFAE00),
-                      size: 14,
+                if (detail.packageDescription.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    detail.packageDescription,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF7A6A60),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
-                    const SizedBox(width: 3),
-                    Text(
-                      '4.6 (10k + reviews)',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFA59A94),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ],
-            ),
-          ),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.phone_rounded,
-              color: Colors.white,
-              size: 20,
             ),
           ),
         ],
@@ -471,7 +608,127 @@ class CourierOrderDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildDriverCard() {
+    final detail = _detail!;
+    final placeholder = Container(
+      width: 46,
+      height: 46,
+      color: const Color(0xFFF3EFEA),
+      child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
+    );
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: !detail.hasDriver
+          ? Text(
+              detail.isFinished ? 'st_no_driver'.tr : 'st_driver_soon'.tr,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF7A6A60),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            )
+          : Row(
+              children: [
+                ClipOval(
+                  child: detail.driverImage.isEmpty
+                      ? placeholder
+                      : Image.network(
+                          detail.driverImage,
+                          width: 46,
+                          height: 46,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => placeholder,
+                        ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        detail.driverName.isEmpty
+                            ? 'st_driver'.tr
+                            : detail.driverName,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFFAE00),
+                            size: 14,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            [
+                              detail.driverRating > 0
+                                  ? detail.driverRating.toStringAsFixed(1)
+                                  : 'st_new'.tr,
+                              if (detail.driverReviews > 0)
+                                'st_reviews_count'.trParams({
+                                  'count': '${detail.driverReviews}',
+                                }),
+                            ].join(' '),
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFA59A94),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  // The scope calls for a masked number, which needs a
+                  // calling provider the backend doesn't have yet.
+                  onTap: () => showAppToast('st_call_driver_soon'.tr),
+                  child: Container(
+                    width: 42,
+                    height: 42,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFF5E00),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.phone_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
   Widget _buildPaymentCard() {
+    final payment = _detail!.payment;
+    final redeemed = double.tryParse('${payment['redeemed_points'] ?? ''}');
+    final tax = double.tryParse('${payment['tax'] ?? ''}') ?? 0;
+    final discount = double.tryParse('${payment['discount'] ?? ''}') ?? 0;
+    final isCash = '${payment['payment_type'] ?? ''}'.toLowerCase() == 'cash';
+    final totalLabel = isCash && !_detail!.isDelivered
+        ? 'st_to_pay'.tr
+        : 'st_total_paid'.tr;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
@@ -490,7 +747,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'st_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
@@ -499,15 +756,29 @@ class CourierOrderDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Delivery fee', deliveryFee),
+          _payRow('cart_delivery_fee'.tr, _money(payment['delivery_fee'])),
+          if (discount > 0) ...[
+            const SizedBox(height: 10),
+            _payRow(
+              'st_discount'.tr,
+              _money(discount, negative: true),
+              valueColor: const Color(0xFFFF5E00),
+            ),
+          ],
+          if (redeemed != null && redeemed > 0) ...[
+            const SizedBox(height: 10),
+            _payRow(
+              'cart_redeemed_points'.tr,
+              'st_points_negative'.trParams({'points': '${redeemed.round()}'}),
+              valueColor: const Color(0xFFFF5E00),
+            ),
+          ],
+          if (tax > 0) ...[
+            const SizedBox(height: 10),
+            _payRow('cart_tax'.tr, _money(tax)),
+          ],
           const SizedBox(height: 10),
-          _payRow(
-            'Redeemed points',
-            '-1 MRU',
-            valueColor: const Color(0xFFFF5E00),
-          ),
-          const SizedBox(height: 10),
-          _payRow('Tax', '2 MRU'),
+          _payRow('st_payment'.tr, isCash ? 'st_cash'.tr : 'st_online'.tr),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(height: 1, color: Color(0xFF3A3A3A)),
@@ -515,7 +786,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
           Row(
             children: [
               Text(
-                'To pay',
+                totalLabel,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
@@ -524,7 +795,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                totalToPay,
+                _money(payment['total_bill']),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -565,7 +836,12 @@ class CourierOrderDetailScreen extends StatelessWidget {
   Widget _buildCancelButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        showCancelOrderBottomSheet(context, orderId: orderId);
+        showCancelOrderBottomSheet(
+          context,
+          orderId: _displayId,
+          apiOrderId: widget.apiOrderId,
+          onCancelled: _load,
+        );
       },
       child: Container(
         height: 48,
@@ -575,7 +851,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Cancel',
+          'cancel'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
@@ -588,7 +864,12 @@ class CourierOrderDetailScreen extends StatelessWidget {
 
   Widget _buildTrackButton() {
     return GestureDetector(
-      onTap: () => Get.to(() => CourierTrackOrderScreen(orderId: orderId)),
+      onTap: () => Get.to(
+        () => CourierTrackOrderScreen(
+          orderId: _displayId,
+          apiOrderId: widget.apiOrderId,
+        ),
+      ),
       child: Container(
         height: 48,
         decoration: BoxDecoration(
@@ -608,7 +889,7 @@ class CourierOrderDetailScreen extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Track Delivery',
+          'st_track_delivery'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 14,

@@ -505,14 +505,18 @@ class PharmacyRepository {
   }
 
   /// Pays an accepted quote. The server needs the same delivery fields as checkout:
-  /// location is required for delivery, and payment_type is always online (2).
+  /// location is required for delivery. [paymentType] is online (2) or wallet (3);
+  /// a wallet payment places and pays the order at once (payment_required false).
   Future<Map<String, dynamic>> payPrescription({
     required int prescriptionId,
     required bool selfPickup,
     required double latitude,
     required double longitude,
     required String location,
+    String paymentType = '2',
     required String language,
+    String couponCode = '',
+    String note = '',
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
@@ -522,7 +526,10 @@ class PharmacyRepository {
           'lat': latitude.toString(),
           'long': longitude.toString(),
           'location': location,
-          'payment_type': '2',
+          'payment_type': paymentType,
+          if (couponCode.isNotEmpty) 'coupon_code': couponCode,
+          // Same as checkout: the delivery note goes in both fields.
+          if (note.isNotEmpty) ...{'notes': note, 'order_note': note},
         },
         options: Options(contentType: Headers.jsonContentType),
       ),
@@ -540,6 +547,45 @@ class PharmacyRepository {
     final envelope = await _send(
       () => _client.dio.post(
         ApiConstants.prescriptionAccept(prescriptionId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Accepts or rejects suggested alternatives while the quote is `quoted`
+  /// (prescription/{id}/alternatives). The server recomputes `quote_amount`.
+  Future<String> decideAlternatives({
+    required int prescriptionId,
+    required Map<int, bool> decisions,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.prescriptionAlternatives(prescriptionId),
+        data: {
+          'decisions': [
+            for (final entry in decisions.entries)
+              {'item_id': entry.key, 'accept': entry.value},
+          ],
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Declines a quotation (status quoted → rejected).
+  Future<String> declinePrescription({
+    required int prescriptionId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.prescriptionDecline(prescriptionId),
         data: <String, dynamic>{},
         options: Options(contentType: Headers.jsonContentType),
       ),
@@ -570,7 +616,19 @@ class PharmacyRepository {
                 .trim();
       }
     }
+    // Per-item quote: an alternative is its own line, naming the requested
+    // medicine it replaces in alternative_for.
+    final alternativeFor = '${item['alternative_for'] ?? ''}'.trim();
+    final requested = item['requested_quantity'];
+    final decision = '${item['customer_decision'] ?? ''}'.trim();
     return {
+      'itemId': _asInt(item['item_id'] ?? item['id']),
+      // available | partial | unavailable
+      'availability': '${item['availability'] ?? 'available'}'.trim(),
+      'requestedQty': requested == null ? null : _asInt(requested),
+      // accepted | rejected | '' (not decided yet)
+      'decision': decision == 'null' ? '' : decision,
+      'included': item['included'] != false && item['included'] != 0,
       'name': name.isEmpty ? 'Item' : name,
       'qty': _asInt(item['quantity'], fallback: 1),
       'unitText': _moneyText(item['unit_price'] ?? item['price']),
@@ -580,14 +638,18 @@ class PharmacyRepository {
       'isAlternative':
           item['is_alternative'] == true ||
           item['is_alternative'] == 1 ||
-          alternative != null,
-      'originalName': '${item['original_name'] ?? item['requested_name'] ?? ''}'
-          .trim(),
+          alternative != null ||
+          alternativeFor.isNotEmpty,
+      'originalName': alternativeFor.isNotEmpty
+          ? alternativeFor
+          : '${item['original_name'] ?? item['requested_name'] ?? ''}'.trim(),
       'outOfStock':
           item['out_of_stock'] == true ||
           item['in_stock'] == false ||
           (item['stock'] != null && _asInt(item['stock']) == 0),
-      'alternativeName': alternativeName,
+      'alternativeName': alternativeName.isNotEmpty
+          ? alternativeName
+          : (alternativeFor.isNotEmpty ? name : ''),
       'alternativeQty': alternative == null
           ? _asInt(item['quantity'], fallback: 1)
           : _asInt(alternative['quantity'], fallback: 1),

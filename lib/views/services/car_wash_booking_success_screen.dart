@@ -44,7 +44,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
             child: Column(
               children: [
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: AppBackButton(onTap: _goHome),
                 ),
                 const Spacer(flex: 2),
@@ -69,7 +69,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 22),
                 Text(
-                  'Booking Confirmed',
+                  'svc_booking_confirmed'.tr,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
@@ -78,15 +78,6 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  "Congratulations! You've earned 10 points",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF8A7E76),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
                 const Spacer(flex: 3),
                 Row(
                   children: [
@@ -105,7 +96,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'Back to Home',
+                            'svc_back_to_home'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 14,
@@ -131,15 +122,16 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFF5E00)
-                                    .withValues(alpha: 0.28),
+                                color: const Color(
+                                  0xFFFF5E00,
+                                ).withValues(alpha: 0.28),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Text(
-                            'View Bookings',
+                            'svc_view_bookings'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 14,

@@ -27,6 +27,8 @@ class OrderDetailScreen extends StatelessWidget {
     final orderId = detail == null
         ? this.orderId
         : '${detail!['order_code'] ?? this.orderId}';
+    // Numeric id for the cancel API; the sample layout has none.
+    final apiOrderId = int.tryParse('${detail?['id'] ?? detail?['order_id']}');
     final isSelfPickup = detail == null
         ? this.isSelfPickup
         : '${detail!['is_self_pickup']}' == '1' ||
@@ -51,11 +53,11 @@ class OrderDetailScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: AppBackButton(onTap: () => Navigator.pop(context)),
                   ),
                   Text(
-                    'Order $orderId',
+                    'orders_order_code'.trParams({'code': orderId}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
@@ -63,13 +65,13 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                   ),
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: GestureDetector(
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Help center opened',
+                              'orders_help_opened'.tr,
                               style: GoogleFonts.outfit(),
                             ),
                             backgroundColor: const Color(0xFFFF5E00),
@@ -92,7 +94,7 @@ class OrderDetailScreen extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'Help',
+                          'subs_help'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 12,
@@ -139,7 +141,7 @@ class OrderDetailScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Order Status',
+                                'orders_order_status'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
@@ -147,7 +149,9 @@ class OrderDetailScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                isSelfPickup ? 'Self Pickup' : 'Delivery',
+                                isSelfPickup
+                                    ? 'orders_self_pickup'.tr
+                                    : 'orders_delivery'.tr,
                                 style: GoogleFonts.outfit(
                                   color: isSelfPickup
                                       ? const Color(0xFF007DFE)
@@ -204,7 +208,7 @@ class OrderDetailScreen extends StatelessWidget {
                                         _buildStepperNode(
                                           isActive: true,
                                           icon: Icons.check,
-                                          title: 'Order placed',
+                                          title: 'orders_step_placed'.tr,
                                           time: '22 Oct 2025, 10:00 AM',
                                         ),
                                         _buildStepperNode(
@@ -212,7 +216,7 @@ class OrderDetailScreen extends StatelessWidget {
                                           icon: Icons.check,
                                           iconAsset:
                                               'lib/assets/images/preparingfood.png',
-                                          title: 'Preparing food',
+                                          title: 'orders_step_preparing'.tr,
                                           time: '22 Oct 2025, 10:05 AM',
                                         ),
                                         _buildStepperNode(
@@ -220,13 +224,13 @@ class OrderDetailScreen extends StatelessWidget {
                                           icon: Icons.check,
                                           iconAsset:
                                               'lib/assets/images/readyforpickup.png',
-                                          title: 'Ready for pickup',
+                                          title: 'orders_step_ready'.tr,
                                           time: '22 Oct 2025, 10:10 AM',
                                         ),
                                         _buildStepperNode(
                                           isActive: false,
                                           icon: Icons.check,
-                                          title: 'Delivered',
+                                          title: 'orders_step_delivered'.tr,
                                           time: '',
                                         ),
                                       ]
@@ -234,7 +238,7 @@ class OrderDetailScreen extends StatelessWidget {
                                         _buildStepperNode(
                                           isActive: true,
                                           icon: Icons.check,
-                                          title: 'Order placed',
+                                          title: 'orders_step_placed'.tr,
                                           time: '22 Oct 2025, 10:00 AM',
                                         ),
                                         _buildStepperNode(
@@ -242,7 +246,7 @@ class OrderDetailScreen extends StatelessWidget {
                                           icon: Icons.check,
                                           iconAsset:
                                               'lib/assets/images/preparingfood.png',
-                                          title: 'Preparing food',
+                                          title: 'orders_step_preparing'.tr,
                                           time: '22 Oct 2025, 10:05 AM',
                                         ),
                                         _buildStepperNode(
@@ -250,13 +254,13 @@ class OrderDetailScreen extends StatelessWidget {
                                           icon: Icons.check,
                                           iconAsset:
                                               'lib/assets/images/ontheway.png',
-                                          title: 'On the way',
+                                          title: 'orders_step_on_the_way'.tr,
                                           time: '22 Oct 2025, 10:10 AM',
                                         ),
                                         _buildStepperNode(
                                           isActive: false,
                                           icon: Icons.check,
-                                          title: 'Delivered',
+                                          title: 'orders_step_delivered'.tr,
                                           time: '',
                                         ),
                                       ],
@@ -271,7 +275,9 @@ class OrderDetailScreen extends StatelessWidget {
 
                     // 3. Delivery Details Header & Card
                     Text(
-                      isSelfPickup ? 'Pickup Location' : 'Delivery Details',
+                      isSelfPickup
+                          ? 'orders_pickup_location'.tr
+                          : 'orders_delivery_details'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
@@ -389,7 +395,12 @@ class OrderDetailScreen extends StatelessWidget {
                                   Text(
                                     detail == null
                                         ? 'Near Marhaba Supermarket,Nouakchott'
-                                        : 'From ${_apiText('vendor_name', 'the restaurant')}',
+                                        : 'orders_from_vendor'.trParams({
+                                            'name': _apiText(
+                                              'vendor_name',
+                                              'orders_the_restaurant'.tr,
+                                            ),
+                                          }),
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF8C7D73),
                                       fontSize: 11,
@@ -466,7 +477,9 @@ class OrderDetailScreen extends StatelessWidget {
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          '(10k + reviews)',
+                                          'orders_reviews_count'.trParams({
+                                            'count': '10k+',
+                                          }),
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFF8C7D73),
                                             fontSize: 10,
@@ -482,7 +495,9 @@ class OrderDetailScreen extends StatelessWidget {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        'Calling Amadou Sy...',
+                                        'orders_calling'.trParams({
+                                          'name': 'Amadou Sy',
+                                        }),
                                         style: GoogleFonts.outfit(),
                                       ),
                                       backgroundColor: const Color(0xFFFF5E00),
@@ -513,7 +528,7 @@ class OrderDetailScreen extends StatelessWidget {
 
                     // 4. Order Summary Section
                     Text(
-                      'Order Summary',
+                      'orders_order_summary'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
@@ -613,7 +628,7 @@ class OrderDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'PAYMENT DETAILS',
+                            'orders_payment_details'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 11,
@@ -623,14 +638,14 @@ class OrderDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 14),
                           _buildPaymentRow(
-                            'Item total',
+                            'orders_item_total'.tr,
                             _amount('sub_total', '200 MRU'),
                           ),
                           // The API has no redeemed-points amount yet
                           if (detail == null) ...[
                             const SizedBox(height: 8),
                             _buildPaymentRow(
-                              'Redeemed points',
+                              'cart_redeemed_points'.tr,
                               '-50 MRU',
                               isOrange: true,
                             ),
@@ -638,12 +653,15 @@ class OrderDetailScreen extends StatelessWidget {
                           if (!isSelfPickup) ...[
                             const SizedBox(height: 8),
                             _buildPaymentRow(
-                              'Delivery fee',
+                              'cart_delivery_fee'.tr,
                               _amount('delivery_fee', '5 MRU'),
                             ),
                           ],
                           const SizedBox(height: 8),
-                          _buildPaymentRow('Tax', _amount('tax', '2 MRU')),
+                          _buildPaymentRow(
+                            'cart_tax'.tr,
+                            _amount('tax', '2 MRU'),
+                          ),
                           const SizedBox(height: 14),
                           Container(height: 1, color: Colors.white12),
                           const SizedBox(height: 14),
@@ -651,7 +669,7 @@ class OrderDetailScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Total paid',
+                                'orders_total_paid'.tr,
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 15,
@@ -678,7 +696,11 @@ class OrderDetailScreen extends StatelessWidget {
                     if (isSelfPickup)
                       GestureDetector(
                         onTap: () {
-                          showCancelOrderBottomSheet(context, orderId: orderId);
+                          showCancelOrderBottomSheet(
+                            context,
+                            orderId: orderId,
+                            apiOrderId: apiOrderId,
+                          );
                         },
                         child: Container(
                           width: double.infinity,
@@ -689,7 +711,7 @@ class OrderDetailScreen extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            'Cancel',
+                            'cancel'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 13,
@@ -707,6 +729,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 showCancelOrderBottomSheet(
                                   context,
                                   orderId: orderId,
+                                  apiOrderId: apiOrderId,
                                 );
                               },
                               child: Container(
@@ -717,7 +740,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Cancel',
+                                  'cancel'.tr,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,
@@ -732,7 +755,10 @@ class OrderDetailScreen extends StatelessWidget {
                             child: GestureDetector(
                               onTap: () {
                                 Get.to(
-                                  () => TrackOrderScreen(orderId: orderId),
+                                  () => TrackOrderScreen(
+                                    orderId: orderId,
+                                    apiOrderId: apiOrderId,
+                                  ),
                                 );
                               },
                               child: Container(
@@ -759,7 +785,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Track Order',
+                                  'orders_track_order_btn'.tr,
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 13,
@@ -793,7 +819,7 @@ class OrderDetailScreen extends StatelessWidget {
 
   static String _money(dynamic value) {
     final number = double.tryParse('${value ?? ''}') ?? 0;
-    return '${number.round()} MRU';
+    return 'mru'.trParams({'amount': '${number.round()}'});
   }
 
   /// 0 placed, 1 preparing, 2 on the way (or ready for pickup), 3 delivered.
@@ -809,10 +835,10 @@ class OrderDetailScreen extends StatelessWidget {
     final stage = _stage;
     final placedAt = _apiText('placed_at', '');
     final titles = [
-      'Order placed',
-      'Preparing food',
-      pickup ? 'Ready for pickup' : 'On the way',
-      'Delivered',
+      'orders_step_placed'.tr,
+      'orders_step_preparing'.tr,
+      pickup ? 'orders_step_ready'.tr : 'orders_step_on_the_way'.tr,
+      'orders_step_delivered'.tr,
     ];
     final assets = [
       null,

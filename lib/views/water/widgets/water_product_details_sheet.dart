@@ -10,14 +10,14 @@ void showWaterProductDetailsSheet(
   VoidCallback? onAdd,
 }) {
   final bottomSafe = MediaQuery.of(context).padding.bottom;
-  final title = product['title'] ?? 'Drinking Water 19L';
+  final title = product['title'] ?? 'pw_drinking_water_19l'.tr;
   final rating = product['rating'] ?? '4.6';
-  final reviews = product['reviews'] ?? '(10k + reviews)';
+  final reviews =
+      product['reviews'] ?? 'pw_reviews_count'.trParams({'count': '10k +'});
   final price = product['price'] ?? '50 MRU';
   final originalPrice = product['originalPrice'] ?? '100 MRU';
   final description =
-      product['description'] ??
-      'Stay hydrated with our premium 19L drinking water bottle, carefully purified and packaged to ensure freshness and quality. Ideal for homes, offices, restaurants, and commercial spaces, this large-capacity bottle provides a convenient and reliable source of clean drinking water for everyday use.';
+      product['description'] ?? 'pw_water_default_description'.tr;
 
   showModalBottomSheet(
     context: context,
@@ -153,17 +153,17 @@ void showWaterProductDetailsSheet(
                                     _buildFeatureCard(
                                       iconAsset:
                                           'lib/assets/images/contactless.png',
-                                      title: 'Contactless\nProduction',
+                                      title: 'pw_feature_contactless'.tr,
                                     ),
                                     const SizedBox(width: 12),
                                     _buildFeatureCard(
                                       icon: Icons.water_drop_outlined,
-                                      title: '10 Stage\nPurification',
+                                      title: 'pw_feature_purification'.tr,
                                     ),
                                     const SizedBox(width: 12),
                                     _buildFeatureCard(
                                       icon: Icons.verified_outlined,
-                                      title: 'Quality\nChecked',
+                                      title: 'pw_feature_quality'.tr,
                                     ),
                                   ],
                                 ),
@@ -197,7 +197,7 @@ void showWaterProductDetailsSheet(
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'Return Empty Bottle',
+                                          'pw_return_empty_bottle'.tr,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFFFF5E00),
                                             fontSize: 14,
@@ -208,7 +208,7 @@ void showWaterProductDetailsSheet(
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'You can return your empty water bottles when collecting your order via Self Pickup or hand them to the delivery partner during Home Delivery.',
+                                      'pw_return_empty_bottle_body'.tr,
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFF6B635C),
                                         fontSize: 11,
@@ -288,7 +288,7 @@ void showWaterProductDetailsSheet(
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        'ADD',
+                                        'pw_add_caps'.tr,
                                         style: GoogleFonts.outfit(
                                           color: Colors.white,
                                           fontSize: 15,

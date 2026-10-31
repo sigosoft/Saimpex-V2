@@ -33,7 +33,7 @@ class CourierActiveOrderCard extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: otp));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('OTP copied', style: GoogleFonts.outfit()),
+        content: Text('st_otp_copied'.tr, style: GoogleFonts.outfit()),
         backgroundColor: const Color(0xFFFF5E00),
         duration: const Duration(seconds: 2),
       ),
@@ -91,7 +91,7 @@ class CourierActiveOrderCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.only(left: 24),
+            padding: const EdgeInsetsDirectional.only(start: 24),
             child: Text(
               detailsText,
               style: GoogleFonts.outfit(
@@ -104,7 +104,7 @@ class CourierActiveOrderCard extends StatelessWidget {
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 12, 10),
             decoration: BoxDecoration(
               color: const Color(0xFFF3EFEA),
               borderRadius: BorderRadius.circular(16),
@@ -115,7 +115,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'SHARE OTP',
+                      'st_share_otp'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF8A7F77),
                         fontSize: 9,
@@ -160,7 +160,7 @@ class CourierActiveOrderCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _SoftButton(
-                  label: 'Cancel',
+                  label: 'cancel'.tr,
                   onTap: () {
                     showCancelOrderBottomSheet(context, orderId: orderId);
                   },
@@ -194,7 +194,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'Track Delivery',
+                        'st_track_delivery'.tr,
                         style: GoogleFonts.outfit(
                           color: Colors.white,
                           fontSize: 12,
@@ -222,7 +222,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'View Order Status & Details',
+                    'st_view_order_status'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 11,

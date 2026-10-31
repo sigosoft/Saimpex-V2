@@ -36,7 +36,7 @@ class NextButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Next',
+              'core_next'.tr,
               style: GoogleFonts.outfit(
                 color: Colors.white,
                 fontSize: 16,
@@ -45,11 +45,7 @@ class NextButton extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(
-              Icons.arrow_forward,
-              color: Colors.white,
-              size: 18,
-            ),
+            const Icon(Icons.arrow_forward, color: Colors.white, size: 18),
           ],
         ),
       ),
