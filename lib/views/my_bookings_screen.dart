@@ -727,19 +727,23 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 child: GestureDetector(
                   onTap: () {
                     final category = booking['category'] as String?;
-                    if (category == 'Car Wash') {
-                      Get.to(
-                        () => CarWashBookingDetailScreen(booking: booking),
-                      );
-                    } else if (category == 'Laundry') {
-                      Get.to(
-                        () => LaundryBookingDetailScreen(booking: booking),
-                      );
-                    } else {
-                      Get.to(
-                        () => HomeCleaningBookingDetailScreen(booking: booking),
-                      );
-                    }
+                    // Gas uses the home cleaning screen, which shows
+                    // cylinders instead of spaces for gas bookings.
+                    final Widget Function() screen = switch (category) {
+                      'Car Wash' => () => CarWashBookingDetailScreen(
+                        booking: booking,
+                      ),
+                      'Laundry' => () => LaundryBookingDetailScreen(
+                        booking: booking,
+                      ),
+                      _ => () => HomeCleaningBookingDetailScreen(
+                        booking: booking,
+                      ),
+                    };
+                    // true when the booking was cancelled there.
+                    Get.to(screen)?.then((result) {
+                      if (result == true) _load();
+                    });
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
