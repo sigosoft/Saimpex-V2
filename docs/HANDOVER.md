@@ -509,3 +509,11 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 - Chat voice notes and images end to end; coupons screen and reviews screen response shapes.
 - Whether the language is restored from the profile on login.
 - Exact JDK / Gradle requirements on a fresh machine.
+
+## Backend updates since this handover
+
+| Date | What's ready | Contract |
+|---|---|---|
+| 31 Oct 2026 | Unified search + image search (`GET customer/search`, image analyze without `type`) | backend API doc §6.7 |
+| 31 Oct 2026 | Wallet screen, top-up 100–50,000 MRU, split payment (`use_wallet=1`) | §6.8 |
+| 31 Oct 2026 | Pay After Delivery (`payment_type=4`, `GET payAfterDelivery`, pay later online/wallet). Replace the current "PAD sent as cash" behaviour: show PAD only when `can_use` is true, never as the default. | §6.9 |
