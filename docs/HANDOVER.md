@@ -1,6 +1,7 @@
 # SAIMPEX V2 Customer App — Developer Handover
 
 > **Read first:** the complete V2 scope, [`praveensigo/saimpex-backend-new` → `docs/V2_COMPLETE_SCOPE.md`](https://github.com/praveensigo/saimpex-backend-new/blob/integration/v2/docs/V2_COMPLETE_SCOPE.md). Then this handover, then the API change log.
+> **Owner:** **Sharvin**. Week-by-week task list to the 1 Dec launch: [`docs/TEAM_ASSIGNMENTS.md`](https://github.com/praveensigo/saimpex-backend-new/blob/integration/v2/docs/TEAM_ASSIGNMENTS.md).
 
 Last updated: 31 October 2026. Branch at time of writing: `fix/customer-critical-flows` (26 commits ahead of `main`, all pushed to `origin`).
 
