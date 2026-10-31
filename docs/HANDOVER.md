@@ -226,12 +226,13 @@ Note: "models" holds **repositories** (API classes), not plain data classes. Mos
 
 ### 3.5 Localisation (EN / FR / AR + RTL)
 
-**Current state: only the API language is localised.**
+**Current state: foundation in place; most existing screens still have English strings.**
 
-- The language picker (`lib/views/widgets/language_selector.dart`, `appLanguages`: English, Français, العربية) stores the label in `OnboardingController.selectedLanguage` and calls `customer/updateLanguage`.
-- `apiLanguageCode()` sends `en`/`fr`/`ar` so server messages and names come back in that language.
-- **All UI strings are hard-coded English.** There is no `Translations` class, no ARB files, no `locale` / `supportedLocales` on `GetMaterialApp`, and **no RTL** (`TextDirection.rtl` is never used).
-- The chosen language is **not persisted locally**; it resets to English on app restart (unverified whether it is reloaded from the profile).
+- `lib/l10n/app_locale.dart` (`AppLocale`) holds the language (`en`/`fr`/`ar`), saves it in SharedPreferences (survives restart) and switches it with `Get.updateLocale`.
+- `lib/l10n/app_translations.dart` (`AppTranslations`, GetX `Translations`) has the EN/FR/AR strings. Use `'key'.tr` / `'key'.trParams({...})`; **add every new string there in all three languages.**
+- `GetMaterialApp` sets `translations`, `locale`, `fallbackLocale: en`, `supportedLocales` and the Flutter localisation delegates, so Arabic lays the app out right to left. Screens built with `EdgeInsets.fromLTRB` / `Alignment.centerLeft` don't flip yet: use `EdgeInsetsDirectional` / `AlignmentDirectional` when converting a screen.
+- The language picker (`lib/views/widgets/language_selector.dart`) calls `customer/updateLanguage` (when logged in) and `AppLocale.change`. `apiLanguageCode()` returns `AppLocale.code`.
+- **Pending (P1-1):** move the hard-coded English in existing screens into `AppTranslations`, screen by screen.
 
 See pending item P1-1.
 

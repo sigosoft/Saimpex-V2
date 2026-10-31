@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../core/network/api_exception.dart';
+import '../l10n/app_locale.dart';
 import '../models/general_repository.dart';
 import '../models/onboarding_model.dart';
 import '../views/login_screen.dart';
@@ -9,7 +10,7 @@ import '../utils/toast_helper.dart';
 class OnboardingController extends GetxController {
   final pageController = PageController();
   final currentIndex = 0.obs;
-  final selectedLanguage = 'English'.obs;
+  final selectedLanguage = AppLocale.label.obs;
   final splashSlides = <Map<String, dynamic>>[].obs;
 
   static final List<OnboardingModel> localPages = [
@@ -70,14 +71,7 @@ class OnboardingController extends GetxController {
     return '';
   }
 
-  String _languageCode(String language) {
-    final selected = language.trim().toLowerCase();
-    if (selected == 'fr' || selected == 'français' || selected == 'francais') {
-      return 'fr';
-    }
-    if (selected == 'ar' || selected == 'العربية') return 'ar';
-    return 'en';
-  }
+  String _languageCode(String language) => AppLocale.codeFor(language);
 
   bool _splashRequested = false;
 
@@ -119,10 +113,11 @@ class OnboardingController extends GetxController {
     Get.offAll(() => const LoginScreen(), transition: Transition.fadeIn);
   }
 
-  void setLanguage(String language) {
+  Future<void> setLanguage(String language) async {
     selectedLanguage.value = language;
+    await AppLocale.change(language);
     showAppToast(
-      'Language switched to $language',
+      'language_switched'.trParams({'language': language}),
       backgroundColor: Colors.white.withOpacity(0.9),
     );
   }

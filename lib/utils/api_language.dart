@@ -1,23 +1,7 @@
-import 'package:get/get.dart';
+import '../l10n/app_locale.dart';
 
-import '../controllers/onboarding_controller.dart';
-
-/// Maps the language chosen in the app to the API language code.
-String apiLanguageCode() {
-  if (!Get.isRegistered<OnboardingController>()) return 'en';
-
-  final selected = Get.find<OnboardingController>().selectedLanguage.value
-      .trim()
-      .toLowerCase();
-
-  if (selected == 'fr' || selected == 'français' || selected == 'francais') {
-    return 'fr';
-  }
-  if (selected == 'ar' || selected == 'العربية') {
-    return 'ar';
-  }
-  return 'en';
-}
+/// The API language code (`en`, `fr` or `ar`): the language the app is in.
+String apiLanguageCode() => AppLocale.code;
 
 /// Convenience alias for [apiLanguageCode].
 String currentApiLanguage() => apiLanguageCode();

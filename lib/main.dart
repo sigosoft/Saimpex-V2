@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'core/app_dependencies.dart';
 import 'core/storage/session_store.dart';
+import 'l10n/app_locale.dart';
+import 'l10n/app_translations.dart';
 import 'models/auth_repository.dart';
 import 'views/main_shell_screen.dart';
 import 'views/onboarding_screen.dart';
@@ -12,6 +15,7 @@ import 'widgets/no_internet_guard.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppLocale.load();
   await AppDependencies.init();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
@@ -49,6 +53,17 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Saimpex V2',
       debugShowCheckedModeBanner: false,
+      // UI strings come from AppTranslations; Arabic lays the app out right
+      // to left through the Flutter localisation delegates.
+      translations: AppTranslations(),
+      locale: AppLocale.locale,
+      fallbackLocale: AppLocale.fallbackLocale,
+      supportedLocales: AppLocale.supportedLocales,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       themeMode: ThemeMode.light,
       theme: ThemeData(
         brightness: Brightness.light,
