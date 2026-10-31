@@ -13,6 +13,17 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'quote_line': 'Qty: @qty • Unit Price: @unit',
+  'quote_partial': 'Only @qty of @requested available • Unit Price: @unit',
+  'quote_unavailable': 'Not available at this pharmacy',
+  'quote_not_available': '• Not available',
+  'quote_suggested_alternative': 'Suggested Alternative',
+  'quote_alt_accept': 'Accept',
+  'quote_alt_reject': 'Reject',
+  'quote_alt_accepted': 'Alternative accepted',
+  'quote_alt_rejected': 'Alternative rejected',
+  'quote_decide_alternatives':
+      'Accept or reject each suggested alternative before paying.',
   'coupon_applied': 'Coupon applied.',
   'car_wash_location_title': 'Service Location',
   'car_wash_where': 'Where should we wash your vehicle?',
@@ -138,6 +149,18 @@ const _en = {
 };
 
 const _fr = {
+  'quote_line': 'Qté : @qty • Prix unitaire : @unit',
+  'quote_partial':
+      'Seulement @qty sur @requested disponibles • Prix unitaire : @unit',
+  'quote_unavailable': 'Indisponible dans cette pharmacie',
+  'quote_not_available': '• Indisponible',
+  'quote_suggested_alternative': 'Alternative proposée',
+  'quote_alt_accept': 'Accepter',
+  'quote_alt_reject': 'Refuser',
+  'quote_alt_accepted': 'Alternative acceptée',
+  'quote_alt_rejected': 'Alternative refusée',
+  'quote_decide_alternatives':
+      'Acceptez ou refusez chaque alternative proposée avant de payer.',
   'coupon_applied': 'Coupon appliqué.',
   'car_wash_location_title': 'Lieu du service',
   'car_wash_where': 'Où devons-nous laver votre véhicule ?',
@@ -265,6 +288,16 @@ const _fr = {
 };
 
 const _ar = {
+  'quote_line': 'الكمية: @qty • سعر الوحدة: @unit',
+  'quote_partial': 'متوفر @qty فقط من @requested • سعر الوحدة: @unit',
+  'quote_unavailable': 'غير متوفر في هذه الصيدلية',
+  'quote_not_available': '• غير متوفر',
+  'quote_suggested_alternative': 'بديل مقترح',
+  'quote_alt_accept': 'قبول',
+  'quote_alt_reject': 'رفض',
+  'quote_alt_accepted': 'تم قبول البديل',
+  'quote_alt_rejected': 'تم رفض البديل',
+  'quote_decide_alternatives': 'اقبل أو ارفض كل بديل مقترح قبل الدفع.',
   'coupon_applied': 'تم تطبيق القسيمة.',
   'car_wash_location_title': 'موقع الخدمة',
   'car_wash_where': 'أين نغسل سيارتك؟',

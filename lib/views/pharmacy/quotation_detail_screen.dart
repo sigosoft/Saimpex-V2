@@ -99,6 +99,31 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   num _quoteAmount = 0;
   final _availableItems = <Map<String, dynamic>>[];
   final _alternativeItems = <Map<String, dynamic>>[];
+  // Alternatives still waiting for accept/reject; accept and pay are refused
+  // by the server until this is 0.
+  int _pendingAlternatives = 0;
+  int? _decidingItemId;
+
+  Future<void> _decideAlternative(int itemId, bool accept) async {
+    final id = widget.prescriptionId;
+    if (id == null || _decidingItemId != null) return;
+    setState(() => _decidingItemId = itemId);
+    try {
+      await Get.find<PharmacyRepository>().decideAlternatives(
+        prescriptionId: id,
+        decisions: {itemId: accept},
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      // The server recomputes the quote total; show its numbers.
+      await _loadPrescription();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _decidingItemId = null);
+    }
+  }
 
   @override
   void initState() {
@@ -156,6 +181,8 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       }
       setState(() {
         _status = '${data['status'] ?? ''}'.trim();
+        _pendingAlternatives =
+            int.tryParse('${data['pending_alternatives'] ?? 0}') ?? 0;
         if (pharmacy.isNotEmpty) _pharmacyName = pharmacy;
         if (fileName.isNotEmpty) _fileName = fileName;
         if (quoteNumber != null) {
@@ -178,6 +205,13 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
     final id = widget.prescriptionId;
     if (_paying) return;
     if (id == null || id < 1 || !Get.isRegistered<PharmacyRepository>()) {
+      return;
+    }
+    if (_pendingAlternatives > 0) {
+      showAppToast(
+        'quote_decide_alternatives'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
       return;
     }
     _paying = true;
@@ -667,12 +701,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Divider(height: 1, color: Color(0xFFEFE8E1)),
               ),
-            _medicineRow(
-              title: '${_availableItems[i]['name']}',
-              meta:
-                  'Qty: ${_availableItems[i]['qty']} • Unit Price: ${_availableItems[i]['unitText']}',
-              price: '${_availableItems[i]['totalText']}',
-            ),
+            _quotedItemRow(_availableItems[i]),
           ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
@@ -694,10 +723,40 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
     );
   }
 
+  /// One quoted line: available, partial (less than requested) or
+  /// unavailable (shown, costs nothing).
+  Widget _quotedItemRow(Map<String, dynamic> item) {
+    final availability = '${item['availability'] ?? 'available'}';
+    final requested = item['requestedQty'];
+    final unavailable = availability == 'unavailable';
+    final meta = switch (availability) {
+      'unavailable' => 'quote_unavailable'.tr,
+      'partial' => 'quote_partial'.trParams({
+        'qty': '${item['qty']}',
+        'requested': '${requested ?? item['qty']}',
+        'unit': '${item['unitText']}',
+      }),
+      _ => 'quote_line'.trParams({
+        'qty': '${item['qty']}',
+        'unit': '${item['unitText']}',
+      }),
+    };
+    return Opacity(
+      opacity: unavailable ? 0.55 : 1,
+      child: _medicineRow(
+        title: '${item['name']}',
+        meta: meta,
+        price: unavailable ? '0 MRU' : '${item['totalText']}',
+        metaColor: availability == 'available' ? null : const Color(0xFFE53935),
+      ),
+    );
+  }
+
   Widget _medicineRow({
     required String title,
     required String meta,
     required String price,
+    Color? metaColor,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -718,7 +777,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               Text(
                 meta,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFA59A94),
+                  color: metaColor ?? const Color(0xFFA59A94),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
@@ -783,7 +842,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '• Out Of Stock',
+                    'quote_not_available'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFE53935),
                       fontSize: 10,
@@ -833,7 +892,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      'Suggested Alternative',
+                      'quote_suggested_alternative'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 10,
@@ -860,7 +919,10 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Qty: ${item['alternativeQty']} • Unit Price: ${item['alternativeUnitText']}',
+                            'quote_line'.trParams({
+                              'qty': '${item['alternativeQty']}',
+                              'unit': '${item['alternativeUnitText']}',
+                            }),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 11,
@@ -881,22 +943,72 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${item['alternativeTotalText']}',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
+                _alternativeDecision(item),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// Accept / Reject while the quote is open; afterwards, what was decided.
+  Widget _alternativeDecision(Map<String, dynamic> item) {
+    final itemId = item['itemId'] is int ? item['itemId'] as int : 0;
+    final decision = '${item['decision'] ?? ''}';
+    if (decision == 'accepted' || decision == 'rejected') {
+      final accepted = decision == 'accepted';
+      return Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: Text(
+          accepted ? 'quote_alt_accepted'.tr : 'quote_alt_rejected'.tr,
+          style: GoogleFonts.outfit(
+            color: accepted ? const Color(0xFF00B25C) : const Color(0xFF8A7F77),
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      );
+    }
+    if (_status != 'quoted' || itemId <= 0) return const SizedBox.shrink();
+    if (_decidingItemId == itemId) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+      );
+    }
+    Widget button(String label, bool accept) => Expanded(
+      child: GestureDetector(
+        onTap: () => _decideAlternative(itemId, accept),
+        child: Container(
+          height: 40,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: accept ? null : Colors.white,
+            gradient: accept
+                ? const LinearGradient(
+                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  )
+                : null,
+            borderRadius: BorderRadius.circular(20),
+            border: accept ? null : Border.all(color: const Color(0xFFE0D6CC)),
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.outfit(
+              color: accept ? Colors.white : const Color(0xFF2C2520),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    );
+    return Row(
+      children: [
+        button('quote_alt_reject'.tr, false),
+        const SizedBox(width: 10),
+        button('quote_alt_accept'.tr, true),
+      ],
     );
   }
 
