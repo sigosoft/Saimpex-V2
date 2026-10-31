@@ -439,7 +439,7 @@ AC: quotation screen shows each item as available, partial or unavailable, any s
 **P1-10. Car wash location types.** ✅ Done (C13, `feat/car-wash-locations`): the location screen offers At Wash Station, At Home, At Workplace and At Another Address (map picker); home/workplace use the delivery location. `place` (`station`/`home`/`workplace`/`other`) and the address/coordinates go to `service/book` (`placeServiceBooking` now takes optional `address`/`latitude`/`longitude`). The hard-coded "Ilot V" address and 150 MRU home-service fee were removed; the price is the server quote checked before booking. Instructions go in `notes`.
 AC: `car_wash_service_location_screen.dart` offers Home, Workplace, Other and At Station; the address picker shows for the first three; the value is sent to quote and book; the home-service fee shown equals the server quote.
 
-**P1-11. Catalog (food) coupons.** Blocked.
+**P1-11. Catalog (food) coupons.** ✅ Done (C14, `feat/food-cart-coupons`): food carts now load `catalog/checkoutSummary` (item total, delivery charge, tax and `grand_total` from the server instead of the cart's built-in fee/tax guesses) with `coupon_code`; Apply checks the code there and a 422 shows the server's reason and drops the code; `catalog/checkout` sends `coupon_code`. Gas empty-cylinder confirmation (rest of C14) is not done: the app has no gas screens.
 AC: coupons apply in the food cart and are sent to `catalog/checkout`; coupons are vendor-specific (a coupon for store A is rejected in store B with the server message).
 
 **P1-12. AI chatbot (Claude).** Blocked.

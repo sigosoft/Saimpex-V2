@@ -238,11 +238,48 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  /// Restaurant (catalog) cart totals with the applied coupon. A coupon the
+  /// server now refuses (422) is dropped and the totals load without it.
+  Future<void> _loadCatalogSummary() async {
+    final orders = Get.find<OrderRepository>();
+    final location = SelectLocationController.selectedSubtitle.trim().isEmpty
+        ? SelectLocationController.deliveryLabel.value
+        : SelectLocationController.selectedSubtitle;
+    Future<Map<String, dynamic>> load(String coupon) =>
+        orders.catalogCheckoutSummary(
+          selfPickup: !isDelivery,
+          latitude: SelectLocationController.selectedLatitude,
+          longitude: SelectLocationController.selectedLongitude,
+          location: location,
+          language: apiLanguageCode(),
+          couponCode: coupon,
+        );
+    try {
+      _applySummary(await load(_appliedCoupon));
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      if (error.statusCode == 422 && _appliedCoupon.isNotEmpty) {
+        setState(() {
+          _appliedCoupon = '';
+          _couponController.clear();
+        });
+        try {
+          _applySummary(await load(''));
+        } on ApiException {
+          _applySummary(const {});
+        }
+      } else {
+        _applySummary(const {});
+      }
+    }
+  }
+
   Future<void> _loadCheckoutSummary() async {
     if (!Get.isRegistered<OrderRepository>() || !mounted) return;
-    // The general checkout summary has no restaurant cart and answers "cart not found".
+    // Restaurant carts have their own summary (catalog/checkoutSummary).
     if (_isCatalogCart) {
-      _applySummary(const {});
+      await _loadCatalogSummary();
       return;
     }
     final orders = Get.find<OrderRepository>();
@@ -289,10 +326,11 @@ class _CartScreenState extends State<CartScreen> {
     if (!mounted) return;
     setState(() {
       if (_isCatalogCart) {
-        _summaryItemTotal = null;
-        _summaryDelivery = null;
-        _summaryTax = null;
-        _summaryToPay = null;
+        // catalog/checkoutSummary; grand_total is after the coupon.
+        _summaryItemTotal = money(data['sub_total']);
+        _summaryDelivery = money(data['delivery_charge']);
+        _summaryTax = money(data['tax']);
+        _summaryToPay = money(data['grand_total']);
         _needsPrescription = false;
         _hasPrescription = false;
         _prescriptionId = null;
@@ -426,6 +464,20 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _applyCoupon(int orderAmount) async {
     final code = _couponController.text.trim();
     if (code.isEmpty || !Get.isRegistered<OrderRepository>()) return;
+    if (_isCatalogCart) {
+      // Restaurant carts check the coupon through their own summary; an
+      // invalid code comes back as a 422 with the reason.
+      final previous = _appliedCoupon;
+      setState(() => _appliedCoupon = code);
+      await _loadCatalogSummary();
+      if (mounted && _appliedCoupon == code && code != previous) {
+        showAppToast(
+          'coupon_applied'.tr,
+          backgroundColor: const Color(0xFFFF5E00),
+        );
+      }
+      return;
+    }
     try {
       final message = await Get.find<OrderRepository>().applyCoupon(
         couponCode: code,
@@ -492,6 +544,7 @@ class _CartScreenState extends State<CartScreen> {
           note: note,
           useWallet: splitWithWallet,
           scheduledFor: _scheduledFor,
+          couponCode: _appliedCoupon,
         );
       }
       return orders.checkout(
@@ -547,7 +600,10 @@ class _CartScreenState extends State<CartScreen> {
   /// and totals so what's on screen is what can actually be ordered.
   Future<void> _recheckCartAfterRefusal(int payable) async {
     final coupon = _appliedCoupon;
-    if (coupon.isNotEmpty && Get.isRegistered<OrderRepository>()) {
+    // Restaurant carts re-check the coupon in their summary on reload.
+    if (coupon.isNotEmpty &&
+        !_isCatalogCart &&
+        Get.isRegistered<OrderRepository>()) {
       try {
         await Get.find<OrderRepository>().applyCoupon(
           couponCode: coupon,

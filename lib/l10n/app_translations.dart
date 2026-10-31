@@ -13,6 +13,7 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'coupon_applied': 'Coupon applied.',
   'car_wash_location_title': 'Service Location',
   'car_wash_where': 'Where should we wash your vehicle?',
   'car_wash_at_station': 'At Wash Station',
@@ -137,6 +138,7 @@ const _en = {
 };
 
 const _fr = {
+  'coupon_applied': 'Coupon appliqué.',
   'car_wash_location_title': 'Lieu du service',
   'car_wash_where': 'Où devons-nous laver votre véhicule ?',
   'car_wash_at_station': 'À la station de lavage',
@@ -263,6 +265,7 @@ const _fr = {
 };
 
 const _ar = {
+  'coupon_applied': 'تم تطبيق القسيمة.',
   'car_wash_location_title': 'موقع الخدمة',
   'car_wash_where': 'أين نغسل سيارتك؟',
   'car_wash_at_station': 'في محطة الغسيل',

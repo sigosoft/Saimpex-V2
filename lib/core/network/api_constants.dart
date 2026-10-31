@@ -68,6 +68,8 @@ class ApiConstants {
       'customer/catalog/cart/item/delete';
   static const String catalogCartUpdate = 'customer/catalog/cart/update';
   static const String catalogCheckout = 'customer/catalog/checkout';
+  static const String catalogCheckoutSummary =
+      'customer/catalog/checkoutSummary';
   static const String catalogOrderDetail = 'customer/catalog/orderDetail';
   static const String cartPharmacyAttachPrescription =
       'customer/cart/pharmacy/attachPrescription';

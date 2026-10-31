@@ -87,6 +87,34 @@ class OrderRepository {
     return data;
   }
 
+  /// Restaurant (catalog) cart totals (catalog/checkoutSummary): `sub_total`,
+  /// `delivery_charge`, `tax`, `coupon_code`, `coupon_discount` and
+  /// `grand_total` (after the coupon). An invalid [couponCode] is a 422 with
+  /// the reason.
+  Future<Map<String, dynamic>> catalogCheckoutSummary({
+    required bool selfPickup,
+    required double latitude,
+    required double longitude,
+    required String location,
+    required String language,
+    String couponCode = '',
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.catalogCheckoutSummary,
+        data: FormData.fromMap({
+          'is_self_pickup': selfPickup ? '1' : '0',
+          'lat': latitude.toString(),
+          'long': longitude.toString(),
+          'location': location,
+          if (couponCode.trim().isNotEmpty) 'coupon_code': couponCode.trim(),
+        }),
+      ),
+      language,
+    );
+    return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
   /// Restaurant (catalog) checkout; the cart is the server-side catalog cart.
   Future<Map<String, dynamic>> catalogCheckout({
     required bool selfPickup,
@@ -98,11 +126,13 @@ class OrderRepository {
     String note = '',
     bool useWallet = false,
     DateTime? scheduledFor,
+    String couponCode = '',
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
         ApiConstants.catalogCheckout,
         data: FormData.fromMap({
+          if (couponCode.trim().isNotEmpty) 'coupon_code': couponCode.trim(),
           'is_self_pickup': selfPickup ? '1' : '0',
           'lat': latitude.toString(),
           'long': longitude.toString(),
