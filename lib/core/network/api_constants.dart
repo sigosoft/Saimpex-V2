@@ -205,6 +205,9 @@ class ApiConstants {
   static const String chatAllConversations = 'customer/chat/allConversations';
   static const String chatGetConversation = 'customer/chat/getConversation';
   static const String chatSendMessage = 'customer/chat/sendMessage';
+  static const String chatMarkAsRead = 'customer/chat/markAsRead';
+  static const String chatDeleteConversation =
+      'customer/chat/deleteConversation';
 
   static String? mediaUrl(String? path) {
     if (path == null) return null;

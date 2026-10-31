@@ -37,6 +37,7 @@ class DioClient {
         },
         onError: (error, handler) {
           logDioError(error);
+          _checkSessionExpired(error);
           handler.next(error);
         },
       ),
@@ -45,6 +46,31 @@ class DioClient {
 
   final SessionStore session;
   late final Dio dio;
+
+  /// Called when the server answers 401 to a request sent with the current
+  /// session (token expired or revoked). Set in main.dart: it clears the
+  /// session and returns to Login. Not called again once the session is gone.
+  void Function()? onSessionExpired;
+
+  void _checkSessionExpired(DioException error) {
+    if (error.response?.statusCode != 401) return;
+    // Logging out with a dead token is fine; the account screen handles it.
+    if (error.requestOptions.path == ApiConstants.logout) return;
+    final token = session.token;
+    if (token == null || token.isEmpty) return;
+    final sent = error.requestOptions.headers['Authorization']?.toString();
+    if (sent != 'Bearer $token') return;
+    onSessionExpired?.call();
+  }
+}
+
+/// "Bearer …a1b2c3": enough to tell tokens apart in debug logs without
+/// leaking them into shared logs or screenshots.
+String _maskAuthorization(String? authorization) {
+  if (authorization == null || authorization.isEmpty) return '-';
+  final token = authorization.replaceFirst('Bearer ', '');
+  final tail = token.length > 6 ? token.substring(token.length - 6) : '';
+  return 'Bearer …$tail';
 }
 
 String _formatData(dynamic data) {
@@ -92,14 +118,18 @@ void _printConsole(String message) {
 
 void logDioRequest(RequestOptions options) {
   final token = options.headers['Authorization']?.toString();
+  final headers = {
+    ...options.headers,
+    if (token != null) 'Authorization': _maskAuthorization(token),
+  };
   final query = options.queryParameters.isNotEmpty
       ? '\n[Query Parameters]: ${options.queryParameters}'
       : '';
   _printConsole(
     '==================== [API REQUEST] ====================\n'
     '[Method & URL]: ${options.method} ${options.uri}\n'
-    '[Token]: ${token != null && token.isNotEmpty ? token : 'No Token'}\n'
-    '[Headers]: ${options.headers}'
+    '[Token]: ${token != null && token.isNotEmpty ? _maskAuthorization(token) : 'No Token'}\n'
+    '[Headers]: $headers'
     '$query\n'
     '[Request Body]:\n${_formatData(options.data)}\n'
     '=======================================================',
@@ -139,10 +169,9 @@ void logDioResult({
 }) {
   final body = asJsonMap(data);
   final message = body?['message'] ?? fallbackMessage ?? '-';
-  final authorization = options.headers['Authorization']?.toString();
-  final bearer = (authorization != null && authorization.isNotEmpty)
-      ? authorization
-      : '-';
+  final bearer = _maskAuthorization(
+    options.headers['Authorization']?.toString(),
+  );
   _printConsole(
     '[DIO] ${options.method} ${options.uri}\n'
     'bearer: $bearer\n'

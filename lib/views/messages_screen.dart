@@ -5,11 +5,13 @@ import 'package:get/get.dart';
 import 'chat_screen.dart';
 import '../constants/text_styles.dart';
 import '../core/network/api_constants.dart';
+import '../core/network/api_exception.dart';
 import '../core/network/dio_client.dart';
 import '../core/storage/session_store.dart';
 import '../models/chat_repository.dart';
 import '../navigation/bottom_nav_router.dart';
 import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/home_background_blend.dart';
@@ -57,6 +59,39 @@ class _MessagesScreenState extends State<MessagesScreen> {
       return '${dt.day}/${dt.month}/${dt.year}';
     } catch (_) {
       return raw.toString();
+    }
+  }
+
+  /// Asks first, then deletes the conversation on the server
+  /// (chat/deleteConversation) and only then removes it from the list.
+  Future<void> _deleteChat(Map<String, dynamic> chat) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('core_messages_delete_confirm'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text('core_messages_keep'.tr),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text('core_addresses_delete'.tr),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await _getChatRepo().deleteConversation(
+        conversationId: chat['id'],
+        language: currentApiLanguage(),
+      );
+      if (!mounted) return;
+      setState(() => _chats.removeWhere((c) => c['id'] == chat['id']));
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     }
   }
 
@@ -326,13 +361,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                         );
                                         _loadConversations();
                                       },
-                                      onDelete: () {
-                                        setState(() {
-                                          _chats.removeWhere(
-                                            (c) => c['id'] == chat['id'],
-                                          );
-                                        });
-                                      },
+                                      onDelete: () => _deleteChat(chat),
                                     );
                                   },
                                 ),

@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'controllers/home_controller.dart';
 import 'core/app_dependencies.dart';
+import 'core/network/dio_client.dart';
 import 'core/storage/session_store.dart';
 import 'l10n/app_locale.dart';
 import 'l10n/app_translations.dart';
 import 'models/auth_repository.dart';
+import 'utils/toast_helper.dart';
+import 'views/login_screen.dart';
 import 'views/main_shell_screen.dart';
 import 'views/onboarding_screen.dart';
 import 'widgets/no_internet_guard.dart';
@@ -28,8 +32,25 @@ Future<void> main() async {
       systemNavigationBarContrastEnforced: false,
     ),
   );
+  Get.find<DioClient>().onSessionExpired = _handleSessionExpired;
   runApp(const MyApp());
   unawaited(_confirmStoredSession());
+}
+
+/// The server refused the session (401): clear it and go back to Login once,
+/// with one message, instead of an error toast on every request.
+void _handleSessionExpired() {
+  final session = Get.find<SessionStore>();
+  if (!session.isLoggedIn.value) return;
+  // clear() drops the token at once, so later 401s don't land here again.
+  unawaited(session.clear());
+  if (Get.isRegistered<HomeController>()) {
+    Get.find<HomeController>()
+      ..resetForLogout()
+      ..currentNavIndex.value = HomeController.navHome;
+  }
+  Get.offAll(() => const LoginScreen());
+  showAppToast('core_session_expired'.tr);
 }
 
 Future<void> _confirmStoredSession() async {
@@ -79,9 +100,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       builder: (context, child) {
-        return NoInternetGuard(
-          child: child ?? const SizedBox.shrink(),
-        );
+        return NoInternetGuard(child: child ?? const SizedBox.shrink());
       },
       home: _startScreen(),
     );

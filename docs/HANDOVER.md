@@ -454,11 +454,11 @@ AC: checkout shows the per-km delivery fee from the server summary; Gold+ custom
 
 ### P2 — completeness and polish
 
-**P2-1. Push notifications.** Needs a decision on FCM and a backend token endpoint (contract pending). AC: order status, chat and substitution notifications open the right screen.
+**P2-1. Push notifications.** Needs a decision on FCM and a backend token endpoint (contract pending). AC: order status, chat and substitution notifications open the right screen. **Blocked (C17):** the app has no Firebase files (`android/app/google-services.json`, `ios/Runner/GoogleService-Info.plist` for the existing V1 app IDs, Firebase project `saimpex-customer`), and the backend only takes the token at login (`verifyOtp` → `fcm_token`); a token refresh endpoint is still needed. The data payload (type + id per notification) also needs documenting so each push can open the right screen.
 
-**P2-2. Global 401 handling.** AC: any 401 during use clears the session and returns to Login once, instead of repeated error toasts. Add it in `DioClient`'s `onError`.
+**P2-2. Global 401 handling.** AC: any 401 during use clears the session and returns to Login once, instead of repeated error toasts. Add it in `DioClient`'s `onError`. ✅ Done (C17, `feature/session-expiry-chat-read`): `DioClient.onSessionExpired` (set in `main.dart`) fires on a 401 to a request sent with the current token (not logout, not OTP): clears the session, resets home, goes to Login and shows "Your session has expired" once.
 
-**P2-3. Chat unread and delete.** AC: opening a conversation calls `chat/markAsRead`; the list shows unread counts; delete uses `chat/deleteConversation`.
+**P2-3. Chat unread and delete.** AC: opening a conversation calls `chat/markAsRead`; the list shows unread counts; delete uses `chat/deleteConversation`. ✅ Done (C17): opening a chat calls `chat/markAsRead`; the bin icon asks first, then calls `chat/deleteConversation` and removes the row only if the server agreed. Unread counts come from `allConversations` (already shown).
 
 **P2-4. Real tests.** AC: replace `test/widget_test.dart` with tests for `ApiEnvelope.parse`, payment type mapping and one repository mapper; `flutter test` passes.
 
@@ -515,8 +515,8 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 | R-4 | Courier pickup is a fixed address; review total adds invented numbers. | `lib/views/courier/courier_screen.dart`, `courier_review_booking_screen.dart` | Wrong pickup for every courier order; displayed total differs from charge. (P0-4) |
 | R-5 | Online payment for courier and service bookings has no payment step. | `courier_review_booking_screen.dart`, `lib/views/services/service_booking_submit.dart` | Booking created as "online" but never paid. (P1-6) |
 | R-6 | Google Maps API key is committed in `AndroidManifest.xml` and `ios/Runner/AppDelegate.swift`. | — | Key can be abused if unrestricted. Restrict it to the app IDs/bundle IDs in Google Cloud; consider moving it to an untracked config. Do not copy it into docs or chat. |
-| R-7 | Debug logging prints the full Bearer token and bodies. | `lib/core/network/dio_client.dart` | Only in debug builds (`kDebugMode`), but tokens end up in shared logs/screenshots. Mask the token. |
-| R-8 | No global 401 handling. | `lib/core/network/dio_client.dart` | Expired session shows error toasts instead of returning to login. (P2-2) |
+| R-7 | Debug logging prints the full Bearer token and bodies. | `lib/core/network/dio_client.dart` | Only in debug builds (`kDebugMode`), but tokens end up in shared logs/screenshots. Mask the token. ✅ Masked (C17): logs show `Bearer …` plus the last 6 characters. |
+| R-8 | No global 401 handling. | `lib/core/network/dio_client.dart` | Expired session shows error toasts instead of returning to login. (P2-2) ✅ Fixed (C17). |
 | R-9 | No UI translations and no RTL. Language resets on restart. | `lib/main.dart`, `lib/controllers/onboarding_controller.dart` | French/Arabic users see English UI. (P1-1) |
 | R-10 | Home search, voice search and image search fill a field that triggers nothing. | `lib/views/widgets/home_search_box.dart` | Headline feature appears broken. (P0-6) |
 | R-11 | Release build signs with the debug key; placeholder app IDs. | `android/app/build.gradle.kts`, `ios/Runner.xcodeproj/project.pbxproj` | Cannot ship as a V1 update until fixed. (P2-8) |

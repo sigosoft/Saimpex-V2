@@ -220,6 +220,15 @@ class _ChatScreenState extends State<ChatScreen> {
         _isLoadingMessages = false;
       });
       _scrollToBottom();
+      // The customer has now seen the vendor's messages: clear the unread
+      // count. Best effort; the list just shows the old count if it fails.
+      if (_conversationId != null) {
+        unawaited(
+          repo
+              .markAsRead(conversationId: _conversationId, language: lang)
+              .catchError((_) {}),
+        );
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() => _isLoadingMessages = false);
