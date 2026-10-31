@@ -146,7 +146,7 @@ class _CarWashProviderDetailScreenState
         fit: BoxFit.cover,
         width: double.infinity,
         height: 210,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           color: const Color(0xFFFFE8DC),
           alignment: Alignment.center,
           child: Image.asset('lib/assets/images/car_wash.png', height: 80),
@@ -158,7 +158,7 @@ class _CarWashProviderDetailScreenState
       fit: BoxFit.cover,
       width: double.infinity,
       height: 210,
-      errorBuilder: (_, __, ___) => Container(
+      errorBuilder: (_, _, _) => Container(
         color: const Color(0xFFFFE8DC),
         alignment: Alignment.center,
         child: Image.asset('lib/assets/images/car_wash.png', height: 80),
@@ -433,7 +433,7 @@ class _CarWashProviderDetailScreenState
                     width: 72,
                     height: 72,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       width: 72,
                       height: 72,
                       color: const Color(0xFFFFF3EB),
@@ -770,7 +770,7 @@ class _CarWashProviderDetailScreenState
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 40,
                     height: 40,
                     color: const Color(0xFFFFF3EB),

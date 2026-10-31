@@ -389,7 +389,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   width: 56,
                   height: 56,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 56,
                     height: 56,
                     color: const Color(0xFFFFF3EB),

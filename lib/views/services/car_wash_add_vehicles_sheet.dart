@@ -201,7 +201,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                             scrollDirection: Axis.horizontal,
                             physics: const BouncingScrollPhysics(),
                             itemCount: _types.length,
-                            separatorBuilder: (_, __) =>
+                            separatorBuilder: (_, _) =>
                                 const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               final type = _types[index];
@@ -250,7 +250,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                               type['image'] as String,
                                               fit: BoxFit.cover,
                                               width: double.infinity,
-                                              errorBuilder: (_, __, ___) =>
+                                              errorBuilder: (_, _, _) =>
                                                   const Center(
                                                     child: Icon(
                                                       Icons

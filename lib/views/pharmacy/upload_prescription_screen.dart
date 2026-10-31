@@ -805,7 +805,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                                       bottomInset + 20,
                                     ),
                                     itemCount: filtered.length,
-                                    separatorBuilder: (_, __) =>
+                                    separatorBuilder: (_, _) =>
                                         const SizedBox(height: 12),
                                     itemBuilder: (context, index) {
                                       final pharmacy = filtered[index];
@@ -848,7 +848,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.12),
+                                  color: Colors.black.withValues(alpha: 0.12),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -1060,7 +1060,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
     return Image.network(
       image,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => Container(
+      errorBuilder: (_, _, _) => Container(
         color: const Color(0xFFF3EFEA),
         alignment: Alignment.center,
         child: const Icon(

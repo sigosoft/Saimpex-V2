@@ -26,7 +26,7 @@ class NextButton extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withOpacity(0.45),
+              color: const Color(0xFFFF5E00).withValues(alpha: 0.45),
               blurRadius: 18,
               offset: const Offset(0, 8),
             ),

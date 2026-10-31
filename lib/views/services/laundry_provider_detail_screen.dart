@@ -147,7 +147,7 @@ class _LaundryProviderDetailScreenState
         fit: BoxFit.cover,
         width: double.infinity,
         height: 210,
-        errorBuilder: (_, __, ___) => _bannerFallback(),
+        errorBuilder: (_, _, _) => _bannerFallback(),
       );
     }
     return Image.network(
@@ -155,7 +155,7 @@ class _LaundryProviderDetailScreenState
       fit: BoxFit.cover,
       width: double.infinity,
       height: 210,
-      errorBuilder: (_, __, ___) => _bannerFallback(),
+      errorBuilder: (_, _, _) => _bannerFallback(),
     );
   }
 
@@ -166,7 +166,7 @@ class _LaundryProviderDetailScreenState
       child: Image.asset(
         'lib/assets/images/laundry.png',
         height: 80,
-        errorBuilder: (_, __, ___) => const Icon(
+        errorBuilder: (_, _, _) => const Icon(
           Icons.local_laundry_service_rounded,
           color: Color(0xFFFF5E00),
           size: 48,
@@ -384,7 +384,7 @@ class _LaundryProviderDetailScreenState
         width: 72,
         height: 72,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
+        errorBuilder: (_, _, _) => fallback,
       );
     }
     return Image.network(
@@ -392,7 +392,7 @@ class _LaundryProviderDetailScreenState
       width: 72,
       height: 72,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => fallback,
+      errorBuilder: (_, _, _) => fallback,
     );
   }
 
@@ -833,7 +833,7 @@ class _LaundryProviderDetailScreenState
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 40,
                     height: 40,
                     color: const Color(0xFFFFF3EB),

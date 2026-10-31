@@ -297,7 +297,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                   : Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _prescriptionFallback(),
+                      errorBuilder: (_, _, _) => _prescriptionFallback(),
                     ),
             ),
           ),
@@ -461,7 +461,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                                         width: 18,
                                         height: 18,
                                         color: Colors.white,
-                                        errorBuilder: (_, __, ___) => Icon(
+                                        errorBuilder: (_, _, _) => Icon(
                                           steps[i].icon,
                                           color: Colors.white,
                                           size: 18,

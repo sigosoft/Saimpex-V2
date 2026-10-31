@@ -88,7 +88,7 @@ class CarWashScreen extends StatelessWidget {
               width: double.infinity,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
-              errorBuilder: (_, __, ___) =>
+              errorBuilder: (_, _, _) =>
                   Container(height: 240, color: const Color(0xFFFF5E00)),
             ),
           ),
@@ -284,7 +284,7 @@ class CarWashScreen extends StatelessWidget {
               width: 15,
               height: 15,
               color: const Color(0xFFFF5E00),
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.mic_rounded,
                 color: Color(0xFFFF5E00),
                 size: 16,
@@ -365,13 +365,13 @@ class CarWashScreen extends StatelessWidget {
                       ? Image.network(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
+                          errorBuilder: (_, _, _) =>
                               _providerImageFallback(),
                         )
                       : Image.asset(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
+                          errorBuilder: (_, _, _) =>
                               _providerImageFallback(),
                         ),
                 ),
@@ -394,7 +394,7 @@ class CarWashScreen extends StatelessWidget {
                           'lib/assets/images/Coin.png',
                           width: 12,
                           height: 12,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (_, _, _) => const Icon(
                             Icons.monetization_on,
                             color: Color(0xFFFFAE00),
                             size: 12,

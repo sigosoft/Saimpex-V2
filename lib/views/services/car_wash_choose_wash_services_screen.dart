@@ -303,7 +303,7 @@ class _CarWashChooseWashServicesScreenState
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                     itemCount: widget.vehicles.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    separatorBuilder: (_, _) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       return _buildVehicleCard(
                         widget.vehicles[index],
@@ -401,7 +401,7 @@ class _CarWashChooseWashServicesScreenState
               width: 56,
               height: 56,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 width: 56,
                 height: 56,
                 color: const Color(0xFFF5F0EB),
@@ -512,7 +512,7 @@ class _CarWashChooseWashServicesScreenState
                 width: 52,
                 height: 52,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   width: 52,
                   height: 52,
                   color: const Color(0xFFFFF3EB),
@@ -611,7 +611,7 @@ class _CarWashChooseWashServicesScreenState
                 width: 52,
                 height: 52,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   width: 52,
                   height: 52,
                   color: const Color(0xFFFFF3EB),

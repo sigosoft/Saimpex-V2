@@ -22,8 +22,7 @@ import 'cart_screen.dart';
 class RestaurantDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> restaurant;
 
-  const RestaurantDetailsScreen({Key? key, required this.restaurant})
-    : super(key: key);
+  const RestaurantDetailsScreen({super.key, required this.restaurant});
 
   @override
   State<RestaurantDetailsScreen> createState() =>
@@ -330,7 +329,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           borderRadius: BorderRadius.circular(23),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -549,6 +548,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       return true;
     }
 
+    if (!context.mounted) return false;
     final replace = await ReplaceCartItemDialog.show(
       context: context,
       currentCartRestaurant: existingStore,
@@ -803,7 +803,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                 borderRadius: BorderRadius.circular(24),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.06),
+                                    color: Colors.black.withValues(alpha: 0.06),
                                     blurRadius: 16,
                                     offset: const Offset(0, 8),
                                   ),
@@ -973,7 +973,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                 BoxShadow(
                                                   color: const Color(
                                                     0xFFFF5E00,
-                                                  ).withOpacity(0.3),
+                                                  ).withValues(alpha: 0.3),
                                                   blurRadius: 10,
                                                   offset: const Offset(0, 4),
                                                 ),
@@ -1025,7 +1025,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.04),
+                                                      .withValues(alpha: 0.04),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 3),
                                                 ),
@@ -1137,8 +1137,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                               BoxShadow(
                                                                 color: Colors
                                                                     .black
-                                                                    .withOpacity(
-                                                                      0.10,
+                                                                    .withValues(
+                                                                      alpha: 0.10,
                                                                     ),
                                                                 blurRadius: 10,
                                                                 offset:
@@ -1376,7 +1376,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -1492,7 +1492,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -1684,7 +1684,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                 BoxShadow(
                                   color: const Color(
                                     0xFFFF5E00,
-                                  ).withOpacity(0.2),
+                                  ).withValues(alpha: 0.2),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -1731,7 +1731,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     required bool fromBottomSheet,
   }) async {
     final detailed = await _withMenuVariants(food);
-    if (!mounted) return;
+    if (!mounted || !context.mounted) return;
     return showFoodItemCustomizeSheet(
       context: context,
       food: detailed,

@@ -386,7 +386,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                         child: Image.asset(
                           widget.vehicleImage,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const Center(
+                          errorBuilder: (_, _, _) => const Center(
                             child: Icon(
                               Icons.directions_car_rounded,
                               color: Color(0xFFFF5E00),
@@ -541,14 +541,14 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                     width: 52,
                     height: 52,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(),
+                    errorBuilder: (_, _, _) => _imageFallback(),
                   )
                 : Image.asset(
                     image,
                     width: 52,
                     height: 52,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(),
+                    errorBuilder: (_, _, _) => _imageFallback(),
                   ),
           ),
           const SizedBox(width: 10),
@@ -770,7 +770,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               imageAsset,
               width: 36,
               height: 36,
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.account_balance_wallet_rounded,
                 color: Color(0xFFFF5E00),
                 size: 28,

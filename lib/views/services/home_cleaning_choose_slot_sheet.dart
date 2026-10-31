@@ -276,7 +276,7 @@ class _HomeCleaningChooseSlotSheetState
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: _dates.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final date = _dates[index];
           final selected = index == _selectedDateIndex;

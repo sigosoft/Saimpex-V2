@@ -308,7 +308,7 @@ class _AccountScreenState extends State<AccountScreen> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -426,7 +426,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       Text(
                         _accountPhone(),
                         style: AppTextStyles.subtitle(
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                         ),
                       ),
                     ],
@@ -449,7 +449,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
@@ -465,7 +465,7 @@ class _AccountScreenState extends State<AccountScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Container(height: 1, color: Colors.white.withOpacity(0.35)),
+          Container(height: 1, color: Colors.white.withValues(alpha: 0.35)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -520,7 +520,7 @@ class _AccountScreenState extends State<AccountScreen> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -705,7 +705,7 @@ class _AccountScreenState extends State<AccountScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -982,7 +982,7 @@ class _AccountScreenState extends State<AccountScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),

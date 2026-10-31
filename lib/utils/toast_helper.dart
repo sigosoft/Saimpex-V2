@@ -21,7 +21,7 @@ void showAppToast(
           fontWeight: FontWeight.w500,
         ),
       ),
-      backgroundColor: backgroundColor.withOpacity(0.95),
+      backgroundColor: backgroundColor.withValues(alpha: 0.95),
       borderRadius: 25,
       margin: const EdgeInsets.only(bottom: 70, left: 40, right: 40),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -30,7 +30,7 @@ void showAppToast(
       animationDuration: const Duration(milliseconds: 250),
       boxShadows: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.2),
+          color: Colors.black.withValues(alpha: 0.2),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),

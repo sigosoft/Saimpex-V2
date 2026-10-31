@@ -76,12 +76,13 @@ class _GroceryScreenState extends State<GroceryScreen> {
     final wallet = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>().walletLabel.trim()
         : '';
-    if (mounted)
+    if (mounted) {
       setState(
         () => _walletText = wallet.isEmpty
             ? 'mru'.trParams({'amount': '0'})
             : wallet,
       );
+    }
   }
 
   @override
@@ -669,7 +670,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
           borderRadius: BorderRadius.circular(23),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -823,7 +824,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.10),
+                                        color: Colors.black.withValues(alpha: 0.10),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -951,7 +952,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1042,7 +1043,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 4,
                                 ),
                               ],
@@ -1111,7 +1112,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
@@ -1264,7 +1265,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -1485,7 +1486,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1576,7 +1577,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 4,
                                 ),
                               ],
@@ -1647,7 +1648,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
+                                    color: Colors.black.withValues(alpha: 0.6),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
@@ -1685,7 +1686,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.6),
+                                  color: Colors.black.withValues(alpha: 0.6),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -1793,7 +1794,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -1854,7 +1855,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(

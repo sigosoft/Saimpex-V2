@@ -130,7 +130,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: _filters.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final selected = index == _filterIndex;
                   return GestureDetector(
@@ -190,7 +190,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(16, 4, 16, 24 + bottomInset),
       itemCount: _items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) => _buildCard(_items[index]),
     );
   }

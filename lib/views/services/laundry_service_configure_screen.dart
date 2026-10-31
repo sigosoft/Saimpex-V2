@@ -159,7 +159,7 @@ class _LaundryServiceConfigureScreenState
           _heroImage,
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
+          errorBuilder: (_, _, _) => Container(
             color: const Color(0xFFFFF3EB),
             alignment: Alignment.center,
             child: const Icon(

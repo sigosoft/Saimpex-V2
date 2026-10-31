@@ -94,7 +94,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                 Image.network(
                                   imageUrl,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
+                                  errorBuilder: (_, _, _) => Container(
                                     color: const Color(0xFFF0EAE3),
                                     child: const Icon(
                                       Icons.card_giftcard_rounded,

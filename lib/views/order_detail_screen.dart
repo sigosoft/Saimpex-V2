@@ -995,7 +995,7 @@ class OrderDetailScreen extends StatelessWidget {
                 ? Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: const Color(0xFFF3E7DC),
                       child: const Icon(
                         Icons.fastfood_rounded,
@@ -1007,7 +1007,7 @@ class OrderDetailScreen extends StatelessWidget {
                 : Image.asset(
                     assetPath ?? '',
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: const Color(0xFFF3E7DC),
                       child: const Icon(
                         Icons.fastfood_rounded,

@@ -111,7 +111,7 @@ class _WaterSupplierDetailsScreenState
           border: Border.all(color: const Color(0xFFEAD8C9), width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -154,7 +154,7 @@ class _WaterSupplierDetailsScreenState
                   'lib/assets/images/Voice.png',
                   width: 14,
                   height: 14,
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_rounded,
                     color: Color(0xFFFF5E00),
                     size: 16,
@@ -223,7 +223,7 @@ class _WaterSupplierDetailsScreenState
                             width: double.infinity,
                             height: 180,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (_, _, _) => Container(
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
@@ -251,7 +251,7 @@ class _WaterSupplierDetailsScreenState
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
+                                color: Colors.black.withValues(alpha: 0.06),
                                 blurRadius: 16,
                                 offset: const Offset(0, 6),
                               ),
@@ -405,7 +405,7 @@ class _WaterSupplierDetailsScreenState
                                             BoxShadow(
                                               color: const Color(
                                                 0xFFFF5E00,
-                                              ).withOpacity(0.3),
+                                              ).withValues(alpha: 0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 4),
                                             ),
@@ -622,7 +622,7 @@ class _WaterSupplierDetailsScreenState
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -776,7 +776,7 @@ class _WaterSupplierDetailsScreenState
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -997,7 +997,7 @@ class _WaterSupplierDetailsScreenState
                                 BoxShadow(
                                   color: const Color(
                                     0xFFFF5E00,
-                                  ).withOpacity(0.25),
+                                  ).withValues(alpha: 0.25),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),

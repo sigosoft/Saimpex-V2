@@ -11,7 +11,7 @@ Future<String?> showChatBotWelcomeSheet(BuildContext context) {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.55),
+    barrierColor: Colors.black.withValues(alpha: 0.55),
     builder: (context) => const ChatBotWelcomeSheet(),
   );
 }
@@ -53,7 +53,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.14),
+                  color: Colors.black.withValues(alpha: 0.14),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -88,9 +88,9 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            const Color(0xFFFFDCC8).withOpacity(0.95),
-                            const Color(0xFFFFE8DA).withOpacity(0.55),
-                            Colors.white.withOpacity(0),
+                            const Color(0xFFFFDCC8).withValues(alpha: 0.95),
+                            const Color(0xFFFFE8DA).withValues(alpha: 0.55),
+                            Colors.white.withValues(alpha: 0),
                           ],
                           stops: const [0.0, 0.42, 1.0],
                         ),
@@ -202,7 +202,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                               BoxShadow(
                                 color: const Color(
                                   0xFFFF5E00,
-                                ).withOpacity(0.38),
+                                ).withValues(alpha: 0.38),
                                 blurRadius: 16,
                                 offset: const Offset(0, 7),
                               ),

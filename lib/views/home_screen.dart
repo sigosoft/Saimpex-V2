@@ -464,7 +464,7 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 6,
                           offset: const Offset(0, 3),
                         ),
@@ -1000,7 +1000,7 @@ class HomeScreen extends StatelessWidget {
         border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
@@ -1074,7 +1074,7 @@ class HomeScreen extends StatelessWidget {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
@@ -1137,7 +1137,7 @@ class HomeScreen extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -1162,7 +1162,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 if (isClosed) ...[
                   Positioned.fill(
-                    child: Container(color: Colors.black.withOpacity(0.35)),
+                    child: Container(color: Colors.black.withValues(alpha: 0.35)),
                   ),
                   Positioned.fill(
                     child: _buildClosedOverlay(
@@ -1171,7 +1171,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ] else if (isTemporarilyClosed) ...[
                   Positioned.fill(
-                    child: Container(color: Colors.black.withOpacity(0.35)),
+                    child: Container(color: Colors.black.withValues(alpha: 0.35)),
                   ),
                   Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                 ],
@@ -1262,7 +1262,7 @@ class HomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -1333,7 +1333,7 @@ class HomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -1474,7 +1474,7 @@ class HomeScreen extends StatelessWidget {
         border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF5E00).withOpacity(0.04),
+            color: const Color(0xFFFF5E00).withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -1682,7 +1682,7 @@ class HomeScreen extends StatelessWidget {
         border: Border.all(color: const Color(0xFFEAD8C9), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
@@ -1795,7 +1795,7 @@ class HomeScreen extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
+                            color: Colors.black.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -1825,7 +1825,7 @@ class HomeScreen extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -1853,7 +1853,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 if (isClosed) ...[
                   Positioned.fill(
-                    child: Container(color: Colors.black.withOpacity(0.35)),
+                    child: Container(color: Colors.black.withValues(alpha: 0.35)),
                   ),
                   Positioned.fill(
                     child: _buildClosedOverlay(
@@ -1862,7 +1862,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ] else if (isTemporarilyClosed) ...[
                   Positioned.fill(
-                    child: Container(color: Colors.black.withOpacity(0.35)),
+                    child: Container(color: Colors.black.withValues(alpha: 0.35)),
                   ),
                   Positioned.fill(child: _buildTemporarilyClosedOverlay()),
                 ],

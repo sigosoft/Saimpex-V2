@@ -434,7 +434,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                                     width: 18,
                                     height: 18,
                                     color: Colors.white,
-                                    errorBuilder: (_, __, ___) => Icon(
+                                    errorBuilder: (_, _, _) => Icon(
                                       steps[i].icon,
                                       color: Colors.white,
                                       size: 18,
@@ -733,7 +733,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
             width: 54,
             height: 54,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               width: 54,
               height: 54,
               color: const Color(0xFFF3EFEA),

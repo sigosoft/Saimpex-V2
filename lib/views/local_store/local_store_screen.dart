@@ -553,8 +553,8 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                             ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.04,
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.04,
                                                 ),
                                                 blurRadius: 6,
                                                 offset: const Offset(0, 3),
@@ -611,7 +611,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                             : Image.asset(
                                                 cat['icon'] as String,
                                                 fit: BoxFit.contain,
-                                                errorBuilder: (_, __, ___) =>
+                                                errorBuilder: (_, _, _) =>
                                                     const Icon(
                                                       Icons.store_rounded,
                                                       color: Color(0xFFFF5E00),
@@ -804,7 +804,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               child: _storeImage(
                                 store['image'],
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
+                                errorBuilder: (_, _, _) => Container(
                                   color: const Color(0xFFF3E7DC),
                                   child: const Icon(
                                     Icons.storefront_rounded,
@@ -818,7 +818,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         : _storeImage(
                             store['image'],
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (_, _, _) => Container(
                               color: const Color(0xFFF3E7DC),
                               child: const Icon(
                                 Icons.storefront_rounded,
@@ -1146,7 +1146,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     child: _storeImage(
                       store['image'],
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         color: const Color(0xFFF3E7DC),
                         child: const Icon(
                           Icons.storefront_rounded,

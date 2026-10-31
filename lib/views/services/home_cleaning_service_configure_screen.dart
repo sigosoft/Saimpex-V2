@@ -348,7 +348,7 @@ class _HomeCleaningServiceConfigureScreenState
             ? Image.network(
                 _heroImage,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   'lib/assets/images/cleanproelitee.jpg',
                   fit: BoxFit.cover,
                 ),
@@ -356,7 +356,7 @@ class _HomeCleaningServiceConfigureScreenState
             : Image.asset(
                 _heroImage,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   'lib/assets/images/cleanproelitee.jpg',
                   fit: BoxFit.cover,
                 ),
@@ -396,7 +396,7 @@ class _HomeCleaningServiceConfigureScreenState
               width: 15,
               height: 15,
               color: const Color(0xFFFF5E00),
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.account_balance_wallet_outlined,
                 size: 15,
                 color: Color(0xFFFF5E00),
@@ -756,7 +756,7 @@ class _HomeCleaningServiceConfigureScreenState
                               child: Image.asset(
                                 item['image'] as String,
                                 fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) => Icon(
+                                errorBuilder: (_, _, _) => Icon(
                                   Icons.bug_report_outlined,
                                   size: 22,
                                   color: selected
@@ -1157,7 +1157,7 @@ class _HomeCleaningServiceConfigureScreenState
                     width: 15,
                     height: 15,
                     color: const Color(0xFFFF5E00),
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.settings_voice_rounded,
                       color: Color(0xFFFF5E00),
                       size: 16,

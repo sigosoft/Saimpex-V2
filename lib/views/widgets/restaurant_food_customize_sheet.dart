@@ -110,7 +110,7 @@ class _RestaurantFoodCustomizeSheetState
         width: size,
         height: size,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           width: size,
           height: size,
           color: const Color(0xFFFFE8DC),
@@ -294,7 +294,7 @@ class _RestaurantFoodCustomizeSheetState
                                 child: ListView.separated(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: _sides.length,
-                                  separatorBuilder: (_, __) =>
+                                  separatorBuilder: (_, _) =>
                                       const SizedBox(width: 12),
                                   itemBuilder: (context, index) {
                                     final side = _sides[index];

@@ -370,7 +370,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                   Text(
                                     'pw_subscribe_save_20'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: Colors.white.withOpacity(0.85),
+                                      color: Colors.white.withValues(alpha: 0.85),
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -389,7 +389,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                   Text(
                                     'pw_delivery_plans_line'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: Colors.white.withOpacity(0.85),
+                                      color: Colors.white.withValues(alpha: 0.85),
                                       fontSize: 10,
                                     ),
                                   ),
@@ -420,7 +420,7 @@ class _WaterScreenState extends State<WaterScreen> {
                               width: 90,
                               height: 90,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, _, _) => const Icon(
                                 Icons.water_drop,
                                 size: 60,
                                 color: Colors.white,
@@ -450,7 +450,7 @@ class _WaterScreenState extends State<WaterScreen> {
               decoration: BoxDecoration(
                 color: isActive
                     ? const Color(0xFFFF5E00)
-                    : Colors.black.withOpacity(0.12),
+                    : Colors.black.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(3),
               ),
             );
@@ -515,7 +515,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 width: 20,
                 height: 20,
                 color: const Color(0xFF9A938C),
-                errorBuilder: (_, __, ___) => const Icon(
+                errorBuilder: (_, _, _) => const Icon(
                   Icons.qr_code_scanner_rounded,
                   color: Color(0xFF9A938C),
                   size: 20,
@@ -536,7 +536,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   width: 15,
                   height: 15,
                   color: const Color(0xFFFF5E00),
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_none_rounded,
                     color: Color(0xFFFF5E00),
                     size: 16,
@@ -649,7 +649,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
+                                    color: Colors.black.withValues(alpha: 0.04),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3),
                                   ),
@@ -683,7 +683,7 @@ class _WaterScreenState extends State<WaterScreen> {
                             child: waterImage(
                               cat['image'] as String,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, _, _) => const Icon(
                                 Icons.water_drop,
                                 color: Color(0xFF007BFF),
                                 size: 36,
@@ -927,7 +927,7 @@ class _WaterScreenState extends State<WaterScreen> {
                             'lib/assets/images/Coin.png',
                             width: 12,
                             height: 12,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.monetization_on,
                               color: Color(0xFFFFAE00),
                               size: 12,
@@ -1043,7 +1043,7 @@ class _WaterScreenState extends State<WaterScreen> {
       child: waterImage(
         item['image'] as String,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) =>
+        errorBuilder: (_, _, _) =>
             const Icon(Icons.water_drop, size: 50, color: Color(0xFF007BFF)),
       ),
     );
@@ -1278,7 +1278,7 @@ class _WaterScreenState extends State<WaterScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -1302,7 +1302,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   child: waterImage(
                     prod['image'] as String,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.water_drop,
                       size: 40,
                       color: Color(0xFF007BFF),
@@ -1321,7 +1321,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -1400,7 +1400,7 @@ class _WaterScreenState extends State<WaterScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFF5E00).withOpacity(0.25),
+                            color: const Color(0xFFFF5E00).withValues(alpha: 0.25),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),

@@ -24,7 +24,7 @@ void showPharmacyProductDetailsSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.35),
+    barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setModalState) {
@@ -280,7 +280,7 @@ void showPharmacyProductDetailsSheet(
                                             BoxShadow(
                                               color: const Color(
                                                 0xFFFF5E00,
-                                              ).withOpacity(0.28),
+                                              ).withValues(alpha: 0.28),
                                               blurRadius: 10,
                                               offset: const Offset(0, 4),
                                             ),
@@ -329,7 +329,7 @@ void showPharmacyProductDetailsSheet(
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
+                                      color: Colors.black.withValues(alpha: 0.04),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -367,7 +367,7 @@ void showPharmacyProductDetailsSheet(
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.12),
+                              color: Colors.black.withValues(alpha: 0.12),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),

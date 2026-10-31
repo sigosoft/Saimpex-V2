@@ -221,7 +221,7 @@ class _WaterNearbySuppliersScreenState
                 width: 20,
                 height: 20,
                 color: const Color(0xFF9A938C),
-                errorBuilder: (_, __, ___) => const Icon(
+                errorBuilder: (_, _, _) => const Icon(
                   Icons.qr_code_scanner_rounded,
                   color: Color(0xFF9A938C),
                   size: 20,
@@ -242,7 +242,7 @@ class _WaterNearbySuppliersScreenState
                   width: 15,
                   height: 15,
                   color: const Color(0xFFFF5E00),
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_none_rounded,
                     color: Color(0xFFFF5E00),
                     size: 16,

@@ -146,7 +146,7 @@ class _HomeCleaningProviderDetailScreenState
         fit: BoxFit.cover,
         width: double.infinity,
         height: 210,
-        errorBuilder: (_, __, ___) => Image.asset(
+        errorBuilder: (_, _, _) => Image.asset(
           'lib/assets/images/cleanproelitee.jpg',
           fit: BoxFit.cover,
           width: double.infinity,
@@ -159,7 +159,7 @@ class _HomeCleaningProviderDetailScreenState
       fit: BoxFit.cover,
       width: double.infinity,
       height: 210,
-      errorBuilder: (_, __, ___) => Image.asset(
+      errorBuilder: (_, _, _) => Image.asset(
         'lib/assets/images/cleanproelitee.jpg',
         fit: BoxFit.cover,
         width: double.infinity,
@@ -399,14 +399,14 @@ class _HomeCleaningProviderDetailScreenState
                           width: 72,
                           height: 72,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _serviceImageFallback(),
+                          errorBuilder: (_, _, _) => _serviceImageFallback(),
                         )
                       : Image.asset(
                           item['image']!,
                           width: 72,
                           height: 72,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _serviceImageFallback(),
+                          errorBuilder: (_, _, _) => _serviceImageFallback(),
                         ),
                 ),
                 const SizedBox(width: 12),
@@ -750,7 +750,7 @@ class _HomeCleaningProviderDetailScreenState
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 40,
                     height: 40,
                     color: const Color(0xFFFFF3EB),

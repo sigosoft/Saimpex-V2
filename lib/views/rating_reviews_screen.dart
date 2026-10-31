@@ -391,7 +391,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                         width: 36,
                         height: 36,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox(
+                        errorBuilder: (_, _, _) => const SizedBox(
                           width: 36,
                           height: 36,
                         ),

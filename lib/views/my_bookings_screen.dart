@@ -238,7 +238,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                             120 + bottomInset,
                           ),
                           itemCount: list.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             return _buildBookingCard(list[index]);
@@ -289,7 +289,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: _filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final selected = _selectedFilter == index;
           return GestureDetector(

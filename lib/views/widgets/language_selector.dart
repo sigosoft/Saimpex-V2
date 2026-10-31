@@ -33,7 +33,7 @@ Future<void> openLanguageSelection(BuildContext context) async {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.45),
+    barrierColor: Colors.black.withValues(alpha: 0.45),
     builder: (context) => LanguageSelectionSheet(
       currentLanguage: controller.selectedLanguage.value,
     ),
@@ -57,9 +57,9 @@ class LanguageSelector extends StatelessWidget {
         () => Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.12),
+            color: Colors.white.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
