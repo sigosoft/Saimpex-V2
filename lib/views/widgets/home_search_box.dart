@@ -6,6 +6,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../utils/toast_helper.dart';
 import '../home_scanner_screen.dart';
+import '../restaurant_search_screen.dart';
 import 'search_camera_button.dart';
 
 class HomeSearchBox extends StatefulWidget {
@@ -29,6 +30,14 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
     _speech.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  // There is no all-verticals search API yet, so the home box searches Food.
+  void _search([String? keyword]) {
+    final text = (keyword ?? _controller.text).trim();
+    if (text.isEmpty) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    Get.to(() => RestaurantSearchScreen(initialKeyword: text));
   }
 
   void _stopListeningUi() {
@@ -101,6 +110,11 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
               selection: TextSelection.collapsed(offset: text.length),
             );
           }
+          if (result.finalResult) {
+            _stopListeningUi();
+            _search();
+            return;
+          }
           setState(() => _listening = true);
         },
         listenOptions: SpeechListenOptions(
@@ -133,6 +147,7 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
         text: text,
         selection: TextSelection.collapsed(offset: text.length),
       );
+      _search(text);
     } finally {
       if (mounted) setState(() => _scanning = false);
     }
@@ -164,91 +179,88 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
 
   Widget _searchField() {
     return Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFEAD8C9), width: 1.5),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.search_rounded,
-              color: Color(0xFFA59A94),
-              size: 22,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  hintText: _listening
-                      ? 'Listening...'
-                      : 'What do you need today?',
-                  hintStyle: GoogleFonts.outfit(
-                    color: _listening
-                        ? const Color(0xFFFF5E00)
-                        : const Color(0xFFA59A94),
-                    fontSize: 12.5,
-                  ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: _scanning ? null : _scanImage,
-              behavior: HitTestBehavior.opaque,
-              child: SizedBox(
-                width: 28,
-                height: 32,
-                child: Center(
-                  child: _scanning
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Color(0xFFFF5E00),
-                          ),
-                        )
-                      : Image.asset(
-                          'lib/assets/images/Camera.png',
-                          width: 20,
-                          height: 20,
-                          color: Colors.black,
-                        ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            GestureDetector(
-              onTap: _toggleVoiceSearch,
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 1.5),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          const Icon(Icons.search_rounded, color: Color(0xFFA59A94), size: 22),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+              textInputAction: TextInputAction.search,
+              onSubmitted: _search,
+              decoration: InputDecoration(
+                hintText: _listening
+                    ? 'Listening...'
+                    : 'What do you need today?',
+                hintStyle: GoogleFonts.outfit(
                   color: _listening
                       ? const Color(0xFFFF5E00)
-                      : const Color(0xFFFFF0E0),
-                  shape: BoxShape.circle,
+                      : const Color(0xFFA59A94),
+                  fontSize: 12.5,
                 ),
-                alignment: Alignment.center,
-                child: Image.asset(
-                  'lib/assets/images/Voice.png',
-                  width: 16,
-                  height: 16,
-                  color: _listening ? Colors.white : const Color(0xFFFF5E00),
-                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
               ),
             ),
-          ],
-        ),
+          ),
+          GestureDetector(
+            onTap: _scanning ? null : _scanImage,
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 28,
+              height: 32,
+              child: Center(
+                child: _scanning
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFFFF5E00),
+                        ),
+                      )
+                    : Image.asset(
+                        'lib/assets/images/Camera.png',
+                        width: 20,
+                        height: 20,
+                        color: Colors.black,
+                      ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: _toggleVoiceSearch,
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: _listening
+                    ? const Color(0xFFFF5E00)
+                    : const Color(0xFFFFF0E0),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Image.asset(
+                'lib/assets/images/Voice.png',
+                width: 16,
+                height: 16,
+                color: _listening ? Colors.white : const Color(0xFFFF5E00),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -301,9 +313,9 @@ class _RecordingBannerState extends State<_RecordingBanner>
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF5E00).withValues(
-                      alpha: 0.18 + (_pulse.value * 0.25),
-                    ),
+                    color: const Color(
+                      0xFFFF5E00,
+                    ).withValues(alpha: 0.18 + (_pulse.value * 0.25)),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -318,7 +330,11 @@ class _RecordingBannerState extends State<_RecordingBanner>
                 color: Color(0xFFFF5E00),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.mic_rounded, color: Colors.white, size: 14),
+              child: const Icon(
+                Icons.mic_rounded,
+                color: Colors.white,
+                size: 14,
+              ),
             ),
           ),
           const SizedBox(width: 12),
