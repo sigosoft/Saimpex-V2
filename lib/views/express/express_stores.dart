@@ -105,6 +105,9 @@ class ExpressStores {
           ? category
           : 'st_delivery_amount'.trParams({'amount': fee}),
       'image': ApiConstants.mediaUrl(text(row['image'])) ?? '',
+      // For the store map.
+      'latitude': text(row['latitude']),
+      'longitude': text(row['longitude']),
     };
   }
 

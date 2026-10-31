@@ -464,9 +464,9 @@ AC: checkout shows the per-km delivery fee from the server summary; Gold+ custom
 
 **P2-5. Analyzer clean-up.** AC: 0 warnings (13 today: unused fields/imports, dead null-aware code in `grocery_screen.dart` and `grocery_details_screen.dart`).
 
-**P2-6. Laundry per Figma.** Replace the hard-coded dry-cleaning garment list with the backend list; match the Figma laundry screens. (No customer PDF upload — confirmed by Praveen.)
+**P2-6. Laundry per Figma.** Replace the hard-coded dry-cleaning garment list with the backend list; match the Figma laundry screens. (No customer PDF upload — confirmed by Praveen.) 🟡 Partly done (C18, `feature/laundry-store-map`): the garment list and prices come from the provider's service item (`garments`) and are sent to `service/book`; the cart shows the server's subtotal/tax/total from `service/quote` and the unsupported express fee, coupon and points (fixed 300/50/10 MRU) are gone. **Not checked against Figma** (no Figma access in that session), and dev has no laundry service items yet, so the garment screen is untested with data.
 
-**P2-7. Store Map.** AC: Store Map / Express Store Map show real stores on Google Maps (e.g. from `localStore/map` or the home lists) instead of a painted image.
+**P2-7. Store Map.** AC: Store Map / Express Store Map show real stores on Google Maps (e.g. from `localStore/map` or the home lists) instead of a painted image. ✅ Done (C18): one `StoreMapScreen` on Google Maps for both; food uses the restaurant home's `map_stores` (else the listed restaurants), Express uses the `expressHome` vendors (now with coordinates). Pins and cards stay in sync; the search box filters by name; tapping a card opens the store. The painted `ExpressStoreMapScreen` was removed.
 
 **P2-8. Release identifiers and signing.** AC: V1 applicationId / bundle ID, V1 keystore, version above V1, real app label, base URL switched to live only when the V2 backend is live (section 2.5).
 

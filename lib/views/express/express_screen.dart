@@ -9,7 +9,7 @@ import 'express_trending_screen.dart';
 import '../../core/network/api_exception.dart';
 import '../../utils/toast_helper.dart';
 import 'express_stores.dart';
-import 'express_store_map_screen.dart';
+import '../store_map_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/store_map_button.dart';
 import '../../widgets/see_all_button.dart';
@@ -197,7 +197,15 @@ class _ExpressScreenState extends State<ExpressScreen> {
                     _buildSectionHeader(
                       'st_nearby_stores'.tr,
                       'Store Map',
-                      () => Get.to(() => const ExpressStoreMapScreen()),
+                      () => Get.to(
+                        () => StoreMapScreen(
+                          stores: [
+                            for (final store in nearbyStores)
+                              Map<String, dynamic>.from(store),
+                          ],
+                          onOpen: ExpressStores.open,
+                        ),
+                      ),
                       showMapIcon: true,
                     ),
                     _buildNearbyStoresList(controller),

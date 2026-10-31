@@ -756,7 +756,16 @@ class _CategoryScreenState extends State<CategoryScreen> {
           if (showSeeAll)
             SeeAllButton(onTap: onSeeAll)
           else
-            StoreMapButton(onTap: () => Get.to(() => const StoreMapScreen())),
+            StoreMapButton(
+              // The home's map pins, else the restaurants listed here.
+              onTap: () => Get.to(
+                () => StoreMapScreen(
+                  stores: mapStores.isNotEmpty ? mapStores : items,
+                  onOpen: (store) =>
+                      Get.to(() => RestaurantDetailsScreen(restaurant: store)),
+                ),
+              ),
+            ),
         ],
       ),
     );

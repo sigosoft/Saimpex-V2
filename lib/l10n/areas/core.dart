@@ -394,6 +394,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_see_all': 'See All',
     'core_store_map_button': 'Store Map',
     'core_store_map_search_hint': 'Search restaurants, stores...',
+    'core_store_map_empty': 'No stores to show on the map here.',
     'core_subscriptions_cancel': 'Cancel Subscription',
     'core_subscriptions_cancel_body':
         'Future deliveries for this plan will stop.',
@@ -840,6 +841,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_see_all': 'Voir tout',
     'core_store_map_button': 'Carte des magasins',
     'core_store_map_search_hint': 'Rechercher restaurants, magasins...',
+    'core_store_map_empty': 'Aucun magasin à afficher sur la carte ici.',
     'core_subscriptions_cancel': 'Annuler l\'abonnement',
     'core_subscriptions_cancel_body':
         'Les prochaines livraisons de ce forfait seront arrêtées.',
@@ -1258,6 +1260,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_see_all': 'عرض الكل',
     'core_store_map_button': 'خريطة المتاجر',
     'core_store_map_search_hint': 'ابحث عن المطاعم والمتاجر...',
+    'core_store_map_empty': 'لا توجد متاجر على الخريطة هنا.',
     'core_subscriptions_cancel': 'إلغاء الاشتراك',
     'core_subscriptions_cancel_body':
         'ستتوقف عمليات التوصيل القادمة لهذه الباقة.',
