@@ -1,14 +1,34 @@
 import 'package:get/get.dart';
 
+import 'areas/core.dart';
+import 'areas/orders.dart';
+import 'areas/pharmacy_water.dart';
+import 'areas/services.dart';
+import 'areas/stores.dart';
+
 /// UI strings in English, French and Arabic. Use them as `'key'.tr` (or
 /// `'key'.trParams({...})` for `@name` placeholders). Add every new
-/// user-facing string here in all three languages.
+/// user-facing string in all three languages: feature strings below, screen
+/// strings in the area files under `areas/` (one per part of the app).
 class AppTranslations extends Translations {
+  static const _areas = [
+    coreStrings,
+    ordersStrings,
+    pharmacyWaterStrings,
+    servicesStrings,
+    storesStrings,
+  ];
+
+  static Map<String, String> _merged(
+    String language,
+    Map<String, String> base,
+  ) => {...base, for (final area in _areas) ...?area[language]};
+
   @override
   Map<String, Map<String, String>> get keys => {
-    'en': _en,
-    'fr': _fr,
-    'ar': _ar,
+    'en': _merged('en', _en),
+    'fr': _merged('fr', _fr),
+    'ar': _merged('ar', _ar),
   };
 }
 
