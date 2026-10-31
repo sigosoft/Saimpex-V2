@@ -66,8 +66,8 @@ SAIMPEX is a multi-vendor delivery and services marketplace in Mauritania (curre
 - **Pay After Delivery (PAD):** trusted customers only (admin-marked, or 5 paid orders, or Gold+). Order placed with payment pending; customer pays online later; max 1 unpaid PAD order; pay within 24 h.
 - **Prescription orders:** online or wallet only. No cash.
 - **Self-pickup:** prepaid only, no COD (backend rule `732936e Enforce payment and cancellation rules`).
-- **Delivery fee:** per km, paid by the customer. Gold+ = free delivery.
-- **Masked driver calls are NOT in scope.** (The older scope PDF asked for them; the decisions doc wins.)
+- **Delivery fee:** set per vendor (free / fixed / % / per km) with who pays (customer / vendor / split); the checkout shows what the server returns. Gold+ = free delivery. *(Updated 31 Oct: client's SPX-ADM-02 is final.)*
+- **Masked customer ↔ driver calls ARE required** (client's SPX-ADM-02 item 15, final). Keep the call-driver button and wire it to the masked-call API when it lands (backend Phase 3).
 - **Pre-orders:** up to 7 days ahead (admin can change).
 - **Grocery substitution:** vendor proposes a replacement; auto-accepted after 10 minutes without a customer answer.
 - **Car wash location:** home, workplace, other, or at the station.
@@ -299,7 +299,7 @@ Legend: **Done** = wired to a real API end to end in code (not device-tested unl
 | Coupons screen | Done (unverified) | Lists `customer/coupons`. | `lib/views/coupons_screen.dart` |
 | Reviews | Done (unverified) | `customer/reviews`. | `lib/views/rating_reviews_screen.dart` |
 | Localisation EN/FR/AR + RTL | Not started (UI) | Only API language is passed. See 3.5. | `lib/views/widgets/language_selector.dart`, `lib/utils/api_language.dart` |
-| Driver call button | Must be removed | Shows "Calling your driver from the app is coming soon". Masked calls are out of scope. | `lib/views/widgets/tracking_widgets.dart`, `lib/views/courier/courier_order_detail_screen.dart`, `lib/views/water/water_order_details_screen.dart` |
+| Driver call button | Keep; wire to masked call | Shows "Calling your driver from the app is coming soon". Masked calls are required (SPX-ADM-02 item 15); API pending (Phase 3). | `lib/views/widgets/tracking_widgets.dart`, `lib/views/courier/courier_order_detail_screen.dart`, `lib/views/water/water_order_details_screen.dart` |
 
 ---
 
@@ -387,8 +387,8 @@ AC: PAD is hidden until the backend exposes the trusted flag (P1-4). Default sel
 `lib/views/pharmacy/prescription_checkout_screen.dart` shows "Cash on Delivery" but silently sends online.
 AC: Only Wallet and Online are shown for prescription orders. What the customer picks is what is sent.
 
-**P0-3. Remove the driver call button.**
-Masked calls are out of scope. AC: no "call driver" button or "coming soon" toast in `tracking_widgets.dart`, `courier_order_detail_screen.dart`, `water_order_details_screen.dart`.
+**P0-3. Keep the driver call button for masked calls.**
+Masked calls are required (SPX-ADM-02 item 15). AC: the call-driver button in `tracking_widgets.dart`, `courier_order_detail_screen.dart`, `water_order_details_screen.dart`. starts a masked call through the backend API once it lands; until then keep the button and its \"coming soon\" message.
 
 **P0-4. Courier pickup must be the customer's choice.**
 `lib/views/courier/courier_screen.dart` hard-codes the pickup. AC: customer picks pickup on the map/saved addresses (same picker as drop-off); quote and create use that point. Remove the fake `redeemedPointsDiscount = 1` and `tax = 2` in `courier_review_booking_screen.dart`; the total shown equals the server quote.
@@ -541,3 +541,4 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 | 31 Oct 2026 | Grocery substitution: show proposals with a countdown on the order screen, accept/reject. `GET customer/orders/{id}/substitutions`, `POST customer/substitutions/{id}/respond`. Push arrives when the store proposes. | §6.11 |
 | 31 Oct 2026 | Substitution extra: when a pricier substitute is accepted on a prepaid order, the wallet pays first and the rest is `amount_due`. Send `pay_rest` = `cash` or `online` with the answer; online returns `payment_url`. Later: `POST customer/orders/{id}/payDue`. Show `amount_due` on the order screen. | §6.11 |
 | 31 Oct 2026 | Courier and service bookings can be paid online: `payment_type=2` returns `payment_url`; retry with `POST customer/orders/{id}/payOnline`. Remove the hard-coded courier pickup and made-up review totals while wiring this. | §6.12 |
+| 31 Oct 2026 | **Client's SPX-ADM-02 is final:** masked customer↔driver calls are required (keep the call button; API in Phase 3); delivery fee is per vendor (free / fixed / % / per km) with who pays — show the server's fee. | `V2_COMPLETE_SCOPE.md` §13.2 |
