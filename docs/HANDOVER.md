@@ -6,6 +6,23 @@ This document lets a developer on a new computer clone the Customer app and keep
 
 ---
 
+
+## Team communication (read first)
+
+Five computers build SAIMPEX V2 in parallel: backend API (Praveen's Mac), customer app, vendor app, delivery + kitchen apps, admin panel. They stay in sync through two shared files in the backend repo:
+
+| What | Where | When to read it |
+|---|---|---|
+| **API change log** — every API change, which apps must act, where it's documented | [`praveensigo/saimpex-backend-new` → `docs/API_CHANGELOG.md`](https://github.com/praveensigo/saimpex-backend-new/blob/integration/v2/docs/API_CHANGELOG.md) (branch `integration/v2`) | Every day before you start; look for `[customer]` |
+| **Client decisions + build plan** | [`docs/V2_DECISIONS_AND_PLAN.md`](https://github.com/praveensigo/saimpex-backend-new/blob/integration/v2/docs/V2_DECISIONS_AND_PLAN.md) | Before building any feature; it overrides the scope PDF |
+| **API contracts** | [`docs/SAIMPEX_V2_CUSTOMER_API.md`](https://github.com/praveensigo/saimpex-backend-new/blob/integration/v2/docs/SAIMPEX_V2_CUSTOMER_API.md) | When wiring an endpoint |
+
+This file's **"Backend updates since this handover"** table (at the end) repeats the entries that concern this app.
+
+**Need something from the backend?** Open a GitHub issue in `praveensigo/saimpex-backend-new` titled `[customer-app] <short description>`: the screen, the endpoint, what you sent, what you got, what you need. Don't build against a guessed contract. Product questions go to Praveen; answers are recorded in the decisions doc.
+
+**Changing something other teams depend on** (e.g. a push payload this app sends or expects, a shared asset)? Add a line to the change log via the backend owner, or mention it in an issue, so every team sees it.
+
 ## Contents
 
 1. [Purpose and overview](#1-purpose-and-overview)
@@ -27,10 +44,10 @@ SAIMPEX is a multi-vendor delivery and services marketplace in Mauritania (curre
 
 | Source | Where | Rule |
 |---|---|---|
-| **Client decisions and API phase plan** | `sigosoft/saimpex-backend-new/docs/V2_DECISIONS_AND_PLAN.md` (branch `integration/v2`) | **Wins over** the scope PDF, the FRD and V1 behaviour. Read it first. |
+| **Client decisions and API phase plan** | `praveensigo/saimpex-backend-new/docs/V2_DECISIONS_AND_PLAN.md` (branch `integration/v2`) | **Wins over** the scope PDF, the FRD and V1 behaviour. Read it first. |
 | **Figma (design source)** | https://www.figma.com/design/gcPrdiT2s5VbO51zOdwT36/Saimpex-V2-Customer-App-UI — page **"Saimpex V2 Customer App UI"** | **Do not edit Figma.** Build screens as designed. If a required feature has no Figma screen, build it in the same visual style and list it as "built without a Figma screen" in your handover notes. |
-| Customer API reference | `sigosoft/saimpex-backend-new/docs/SAIMPEX_V2_CUSTOMER_API.md` | Envelope, locked response keys, screen → API map. |
-| Customer routes | `sigosoft/saimpex-backend-new/routes/customer.php` | The truth for which endpoints exist. |
+| Customer API reference | `praveensigo/saimpex-backend-new/docs/SAIMPEX_V2_CUSTOMER_API.md` | Envelope, locked response keys, screen → API map. |
+| Customer routes | `praveensigo/saimpex-backend-new/routes/customer.php` | The truth for which endpoints exist. |
 | Team scope (background) | `V2_TEAM_SCOPE.txt`, `FUNCTIONAL_REQUIREMENTS.txt` (scope folder, not in this repo) | Background only; the decisions doc overrides them. |
 | Previous handoff | [`docs/V2_HANDOFF.md`](V2_HANDOFF.md) | 30 Oct audit across all apps. Parts of its "Customer app — remaining" list are now done (see section 4). |
 
@@ -470,7 +487,7 @@ AC: checkout shows the per-km delivery fee from the server summary; Gold+ custom
 
 ### Reporting API gaps to the backend owner
 
-The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on his Mac first (`sigosoft/saimpex-backend-new`, branch `integration/v2`). When the app needs something the API does not provide:
+The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on his Mac first (`praveensigo/saimpex-backend-new`, branch `integration/v2`). When the app needs something the API does not provide:
 
 1. Check `saimpex-backend-new/routes/customer.php` and `saimpex-backend-new/docs/SAIMPEX_V2_CUSTOMER_API.md` on `integration/v2` first.
 2. Send one message per gap with: screen (Figma frame name), endpoint (or "new"), the request you need, the response fields you need (with types), and the error cases.
