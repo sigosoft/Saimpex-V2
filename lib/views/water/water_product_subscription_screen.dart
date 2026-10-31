@@ -42,6 +42,21 @@ class _WaterProductSubscriptionScreenState
 
   final subscriptionTypes = ['Daily', 'Weekly', 'Custom'];
 
+  // Display text for the internal type and duration values above and below.
+  static const _labelKeys = {
+    'Daily': 'pw_type_daily',
+    'Weekly': 'pw_type_weekly',
+    'Custom': 'pw_type_custom',
+    '1 Week': 'pw_duration_1_week',
+    '2 Weeks': 'pw_duration_2_weeks',
+    '1 Month': 'pw_duration_1_month',
+    '3 Months': 'pw_duration_3_months',
+    '6 Months': 'pw_duration_6_months',
+    'Late night': 'pw_late_night',
+  };
+
+  String _label(String value) => _labelKeys[value]?.tr ?? value;
+
   @override
   void initState() {
     super.initState();
@@ -64,7 +79,7 @@ class _WaterProductSubscriptionScreenState
     if (_vendorId <= 0) {
       setState(() {
         _plansLoading = false;
-        _plansError = 'This supplier has no subscription plans yet.';
+        _plansError = 'pw_no_subscription_plans'.tr;
       });
       return;
     }
@@ -77,9 +92,7 @@ class _WaterProductSubscriptionScreenState
       setState(() {
         _plans = plans;
         _plansLoading = false;
-        _plansError = plans.isEmpty
-            ? 'This supplier has no subscription plans yet.'
-            : null;
+        _plansError = plans.isEmpty ? 'pw_no_subscription_plans'.tr : null;
       });
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -120,16 +133,17 @@ class _WaterProductSubscriptionScreenState
   String get _planPriceText {
     if (_plansLoading) return '…';
     final plan = _selectedPlan;
-    if (plan == null) return '— MRU';
-    return '${plan['price']} / delivery';
+    if (plan == null) return 'mru'.trParams({'amount': '—'});
+    return 'pw_price_per_delivery'.trParams({'price': '${plan['price']}'});
   }
 
   String? get _planNotice {
     if (_plansLoading) return null;
     if (_plansError != null) return _plansError;
     if (_selectedPlan == null) {
-      return 'No ${subscriptionTypes[selectedTypeIndex].toLowerCase()} plan '
-          'for this product. Try another type.';
+      return 'pw_no_type_plan'.trParams({
+        'type': _label(subscriptionTypes[selectedTypeIndex]).toLowerCase(),
+      });
     }
     return null;
   }
@@ -141,40 +155,40 @@ class _WaterProductSubscriptionScreenState
 
   String _formatDate(DateTime date) {
     const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+      'pw_month_jan',
+      'pw_month_feb',
+      'pw_month_mar',
+      'pw_month_apr',
+      'pw_month_may',
+      'pw_month_jun',
+      'pw_month_jul',
+      'pw_month_aug',
+      'pw_month_sep',
+      'pw_month_oct',
+      'pw_month_nov',
+      'pw_month_dec',
     ];
     final day = date.day.toString().padLeft(2, '0');
-    return '$day -${months[date.month - 1]} -${date.year}';
+    return '$day -${months[date.month - 1].tr} -${date.year}';
   }
 
   String _formatCartDate(DateTime date) {
     const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+      'pw_month_jan',
+      'pw_month_feb',
+      'pw_month_mar',
+      'pw_month_apr',
+      'pw_month_may',
+      'pw_month_jun',
+      'pw_month_jul',
+      'pw_month_aug',
+      'pw_month_sep',
+      'pw_month_oct',
+      'pw_month_nov',
+      'pw_month_dec',
     ];
     final day = date.day.toString().padLeft(2, '0');
-    return '$day-${months[date.month - 1]}-${date.year}';
+    return '$day-${months[date.month - 1].tr}-${date.year}';
   }
 
   DateTime _endDateFromDuration(DateTime start, String duration) {
@@ -288,7 +302,8 @@ class _WaterProductSubscriptionScreenState
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      (product['title'] ?? 'Drinking Water 19L').toString(),
+                      (product['title'] ?? 'pw_drinking_water_19l'.tr)
+                          .toString(),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 18,
@@ -345,7 +360,7 @@ class _WaterProductSubscriptionScreenState
                     ],
                     const SizedBox(height: 20),
                     Text(
-                      'Subscription Type',
+                      'pw_subscription_type'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
@@ -361,10 +376,8 @@ class _WaterProductSubscriptionScreenState
                             onTap: () => setState(() => selectedTypeIndex = i),
                             child: Container(
                               height: 40,
-                              margin: EdgeInsets.only(
-                                right: i == subscriptionTypes.length - 1
-                                    ? 0
-                                    : 8,
+                              margin: EdgeInsetsDirectional.only(
+                                end: i == subscriptionTypes.length - 1 ? 0 : 8,
                               ),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
@@ -393,7 +406,7 @@ class _WaterProductSubscriptionScreenState
                                       ],
                               ),
                               child: Text(
-                                subscriptionTypes[i],
+                                _label(subscriptionTypes[i]),
                                 style: GoogleFonts.outfit(
                                   color: selected
                                       ? Colors.white
@@ -412,7 +425,7 @@ class _WaterProductSubscriptionScreenState
                       children: [
                         Expanded(
                           child: _buildDateField(
-                            label: 'Start Date',
+                            label: 'pw_start_date'.tr,
                             value: _formatDate(startDate),
                             onTap: () => _pickDate(isStart: true),
                           ),
@@ -420,7 +433,7 @@ class _WaterProductSubscriptionScreenState
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildDateField(
-                            label: 'End Date',
+                            label: 'pw_end_date'.tr,
                             value: _formatDate(endDate),
                             onTap: () => _pickDate(isStart: false),
                           ),
@@ -429,7 +442,7 @@ class _WaterProductSubscriptionScreenState
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      'Subscription Duration',
+                      'pw_subscription_duration'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
@@ -456,8 +469,8 @@ class _WaterProductSubscriptionScreenState
                     if (plan == null) {
                       showAppToast(
                         _plansLoading
-                            ? 'Loading plans…'
-                            : (_planNotice ?? 'Choose a plan'),
+                            ? 'pw_loading_plans'.tr
+                            : (_planNotice ?? 'pw_choose_a_plan'.tr),
                         backgroundColor: const Color(0xFFEF4444),
                       );
                       return;
@@ -479,7 +492,7 @@ class _WaterProductSubscriptionScreenState
                       () => WaterSubscriptionCartScreen(
                         planId: plan['id'] as int,
                         storeName: storeName,
-                        itemName: (product['title'] ?? 'Drinking Water')
+                        itemName: (product['title'] ?? 'pw_drinking_water'.tr)
                             .toString()
                             .replaceAll(RegExp(r'\s+\d+L$'), ''),
                         itemSize: (product['size'] ?? '').toString(),
@@ -496,7 +509,7 @@ class _WaterProductSubscriptionScreenState
                         timeSlot: slotLabel,
                         subscriptionType:
                             '${plan['frequencyLabel'] ?? ''}'.isEmpty
-                            ? subscriptionTypes[selectedTypeIndex]
+                            ? _label(subscriptionTypes[selectedTypeIndex])
                             : '${plan['frequencyLabel']}',
                       ),
                     );
@@ -531,7 +544,7 @@ class _WaterProductSubscriptionScreenState
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'ADD',
+                          'pw_add_caps'.tr,
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 15,
@@ -563,7 +576,7 @@ class _WaterProductSubscriptionScreenState
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Subscription',
+              'pw_subscription'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -714,7 +727,7 @@ class _WaterProductSubscriptionScreenState
           value: selectedDuration,
           isExpanded: true,
           hint: Text(
-            'Select Duration',
+            'pw_select_duration'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -730,7 +743,7 @@ class _WaterProductSubscriptionScreenState
                 (d) => DropdownMenuItem(
                   value: d,
                   child: Text(
-                    d,
+                    _label(d),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,
@@ -777,7 +790,7 @@ class _WaterProductSubscriptionScreenState
             child: Row(
               children: [
                 Text(
-                  'Delivery Time Slot',
+                  'pw_delivery_time_slot'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
@@ -837,7 +850,7 @@ class _WaterProductSubscriptionScreenState
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          timeSlots[index],
+                          _label(timeSlots[index]),
                           style: GoogleFonts.outfit(
                             color: selected
                                 ? const Color(0xFF2C2520)
@@ -885,7 +898,7 @@ class _WaterProductSubscriptionScreenState
               ),
               const SizedBox(width: 8),
               Text(
-                'Return Empty Bottle',
+                'pw_return_empty_bottle'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 14,
@@ -896,7 +909,7 @@ class _WaterProductSubscriptionScreenState
           ),
           const SizedBox(height: 8),
           Text(
-            'You can return your empty water bottles when collecting your order via Self Pickup or hand them to the delivery partner during Home Delivery',
+            'pw_return_empty_bottle_body'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 11,

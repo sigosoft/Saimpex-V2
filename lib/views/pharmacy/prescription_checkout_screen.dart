@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
@@ -35,7 +36,8 @@ class _PrescriptionCheckoutScreenState
     extends State<PrescriptionCheckoutScreen> {
   bool isDelivery = true;
   int selectedPaymentIndex = 0; // 0 wallet, 1 online
-  String scheduleText = 'Pick a delivery time';
+  // A translation key; translated when shown.
+  String scheduleText = 'preorder_pick';
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _couponController = TextEditingController();
 
@@ -75,11 +77,11 @@ class _PrescriptionCheckoutScreenState
                 alignment: Alignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: AppBackButton(onTap: () => Navigator.pop(context)),
                   ),
                   Text(
-                    'Checkout',
+                    'pw_checkout'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
@@ -98,7 +100,7 @@ class _PrescriptionCheckoutScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'From ${widget.pharmacyName}',
+                'pw_from_pharmacy'.trParams({'name': widget.pharmacyName}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
@@ -111,7 +113,7 @@ class _PrescriptionCheckoutScreenState
                 const SizedBox(height: 18),
               ],
               Text(
-                'Delivery Type',
+                'pw_delivery_type'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
@@ -133,7 +135,7 @@ class _PrescriptionCheckoutScreenState
               _buildCouponField(),
               const SizedBox(height: 18),
               Text(
-                'Payment',
+                'water_sub_payment'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
@@ -144,15 +146,15 @@ class _PrescriptionCheckoutScreenState
               _buildPaymentOption(
                 index: 0,
                 icon: Icons.account_balance_wallet_outlined,
-                title: 'SAIMPEX Wallet',
+                title: 'wallet_title'.tr,
                 subtitle: walletBalanceSubtitle(),
               ),
               const SizedBox(height: 10),
               _buildPaymentOption(
                 index: 1,
                 icon: Icons.credit_card_rounded,
-                title: 'Online payment',
-                subtitle: 'Card • Mobile money',
+                title: 'water_sub_pay_online'.tr,
+                subtitle: 'pw_card_mobile_money'.tr,
               ),
               const SizedBox(height: 16),
               _buildSummaryCard(),
@@ -171,7 +173,7 @@ class _PrescriptionCheckoutScreenState
       child: Container(
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        alignment: Alignment.centerLeft,
+        alignment: AlignmentDirectional.centerStart,
         child: TextField(
           controller: _noteController,
           style: GoogleFonts.outfit(
@@ -182,7 +184,7 @@ class _PrescriptionCheckoutScreenState
           decoration: InputDecoration(
             isDense: true,
             border: InputBorder.none,
-            hintText: '+ Add delivery note (Optional)',
+            hintText: 'pw_add_delivery_note'.tr,
             hintStyle: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 12,
@@ -200,8 +202,8 @@ class _PrescriptionCheckoutScreenState
         Expanded(
           child: _deliveryTypeCard(
             selected: isDelivery,
-            title: 'Delivery',
-            subtitle: '30-35 min',
+            title: 'pw_delivery'.tr,
+            subtitle: 'pw_30_35_min'.tr,
             onTap: () => setState(() => isDelivery = true),
           ),
         ),
@@ -209,8 +211,8 @@ class _PrescriptionCheckoutScreenState
         Expanded(
           child: _deliveryTypeCard(
             selected: !isDelivery,
-            title: 'Self Pickup',
-            subtitle: 'Ready in 15 min',
+            title: 'pw_self_pickup'.tr,
+            subtitle: 'pw_ready_in_15'.tr,
             onTap: () {
               setState(() {
                 isDelivery = false;
@@ -354,7 +356,7 @@ class _PrescriptionCheckoutScreenState
             ),
           ),
           Text(
-            'Edit',
+            'pw_edit'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
@@ -437,13 +439,13 @@ class _PrescriptionCheckoutScreenState
       onTap: () {
         setState(() {
           scheduleText = isDelivery
-              ? 'Tomorrow, 10:00 - 11:00 AM'
-              : 'Tomorrow, 4:00 - 5:00 PM';
+              ? 'pw_slot_tomorrow_morning'
+              : 'pw_slot_tomorrow_afternoon';
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Scheduled: $scheduleText',
+              'preorder_scheduled'.trParams({'time': scheduleText.tr}),
               style: GoogleFonts.outfit(),
             ),
             backgroundColor: const Color(0xFF00B25C),
@@ -477,7 +479,7 @@ class _PrescriptionCheckoutScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Schedule for later',
+                    'preorder_title'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF0E5A2A),
                       fontSize: 13,
@@ -486,7 +488,7 @@ class _PrescriptionCheckoutScreenState
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    scheduleText,
+                    scheduleText.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF3BA162),
                       fontSize: 11,
@@ -511,7 +513,7 @@ class _PrescriptionCheckoutScreenState
     return Row(
       children: [
         Text(
-          'Save More',
+          'pw_save_more'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
@@ -526,7 +528,7 @@ class _PrescriptionCheckoutScreenState
             setState(() => _couponController.text = code);
           },
           child: Text(
-            'View Coupons',
+            'pw_view_coupons'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
@@ -565,7 +567,7 @@ class _PrescriptionCheckoutScreenState
               decoration: InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
-                hintText: 'Enter coupon',
+                hintText: 'pw_enter_coupon'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
@@ -652,7 +654,7 @@ class _PrescriptionCheckoutScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'QUOTATION SUMMARY',
+            'pw_quotation_summary_caps'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
@@ -661,11 +663,13 @@ class _PrescriptionCheckoutScreenState
             ),
           ),
           const SizedBox(height: 14),
-          _summaryRow('Item total', '$_itemTotal MRU'),
+          _summaryRow(
+            'pw_item_total'.tr,
+            'mru'.trParams({'amount': '$_itemTotal'}),
+          ),
           const SizedBox(height: 10),
           Text(
-            'Any delivery fee and coupon discount are worked out when you '
-            'pay.',
+            'pw_fees_worked_out_on_pay'.tr,
             style: GoogleFonts.outfit(
               color: Colors.white.withValues(alpha: 0.75),
               fontSize: 11.5,
@@ -679,7 +683,7 @@ class _PrescriptionCheckoutScreenState
           Row(
             children: [
               Text(
-                'To Pay',
+                'pw_to_pay'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
@@ -688,7 +692,7 @@ class _PrescriptionCheckoutScreenState
               ),
               const Spacer(),
               Text(
-                '$_toPay MRU',
+                'mru'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -754,7 +758,7 @@ class _PrescriptionCheckoutScreenState
         ),
         alignment: Alignment.center,
         child: Text(
-          'Pay $_toPay MRU',
+          'water_sub_pay'.trParams({'amount': '$_toPay'}),
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 15,

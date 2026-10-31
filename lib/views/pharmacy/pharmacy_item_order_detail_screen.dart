@@ -79,7 +79,9 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         _itemRow(
           imageUrl: ApiConstants.mediaUrl(item['image']?.toString()) ?? '',
           title: '${item['name_en'] ?? ''}',
-          subtitle: '${orderMoneyText(item['unit_price'])} each',
+          subtitle: 'pw_price_each'.trParams({
+            'price': orderMoneyText(item['unit_price']),
+          }),
           qty: 'x${item['quantity'] ?? 1}',
           price: orderMoneyText(item['total_price']),
         ),
@@ -103,11 +105,11 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: AppBackButton(onTap: () => Navigator.pop(context)),
                   ),
                   Text(
-                    'Order $orderId',
+                    'pw_order_id'.trParams({'id': orderId}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 17,
@@ -115,13 +117,13 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     ),
                   ),
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: GestureDetector(
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Help center opened',
+                              'pw_help_center_opened'.tr,
                               style: GoogleFonts.outfit(),
                             ),
                             backgroundColor: const Color(0xFFFF5E00),
@@ -142,7 +144,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'Help',
+                          'subs_help'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 12,
@@ -169,7 +171,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          'Order Status',
+                          'pw_order_status'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 15,
@@ -178,7 +180,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          isDelivery ? 'Delivery' : 'Self Pickup',
+                          isDelivery ? 'pw_delivery'.tr : 'pw_self_pickup'.tr,
                           style: GoogleFonts.outfit(
                             color: isDelivery
                                 ? const Color(0xFFFF5E00)
@@ -193,7 +195,9 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     _buildOrderStatusCard(),
                     const SizedBox(height: 18),
                     Text(
-                      isDelivery ? 'Delivery Details' : 'Pickup Location',
+                      isDelivery
+                          ? 'pw_delivery_details'.tr
+                          : 'pw_pickup_location'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
@@ -209,7 +213,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                       _buildPickupLocationCard(),
                     const SizedBox(height: 18),
                     Text(
-                      'Order Summary',
+                      'pw_order_summary'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
@@ -262,7 +266,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Cancel',
+          'cancel'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
@@ -302,7 +306,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Track Order',
+          'pw_track_order'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 14,
@@ -317,25 +321,25 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
     final steps = isDelivery
         ? const [
             _StatusStep(
-              label: 'Order\nPlaced',
+              label: 'pw_step_order_placed',
               time: '22 Oct 2023,\n10:20 AM',
               done: true,
               icon: Icons.check_rounded,
             ),
             _StatusStep(
-              label: 'Preparing',
+              label: 'pw_step_preparing',
               time: '22 Oct 2023,\n10:28 AM',
               done: true,
               icon: Icons.assignment_outlined,
             ),
             _StatusStep(
-              label: 'On the way',
+              label: 'pw_step_on_the_way',
               time: '22 Oct 2023,\n10:30 AM',
               done: true,
               icon: Icons.delivery_dining_rounded,
             ),
             _StatusStep(
-              label: 'Delivered',
+              label: 'pw_step_delivered',
               time: '',
               done: false,
               icon: Icons.check_rounded,
@@ -343,25 +347,25 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
           ]
         : const [
             _StatusStep(
-              label: 'Order\nPlaced',
+              label: 'pw_step_order_placed',
               time: '22 Oct 2024,\n10:15 AM',
               done: true,
               icon: Icons.check_rounded,
             ),
             _StatusStep(
-              label: 'Preparing',
+              label: 'pw_step_preparing',
               time: '22 Oct 2024,\n10:20 AM',
               done: true,
               icon: Icons.assignment_outlined,
             ),
             _StatusStep(
-              label: 'Ready for\nPickup',
+              label: 'pw_step_ready_for_pickup',
               time: '22 Oct 2024,\n10:25 AM',
               done: true,
               icon: Icons.local_shipping_outlined,
             ),
             _StatusStep(
-              label: 'Delivered',
+              label: 'pw_step_delivered',
               time: '',
               done: false,
               icon: Icons.check_rounded,
@@ -456,7 +460,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          step.label,
+                          step.label.tr,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.outfit(
                             color: step.done
@@ -587,7 +591,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               children: [
                 Text(
                   (storeName == null || storeName!.isEmpty)
-                      ? 'Store'
+                      ? 'pw_store'.tr
                       : storeName!,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
@@ -664,7 +668,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '(10k + reviews)',
+                      'pw_reviews_count'.trParams({'count': '10k +'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
@@ -798,7 +802,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'pw_payment_details_caps'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
@@ -807,19 +811,22 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Item total', orderMoneyText(_payment['item_total'])),
+          _payRow('pw_item_total'.tr, orderMoneyText(_payment['item_total'])),
           const SizedBox(height: 10),
           _payRow(
-            'Redeemed points',
+            'cart_redeemed_points'.tr,
             orderMoneyText(_payment['redeemed_points'], negative: true),
             valueColor: const Color(0xFFFF5E00),
           ),
           if (isDelivery) ...[
             const SizedBox(height: 10),
-            _payRow('Delivery fee', orderMoneyText(_payment['delivery_fee'])),
+            _payRow(
+              'cart_delivery_fee'.tr,
+              orderMoneyText(_payment['delivery_fee']),
+            ),
           ],
           const SizedBox(height: 10),
-          _payRow('Tax', orderMoneyText(_payment['tax'])),
+          _payRow('cart_tax'.tr, orderMoneyText(_payment['tax'])),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(height: 1, color: Color(0xFF3A434E)),
@@ -827,7 +834,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
           Row(
             children: [
               Text(
-                isDelivery ? 'Total paid' : 'To pay',
+                isDelivery ? 'pw_total_paid'.tr : 'pw_to_pay'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,

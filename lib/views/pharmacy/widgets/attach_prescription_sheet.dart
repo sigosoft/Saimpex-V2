@@ -50,7 +50,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
       _setFile(file!.path!, file.name);
     } catch (_) {
       showAppToast(
-        'Unable to open file picker. Please try again.',
+        'pw_file_picker_failed'.tr,
         backgroundColor: const Color(0xFFEF4444),
       );
     } finally {
@@ -108,7 +108,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Prescription Required',
+            'pw_prescription_required'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
@@ -118,7 +118,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Attach a prescription for this item. A pharmacist will review it before checkout.',
+            'pw_attach_prescription_hint'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
@@ -133,7 +133,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
               Expanded(
                 child: _SourceButton(
                   icon: Icons.picture_as_pdf_outlined,
-                  label: _picking ? 'Opening...' : 'Upload PDF',
+                  label: _picking ? 'pw_opening'.tr : 'pw_upload_pdf'.tr,
                   onTap: _picking ? null : _pickPdf,
                 ),
               ),
@@ -141,7 +141,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
               Expanded(
                 child: _SourceButton(
                   icon: Icons.photo_camera_outlined,
-                  label: 'Take Photo',
+                  label: 'pw_take_photo'.tr,
                   onTap: _takePhoto,
                 ),
               ),
@@ -179,7 +179,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
             maxLength: 2000,
             style: GoogleFonts.outfit(fontSize: 13),
             decoration: InputDecoration(
-              hintText: 'Note for the pharmacist (optional)',
+              hintText: 'pw_note_for_pharmacist'.tr,
               hintStyle: GoogleFonts.outfit(
                 color: const Color(0xFFB0A59C),
                 fontSize: 13,
@@ -217,7 +217,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
                         ),
                       )
                     : Text(
-                        'Attach Prescription',
+                        'pw_attach_prescription'.tr,
                         style: GoogleFonts.outfit(
                           color: Colors.white,
                           fontSize: 14,

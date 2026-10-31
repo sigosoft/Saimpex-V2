@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
@@ -158,7 +158,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                               0) {
                             // Sample items on this screen have no server id, so they can't be ordered yet
                             showAppToast(
-                              'This product is not available to order yet',
+                              'pw_product_not_orderable'.tr,
                               backgroundColor: const Color(0xFFEF4444),
                             );
                             return;
@@ -206,9 +206,9 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               }),
             ],
           ),
-          Positioned(
+          PositionedDirectional(
             top: topInset + 10,
-            left: 16,
+            start: 16,
             child: AppBackButton(onTap: () => Navigator.pop(context)),
           ),
           Positioned(
@@ -308,7 +308,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                     controller: searchController,
                     style: GoogleFonts.outfit(fontSize: 12),
                     decoration: InputDecoration(
-                      hintText: 'Find something from this Supplier',
+                      hintText: 'pw_find_from_supplier'.tr,
                       hintStyle: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
@@ -340,7 +340,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Text(
-            'Products',
+            'pw_products'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15,
@@ -421,7 +421,8 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
             children: [
               Expanded(
                 child: Text(
-                  widget.supplier['title']?.toString() ?? 'Water Supplier',
+                  widget.supplier['title']?.toString() ??
+                      'pw_water_supplier'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 16,
@@ -460,7 +461,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
           const SizedBox(height: 2),
           Text(
             widget.supplier['subtitle']?.toString() ??
-                'Premium purified drinking water',
+                'pw_premium_purified_water'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 11,
@@ -536,8 +537,8 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                   Expanded(
                     child: Text(
                       isTemporarilyClosed
-                          ? 'Temporarily not accepting orders'
-                          : 'Currently Closed',
+                          ? 'pw_temporarily_not_accepting_orders'.tr
+                          : 'pw_currently_closed'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFEF4444),
                         fontSize: 10,
@@ -585,7 +586,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Chat with Supplier',
+                          'pw_chat_with_supplier'.tr,
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 12,
@@ -699,7 +700,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'View Cart • 1 items',
+                    'pw_view_cart_items'.trParams({'count': '1'}),
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
@@ -707,7 +708,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                     ),
                   ),
                   Text(
-                    'Ready in $readyIn',
+                    'pw_ready_in'.trParams({'time': readyIn}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 10,

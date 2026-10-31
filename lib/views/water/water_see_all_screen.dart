@@ -103,7 +103,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Open Map',
+                        'pw_open_map'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 13,
@@ -127,7 +127,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                 child: _filteredItems.isEmpty
                     ? Center(
                         child: Text(
-                          'No suppliers found',
+                          'pw_no_suppliers_found'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 14,
@@ -194,7 +194,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
         onChanged: _onSearchChanged,
         style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF1A1A1A)),
         decoration: InputDecoration(
-          hintText: 'Search water suppliers',
+          hintText: 'pw_search_water_suppliers'.tr,
           hintStyle: GoogleFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 13,
@@ -218,7 +218,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                margin: const EdgeInsets.only(right: 6),
+                margin: const EdgeInsetsDirectional.only(end: 6),
                 width: 20,
                 height: 20,
                 decoration: const BoxDecoration(
@@ -247,9 +247,9 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
 
   // Supplier Card Component
   Widget _buildSupplierCard(Map<String, dynamic> item) {
-    final title = item['name'] ?? item['title'] ?? 'Water Supplier';
+    final title = item['name'] ?? item['title'] ?? 'pw_water_supplier'.tr;
     final subtitle =
-        item['subtitle'] ?? item['supplier'] ?? 'Premium drinking water';
+        item['subtitle'] ?? item['supplier'] ?? 'pw_premium_drinking_water'.tr;
     final image = item['image'] ?? 'lib/assets/images/Water.png';
     final rating = item['rating'] ?? '4.6';
     final time = item['time'] ?? '30-35 min';
@@ -313,9 +313,9 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     ),
 
                     // Top Left Badges (Discount + Rating)
-                    Positioned(
+                    PositionedDirectional(
                       top: 12,
-                      left: 12,
+                      start: 12,
                       child: Row(
                         children: [
                           Container(
@@ -370,9 +370,9 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     ),
 
                     // Top Right Favorite Button
-                    Positioned(
+                    PositionedDirectional(
                       top: 12,
-                      right: 12,
+                      end: 12,
                       child: GestureDetector(
                         onTap: () {
                           setCardState(() {
@@ -408,9 +408,9 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     ),
 
                     // Bottom Left Points Overlay Badge
-                    Positioned(
+                    PositionedDirectional(
                       bottom: 12,
-                      left: 12,
+                      start: 12,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,

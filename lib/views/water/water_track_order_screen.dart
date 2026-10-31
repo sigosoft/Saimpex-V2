@@ -79,10 +79,11 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen>
 ''';
 
   String get _displayId {
-    final id = (tracking?.orderCode.isNotEmpty == true
-            ? tracking!.orderCode
-            : widget.orderId)
-        .trim();
+    final id =
+        (tracking?.orderCode.isNotEmpty == true
+                ? tracking!.orderCode
+                : widget.orderId)
+            .trim();
     return id.startsWith('#') ? id : '#$id';
   }
 
@@ -263,11 +264,11 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen>
               alignment: Alignment.center,
               children: [
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: AppBackButton(onTap: () => Get.back()),
                 ),
                 Text(
-                  'Track Order $_displayId',
+                  'pw_track_order_id'.trParams({'id': _displayId}),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 18,

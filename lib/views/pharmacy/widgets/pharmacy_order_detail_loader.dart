@@ -56,7 +56,9 @@ class _PharmacyOrderDetailLoaderState extends State<PharmacyOrderDetailLoader> {
 /// With [negative], a positive amount is shown as a deduction ("-50 MRU").
 String orderMoneyText(dynamic value, {bool negative = false}) {
   final number = double.tryParse('${value ?? ''}');
-  if (number == null) return '— MRU';
-  final text = '${number.round()} MRU';
-  return negative && number > 0 ? '-$text' : text;
+  if (number == null) return 'mru'.trParams({'amount': '—'});
+  final amount = '${number.round()}';
+  return 'mru'.trParams({
+    'amount': negative && number > 0 ? '-$amount' : amount,
+  });
 }

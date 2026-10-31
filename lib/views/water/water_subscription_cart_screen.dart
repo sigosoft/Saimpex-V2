@@ -177,7 +177,7 @@ class _WaterSubscriptionCartScreenState
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'From ${widget.storeName}',
+                    'pw_from_pharmacy'.trParams({'name': widget.storeName}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF8C7E75),
                       fontSize: 11,
@@ -278,7 +278,7 @@ class _WaterSubscriptionCartScreenState
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Subscription',
+              'pw_subscription'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -363,7 +363,11 @@ class _WaterSubscriptionCartScreenState
                 ],
                 const SizedBox(height: 4),
                 Text(
-                  '${widget.pricePerDelivery} MRU / delivery',
+                  'pw_price_per_delivery'.trParams({
+                    'price': 'mru'.trParams({
+                      'amount': '${widget.pricePerDelivery}',
+                    }),
+                  }),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13,
@@ -441,7 +445,7 @@ class _WaterSubscriptionCartScreenState
         Row(
           children: [
             Text(
-              'Subscription Details',
+              'pw_subscription_details'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 15,
@@ -452,7 +456,7 @@ class _WaterSubscriptionCartScreenState
             GestureDetector(
               onTap: () => Get.back(),
               child: Text(
-                'Edit',
+                'pw_edit'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -483,14 +487,14 @@ class _WaterSubscriptionCartScreenState
                 children: [
                   Expanded(
                     child: _detailBox(
-                      label: 'Start Date',
+                      label: 'pw_start_date'.tr,
                       value: widget.startDateLabel,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: _detailBox(
-                      label: 'End Date',
+                      label: 'pw_end_date'.tr,
                       value: widget.endDateLabel,
                     ),
                   ),
@@ -501,14 +505,17 @@ class _WaterSubscriptionCartScreenState
                 children: [
                   Expanded(
                     child: _detailBox(
-                      label: 'Time Slot',
-                      value: widget.timeSlot,
+                      label: 'preorder_time_slot'.tr,
+                      // The slot is sent to the server as is; only shown translated.
+                      value: widget.timeSlot == 'Late night'
+                          ? 'pw_late_night'.tr
+                          : widget.timeSlot,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: _detailBox(
-                      label: 'Type',
+                      label: 'pw_type'.tr,
                       value: widget.subscriptionType,
                     ),
                   ),
@@ -589,7 +596,7 @@ class _WaterSubscriptionCartScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Deliver to',
+                  'pw_deliver_to'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
@@ -627,7 +634,7 @@ class _WaterSubscriptionCartScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'pw_payment_details_caps'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
@@ -636,14 +643,17 @@ class _WaterSubscriptionCartScreenState
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('water_sub_plan_price'.tr, '${widget.pricePerDelivery} MRU'),
+          _payRow(
+            'water_sub_plan_price'.tr,
+            'mru'.trParams({'amount': '${widget.pricePerDelivery}'}),
+          ),
           const SizedBox(height: 10),
           _payRow('water_sub_quantity'.tr, '$quantity'),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(color: Color(0xFF3A434E), height: 1),
           ),
-          _payRow('water_sub_total'.tr, '$_total MRU'),
+          _payRow('water_sub_total'.tr, 'mru'.trParams({'amount': '$_total'})),
           const SizedBox(height: 10),
           Text(
             switch (_paymentType) {
@@ -754,7 +764,7 @@ class _WaterSubscriptionCartScreenState
           paymentTypeOnline,
           Icons.credit_card_outlined,
           'water_sub_pay_online'.tr,
-          'Card • Mobile money',
+          'pw_card_mobile_money'.tr,
         ),
         option(
           paymentTypeWallet,

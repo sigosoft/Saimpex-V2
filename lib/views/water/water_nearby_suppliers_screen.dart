@@ -150,7 +150,7 @@ class _WaterNearbySuppliersScreenState
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Nearby Suppliers',
+              'pw_nearby_suppliers'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -200,7 +200,7 @@ class _WaterNearbySuppliersScreenState
                   fontSize: 13,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Search water suppliers or products',
+                  hintText: 'pw_search_water_suppliers_products'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
@@ -333,9 +333,9 @@ class _WaterNearbySuppliersScreenState
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 12,
-                    left: 12,
+                    start: 12,
                     child: Row(
                       children: [
                         Container(
@@ -388,9 +388,9 @@ class _WaterNearbySuppliersScreenState
                       ],
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    right: 10,
+                    end: 10,
                     child: Obx(() {
                       final liked = controller.isLiked(supplierId);
                       return GestureDetector(
@@ -415,8 +415,8 @@ class _WaterNearbySuppliersScreenState
                       );
                     }),
                   ),
-                  Positioned(
-                    left: 12,
+                  PositionedDirectional(
+                    start: 12,
                     bottom: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import '../../widgets/app_back_button.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../models/order_tracking.dart';
@@ -155,7 +156,9 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen>
       points.add(
         LatLng(
           u * u * p0.latitude + 2 * u * t * p1.latitude + t * t * p2.latitude,
-          u * u * p0.longitude + 2 * u * t * p1.longitude + t * t * p2.longitude,
+          u * u * p0.longitude +
+              2 * u * t * p1.longitude +
+              t * t * p2.longitude,
         ),
       );
     }
@@ -166,16 +169,8 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen>
     final controller = _mapController;
     if (controller == null) return;
 
-    final lats = [
-      pharmacyLoc.latitude,
-      riderLoc.latitude,
-      homeLoc.latitude,
-    ];
-    final lngs = [
-      pharmacyLoc.longitude,
-      riderLoc.longitude,
-      homeLoc.longitude,
-    ];
+    final lats = [pharmacyLoc.latitude, riderLoc.latitude, homeLoc.latitude];
+    final lngs = [pharmacyLoc.longitude, riderLoc.longitude, homeLoc.longitude];
     final bounds = LatLngBounds(
       southwest: LatLng(
         lats.reduce(math.min) - 0.0008,
@@ -234,139 +229,130 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen>
 
     return PharmacyBackground(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: Container(
-          color: Colors.transparent,
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 8,
-            left: 16,
-            right: 16,
-            bottom: 8,
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: AppBackButton(onTap: () => Navigator.pop(context),),
-              ),
-              Text(
-                'Track Order $displayId',
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
+        backgroundColor: Colors.transparent,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Container(
+            color: Colors.transparent,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 8,
+              left: 16,
+              right: 16,
+              bottom: 8,
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: AppBackButton(onTap: () => Navigator.pop(context)),
                 ),
-              ),
-            ],
+                Text(
+                  'pw_track_order_id'.trParams({'id': displayId}),
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: riderLoc,
-                zoom: 15.0,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: riderLoc,
+                  zoom: 15.0,
+                ),
+                onMapCreated: (controller) async {
+                  _mapController = controller;
+                  await _fitRouteInView();
+                  await _updateMarkerScreens();
+                },
+                onCameraMove: (_) => _updateMarkerScreens(),
+                onCameraIdle: _updateMarkerScreens,
+                style: _lightMapStyle,
+                polylines: _polylines,
+                padding: EdgeInsets.only(bottom: 280 + bottomPad, top: 8),
+                zoomControlsEnabled: false,
+                myLocationButtonEnabled: false,
+                compassEnabled: false,
+                mapToolbarEnabled: false,
+                rotateGesturesEnabled: false,
+                tiltGesturesEnabled: false,
               ),
-              onMapCreated: (controller) async {
-                _mapController = controller;
-                await _fitRouteInView();
-                await _updateMarkerScreens();
-              },
-              onCameraMove: (_) => _updateMarkerScreens(),
-              onCameraIdle: _updateMarkerScreens,
-              style: _lightMapStyle,
-              polylines: _polylines,
-              padding: EdgeInsets.only(bottom: 280 + bottomPad, top: 8),
-              zoomControlsEnabled: false,
-              myLocationButtonEnabled: false,
-              compassEnabled: false,
-              mapToolbarEnabled: false,
-              rotateGesturesEnabled: false,
-              tiltGesturesEnabled: false,
             ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 220,
-            child: IgnorePointer(
-              child: DecoratedBox(
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 220,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        const Color(0xFFFFFDF9).withValues(alpha: 0),
+                        const Color(0xFFFFFDF9).withValues(alpha: 0.55),
+                        const Color(0xFFFFFDF9),
+                      ],
+                      stops: const [0.0, 0.45, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            _routePin(
+              screen: _storeScreen,
+              icon: Icons.medical_services,
+              size: 34,
+            ),
+            _routePin(screen: _homeScreen, icon: Icons.home_rounded, size: 34),
+            _routePin(
+              screen: _riderScreen,
+              icon: Icons.delivery_dining_rounded,
+              size: 48,
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                margin: EdgeInsets.fromLTRB(16, 16, 16, bottomPad + 16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      const Color(0xFFFFFDF9).withValues(alpha: 0),
-                      const Color(0xFFFFFDF9).withValues(alpha: 0.55),
-                      const Color(0xFFFFFDF9),
-                    ],
-                    stops: const [0.0, 0.45, 1.0],
+                  color: const Color(0xFFFFFDF9),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: const Color(0xFFEAD8C9),
+                    width: 0.8,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TrackingSummary(
+                      tracking: tracking,
+                      error: trackingError,
+                      fallbackOrderCode: widget.orderId,
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-          _routePin(
-            screen: _storeScreen,
-            icon: Icons.medical_services,
-            size: 34,
-          ),
-          _routePin(
-            screen: _homeScreen,
-            icon: Icons.home_rounded,
-            size: 34,
-          ),
-          _routePin(
-            screen: _riderScreen,
-            icon: Icons.delivery_dining_rounded,
-            size: 48,
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              margin: EdgeInsets.fromLTRB(
-                16,
-                16,
-                16,
-                bottomPad + 16,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFDF9),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: const Color(0xFFEAD8C9),
-                  width: 0.8,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TrackingSummary(
-                    tracking: tracking,
-                    error: trackingError,
-                    fallbackOrderCode: widget.orderId,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
