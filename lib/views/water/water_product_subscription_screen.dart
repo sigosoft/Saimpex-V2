@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:saimpex_v2/controllers/home_controller.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/water_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 
 import 'water_subscription_cart_screen.dart';
@@ -29,10 +32,81 @@ class _WaterProductSubscriptionScreenState
   int? selectedSlotIndex = 0;
   bool slotsExpanded = true;
   String? selectedDuration;
-  DateTime startDate = DateTime(2026, 6, 1);
-  DateTime endDate = DateTime(2026, 6, 30);
+  late DateTime startDate;
+  late DateTime endDate;
+
+  // The supplier's plans from water/plans; a subscription needs one of them.
+  List<Map<String, dynamic>> _plans = const [];
+  bool _plansLoading = true;
+  String? _plansError;
 
   final subscriptionTypes = ['Daily', 'Weekly', 'Custom'];
+
+  @override
+  void initState() {
+    super.initState();
+    final today = DateTime.now();
+    startDate = DateTime(today.year, today.month, today.day + 1);
+    endDate = startDate.add(const Duration(days: 30));
+    _loadPlans();
+  }
+
+  int get _vendorId =>
+      int.tryParse(
+        '${widget.product['vendorId'] ?? widget.supplier?['id'] ?? ''}',
+      ) ??
+      0;
+
+  int get _productId =>
+      int.tryParse('${widget.product['productId'] ?? ''}') ?? 0;
+
+  Future<void> _loadPlans() async {
+    if (_vendorId <= 0) {
+      setState(() {
+        _plansLoading = false;
+        _plansError = 'This supplier has no subscription plans yet.';
+      });
+      return;
+    }
+    try {
+      final plans = await Get.find<WaterRepository>().fetchPlans(
+        waterVendorId: _vendorId,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _plans = plans;
+        _plansLoading = false;
+        _plansError = plans.isEmpty
+            ? 'This supplier has no subscription plans yet.'
+            : null;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _plansLoading = false;
+        _plansError = error.message;
+      });
+    }
+  }
+
+  /// The plan for this product and the chosen type. Custom matches any plan
+  /// that isn't daily or weekly (bi-weekly, monthly, every N days).
+  Map<String, dynamic>? get _selectedPlan {
+    final type = subscriptionTypes[selectedTypeIndex].toLowerCase();
+    final forProduct = _productId > 0
+        ? _plans.where((plan) => plan['productId'] == _productId)
+        : _plans;
+    for (final plan in forProduct) {
+      final key = plan['frequencyKey'];
+      final matches = type == 'custom'
+          ? key != 'daily' && key != 'weekly'
+          : key == type;
+      if (matches) return plan;
+    }
+    return null;
+  }
+
   final durations = ['1 Week', '2 Weeks', '1 Month', '3 Months', '6 Months'];
   final timeSlots = [
     '8–10 AM',
@@ -42,6 +116,23 @@ class _WaterProductSubscriptionScreenState
     '4–6 PM',
     'Late night',
   ];
+
+  String get _planPriceText {
+    if (_plansLoading) return '…';
+    final plan = _selectedPlan;
+    if (plan == null) return '— MRU';
+    return '${plan['price']} / delivery';
+  }
+
+  String? get _planNotice {
+    if (_plansLoading) return null;
+    if (_plansError != null) return _plansError;
+    if (_selectedPlan == null) {
+      return 'No ${subscriptionTypes[selectedTypeIndex].toLowerCase()} plan '
+          'for this product. Try another type.';
+    }
+    return null;
+  }
 
   int parsePrice(String priceStr) {
     final clean = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
@@ -114,7 +205,7 @@ class _WaterProductSubscriptionScreenState
     final picked = await showDatePicker(
       context: context,
       initialDate: initial,
-      firstDate: DateTime(2025),
+      firstDate: isStart ? DateTime.now() : startDate,
       lastDate: DateTime(2030),
       builder: (context, child) {
         return Theme(
@@ -172,16 +263,27 @@ class _WaterProductSubscriptionScreenState
                     Center(
                       child: SizedBox(
                         height: 180,
-                        child: Image.asset(
-                          image,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                                Icons.water_drop_outlined,
-                                color: Color(0xFF2E9FE6),
-                                size: 80,
+                        child: image.startsWith('http')
+                            ? Image.network(
+                                image,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                      Icons.water_drop_outlined,
+                                      color: Color(0xFF2E9FE6),
+                                      size: 80,
+                                    ),
+                              )
+                            : Image.asset(
+                                image,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                      Icons.water_drop_outlined,
+                                      color: Color(0xFF2E9FE6),
+                                      size: 80,
+                                    ),
                               ),
-                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -193,50 +295,54 @@ class _WaterProductSubscriptionScreenState
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Color(0xFFFFAE00),
-                          size: 15,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${product['rating'] ?? '4.6'} (${product['reviews'] ?? '10k + reviews'})',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF7A6A60),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                    if (product['rating'] != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFFAE00),
+                            size: 15,
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${product['rating']}',
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF7A6A60),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Text(
-                          (product['price'] ?? '50 MRU').toString(),
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
+                        Expanded(
+                          child: Text(
+                            _planPriceText,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFFFF5E00),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          (product['originalPrice'] ?? '100 MRU').toString(),
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFFA59A94),
-                            fontSize: 12,
-                            decoration: TextDecoration.lineThrough,
-                            decorationColor: const Color(0xFFA59A94),
-                          ),
-                        ),
-                        const Spacer(),
                         _buildQuantitySelector(),
                       ],
                     ),
+                    if (_planNotice != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        _planNotice!,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFEF4444),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 20),
                     Text(
                       'Subscription Type',
@@ -346,6 +452,16 @@ class _WaterProductSubscriptionScreenState
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: GestureDetector(
                   onTap: () {
+                    final plan = _selectedPlan;
+                    if (plan == null) {
+                      showAppToast(
+                        _plansLoading
+                            ? 'Loading plans…'
+                            : (_planNotice ?? 'Choose a plan'),
+                        backgroundColor: const Color(0xFFEF4444),
+                      );
+                      return;
+                    }
                     final slotLabel = selectedSlotIndex == null
                         ? '8:00 - 10:00 AM'
                         : (timeSlots[selectedSlotIndex!] == 'Late night'
@@ -355,42 +471,33 @@ class _WaterProductSubscriptionScreenState
                                   ' - ',
                                 ));
 
-                    if (Get.isRegistered<HomeController>()) {
-                      Get.find<HomeController>().setCartItem(
-                        storeName:
-                            widget.supplier?['title']?.toString() ??
-                            'PureLife Water Co.',
-                        itemName: (product['title'] ?? 'Drinking Water')
-                            .toString(),
-                        itemPortion: (product['size'] ?? '19L').toString(),
-                        basePrice: parsePrice(
-                          product['price']?.toString() ?? '50',
-                        ),
-                        itemImage: product['image']?.toString(),
-                      );
-                    }
-
+                    final storeName =
+                        widget.supplier?['title']?.toString() ??
+                        product['supplier']?.toString() ??
+                        '';
                     Get.to(
                       () => WaterSubscriptionCartScreen(
-                        storeName:
-                            widget.supplier?['title']?.toString() ??
-                            'PureLife Water Co.',
+                        planId: plan['id'] as int,
+                        storeName: storeName,
                         itemName: (product['title'] ?? 'Drinking Water')
                             .toString()
                             .replaceAll(RegExp(r'\s+\d+L$'), ''),
-                        itemSize: (product['size'] ?? '19L').toString(),
+                        itemSize: (product['size'] ?? '').toString(),
                         itemImage:
                             (product['image'] ??
                                     'lib/assets/images/19Lbottle.png')
                                 .toString(),
-                        unitPrice: parsePrice(
-                          product['price']?.toString() ?? '50',
-                        ),
+                        pricePerDelivery: (plan['priceValue'] as num).round(),
                         quantity: quantity,
-                        startDate: _formatCartDate(startDate),
-                        endDate: _formatCartDate(endDate),
+                        startDate: startDate,
+                        endDate: endDate,
+                        startDateLabel: _formatCartDate(startDate),
+                        endDateLabel: _formatCartDate(endDate),
                         timeSlot: slotLabel,
-                        subscriptionType: subscriptionTypes[selectedTypeIndex],
+                        subscriptionType:
+                            '${plan['frequencyLabel'] ?? ''}'.isEmpty
+                            ? subscriptionTypes[selectedTypeIndex]
+                            : '${plan['frequencyLabel']}',
                       ),
                     );
                   },

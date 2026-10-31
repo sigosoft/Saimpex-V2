@@ -131,6 +131,7 @@ class ApiConstants {
   static const String waterSearchV2 = 'customer/waterSearchV2';
   static const String waterPlans = 'customer/water/plans';
   static const String waterSubscriptions = 'customer/water/subscriptions';
+  static const String waterSubscribe = 'customer/water/subscribe';
   static const String serviceProviders = 'customer/serviceProviders';
   static const String serviceProvider = 'customer/serviceProvider';
   static const String serviceSlots = 'customer/serviceSlots';

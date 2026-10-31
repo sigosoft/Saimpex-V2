@@ -196,6 +196,42 @@ class WaterRepository {
     return envelope.message;
   }
 
+  /// Starts a subscription to a supplier's plan (water/subscribe). Nothing is
+  /// charged here; each delivery is billed as its own order. Needs a session.
+  Future<String> subscribe({
+    required int planId,
+    required int quantity,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String deliverySlot,
+    required String address,
+    required double latitude,
+    required double longitude,
+    required String language,
+  }) async {
+    String day(DateTime date) =>
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.waterSubscribe,
+        data: {
+          'plan_id': planId,
+          'quantity': quantity,
+          'start_date': day(startDate),
+          'end_date': day(endDate),
+          'delivery_slot': deliverySlot,
+          'address_line1': address,
+          'latitude': latitude,
+          'longitude': longitude,
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
   /// The customer's water subscriptions (water/subscriptions). Needs a session.
   Future<List<Map<String, dynamic>>> fetchSubscriptions({
     required String language,
@@ -385,6 +421,11 @@ class WaterRepository {
       'price': _amount(item['price']) > 0
           ? '${_amount(item['price']).round()} MRU'
           : '— MRU',
+      'priceValue': _amount(item['price']),
+      'productId': _asInt(item['product_id']),
+      'frequencyKey': '${item['frequency_key'] ?? ''}',
+      'frequencyLabel': '${item['frequency_label'] ?? ''}',
+      'bottlesPerDelivery': _asInt(item['bottles_per_delivery']),
       'status':
           item['status_text']?.toString() ?? item['status']?.toString() ?? '',
     };
