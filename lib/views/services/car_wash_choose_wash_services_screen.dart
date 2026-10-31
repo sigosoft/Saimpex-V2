@@ -23,6 +23,8 @@ class CarWashChooseWashServicesScreen extends StatefulWidget {
   final int homeServiceFee;
   final String homeInstructions;
   final String serviceAddress;
+  final double? serviceLatitude;
+  final double? serviceLongitude;
 
   const CarWashChooseWashServicesScreen({
     super.key,
@@ -32,6 +34,8 @@ class CarWashChooseWashServicesScreen extends StatefulWidget {
     this.homeServiceFee = 0,
     this.homeInstructions = '',
     this.serviceAddress = '',
+    this.serviceLatitude,
+    this.serviceLongitude,
   });
 
   CarWashAddedVehicle get vehicle => vehicles.first;
@@ -257,6 +261,9 @@ class _CarWashChooseWashServicesScreenState
         selectedAddons: [...addons, ...extraAddons],
         selectedLocation: widget.selectedLocation,
         serviceAddress: widget.serviceAddress,
+        serviceLatitude: widget.serviceLatitude,
+        serviceLongitude: widget.serviceLongitude,
+        homeInstructions: widget.homeInstructions,
         homeServiceFee: widget.homeServiceFee,
       ),
     );
@@ -282,11 +289,7 @@ class _CarWashChooseWashServicesScreenState
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFFFE5D9),
-                Color(0xFFFFF3EB),
-                Color(0xFFFFFBF9),
-              ],
+              colors: [Color(0xFFFFE5D9), Color(0xFFFFF3EB), Color(0xFFFFFBF9)],
               stops: [0.0, 0.28, 1.0],
             ),
           ),
@@ -459,9 +462,7 @@ class _CarWashChooseWashServicesScreenState
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected
-              ? const Color(0xFFFF5E00)
-              : const Color(0xFFC4B8AF),
+          color: selected ? const Color(0xFFFF5E00) : const Color(0xFFC4B8AF),
           width: selected ? 1.8 : 1.4,
         ),
       ),
@@ -497,9 +498,7 @@ class _CarWashChooseWashServicesScreenState
           color: selected ? const Color(0xFFFFF2E9) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE5E5E5),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE5E5E5),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -598,9 +597,7 @@ class _CarWashChooseWashServicesScreenState
           color: selected ? const Color(0xFFFFF2E9) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE5E5E5),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE5E5E5),
             width: selected ? 1.5 : 1,
           ),
         ),

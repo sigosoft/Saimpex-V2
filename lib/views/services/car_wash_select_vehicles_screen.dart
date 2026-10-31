@@ -14,6 +14,8 @@ class CarWashSelectVehiclesScreen extends StatefulWidget {
   final int homeServiceFee;
   final String homeInstructions;
   final String serviceAddress;
+  final double? serviceLatitude;
+  final double? serviceLongitude;
 
   const CarWashSelectVehiclesScreen({
     super.key,
@@ -23,6 +25,8 @@ class CarWashSelectVehiclesScreen extends StatefulWidget {
     this.homeServiceFee = 0,
     this.homeInstructions = '',
     this.serviceAddress = '',
+    this.serviceLatitude,
+    this.serviceLongitude,
   });
 
   @override
@@ -66,6 +70,8 @@ class _CarWashSelectVehiclesScreenState
         homeServiceFee: widget.homeServiceFee,
         homeInstructions: widget.homeInstructions,
         serviceAddress: widget.serviceAddress,
+        serviceLatitude: widget.serviceLatitude,
+        serviceLongitude: widget.serviceLongitude,
       ),
     );
   }
@@ -91,11 +97,7 @@ class _CarWashSelectVehiclesScreenState
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFFFE5D9),
-                Color(0xFFFFF3EB),
-                Color(0xFFFFFBF9),
-              ],
+              colors: [Color(0xFFFFE5D9), Color(0xFFFFF3EB), Color(0xFFFFFBF9)],
               stops: [0.0, 0.35, 1.0],
             ),
           ),
@@ -111,10 +113,7 @@ class _CarWashSelectVehiclesScreenState
                           separatorBuilder: (_, __) =>
                               const SizedBox(height: 14),
                           itemBuilder: (context, index) {
-                            return _buildVehicleCard(
-                              _vehicles[index],
-                              index,
-                            );
+                            return _buildVehicleCard(_vehicles[index], index);
                           },
                         )
                       : Center(
@@ -126,8 +125,9 @@ class _CarWashSelectVehiclesScreenState
                                 Icon(
                                   Icons.directions_car_filled_rounded,
                                   size: 88,
-                                  color: const Color(0xFFC5CAD3)
-                                      .withValues(alpha: 0.95),
+                                  color: const Color(
+                                    0xFFC5CAD3,
+                                  ).withValues(alpha: 0.95),
                                 ),
                                 const SizedBox(height: 18),
                                 Text(
@@ -181,8 +181,9 @@ class _CarWashSelectVehiclesScreenState
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFFFF5E00)
-                                        .withValues(alpha: 0.28),
+                                    color: const Color(
+                                      0xFFFF5E00,
+                                    ).withValues(alpha: 0.28),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -259,9 +260,7 @@ class _CarWashSelectVehiclesScreenState
           color: selected ? const Color(0xFFFFF3EB) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF8A5B)
-                : Colors.transparent,
+            color: selected ? const Color(0xFFFF8A5B) : Colors.transparent,
             width: 1.5,
           ),
           boxShadow: selected

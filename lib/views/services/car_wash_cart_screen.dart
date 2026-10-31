@@ -25,6 +25,9 @@ class CarWashCartScreen extends StatefulWidget {
   final List<Map<String, dynamic>> selectedAddons;
   final int selectedLocation;
   final String serviceAddress;
+  final double? serviceLatitude;
+  final double? serviceLongitude;
+  final String homeInstructions;
   final int homeServiceFee;
 
   /// Every vehicle to book as `{name, plate, addons: [{name, quantity}]}`.
@@ -51,6 +54,9 @@ class CarWashCartScreen extends StatefulWidget {
     this.selectedAddons = const [],
     this.selectedLocation = 0,
     this.serviceAddress = '',
+    this.serviceLatitude,
+    this.serviceLongitude,
+    this.homeInstructions = '',
     this.homeServiceFee = 0,
     Set<String>? initialAddonIds,
   });
@@ -107,13 +113,20 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
     return '${d.day} ${_months[d.month - 1]} ${d.year}, $_slotLabel';
   }
 
+  /// `place` for customer/service/book: station, home, workplace or other.
+  static const _places = ['station', 'home', 'workplace', 'other'];
+
+  String get _place => _places[widget.selectedLocation.clamp(0, 3)];
+
+  bool get _atCustomer => _place != 'station';
+
   String get _locationText {
-    if (widget.selectedLocation == 1) {
+    if (_atCustomer) {
       final addr = widget.serviceAddress.trim();
       if (addr.isNotEmpty) return addr;
-      return 'At Home Service';
+      return 'car_wash_at_home'.tr;
     }
-    return '${widget.providerName}, Near Nouakchott, Mauritania';
+    return 'car_wash_at_station_of'.trParams({'provider': widget.providerName});
   }
 
   Future<void> _changeSlot() async {
@@ -130,13 +143,18 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   Future<void> _pay() async {
     if (_booking) return;
     setState(() => _booking = true);
-    final atHome = widget.selectedLocation == 1;
     final booking = await placeServiceBooking(
       shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
       paymentType: _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
-      place: atHome ? 'home' : 'station',
+      place: _place,
+      // Off-station the provider comes to this address.
+      address: _atCustomer && widget.serviceAddress.trim().isNotEmpty
+          ? widget.serviceAddress.trim()
+          : null,
+      latitude: _atCustomer ? widget.serviceLatitude : null,
+      longitude: _atCustomer ? widget.serviceLongitude : null,
       vehicles: widget.bookingVehicles.isNotEmpty
           ? widget.bookingVehicles
           : [
@@ -149,7 +167,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 ],
               },
             ],
-      notes: atHome ? widget.serviceAddress : '',
+      notes: widget.homeInstructions,
     );
     if (!mounted) return;
     setState(() => _booking = false);
@@ -414,13 +432,13 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             for (var i = 0; i < widget.selectedAddons.length; i++) ...[
               if (i > 0) const SizedBox(height: 10),
               _buildNestedServiceRow(
-                image: widget.selectedAddons[i]['image'] as String? ??
+                image:
+                    widget.selectedAddons[i]['image'] as String? ??
                     widget.serviceImage,
                 title: widget.selectedAddons[i]['title'] as String? ?? 'Add-On',
                 description:
                     widget.selectedAddons[i]['description'] as String? ?? '',
-                priceLabel:
-                    '+${widget.selectedAddons[i]['price'] ?? 0} MRU',
+                priceLabel: '+${widget.selectedAddons[i]['price'] ?? 0} MRU',
               ),
             ],
           ],
@@ -545,9 +563,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              widget.selectedLocation == 1
-                  ? Icons.home_rounded
-                  : Icons.storefront_rounded,
+              _atCustomer ? Icons.home_rounded : Icons.storefront_rounded,
               color: const Color(0xFFFF5E00),
               size: 20,
             ),
@@ -825,9 +841,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : Colors.transparent,
+            color: selected ? const Color(0xFFFF5E00) : Colors.transparent,
             width: 1.2,
           ),
           boxShadow: [

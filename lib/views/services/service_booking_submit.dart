@@ -23,6 +23,7 @@ import '../../utils/toast_helper.dart';
 Future<Map<String, dynamic>?> placeServiceBooking({
   required DateTime slotDate,
   required String slotLabel,
+
   /// paymentTypeWallet, paymentTypeOnline or paymentTypeCash (utils/wallet_balance.dart).
   required String paymentType,
   num? shownTotal,
@@ -35,6 +36,11 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   num? quantity,
   String place = 'home',
   String notes = '',
+  // Where the provider goes when it isn't the delivery location (car wash
+  // "another address"); null uses the selected delivery location.
+  String? address,
+  double? latitude,
+  double? longitude,
 }) async {
   final vertical = ServiceBookingDraft.vertical;
   final vendorId = ServiceBookingDraft.vendorId;
@@ -51,17 +57,19 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   }
 
   final window = serviceSlotWindow(slotDate, slotLabel);
-  final address = SelectLocationController.selectedSubtitle.trim().isEmpty
-      ? SelectLocationController.deliveryLabel.value
-      : SelectLocationController.selectedSubtitle;
+  final bookingAddress =
+      address ??
+      (SelectLocationController.selectedSubtitle.trim().isEmpty
+          ? SelectLocationController.deliveryLabel.value
+          : SelectLocationController.selectedSubtitle);
   final request = <String, dynamic>{
     'vertical': vertical,
     'vendor_id': vendorId,
     'service_item_id': itemId,
     'place': place,
-    'address': address,
-    'latitude': SelectLocationController.selectedLatitude,
-    'longitude': SelectLocationController.selectedLongitude,
+    'address': bookingAddress,
+    'latitude': latitude ?? SelectLocationController.selectedLatitude,
+    'longitude': longitude ?? SelectLocationController.selectedLongitude,
     'scheduled_for': ?window?.$1,
     'slot_end': ?window?.$2,
     'slot_label': slotLabel,
@@ -83,13 +91,10 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     for (final vehicle in _catalogRows(vehicles, 'spaces'))
       {
         ...vehicle,
-        'addons': _catalogRows(
-          [
-            for (final addon in (vehicle['addons'] as List? ?? const []))
-              if (addon is Map) Map<String, dynamic>.from(addon),
-          ],
-          'addons',
-        ),
+        'addons': _catalogRows([
+          for (final addon in (vehicle['addons'] as List? ?? const []))
+            if (addon is Map) Map<String, dynamic>.from(addon),
+        ], 'addons'),
       },
   ];
   if (matchedVehicles.isNotEmpty) request['vehicles'] = matchedVehicles;
@@ -185,7 +190,11 @@ class _ServerPriceDialog extends StatelessWidget {
                         if ((num.tryParse('${line['quantity']}') ?? 1) > 1)
                           '×${line['quantity']}',
                       ].join(' '),
-                      style: style(13, FontWeight.w500, const Color(0xFF2C2520)),
+                      style: style(
+                        13,
+                        FontWeight.w500,
+                        const Color(0xFF2C2520),
+                      ),
                     ),
                   ),
                   Text(

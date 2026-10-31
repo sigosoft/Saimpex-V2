@@ -436,7 +436,7 @@ AC: when a vendor proposes a replacement, the customer gets a notification and t
 **P1-9. Pharmacy per-item quote.** Blocked.
 AC: quotation screen shows each item as available, partial or unavailable, any substitute with its price, and the new total; the customer accepts/rejects substitutes before paying (wallet or online only); a Decline action uses `prescription/{id}/decline`.
 
-**P1-10. Car wash location types.** Blocked (for the `place` values).
+**P1-10. Car wash location types.** ✅ Done (C13, `feat/car-wash-locations`): the location screen offers At Wash Station, At Home, At Workplace and At Another Address (map picker); home/workplace use the delivery location. `place` (`station`/`home`/`workplace`/`other`) and the address/coordinates go to `service/book` (`placeServiceBooking` now takes optional `address`/`latitude`/`longitude`). The hard-coded "Ilot V" address and 150 MRU home-service fee were removed; the price is the server quote checked before booking. Instructions go in `notes`.
 AC: `car_wash_service_location_screen.dart` offers Home, Workplace, Other and At Station; the address picker shows for the first three; the value is sent to quote and book; the home-service fee shown equals the server quote.
 
 **P1-11. Catalog (food) coupons.** Blocked.

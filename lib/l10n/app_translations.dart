@@ -13,6 +13,24 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'car_wash_location_title': 'Service Location',
+  'car_wash_where': 'Where should we wash your vehicle?',
+  'car_wash_at_station': 'At Wash Station',
+  'car_wash_at_station_hint': 'Bring your vehicle to the wash center',
+  'car_wash_at_home': 'At Home',
+  'car_wash_at_workplace': 'At Workplace',
+  'car_wash_comes_to_you': 'The team comes to your delivery address',
+  'car_wash_at_other': 'At Another Address',
+  'car_wash_at_other_hint': 'Choose any address on the map',
+  'car_wash_service_address': 'Service Address',
+  'car_wash_choose_address': 'Choose an address',
+  'car_wash_pick_address': 'Select Service Address',
+  'car_wash_instructions': 'Instructions',
+  'car_wash_optional': 'Optional',
+  'car_wash_instructions_hint':
+      'e.g. Grey gate, the guard will let the team in',
+  'car_wash_continue': 'Continue',
+  'car_wash_at_station_of': 'At @provider wash station',
   'water_sub_payment': 'Payment',
   'water_sub_pay_cash': 'Cash',
   'water_sub_pay_cash_hint': 'Pay the driver on the first delivery',
@@ -119,6 +137,24 @@ const _en = {
 };
 
 const _fr = {
+  'car_wash_location_title': 'Lieu du service',
+  'car_wash_where': 'Où devons-nous laver votre véhicule ?',
+  'car_wash_at_station': 'À la station de lavage',
+  'car_wash_at_station_hint': 'Amenez votre véhicule au centre de lavage',
+  'car_wash_at_home': 'À domicile',
+  'car_wash_at_workplace': 'Au travail',
+  'car_wash_comes_to_you': "L'équipe se rend à votre adresse de livraison",
+  'car_wash_at_other': 'À une autre adresse',
+  'car_wash_at_other_hint': "Choisissez n'importe quelle adresse sur la carte",
+  'car_wash_service_address': 'Adresse du service',
+  'car_wash_choose_address': 'Choisir une adresse',
+  'car_wash_pick_address': "Choisir l'adresse du service",
+  'car_wash_instructions': 'Instructions',
+  'car_wash_optional': 'Facultatif',
+  'car_wash_instructions_hint':
+      "Ex. : portail gris, le gardien laissera entrer l'équipe",
+  'car_wash_continue': 'Continuer',
+  'car_wash_at_station_of': 'À la station de lavage @provider',
   'water_sub_payment': 'Paiement',
   'water_sub_pay_cash': 'Espèces',
   'water_sub_pay_cash_hint': 'Payez le livreur à la première livraison',
@@ -227,6 +263,24 @@ const _fr = {
 };
 
 const _ar = {
+  'car_wash_location_title': 'موقع الخدمة',
+  'car_wash_where': 'أين نغسل سيارتك؟',
+  'car_wash_at_station': 'في محطة الغسيل',
+  'car_wash_at_station_hint': 'أحضر سيارتك إلى مركز الغسيل',
+  'car_wash_at_home': 'في المنزل',
+  'car_wash_at_workplace': 'في مكان العمل',
+  'car_wash_comes_to_you': 'يأتي الفريق إلى عنوان التوصيل الخاص بك',
+  'car_wash_at_other': 'في عنوان آخر',
+  'car_wash_at_other_hint': 'اختر أي عنوان على الخريطة',
+  'car_wash_service_address': 'عنوان الخدمة',
+  'car_wash_choose_address': 'اختر عنوانًا',
+  'car_wash_pick_address': 'اختر عنوان الخدمة',
+  'car_wash_instructions': 'تعليمات',
+  'car_wash_optional': 'اختياري',
+  'car_wash_instructions_hint':
+      'مثال: بوابة رمادية، سيسمح الحارس للفريق بالدخول',
+  'car_wash_continue': 'متابعة',
+  'car_wash_at_station_of': 'في محطة غسيل @provider',
   'water_sub_payment': 'الدفع',
   'water_sub_pay_cash': 'نقدًا',
   'water_sub_pay_cash_hint': 'ادفع للسائق عند أول توصيل',
