@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../widgets/auto_slide_network_images.dart';
@@ -62,9 +63,9 @@ class WaterProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    left: 8,
+                    start: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -84,8 +85,8 @@ class WaterProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    left: 8,
+                  PositionedDirectional(
+                    start: 8,
                     bottom: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -106,8 +107,8 @@ class WaterProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    right: 8,
+                  PositionedDirectional(
+                    end: 8,
                     bottom: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -215,7 +216,7 @@ class WaterProductCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                'SUBSCRIBE',
+                                'pw_subscribe_caps'.tr,
                                 style: GoogleFonts.outfit(
                                   color: isNotAccepting
                                       ? const Color(0xFFA59A94)
@@ -269,7 +270,9 @@ class WaterProductCard extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 3),
                                   Text(
-                                    isNotAccepting ? 'CLOSED' : 'ADD',
+                                    isNotAccepting
+                                        ? 'pw_closed_caps'.tr
+                                        : 'pw_add_caps'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 9,

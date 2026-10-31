@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 Future<String?> showCarWashSelectedVehicleSheet(
@@ -12,11 +13,8 @@ Future<String?> showCarWashSelectedVehicleSheet(
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     barrierColor: Colors.black.withValues(alpha: 0.45),
-    builder: (context) => _SelectedVehicleSheet(
-      label: label,
-      image: image,
-      price: price,
-    ),
+    builder: (context) =>
+        _SelectedVehicleSheet(label: label, image: image, price: price),
   );
 }
 
@@ -69,7 +67,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
                   child: Text(
-                    'Selected Vehicle',
+                    'svc_selected_vehicle'.tr,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
@@ -91,7 +89,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                       _buildVehicleCard(),
                       const SizedBox(height: 20),
                       Text(
-                        'Enter vehicle number',
+                        'svc_enter_vehicle_number'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 14.5,
@@ -121,7 +119,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                             fontWeight: FontWeight.w600,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'e.g. 1234 AB 01',
+                            hintText: 'svc_plate_hint'.tr,
                             hintStyle: GoogleFonts.outfit(
                               color: const Color(0xFFB0A59C),
                               fontSize: 14,
@@ -150,7 +148,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'This helps the wash center identify your vehicle easily',
+                              'svc_plate_help'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF9A8E86),
                                 fontSize: 11.5,
@@ -169,7 +167,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Please enter vehicle number',
+                                  'svc_enter_vehicle_number_error'.tr,
                                   style: GoogleFonts.outfit(
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -195,15 +193,16 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFF5E00)
-                                    .withValues(alpha: 0.28),
+                                color: const Color(
+                                  0xFFFF5E00,
+                                ).withValues(alpha: 0.28),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Text(
-                            'Continue',
+                            'svc_continue'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 16,
@@ -257,10 +256,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(
-          color: const Color(0xFFFF5E00),
-          width: borderWidth,
-        ),
+        border: Border.all(color: const Color(0xFFFF5E00), width: borderWidth),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius - borderWidth),
@@ -285,7 +281,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+                  padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 12, 12),
                   child: Row(
                     children: [
                       Expanded(
@@ -303,7 +299,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${widget.price} MRU',
+                              'mru'.trParams({'amount': '${widget.price}'}),
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF9A8E86),
                                 fontSize: 13,

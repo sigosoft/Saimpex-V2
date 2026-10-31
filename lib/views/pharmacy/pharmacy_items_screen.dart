@@ -93,7 +93,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     final pharmacyId = _pharmacyId;
     final productId = int.tryParse('${item['productId'] ?? ''}');
     if (pharmacyId == null || productId == null || productId < 1) {
-      showAppToast('Unable to add this item');
+      showAppToast('pw_unable_to_add_item'.tr);
       return false;
     }
     try {
@@ -419,7 +419,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
               child: TextField(
                 controller: searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search items',
+                  hintText: 'pw_search_items'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12,
@@ -734,8 +734,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                             Expanded(
                                               child: Text(
                                                 isTemporarilyClosed
-                                                    ? 'Temporarily not accepting orders'
-                                                    : 'Currently Closed',
+                                                    ? 'pw_temporarily_not_accepting_orders'
+                                                          .tr
+                                                    : 'pw_currently_closed'.tr,
                                                 style: GoogleFonts.outfit(
                                                   color: const Color(
                                                     0xFFEF4444,
@@ -789,7 +790,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                                   ),
                                                   const SizedBox(width: 6),
                                                   Text(
-                                                    'Chat with Pharmacy',
+                                                    'pw_chat_with_pharmacy'.tr,
                                                     style: GoogleFonts.outfit(
                                                       color: Colors.white,
                                                       fontSize: 12,
@@ -897,7 +898,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'Upload Your Prescription',
+                                          'pw_upload_your_prescription'.tr,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFF3A312C),
                                             fontSize: 12,
@@ -930,9 +931,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Align(
-                          alignment: Alignment.centerLeft,
+                          alignment: AlignmentDirectional.centerStart,
                           child: Text(
-                            'All Items from This Pharmacy',
+                            'pw_all_items_from_pharmacy'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 14,
@@ -998,7 +999,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                         Padding(
                           padding: const EdgeInsets.only(top: 28),
                           child: Text(
-                            'No items',
+                            'pw_no_items'.tr,
                             style: GoogleFonts.outfit(
                               color: Color(0xFF7A6A60),
                               fontSize: 13,
@@ -1041,9 +1042,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
               ),
             // Floating Back Button (hidden while sticky is pinned)
             if (!_showStickySearch)
-              Positioned(
+              PositionedDirectional(
                 top: topInset + 10,
-                left: 16,
+                start: 16,
                 child: AppBackButton(onTap: () => Navigator.pop(context)),
               ),
 

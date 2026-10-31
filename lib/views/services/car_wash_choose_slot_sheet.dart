@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CarWashChooseSlotSheet extends StatefulWidget {
@@ -31,22 +32,31 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
     '4:00-6:00 PM',
   ];
 
+  // Translation keys; shown upper-case.
   static const _months = [
-    'JAN',
-    'FEB',
-    'MAR',
-    'APR',
-    'MAY',
-    'JUN',
-    'JUL',
-    'AUG',
-    'SEP',
-    'OCT',
-    'NOV',
-    'DEC',
+    'svc_month_1',
+    'svc_month_2',
+    'svc_month_3',
+    'svc_month_4',
+    'svc_month_5',
+    'svc_month_6',
+    'svc_month_7',
+    'svc_month_8',
+    'svc_month_9',
+    'svc_month_10',
+    'svc_month_11',
+    'svc_month_12',
   ];
 
-  static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  static const _weekdays = [
+    'svc_weekday_1',
+    'svc_weekday_2',
+    'svc_weekday_3',
+    'svc_weekday_4',
+    'svc_weekday_5',
+    'svc_weekday_6',
+    'svc_weekday_7',
+  ];
 
   @override
   void initState() {
@@ -57,21 +67,19 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
   }
 
   String _dayLabel(DateTime date, int index) {
-    if (index == 0) return 'Today';
-    if (index == 1) return 'Tomorrow';
-    return _weekdays[date.weekday - 1];
+    if (index == 0) return 'svc_today'.tr;
+    if (index == 1) return 'svc_tomorrow'.tr;
+    return _weekdays[date.weekday - 1].tr;
   }
 
-  String _monthLabel(DateTime date) => _months[date.month - 1];
+  String _monthLabel(DateTime date) => _months[date.month - 1].tr.toUpperCase();
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.viewInsetsOf(context).bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -144,7 +152,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Choose Your Slot',
+                          'svc_choose_your_slot'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 18,
@@ -165,7 +173,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                       _buildDateList(),
                       const SizedBox(height: 22),
                       Text(
-                        'Time Slot',
+                        'svc_time_slot'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 15,
@@ -195,7 +203,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
     return Row(
       children: [
         Text(
-          'Select Date',
+          'svc_select_date'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 15,
@@ -252,7 +260,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
               ),
               const SizedBox(width: 5),
               Text(
-                'Calendar View',
+                'svc_calendar_view'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -377,9 +385,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE8E4E0),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE8E4E0),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -449,7 +455,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
       onTap: () {
         if (_selectedSlotIndex == null) {
           setState(() {
-            _warningMessage = 'Please select a date and time slot to continue';
+            _warningMessage = 'svc_select_date_slot_warning'.tr;
           });
           return;
         }
@@ -478,7 +484,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
           ],
         ),
         child: Text(
-          'Continue',
+          'svc_continue'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 15.5,

@@ -69,13 +69,11 @@ class _CouponsScreenState extends State<CouponsScreen> {
               alignment: Alignment.center,
               children: [
                 Align(
-                  alignment: Alignment.centerLeft,
-                  child: AppBackButton(
-                    onTap: () => Navigator.pop(context),
-                  ),
+                  alignment: AlignmentDirectional.centerStart,
+                  child: AppBackButton(onTap: () => Navigator.pop(context)),
                 ),
                 Text(
-                  'Coupons',
+                  'core_coupons_title'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 18,
@@ -92,17 +90,17 @@ class _CouponsScreenState extends State<CouponsScreen> {
               child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
             )
           : ListView.builder(
-        itemCount: coupons.length,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        itemBuilder: (context, index) {
-          final coupon = coupons[index];
-          final isPink = coupon['isPink'] as bool;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _buildCouponCard(context, coupon, isPink),
-          );
-        },
-      ),
+              itemCount: coupons.length,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              itemBuilder: (context, index) {
+                final coupon = coupons[index];
+                final isPink = coupon['isPink'] as bool;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildCouponCard(context, coupon, isPink),
+                );
+              },
+            ),
     );
   }
 
@@ -148,8 +146,8 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             ),
                     ),
                   ),
-                  Positioned(
-                    left: 20,
+                  PositionedDirectional(
+                    start: 20,
                     top: 0,
                     bottom: 0,
                     child: Column(
@@ -180,7 +178,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                           ],
                         ),
                         Text(
-                          'OFF',
+                          'core_coupons_off'.tr,
                           style: GoogleFonts.outfit(
                             color: Colors.white,
                             fontSize: 12,
@@ -191,8 +189,8 @@ class _CouponsScreenState extends State<CouponsScreen> {
                     ),
                   ),
                   if ('${coupon['image'] ?? ''}'.isNotEmpty)
-                    Positioned(
-                      right: -10,
+                    PositionedDirectional(
+                      end: -10,
                       bottom: -10,
                       child: Image.network(
                         coupon['image'] as String,
@@ -209,7 +207,10 @@ class _CouponsScreenState extends State<CouponsScreen> {
             // Right coupon details section
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -219,7 +220,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                       children: (coupon['badges'] as List<String>).map((badge) {
                         final isBestDeal = badge.contains('BEST DEAL');
                         final isLimited = badge.contains('LIMITED');
-                        
+
                         Color textColor;
                         Color fillColor;
                         Color borderColor;
@@ -240,7 +241,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                         }
 
                         return Padding(
-                          padding: const EdgeInsets.only(right: 6),
+                          padding: const EdgeInsetsDirectional.only(end: 6),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -248,7 +249,10 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: fillColor,
-                              border: Border.all(color: borderColor, width: 0.8),
+                              border: Border.all(
+                                color: borderColor,
+                                width: 0.8,
+                              ),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -296,7 +300,9 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Coupon code "${coupon['code']}" copied!',
+                                  'core_coupons_copied'.trParams({
+                                    'code': '${coupon['code']}',
+                                  }),
                                   style: GoogleFonts.outfit(),
                                 ),
                                 backgroundColor: const Color(0xFFFF5E00),
@@ -346,7 +352,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Coupon applied successfully!',
+                                  'core_coupons_applied'.tr,
                                   style: GoogleFonts.outfit(),
                                 ),
                                 backgroundColor: const Color(0xFFFF5E00),
@@ -366,7 +372,9 @@ class _CouponsScreenState extends State<CouponsScreen> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFFF5E00).withOpacity(0.3),
+                                  color: const Color(
+                                    0xFFFF5E00,
+                                  ).withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -374,7 +382,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                'Apply',
+                                'core_coupons_apply'.tr,
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -401,10 +409,7 @@ class TicketClipper extends CustomClipper<Path> {
   final double cornerRadius;
   final double notchRadius;
 
-  const TicketClipper({
-    this.cornerRadius = 16.0,
-    this.notchRadius = 10.0,
-  });
+  const TicketClipper({this.cornerRadius = 16.0, this.notchRadius = 10.0});
 
   @override
   Path getClip(Size size) {
@@ -421,13 +426,25 @@ class TicketClipper extends CustomClipper<Path> {
     path.arcToPoint(Offset(w, R), radius: Radius.circular(R), clockwise: true);
 
     path.lineTo(w, h - R);
-    path.arcToPoint(Offset(w - R, h), radius: Radius.circular(R), clockwise: true);
+    path.arcToPoint(
+      Offset(w - R, h),
+      radius: Radius.circular(R),
+      clockwise: true,
+    );
 
     path.lineTo(R, h);
-    path.arcToPoint(Offset(0, h - R), radius: Radius.circular(R), clockwise: true);
+    path.arcToPoint(
+      Offset(0, h - R),
+      radius: Radius.circular(R),
+      clockwise: true,
+    );
 
     path.lineTo(0, cy + r);
-    path.arcToPoint(Offset(0, cy - r), radius: Radius.circular(r), clockwise: false);
+    path.arcToPoint(
+      Offset(0, cy - r),
+      radius: Radius.circular(r),
+      clockwise: false,
+    );
 
     path.lineTo(0, R);
     path.arcToPoint(Offset(R, 0), radius: Radius.circular(R), clockwise: true);

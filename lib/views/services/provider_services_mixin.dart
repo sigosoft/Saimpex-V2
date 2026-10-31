@@ -103,7 +103,7 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
         child: Column(
           children: [
             Text(
-              _servicesError ?? 'This provider has no services listed yet',
+              _servicesError ?? 'svc_provider_no_services'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFA59A94),
@@ -115,7 +115,7 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
               TextButton(
                 onPressed: loadProviderServices,
                 child: Text(
-                  'Retry',
+                  'retry'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontWeight: FontWeight.w700,

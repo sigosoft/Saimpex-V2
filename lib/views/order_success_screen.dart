@@ -61,7 +61,7 @@ class OrderSuccessScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Order Placed Successfully!',
+                        'orders_placed_title'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 20,
@@ -73,7 +73,9 @@ class OrderSuccessScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         // Points are credited only after delivery (scope §4).
                         Text(
-                          'You will earn +$pointsToEarn points once your order is delivered',
+                          'orders_earn_points_on_delivery'.trParams({
+                            'points': '$pointsToEarn',
+                          }),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF8C7D73),
                             fontSize: 12,
@@ -111,7 +113,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            'Back to Home',
+                            'orders_back_to_home'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 13,
@@ -148,7 +150,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            'View Order',
+                            'orders_view_order'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 13,

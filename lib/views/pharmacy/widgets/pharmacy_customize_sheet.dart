@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void showPharmacyCustomizeSheet(
@@ -81,7 +82,7 @@ void showPharmacyCustomizeSheet(
                           children: [
                             // Quantity Section
                             Text(
-                              'Quantity',
+                              'pw_quantity'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 14,
@@ -155,7 +156,9 @@ void showPharmacyCustomizeSheet(
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                qtyText1,
+                                                portion.isEmpty
+                                                    ? 'pw_one_pack'.tr
+                                                    : portion,
                                                 style: GoogleFonts.outfit(
                                                   color: const Color(
                                                     0xFF2C2520,
@@ -200,7 +203,7 @@ void showPharmacyCustomizeSheet(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
-                              alignment: Alignment.centerLeft,
+                              alignment: AlignmentDirectional.centerStart,
                               child: TextField(
                                 controller: quantityController,
                                 keyboardType: TextInputType.number,
@@ -209,7 +212,7 @@ void showPharmacyCustomizeSheet(
                                   color: const Color(0xFF2C2520),
                                 ),
                                 decoration: InputDecoration(
-                                  hintText: 'Customize  your quantity here',
+                                  hintText: 'pw_customize_quantity'.tr,
                                   hintStyle: GoogleFonts.outfit(
                                     color: const Color(0xFFA59A94),
                                     fontSize: 12,
@@ -241,7 +244,7 @@ void showPharmacyCustomizeSheet(
 
                             // Add Order Notes Section
                             Text(
-                              'Add Order Notes',
+                              'pw_add_order_notes'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 14,
@@ -271,8 +274,9 @@ void showPharmacyCustomizeSheet(
                                         color: const Color(0xFF2C2520),
                                       ),
                                       decoration: InputDecoration(
-                                        hintText:
-                                            'Add notes (e.g, verify expiry date for ${title.toLowerCase()}...)',
+                                        hintText: 'pw_add_notes_hint'.trParams({
+                                          'item': title.toLowerCase(),
+                                        }),
                                         hintStyle: GoogleFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 12,
@@ -447,7 +451,7 @@ void showPharmacyCustomizeSheet(
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'ADD',
+                                      'pw_add_caps'.tr,
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 13,

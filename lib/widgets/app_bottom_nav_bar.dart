@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -140,6 +140,16 @@ class AppBottomNavBar extends StatelessWidget {
     );
   }
 
+  /// Labels stay English for the icon checks below; these keys are shown.
+  static const _labelKeys = {
+    'Home': 'core_nav_home',
+    'Bookings': 'core_nav_bookings',
+    'Orders': 'core_nav_orders',
+    'Cart': 'core_nav_cart',
+    'Chat': 'core_nav_chat',
+    'Profile': 'core_nav_profile',
+  };
+
   /// Icon above a label. Every item except Services has the same size and colour.
   Widget _navItem({
     required int index,
@@ -173,7 +183,7 @@ class AppBottomNavBar extends StatelessWidget {
               ),
               const SizedBox(height: _labelGap),
               Text(
-                label,
+                _labelKeys[label]?.tr ?? label,
                 style: GoogleFonts.outfit(
                   color: _inactive,
                   fontSize: 11,
@@ -201,7 +211,7 @@ class AppBottomNavBar extends StatelessWidget {
               const SizedBox(height: _iconSize),
               const SizedBox(height: _labelGap),
               Text(
-                'SERVICES',
+                'core_nav_services'.tr,
                 style: GoogleFonts.outfit(
                   color: _orange,
                   fontSize: 10,
@@ -265,9 +275,9 @@ class AppBottomNavBar extends StatelessWidget {
           child: _buildIcon(label: label, asset: asset, isSelected: false),
         ),
         if (badgeCount > 0)
-          Positioned(
+          PositionedDirectional(
             top: -4,
-            right: -8,
+            end: -8,
             child: Container(
               constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               padding: const EdgeInsets.symmetric(horizontal: 4),

@@ -81,7 +81,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                     _buildCard(
                       children: [
                         Text(
-                          'Notifications',
+                          'core_prefs_notifications'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 15,
@@ -93,8 +93,8 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                           icon: Icons.notifications_active_outlined,
                           iconBg: const Color(0xFFFFF0E6),
                           iconColor: const Color(0xFFFF5E00),
-                          title: 'Push Notifications',
-                          subtitle: 'Order updates and offers',
+                          title: 'core_prefs_push'.tr,
+                          subtitle: 'core_prefs_push_hint'.tr,
                           value: _pushNotifications,
                           onChanged: (v) => _setPushNotifications(v),
                         ),
@@ -102,8 +102,8 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                         _buildToggleRow(
                           asset: 'lib/assets/images/whatsapp.png',
                           iconBg: const Color(0xFFFFF0E6),
-                          title: 'WhatsApp Notifications',
-                          subtitle: 'Delivery alerts via WhatsApp',
+                          title: 'core_prefs_whatsapp'.tr,
+                          subtitle: 'core_prefs_whatsapp_hint'.tr,
                           value: _whatsappNotifications,
                           onChanged: (v) =>
                               setState(() => _whatsappNotifications = v),
@@ -114,7 +114,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                     _buildCard(
                       children: [
                         Text(
-                          'Appearance',
+                          'core_prefs_appearance'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 15,
@@ -124,7 +124,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                         const SizedBox(height: 16),
                         _buildNavRow(
                           icon: Icons.translate_rounded,
-                          title: 'Language',
+                          title: 'core_prefs_language'.tr,
                           value: languageController().selectedLanguage.value,
                           showChevron: true,
                           onTap: () => openLanguageSelection(context),
@@ -132,8 +132,8 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                         const SizedBox(height: 18),
                         _buildNavRow(
                           asset: 'lib/assets/images/currency.png',
-                          title: 'Currency',
-                          value: 'MRU',
+                          title: 'core_prefs_currency'.tr,
+                          value: 'core_prefs_mru'.tr,
                           showChevron: false,
                         ),
                       ],
@@ -161,7 +161,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'App Preferences',
+              'core_prefs_title'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),

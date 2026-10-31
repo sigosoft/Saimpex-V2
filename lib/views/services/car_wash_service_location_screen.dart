@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../controllers/select_location_controller.dart';
+import '../../utils/toast_helper.dart';
+import '../courier/courier_select_recipient_location_screen.dart';
+
 import 'car_wash_select_vehicles_screen.dart';
 import '../../widgets/app_back_button.dart';
 
@@ -23,14 +27,47 @@ class CarWashServiceLocationScreen extends StatefulWidget {
 
 class _CarWashServiceLocationScreenState
     extends State<CarWashServiceLocationScreen> {
-  /// 0 = At Wash Station, 1 = At Home/Workplace
+  /// Index into [carWashPlaces]: station, home, workplace, other.
   int _selectedLocation = 0;
   final _instructionsController = TextEditingController();
+  // "Another address", picked on the map.
+  ({String address, double latitude, double longitude})? _otherAddress;
 
-  static const _homeServiceFee = 150;
-  static const _addressTitle = 'Nouakchott, Mauritania';
-  static const _addressSubtitle = 'Ilot V, près Ambassade de France';
-  static const _distanceKm = '3.8 km';
+  bool get _atCustomer => _selectedLocation != 0;
+
+  /// Where the provider goes: the delivery location for home and
+  /// workplace, the picked point for "another address".
+  ({String address, double latitude, double longitude})? get _serviceAddress {
+    if (_selectedLocation == 3) return _otherAddress;
+    final subtitle = SelectLocationController.selectedSubtitle.trim();
+    return (
+      address: subtitle.isEmpty
+          ? SelectLocationController.deliveryLabel.value
+          : subtitle,
+      latitude: SelectLocationController.selectedLatitude,
+      longitude: SelectLocationController.selectedLongitude,
+    );
+  }
+
+  Future<void> _pickOtherAddress() async {
+    final result = await Get.to<Map<String, dynamic>>(
+      () => CourierSelectRecipientLocationScreen(
+        title: 'car_wash_pick_address'.tr,
+      ),
+    );
+    if (!mounted || result == null) return;
+    final title = '${result['subtitle'] ?? result['title'] ?? ''}'.trim();
+    final latitude = double.tryParse('${result['latitude']}');
+    final longitude = double.tryParse('${result['longitude']}');
+    if (title.isEmpty || latitude == null || longitude == null) return;
+    setState(
+      () => _otherAddress = (
+        address: title,
+        latitude: latitude,
+        longitude: longitude,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -41,7 +78,6 @@ class _CarWashServiceLocationScreenState
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
-    final isHome = _selectedLocation == 1;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -65,7 +101,7 @@ class _CarWashServiceLocationScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Where should we wash your vehicle?',
+                        'car_wash_where'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 18,
@@ -77,19 +113,31 @@ class _CarWashServiceLocationScreenState
                       _locationCard(
                         index: 0,
                         icon: Icons.storefront_outlined,
-                        title: 'At Wash Station',
-                        subtitle:
-                            'Bring your vehicle to the selected wash center',
+                        title: 'car_wash_at_station'.tr,
+                        subtitle: 'car_wash_at_station_hint'.tr,
                       ),
                       const SizedBox(height: 14),
                       _locationCard(
                         index: 1,
                         icon: Icons.home_outlined,
-                        title: 'At Home/Workplace',
-                        subtitle:
-                            'Our mobile team will come directly to your location',
+                        title: 'car_wash_at_home'.tr,
+                        subtitle: 'car_wash_comes_to_you'.tr,
                       ),
-                      if (isHome) ...[
+                      const SizedBox(height: 14),
+                      _locationCard(
+                        index: 2,
+                        icon: Icons.business_center_outlined,
+                        title: 'car_wash_at_workplace'.tr,
+                        subtitle: 'car_wash_comes_to_you'.tr,
+                      ),
+                      const SizedBox(height: 14),
+                      _locationCard(
+                        index: 3,
+                        icon: Icons.place_outlined,
+                        title: 'car_wash_at_other'.tr,
+                        subtitle: 'car_wash_at_other_hint'.tr,
+                      ),
+                      if (_atCustomer) ...[
                         const SizedBox(height: 16),
                         _buildHomeDetailsCard(),
                       ],
@@ -101,16 +149,27 @@ class _CarWashServiceLocationScreenState
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 16 + bottomInset),
                 child: GestureDetector(
                   onTap: () {
+                    final address = _atCustomer ? _serviceAddress : null;
+                    if (_atCustomer && address == null) {
+                      showAppToast(
+                        'car_wash_choose_address'.tr,
+                        backgroundColor: const Color(0xFFEF4444),
+                      );
+                      return;
+                    }
+                    // The provider's home-service fee comes from the
+                    // server quote before booking, not from the app.
                     Get.to(
                       () => CarWashSelectVehiclesScreen(
                         service: widget.service,
                         providerName: widget.providerName,
                         selectedLocation: _selectedLocation,
-                        homeServiceFee: isHome ? _homeServiceFee : 0,
-                        homeInstructions: isHome
+                        homeInstructions: _atCustomer
                             ? _instructionsController.text.trim()
                             : '',
-                        serviceAddress: isHome ? _addressTitle : '',
+                        serviceAddress: address?.address ?? '',
+                        serviceLatitude: address?.latitude,
+                        serviceLongitude: address?.longitude,
                       ),
                     );
                   },
@@ -127,15 +186,16 @@ class _CarWashServiceLocationScreenState
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                          color: const Color(
+                            0xFFFF5E00,
+                          ).withValues(alpha: 0.28),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: Text(
-                      'Continue',
+                      'car_wash_continue'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 16,
@@ -159,11 +219,11 @@ class _CarWashServiceLocationScreenState
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
-            'Service Location',
+            'car_wash_location_title'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
@@ -192,9 +252,7 @@ class _CarWashServiceLocationScreenState
           color: selected ? const Color(0xFFFFF0EA) : Colors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFE8DFD6),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE8DFD6),
             width: selected ? 1.5 : 1,
           ),
           boxShadow: selected
@@ -294,7 +352,7 @@ class _CarWashServiceLocationScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Service Address',
+            'car_wash_service_address'.tr,
             style: GoogleFonts.outfit(
               color: const Color.fromARGB(255, 94, 90, 87),
               fontSize: 12,
@@ -302,65 +360,65 @@ class _CarWashServiceLocationScreenState
             ),
           ),
           const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 14, 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F6F3),
-              borderRadius: BorderRadius.circular(40),
-              border: Border.all(color: const Color(0xFFE5E0DA)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        const Color(0xFFFF5E00).withValues(alpha: 0.20),
-                        const Color(0xFFFF5E00).withValues(alpha: 0.08),
+          GestureDetector(
+            onTap: _selectedLocation == 3 ? _pickOtherAddress : null,
+            child: Container(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 14, 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F6F3),
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: const Color(0xFFE5E0DA)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          const Color(0xFFFF5E00).withValues(alpha: 0.20),
+                          const Color(0xFFFF5E00).withValues(alpha: 0.08),
+                        ],
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.location_on_outlined,
+                      color: Color(0xFFFF5E00),
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _serviceAddress?.address ??
+                              'car_wash_choose_address'.tr,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.outfit(
+                            color: _serviceAddress == null
+                                ? const Color(0xFF8A7E76)
+                                : const Color(0xFF1A1A1A),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  alignment: Alignment.center,
-                  child: const Icon(
-                    Icons.location_on_outlined,
-                    color: Color(0xFFFF5E00),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _addressTitle,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF1A1A1A),
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _addressSubtitle,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF8A7E76),
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Color(0xFF9A8E86),
-                  size: 22,
-                ),
-              ],
+                  if (_selectedLocation == 3)
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFF9A8E86),
+                      size: 22,
+                    ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 18),
@@ -368,7 +426,7 @@ class _CarWashServiceLocationScreenState
             children: [
               Expanded(
                 child: Text(
-                  'Home/Workplace Instructions',
+                  'car_wash_instructions'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color.fromARGB(255, 94, 90, 87),
                     fontSize: 12,
@@ -377,7 +435,7 @@ class _CarWashServiceLocationScreenState
                 ),
               ),
               Text(
-                'Optional',
+                'car_wash_optional'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFB0A59C),
                   fontSize: 12,
@@ -401,8 +459,7 @@ class _CarWashServiceLocationScreenState
                 fontSize: 13.5,
               ),
               decoration: InputDecoration(
-                hintText:
-                    'e.g. Villa with grey gate, security guard will let team enter driveway...',
+                hintText: 'car_wash_instructions_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFB0A59C),
                   fontSize: 13,
@@ -411,67 +468,6 @@ class _CarWashServiceLocationScreenState
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.all(14),
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF0EA),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 7,
-                            height: 7,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFF5E00),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Home Service Fee',
-                            style: GoogleFonts.outfit(
-                              color: const Color(0xFF1A1A1A),
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: Text(
-                          'Calculated from your address • $_distanceKm',
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF8A7E76),
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  '$_homeServiceFee MRU',
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
             ),
           ),
         ],

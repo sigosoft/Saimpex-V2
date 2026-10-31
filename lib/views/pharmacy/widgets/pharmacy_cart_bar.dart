@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PharmacyCartBar extends StatelessWidget {
   final String price;
   final VoidCallback onTap;
 
-  const PharmacyCartBar({
-    super.key,
-    required this.price,
-    required this.onTap,
-  });
+  const PharmacyCartBar({super.key, required this.price, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +52,7 @@ class PharmacyCartBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'View Cart • 1 items',
+                    'pw_view_cart_items'.trParams({'count': '1'}),
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
@@ -63,7 +60,7 @@ class PharmacyCartBar extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Ready in 15-20 min',
+                    'pw_ready_in_15_20'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 10,

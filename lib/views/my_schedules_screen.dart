@@ -17,30 +17,18 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
 
   final filters = const ['All', 'Food', 'Grocery', 'Pharmacy'];
 
-  final List<Map<String, dynamic>> _schedules = [
-    {
-      'title': '19L Water',
-      'subtitle': 'PureLife Water Co.',
-      'category': 'Water',
-      'status': 'Scheduled',
-      'frequency': 'WEEKLY - MON',
-      'frequencyBg': const Color(0xFFE8F1FF),
-      'frequencyFg': const Color(0xFF3B82F6),
-      'time': '10:00 AM - 12:00 PM',
-      'icon': Icons.water_drop_outlined,
-    },
-    {
-      'title': 'Milk, Bread, Eggs...',
-      'subtitle': 'Sahara Supermarket',
-      'category': 'Grocery',
-      'status': 'Scheduled',
-      'frequency': 'DAILY',
-      'frequencyBg': const Color(0xFFFFE8EC),
-      'frequencyFg': const Color(0xFFE11D48),
-      'time': '10:00 AM - 12:00 PM',
-      'icon': Icons.shopping_cart_outlined,
-    },
+  // Translation keys for [filters], same order (the values above match data).
+  static const _filterLabels = [
+    'orders_filter_all',
+    'search_vertical_food',
+    'search_vertical_grocery',
+    'search_vertical_pharmacy',
   ];
+
+  // Waiting for a customer endpoint that lists pre-orders (only
+  // vendorapp/preorders exists). Until then the list is empty rather than
+  // showing sample schedules.
+  final List<Map<String, dynamic>> _schedules = const [];
 
   List<Map<String, dynamic>> get _filtered {
     if (_selectedFilter == 0) return _schedules;
@@ -74,7 +62,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
               child: list.isEmpty
                   ? Center(
                       child: Text(
-                        'No schedules found',
+                        'schedules_empty'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
@@ -110,7 +98,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'My Schedules',
+              'orders_my_schedules'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -149,7 +137,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     : Border.all(color: const Color(0xFFE8DFD6)),
               ),
               child: Text(
-                filters[index],
+                _filterLabels[index].tr,
                 style: GoogleFonts.outfit(
                   color: selected ? Colors.white : const Color(0xFF2C2520),
                   fontSize: 13,
@@ -242,7 +230,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      (item['status'] ?? 'Scheduled').toString(),
+                      (item['status'] ?? 'orders_scheduled'.tr).toString(),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1FAF5A),
                         fontSize: 11,
@@ -319,7 +307,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
-                    'Cancel',
+                    'cancel'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
@@ -349,7 +337,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     ],
                   ),
                   child: Text(
-                    'Reschedule',
+                    'orders_reschedule'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,

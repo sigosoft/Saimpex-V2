@@ -196,9 +196,12 @@ class WaterRepository {
     return envelope.message;
   }
 
-  /// Starts a subscription to a supplier's plan (water/subscribe). Nothing is
-  /// charged here; each delivery is billed as its own order. Needs a session.
-  Future<String> subscribe({
+  /// Buys a subscription to a supplier's plan (water/subscribe); amount =
+  /// plan price × [quantity]. [paymentType] 1 cash on the first delivery,
+  /// 2 online (status pending_payment; returns `payment_url`), 3 wallet (paid
+  /// now; 422 if short). Returns the server message and the response data.
+  /// Needs a session.
+  Future<({String message, Map<String, dynamic> data})> subscribe({
     required int planId,
     required int quantity,
     required DateTime startDate,
@@ -207,6 +210,7 @@ class WaterRepository {
     required String address,
     required double latitude,
     required double longitude,
+    required String paymentType,
     required String language,
   }) async {
     String day(DateTime date) =>
@@ -224,12 +228,16 @@ class WaterRepository {
           'address_line1': address,
           'latitude': latitude,
           'longitude': longitude,
+          'payment_type': paymentType,
         },
         options: Options(contentType: Headers.jsonContentType),
       ),
       language,
     );
-    return envelope.message;
+    return (
+      message: envelope.message,
+      data: asJsonMap(envelope.data) ?? <String, dynamic>{},
+    );
   }
 
   /// The customer's water subscriptions (water/subscriptions). Needs a session.

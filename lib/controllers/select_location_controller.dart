@@ -46,6 +46,20 @@ class SelectLocationController extends GetxController {
   static double selectedLatitude = defaultCenter.latitude;
   static double selectedLongitude = defaultCenter.longitude;
 
+  /// Status texts kept in [addressTitle]/[addressSubtitle] (the placeholder
+  /// checks below compare them), with the key each is shown with.
+  static const _placeholderKeys = {
+    'Loading current location...': 'core_location_loading_current',
+    'Please approve location access if prompted.':
+        'core_location_approve_access',
+    'Fetching address...': 'core_location_fetching_address',
+    'Fetching GPS coordinates...': 'core_location_fetching_gps',
+    'Selected Location': 'core_location_selected_location',
+  };
+
+  /// [value] as shown on screen: status texts in the app language.
+  static String display(String value) => _placeholderKeys[value]?.tr ?? value;
+
   static const _titleKey = 'delivery_title';
   static const _subtitleKey = 'delivery_subtitle';
   static const _latKey = 'delivery_lat';
@@ -279,7 +293,7 @@ class SelectLocationController extends GetxController {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         showAppToast(
-          'Location services are disabled. Please enable GPS.',
+          'core_location_services_disabled'.tr,
           backgroundColor: Colors.redAccent,
         );
         _useDefaultFallback();
@@ -291,7 +305,7 @@ class SelectLocationController extends GetxController {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           showAppToast(
-            'Location permission denied.',
+            'core_location_permission_denied'.tr,
             backgroundColor: Colors.redAccent,
           );
           _useDefaultFallback();
@@ -301,7 +315,7 @@ class SelectLocationController extends GetxController {
 
       if (permission == LocationPermission.deniedForever) {
         showAppToast(
-          'Location permissions are permanently denied. Please enable them in settings.',
+          'core_location_permission_forever'.tr,
           backgroundColor: Colors.redAccent,
         );
         _useDefaultFallback();
@@ -324,7 +338,7 @@ class SelectLocationController extends GetxController {
       unawaited(_animateMapTo(latLng, 16));
     } catch (e) {
       showAppToast(
-        'Error fetching current location: $e',
+        'core_location_fetch_error'.trParams({'error': '$e'}),
         backgroundColor: Colors.redAccent,
       );
       _useDefaultFallback();
@@ -482,7 +496,7 @@ class SelectLocationController extends GetxController {
         final coordinates = await _placeCoordinates(placeId);
         if (_pickedLabel != label) return;
         if (coordinates == null) {
-          showAppToast('Could not select this address');
+          showAppToast('core_location_select_failed'.tr);
           return;
         }
         latitude = coordinates.$1;

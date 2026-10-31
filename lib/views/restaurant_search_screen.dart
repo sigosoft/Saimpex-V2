@@ -176,7 +176,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                   : !hasResults
                   ? Center(
                       child: Text(
-                        'No results',
+                        'core_restaurant_search_no_results'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 13,
@@ -193,7 +193,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                         bottomInset + 20,
                       ),
                       children: [
-                        _sectionTitle('Restaurants'),
+                        _sectionTitle('core_restaurant_search_restaurants'.tr),
                         const SizedBox(height: 10),
                         for (final restaurant in _restaurants) ...[
                           _resultTile(
@@ -251,7 +251,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                 height: 1,
               ),
               decoration: InputDecoration(
-                hintText: 'Search restaurants',
+                hintText: 'core_restaurant_search_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12.5,

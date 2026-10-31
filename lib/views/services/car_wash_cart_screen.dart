@@ -8,6 +8,9 @@ import 'car_wash_booking_success_screen.dart';
 import 'service_booking_submit.dart';
 import '../../widgets/app_back_button.dart';
 import '../../utils/wallet_balance.dart';
+import '../../utils/payment_methods.dart';
+import '../../utils/toast_helper.dart';
+import '../../widgets/no_payment_method_note.dart';
 
 class CarWashCartScreen extends StatefulWidget {
   final String providerName;
@@ -25,6 +28,9 @@ class CarWashCartScreen extends StatefulWidget {
   final List<Map<String, dynamic>> selectedAddons;
   final int selectedLocation;
   final String serviceAddress;
+  final double? serviceLatitude;
+  final double? serviceLongitude;
+  final String homeInstructions;
   final int homeServiceFee;
 
   /// Every vehicle to book as `{name, plate, addons: [{name, quantity}]}`.
@@ -51,6 +57,9 @@ class CarWashCartScreen extends StatefulWidget {
     this.selectedAddons = const [],
     this.selectedLocation = 0,
     this.serviceAddress = '',
+    this.serviceLatitude,
+    this.serviceLongitude,
+    this.homeInstructions = '',
     this.homeServiceFee = 0,
     Set<String>? initialAddonIds,
   });
@@ -64,14 +73,29 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   late String _slotLabel;
   bool _usePoints = false;
   int _paymentIndex = 0; // mandatory — Wallet selected by default
+  bool _noPaymentMethod = false;
   final _couponController = TextEditingController();
 
   static const _tax = 10;
   static const _pointsOff = 50;
 
+  /// Keeps the choice on a method Admin has switched on (wallet or online).
+  void _applyPaymentMethods() {
+    final type = PaymentMethods.keepOrFirstOn(
+      _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
+      const [paymentTypeWallet, paymentTypeOnline],
+    );
+    _noPaymentMethod = type == null;
+    if (type != null) _paymentIndex = type == paymentTypeOnline ? 1 : 0;
+  }
+
   @override
   void initState() {
     super.initState();
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
     _slotDate = widget.slotDate;
     _slotLabel = widget.slotLabel;
   }
@@ -87,33 +111,41 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   int get _pointsDiscount => _usePoints ? _pointsOff : 0;
   int get _toPay => _subtotal - _pointsDiscount + _tax;
 
+  // Translation keys.
   static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'svc_month_1',
+    'svc_month_2',
+    'svc_month_3',
+    'svc_month_4',
+    'svc_month_5',
+    'svc_month_6',
+    'svc_month_7',
+    'svc_month_8',
+    'svc_month_9',
+    'svc_month_10',
+    'svc_month_11',
+    'svc_month_12',
   ];
 
   String get _slotDisplay {
     final d = _slotDate;
-    return '${d.day} ${_months[d.month - 1]} ${d.year}, $_slotLabel';
+    return '${d.day} ${_months[d.month - 1].tr} ${d.year}, $_slotLabel';
   }
 
+  /// `place` for customer/service/book: station, home, workplace or other.
+  static const _places = ['station', 'home', 'workplace', 'other'];
+
+  String get _place => _places[widget.selectedLocation.clamp(0, 3)];
+
+  bool get _atCustomer => _place != 'station';
+
   String get _locationText {
-    if (widget.selectedLocation == 1) {
+    if (_atCustomer) {
       final addr = widget.serviceAddress.trim();
       if (addr.isNotEmpty) return addr;
-      return 'At Home Service';
+      return 'car_wash_at_home'.tr;
     }
-    return '${widget.providerName}, Near Nouakchott, Mauritania';
+    return 'car_wash_at_station_of'.trParams({'provider': widget.providerName});
   }
 
   Future<void> _changeSlot() async {
@@ -128,15 +160,27 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   bool _booking = false;
 
   Future<void> _pay() async {
+    if (_noPaymentMethod) {
+      showAppToast(
+        'payment_no_method'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
     if (_booking) return;
     setState(() => _booking = true);
-    final atHome = widget.selectedLocation == 1;
     final booking = await placeServiceBooking(
       shownTotal: _toPay,
       slotDate: _slotDate,
       slotLabel: _slotLabel,
       paymentType: _paymentIndex == 1 ? paymentTypeOnline : paymentTypeWallet,
-      place: atHome ? 'home' : 'station',
+      place: _place,
+      // Off-station the provider comes to this address.
+      address: _atCustomer && widget.serviceAddress.trim().isNotEmpty
+          ? widget.serviceAddress.trim()
+          : null,
+      latitude: _atCustomer ? widget.serviceLatitude : null,
+      longitude: _atCustomer ? widget.serviceLongitude : null,
       vehicles: widget.bookingVehicles.isNotEmpty
           ? widget.bookingVehicles
           : [
@@ -149,7 +193,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 ],
               },
             ],
-      notes: atHome ? widget.serviceAddress : '',
+      notes: widget.homeInstructions,
     );
     if (!mounted) return;
     setState(() => _booking = false);
@@ -184,7 +228,9 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'From ${widget.providerName}',
+                        'svc_from_provider'.trParams({
+                          'provider': widget.providerName,
+                        }),
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF9A8E86),
                           fontSize: 12.5,
@@ -194,7 +240,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                       const SizedBox(height: 14),
                       _buildOrderCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Washing Details'),
+                      _sectionTitle('svc_washing_details'.tr),
                       const SizedBox(height: 12),
                       _buildLocationCard(),
                       const SizedBox(height: 10),
@@ -206,21 +252,25 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                       const SizedBox(height: 10),
                       _buildPointsCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Payment'),
+                      _sectionTitle('svc_payment'.tr),
                       const SizedBox(height: 12),
-                      _buildPaymentOption(
-                        index: 0,
-                        imageAsset: 'lib/assets/images/wallet.png',
-                        title: 'SAIMPEX Wallet',
-                        subtitle: walletBalanceSubtitle(),
-                      ),
-                      const SizedBox(height: 10),
-                      _buildPaymentOption(
-                        index: 1,
-                        imageAsset: 'lib/assets/images/currency.png',
-                        title: 'Online payment',
-                        subtitle: 'Card - Mobile money',
-                      ),
+                      if (PaymentMethods.isOn(paymentTypeWallet)) ...[
+                        _buildPaymentOption(
+                          index: 0,
+                          imageAsset: 'lib/assets/images/wallet.png',
+                          title: 'wallet_title'.tr,
+                          subtitle: walletBalanceSubtitle(),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                      if (PaymentMethods.isOn(paymentTypeOnline))
+                        _buildPaymentOption(
+                          index: 1,
+                          imageAsset: 'lib/assets/images/currency.png',
+                          title: 'svc_online_payment'.tr,
+                          subtitle: 'svc_card_mobile_money'.tr,
+                        ),
+                      if (_noPaymentMethod) const NoPaymentMethodNote(),
                       const SizedBox(height: 22),
                       _buildPaymentDetailsCard(),
                     ],
@@ -242,11 +292,11 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         alignment: Alignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AppBackButton(onTap: () => Get.back()),
           ),
           Text(
-            'Cart',
+            'svc_cart'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
@@ -381,7 +431,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   GestureDetector(
                     onTap: () => Get.back(),
                     child: Text(
-                      'Edit',
+                      'svc_edit'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 12.5,
@@ -398,12 +448,12 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             image: widget.serviceImage,
             title: widget.serviceTitle,
             description: widget.serviceDescription,
-            priceLabel: '${widget.servicePrice} MRU',
+            priceLabel: 'mru'.trParams({'amount': '${widget.servicePrice}'}),
           ),
           if (widget.selectedAddons.isNotEmpty) ...[
             const SizedBox(height: 16),
             Text(
-              'Add-On Services',
+              'svc_addon_services'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF5C6578),
                 fontSize: 13.5,
@@ -414,13 +464,17 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             for (var i = 0; i < widget.selectedAddons.length; i++) ...[
               if (i > 0) const SizedBox(height: 10),
               _buildNestedServiceRow(
-                image: widget.selectedAddons[i]['image'] as String? ??
+                image:
+                    widget.selectedAddons[i]['image'] as String? ??
                     widget.serviceImage,
-                title: widget.selectedAddons[i]['title'] as String? ?? 'Add-On',
+                title:
+                    widget.selectedAddons[i]['title'] as String? ??
+                    'svc_addon'.tr,
                 description:
                     widget.selectedAddons[i]['description'] as String? ?? '',
-                priceLabel:
-                    '+${widget.selectedAddons[i]['price'] ?? 0} MRU',
+                priceLabel: 'svc_plus_mru'.trParams({
+                  'amount': '${widget.selectedAddons[i]['price'] ?? 0}',
+                }),
               ),
             ],
           ],
@@ -545,9 +599,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              widget.selectedLocation == 1
-                  ? Icons.home_rounded
-                  : Icons.storefront_rounded,
+              _atCustomer ? Icons.home_rounded : Icons.storefront_rounded,
               color: const Color(0xFFFF5E00),
               size: 20,
             ),
@@ -558,7 +610,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Location',
+                  'svc_location'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
@@ -620,7 +672,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Your Slot',
+                    'svc_your_slot'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 13.5,
@@ -653,9 +705,9 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   Widget _buildSaveMoreHeader() {
     return Row(
       children: [
-        Expanded(child: _sectionTitle('Save More')),
+        Expanded(child: _sectionTitle('svc_save_more'.tr)),
         Text(
-          'View Coupons',
+          'svc_view_coupons'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFFFF5E00),
             fontSize: 13,
@@ -696,7 +748,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 fontSize: 13.5,
               ),
               decoration: InputDecoration(
-                hintText: 'Enter coupon',
+                hintText: 'svc_enter_coupon'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: const Color(0xFFB0A59C),
                   fontSize: 13.5,
@@ -707,7 +759,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             ),
           ),
           Text(
-            'Apply',
+            'svc_apply'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 14,
@@ -759,7 +811,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Use 500 points',
+                    'svc_use_points'.trParams({'points': '500'}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 14,
@@ -767,7 +819,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                     ),
                   ),
                   Text(
-                    '+ $_pointsOff MRU off',
+                    '+ ${'svc_points_off'.trParams({'amount': '$_pointsOff'})}',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
@@ -825,9 +877,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : Colors.transparent,
+            color: selected ? const Color(0xFFFF5E00) : Colors.transparent,
             width: 1.2,
           ),
           boxShadow: [
@@ -917,7 +967,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11.5,
@@ -926,22 +976,22 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          _paymentRow('Total', '$_subtotal MRU'),
+          _paymentRow('svc_total'.tr, 'mru'.trParams({'amount': '$_subtotal'})),
           const SizedBox(height: 10),
           _paymentRow(
-            'Redeemed points',
-            '-$_pointsDiscount MRU',
+            'svc_redeemed_points'.tr,
+            '-${'mru'.trParams({'amount': '$_pointsDiscount'})}',
             valueColor: const Color(0xFFFF5E00),
           ),
           const SizedBox(height: 10),
-          _paymentRow('Tax', '$_tax MRU'),
+          _paymentRow('svc_tax'.tr, 'mru'.trParams({'amount': '$_tax'})),
           const SizedBox(height: 14),
           const Divider(height: 1, thickness: 1, color: Color(0xFF4A4A4A)),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'To Pay',
+                'svc_to_pay'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
@@ -950,7 +1000,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               ),
               const Spacer(),
               Text(
-                '$_toPay MRU',
+                'mru'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -1007,7 +1057,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TOTAL',
+            'svc_total_upper'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2E3A59),
               fontSize: 11,
@@ -1017,7 +1067,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           ),
           const SizedBox(height: 2),
           Text(
-            '$_toPay MRU',
+            'mru'.trParams({'amount': '$_toPay'}),
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 20,
@@ -1047,7 +1097,9 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 ],
               ),
               child: Text(
-                _booking ? 'Booking...' : 'Pay $_toPay MRU',
+                _booking
+                    ? 'svc_booking_in_progress'.tr
+                    : 'svc_pay_amount'.trParams({'amount': '$_toPay'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,

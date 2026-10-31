@@ -54,7 +54,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
       if (!mounted) return;
       setState(() {
         _detail = detail;
-        _error = detail == null ? 'Order details are not available' : null;
+        _error = detail == null ? 'st_order_details_unavailable'.tr : null;
       });
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -87,19 +87,19 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
     final cancelled = detail?.isCancelled == true;
     return [
       _StatusStep(
-        label: 'Booking\nConfirmed',
+        label: 'st_step_booking_confirmed'.tr,
         time: _stepTime(detail?.placedAt ?? ''),
         done: status >= 1,
         icon: Icons.check_rounded,
       ),
       _StatusStep(
-        label: 'At Pickup',
+        label: 'st_step_at_pickup'.tr,
         time: time(6),
         done: !cancelled && status >= 6,
         icon: Icons.location_on_outlined,
       ),
       _StatusStep(
-        label: 'On the way',
+        label: 'st_step_on_the_way'.tr,
         time: time(7).isNotEmpty ? time(7) : time(8),
         done: !cancelled && status >= 7,
         icon: Icons.two_wheeler_rounded,
@@ -107,13 +107,13 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
       ),
       cancelled
           ? _StatusStep(
-              label: 'Cancelled',
+              label: 'st_step_cancelled'.tr,
               time: time(10),
               done: true,
               icon: Icons.close_rounded,
             )
           : _StatusStep(
-              label: 'Delivered',
+              label: 'st_step_delivered'.tr,
               time: time(9),
               done: status >= 9,
               icon: Icons.check_rounded,
@@ -130,8 +130,8 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
 
   static String _money(dynamic value, {bool negative = false}) {
     final number = double.tryParse('${value ?? ''}');
-    if (number == null) return '— MRU';
-    final text = '${number.round()} MRU';
+    if (number == null) return 'mru'.trParams({'amount': '—'});
+    final text = 'mru'.trParams({'amount': '${number.round()}'});
     return negative && number > 0 ? '-$text' : text;
   }
 
@@ -163,11 +163,11 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _sectionTitle('Order Status'),
+                            _sectionTitle('st_order_status'.tr),
                             const SizedBox(height: 10),
                             _buildOrderStatusCard(),
                             const SizedBox(height: 18),
-                            _sectionTitle('Delivery Details'),
+                            _sectionTitle('st_delivery_details'.tr),
                             const SizedBox(height: 10),
                             _buildDeliveryRouteCard(),
                             if (_detail!.packageDescription.isNotEmpty ||
@@ -214,7 +214,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                _error ?? 'Order details are not available',
+                _error ?? 'st_order_details_unavailable'.tr,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
@@ -245,7 +245,9 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              _displayId.isEmpty ? 'Order' : 'Order $_displayId',
+              _displayId.isEmpty
+                  ? 'st_order'.tr
+                  : 'st_order_id'.trParams({'id': _displayId}),
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -264,7 +266,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                 border: Border.all(color: const Color(0xFFEAD8C9)),
               ),
               child: Text(
-                'Help',
+                'st_help'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
@@ -462,13 +464,13 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildRouteRow(
-                    label: 'PICKUP',
+                    label: 'st_pickup'.tr,
                     title: pickupAddress.isEmpty ? '—' : pickupAddress,
                     contact: _contactLine(pickup),
                   ),
                   const SizedBox(height: 18),
                   _buildRouteRow(
-                    label: 'DROP-OFF',
+                    label: 'st_drop_off'.tr,
                     title: dropOffAddress.isEmpty ? '—' : dropOffAddress,
                     contact: _contactLine(dropoff),
                   ),
@@ -546,8 +548,11 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
     final detail = _detail!;
     final size = detail.packageSize;
     final title = [
-      if (size.isNotEmpty) '${size[0].toUpperCase()}${size.substring(1)} parcel',
-      detail.isExpress ? 'Express' : 'Standard',
+      if (size.isNotEmpty)
+        'st_parcel'.trParams({
+          'size': '${size[0].toUpperCase()}${size.substring(1)}',
+        }),
+      detail.isExpress ? 'st_express'.tr : 'st_standard'.tr,
     ].join(' • ');
     return Container(
       width: double.infinity,
@@ -627,9 +632,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
       ),
       child: !detail.hasDriver
           ? Text(
-              detail.isFinished
-                  ? 'No driver for this order'
-                  : 'A driver will be assigned soon',
+              detail.isFinished ? 'st_no_driver'.tr : 'st_driver_soon'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
@@ -656,7 +659,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                     children: [
                       Text(
                         detail.driverName.isEmpty
-                            ? 'Driver'
+                            ? 'st_driver'.tr
                             : detail.driverName,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF2C2520),
@@ -677,9 +680,11 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                             [
                               detail.driverRating > 0
                                   ? detail.driverRating.toStringAsFixed(1)
-                                  : 'New',
+                                  : 'st_new'.tr,
                               if (detail.driverReviews > 0)
-                                '(${detail.driverReviews} reviews)',
+                                'st_reviews_count'.trParams({
+                                  'count': '${detail.driverReviews}',
+                                }),
                             ].join(' '),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFA59A94),
@@ -695,9 +700,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                 GestureDetector(
                   // The scope calls for a masked number, which needs a
                   // calling provider the backend doesn't have yet.
-                  onTap: () => showAppToast(
-                    'Calling your driver from the app is coming soon',
-                  ),
+                  onTap: () => showAppToast('st_call_driver_soon'.tr),
                   child: Container(
                     width: 42,
                     height: 42,
@@ -723,7 +726,9 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
     final tax = double.tryParse('${payment['tax'] ?? ''}') ?? 0;
     final discount = double.tryParse('${payment['discount'] ?? ''}') ?? 0;
     final isCash = '${payment['payment_type'] ?? ''}'.toLowerCase() == 'cash';
-    final totalLabel = isCash && !_detail!.isDelivered ? 'To pay' : 'Total paid';
+    final totalLabel = isCash && !_detail!.isDelivered
+        ? 'st_to_pay'.tr
+        : 'st_total_paid'.tr;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
@@ -742,7 +747,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'st_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
@@ -751,11 +756,11 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Delivery fee', _money(payment['delivery_fee'])),
+          _payRow('cart_delivery_fee'.tr, _money(payment['delivery_fee'])),
           if (discount > 0) ...[
             const SizedBox(height: 10),
             _payRow(
-              'Discount',
+              'st_discount'.tr,
               _money(discount, negative: true),
               valueColor: const Color(0xFFFF5E00),
             ),
@@ -763,17 +768,17 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
           if (redeemed != null && redeemed > 0) ...[
             const SizedBox(height: 10),
             _payRow(
-              'Redeemed points',
-              '-${redeemed.round()} pts',
+              'cart_redeemed_points'.tr,
+              'st_points_negative'.trParams({'points': '${redeemed.round()}'}),
               valueColor: const Color(0xFFFF5E00),
             ),
           ],
           if (tax > 0) ...[
             const SizedBox(height: 10),
-            _payRow('Tax', _money(tax)),
+            _payRow('cart_tax'.tr, _money(tax)),
           ],
           const SizedBox(height: 10),
-          _payRow('Payment', isCash ? 'Cash' : 'Online'),
+          _payRow('st_payment'.tr, isCash ? 'st_cash'.tr : 'st_online'.tr),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(height: 1, color: Color(0xFF3A3A3A)),
@@ -846,7 +851,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Cancel',
+          'cancel'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
@@ -884,7 +889,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         ),
         alignment: Alignment.center,
         child: Text(
-          'Track Delivery',
+          'st_track_delivery'.tr,
           style: GoogleFonts.outfit(
             color: Colors.white,
             fontSize: 14,

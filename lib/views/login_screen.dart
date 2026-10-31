@@ -57,9 +57,9 @@ class LoginScreen extends StatelessWidget {
           child: Container(color: Colors.black.withOpacity(0.25)),
         ),
         // Language Selector on Background
-        Positioned(
+        PositionedDirectional(
           top: padding.top + 16,
-          left: 20,
+          start: 20,
           child: const LanguageSelector(),
         ),
         // Bottom White Sheet Content
@@ -92,7 +92,7 @@ class LoginScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         // Title (Serif style matching the image)
                         Text(
-                          'Please enter your phone number',
+                          'core_login_title'.tr,
                           style: GoogleFonts.playfairDisplay(
                             color: const Color(0xFF2C2520),
                             fontSize: 27,
@@ -103,7 +103,7 @@ class LoginScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         // Subtitle
                         Text(
-                          "We'll send you a verification code to get started",
+                          'core_login_subtitle'.tr,
                           style: GoogleFonts.outfit(
                             color: AppColors.textMuted,
                             fontSize: 14,
@@ -113,15 +113,15 @@ class LoginScreen extends StatelessWidget {
                         const SizedBox(height: 28),
                         // Name Input
                         CustomTextField(
-                          label: 'Name',
-                          hintText: 'Enter your name',
+                          label: 'core_login_name'.tr,
+                          hintText: 'core_login_name_hint'.tr,
                           controller: controller.nameController,
                         ),
                         const SizedBox(height: 20),
                         // WhatsApp Input
                         CustomTextField(
-                          label: 'Whatsapp Number',
-                          hintText: 'Enter your whatsapp number',
+                          label: 'core_login_whatsapp'.tr,
+                          hintText: 'core_login_whatsapp_hint'.tr,
                           controller: controller.phoneController,
                           keyboardType: TextInputType.phone,
                           prefix: _buildCountrySelector(context, controller),
@@ -163,7 +163,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'LOGIN OR SIGN UP',
+                      'core_login_badge'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 11,
@@ -197,9 +197,9 @@ class LoginScreen extends StatelessWidget {
             children: [
               Image.asset('lib/assets/images/Onboard1.png', fit: BoxFit.cover),
               Container(color: Colors.black.withOpacity(0.3)),
-              Positioned(
+              PositionedDirectional(
                 top: padding.top + 16,
-                left: 20,
+                start: 20,
                 child: const LanguageSelector(),
               ),
             ],
@@ -222,7 +222,7 @@ class LoginScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Please enter your phone number',
+                            'core_login_title'.tr,
                             style: GoogleFonts.playfairDisplay(
                               color: const Color(0xFF2C2520),
                               fontSize: 24,
@@ -247,7 +247,7 @@ class LoginScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'LOGIN',
+                            'core_login_badge_short'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 10,
@@ -259,7 +259,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "We'll send you a verification code to get started",
+                      'core_login_subtitle'.tr,
                       style: GoogleFonts.outfit(
                         color: AppColors.textMuted,
                         fontSize: 13,
@@ -267,14 +267,14 @@ class LoginScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     CustomTextField(
-                      label: 'Name',
-                      hintText: 'Enter your name',
+                      label: 'core_login_name'.tr,
+                      hintText: 'core_login_name_hint'.tr,
                       controller: controller.nameController,
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
-                      label: 'Whatsapp Number',
-                      hintText: 'Enter your whatsapp number',
+                      label: 'core_login_whatsapp'.tr,
+                      hintText: 'core_login_whatsapp_hint'.tr,
                       controller: controller.phoneController,
                       keyboardType: TextInputType.phone,
                       prefix: _buildCountrySelector(context, controller),
@@ -373,7 +373,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    'Continue',
+                    'core_login_continue'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 16,
@@ -402,7 +402,7 @@ class LoginScreen extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            'Guest Login',
+            'core_login_guest'.tr,
             style: GoogleFonts.outfit(
               color: AppColors.guestText,
               fontSize: 16,

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'auto_slide_network_images.dart';
 
-typedef RestaurantAddToCartCallback = Future<void> Function(
-  BuildContext context,
-  Map<String, dynamic> food, {
-  bool fromBottomSheet,
-});
+typedef RestaurantAddToCartCallback =
+    Future<void> Function(
+      BuildContext context,
+      Map<String, dynamic> food, {
+      bool fromBottomSheet,
+    });
 
 void showRestaurantFoodCustomizeSheet(
   BuildContext context, {
@@ -65,33 +67,17 @@ class _RestaurantFoodCustomizeSheetState
   }
 
   List<Map<String, dynamic>> get _sides => [
-        {
-          'name': 'Moroccan Rice',
-          'price': 80,
-          'image': widget.food['image'],
-        },
-        {
-          'name': 'Brown Rice',
-          'price': 80,
-          'image': widget.food['image'],
-        },
-        {
-          'name': 'Couscous',
-          'price': 90,
-          'image': widget.food['image'],
-        },
-      ];
+    {'name': 'Moroccan Rice', 'price': 80, 'image': widget.food['image']},
+    {'name': 'Brown Rice', 'price': 80, 'image': widget.food['image']},
+    {'name': 'Couscous', 'price': 90, 'image': widget.food['image']},
+  ];
 
   List<Map<String, dynamic>> get _extras => [
-        {'name': 'Garlic Sauce', 'price': 20, 'image': widget.food['image']},
-        {'name': 'French Fries', 'price': 50, 'image': widget.food['image']},
-        {'name': 'Soft Drink', 'price': 50, 'image': widget.food['image']},
-        {
-          'name': 'Side of Olives',
-          'price': 30,
-          'image': widget.food['image'],
-        },
-      ];
+    {'name': 'Garlic Sauce', 'price': 20, 'image': widget.food['image']},
+    {'name': 'French Fries', 'price': 50, 'image': widget.food['image']},
+    {'name': 'Soft Drink', 'price': 50, 'image': widget.food['image']},
+    {'name': 'Side of Olives', 'price': 30, 'image': widget.food['image']},
+  ];
 
   Widget _radio(bool selected) {
     return Container(
@@ -183,8 +169,7 @@ class _RestaurantFoodCustomizeSheetState
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        Colors.black.withValues(alpha: 0.06),
+                                    color: Colors.black.withValues(alpha: 0.06),
                                     blurRadius: 14,
                                     offset: const Offset(0, 4),
                                   ),
@@ -245,15 +230,15 @@ class _RestaurantFoodCustomizeSheetState
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _sectionTitle('Choose Your Portion'),
+                              _sectionTitle('core_food_choose_portion'.tr),
                               const SizedBox(height: 12),
                               Row(
                                 children: [
                                   Expanded(
                                     child: _portionCard(
                                       imageUrl: imageUrl,
-                                      label: 'Half',
-                                      price: '375 MRU',
+                                      label: 'core_food_half'.tr,
+                                      price: 'mru'.trParams({'amount': '375'}),
                                       selected: _selectedPortion == 0,
                                       onTap: () =>
                                           setState(() => _selectedPortion = 0),
@@ -263,8 +248,8 @@ class _RestaurantFoodCustomizeSheetState
                                   Expanded(
                                     child: _portionCard(
                                       imageUrl: imageUrl,
-                                      label: 'Full',
-                                      price: '750 MRU',
+                                      label: 'core_food_full'.tr,
+                                      price: 'mru'.trParams({'amount': '750'}),
                                       selected: _selectedPortion == 1,
                                       onTap: () =>
                                           setState(() => _selectedPortion = 1),
@@ -275,8 +260,9 @@ class _RestaurantFoodCustomizeSheetState
                               const SizedBox(height: 12),
                               Container(
                                 height: 46,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(23),
@@ -285,12 +271,12 @@ class _RestaurantFoodCustomizeSheetState
                                     width: 0.8,
                                   ),
                                 ),
-                                alignment: Alignment.centerLeft,
+                                alignment: AlignmentDirectional.centerStart,
                                 child: TextField(
                                   controller: _customQtyController,
                                   style: GoogleFonts.outfit(fontSize: 12),
                                   decoration: InputDecoration(
-                                    hintText: 'Customize your quantity here',
+                                    hintText: 'core_food_qty_hint'.tr,
                                     hintStyle: GoogleFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
@@ -301,7 +287,7 @@ class _RestaurantFoodCustomizeSheetState
                                 ),
                               ),
                               const SizedBox(height: 22),
-                              _sectionTitle('Choose Your Side'),
+                              _sectionTitle('core_food_choose_side'.tr),
                               const SizedBox(height: 12),
                               SizedBox(
                                 height: 130,
@@ -314,9 +300,8 @@ class _RestaurantFoodCustomizeSheetState
                                     final side = _sides[index];
                                     final selected = _selectedSide == index;
                                     return GestureDetector(
-                                      onTap: () => setState(
-                                        () => _selectedSide = index,
-                                      ),
+                                      onTap: () =>
+                                          setState(() => _selectedSide = index),
                                       child: SizedBox(
                                         width: 100,
                                         child: Column(
@@ -327,9 +312,9 @@ class _RestaurantFoodCustomizeSheetState
                                                   side['image'].toString(),
                                                   size: 88,
                                                 ),
-                                                Positioned(
+                                                PositionedDirectional(
                                                   top: 6,
-                                                  right: 6,
+                                                  end: 6,
                                                   child: _radio(selected),
                                                 ),
                                               ],
@@ -346,7 +331,9 @@ class _RestaurantFoodCustomizeSheetState
                                               ),
                                             ),
                                             Text(
-                                              '+ ${side['price']} MRU',
+                                              'core_food_plus_price'.trParams({
+                                                'amount': '${side['price']}',
+                                              }),
                                               style: GoogleFonts.outfit(
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.w700,
@@ -361,12 +348,13 @@ class _RestaurantFoodCustomizeSheetState
                                 ),
                               ),
                               const SizedBox(height: 22),
-                              _sectionTitle('Add Extras'),
+                              _sectionTitle('core_food_add_extras'.tr),
                               const SizedBox(height: 10),
                               ...List.generate(_extras.length, (index) {
                                 final extra = _extras[index];
-                                final selected =
-                                    _selectedExtras.contains(index);
+                                final selected = _selectedExtras.contains(
+                                  index,
+                                );
                                 return GestureDetector(
                                   onTap: () {
                                     setState(() {
@@ -408,17 +396,24 @@ class _RestaurantFoodCustomizeSheetState
                                                 style: GoogleFonts.outfit(
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.w600,
-                                                  color:
-                                                      const Color(0xFF2C2520),
+                                                  color: const Color(
+                                                    0xFF2C2520,
+                                                  ),
                                                 ),
                                               ),
                                               Text(
-                                                '+${extra['price']} MRU',
+                                                'core_food_plus_price'.trParams(
+                                                  {
+                                                    'amount':
+                                                        '${extra['price']}',
+                                                  },
+                                                ),
                                                 style: GoogleFonts.outfit(
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w700,
-                                                  color:
-                                                      const Color(0xFFFF5E00),
+                                                  color: const Color(
+                                                    0xFFFF5E00,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -431,7 +426,7 @@ class _RestaurantFoodCustomizeSheetState
                                 );
                               }),
                               const SizedBox(height: 16),
-                              _sectionTitle('Add Order Notes'),
+                              _sectionTitle('core_food_add_order_notes'.tr),
                               const SizedBox(height: 10),
                               Container(
                                 padding: const EdgeInsets.all(12),
@@ -452,8 +447,7 @@ class _RestaurantFoodCustomizeSheetState
                                         maxLines: 3,
                                         style: GoogleFonts.outfit(fontSize: 12),
                                         decoration: InputDecoration(
-                                          hintText:
-                                              'Add notes (e.g., no onions, extra spicy...)',
+                                          hintText: 'core_food_notes_hint'.tr,
                                           hintStyle: GoogleFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 12,
@@ -523,8 +517,9 @@ class _RestaurantFoodCustomizeSheetState
                               },
                             ),
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 14),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                              ),
                               child: Text(
                                 '$_quantity',
                                 style: GoogleFonts.outfit(
@@ -554,18 +549,16 @@ class _RestaurantFoodCustomizeSheetState
                             height: 48,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFFFF5E00),
-                                  Color(0xFFFFAE00),
-                                ],
+                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFFF5E00)
-                                      .withValues(alpha: 0.3),
+                                  color: const Color(
+                                    0xFFFF5E00,
+                                  ).withValues(alpha: 0.3),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -581,7 +574,7 @@ class _RestaurantFoodCustomizeSheetState
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'ADD',
+                                  'core_food_add'.tr,
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -655,9 +648,7 @@ class _RestaurantFoodCustomizeSheetState
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected
-                ? const Color(0xFFFF5E00)
-                : const Color(0xFFEAD8C9),
+            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
             width: selected ? 1.5 : 0.8,
           ),
         ),

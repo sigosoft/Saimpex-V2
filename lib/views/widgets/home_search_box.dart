@@ -7,7 +7,6 @@ import 'package:speech_to_text/speech_to_text.dart';
 import '../../utils/toast_helper.dart';
 import '../home_scanner_screen.dart';
 import '../all_search_screen.dart';
-import 'search_camera_button.dart';
 
 class HomeSearchBox extends StatefulWidget {
   const HomeSearchBox({super.key});
@@ -63,10 +62,10 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
           _stopListeningUi();
           if (error.errorMsg == 'error_no_match' ||
               error.errorMsg == 'error_speech_timeout') {
-            showAppToast('Didn\'t catch that. Try again.');
+            showAppToast('core_home_search_no_match'.tr);
             return;
           }
-          showAppToast('Voice search isn\'t available right now.');
+          showAppToast('core_home_search_voice_unavailable'.tr);
         },
         onStatus: (status) {
           if (!mounted) return;
@@ -83,16 +82,16 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
       );
     } on MissingPluginException {
       _stopListeningUi();
-      showAppToast('Stop the app and run it again to use voice search.');
+      showAppToast('core_home_search_restart_app'.tr);
       return;
     } catch (_) {
       _stopListeningUi();
-      showAppToast('Voice search isn\'t available right now.');
+      showAppToast('core_home_search_voice_unavailable'.tr);
       return;
     }
     if (!_speechReady) {
       _stopListeningUi();
-      showAppToast('Allow microphone access to use voice search.');
+      showAppToast('core_home_search_allow_mic'.tr);
       return;
     }
     if (!mounted || !_listening) return;
@@ -126,10 +125,10 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
       );
     } on MissingPluginException {
       _stopListeningUi();
-      showAppToast('Stop the app and run it again to use voice search.');
+      showAppToast('core_home_search_restart_app'.tr);
     } catch (_) {
       _stopListeningUi();
-      showAppToast('Voice search isn\'t available right now.');
+      showAppToast('core_home_search_voice_unavailable'.tr);
     }
   }
 
@@ -137,19 +136,9 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
     if (_scanning) return;
     final path = await Get.to<String>(() => const HomeScannerScreen());
     if (path == null || !mounted) return;
-
-    setState(() => _scanning = true);
-    try {
-      final text = await labelScannedImage(path);
-      if (!mounted || text == null) return;
-      _controller.value = TextEditingValue(
-        text: text,
-        selection: TextSelection.collapsed(offset: text.length),
-      );
-      _search(text);
-    } finally {
-      if (mounted) setState(() => _scanning = false);
-    }
+    // The server identifies the product in the photo (Google Vision) and
+    // answers with stores and products, like a typed search.
+    Get.to(() => AllSearchScreen(imagePath: path));
   }
 
   String _titleCase(String value) {
@@ -197,8 +186,8 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
               onSubmitted: _search,
               decoration: InputDecoration(
                 hintText: _listening
-                    ? 'Listening...'
-                    : 'What do you need today?',
+                    ? 'core_home_search_listening'.tr
+                    : 'core_home_search_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: _listening
                       ? const Color(0xFFFF5E00)
@@ -342,7 +331,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Recording',
+                  'core_home_search_recording'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
@@ -350,7 +339,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
                   ),
                 ),
                 Text(
-                  'Listening... tap the mic to stop',
+                  'core_home_search_tap_to_stop'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,

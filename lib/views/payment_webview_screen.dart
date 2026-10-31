@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -78,11 +79,11 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const Padding(
-          padding: EdgeInsets.only(left: 12),
+          padding: EdgeInsetsDirectional.only(start: 12),
           child: Center(child: AppBackButton()),
         ),
         title: Text(
-          'Payment',
+          'core_payment_title'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 18,

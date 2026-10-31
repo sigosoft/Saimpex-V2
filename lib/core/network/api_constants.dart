@@ -4,6 +4,8 @@ class ApiConstants {
       'https://dev.saimpexenterprise.com/storage/';
 
   static const String splash = 'customer/splash';
+  static const String search = 'customer/search';
+  static const String imageSearch = 'customer/image-recognition/analyze';
   static const String sendOtp = 'customer/sendOtp';
   static const String verifyOtp = 'customer/verifyOtp';
   static const String customerCheck = 'customer/customerCheck';
@@ -52,6 +54,8 @@ class ApiConstants {
       'customer/prescription/$id/accept';
   static String prescriptionDecline(int id) =>
       'customer/prescription/$id/decline';
+  static String prescriptionAlternatives(int id) =>
+      'customer/prescription/$id/alternatives';
   static const String pharmacyOrders = 'customer/orders/pharmacy';
   static const String restaurantOrders = 'customer/orders/restaurant';
   static const String cartList = 'customer/cart/list';
@@ -66,6 +70,8 @@ class ApiConstants {
       'customer/catalog/cart/item/delete';
   static const String catalogCartUpdate = 'customer/catalog/cart/update';
   static const String catalogCheckout = 'customer/catalog/checkout';
+  static const String catalogCheckoutSummary =
+      'customer/catalog/checkoutSummary';
   static const String catalogOrderDetail = 'customer/catalog/orderDetail';
   static const String cartPharmacyAttachPrescription =
       'customer/cart/pharmacy/attachPrescription';
@@ -79,6 +85,25 @@ class ApiConstants {
   static const String masrviInit = 'customer/payments/masrvi/init';
   static const String orderDetails = 'customer/orderDetails';
   static const String cancelOrder = 'customer/cancelOrder';
+  static const String payAfterDelivery = 'customer/payAfterDelivery';
+  static const String paymentMethods = 'customer/paymentMethods';
+  static const String chatbotMessage = 'customer/chatbot/message';
+  static const String chatbotConversations = 'customer/chatbot/conversations';
+  static String chatbotConversation(int id) =>
+      'customer/chatbot/conversations/$id';
+  static const String preorderWindow = 'customer/preorder/window';
+  static String orderSubstitutions(int orderId) =>
+      'customer/orders/$orderId/substitutions';
+  static String substitutionRespond(int id) =>
+      'customer/substitutions/$id/respond';
+  static String orderPayDue(int orderId) => 'customer/orders/$orderId/payDue';
+  static const String wallet = 'customer/wallet';
+  static const String walletTopUp = 'customer/wallet/topup';
+  static String walletTopUpStatus(int id) => 'customer/wallet/topup/$id';
+  static String orderPayOnline(int orderId) =>
+      'customer/orders/$orderId/payOnline';
+  static String payAfterDeliveryPay(int orderId) =>
+      'customer/payAfterDelivery/orders/$orderId/pay';
   static const String trackOrder = 'customer/trackOrder';
   static const String coupons = 'customer/coupons';
   static const String applyCoupon = 'customer/applyCoupon';
@@ -180,6 +205,9 @@ class ApiConstants {
   static const String chatAllConversations = 'customer/chat/allConversations';
   static const String chatGetConversation = 'customer/chat/getConversation';
   static const String chatSendMessage = 'customer/chat/sendMessage';
+  static const String chatMarkAsRead = 'customer/chat/markAsRead';
+  static const String chatDeleteConversation =
+      'customer/chat/deleteConversation';
 
   static String? mediaUrl(String? path) {
     if (path == null) return null;

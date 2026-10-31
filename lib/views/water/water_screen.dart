@@ -83,7 +83,7 @@ class _WaterScreenState extends State<WaterScreen> {
   /// Opens the products of a water category (waterSearchV2 with category_id).
   Future<void> _openCategory(Map<String, dynamic> cat) async {
     if (!Get.isRegistered<WaterRepository>()) return;
-    final label = cat['label']?.toString() ?? 'Category';
+    final label = cat['label']?.toString() ?? 'pw_category'.tr;
     try {
       final result = await Get.find<WaterRepository>().search(
         latitude: SelectLocationController.selectedLatitude,
@@ -223,7 +223,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Deliver To:',
+                              'pw_deliver_to_colon'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF7A6A60),
                                 fontSize: 11,
@@ -295,7 +295,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   ),
                   const SizedBox(width: 3),
                   Text(
-                    '300 MRU',
+                    'mru'.trParams({'amount': '300'}),
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
@@ -316,7 +316,7 @@ class _WaterScreenState extends State<WaterScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Text(
-        'Water',
+        'pw_water'.tr,
         style: GoogleFonts.outfit(
           color: const Color(0xFF1A1A1A),
           fontSize: 22,
@@ -368,7 +368,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'SUBSCRIBE & SAVE 20%',
+                                    'pw_subscribe_save_20'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white.withOpacity(0.85),
                                       fontSize: 10,
@@ -377,7 +377,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Fresh Water,\nOn Schedule',
+                                    'pw_fresh_water_on_schedule'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 18,
@@ -387,7 +387,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Daily • Weekly • Monthly Delivery Plans',
+                                    'pw_delivery_plans_line'.tr,
                                     style: GoogleFonts.outfit(
                                       color: Colors.white.withOpacity(0.85),
                                       fontSize: 10,
@@ -404,7 +404,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Text(
-                                      'Set Up Plan',
+                                      'pw_set_up_plan'.tr,
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFF007BFF),
                                         fontSize: 11,
@@ -495,7 +495,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   fontSize: 13,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Search water suppliers or products',
+                  hintText: 'pw_search_water_suppliers_products'.tr,
                   hintStyle: GoogleFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
@@ -583,7 +583,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'No data available',
+                  'pw_no_data_available'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 13,
@@ -599,14 +599,14 @@ class _WaterScreenState extends State<WaterScreen> {
   }
 
   Widget _buildCategoriesSection() {
-    if (categories.isEmpty) return _buildNoDataSection('Categories');
+    if (categories.isEmpty) return _buildNoDataSection('pw_categories'.tr);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'Categories',
+            'pw_categories'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 16,
@@ -706,7 +706,7 @@ class _WaterScreenState extends State<WaterScreen> {
   // 6. Top Rated Suppliers Section
   Widget _buildTopRatedSuppliersSection() {
     if (topSuppliers.isEmpty) {
-      return _buildNoDataSection('Top Rated Suppliers');
+      return _buildNoDataSection('pw_top_rated_suppliers'.tr);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -717,7 +717,7 @@ class _WaterScreenState extends State<WaterScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Top Rated Suppliers',
+                'pw_top_rated_suppliers'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 16,
@@ -727,7 +727,7 @@ class _WaterScreenState extends State<WaterScreen> {
               SeeAllButton(
                 onTap: () => Get.to(
                   () => WaterSeeAllScreen(
-                    title: 'Top Rated Suppliers',
+                    title: 'pw_top_rated_suppliers'.tr,
                     items: topSuppliers,
                   ),
                 ),
@@ -746,7 +746,7 @@ class _WaterScreenState extends State<WaterScreen> {
             itemBuilder: (context, index) {
               final item = topSuppliers[index];
               return Padding(
-                padding: const EdgeInsets.only(right: 14),
+                padding: const EdgeInsetsDirectional.only(end: 14),
                 child: _buildSupplierCard(item),
               );
             },
@@ -831,9 +831,9 @@ class _WaterScreenState extends State<WaterScreen> {
                     ),
 
                   // Discount Tag (Top-left)
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    left: 8,
+                    start: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -855,9 +855,9 @@ class _WaterScreenState extends State<WaterScreen> {
                   ),
 
                   // Rating Tag
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    left: 72,
+                    start: 72,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 6,
@@ -890,9 +890,9 @@ class _WaterScreenState extends State<WaterScreen> {
                   ),
 
                   // Favorite Icon (Top-right)
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    right: 8,
+                    end: 8,
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
@@ -908,9 +908,9 @@ class _WaterScreenState extends State<WaterScreen> {
                   ),
 
                   // Points Available Pill (Bottom-left overlay on image)
-                  Positioned(
+                  PositionedDirectional(
                     bottom: 8,
-                    left: 8,
+                    start: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -1064,7 +1064,7 @@ class _WaterScreenState extends State<WaterScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Closed',
+                  'pw_closed'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
@@ -1085,7 +1085,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Opens $opensAt',
+                      'pw_opens_at'.trParams({'time': opensAt}),
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -1140,7 +1140,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Temporarily not accepting',
+                      'pw_temp_not_accepting_line1'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -1151,7 +1151,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  'orders',
+                  'pw_temp_not_accepting_line2'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
@@ -1202,7 +1202,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'Choose Your Water Supplier',
+                  'pw_choose_water_supplier'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 16,
@@ -1220,7 +1220,7 @@ class _WaterScreenState extends State<WaterScreen> {
   // 8. Popular Products Section
   Widget _buildPopularProductsSection() {
     if (popularProducts.isEmpty) {
-      return _buildNoDataSection('Popular Products');
+      return _buildNoDataSection('pw_popular_products'.tr);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1231,7 +1231,7 @@ class _WaterScreenState extends State<WaterScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Popular Products',
+                'pw_popular_products'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 16,
@@ -1241,7 +1241,7 @@ class _WaterScreenState extends State<WaterScreen> {
               SeeAllButton(
                 onTap: () => Get.to(
                   () => WaterSeeAllScreen(
-                    title: 'Popular Products',
+                    title: 'pw_popular_products'.tr,
                     items: popularProducts,
                   ),
                 ),
@@ -1260,7 +1260,7 @@ class _WaterScreenState extends State<WaterScreen> {
             itemBuilder: (context, index) {
               final prod = popularProducts[index];
               return Padding(
-                padding: const EdgeInsets.only(right: 14),
+                padding: const EdgeInsetsDirectional.only(end: 14),
                 child: _buildProductCard(prod),
               );
             },
@@ -1312,9 +1312,9 @@ class _WaterScreenState extends State<WaterScreen> {
               ),
 
               // Rating Tag
-              Positioned(
+              PositionedDirectional(
                 top: 8,
-                left: 8,
+                start: 8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,
@@ -1416,7 +1416,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'ADD',
+                            'pw_add_caps'.tr,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 10,
@@ -1439,7 +1439,7 @@ class _WaterScreenState extends State<WaterScreen> {
   // 9. Nearby Suppliers Section
   Widget _buildNearbySuppliersSection() {
     if (nearbySuppliers.isEmpty) {
-      return _buildNoDataSection('Nearby Suppliers');
+      return _buildNoDataSection('pw_nearby_suppliers'.tr);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1450,7 +1450,7 @@ class _WaterScreenState extends State<WaterScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Nearby Suppliers',
+                'pw_nearby_suppliers'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 16,
@@ -1462,7 +1462,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   SeeAllButton(
                     onTap: () => Get.to(
                       () => WaterSeeAllScreen(
-                        title: 'Nearby Suppliers',
+                        title: 'pw_nearby_suppliers'.tr,
                         items: nearbySuppliers,
                       ),
                     ),
@@ -1485,7 +1485,7 @@ class _WaterScreenState extends State<WaterScreen> {
             itemBuilder: (context, index) {
               final item = nearbySuppliers[index];
               return Padding(
-                padding: const EdgeInsets.only(right: 14),
+                padding: const EdgeInsetsDirectional.only(end: 14),
                 child: _buildSupplierCard(item),
               );
             },

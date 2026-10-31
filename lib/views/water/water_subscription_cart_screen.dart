@@ -4,16 +4,21 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
+import '../../models/wallet_repository.dart';
 import '../../models/water_repository.dart';
 import '../../utils/api_language.dart';
+import '../../utils/payment_page.dart';
 import '../../utils/toast_helper.dart';
+import '../../utils/payment_methods.dart';
+import '../../utils/wallet_balance.dart';
+import '../../widgets/no_payment_method_note.dart';
 import '../../widgets/app_back_button.dart';
 
 import 'water_subscription_success_screen.dart';
 
-/// Review and confirm a water subscription. Subscribing (water/subscribe)
-/// charges nothing: the supplier confirms it, then each delivery is its own
-/// cash-on-delivery order.
+/// Review and buy a water subscription (water/subscribe): plan price ×
+/// quantity, paid in cash on the first delivery, online (Masrvi) or from the
+/// wallet. Success shows only once an online payment is confirmed.
 class WaterSubscriptionCartScreen extends StatefulWidget {
   final int planId;
   final String storeName;
@@ -55,11 +60,64 @@ class _WaterSubscriptionCartScreenState
     extends State<WaterSubscriptionCartScreen> {
   late int quantity;
   bool _submitting = false;
+  // 1 cash on the first delivery (the server's default), 2 online, 3 wallet.
+  String _paymentType = paymentTypeCash;
+  // An online subscription created but not paid yet: paying again reopens
+  // its payment page instead of buying a second subscription.
+  ({String url, int topUpId})? _pendingPayment;
+  bool _noPaymentMethod = false;
+  static const _paymentTypes = [
+    paymentTypeCash,
+    paymentTypeOnline,
+    paymentTypeWallet,
+  ];
 
   @override
   void initState() {
     super.initState();
-    quantity = widget.quantity < 1 ? 1 : widget.quantity;
+    quantity = widget.quantity < 1 ? 1 : widget.quantity.clamp(1, 50);
+    _applyPaymentMethods();
+    PaymentMethods.refresh().then((changed) {
+      if (changed && mounted) setState(_applyPaymentMethods);
+    });
+  }
+
+  /// Keeps the choice on a method Admin has switched on.
+  void _applyPaymentMethods() {
+    final type = PaymentMethods.keepOrFirstOn(_paymentType, _paymentTypes);
+    _noPaymentMethod = type == null;
+    if (type != null) _paymentType = type;
+  }
+
+  int get _total => widget.pricePerDelivery * quantity;
+
+  /// Opens the payment page and waits for the server to confirm it.
+  Future<void> _payOnline(String url, int topUpId) async {
+    _pendingPayment = (url: url, topUpId: topUpId);
+    await openPaymentPage(url);
+    if (!mounted) return;
+    var status = 'pending';
+    for (var attempt = 0; attempt < 5; attempt++) {
+      final data = await Get.find<WalletRepository>().topUpStatus(
+        topUpId: topUpId,
+        language: apiLanguageCode(),
+      );
+      status = '${data['status'] ?? 'pending'}';
+      if (status != 'pending') break;
+      await Future<void>.delayed(const Duration(seconds: 2));
+    }
+    if (!mounted) return;
+    if (status == 'paid') {
+      _pendingPayment = null;
+      Get.off(() => const WaterSubscriptionSuccessScreen());
+      return;
+    }
+    showAppToast(
+      status == 'failed'
+          ? 'water_sub_payment_failed'.tr
+          : 'water_sub_payment_pending'.tr,
+      backgroundColor: const Color(0xFFEF4444),
+    );
   }
 
   String get _address {
@@ -70,10 +128,22 @@ class _WaterSubscriptionCartScreenState
   }
 
   Future<void> _subscribe() async {
+    if (_noPaymentMethod) {
+      showAppToast(
+        'payment_no_method'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
     if (_submitting) return;
     setState(() => _submitting = true);
     try {
-      final message = await Get.find<WaterRepository>().subscribe(
+      final pending = _pendingPayment;
+      if (pending != null) {
+        await _payOnline(pending.url, pending.topUpId);
+        return;
+      }
+      final result = await Get.find<WaterRepository>().subscribe(
         planId: widget.planId,
         quantity: quantity,
         startDate: widget.startDate,
@@ -82,11 +152,28 @@ class _WaterSubscriptionCartScreenState
         address: _address,
         latitude: SelectLocationController.selectedLatitude,
         longitude: SelectLocationController.selectedLongitude,
+        paymentType: _paymentType,
         language: apiLanguageCode(),
       );
       if (!mounted) return;
-      if (message.isNotEmpty) {
-        showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      if (result.message.isNotEmpty) {
+        showAppToast(result.message, backgroundColor: const Color(0xFFFF5E00));
+      }
+      final data = result.data;
+      final needsPayment =
+          data['payment_required'] == true || data['payment_required'] == 1;
+      if (_paymentType == paymentTypeOnline && needsPayment) {
+        final url = paymentPageUrl(data['payment_url']);
+        final topUpId = int.tryParse('${data['topup_id'] ?? ''}');
+        if (url == null || topUpId == null) {
+          showAppToast(
+            'payment_page_failed'.tr,
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          return;
+        }
+        await _payOnline(url, topUpId);
+        return;
       }
       Get.off(() => const WaterSubscriptionSuccessScreen());
     } on ApiException catch (error) {
@@ -116,7 +203,7 @@ class _WaterSubscriptionCartScreenState
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'From ${widget.storeName}',
+                    'pw_from_pharmacy'.trParams({'name': widget.storeName}),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF8C7E75),
                       fontSize: 11,
@@ -137,7 +224,9 @@ class _WaterSubscriptionCartScreenState
                     _buildSubscriptionDetails(),
                     const SizedBox(height: 14),
                     _buildAddressCard(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
+                    _buildPaymentOptions(),
+                    const SizedBox(height: 6),
                     _buildPaymentDetails(),
                     const SizedBox(height: 8),
                   ],
@@ -181,7 +270,11 @@ class _WaterSubscriptionCartScreenState
                             ),
                           )
                         : Text(
-                            'Subscribe',
+                            _paymentType == paymentTypeCash
+                                ? 'water_sub_subscribe'.tr
+                                : 'water_sub_pay'.trParams({
+                                    'amount': '$_total',
+                                  }),
                             style: GoogleFonts.outfit(
                               color: Colors.white,
                               fontSize: 15,
@@ -211,7 +304,7 @@ class _WaterSubscriptionCartScreenState
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Subscription',
+              'pw_subscription'.tr,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -296,7 +389,11 @@ class _WaterSubscriptionCartScreenState
                 ],
                 const SizedBox(height: 4),
                 Text(
-                  '${widget.pricePerDelivery} MRU / delivery',
+                  'pw_price_per_delivery'.trParams({
+                    'price': 'mru'.trParams({
+                      'amount': '${widget.pricePerDelivery}',
+                    }),
+                  }),
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13,
@@ -318,7 +415,9 @@ class _WaterSubscriptionCartScreenState
               children: [
                 GestureDetector(
                   onTap: () {
-                    if (quantity > 1) setState(() => quantity--);
+                    if (quantity > 1 && _pendingPayment == null) {
+                      setState(() => quantity--);
+                    }
                   },
                   child: const SizedBox(
                     width: 28,
@@ -342,7 +441,12 @@ class _WaterSubscriptionCartScreenState
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => setState(() => quantity++),
+                  // The server takes 1–50.
+                  onTap: () {
+                    if (quantity < 50 && _pendingPayment == null) {
+                      setState(() => quantity++);
+                    }
+                  },
                   child: Container(
                     width: 28,
                     height: 28,
@@ -367,7 +471,7 @@ class _WaterSubscriptionCartScreenState
         Row(
           children: [
             Text(
-              'Subscription Details',
+              'pw_subscription_details'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 15,
@@ -378,7 +482,7 @@ class _WaterSubscriptionCartScreenState
             GestureDetector(
               onTap: () => Get.back(),
               child: Text(
-                'Edit',
+                'pw_edit'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -409,14 +513,14 @@ class _WaterSubscriptionCartScreenState
                 children: [
                   Expanded(
                     child: _detailBox(
-                      label: 'Start Date',
+                      label: 'pw_start_date'.tr,
                       value: widget.startDateLabel,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: _detailBox(
-                      label: 'End Date',
+                      label: 'pw_end_date'.tr,
                       value: widget.endDateLabel,
                     ),
                   ),
@@ -427,14 +531,17 @@ class _WaterSubscriptionCartScreenState
                 children: [
                   Expanded(
                     child: _detailBox(
-                      label: 'Time Slot',
-                      value: widget.timeSlot,
+                      label: 'preorder_time_slot'.tr,
+                      // The slot is sent to the server as is; only shown translated.
+                      value: widget.timeSlot == 'Late night'
+                          ? 'pw_late_night'.tr
+                          : widget.timeSlot,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: _detailBox(
-                      label: 'Type',
+                      label: 'pw_type'.tr,
                       value: widget.subscriptionType,
                     ),
                   ),
@@ -515,7 +622,7 @@ class _WaterSubscriptionCartScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Deliver to',
+                  'pw_deliver_to'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
@@ -553,7 +660,7 @@ class _WaterSubscriptionCartScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'pw_payment_details_caps'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
@@ -562,16 +669,24 @@ class _WaterSubscriptionCartScreenState
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('Price per delivery', '${widget.pricePerDelivery} MRU'),
+          _payRow(
+            'water_sub_plan_price'.tr,
+            'mru'.trParams({'amount': '${widget.pricePerDelivery}'}),
+          ),
           const SizedBox(height: 10),
-          _payRow('Quantity', '$quantity'),
+          _payRow('water_sub_quantity'.tr, '$quantity'),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(color: Color(0xFF3A434E), height: 1),
           ),
+          _payRow('water_sub_total'.tr, 'mru'.trParams({'amount': '$_total'})),
+          const SizedBox(height: 10),
           Text(
-            'Nothing is charged now. The supplier confirms your subscription, '
-            'then you pay cash to the driver for each delivery.',
+            switch (_paymentType) {
+              paymentTypeOnline => 'water_sub_note_online'.tr,
+              paymentTypeWallet => 'water_sub_note_wallet'.tr,
+              _ => 'water_sub_note_cash'.tr,
+            },
             style: GoogleFonts.outfit(
               color: Colors.white.withValues(alpha: 0.85),
               fontSize: 12,
@@ -581,6 +696,113 @@ class _WaterSubscriptionCartScreenState
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPaymentOptions() {
+    Widget option(String type, IconData icon, String title, String subtitle) {
+      final selected = _paymentType == type;
+      return GestureDetector(
+        // The subscription is already created once an online payment starts.
+        onTap: _pendingPayment != null
+            ? null
+            : () => setState(() => _paymentType = type),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: selected ? const Color(0xFFFF5E00) : Colors.transparent,
+              width: selected ? 1.4 : 0,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFFF0EA),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: const Color(0xFFFF5E00), size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFF2C2520),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty)
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF7A6A60),
+                          fontSize: 11,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Icon(
+                selected
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_unchecked_rounded,
+                color: selected
+                    ? const Color(0xFFFF5E00)
+                    : const Color(0xFFD9D1C9),
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'water_sub_payment'.tr,
+          style: GoogleFonts.outfit(
+            color: const Color(0xFF2C2520),
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 10),
+        if (PaymentMethods.isOn(paymentTypeCash))
+          option(
+            paymentTypeCash,
+            Icons.payments_outlined,
+            'water_sub_pay_cash'.tr,
+            'water_sub_pay_cash_hint'.tr,
+          ),
+        if (PaymentMethods.isOn(paymentTypeOnline))
+          option(
+            paymentTypeOnline,
+            Icons.credit_card_outlined,
+            'water_sub_pay_online'.tr,
+            'pw_card_mobile_money'.tr,
+          ),
+        if (PaymentMethods.isOn(paymentTypeWallet))
+          option(
+            paymentTypeWallet,
+            Icons.account_balance_wallet_outlined,
+            'wallet_title'.tr,
+            walletBalanceSubtitle(),
+          ),
+        if (_noPaymentMethod) const NoPaymentMethodNote(),
+      ],
     );
   }
 

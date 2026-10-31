@@ -5,11 +5,13 @@ import 'package:get/get.dart';
 import 'chat_screen.dart';
 import '../constants/text_styles.dart';
 import '../core/network/api_constants.dart';
+import '../core/network/api_exception.dart';
 import '../core/network/dio_client.dart';
 import '../core/storage/session_store.dart';
 import '../models/chat_repository.dart';
 import '../navigation/bottom_nav_router.dart';
 import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/home_background_blend.dart';
@@ -60,6 +62,39 @@ class _MessagesScreenState extends State<MessagesScreen> {
     }
   }
 
+  /// Asks first, then deletes the conversation on the server
+  /// (chat/deleteConversation) and only then removes it from the list.
+  Future<void> _deleteChat(Map<String, dynamic> chat) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('core_messages_delete_confirm'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text('core_messages_keep'.tr),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text('core_addresses_delete'.tr),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await _getChatRepo().deleteConversation(
+        conversationId: chat['id'],
+        language: currentApiLanguage(),
+      );
+      if (!mounted) return;
+      setState(() => _chats.removeWhere((c) => c['id'] == chat['id']));
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
   Future<void> _loadConversations() async {
     setState(() => _isLoading = true);
     try {
@@ -84,7 +119,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
             vendor['title']?.toString() ??
             vendor['name_en']?.toString() ??
             vendor['name_ar']?.toString() ??
-            (vendorId != null ? 'Vendor #$vendorId' : 'Vendor');
+            (vendorId != null
+                ? 'core_messages_vendor_id'.trParams({'id': vendorId})
+                : 'core_messages_vendor'.tr);
 
         final rawImg =
             vendor['image']?.toString() ??
@@ -107,8 +144,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
         final subtitle =
             lastMsg?['message']?.toString() ??
             (lastMsg?['message_type'] == 'voice'
-                ? 'Voice note'
-                : 'Conversation started');
+                ? 'core_messages_voice_note'.tr
+                : 'core_messages_conversation_started'.tr);
 
         final timeStr = _formatTimestamp(
           lastMsg?['created_at'] ?? conv['updated_at'] ?? conv['created_at'],
@@ -197,12 +234,15 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 alignment: Alignment.center,
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: widget.showBottomNav
                         ? AppBackButton(onTap: () => Navigator.pop(context))
                         : const SizedBox(width: 38),
                   ),
-                  Text('Messages', style: AppTextStyles.heading()),
+                  Text(
+                    'core_messages_title'.tr,
+                    style: AppTextStyles.heading(),
+                  ),
                 ],
               ),
             ),
@@ -227,7 +267,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           setState(() => activeChipIndex = index);
                         },
                         child: Container(
-                          margin: const EdgeInsets.only(right: 10),
+                          margin: const EdgeInsetsDirectional.only(end: 10),
                           padding: const EdgeInsets.symmetric(horizontal: 22),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
@@ -243,7 +283,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             ),
                           ),
                           child: Text(
-                            chips[index],
+                            // Internal value stays English (used to filter);
+                            // only the label is translated.
+                            'core_messages_chip_${chips[index].toLowerCase()}'
+                                .tr,
                             style: GoogleFonts.outfit(
                               color: isSelected
                                   ? Colors.white
@@ -281,7 +324,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                           0.4,
                                       child: Center(
                                         child: Text(
-                                          'No conversations yet',
+                                          'core_messages_empty'.tr,
                                           style: GoogleFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 14,
@@ -318,13 +361,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                         );
                                         _loadConversations();
                                       },
-                                      onDelete: () {
-                                        setState(() {
-                                          _chats.removeWhere(
-                                            (c) => c['id'] == chat['id'],
-                                          );
-                                        });
-                                      },
+                                      onDelete: () => _deleteChat(chat),
                                     );
                                   },
                                 ),
@@ -403,9 +440,9 @@ class _MessageCard extends StatelessWidget {
                   ),
                 ),
                 if (chat['isOnline'] == true)
-                  Positioned(
+                  PositionedDirectional(
                     bottom: 1,
-                    right: 1,
+                    end: 1,
                     child: Container(
                       width: 12,
                       height: 12,
@@ -449,7 +486,7 @@ class _MessageCard extends StatelessWidget {
                   onTap: onDelete,
                   behavior: HitTestBehavior.opaque,
                   child: const Padding(
-                    padding: EdgeInsets.only(left: 8, bottom: 4),
+                    padding: EdgeInsetsDirectional.only(start: 8, bottom: 4),
                     child: Icon(
                       Icons.delete_outline_rounded,
                       color: Color(0xFFFF5E00),

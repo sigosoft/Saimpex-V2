@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'auto_slide_network_images.dart';
@@ -228,7 +229,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                   const SizedBox(height: 8),
                                   Center(
                                     child: Text(
-                                      'Swipe up to customize',
+                                      'core_food_swipe_up'.tr,
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFFA59A94),
                                         fontSize: 11,
@@ -358,7 +359,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'ADD',
+                                      'core_food_add'.tr,
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 15,

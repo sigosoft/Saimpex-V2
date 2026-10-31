@@ -22,6 +22,7 @@ import 'widgets/chatbot_head.dart';
 import 'widgets/home_search_box.dart';
 import 'select_location_screen.dart';
 import 'notifications_screen.dart';
+import 'wallet_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -269,7 +270,7 @@ class HomeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Deliver To:',
+                          'core_home_deliver_to'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 11,
@@ -308,46 +309,49 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // Wallet pill badge
-          Container(
-            height: 36,
-            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFF5E00),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    'lib/assets/images/wallet_home.png',
-                    width: 16,
-                    height: 16,
-                  ),
-                ),
-                const SizedBox(width: 3),
-                Obx(() {
-                  final home = Get.find<HomeController>();
-                  final label = home.homeLoaded.value ? home.walletLabel : '';
-                  if (label.isEmpty) return const SizedBox.shrink();
-                  return Text(
-                    label,
-                    style: GoogleFonts.outfit(
+          // Wallet pill badge: opens the wallet (balance, history, top-up)
+          GestureDetector(
+            onTap: () => Get.to(() => const WalletScreen()),
+            child: Container(
+              height: 36,
+              padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF5E00),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: const BoxDecoration(
                       color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      shape: BoxShape.circle,
                     ),
-                  );
-                }),
-              ],
+                    alignment: Alignment.center,
+                    child: Image.asset(
+                      'lib/assets/images/wallet_home.png',
+                      width: 16,
+                      height: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  Obx(() {
+                    final home = Get.find<HomeController>();
+                    final label = home.homeLoaded.value ? home.walletLabel : '';
+                    if (label.isEmpty) return const SizedBox.shrink();
+                    return Text(
+                      label,
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -376,9 +380,9 @@ class HomeScreen extends StatelessWidget {
                       size: 24,
                     ),
                     if (loaded && count > 0)
-                      Positioned(
+                      PositionedDirectional(
                         top: -2,
-                        right: -2,
+                        end: -2,
                         child: Container(
                           width: 8,
                           height: 8,
@@ -545,19 +549,19 @@ class HomeScreen extends StatelessWidget {
         'local_store',
       ];
       const defaultLabels = {
-        'all': 'All',
-        'food': 'Food',
-        'grocery': 'Grocery',
-        'pharmacy': 'Pharmacy',
-        'water': 'Water',
-        'courier': 'Courier',
-        'express': 'Express',
-        'local_store': 'Local Store',
+        'all': 'core_home_vertical_all',
+        'food': 'core_home_vertical_food',
+        'grocery': 'core_home_vertical_grocery',
+        'pharmacy': 'core_home_vertical_pharmacy',
+        'water': 'core_home_vertical_water',
+        'courier': 'core_home_vertical_courier',
+        'express': 'core_home_vertical_express',
+        'local_store': 'core_home_vertical_local_store',
       };
       return defaultSlugs
           .map(
             (slug) => {
-              'label': defaultLabels[slug] ?? slug,
+              'label': defaultLabels[slug]?.tr ?? slug,
               'slug': slug,
               'icon': icons[slug] ?? 'lib/assets/images/All.png',
               'gradient': _verticalGradient(slug),
@@ -700,23 +704,25 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildNoDataPlaceholder(String title) {
-    String message;
-    final lower = title.toLowerCase();
-    if (lower.contains('recent order')) {
-      message = 'No recent orders available';
-    } else if (lower.contains('trending')) {
-      message = 'No trending items available';
-    } else if (lower.contains('under 30')) {
-      message = 'No items available under 30 minutes';
-    } else if (lower.contains('grocery')) {
-      message = 'No grocery stores available';
-    } else if (lower.contains('pharmac')) {
-      message = 'No pharmacies available';
-    } else if (lower.contains('supplier')) {
-      message = 'No suppliers available';
-    } else {
-      message = 'No data available';
+  /// [sectionKey] is the homeHub section key (trending, recent_orders, …);
+  /// section titles may come translated from the server, so match on the key.
+  Widget _buildNoDataPlaceholder(String sectionKey) {
+    final String message;
+    switch (sectionKey) {
+      case 'recent_orders':
+        message = 'core_home_empty_recent_orders'.tr;
+      case 'trending':
+        message = 'core_home_empty_trending'.tr;
+      case 'under_30_minutes':
+        message = 'core_home_empty_under_30'.tr;
+      case 'top_grocery':
+        message = 'core_home_empty_grocery'.tr;
+      case 'trusted_pharmacies':
+        message = 'core_home_empty_pharmacies'.tr;
+      case 'top_rated_suppliers':
+        message = 'core_home_empty_suppliers'.tr;
+      default:
+        message = 'core_home_empty_default'.tr;
     }
 
     return SizedBox(
@@ -767,6 +773,7 @@ class HomeScreen extends StatelessWidget {
           items.isEmpty || seeAll.isEmpty
               ? null
               : () => _openSeeAll(controller, seeAll),
+          showTrendingIcon: sectionKey == 'trending',
         ),
         const SizedBox(height: 14),
         if (items.isNotEmpty)
@@ -786,7 +793,7 @@ class HomeScreen extends StatelessWidget {
             ),
           )
         else
-          _buildNoDataPlaceholder(title),
+          _buildNoDataPlaceholder(sectionKey),
       ],
     );
   }
@@ -916,7 +923,11 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Section header builder utility
-  Widget _buildSectionHeader(String title, VoidCallback? onSeeAll) {
+  Widget _buildSectionHeader(
+    String title,
+    VoidCallback? onSeeAll, {
+    bool showTrendingIcon = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -933,7 +944,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              if (title.contains('Trending'))
+              if (showTrendingIcon)
                 const Icon(
                   Icons.trending_up_rounded,
                   color: Color(0xFFFF5E00),
@@ -969,7 +980,7 @@ class HomeScreen extends StatelessWidget {
         item['isTemporarilyClosed'] == 'true';
     return Container(
       width: 220,
-      margin: const EdgeInsets.only(right: 14),
+      margin: const EdgeInsetsDirectional.only(end: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1018,9 +1029,9 @@ class HomeScreen extends StatelessWidget {
                         ),
                 ),
                 if ((item['discount'] ?? '').toString().trim().isNotEmpty)
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -1041,9 +1052,9 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 // Star Rating
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  left: 70,
+                  start: 70,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 6,
@@ -1074,9 +1085,9 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 // Heart Fav Icon
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: Obx(() {
                     final liked = controller.isLiked(
                       (item['id'] ?? '').toString(),
@@ -1104,9 +1115,9 @@ class HomeScreen extends StatelessWidget {
                   }),
                 ),
                 if ((item['points'] ?? '').toString().trim().isNotEmpty)
-                  Positioned(
+                  PositionedDirectional(
                     bottom: 8,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -1248,7 +1259,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Closed',
+                  'core_home_closed'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
@@ -1269,7 +1280,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Opens $opensAt',
+                      'core_home_opens_at'.trParams({'time': opensAt}),
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -1331,7 +1342,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Temporarily not accepting',
+                      'core_home_temp_closed_line1'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -1342,7 +1353,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  'orders',
+                  'core_home_temp_closed_line2'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
@@ -1398,7 +1409,7 @@ class HomeScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         Text(
-                          'View Orders',
+                          'core_home_view_orders'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 11,
@@ -1432,7 +1443,7 @@ class HomeScreen extends StatelessWidget {
               ),
             )
           else
-            _buildNoDataPlaceholder(title),
+            _buildNoDataPlaceholder('recent_orders'),
         ],
       );
     });
@@ -1443,7 +1454,7 @@ class HomeScreen extends StatelessWidget {
     final image = textOf('image');
     return Container(
       width: 250,
-      margin: const EdgeInsets.only(right: 12),
+      margin: const EdgeInsetsDirectional.only(end: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1610,7 +1621,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Reorder',
+                        'core_home_reorder'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 10,
@@ -1651,7 +1662,7 @@ class HomeScreen extends StatelessWidget {
         item['isTemporarilyClosed'] == 'true';
     return Container(
       width: 190,
-      margin: const EdgeInsets.only(right: 14),
+      margin: const EdgeInsetsDirectional.only(end: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1700,9 +1711,9 @@ class HomeScreen extends StatelessWidget {
                         ),
                 ),
                 if ((item['discount'] ?? '').toString().trim().isNotEmpty)
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -1723,9 +1734,9 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 // Star Rating overlay (top right)
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  right: 10,
+                  end: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,

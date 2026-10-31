@@ -52,7 +52,7 @@ class _HomeScannerScreenState extends State<HomeScannerScreen> {
       setState(() => _controller = controller);
     } catch (_) {
       if (mounted) {
-        showAppToast('Allow camera access to scan items.');
+        showAppToast('core_scanner_allow_camera'.tr);
       }
     }
   }
@@ -60,7 +60,7 @@ class _HomeScannerScreenState extends State<HomeScannerScreen> {
   Future<void> _capture() async {
     final controller = _controller;
     if (_taking || controller == null || !controller.value.isInitialized) {
-      showAppToast('Allow camera access to scan items.');
+      showAppToast('core_scanner_allow_camera'.tr);
       return;
     }
     setState(() => _taking = true);
@@ -70,7 +70,7 @@ class _HomeScannerScreenState extends State<HomeScannerScreen> {
       setState(() => _lastPath = photo.path);
       Get.back(result: photo.path);
     } catch (_) {
-      if (mounted) showAppToast('Could not capture that photo.');
+      if (mounted) showAppToast('core_scanner_capture_failed'.tr);
     } finally {
       if (mounted) setState(() => _taking = false);
     }
@@ -148,7 +148,7 @@ class _HomeScannerScreenState extends State<HomeScannerScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Upload\nGallery',
+                            'core_scanner_upload_gallery'.tr,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
                               color: Colors.white,
@@ -353,9 +353,17 @@ class _ScanFramePainter extends CustomPainter {
     final thirdW = size.width / 3;
     final thirdH = size.height / 3;
     canvas.drawLine(Offset(thirdW, 0), Offset(thirdW, size.height), grid);
-    canvas.drawLine(Offset(thirdW * 2, 0), Offset(thirdW * 2, size.height), grid);
+    canvas.drawLine(
+      Offset(thirdW * 2, 0),
+      Offset(thirdW * 2, size.height),
+      grid,
+    );
     canvas.drawLine(Offset(0, thirdH), Offset(size.width, thirdH), grid);
-    canvas.drawLine(Offset(0, thirdH * 2), Offset(size.width, thirdH * 2), grid);
+    canvas.drawLine(
+      Offset(0, thirdH * 2),
+      Offset(size.width, thirdH * 2),
+      grid,
+    );
 
     final corner = Paint()
       ..color = Colors.white

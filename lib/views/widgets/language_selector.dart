@@ -125,7 +125,7 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
           code,
         );
         showAppToast(
-          message.isNotEmpty ? message : 'Language updated successfully',
+          message.isNotEmpty ? message : 'core_language_updated'.tr,
           backgroundColor: AppColors.primaryOrange,
         );
       } catch (e) {
@@ -157,7 +157,7 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Select Language',
+              'core_language_select_title'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 20,
@@ -167,7 +167,7 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Choose your preferred language for the best experience.',
+              'core_language_select_subtitle'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF8A7E76),
                 fontSize: 14,
@@ -186,12 +186,14 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
             ],
             const SizedBox(height: 28),
             _SheetActionButton(
-              label: _isSaving ? 'Updating...' : 'Continue',
+              label: _isSaving
+                  ? 'core_language_updating'.tr
+                  : 'core_continue'.tr,
               onTap: _isSaving ? () {} : _handleContinue,
             ),
             const SizedBox(height: 12),
             _SheetActionButton(
-              label: 'Cancel',
+              label: 'cancel'.tr,
               filled: false,
               onTap: () => Navigator.of(context).pop(),
             ),

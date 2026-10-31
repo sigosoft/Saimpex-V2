@@ -28,7 +28,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: AppBackButton(onTap: () => Get.back()),
                 ),
               ),
@@ -43,7 +43,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Courier Booked Successfully!',
+                      'st_courier_booked'.tr,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF1A1A1A),
@@ -81,7 +81,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              'Back to Home',
+                              'st_back_to_home'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFFFF5E00),
                                 fontSize: 13,
@@ -120,7 +120,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              'View Order',
+                              'st_view_order'.tr,
                               style: GoogleFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 13,

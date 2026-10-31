@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RedeemDetailSheet extends StatelessWidget {
@@ -102,9 +103,9 @@ class RedeemDetailSheet extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Positioned(
+                                PositionedDirectional(
                                   top: 16,
-                                  left: 16,
+                                  start: 16,
                                   child: Row(
                                     children: [
                                       Container(
@@ -174,7 +175,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                         children: [
                                           Expanded(
                                             child: Text(
-                                              'REWARD VALUE',
+                                              'core_redeem_reward_value'.tr,
                                               style: GoogleFonts.outfit(
                                                 color: const Color(0xFFA59A94),
                                                 fontSize: 11,
@@ -193,27 +194,29 @@ class RedeemDetailSheet extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 10),
                                       Text(
-                                        (reward['rewardValue'] ??
-                                                'Free up to 1,000 MRU')
-                                            .toString(),
+                                        '${reward['rewardValue'] ?? ''}',
                                         style: GoogleFonts.outfit(
                                           color: const Color(0xFFFF5E00),
                                           fontSize: 20,
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        (reward['rewardDescription'] ??
-                                                'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.')
-                                            .toString(),
-                                        style: GoogleFonts.outfit(
-                                          color: const Color(0xFF6B635C),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.45,
+                                      // No description from the server: show
+                                      // nothing rather than placeholder text.
+                                      if ('${reward['rewardDescription'] ?? ''}'
+                                          .trim()
+                                          .isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '${reward['rewardDescription']}',
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF6B635C),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.45,
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ],
                                   ),
                                 ),
@@ -227,7 +230,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      "What's inside",
+                                      'core_redeem_whats_inside'.tr,
                                       style: GoogleFonts.outfit(
                                         color: const Color(0xFF1A1A1A),
                                         fontSize: 16,
@@ -350,7 +353,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(28),
                                     ),
                                     child: Text(
-                                      'Redeem',
+                                      'core_redeem_redeem'.tr,
                                       style: GoogleFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 16,

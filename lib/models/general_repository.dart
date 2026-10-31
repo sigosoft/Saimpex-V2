@@ -34,6 +34,71 @@ class GeneralRepository {
     return slides;
   }
 
+  /// Stores and products across every category for a keyword (GET search):
+  /// only stores that deliver to the given point, nearest first. Store rows
+  /// carry `vertical` (food, grocery, pharmacy, water, local_store, …);
+  /// product rows are food or grocery with their `store`.
+  Future<
+    ({List<Map<String, dynamic>> stores, List<Map<String, dynamic>> products})
+  >
+  search({
+    required String query,
+    required double latitude,
+    required double longitude,
+    required String language,
+    int limit = 20,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.search,
+        queryParameters: {
+          'q': query.trim(),
+          'latitude': latitude,
+          'longitude': longitude,
+          'limit': limit,
+        },
+      ),
+      language,
+    );
+    return _searchResult(envelope.data);
+  }
+
+  /// Search by photo (image-recognition/analyze, without `type`): the server
+  /// identifies the product and answers like [search]. Needs a session.
+  Future<
+    ({List<Map<String, dynamic>> stores, List<Map<String, dynamic>> products})
+  >
+  searchByImage({
+    required String imagePath,
+    required double latitude,
+    required double longitude,
+    required String language,
+    int limit = 20,
+  }) async {
+    final envelope = await _send(
+      () async => _client.dio.post(
+        ApiConstants.imageSearch,
+        data: FormData.fromMap({
+          'image': await MultipartFile.fromFile(imagePath),
+          'latitude': '$latitude',
+          'longitude': '$longitude',
+          'limit': '$limit',
+        }),
+      ),
+      language,
+    );
+    return _searchResult(envelope.data);
+  }
+
+  ({List<Map<String, dynamic>> stores, List<Map<String, dynamic>> products})
+  _searchResult(dynamic raw) {
+    final data = asJsonMap(raw) ?? <String, dynamic>{};
+    List<Map<String, dynamic>> rows(dynamic list) => list is List
+        ? list.map(asJsonMap).whereType<Map<String, dynamic>>().toList()
+        : const [];
+    return (stores: rows(data['stores']), products: rows(data['products']));
+  }
+
   Future<Map<String, dynamic>> fetchHome({
     required double latitude,
     required double longitude,
@@ -177,7 +242,8 @@ class GeneralRepository {
       final enabled = vertical['is_enabled'];
       if (enabled == false || enabled == 0 || enabled == '0') continue;
       final iconPath = vertical['icon']?.toString().trim();
-      final hasIcon = iconPath != null &&
+      final hasIcon =
+          iconPath != null &&
           iconPath.isNotEmpty &&
           iconPath.toLowerCase() != 'null';
       verticals.add({
@@ -191,9 +257,7 @@ class GeneralRepository {
         'icon': hasIcon ? ApiConstants.mediaUrl(iconPath) : null,
       });
     }
-    verticals.sort(
-      (a, b) => (a['sort'] as int).compareTo(b['sort'] as int),
-    );
+    verticals.sort((a, b) => (a['sort'] as int).compareTo(b['sort'] as int));
     return verticals;
   }
 
@@ -215,11 +279,13 @@ class GeneralRepository {
       final isOpen = open == null || open == 1 || open == true || open == '1';
       final distance = vendor['distance_km'];
       final busyMode = _asInt(vendor['busy_mode']);
-      final isFav = vendor['is_favourite'] == 1 ||
+      final isFav =
+          vendor['is_favourite'] == 1 ||
           vendor['is_favourite'] == true ||
           vendor['is_favourite'] == '1';
       cards.add({
-        'id': '${vendor['id'] ?? vendor['vendor_id'] ?? vendor['pharmacy_id'] ?? ''}',
+        'id':
+            '${vendor['id'] ?? vendor['vendor_id'] ?? vendor['pharmacy_id'] ?? ''}',
         'title': name,
         'subtitle': cuisine.isNotEmpty ? cuisine : category,
         'rating': vendor['rating']?.toString() ?? '',
@@ -250,7 +316,8 @@ class GeneralRepository {
             ? name
             : (order['vendor_name'] ?? order['title'] ?? '').toString(),
         'rating': order['rating']?.toString() ?? '',
-        'itemPrefix': (order['item_name'] ?? order['menu_name'] ?? '').toString(),
+        'itemPrefix': (order['item_name'] ?? order['menu_name'] ?? '')
+            .toString(),
         'qty': order['quantity'] == null ? '' : 'x${order['quantity']}',
         'itemSuffix': '',
         'date': (order['ordered_at'] ?? order['date'] ?? '').toString(),
@@ -343,7 +410,9 @@ class GeneralRepository {
     for (final key in ['image', 'profile_image', 'avatar', 'photo']) {
       final value = map[key];
       if (value is Map) {
-        final nested = _cleanText(value['url'] ?? value['path'] ?? value['image']);
+        final nested = _cleanText(
+          value['url'] ?? value['path'] ?? value['image'],
+        );
         if (nested.isNotEmpty) return nested;
         continue;
       }
@@ -391,10 +460,7 @@ class GeneralRepository {
     final about = asJsonMap(data?['about']) ?? data ?? <String, dynamic>{};
     final title = _localized(about, 'title', language);
     final content = _localized(about, 'content', language);
-    return (
-      title: title.isEmpty ? 'About Us' : title,
-      content: content,
-    );
+    return (title: title.isEmpty ? 'About Us' : title, content: content);
   }
 
   Future<({String title, String content})> fetchPrivacyPolicy(
@@ -409,10 +475,7 @@ class GeneralRepository {
         asJsonMap(data?['privacy_policy']) ?? data ?? <String, dynamic>{};
     final title = _localized(policy, 'title', language);
     final content = _localized(policy, 'content', language);
-    return (
-      title: title.isEmpty ? 'Privacy Policy' : title,
-      content: content,
-    );
+    return (title: title.isEmpty ? 'Privacy Policy' : title, content: content);
   }
 
   Future<({String title, String content})> fetchTermsAndConditions(
@@ -445,10 +508,7 @@ class GeneralRepository {
     final phone = (countryCode.isNotEmpty && mobile.isNotEmpty)
         ? '$countryCode $mobile'
         : (mobile.isNotEmpty ? mobile : countryCode);
-    return (
-      email: email,
-      phone: phone,
-    );
+    return (email: email, phone: phone);
   }
 
   Future<ApiEnvelope> _send(

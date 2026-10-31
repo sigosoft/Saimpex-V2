@@ -18,53 +18,28 @@ class Under30MinScreen extends StatelessWidget {
     final controller = Get.find<HomeController>();
 
     final filters = [
-      {'label': 'Filter', 'icon': Image.asset("lib/assets/images/Filter.png")},
-      {'label': 'Veg', 'isVeg': true},
-      {'label': 'Offers', 'icon': Image.asset("lib/assets/images/Offer.png")},
-      {'label': 'Ratings 4.0+', 'icon': Icons.star_rounded},
+      // 'label' is matched below; 'text' is what the chip shows.
+      {
+        'label': 'Filter',
+        'text': 'orders_chip_filter'.tr,
+        'icon': Image.asset("lib/assets/images/Filter.png"),
+      },
+      {'label': 'Veg', 'text': 'orders_chip_veg'.tr, 'isVeg': true},
+      {
+        'label': 'Offers',
+        'text': 'orders_chip_offers'.tr,
+        'icon': Image.asset("lib/assets/images/Offer.png"),
+      },
+      {
+        'label': 'Ratings 4.0+',
+        'text': 'orders_chip_ratings'.trParams({'rating': '4.0'}),
+        'icon': Icons.star_rounded,
+      },
     ];
 
-    final List<Map<String, dynamic>> items = [
-      {
-        'id': 'u1',
-        'title': 'Al Fantasia',
-        'subtitle': 'Moroccan • Traditional',
-        'rating': '4.6',
-        'time': '30-35 min',
-        'dist': '10 Km',
-        'discount': '50% OFF',
-        'points': '200 Points Available',
-        'isClosed': false,
-        'opensAt': '10 AM',
-        'image':
-            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=350&auto=format&fit=crop',
-      },
-      {
-        'id': 'u2',
-        'title': 'Tarif Restaurant',
-        'subtitle': 'Lebanese • Grill',
-        'rating': '4.7',
-        'time': '30-35 min',
-        'dist': '10 Km',
-        'discount': '30% OFF',
-        'points': '200 Points Available',
-        'isTemporarilyClosed': false,
-        'image':
-            'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=350&auto=format&fit=crop',
-      },
-      {
-        'id': 'u3',
-        'title': 'Portuguese restaurant',
-        'subtitle': 'Lebanese • Grill',
-        'rating': '4.7',
-        'time': '30-35 min',
-        'dist': '10 Km',
-        'discount': '30% OFF',
-        'points': '200 Points Available',
-        'image':
-            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=350&auto=format&fit=crop',
-      },
-    ];
+    // Restaurants that deliver within 30 minutes, from homeHub's
+    // under_30_minutes (loaded with Home).
+    final List<Map<String, dynamic>> items = controller.homeUnder30.toList();
 
     return Container(
       decoration: const BoxDecoration(
@@ -108,7 +83,7 @@ class Under30MinScreen extends StatelessWidget {
                         // Back button card
                         AppBackButton(onTap: () => Get.back()),
                         Text(
-                          title,
+                          title == 'Food' ? 'search_vertical_food'.tr : title,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 18,
@@ -128,71 +103,71 @@ class Under30MinScreen extends StatelessWidget {
             ScanSearchHost(
               builder: (controller) {
                 return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.search_rounded,
-                      color: Color(0xFFA59A94),
-                      size: 20,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: controller,
-                        decoration: InputDecoration(
-                          hintText: 'What do you need today?',
-                          hintStyle: GoogleFonts.outfit(
-                            color: const Color(0xFFA59A94),
-                            fontSize: 13,
-                          ),
-                          border: InputBorder.none,
-                          isDense: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
                         ),
-                      ),
+                      ],
                     ),
-                    SearchCameraButton(
-                      controller: controller,
-                      child: Image.asset(
-                        "lib/assets/images/Camera.png",
-                        width: 20,
-                        height: 20,
-                      ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.search_rounded,
+                          color: Color(0xFFA59A94),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: controller,
+                            decoration: InputDecoration(
+                              hintText: 'orders_search_hint'.tr,
+                              hintStyle: GoogleFonts.outfit(
+                                color: const Color(0xFFA59A94),
+                                fontSize: 13,
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                        SearchCameraButton(
+                          controller: controller,
+                          child: Image.asset(
+                            "lib/assets/images/Camera.png",
+                            width: 20,
+                            height: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFFF0E0),
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Image.asset(
+                            "lib/assets/images/Voice.png",
+                            width: 16,
+                            height: 16,
+                            color: const Color(0xFFFF5E00),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFF0E0),
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Image.asset(
-                        "lib/assets/images/Voice.png",
-                        width: 16,
-                        height: 16,
-                        color: const Color(0xFFFF5E00),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+                  ),
+                );
               },
             ),
             const SizedBox(height: 16),
@@ -202,7 +177,7 @@ class Under30MinScreen extends StatelessWidget {
               children: [
                 for (final filter in filters)
                   AppFilterChip(
-                    label: filter['label'] as String,
+                    label: filter['text'] as String,
                     onTap: () {
                       if (filter['label'] == 'Filter') {
                         _showFilterBottomSheet(context);
@@ -213,18 +188,16 @@ class Under30MinScreen extends StatelessWidget {
                     leading: filter['isVeg'] == true
                         ? AppFilterChip.vegLeading()
                         : filter['icon'] is IconData
-                            ? AppFilterChip.iconLeading(
-                                filter['icon'] as IconData,
-                                color: (filter['label'] as String)
-                                        .contains('Rating')
-                                    ? const Color(0xFFFFAE00)
-                                    : const Color(0xFF2C2520),
-                              )
-                            : filter['icon'] is Widget
-                                ? AppFilterChip.widgetLeading(
-                                    filter['icon'] as Widget,
-                                  )
-                                : null,
+                        ? AppFilterChip.iconLeading(
+                            filter['icon'] as IconData,
+                            color:
+                                (filter['label'] as String).contains('Rating')
+                                ? const Color(0xFFFFAE00)
+                                : const Color(0xFF2C2520),
+                          )
+                        : filter['icon'] is Widget
+                        ? AppFilterChip.widgetLeading(filter['icon'] as Widget)
+                        : null,
                   ),
               ],
             ),
@@ -236,7 +209,7 @@ class Under30MinScreen extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    'Under 30 Minutes',
+                    'orders_under_30_title'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 16,
@@ -250,306 +223,349 @@ class Under30MinScreen extends StatelessWidget {
 
             // 5. Restaurants Vertical List
             Expanded(
-              child: ListView.builder(
-                itemCount: items.length,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  final isClosed =
-                      item['isClosed'] == true || item['isClosed'] == 'true';
-                  final isTemporarilyClosed =
-                      item['isTemporarilyClosed'] == true ||
-                      item['isTemporarilyClosed'] == 'true';
-                  return GestureDetector(
-                    onTap: () {
-                      Get.to(() => RestaurantDetailsScreen(restaurant: item));
-                    },
-                    child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    height: 220,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: const Color(0xFFEAD8C9),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
+              child: items.isEmpty
+                  ? Center(
+                      child: Text(
+                        'under30_empty'.tr,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFA59A94),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
-                      ],
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Banner Image & Badges
-                        Expanded(
-                          child: Stack(
-                            children: [
-                              Positioned.fill(
-                                child: Image.network(
-                                  item['image']!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                        color: const Color(0xFFF3EFEA),
-                                        child: const Icon(
-                                          Icons.image_not_supported_outlined,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: items.length,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        final isClosed =
+                            item['isClosed'] == true ||
+                            item['isClosed'] == 'true';
+                        final isTemporarilyClosed =
+                            item['isTemporarilyClosed'] == true ||
+                            item['isTemporarilyClosed'] == 'true';
+                        return GestureDetector(
+                          onTap: () {
+                            Get.to(
+                              () => RestaurantDetailsScreen(restaurant: item),
+                            );
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            height: 220,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFFEAD8C9),
+                                width: 1,
                               ),
-                              // Discount Overlay
-                              Positioned(
-                                top: 10,
-                                left: 10,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE03A3A),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    item['discount']!,
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Star Rating overlay
-                              Positioned(
-                                top: 10,
-                                left: 70,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.star_rounded,
-                                        color: Color(0xFFFFAE00),
-                                        size: 10,
-                                      ),
-                                      const SizedBox(width: 2),
-                                      Text(
-                                        item['rating']!,
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.black,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // Heart overlay
-                              Positioned(
-                                top: 10,
-                                right: 10,
-                                child: Obx(() {
-                                  final liked = controller.isLiked(item['id']!);
-                                  return GestureDetector(
-                                    onTap: () => controller.toggleLike(
-                                      item['id']!,
-                                      item,
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        liked
-                                            ? Icons.favorite_rounded
-                                            : Icons.favorite_border_rounded,
-                                        color: const Color(0xFFE03A3A),
-                                        size: 16,
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ),
-                              // Bottom Left Points overlay with Coin.png
-                              Positioned(
-                                bottom: 8,
-                                left: 10,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Image.asset(
-                                        "lib/assets/images/Coin.png",
-                                        width: 12,
-                                        height: 12,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        item['points']!,
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.white,
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // Bottom Right 30m overlay with clock icon
-                              Positioned(
-                                bottom: 8,
-                                right: 10,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.access_time_rounded,
-                                        color: Colors.white,
-                                        size: 11,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '30m',
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.white,
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              if (isClosed) ...[
-                                Positioned.fill(
-                                  child: Container(
-                                    color: Colors.black.withOpacity(0.35),
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: _buildClosedOverlay(
-                                    (item['opensAt'] ?? '10 AM').toString(),
-                                  ),
-                                ),
-                              ] else if (isTemporarilyClosed) ...[
-                                Positioned.fill(
-                                  child: Container(
-                                    color: Colors.black.withOpacity(0.35),
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: _buildTemporarilyClosedOverlay(),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.02),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
                                 ),
                               ],
-                            ],
-                          ),
-                        ),
-                        // Info Details
-                        Opacity(
-                          opacity: (isClosed || isTemporarilyClosed)
-                              ? 0.65
-                              : 1.0,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
+                            ),
+                            clipBehavior: Clip.antiAlias,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  item['title']!,
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFF2C2520),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                // Banner Image & Badges
+                                Expanded(
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: Image.network(
+                                          item['image']!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) => Container(
+                                                color: const Color(0xFFF3EFEA),
+                                                child: const Icon(
+                                                  Icons
+                                                      .image_not_supported_outlined,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                        ),
+                                      ),
+                                      // Discount Overlay
+                                      PositionedDirectional(
+                                        top: 10,
+                                        start: 10,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFE03A3A),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            item['discount']!,
+                                            style: GoogleFonts.outfit(
+                                              color: Colors.white,
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // Star Rating overlay
+                                      PositionedDirectional(
+                                        top: 10,
+                                        start: 70,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(
+                                              0.9,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.star_rounded,
+                                                color: Color(0xFFFFAE00),
+                                                size: 10,
+                                              ),
+                                              const SizedBox(width: 2),
+                                              Text(
+                                                item['rating']!,
+                                                style: GoogleFonts.outfit(
+                                                  color: Colors.black,
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      // Heart overlay
+                                      PositionedDirectional(
+                                        top: 10,
+                                        end: 10,
+                                        child: Obx(() {
+                                          final liked = controller.isLiked(
+                                            item['id']!,
+                                          );
+                                          return GestureDetector(
+                                            onTap: () => controller.toggleLike(
+                                              item['id']!,
+                                              item,
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(5),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                liked
+                                                    ? Icons.favorite_rounded
+                                                    : Icons
+                                                          .favorite_border_rounded,
+                                                color: const Color(0xFFE03A3A),
+                                                size: 16,
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                      // Bottom Left Points overlay with Coin.png
+                                      PositionedDirectional(
+                                        bottom: 8,
+                                        start: 10,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.6,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Image.asset(
+                                                "lib/assets/images/Coin.png",
+                                                width: 12,
+                                                height: 12,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                item['points']!,
+                                                style: GoogleFonts.outfit(
+                                                  color: Colors.white,
+                                                  fontSize: 8,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      // Bottom Right 30m overlay with clock icon
+                                      PositionedDirectional(
+                                        bottom: 8,
+                                        end: 10,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.6,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.access_time_rounded,
+                                                color: Colors.white,
+                                                size: 11,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'orders_30_min'.tr,
+                                                style: GoogleFonts.outfit(
+                                                  color: Colors.white,
+                                                  fontSize: 8,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      if (isClosed) ...[
+                                        Positioned.fill(
+                                          child: Container(
+                                            color: Colors.black.withOpacity(
+                                              0.35,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned.fill(
+                                          child: _buildClosedOverlay(
+                                            (item['opensAt'] ?? '10 AM')
+                                                .toString(),
+                                          ),
+                                        ),
+                                      ] else if (isTemporarilyClosed) ...[
+                                        Positioned.fill(
+                                          child: Container(
+                                            color: Colors.black.withOpacity(
+                                              0.35,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned.fill(
+                                          child:
+                                              _buildTemporarilyClosedOverlay(),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  item['subtitle']!,
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFF7A6A60),
-                                    fontSize: 11,
+                                // Info Details
+                                Opacity(
+                                  opacity: (isClosed || isTemporarilyClosed)
+                                      ? 0.65
+                                      : 1.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item['title']!,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF2C2520),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          item['subtitle']!,
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF7A6A60),
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.access_time_rounded,
+                                              color: Color(0xFFFF5E00),
+                                              size: 14,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              item['time']!,
+                                              style: GoogleFonts.outfit(
+                                                color: const Color(0xFF7A6A60),
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            const Icon(
+                                              Icons.location_on_outlined,
+                                              color: Color(0xFFFF5E00),
+                                              size: 14,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              item['dist']!,
+                                              style: GoogleFonts.outfit(
+                                                color: const Color(0xFF7A6A60),
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.access_time_rounded,
-                                      color: Color(0xFFFF5E00),
-                                      size: 14,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      item['time']!,
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF7A6A60),
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    const Icon(
-                                      Icons.location_on_outlined,
-                                      color: Color(0xFFFF5E00),
-                                      size: 14,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      item['dist']!,
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF7A6A60),
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  ),
-                );
-                },
-              ),
             ),
           ],
         ),
@@ -579,7 +595,7 @@ class Under30MinScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Closed',
+                  'orders_closed'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
@@ -600,7 +616,7 @@ class Under30MinScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Opens $opensAt',
+                      'orders_opens_at'.trParams({'time': opensAt}),
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -662,7 +678,7 @@ class Under30MinScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Temporarily not accepting',
+                      'orders_temp_closed_line1'.tr,
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
@@ -673,7 +689,7 @@ class Under30MinScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  'orders',
+                  'orders_temp_closed_line2'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
@@ -743,6 +759,23 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
     'Cost: High to Low',
   ];
 
+  /// Shown text for a chip value (the values stay English for matching).
+  static String _chipText(String value) => switch (value) {
+    'Spicy' => 'orders_tag_spicy'.tr,
+    'Non Spicy' => 'orders_tag_non_spicy'.tr,
+    'Sugar Free' => 'orders_tag_sugar_free'.tr,
+    'Mild Sugar' => 'orders_tag_mild_sugar'.tr,
+    'Offers' => 'orders_chip_offers'.tr,
+    'Ratings: 4.5+' => 'orders_sheet_ratings'.trParams({'rating': '4.5'}),
+    'Ratings: 4.0+' => 'orders_sheet_ratings'.trParams({'rating': '4.0'}),
+    'Ratings: 3.5+' => 'orders_sheet_ratings'.trParams({'rating': '3.5'}),
+    'Relevance' => 'orders_sort_relevance'.tr,
+    'Delivery Time' => 'orders_sort_delivery_time'.tr,
+    'Cost: Low to High' => 'orders_sort_cost_low_high'.tr,
+    'Cost: High to Low' => 'orders_sort_cost_high_low'.tr,
+    _ => value,
+  };
+
   Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -759,7 +792,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
           ),
         ),
         child: Text(
-          label,
+          _chipText(label),
           style: GoogleFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5E00)
@@ -785,7 +818,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         children: tags.map((tag) {
           final isSelected = selectedList.contains(tag);
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: _buildChip(tag, isSelected, () => onSelected(tag)),
           );
         }).toList(),
@@ -806,7 +839,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         children: options.map((option) {
           final isSelected = selectedOption == option;
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: _buildChip(option, isSelected, () => onSelected(option)),
           );
         }).toList(),
@@ -841,7 +874,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       children: [
                         const SizedBox(width: 60),
                         Text(
-                          'Filters',
+                          'orders_filters'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 16,
@@ -857,7 +890,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                             });
                           },
                           child: Text(
-                            'Clear all',
+                            'orders_clear_all_link'.tr,
                             style: GoogleFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 12,
@@ -901,7 +934,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Price Range',
+                          'orders_price_range'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
@@ -909,7 +942,8 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           ),
                         ),
                         Text(
-                          '${priceRange.start.round()} MRU - ${priceRange.end.round()} MRU',
+                          '${'mru'.trParams({'amount': '${priceRange.start.round()}'})} - '
+                          '${'mru'.trParams({'amount': '${priceRange.end.round()}'})}',
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 14,
@@ -959,7 +993,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '0 MRU',
+                          'mru'.trParams({'amount': '0'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
@@ -967,7 +1001,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           ),
                         ),
                         Text(
-                          '3000 MRU',
+                          'mru'.trParams({'amount': '3000'}),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
@@ -982,7 +1016,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                   // Sort by Header
                   Center(
                     child: Text(
-                      'Sort by',
+                      'orders_sort_by'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
@@ -1023,7 +1057,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Clear All',
+                                  'orders_clear_all'.tr,
                                   style: GoogleFonts.outfit(
                                     color: const Color(0xFFFF5E00),
                                     fontSize: 14,
@@ -1065,7 +1099,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Apply',
+                                  'orders_apply'.tr,
                                   style: GoogleFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 14,

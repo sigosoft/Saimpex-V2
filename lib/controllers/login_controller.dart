@@ -30,7 +30,7 @@ class LoginController extends GetxController {
 
     final mobile = phoneController.text.replaceAll(RegExp(r'\D'), '');
     if (mobile.isEmpty) {
-      showAppToast('Please enter your WhatsApp number');
+      showAppToast('core_login_enter_whatsapp'.tr);
       return;
     }
 
@@ -69,7 +69,7 @@ class LoginController extends GetxController {
   void loginAsGuest() {
     Get.find<SessionStore>().clear();
     showAppToast(
-      'Logged in as Guest successfully',
+      'core_login_guest_success'.tr,
       backgroundColor: const Color(0xFF333333),
     );
   }

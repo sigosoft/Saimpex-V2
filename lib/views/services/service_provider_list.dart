@@ -14,12 +14,14 @@ class ServiceProviderList extends StatefulWidget {
     super.key,
     required this.vertical,
     required this.cardBuilder,
-    this.emptyText = 'No providers available near you yet',
+    this.emptyText,
   });
 
   final String vertical;
   final Widget Function(Map<String, String> provider) cardBuilder;
-  final String emptyText;
+
+  /// Shown when no provider is found; defaults to a translated message.
+  final String? emptyText;
 
   @override
   State<ServiceProviderList> createState() => _ServiceProviderListState();
@@ -62,12 +64,16 @@ class _ServiceProviderListState extends State<ServiceProviderList> {
         if (snapshot.hasError) {
           final error = snapshot.error;
           return _message(
-            error is ApiException ? error.message : 'Could not load providers',
+            error is ApiException
+                ? error.message
+                : 'svc_providers_load_failed'.tr,
             retry: true,
           );
         }
         final providers = snapshot.data ?? const [];
-        if (providers.isEmpty) return _message(widget.emptyText);
+        if (providers.isEmpty) {
+          return _message(widget.emptyText ?? 'svc_no_providers'.tr);
+        }
         return Column(
           children: [
             for (var i = 0; i < providers.length; i++) ...[
@@ -100,7 +106,7 @@ class _ServiceProviderListState extends State<ServiceProviderList> {
               TextButton(
                 onPressed: () => setState(() => _providers = _load()),
                 child: Text(
-                  'Retry',
+                  'retry'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontWeight: FontWeight.w700,

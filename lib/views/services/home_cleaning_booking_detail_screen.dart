@@ -6,14 +6,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../help_support_screen.dart';
 import '../../widgets/app_back_button.dart';
+import 'home_cleaning_cart_screen.dart' show homeCleaningLabelText;
 
 class HomeCleaningBookingDetailScreen extends StatelessWidget {
   final Map<String, dynamic> booking;
 
-  const HomeCleaningBookingDetailScreen({
-    super.key,
-    required this.booking,
-  });
+  const HomeCleaningBookingDetailScreen({super.key, required this.booking});
 
   String get _bookingId => (booking['id'] as String?) ?? '22789002';
   String get _slot =>
@@ -28,28 +26,28 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
 
   static const _statusSteps = [
     {
-      'label': 'Booking\nConfirmed',
+      'label': 'svc_step_booking_confirmed',
       'time': '15 Aug 2026,\n10:00 AM',
       'icon': Icons.check_rounded,
       'custom': null,
       'done': true,
     },
     {
-      'label': 'Cleaner\nAssigned',
+      'label': 'svc_step_cleaner_assigned',
       'time': '15 Aug 2026,\n10:05 AM',
       'icon': Icons.person_rounded,
       'custom': 'person',
       'done': true,
     },
     {
-      'label': 'Cleaner\nArriving',
+      'label': 'svc_step_cleaner_arriving',
       'time': '15 Aug 2026,\n10:10 AM',
       'icon': Icons.directions_car_filled_rounded,
       'custom': null,
       'done': true,
     },
     {
-      'label': 'Completed',
+      'label': 'svc_step_completed',
       'time': '',
       'icon': Icons.check_rounded,
       'custom': null,
@@ -88,30 +86,34 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding:
-                      EdgeInsets.fromLTRB(16, 8, 16, 24 + bottomInset + 80),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    8,
+                    16,
+                    24 + bottomInset + 80,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStatusCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Spaces'),
+                      _sectionTitle('svc_spaces'.tr),
                       const SizedBox(height: 12),
                       _buildLineItemsCard(_spaces),
                       const SizedBox(height: 22),
-                      _sectionTitle('Make it extra clean'),
+                      _sectionTitle('svc_extra_clean'.tr),
                       const SizedBox(height: 12),
                       _buildLineItemsCard(_extras),
                       const SizedBox(height: 22),
                       _buildCleaningProductsSection(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Cleaning Details'),
+                      _sectionTitle('svc_cleaning_details'.tr),
                       const SizedBox(height: 12),
                       _buildAddressCard(),
                       const SizedBox(height: 10),
                       _buildSlotCard(),
                       const SizedBox(height: 22),
-                      _sectionTitle('Assigned Cleaner'),
+                      _sectionTitle('svc_assigned_cleaner'.tr),
                       const SizedBox(height: 12),
                       _buildCleanerCard(),
                       const SizedBox(height: 22),
@@ -136,7 +138,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'Booking #$_bookingId',
+              'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -155,7 +157,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFE0D6CC), width: 1),
               ),
               child: Text(
-                'Help',
+                'svc_help'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
@@ -202,9 +204,9 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 18),
+            padding: const EdgeInsetsDirectional.only(start: 4, bottom: 18),
             child: Text(
-              'Booking Status',
+              'svc_booking_status'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 15.5,
@@ -295,15 +297,11 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                   size: const Size(16, 18),
                   painter: _PersonStatusIconPainter(color: iconColor),
                 )
-              : Icon(
-                  step['icon'] as IconData,
-                  color: iconColor,
-                  size: 19,
-                ),
+              : Icon(step['icon'] as IconData, color: iconColor, size: 19),
         ),
         const SizedBox(height: 10),
         Text(
-          step['label'] as String,
+          (step['label'] as String).tr,
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             color: const Color(0xFF1A1A1A),
@@ -361,7 +359,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          rows[i]['label']!,
+                          homeCleaningLabelText(rows[i]['label']!),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 14.5,
@@ -403,9 +401,9 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _sectionTitle('Cleaning Products')),
+            Expanded(child: _sectionTitle('svc_cleaning_products'.tr)),
             Text(
-              '+120 MRU',
+              'svc_plus_mru'.trParams({'amount': '120'}),
               style: GoogleFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 14,
@@ -440,7 +438,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Provider will provide products',
+                  'svc_provider_provides_products'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
@@ -449,7 +447,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Cleaning products will be provided by the service provider',
+                  'svc_provider_products_hint'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,
@@ -553,7 +551,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your Slot',
+                  'svc_your_slot'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13.5,
@@ -642,7 +640,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '(10k + reviews)',
+                      'svc_reviews_count_paren'.trParams({'count': '10k+'}),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 12,
@@ -683,7 +681,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11.5,
@@ -692,22 +690,22 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _detailRow('Total', '770 MRU'),
+          _detailRow('svc_total'.tr, 'mru'.trParams({'amount': '770'})),
           const SizedBox(height: 10),
           _detailRow(
-            'Redeemed points',
-            '-50 MRU',
+            'svc_redeemed_points'.tr,
+            '-${'mru'.trParams({'amount': '50'})}',
             valueColor: const Color(0xFFFF5E00),
           ),
           const SizedBox(height: 10),
-          _detailRow('Tax', '10 MRU'),
+          _detailRow('svc_tax'.tr, 'mru'.trParams({'amount': '10'})),
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF4A4A4A), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'Total paid',
+                'svc_total_paid'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
@@ -716,7 +714,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '730 MRU',
+                'mru'.trParams({'amount': '730'}),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -773,7 +771,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
           ),
           child: Text(
-            'Cancel',
+            'cancel'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15.5,

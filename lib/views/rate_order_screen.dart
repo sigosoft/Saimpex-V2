@@ -23,21 +23,20 @@ class RateOrderScreen extends StatefulWidget {
 class _RateOrderScreenState extends State<RateOrderScreen> {
   int restaurantRating = 0;
   int deliveryRating = 0;
-  int item1Rating = 0;
-  int item2Rating = 0;
 
   final Set<String> selectedRestaurantTags = {};
   final Set<String> selectedDeliveryTags = {};
 
+  // Translation keys; the comment sent to the server uses the shown text.
   final List<String> restaurantTags = [
-    'Tasty Food',
-    'Clean packaging',
-    'Good portion size',
+    'orders_tag_tasty_food',
+    'orders_tag_clean_packaging',
+    'orders_tag_good_portion',
   ];
   final List<String> deliveryTags = [
-    'Fast Delivery',
-    'Polite',
-    'Safe Handling',
+    'orders_tag_fast_delivery',
+    'orders_tag_polite',
+    'orders_tag_safe_handling',
   ];
 
   final TextEditingController _reviewController = TextEditingController();
@@ -46,22 +45,24 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
   Future<void> _submit() async {
     if (_submitting) return;
     final orderId = widget.orderId;
-    if (orderId == null || orderId < 1 || !Get.isRegistered<OrderRepository>()) {
+    if (orderId == null ||
+        orderId < 1 ||
+        !Get.isRegistered<OrderRepository>()) {
       showAppToast(
-        'This order cannot be rated right now',
+        'orders_cannot_rate'.tr,
         backgroundColor: const Color(0xFFEF4444),
       );
       return;
     }
     if (restaurantRating < 1) {
       showAppToast(
-        'Please rate the store before submitting',
+        'orders_rate_store_first'.tr,
         backgroundColor: const Color(0xFFEF4444),
       );
       return;
     }
     String comment(Set<String> tags, String text) =>
-        [...tags, if (text.isNotEmpty) text].join(', ');
+        [...tags.map((tag) => tag.tr), if (text.isNotEmpty) text].join(', ');
     setState(() => _submitting = true);
     try {
       final message = await Get.find<OrderRepository>().submitRating(
@@ -77,7 +78,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
       );
       if (!mounted) return;
       showAppToast(
-        message.isEmpty ? 'Rating submitted successfully!' : message,
+        message.isEmpty ? 'orders_rating_submitted'.tr : message,
         backgroundColor: const Color(0xFF00B25C),
       );
       Get.off(() => RatingReviewsScreen(target: widget.reviewTarget));
@@ -112,13 +113,11 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
             alignment: Alignment.center,
             children: [
               Align(
-                alignment: Alignment.centerLeft,
-                child: AppBackButton(
-                  onTap: () => Navigator.pop(context),
-                ),
+                alignment: AlignmentDirectional.centerStart,
+                child: AppBackButton(onTap: () => Navigator.pop(context)),
               ),
               Text(
-                'Rate Your Order',
+                'orders_rate_your_order'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
@@ -141,7 +140,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   _buildExperienceCard(
                     imageUrl:
                         'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&auto=format&fit=crop',
-                    title: 'Rate Restaurant Review',
+                    title: 'orders_rate_restaurant'.tr,
                     rating: restaurantRating,
                     onRatingChanged: (value) {
                       setState(() => restaurantRating = value);
@@ -154,7 +153,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                     imageUrl:
                         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop',
                     fallbackAsset: 'lib/assets/images/delivery_icon.png',
-                    title: 'Rate Your Delivery Experience',
+                    title: 'orders_rate_delivery'.tr,
                     rating: deliveryRating,
                     onRatingChanged: (value) {
                       setState(() => deliveryRating = value);
@@ -162,39 +161,11 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                     tags: deliveryTags,
                     selectedTags: selectedDeliveryTags,
                   ),
+                  // Per-item ratings were sample products and were never
+                  // sent; the order rating covers the store and delivery.
                   const SizedBox(height: 20),
                   Text(
-                    'Rate Ordered Items',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildItemRateCard(
-                    title: 'Tomato',
-                    description: '1Kg',
-                    rating: item1Rating,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=350&auto=format&fit=crop',
-                    onRatingChanged: (value) {
-                      setState(() => item1Rating = value);
-                    },
-                  ),
-                  _buildItemRateCard(
-                    title: 'Banana',
-                    description: '2 Kg',
-                    rating: item2Rating,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&auto=format&fit=crop',
-                    onRatingChanged: (value) {
-                      setState(() => item2Rating = value);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Detailed Review',
+                    'orders_detailed_review'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
@@ -216,7 +187,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                         fontSize: 13,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Type your review here....',
+                        hintText: 'orders_review_hint'.tr,
                         hintStyle: GoogleFonts.outfit(
                           color: const Color(0xFFC4B8B0),
                           fontSize: 13,
@@ -257,7 +228,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'Submit Rating',
+                  'orders_submit_rating'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 16,
@@ -375,7 +346,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                         : null,
                   ),
                   child: Text(
-                    tag,
+                    tag.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 11,
@@ -404,7 +375,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
         return GestureDetector(
           onTap: () => onRatingChanged(starIndex),
           child: Padding(
-            padding: const EdgeInsets.only(right: 6),
+            padding: const EdgeInsetsDirectional.only(end: 6),
             child: Icon(
               isFilled ? Icons.star_rounded : Icons.star_border_rounded,
               color: isFilled
@@ -415,98 +386,6 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
           ),
         );
       }),
-    );
-  }
-
-  Widget _buildItemRateCard({
-    required String title,
-    required String description,
-    required int rating,
-    required String imageUrl,
-    required ValueChanged<int> onRatingChanged,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              imageUrl,
-              width: 58,
-              height: 58,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 58,
-                height: 58,
-                color: const Color(0xFFEAD8C9),
-                child: const Icon(Icons.image_outlined, color: Colors.white),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF2C2520),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3EFEA),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'x1',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFA59A94),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFFA59A94),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                _buildStarSelector(
-                  rating: rating,
-                  onRatingChanged: onRatingChanged,
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

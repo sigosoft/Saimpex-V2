@@ -226,12 +226,17 @@ Note: "models" holds **repositories** (API classes), not plain data classes. Mos
 
 ### 3.5 Localisation (EN / FR / AR + RTL)
 
-**Current state: only the API language is localised.**
+**Current state: foundation in place; most existing screens still have English strings.**
 
-- The language picker (`lib/views/widgets/language_selector.dart`, `appLanguages`: English, Français, العربية) stores the label in `OnboardingController.selectedLanguage` and calls `customer/updateLanguage`.
-- `apiLanguageCode()` sends `en`/`fr`/`ar` so server messages and names come back in that language.
-- **All UI strings are hard-coded English.** There is no `Translations` class, no ARB files, no `locale` / `supportedLocales` on `GetMaterialApp`, and **no RTL** (`TextDirection.rtl` is never used).
-- The chosen language is **not persisted locally**; it resets to English on app restart (unverified whether it is reloaded from the profile).
+- `lib/l10n/app_locale.dart` (`AppLocale`) holds the language (`en`/`fr`/`ar`), saves it in SharedPreferences (survives restart) and switches it with `Get.updateLocale`.
+- `lib/l10n/app_translations.dart` (`AppTranslations`, GetX `Translations`) has the EN/FR/AR strings. Use `'key'.tr` / `'key'.trParams({...})`; **add every new string there in all three languages.**
+- `GetMaterialApp` sets `translations`, `locale`, `fallbackLocale: en`, `supportedLocales` and the Flutter localisation delegates, so Arabic lays the app out right to left. Screens built with `EdgeInsets.fromLTRB` / `Alignment.centerLeft` don't flip yet: use `EdgeInsetsDirectional` / `AlignmentDirectional` when converting a screen.
+- The language picker (`lib/views/widgets/language_selector.dart`) calls `customer/updateLanguage` (when logged in) and `AppLocale.change`. `apiLanguageCode()` returns `AppLocale.code`.
+- Screen strings live in `lib/l10n/areas/` (`core`, `orders`, `pharmacy_water`, `services`, `stores`; key prefixes `core_`, `orders_`, `pw_`, `svc_`, `st_`), merged by `AppTranslations`. About 1,400 keys per language.
+- `test/translations_test.dart` fails if FR/AR miss a key, drop an `@placeholder`, or the code uses an undefined key. Run `flutter test` after adding strings.
+- Labels that code compares or sends to the API (e.g. account menu `label`, service card titles, home-cleaning room names, delivery slots, cancel reasons) stay English internally and are translated only when drawn.
+- **Not translated on purpose:** server data, and sample/mock data still in some screens (to be replaced by real data, not translated).
+- **Still to do:** review by a native Arabic/French speaker (client QA, 16–25 Nov); finish RTL on screens with custom painters, gradients and maps (only mechanical directional swaps were made).
 
 See pending item P1-1.
 
@@ -282,7 +287,7 @@ Legend: **Done** = wired to a real API end to end in code (not device-tested unl
 | Home cleaning | Done (payment step pending) | Providers, services, configure, property type + notes, slot, quote, book, cancel. Online payment has no Masrvi step. | `lib/views/services/home_cleaning_*.dart` |
 | Laundry | Partial | Providers, services, pickup slot, book, cancel. Dry-cleaning garment list is **hard-coded** (`laundry_dry_cleaning_screen.dart`). | `lib/views/services/laundry_*.dart` |
 | Other services (plumbing, carpentry, electrical) | Not started | Tiles on the Services screen do nothing. Scope puts them in later updates. | `lib/views/services/services_screen.dart` |
-| Cart and checkout | Partial | Catalog cart (food) and classic cart (grocery/pharmacy/water/local store); coupons on classic cart; points redeem; Wallet/Online/COD; Masrvi WebView with retry of the same order. **Pay After Delivery is offered and is the default for food/grocery, but it sends payment type 1 (cash)**. "Schedule for later" UI is not sent to the API. Coupons are not sent for catalog (food) checkout. | `lib/views/cart_screen.dart`, `lib/models/cart_repository.dart`, `lib/models/order_repository.dart`, `lib/views/payment_webview_screen.dart` |
+| Cart and checkout | Partial | Catalog cart (food) and classic cart (grocery/pharmacy/water/local store); coupons on classic cart; points redeem; Wallet/Online/COD; Masrvi WebView with retry of the same order. Pay After Delivery (type 4) only when the server allows it; Wallet is the default. "Schedule for later" UI is not sent to the API. Coupons are not sent for catalog (food) checkout. | `lib/views/cart_screen.dart`, `lib/models/cart_repository.dart`, `lib/models/order_repository.dart`, `lib/views/payment_webview_screen.dart` |
 | Wallet | Partial | Balance shown (home, account, every checkout); pay with wallet (type 3). **No top-up, no split payment, no transaction history.** | `lib/utils/wallet_balance.dart`, `lib/controllers/home_controller.dart`, `lib/views/account_screen.dart` |
 | Rewards / loyalty | Done (copy cleanup) | Tier, missions (claim), referral (apply), store points, reward baskets, redeem, history, success-screen points preview. Redeem sheet falls back to "Lorem Ipsum" text when the reward has no description. | `lib/views/rewards_referral_screen.dart`, `lib/views/redeem_detail_sheet.dart`, `lib/views/order_success_screen.dart`, `lib/models/profile_repository.dart` |
 | Saved addresses | Done | List / save / delete (`customer/addresses*`). | `lib/views/saved_addresses_screen.dart`, `lib/views/select_location_screen.dart` |
@@ -294,7 +299,7 @@ Legend: **Done** = wired to a real API end to end in code (not device-tested unl
 | My Bookings (services) | Done | `service/bookings`, detail, cancel, rate. | `lib/views/my_bookings_screen.dart` |
 | My Schedules (pre-orders) | Not started | Hard-coded list. No backend yet. | `lib/views/my_schedules_screen.dart` |
 | Chat with vendor | Done (unverified on device) | Conversations list, conversation, send text/image/voice note. `markAsRead` and `deleteConversation` are not used. | `lib/views/messages_screen.dart`, `lib/views/chat_screen.dart`, `lib/models/chat_repository.dart` |
-| AI chatbot | Not started | Floating head + chat UI with **canned local replies** (`Future.delayed`). No backend call. | `lib/views/chatbot_ai_chat_screen.dart`, `lib/views/widgets/chatbot_head.dart`, `lib/views/widgets/chatbot_welcome_sheet.dart` |
+| AI chatbot | Done (C15, unverified on device) | Floating head + chat UI wired to `chatbot/message` (API §6.19): keeps `conversation_id`, sends the delivery location, history sheet (`chatbot/conversations`), voice input (speech_to_text in the chat language), reads replies aloud only when the customer spoke and Admin turned `voice_output` on (flutter_tts). Server errors (not configured / daily limit / temporary failure) show as a red bubble. | `lib/views/chatbot_ai_chat_screen.dart`, `lib/views/widgets/chatbot_head.dart`, `lib/views/widgets/chatbot_welcome_sheet.dart` |
 | Notifications | Partial | In-app list (`customer/notifications`) and preferences. **No push notifications** (no Firebase/FCM package). | `lib/views/notifications_screen.dart`, `lib/views/app_preferences_screen.dart` |
 | Profile / account | Done | Profile, edit profile, language, help/support, terms, privacy, about, delete account, logout (resets home data). | `lib/views/account_screen.dart`, `lib/views/edit_profile_screen.dart`, `lib/views/help_support_screen.dart`, `lib/views/terms_conditions_screen.dart` |
 | Coupons screen | Done (unverified) | Lists `customer/coupons`. | `lib/views/coupons_screen.dart` |
@@ -370,7 +375,7 @@ These come from Phase 0/1 of the plan in `V2_DECISIONS_AND_PLAN.md`. **Do not bu
 | **Car wash location types** | `place` values home / workplace / other / station on `service/book` and `service/quote` | **Contract pending from backend.** |
 | **Water subscriptions** (Phase 1 rework) | subscribe / plans / schedule | **Contract pending from backend.** |
 | **Catalog cart coupons / totals** | coupon on `catalog/checkoutSummary` and `catalog/checkout` | **Contract pending from backend.** |
-| **AI chatbot** (Claude, customer's own data only) | chat endpoint (message in, answer out; maybe streaming) | **Contract pending from backend.** |
+| **AI chatbot** (Claude, customer's own data only) | `chatbot/message`, `chatbot/conversations` | ✅ Wired (C15). |
 
 ---
 
@@ -380,88 +385,88 @@ Each item has acceptance criteria (AC) that follow the client decisions. "Blocke
 
 ### P0 — wrong behaviour today (fix first, no backend needed)
 
-**P0-1. Pay After Delivery must not post as cash.**
+**P0-1. Pay After Delivery must not post as cash.** ✅ Done (`fix/pay-after-delivery`, with P1-5).
 `lib/views/cart_screen.dart` shows "Pay After Delivery", makes it the default for food/grocery (`selectedPaymentIndex = widget.isFoodOrGrocery ? 3 : 0`), and sends `paymentTypeCash`.
 AC: PAD is hidden until the backend exposes the trusted flag (P1-4). Default selection is a real method (Wallet or Online). No order is ever placed as cash when the customer picked something else.
 
-**P0-2. Prescription checkout must not offer cash.**
+**P0-2. Prescription checkout must not offer cash.** ✅ Done (C2, `feature/prescription-payment-methods`): Wallet and Online only, and only the ones Admin has switched on (`GET customer/paymentMethods`, API §6.30; if the list can't load both stay and the server's translated 422 is shown). With both off the Pay button is disabled with a message. The delivery note is now sent (`notes`/`order_note`); the fake "tomorrow 10–11 AM" schedule card was removed (`prescription/{id}/pay` has no scheduled time).
 `lib/views/pharmacy/prescription_checkout_screen.dart` shows "Cash on Delivery" but silently sends online.
 AC: Only Wallet and Online are shown for prescription orders. What the customer picks is what is sent.
 
 **P0-3. Keep the driver call button for masked calls.**
 Masked calls are required (SPX-ADM-02 item 15). AC: the call-driver button in `tracking_widgets.dart`, `courier_order_detail_screen.dart`, `water_order_details_screen.dart`. starts a masked call through the backend API once it lands; until then keep the button and its \"coming soon\" message.
 
-**P0-4. Courier pickup must be the customer's choice.**
+**P0-4. Courier pickup must be the customer's choice.** ✅ Done (pickup picker; fake totals removed in `fix/courier-online-payment`).
 `lib/views/courier/courier_screen.dart` hard-codes the pickup. AC: customer picks pickup on the map/saved addresses (same picker as drop-off); quote and create use that point. Remove the fake `redeemedPointsDiscount = 1` and `tax = 2` in `courier_review_booking_screen.dart`; the total shown equals the server quote.
 
-**P0-5. Water subscription purchase must not fake success.**
+**P0-5. Water subscription purchase must not fake success.** ✅ Done (C11, `feat/water-subscription-payment`): the plan comes from `water/plans`; the cart offers cash on the first delivery (default), online or wallet and sends `payment_type` + `quantity` (1–50) to `water/subscribe`; total = plan price × quantity. Online opens `payment_url`, polls `wallet/topup/{topup_id}` and shows success only when paid; a failed/closed payment reopens the same payment page instead of buying again.
 AC: until the subscribe contract is confirmed, the Pay button is disabled with a clear message, or it calls `water/subscribe` and shows success only when the server says so. The nearby-suppliers list comes from the API, not the hard-coded list in `water_nearby_suppliers_screen.dart`.
 
-**P0-6. Home search must search.**
+**P0-6. Home search must search.** ✅ Done (P1-2, P1-3).
 AC: submitting the home search box (typed, voice or camera label) opens a results screen. Until unified search ships (P1-2), it may route to the Food search; after, it uses `customer/search`.
 
-**P0-7. Remove sample content customers can see.**
+**P0-7. Remove sample content customers can see.** Mostly done (C5, `fix/remove-sample-content`): Under 30 minutes lists homeHub's `under_30_minutes` (empty state when none); My Schedules shows an empty state (no customer pre-order list endpoint yet); the rate screen's sample item cards (never submitted) are gone; the redeem sheet no longer shows "Lorem Ipsum" or a made-up reward value. **Still sample:** the laundry dry-cleaning garment list and the two store maps (C18 / P2-6, P2-7).
 AC: no hard-coded stores/items/garments/images in `under_30_min_screen.dart`, `laundry_dry_cleaning_screen.dart`, `rate_order_screen.dart` (item cards), `my_schedules_screen.dart`, `store_map_screen.dart`, `express/express_store_map_screen.dart`; no "Lorem Ipsum" in `redeem_detail_sheet.dart`. Show real data or an empty state.
 
-**P0-8. My Orders → Local Store tab.**
+**P0-8. My Orders → Local Store tab.** ✅ Done (C5): loads `customer/orders/localStore` through the local-store `GroceryRepository` and shows the grocery order cards (detail, cancel, track, rate); also listed on the All tab.
 AC: tab loads `customer/orders/localStore` (use the local-store `GroceryRepository`), with detail, cancel and rate like Grocery.
 
 ### P1 — client decisions for this phase
 
-**P1-1. Localisation EN / FR / AR with RTL.** (No backend needed.)
+**P1-1. Localisation EN / FR / AR with RTL.** ✅ Done in code (`feat/translate-screens`, see 3.5); needs native-speaker review and an RTL pass on a device.
 AC: every visible string comes from translations (GetX `Translations` or Flutter `intl`/ARB — pick one and use it everywhere). `GetMaterialApp` sets `locale`, `fallbackLocale: en`, `supportedLocales`. Choosing Arabic flips layout to RTL (icons, paddings, back arrows, sliders). The choice is saved locally and sent with `updateLanguage`; it survives restart. API messages use the matching `message_xx`. The client reports wording issues later; do not wait for perfect copy.
 
-**P1-2. Unified search.** API ready (§6.7).
+**P1-2. Unified search.** ✅ Done (`feat/unified-search`): Home search (typed or voice) opens `AllSearchScreen`, which calls `GET customer/search` and lists stores by category (Food, Grocery, Local Store, Pharmacy, Water) then products; tapping opens that category's store screen (products open their store; opening the product sheet directly is not done yet). Laundry/car wash/home cleaning/gas store hits are not listed (no store screen to open from search).
 AC: text and voice search from Home return stores and products across all categories, nearest first, only stores that deliver to the selected location. Tapping a product opens it in its store ready to add to cart.
 
-**P1-3. Image search via Google Vision.** API ready (§6.7).
+**P1-3. Image search via Google Vision.** ✅ Done (`feat/unified-search`): the home camera photo goes to `POST image-recognition/analyze` without `type`; results show like a typed search. On-device ML Kit is no longer used by the home box.
 AC: capture or upload a photo → backend identifies the product → list of stores with price, distance, rating → tap opens that product in the store. On-device ML Kit may stay only as a fallback if the backend is unreachable (confirm with the backend owner).
 
-**P1-4. Wallet top-up and split payment.** API ready (backend API doc §6.8).
+**P1-4. Wallet top-up and split payment.** ✅ Done (`feat/wallet-topup`): `WalletScreen` (built without a Figma screen; opened from the Home wallet pill and the Account WALLET card) shows balance and paged history (`GET wallet`) and tops up within the server limits (`POST wallet/topup` → Masrvi → polls `GET wallet/topup/{id}`). In the cart, Wallet with too little balance shows "Wallet X + Online Y" and sends `payment_type=2` + `use_wallet=1` (classic and catalog checkout). Service and courier checkouts still use wallet-only (type 3).
 AC: Wallet screen with balance and transaction history; top-up 100 – 50,000 MRU (validate both limits in the app and expect server validation) paid via Masrvi WebView; balance refreshes after success. At checkout, if the wallet is short, the app shows "Wallet X + Online Y" and pays Y by Masrvi; never place an order the wallet cannot cover without that step.
 
-**P1-5. Trusted customers / Pay After Delivery.** API ready (§6.9).
+**P1-5. Trusted customers / Pay After Delivery.** ✅ Done (`fix/pay-after-delivery`): the cart loads `GET customer/payAfterDelivery`; PAD is selectable only when `can_use`, otherwise it shows why (tap opens Pay Later when an order is unpaid); never the default (Wallet is); sends `payment_type=4`. **Pay Later** screen (Account → Pay Later, built without a Figma screen) lists `unpaid_orders` and pays them online (Masrvi) or from the wallet (`POST payAfterDelivery/orders/{id}/pay`).
 AC: PAD appears only when the server says the customer is trusted. Order is placed with payment pending. The order shows "Pay now" and a 24-hour deadline; payment goes through Masrvi. If one PAD order is unpaid, PAD is hidden for new orders. Overdue status comes from the server.
 
-**P1-6. Masrvi for courier and service bookings.** API ready (`GET orders/{id}/payOnline`).
+**P1-6. Masrvi for courier and service bookings.** Courier ✅ done (`fix/courier-online-payment`): Online opens `payment_url` from `courier/create`; a failed or closed payment keeps the order and the pay button retries it with `POST orders/{id}/payOnline`; success only after payment. Review total = quoted delivery fee (fake points/tax removed). Services (car wash, home cleaning, laundry): pending.
 AC: choosing Online on courier, car wash, home cleaning or laundry opens the Masrvi WebView, handles fail/cancel with retry of the same order (same pattern as `cart_screen.dart`), and shows success only after payment.
 
-**P1-7. Pre-orders (Schedule for later).** API ready (§6.10; My Schedules = `GET preorders`).
+**P1-7. Pre-orders (Schedule for later).** Cart part ✅ done (`feat/pre-orders`): the sheet loads `GET customer/preorder/window`, offers only the days in the window and greys out slots whose start time falls outside it; the chosen slot's start time is sent as `scheduled_for` (ISO with offset) on `checkoutV2` and `catalog/checkout`; the card's ✕ goes back to "deliver now". **Still open:** My Schedules (`my_schedules_screen.dart`) is a hard-coded list; there is no customer endpoint listing pre-orders yet (only `vendorapp/preorders`). Ask the backend for one (or `is_preorder` / `scheduled_for` on the orders lists).
 AC: the existing "Schedule for later" sheet in `cart_screen.dart` limits dates to the server's max days (default 7) and sends the chosen time. My Schedules lists real scheduled orders.
 
-**P1-8. Grocery substitution.** API ready (§6.11).
+**P1-8. Grocery substitution.** ✅ Done (`feat/grocery-substitution`), except the push that opens it (P2-1): `OrderUpdatedDetailScreen` (Figma "Order Changes" layout) now loads `GET customer/orders/{id}/substitutions`, shows each line (original → substitute or unavailable, price change, status), a live countdown from `seconds_left`, and per-line Accept/Reject (`POST substitutions/{id}/respond`). An `amount_due` is paid in cash at the door by default or online with "Pay online now" (`POST orders/{id}/payDue`). My Orders → Grocery shows "Review changes" (instead of Cancel) on active orders with waiting proposals or an amount due. The Figma's single "Approve / Reject all" was replaced by per-line answers, because the API answers each proposal separately.
 AC: when a vendor proposes a replacement, the customer gets a notification and the Figma "order updated" screen (`order_updated_detail_screen.dart`) with Accept / Reject and new totals; a visible 10-minute countdown; after 10 minutes the server auto-accepts and the app shows the accepted state.
 
-**P1-9. Pharmacy per-item quote.** API ready (§6.15).
+**P1-9. Pharmacy per-item quote.** ✅ Done (C12, `feat/pharmacy-item-quote`): the quotation shows each line as available, partial ("only X of Y") or unavailable (0 MRU); alternatives (lines with `alternative_for`) show what they replace with Accept / Reject (`POST prescription/{id}/alternatives`), after which the screen reloads the server's `quote_amount`. Pay is blocked with a message while `pending_alternatives` > 0. Decline uses `prescription/{id}/decline`.
 AC: quotation screen shows each item as available, partial or unavailable, any substitute with its price, and the new total; the customer accepts/rejects substitutes before paying (wallet or online only); a Decline action uses `prescription/{id}/decline`.
 
-**P1-10. Car wash location types.** API ready (§6.13).
+**P1-10. Car wash location types.** ✅ Done (C13, `feat/car-wash-locations`): the location screen offers At Wash Station, At Home, At Workplace and At Another Address (map picker); home/workplace use the delivery location. `place` (`station`/`home`/`workplace`/`other`) and the address/coordinates go to `service/book` (`placeServiceBooking` now takes optional `address`/`latitude`/`longitude`). The hard-coded "Ilot V" address and 150 MRU home-service fee were removed; the price is the server quote checked before booking. Instructions go in `notes`.
 AC: `car_wash_service_location_screen.dart` offers Home, Workplace, Other and At Station; the address picker shows for the first three; the value is sent to quote and book; the home-service fee shown equals the server quote.
 
-**P1-11. Catalog (food) coupons.** API ready (§6.16).
+**P1-11. Catalog (food) coupons.** ✅ Done (C14, `feat/food-cart-coupons`): food carts now load `catalog/checkoutSummary` (item total, delivery charge, tax and `grand_total` from the server instead of the cart's built-in fee/tax guesses) with `coupon_code`; Apply checks the code there and a 422 shows the server's reason and drops the code; `catalog/checkout` sends `coupon_code`. Gas empty-cylinder confirmation (rest of C14) is not done: the app has no gas screens.
 AC: coupons apply in the food cart and are sent to `catalog/checkout`; coupons are vendor-specific (a coupon for store A is rejected in store B with the server message).
 
-**P1-12. AI chatbot (Claude).** API ready (§6.19).
+**P1-12. AI chatbot (Claude).** ✅ Done (C15, `feature/ai-assistant`): canned replies and the fake order-tracking card are gone; every message goes to the server. Read-only by design (the app gives the assistant no actions). Until Admin sets the Anthropic key the server answers 503 and the chat shows that message.
 AC: `chatbot_ai_chat_screen.dart` sends messages to the backend and shows answers; supports EN/FR/AR; can answer about the customer's own orders, wallet and points. The chat must not change the cart or place orders by itself (scope rule). No API key in the app.
 
-**P1-13. Delivery fee display.**
+**P1-13. Delivery fee display.** ✅ Done (C9, `fix/server-delivery-fee`): the cart's payment rows printed fixed values (delivery 5 MRU, tax 2 MRU, points 1 MRU) and sent `redeem_amount=1` with points on by default. Now delivery fee, tax and points come only from the checkout summary ("…" until it loads); a 0 fee shows "Free Delivery". The points card shows the server's `redeem_points_available` / `redeem_points_amount`, only when `is_reward_enabled` and the customer has points, is off by default, and sends `redeem_amount` = `redeem_points_amount`.
 AC: checkout shows the per-km delivery fee from the server summary; Gold+ customers see "Free Delivery" and 0 MRU.
 
 ### P2 — completeness and polish
 
-**P2-1. Push notifications.** Needs a decision on FCM and a backend token endpoint (contract pending). AC: order status, chat and substitution notifications open the right screen.
+**P2-1. Push notifications.** Needs a decision on FCM and a backend token endpoint (contract pending). AC: order status, chat and substitution notifications open the right screen. **Blocked (C17):** the app has no Firebase files (`android/app/google-services.json`, `ios/Runner/GoogleService-Info.plist` for the existing V1 app IDs, Firebase project `saimpex-customer`), and the backend only takes the token at login (`verifyOtp` → `fcm_token`); a token refresh endpoint is still needed. The data payload (type + id per notification) also needs documenting so each push can open the right screen.
 
-**P2-2. Global 401 handling.** AC: any 401 during use clears the session and returns to Login once, instead of repeated error toasts. Add it in `DioClient`'s `onError`.
+**P2-2. Global 401 handling.** AC: any 401 during use clears the session and returns to Login once, instead of repeated error toasts. Add it in `DioClient`'s `onError`. ✅ Done (C17, `feature/session-expiry-chat-read`): `DioClient.onSessionExpired` (set in `main.dart`) fires on a 401 to a request sent with the current token (not logout, not OTP): clears the session, resets home, goes to Login and shows "Your session has expired" once.
 
-**P2-3. Chat unread and delete.** AC: opening a conversation calls `chat/markAsRead`; the list shows unread counts; delete uses `chat/deleteConversation`.
+**P2-3. Chat unread and delete.** AC: opening a conversation calls `chat/markAsRead`; the list shows unread counts; delete uses `chat/deleteConversation`. ✅ Done (C17): opening a chat calls `chat/markAsRead`; the bin icon asks first, then calls `chat/deleteConversation` and removes the row only if the server agreed. Unread counts come from `allConversations` (already shown).
 
 **P2-4. Real tests.** AC: replace `test/widget_test.dart` with tests for `ApiEnvelope.parse`, payment type mapping and one repository mapper; `flutter test` passes.
 
 **P2-5. Analyzer clean-up.** AC: 0 warnings (13 today: unused fields/imports, dead null-aware code in `grocery_screen.dart` and `grocery_details_screen.dart`).
 
-**P2-6. Laundry per Figma.** Replace the hard-coded dry-cleaning garment list with the backend list; match the Figma laundry screens. (No customer PDF upload — confirmed by Praveen.)
+**P2-6. Laundry per Figma.** Replace the hard-coded dry-cleaning garment list with the backend list; match the Figma laundry screens. (No customer PDF upload — confirmed by Praveen.) 🟡 Partly done (C18, `feature/laundry-store-map`): the garment list and prices come from the provider's service item (`garments`) and are sent to `service/book`; the cart shows the server's subtotal/tax/total from `service/quote` and the unsupported express fee, coupon and points (fixed 300/50/10 MRU) are gone. **Not checked against Figma** (no Figma access in that session), and dev has no laundry service items yet, so the garment screen is untested with data.
 
-**P2-7. Store Map.** AC: Store Map / Express Store Map show real stores on Google Maps (e.g. from `localStore/map` or the home lists) instead of a painted image.
+**P2-7. Store Map.** AC: Store Map / Express Store Map show real stores on Google Maps (e.g. from `localStore/map` or the home lists) instead of a painted image. ✅ Done (C18): one `StoreMapScreen` on Google Maps for both; food uses the restaurant home's `map_stores` (else the listed restaurants), Express uses the `expressHome` vendors (now with coordinates). Pins and cards stay in sync; the search box filters by name; tapping a card opens the store. The painted `ExpressStoreMapScreen` was removed.
 
 **P2-8. Release identifiers and signing.** AC: V1 applicationId / bundle ID, V1 keystore, version above V1, real app label, base URL switched to live only when the V2 backend is live (section 2.5).
 
@@ -510,8 +515,8 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 | R-4 | Courier pickup is a fixed address; review total adds invented numbers. | `lib/views/courier/courier_screen.dart`, `courier_review_booking_screen.dart` | Wrong pickup for every courier order; displayed total differs from charge. (P0-4) |
 | R-5 | Online payment for courier and service bookings has no payment step. | `courier_review_booking_screen.dart`, `lib/views/services/service_booking_submit.dart` | Booking created as "online" but never paid. (P1-6) |
 | R-6 | Google Maps API key is committed in `AndroidManifest.xml` and `ios/Runner/AppDelegate.swift`. | — | Key can be abused if unrestricted. Restrict it to the app IDs/bundle IDs in Google Cloud; consider moving it to an untracked config. Do not copy it into docs or chat. |
-| R-7 | Debug logging prints the full Bearer token and bodies. | `lib/core/network/dio_client.dart` | Only in debug builds (`kDebugMode`), but tokens end up in shared logs/screenshots. Mask the token. |
-| R-8 | No global 401 handling. | `lib/core/network/dio_client.dart` | Expired session shows error toasts instead of returning to login. (P2-2) |
+| R-7 | Debug logging prints the full Bearer token and bodies. | `lib/core/network/dio_client.dart` | Only in debug builds (`kDebugMode`), but tokens end up in shared logs/screenshots. Mask the token. ✅ Masked (C17): logs show `Bearer …` plus the last 6 characters. |
+| R-8 | No global 401 handling. | `lib/core/network/dio_client.dart` | Expired session shows error toasts instead of returning to login. (P2-2) ✅ Fixed (C17). |
 | R-9 | No UI translations and no RTL. Language resets on restart. | `lib/main.dart`, `lib/controllers/onboarding_controller.dart` | French/Arabic users see English UI. (P1-1) |
 | R-10 | Home search, voice search and image search fill a field that triggers nothing. | `lib/views/widgets/home_search_box.dart` | Headline feature appears broken. (P0-6) |
 | R-11 | Release build signs with the debug key; placeholder app IDs. | `android/app/build.gradle.kts`, `ios/Runner.xcodeproj/project.pbxproj` | Cannot ship as a V1 update until fixed. (P2-8) |
@@ -531,6 +536,16 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 - Whether the language is restored from the profile on login.
 - Exact JDK / Gradle requirements on a fresh machine.
 
+### Switched-off services (`fix/disabled-services`)
+
+- Home tabs come from `homeHub.verticals`; rows with `is_enabled: false` are dropped when parsed, so `HomeController.isVerticalEnabled(slug)` is true only for listed slugs (and for everything before Home has loaded).
+- The Services screen hides Home cleaning, Car wash and Laundry when their vertical is off (the grid closes up); search results and Express vendors skip switched-off categories.
+- Checkout and booking show the server's 422 message (e.g. "service unavailable") through `ApiException.message`; `resolveApiMessage` also reads messages nested under a field name (`{"field": {"message_en": [...]}}`). The 422 itself is not on `integration/v2` yet, so it wasn't tried against the server.
+
+### Checkout refusals: used-up coupon, hidden product (`fix/checkout-refusals`)
+
+When checkout answers 422 the cart shows the server's message, then re-checks the applied coupon with `applyCoupon` (read-only on the server). If the coupon is refused (4xx), it's removed with a note. The cart and totals then reload, so a product the store hid is no longer shown as orderable. It doesn't depend on a specific error code. The backend change wasn't on GitHub when this was written, so it wasn't tried against the server; if the cart list still returns hidden products, the backend should drop or flag them there.
+
 ## Backend updates since this handover
 
 | Date | What's ready | Contract |
@@ -543,10 +558,10 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 | 31 Oct 2026 | Substitution extra: when a pricier substitute is accepted on a prepaid order, the wallet pays first and the rest is `amount_due`. Send `pay_rest` = `cash` or `online` with the answer; online returns `payment_url`. Later: `POST customer/orders/{id}/payDue`. Show `amount_due` on the order screen. | §6.11 |
 | 31 Oct 2026 | Courier and service bookings can be paid online: `payment_type=2` returns `payment_url`; retry with `POST customer/orders/{id}/payOnline`. Remove the hard-coded courier pickup and made-up review totals while wiring this. | §6.12 |
 | 31 Oct 2026 | **Client's SPX-ADM-02 is final:** masked customer↔driver calls are required (keep the call button; API in Phase 3); delivery fee is per vendor (free / fixed / % / per km) with who pays — show the server's fee. | `V2_COMPLETE_SCOPE.md` §13.2 |
+| 31 Oct 2026 | Payment methods on/off (Admin): `GET customer/paymentMethods`; hide disabled methods at every checkout. ✅ Applied (`feature/payment-methods-switch`) to the food/grocery cart, courier, car wash, home cleaning, laundry, water subscription and prescription checkouts via `utils/payment_methods.dart`; a disabled choice falls back to the next enabled one (never Pay After Delivery); with none left the checkout says so and won't submit. If the list can't load, all methods show and the server's 422 explains. Not yet on dev when built (404). Wallet top-up and `payOnline`/`payDue` buttons still rely on the server's refusal. | §6.30 |
 | 31 Oct 2026 | **All Phase 1 APIs ready on dev:** car wash locations (§6.13), water subscription payment (§6.14), pharmacy per-item quote + alternatives (§6.15), food-cart coupons (§6.16), gas empty-cylinder confirmation (§6.17), WhatsApp messages are server-side (§6.18), **AI assistant** `POST customer/chatbot/message` + transcript (§6.19). | Tasks C11–C15 are unblocked. |
 | 31 Oct 2026 | **Delivery PIN:** `trackOrder` returns `delivery_pin`; for any order type `GET customer/orders/{id}/deliveryPin`. Show it big on the tracking screen: "Give this PIN to the driver" (EN/FR/AR). | §6.20 |
 | 31 Oct 2026 | Minimum order per vendor: checkout summaries return `min_order_value` + `min_order_shortfall`; placing below it → 422. `restaurantDetails.min_order_value`. | Show "Minimum order X MRU" on the store page; in the cart disable Place order and show "Add Y MRU more" while the shortfall is > 0 (§6.22). |
-| 31 Oct 2026 | **My Schedules:** `GET customer/preorders` lists open pre-orders (all types); `orderDetails`, `trackOrder`, `catalog/orderDetail` return `is_preorder` + `scheduled_for`. The P1 list above now says "API ready" for every item. | Wire My Schedules to `GET preorders`; show "Scheduled for …" on order detail/tracking (§6.10). |
+| 31 Oct 2026 | **My Schedules:** `GET customer/preorders` lists open pre-orders (all types); `orderDetails`, `trackOrder`, `catalog/orderDetail` return `is_preorder` + `scheduled_for`. | Wire My Schedules to `GET preorders`; show "Scheduled for …" on order detail/tracking (§6.10). |
 | 31 Oct 2026 | Checkout summaries return `delivery_fee_paid_by` (customer/vendor/saimpex) and `delivery_fee_full`. When it isn't `customer`, `delivery_charge` is 0. | Show "Free delivery" (optionally "paid by the store") instead of 0 MRU (§6.22). |
 | 31 Oct 2026 | Service quotes (`service/quote`) return `tax`, `tax_percent`, `total` (= subtotal + tax); courier quotes return `tax`, `total` (= fee + tax). Prices are tax-exclusive. | Show a Tax line and charge `total` on service and courier checkout (§6.27). |
-| 31 Oct 2026 | **Payment methods on/off:** `GET customer/paymentMethods` → `payment_methods[]` with `enabled`. Admin can switch cash / online / wallet / Pay After Delivery off; the server refuses a disabled one (422 `payment_type_*`). | Load it on every checkout/booking screen and hide disabled methods (§6.30). |

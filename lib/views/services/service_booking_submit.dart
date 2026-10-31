@@ -23,6 +23,7 @@ import '../../utils/toast_helper.dart';
 Future<Map<String, dynamic>?> placeServiceBooking({
   required DateTime slotDate,
   required String slotLabel,
+
   /// paymentTypeWallet, paymentTypeOnline or paymentTypeCash (utils/wallet_balance.dart).
   required String paymentType,
   num? shownTotal,
@@ -35,7 +36,101 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   num? quantity,
   String place = 'home',
   String notes = '',
+  // Where the provider goes when it isn't the delivery location (car wash
+  // "another address"); null uses the selected delivery location.
+  String? address,
+  double? latitude,
+  double? longitude,
 }) async {
+  final request = _bookingRequest(
+    slotDate: slotDate,
+    slotLabel: slotLabel,
+    paymentType: paymentType,
+    spaces: spaces,
+    addons: addons,
+    garments: garments,
+    vehicles: vehicles,
+    productSupply: productSupply,
+    propertyType: propertyType,
+    quantity: quantity,
+    place: place,
+    notes: notes,
+    address: address,
+    latitude: latitude,
+    longitude: longitude,
+  );
+  if (request == null) {
+    showAppToast(
+      'svc_choose_service_again'.tr,
+      backgroundColor: const Color(0xFFEF4444),
+    );
+    return null;
+  }
+
+  if (shownTotal != null && !await _confirmServerPrice(request, shownTotal)) {
+    return null;
+  }
+
+  try {
+    final result = await Get.find<ServiceRepository>().book(
+      request: request,
+      language: apiLanguageCode(),
+    );
+    showAppToast(
+      result.message.isEmpty ? 'svc_booking_created'.tr : result.message,
+      backgroundColor: const Color(0xFFFF5E00),
+    );
+    return result.booking;
+  } on ApiException catch (error) {
+    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    return null;
+  }
+}
+
+/// The server's price for the same booking [placeServiceBooking] would place
+/// (customer/service/quote): `subtotal`, `tax`, `tax_percent`, `total`,
+/// `lines`. Throws [ApiException] when the server can't price it; null when
+/// no service is picked.
+Future<Map<String, dynamic>?> quoteServiceBooking({
+  required DateTime slotDate,
+  required String slotLabel,
+  required String paymentType,
+  List<Map<String, dynamic>> garments = const [],
+  num? quantity,
+}) async {
+  final request = _bookingRequest(
+    slotDate: slotDate,
+    slotLabel: slotLabel,
+    paymentType: paymentType,
+    garments: garments,
+    quantity: quantity,
+  );
+  if (request == null) return null;
+  return Get.find<ServiceRepository>().quote(
+    request: request,
+    language: apiLanguageCode(),
+  );
+}
+
+/// The service/book (and service/quote) body for the picked service, or null
+/// when no service is picked.
+Map<String, dynamic>? _bookingRequest({
+  required DateTime slotDate,
+  required String slotLabel,
+  required String paymentType,
+  List<Map<String, dynamic>> spaces = const [],
+  List<Map<String, dynamic>> addons = const [],
+  List<Map<String, dynamic>> garments = const [],
+  List<Map<String, dynamic>> vehicles = const [],
+  String? productSupply,
+  String propertyType = '',
+  num? quantity,
+  String place = 'home',
+  String notes = '',
+  String? address,
+  double? latitude,
+  double? longitude,
+}) {
   final vertical = ServiceBookingDraft.vertical;
   final vendorId = ServiceBookingDraft.vendorId;
   final itemId = ServiceBookingDraft.serviceItemId;
@@ -43,25 +138,23 @@ Future<Map<String, dynamic>?> placeServiceBooking({
       vendorId == null ||
       itemId == null ||
       !Get.isRegistered<ServiceRepository>()) {
-    showAppToast(
-      'Please choose a service from the provider again',
-      backgroundColor: const Color(0xFFEF4444),
-    );
     return null;
   }
 
   final window = serviceSlotWindow(slotDate, slotLabel);
-  final address = SelectLocationController.selectedSubtitle.trim().isEmpty
-      ? SelectLocationController.deliveryLabel.value
-      : SelectLocationController.selectedSubtitle;
+  final bookingAddress =
+      address ??
+      (SelectLocationController.selectedSubtitle.trim().isEmpty
+          ? SelectLocationController.deliveryLabel.value
+          : SelectLocationController.selectedSubtitle);
   final request = <String, dynamic>{
     'vertical': vertical,
     'vendor_id': vendorId,
     'service_item_id': itemId,
     'place': place,
-    'address': address,
-    'latitude': SelectLocationController.selectedLatitude,
-    'longitude': SelectLocationController.selectedLongitude,
+    'address': bookingAddress,
+    'latitude': latitude ?? SelectLocationController.selectedLatitude,
+    'longitude': longitude ?? SelectLocationController.selectedLongitude,
     'scheduled_for': ?window?.$1,
     'slot_end': ?window?.$2,
     'slot_label': slotLabel,
@@ -83,35 +176,14 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     for (final vehicle in _catalogRows(vehicles, 'spaces'))
       {
         ...vehicle,
-        'addons': _catalogRows(
-          [
-            for (final addon in (vehicle['addons'] as List? ?? const []))
-              if (addon is Map) Map<String, dynamic>.from(addon),
-          ],
-          'addons',
-        ),
+        'addons': _catalogRows([
+          for (final addon in (vehicle['addons'] as List? ?? const []))
+            if (addon is Map) Map<String, dynamic>.from(addon),
+        ], 'addons'),
       },
   ];
   if (matchedVehicles.isNotEmpty) request['vehicles'] = matchedVehicles;
-
-  if (shownTotal != null && !await _confirmServerPrice(request, shownTotal)) {
-    return null;
-  }
-
-  try {
-    final result = await Get.find<ServiceRepository>().book(
-      request: request,
-      language: apiLanguageCode(),
-    );
-    showAppToast(
-      result.message.isEmpty ? 'Booking created' : result.message,
-      backgroundColor: const Color(0xFFFF5E00),
-    );
-    return result.booking;
-  } on ApiException catch (error) {
-    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
-    return null;
-  }
+  return request;
 }
 
 /// Prices [request] with customer/service/quote. True when the server's total
@@ -149,7 +221,8 @@ class _ServerPriceDialog extends StatelessWidget {
   final List<Map<String, dynamic>> lines;
   final double total;
 
-  static String _mru(num value) => '${value.round()} MRU';
+  static String _mru(num value) =>
+      'mru'.trParams({'amount': '${value.round()}'});
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +232,7 @@ class _ServerPriceDialog extends StatelessWidget {
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       title: Text(
-        "Provider's price",
+        'svc_providers_price'.tr,
         style: style(17, FontWeight.w800, const Color(0xFF2C2520)),
       ),
       content: Column(
@@ -167,7 +240,7 @@ class _ServerPriceDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your booking will be charged at the provider\'s current prices:',
+            'svc_providers_price_body'.tr,
             style: style(12.5, FontWeight.w500, const Color(0xFF7A6A60)),
           ),
           const SizedBox(height: 12),
@@ -185,7 +258,11 @@ class _ServerPriceDialog extends StatelessWidget {
                         if ((num.tryParse('${line['quantity']}') ?? 1) > 1)
                           '×${line['quantity']}',
                       ].join(' '),
-                      style: style(13, FontWeight.w500, const Color(0xFF2C2520)),
+                      style: style(
+                        13,
+                        FontWeight.w500,
+                        const Color(0xFF2C2520),
+                      ),
                     ),
                   ),
                   Text(
@@ -203,7 +280,7 @@ class _ServerPriceDialog extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Total',
+                  'svc_total'.tr,
                   style: style(15, FontWeight.w800, const Color(0xFF2C2520)),
                 ),
               ),
@@ -219,14 +296,14 @@ class _ServerPriceDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Get.back(result: false),
           child: Text(
-            'Go back',
+            'svc_go_back'.tr,
             style: style(14, FontWeight.w700, const Color(0xFF7A6A60)),
           ),
         ),
         TextButton(
           onPressed: () => Get.back(result: true),
           child: Text(
-            'Book at ${_mru(total)}',
+            'svc_book_at'.trParams({'amount': _mru(total)}),
             style: style(14, FontWeight.w800, const Color(0xFFFF5E00)),
           ),
         ),

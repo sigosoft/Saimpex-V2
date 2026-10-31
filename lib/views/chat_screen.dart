@@ -31,17 +31,17 @@ class _ChatMessage {
     required this.text,
     required this.time,
     this.isMine = false,
-  })  : type = _ChatMessageType.text,
-        audioPath = null,
-        duration = null;
+  }) : type = _ChatMessageType.text,
+       audioPath = null,
+       duration = null;
 
   const _ChatMessage.voice({
     required this.audioPath,
     required this.duration,
     required this.time,
     this.isMine = true,
-  })  : type = _ChatMessageType.voice,
-        text = null;
+  }) : type = _ChatMessageType.voice,
+       text = null;
 }
 
 class ChatScreen extends StatefulWidget {
@@ -173,7 +173,8 @@ class _ChatScreenState extends State<ChatScreen> {
         _conversationId = conv['id'];
       }
 
-      final customerId = conv['customer_id'] ??
+      final customerId =
+          conv['customer_id'] ??
           (conv['customer'] is Map ? conv['customer']['id'] : null);
 
       final rawList = conv['messages'];
@@ -183,13 +184,14 @@ class _ChatScreenState extends State<ChatScreen> {
           if (item is! Map) continue;
           final m = Map<String, dynamic>.from(item);
           final isMine = _checkIsMine(m, customerId);
-          final typeStr =
-              (m['message_type'] ?? 'text').toString().toLowerCase();
+          final typeStr = (m['message_type'] ?? 'text')
+              .toString()
+              .toLowerCase();
           final timeStr = _formatTimestamp(m['created_at']);
 
           if (typeStr == 'voice' || m['voice_note'] != null) {
-            final rawAudio = m['voice_note']?.toString() ??
-                m['attachment_url']?.toString();
+            final rawAudio =
+                m['voice_note']?.toString() ?? m['attachment_url']?.toString();
             final vUrl = ApiConstants.mediaUrl(rawAudio) ?? rawAudio;
             final durSec = int.tryParse('${m['duration']}') ?? 0;
             parsed.add(
@@ -218,6 +220,15 @@ class _ChatScreenState extends State<ChatScreen> {
         _isLoadingMessages = false;
       });
       _scrollToBottom();
+      // The customer has now seen the vendor's messages: clear the unread
+      // count. Best effort; the list just shows the old count if it fails.
+      if (_conversationId != null) {
+        unawaited(
+          repo
+              .markAsRead(conversationId: _conversationId, language: lang)
+              .catchError((_) {}),
+        );
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() => _isLoadingMessages = false);
@@ -228,13 +239,14 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     final raw = widget.restaurant;
-    _conversationId = raw['conversation_id'] ??
+    _conversationId =
+        raw['conversation_id'] ??
         raw['conversationId'] ??
         raw['chat_conversation_id'] ??
         (raw['raw'] is Map
             ? (raw['raw']['conversation_id'] ??
-                raw['raw']['conversationId'] ??
-                raw['raw']['chat_conversation_id'])
+                  raw['raw']['conversationId'] ??
+                  raw['raw']['chat_conversation_id'])
             : null);
     _loadConversation();
     _playerCompleteSub = _player.onPlayerComplete.listen((_) {
@@ -284,7 +296,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Microphone permission is required to record voice messages.',
+              'core_chat_mic_permission'.tr,
               style: GoogleFonts.outfit(),
             ),
             backgroundColor: const Color(0xFFFF3E3E),
@@ -316,7 +328,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Could not start recording.',
+            'core_chat_record_failed'.tr,
             style: GoogleFonts.outfit(),
           ),
           backgroundColor: const Color(0xFFFF3E3E),
@@ -360,7 +372,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Hold a bit longer to record.',
+            'core_chat_hold_longer'.tr,
             style: GoogleFonts.outfit(),
           ),
           backgroundColor: const Color(0xFFFF5E00),
@@ -396,14 +408,12 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      final errorMsg =
-          e is ApiException ? e.message : 'Failed to send voice message.';
+      final errorMsg = e is ApiException
+          ? e.message
+          : 'core_chat_voice_send_failed'.tr;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            errorMsg,
-            style: GoogleFonts.outfit(),
-          ),
+          content: Text(errorMsg, style: GoogleFonts.outfit()),
           backgroundColor: const Color(0xFFFF3E3E),
         ),
       );
@@ -416,11 +426,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     setState(() {
       _messages.add(
-        _ChatMessage.text(
-          text: text,
-          time: _nowLabel(),
-          isMine: true,
-        ),
+        _ChatMessage.text(text: text, time: _nowLabel(), isMine: true),
       );
       _textController.clear();
       _isSending = true;
@@ -442,14 +448,12 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      final errorMsg =
-          e is ApiException ? e.message : 'Failed to send message.';
+      final errorMsg = e is ApiException
+          ? e.message
+          : 'core_chat_send_failed'.tr;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            errorMsg,
-            style: GoogleFonts.outfit(),
-          ),
+          content: Text(errorMsg, style: GoogleFonts.outfit()),
           backgroundColor: const Color(0xFFFF3E3E),
         ),
       );
@@ -493,17 +497,14 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final title = widget.restaurant['title'] as String? ?? 'Pharmacy Nasr';
-    final image = widget.restaurant['image'] as String? ??
+    final image =
+        widget.restaurant['image'] as String? ??
         'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop';
 
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFFFAF6F0),
-            Color(0xFFFFEEE5),
-            Color(0xFFFFDDCF),
-          ],
+          colors: [Color(0xFFFAF6F0), Color(0xFFFFEEE5), Color(0xFFFFDDCF)],
           stops: [0.0, 0.55, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -567,7 +568,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         ),
                         Text(
-                          'Online',
+                          'core_chat_online'.tr,
                           style: GoogleFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
@@ -611,7 +612,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                'Today',
+                                'core_chat_today'.tr,
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFF8A7F77),
                                   fontSize: 11,
@@ -629,7 +630,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             durationLabel: _formatClock(
                               message.duration ?? Duration.zero,
                             ),
-                            isPlaying: _playingPath != null &&
+                            isPlaying:
+                                _playingPath != null &&
                                 _playingPath == message.audioPath,
                             canPlay: message.audioPath != null,
                             isMine: message.isMine,
@@ -670,8 +672,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 color: const Color(0xFFF3EFEA),
                                 borderRadius: BorderRadius.circular(24),
                               ),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 14),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                              ),
                               child: Row(
                                 children: [
                                   const Icon(
@@ -691,7 +694,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         fontWeight: FontWeight.w500,
                                       ),
                                       decoration: InputDecoration(
-                                        hintText: 'Type a message...',
+                                        hintText: 'core_chat_type_message'.tr,
                                         hintStyle: GoogleFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 13,
@@ -735,8 +738,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFFFF5E00)
-                                        .withValues(alpha: 0.35),
+                                    color: const Color(
+                                      0xFFFF5E00,
+                                    ).withValues(alpha: 0.35),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -812,7 +816,7 @@ class _RecordingBar extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  'Recording',
+                  'core_chat_recording'.tr,
                   style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontSize: 13,
@@ -865,15 +869,12 @@ class _IncomingBubble extends StatelessWidget {
   final String text;
   final String time;
 
-  const _IncomingBubble({
-    required this.text,
-    required this.time,
-  });
+  const _IncomingBubble({required this.text, required this.time});
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -905,7 +906,7 @@ class _IncomingBubble extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 18),
+            padding: const EdgeInsetsDirectional.only(start: 4, bottom: 18),
             child: Text(
               time,
               style: GoogleFonts.outfit(
@@ -925,15 +926,12 @@ class _OutgoingTextBubble extends StatelessWidget {
   final String text;
   final String time;
 
-  const _OutgoingTextBubble({
-    required this.text,
-    required this.time,
-  });
+  const _OutgoingTextBubble({required this.text, required this.time});
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: AlignmentDirectional.centerEnd,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -958,7 +956,7 @@ class _OutgoingTextBubble extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Padding(
-            padding: const EdgeInsets.only(right: 4, bottom: 18),
+            padding: const EdgeInsetsDirectional.only(end: 4, bottom: 18),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -1005,14 +1003,32 @@ class _VoiceOutgoingBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const heights = <double>[
-      10, 16, 12, 20, 14, 22, 18, 24, 16, 20, 12, 18, 14, 22, 16, 12,
+      10,
+      16,
+      12,
+      20,
+      14,
+      22,
+      18,
+      24,
+      16,
+      20,
+      12,
+      18,
+      14,
+      22,
+      16,
+      12,
     ];
 
     return Align(
-      alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isMine
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Column(
-        crossAxisAlignment:
-            isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMine
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           GestureDetector(
             onTap: canPlay ? onPlay : null,
@@ -1065,9 +1081,9 @@ class _VoiceOutgoingBubble extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Padding(
-            padding: EdgeInsets.only(
-              left: isMine ? 0 : 4,
-              right: isMine ? 4 : 0,
+            padding: EdgeInsetsDirectional.only(
+              start: isMine ? 0 : 4,
+              end: isMine ? 4 : 0,
               bottom: 18,
             ),
             child: Row(

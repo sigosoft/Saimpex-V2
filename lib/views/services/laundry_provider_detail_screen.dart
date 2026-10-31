@@ -14,10 +14,7 @@ import '../../widgets/app_back_button.dart';
 class LaundryProviderDetailScreen extends StatefulWidget {
   final Map<String, String> provider;
 
-  const LaundryProviderDetailScreen({
-    super.key,
-    required this.provider,
-  });
+  const LaundryProviderDetailScreen({super.key, required this.provider});
 
   @override
   State<LaundryProviderDetailScreen> createState() =>
@@ -42,8 +39,13 @@ class _LaundryProviderDetailScreenState
     loadProviderServices();
   }
 
-  static const _tabs = ['Services', 'Reviews', 'About'];
-  static const _reviewFilters = ['All Reviews', 'Most Recent', 'Highest Rated'];
+  // Translation keys.
+  static const _tabs = ['svc_tab_services', 'svc_tab_reviews', 'svc_tab_about'];
+  static const _reviewFilters = [
+    'svc_filter_all_reviews',
+    'svc_filter_most_recent',
+    'svc_filter_highest_rated',
+  ];
 
   static const _ratingBreakdown = [
     {'star': '5', 'pct': 0.75, 'count': '7,542'},
@@ -56,7 +58,7 @@ class _LaundryProviderDetailScreenState
   static const _reviews = [
     {
       'name': 'Aicha Mint Ahmed',
-      'time': '2 days ago',
+      'time': 'svc_two_days_ago',
       'rating': 5,
       'avatar':
           'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
@@ -65,7 +67,7 @@ class _LaundryProviderDetailScreenState
     },
     {
       'name': 'Aicha Mint Ahmed',
-      'time': '2 days ago',
+      'time': 'svc_two_days_ago',
       'rating': 5,
       'avatar':
           'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
@@ -74,13 +76,12 @@ class _LaundryProviderDetailScreenState
     },
   ];
 
-
   String get _name => widget.provider['name'] ?? 'CleanPro Laundry';
   String get _rating => widget.provider['rating'] ?? '4.8';
-  String get _distance => widget.provider['distance'] ?? '2.4 km away';
+  String get _distance =>
+      widget.provider['distance'] ?? 'svc_km_away'.trParams({'km': '2.4'});
   String get _banner =>
-      widget.provider['image'] ??
-      'lib/assets/images/wash&fold_detail.png';
+      widget.provider['image'] ?? 'lib/assets/images/wash&fold_detail.png';
 
   @override
   Widget build(BuildContext context) {
@@ -125,9 +126,9 @@ class _LaundryProviderDetailScreenState
           width: double.infinity,
           child: _buildBannerImage(),
         ),
-        Positioned(
+        PositionedDirectional(
           top: topInset + 8,
-          left: 16,
+          start: 16,
           child: AppBackButton(onTap: () => Get.back()),
         ),
         Padding(
@@ -211,7 +212,10 @@ class _LaundryProviderDetailScreenState
               ),
               const SizedBox(width: 4),
               Text(
-                '$_rating (126 Reviews)',
+                'svc_rating_reviews'.trParams({
+                  'rating': _rating,
+                  'count': '126',
+                }),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 12.5,
@@ -249,7 +253,7 @@ class _LaundryProviderDetailScreenState
               ),
               const SizedBox(width: 5),
               Text(
-                'Open until 11:00 PM',
+                'svc_open_until'.trParams({'time': '11:00 PM'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1A6BB5),
                   fontSize: 12.5,
@@ -262,11 +266,7 @@ class _LaundryProviderDetailScreenState
           GestureDetector(
             onTap: () => Get.to(
               () => ChatScreen(
-                restaurant: {
-                  'name': _name,
-                  'title': _name,
-                  'image': _banner,
-                },
+                restaurant: {'name': _name, 'title': _name, 'image': _banner},
               ),
             ),
             child: Container(
@@ -290,13 +290,10 @@ class _LaundryProviderDetailScreenState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const BottomChatIcon(
-                    size: 17,
-                    color: Colors.white,
-                  ),
+                  const BottomChatIcon(size: 17, color: Colors.white),
                   const SizedBox(width: 6),
                   Text(
-                    'Chat',
+                    'svc_chat'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,
@@ -329,7 +326,7 @@ class _LaundryProviderDetailScreenState
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(
-                            _tabs[i],
+                            _tabs[i].tr,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
                               color: _selectedTab == i
@@ -358,11 +355,7 @@ class _LaundryProviderDetailScreenState
             ],
           ),
         ),
-        const Divider(
-          height: 1,
-          thickness: 1,
-          color: Color(0xFFEDE4DA),
-        ),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFEDE4DA)),
       ],
     );
   }
@@ -423,10 +416,7 @@ class _LaundryProviderDetailScreenState
         return;
       }
       Get.to(
-        () => LaundryServiceConfigureScreen(
-          service: item,
-          providerName: _name,
-        ),
+        () => LaundryServiceConfigureScreen(service: item, providerName: _name),
       );
     }
 
@@ -498,7 +488,7 @@ class _LaundryProviderDetailScreenState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Starting from',
+                              'svc_starting_from'.tr,
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF9A8E86),
                                 fontSize: 12,
@@ -528,8 +518,9 @@ class _LaundryProviderDetailScreenState
                             ),
                             if (duration.isNotEmpty) ...[
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
                                 child: Text(
                                   '·',
                                   style: GoogleFonts.outfit(
@@ -579,7 +570,7 @@ class _LaundryProviderDetailScreenState
                         ),
                       ),
                       child: Text(
-                        'View Prices',
+                        'svc_view_prices'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 12.5,
@@ -605,15 +596,16 @@ class _LaundryProviderDetailScreenState
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFF5E00)
-                                .withValues(alpha: 0.28),
+                            color: const Color(
+                              0xFFFF5E00,
+                            ).withValues(alpha: 0.28),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       child: Text(
-                        'ADD',
+                        'svc_add_upper'.tr,
                         style: GoogleFonts.outfit(
                           color: Colors.white,
                           fontSize: 13,
@@ -669,8 +661,10 @@ class _LaundryProviderDetailScreenState
           Column(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF00B25C),
                   borderRadius: BorderRadius.circular(12),
@@ -697,7 +691,7 @@ class _LaundryProviderDetailScreenState
               ),
               const SizedBox(height: 8),
               Text(
-                '9,480 Reviews',
+                'svc_reviews_count'.trParams({'count': '9,480'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 11,
@@ -783,8 +777,10 @@ class _LaundryProviderDetailScreenState
             GestureDetector(
               onTap: () => setState(() => _reviewFilter = i),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 11,
+                ),
                 decoration: BoxDecoration(
                   color: _reviewFilter == i
                       ? const Color(0xFFFF5E00)
@@ -792,7 +788,7 @@ class _LaundryProviderDetailScreenState
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Text(
-                  _reviewFilters[i],
+                  _reviewFilters[i].tr,
                   style: GoogleFonts.outfit(
                     color: _reviewFilter == i
                         ? Colors.white
@@ -863,7 +859,7 @@ class _LaundryProviderDetailScreenState
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      review['time'] as String,
+                      (review['time'] as String).tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 11,
@@ -923,7 +919,7 @@ class _LaundryProviderDetailScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'About $_name',
+              'svc_about_name'.trParams({'name': _name}),
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 15,
@@ -932,7 +928,7 @@ class _LaundryProviderDetailScreenState
             ),
             const SizedBox(height: 10),
             Text(
-              '$_name offers professional wash & fold, wash & iron, dry cleaning, and ironing services with doorstep pickup and delivery. Fresh laundry, expert care, and reliable turnaround times.',
+              'svc_about_laundry'.trParams({'name': _name}),
               style: GoogleFonts.outfit(
                 color: const Color(0xFF5A5048),
                 fontSize: 13,

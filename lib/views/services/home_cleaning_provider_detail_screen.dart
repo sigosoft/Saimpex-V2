@@ -12,10 +12,7 @@ import '../../widgets/app_back_button.dart';
 class HomeCleaningProviderDetailScreen extends StatefulWidget {
   final Map<String, String> provider;
 
-  const HomeCleaningProviderDetailScreen({
-    super.key,
-    required this.provider,
-  });
+  const HomeCleaningProviderDetailScreen({super.key, required this.provider});
 
   @override
   State<HomeCleaningProviderDetailScreen> createState() =>
@@ -40,8 +37,13 @@ class _HomeCleaningProviderDetailScreenState
     loadProviderServices();
   }
 
-  static const _tabs = ['Services', 'Reviews', 'About'];
-  static const _reviewFilters = ['All Reviews', 'Most Recent', 'Highest Rated'];
+  // Translation keys.
+  static const _tabs = ['svc_tab_services', 'svc_tab_reviews', 'svc_tab_about'];
+  static const _reviewFilters = [
+    'svc_filter_all_reviews',
+    'svc_filter_most_recent',
+    'svc_filter_highest_rated',
+  ];
 
   static const _ratingBreakdown = [
     {'star': '5', 'pct': 0.75, 'count': '7,542'},
@@ -54,7 +56,7 @@ class _HomeCleaningProviderDetailScreenState
   static const _reviews = [
     {
       'name': 'Aicha Mint Ahmed',
-      'time': '2 days ago',
+      'time': 'svc_two_days_ago',
       'rating': 5,
       'avatar':
           'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
@@ -63,7 +65,7 @@ class _HomeCleaningProviderDetailScreenState
     },
     {
       'name': 'Aicha Mint Ahmed',
-      'time': '2 days ago',
+      'time': 'svc_two_days_ago',
       'rating': 5,
       'avatar':
           'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
@@ -72,13 +74,12 @@ class _HomeCleaningProviderDetailScreenState
     },
   ];
 
-
   String get _name => widget.provider['name'] ?? 'CleanPro Elite';
   String get _rating => widget.provider['rating'] ?? '4.8';
-  String get _distance => widget.provider['distance'] ?? '2.4 km away';
+  String get _distance =>
+      widget.provider['distance'] ?? 'svc_km_away'.trParams({'km': '2.4'});
   String get _banner =>
-      widget.provider['image'] ??
-      'lib/assets/images/cleanproelitee.jpg';
+      widget.provider['image'] ?? 'lib/assets/images/cleanproelitee.jpg';
 
   @override
   Widget build(BuildContext context) {
@@ -123,9 +124,9 @@ class _HomeCleaningProviderDetailScreenState
           width: double.infinity,
           child: _buildBannerImage(),
         ),
-        Positioned(
+        PositionedDirectional(
           top: topInset + 8,
-          left: 16,
+          start: 16,
           child: AppBackButton(onTap: () => Get.back()),
         ),
         Padding(
@@ -203,7 +204,10 @@ class _HomeCleaningProviderDetailScreenState
               ),
               const SizedBox(width: 4),
               Text(
-                '$_rating (126 Reviews)',
+                'svc_rating_reviews'.trParams({
+                  'rating': _rating,
+                  'count': '126',
+                }),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 12,
@@ -240,7 +244,7 @@ class _HomeCleaningProviderDetailScreenState
               ),
               const SizedBox(width: 5),
               Text(
-                'Open until 8:00 PM',
+                'svc_open_until'.trParams({'time': '8:00 PM'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1A3A6B),
                   fontSize: 12.5,
@@ -253,11 +257,7 @@ class _HomeCleaningProviderDetailScreenState
           GestureDetector(
             onTap: () => Get.to(
               () => ChatScreen(
-                restaurant: {
-                  'name': _name,
-                  'title': _name,
-                  'image': _banner,
-                },
+                restaurant: {'name': _name, 'title': _name, 'image': _banner},
               ),
             ),
             child: Container(
@@ -288,7 +288,7 @@ class _HomeCleaningProviderDetailScreenState
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Chat',
+                    'svc_chat'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 15,
@@ -321,7 +321,7 @@ class _HomeCleaningProviderDetailScreenState
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(
-                            _tabs[i],
+                            _tabs[i].tr,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
                               color: _selectedTab == i
@@ -350,11 +350,7 @@ class _HomeCleaningProviderDetailScreenState
             ],
           ),
         ),
-        const Divider(
-          height: 1,
-          thickness: 1,
-          color: Color(0xFFEDE4DA),
-        ),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFEDE4DA)),
       ],
     );
   }
@@ -403,16 +399,14 @@ class _HomeCleaningProviderDetailScreenState
                           width: 72,
                           height: 72,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _serviceImageFallback(),
+                          errorBuilder: (_, __, ___) => _serviceImageFallback(),
                         )
                       : Image.asset(
                           item['image']!,
                           width: 72,
                           height: 72,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _serviceImageFallback(),
+                          errorBuilder: (_, __, ___) => _serviceImageFallback(),
                         ),
                 ),
                 const SizedBox(width: 12),
@@ -455,7 +449,7 @@ class _HomeCleaningProviderDetailScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Starting from',
+                        'svc_starting_from'.tr,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF9A8E86),
                           fontSize: 12,
@@ -523,7 +517,7 @@ class _HomeCleaningProviderDetailScreenState
         ],
       ),
       child: Text(
-        'ADD',
+        'svc_add_upper'.tr,
         style: GoogleFonts.outfit(
           color: Colors.white,
           fontSize: 13,
@@ -572,8 +566,10 @@ class _HomeCleaningProviderDetailScreenState
           Column(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF00B25C),
                   borderRadius: BorderRadius.circular(12),
@@ -610,7 +606,7 @@ class _HomeCleaningProviderDetailScreenState
               ),
               const SizedBox(height: 6),
               Text(
-                '126 Reviews',
+                'svc_reviews_count'.trParams({'count': '126'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 11,
@@ -620,11 +616,7 @@ class _HomeCleaningProviderDetailScreenState
             ],
           ),
           const SizedBox(width: 14),
-          Container(
-            width: 1,
-            height: 100,
-            color: const Color(0xFFEDE6DF),
-          ),
+          Container(width: 1, height: 100, color: const Color(0xFFEDE6DF)),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -702,8 +694,10 @@ class _HomeCleaningProviderDetailScreenState
             GestureDetector(
               onTap: () => setState(() => _reviewFilter = i),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 11,
+                ),
                 decoration: BoxDecoration(
                   color: _reviewFilter == i
                       ? const Color(0xFFFF5E00)
@@ -711,7 +705,7 @@ class _HomeCleaningProviderDetailScreenState
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Text(
-                  _reviewFilters[i],
+                  _reviewFilters[i].tr,
                   style: GoogleFonts.outfit(
                     color: _reviewFilter == i
                         ? Colors.white
@@ -782,7 +776,7 @@ class _HomeCleaningProviderDetailScreenState
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      review['time'] as String,
+                      (review['time'] as String).tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 11,
@@ -825,7 +819,7 @@ class _HomeCleaningProviderDetailScreenState
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
       child: Text(
-        '$_name provides professional home cleaning services with trained staff, eco-friendly products, and on-time service. Trusted by hundreds of customers across Nouakchott.',
+        'svc_about_home_cleaning'.trParams({'name': _name}),
         style: GoogleFonts.outfit(
           color: const Color(0xFF5A5048),
           fontSize: 13.5,

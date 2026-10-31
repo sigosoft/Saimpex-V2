@@ -85,10 +85,11 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen>
   }
 
   String get _displayOrderId {
-    final id = (tracking?.orderCode.isNotEmpty == true
-            ? tracking!.orderCode
-            : widget.orderId)
-        .trim();
+    final id =
+        (tracking?.orderCode.isNotEmpty == true
+                ? tracking!.orderCode
+                : widget.orderId)
+            .trim();
     return id.startsWith('#') ? id : '#$id';
   }
 
@@ -349,7 +350,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen>
         AppBackButton(onTap: () => Get.back()),
         Expanded(
           child: Text(
-            'Track Order $_displayOrderId',
+            'st_track_order'.trParams({'id': _displayOrderId}),
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
@@ -383,7 +384,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen>
         tracking: tracking,
         error: trackingError,
         fallbackOrderCode: widget.orderId,
-        preparingLabel: 'Accepted',
+        preparingLabel: 'st_accepted'.tr,
       ),
     );
   }

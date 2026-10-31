@@ -53,7 +53,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
       if (!mounted) return;
       setState(() {
         _detail = detail;
-        _error = detail == null ? 'Order details are not available' : null;
+        _error = detail == null ? 'pw_order_details_unavailable'.tr : null;
       });
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -86,9 +86,11 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
 
   static String _money(dynamic value, {bool negative = false}) {
     final number = double.tryParse('${value ?? ''}');
-    if (number == null) return '— MRU';
-    final text = '${number.round()} MRU';
-    return negative && number > 0 ? '-$text' : text;
+    if (number == null) return 'mru'.trParams({'amount': '—'});
+    final amount = '${number.round()}';
+    return 'mru'.trParams({
+      'amount': negative && number > 0 ? '-$amount' : amount,
+    });
   }
 
   @override
@@ -160,7 +162,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                _error ?? 'Order details are not available',
+                _error ?? 'pw_order_details_unavailable'.tr,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFA59A94),
@@ -181,7 +183,9 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
         children: [
           AppBackButton(onTap: () => Get.back()),
           Text(
-            _displayId.isEmpty ? 'Order' : 'Order $_displayId',
+            _displayId.isEmpty
+                ? 'pw_order'.tr
+                : 'pw_order_id'.trParams({'id': _displayId}),
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 16,
@@ -200,7 +204,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 border: Border.all(color: const Color(0xFFEAD8C9), width: 1.0),
               ),
               child: Text(
-                'Help',
+                'subs_help'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
@@ -223,39 +227,39 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
     final steps = [
       (
         icon: Icons.check_rounded,
-        title: 'Order placed',
+        title: 'pw_order_placed'.tr,
         subtitle: detail.placedAt,
         isActive: status >= 1,
       ),
       (
         icon: Icons.shopping_bag_outlined,
-        title: 'Picking items',
+        title: 'pw_picking_items'.tr,
         subtitle: time(3).isNotEmpty ? time(3) : time(2),
         isActive: !cancelled && status >= 2,
       ),
       isSelfPickup
           ? (
               icon: Icons.storefront_outlined,
-              title: 'Ready for pickup',
+              title: 'pw_ready_for_pickup'.tr,
               subtitle: time(4),
               isActive: !cancelled && status >= 4,
             )
           : (
               icon: Icons.delivery_dining_rounded,
-              title: 'On the way',
+              title: 'pw_step_on_the_way'.tr,
               subtitle: time(7).isNotEmpty ? time(7) : time(8),
               isActive: !cancelled && status >= 7,
             ),
       cancelled
           ? (
               icon: Icons.close_rounded,
-              title: 'Cancelled',
+              title: 'pw_cancelled'.tr,
               subtitle: time(10),
               isActive: true,
             )
           : (
               icon: Icons.check_rounded,
-              title: isSelfPickup ? 'Picked up' : 'Delivered',
+              title: isSelfPickup ? 'pw_picked_up'.tr : 'pw_step_delivered'.tr,
               subtitle: time(9),
               isActive: status >= 9,
             ),
@@ -279,7 +283,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
           Row(
             children: [
               Text(
-                'Order Status',
+                'pw_order_status'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 14,
@@ -288,7 +292,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               ),
               const Spacer(),
               Text(
-                isSelfPickup ? 'Self Pickup' : 'Delivery',
+                isSelfPickup ? 'pw_self_pickup'.tr : 'pw_delivery'.tr,
                 style: GoogleFonts.outfit(
                   color: isSelfPickup
                       ? const Color(0xFF007DFE)
@@ -481,7 +485,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pickup Location',
+            'pw_pickup_location'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 14,
@@ -491,7 +495,9 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
           const SizedBox(height: 10),
           _infoCard(
             icon: Icons.storefront_outlined,
-            title: detail.vendorName.isEmpty ? 'Store' : detail.vendorName,
+            title: detail.vendorName.isEmpty
+                ? 'pw_store'.tr
+                : detail.vendorName,
             subtitle: detail.vendorAddress,
           ),
         ],
@@ -501,7 +507,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Delivery Details',
+          'pw_delivery_details'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 14,
@@ -513,7 +519,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
         // Location Card
         _infoCard(
           icon: Icons.home_outlined,
-          title: 'Delivery address',
+          title: 'pw_delivery_address'.tr,
           subtitle: detail.deliveryAddress.isEmpty
               ? '—'
               : detail.deliveryAddress,
@@ -551,8 +557,8 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
               child: Text(
                 detail.isFinished
-                    ? 'No driver for this order'
-                    : 'A driver will be assigned soon',
+                    ? 'pw_no_driver'.tr
+                    : 'pw_driver_assigned_soon'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF8C7E75),
                   fontSize: 12,
@@ -580,7 +586,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                     children: [
                       Text(
                         detail.driverName.isEmpty
-                            ? 'Driver'
+                            ? 'pw_driver'.tr
                             : detail.driverName,
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1A1A1A),
@@ -600,9 +606,11 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                             [
                               detail.driverRating > 0
                                   ? detail.driverRating.toStringAsFixed(1)
-                                  : 'New',
+                                  : 'pw_new'.tr,
                               if (detail.driverReviews > 0)
-                                '(${detail.driverReviews} reviews)',
+                                'pw_reviews_count'.trParams({
+                                  'count': '${detail.driverReviews}',
+                                }),
                             ].join(' '),
                             style: GoogleFonts.outfit(
                               color: const Color(0xFF8C7E75),
@@ -619,9 +627,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 GestureDetector(
                   // The scope calls for a masked number, which needs a
                   // calling provider the backend doesn't have yet.
-                  onTap: () => showAppToast(
-                    'Calling your driver from the app is coming soon',
-                  ),
+                  onTap: () => showAppToast('pw_call_driver_soon'.tr),
                   child: Container(
                     width: 36,
                     height: 36,
@@ -649,7 +655,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Order Summary',
+          'pw_order_summary'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 14,
@@ -674,7 +680,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
           ),
           child: items.isEmpty
               ? Text(
-                  'No items',
+                  'pw_no_items'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF8C7E75),
                     fontSize: 12,
@@ -701,7 +707,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
     final localized = '${item['name_$language'] ?? ''}'.trim();
     final title = localized.isNotEmpty
         ? localized
-        : '${item['name_en'] ?? 'Item'}'.trim();
+        : '${item['name_en'] ?? 'pw_item'.tr}'.trim();
     final images = item['images'];
     final imagePath = images is List && images.isNotEmpty
         ? '${images.first}'
@@ -770,7 +776,9 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
     final tax = double.tryParse('${payment['tax'] ?? ''}') ?? 0;
     final discount = double.tryParse('${payment['discount'] ?? ''}') ?? 0;
     final isCash = '${payment['payment_type'] ?? ''}'.toLowerCase() == 'cash';
-    final totalLabel = isCash && !detail.isDelivered ? 'To pay' : 'Total paid';
+    final totalLabel = isCash && !detail.isDelivered
+        ? 'pw_to_pay'.tr
+        : 'pw_total_paid'.tr;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -789,7 +797,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PAYMENT DETAILS',
+            'pw_payment_details_caps'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
@@ -798,11 +806,11 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          _buildReceiptRow('Item total', _money(payment['item_total'])),
+          _buildReceiptRow('pw_item_total'.tr, _money(payment['item_total'])),
           if (discount > 0) ...[
             const SizedBox(height: 8),
             _buildReceiptRow(
-              'Discount',
+              'pw_discount'.tr,
               _money(discount, negative: true),
               isOrange: true,
             ),
@@ -810,21 +818,27 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
           if (redeemed != null && redeemed > 0) ...[
             const SizedBox(height: 8),
             _buildReceiptRow(
-              'Redeemed points',
-              '-${redeemed.round()} pts',
+              'cart_redeemed_points'.tr,
+              'pw_points_short'.trParams({'points': '-${redeemed.round()}'}),
               isOrange: true,
             ),
           ],
           if (!isSelfPickup) ...[
             const SizedBox(height: 8),
-            _buildReceiptRow('Delivery fee', _money(payment['delivery_fee'])),
+            _buildReceiptRow(
+              'cart_delivery_fee'.tr,
+              _money(payment['delivery_fee']),
+            ),
           ],
           if (tax > 0) ...[
             const SizedBox(height: 8),
-            _buildReceiptRow('Tax', _money(tax)),
+            _buildReceiptRow('cart_tax'.tr, _money(tax)),
           ],
           const SizedBox(height: 8),
-          _buildReceiptRow('Payment', isCash ? 'Cash' : 'Online'),
+          _buildReceiptRow(
+            'water_sub_payment'.tr,
+            isCash ? 'water_sub_pay_cash'.tr : 'pw_online'.tr,
+          ),
           const SizedBox(height: 12),
           const Divider(color: Colors.white24, height: 1),
           const SizedBox(height: 12),
@@ -900,7 +914,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    'Cancel',
+                    'cancel'.tr,
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 13,
@@ -942,7 +956,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    'Track Order',
+                    'pw_track_order'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,

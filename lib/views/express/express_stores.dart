@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
+import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_constants.dart';
 import '../../core/network/api_exception.dart';
@@ -52,7 +53,9 @@ class ExpressStores {
         final label = '${group['name_en'] ?? ''}';
         for (final vendor in (group['vendors'] as List? ?? const [])) {
           final row = asJsonMap(vendor);
-          if (row != null) loaded.add(_card(row, label));
+          if (row != null && _verticalEnabled(row['vendor_type'])) {
+            loaded.add(_card(row, label));
+          }
         }
       }
       loaded.sort(
@@ -67,6 +70,19 @@ class ExpressStores {
     return stores;
   }
 
+  /// Leaves out vendors whose category the admin switched off.
+  static bool _verticalEnabled(dynamic vendorType) {
+    if (!Get.isRegistered<HomeController>()) return true;
+    final slug = switch (int.tryParse('${vendorType ?? ''}')) {
+      _restaurant => 'food',
+      _grocery => 'grocery',
+      _pharmacy => 'pharmacy',
+      _water => 'water',
+      _ => null,
+    };
+    return slug == null || Get.find<HomeController>().isVerticalEnabled(slug);
+  }
+
   static Map<String, String> _card(Map<String, dynamic> row, String category) {
     String text(dynamic value) => '${value ?? ''}'.trim();
     final rating = double.tryParse(text(row['rating'])) ?? 0;
@@ -78,15 +94,20 @@ class ExpressStores {
     return {
       'id': text(row['id']),
       'vendorType': text(row['vendor_type']),
-      'name': name.isEmpty ? 'Store' : name,
+      'name': name.isEmpty ? 'st_store'.tr : name,
       'category': category,
-      'rating': rating > 0 ? rating.toStringAsFixed(1) : 'New',
+      'rating': rating > 0 ? rating.toStringAsFixed(1) : 'st_new'.tr,
       'distanceKm': km.toStringAsFixed(1),
-      'dist': '${km.toStringAsFixed(1)} Km',
-      'time': 'Express',
-      'badgeTime': 'Express',
-      'points': fee.isEmpty ? category : 'Delivery $fee MRU',
+      'dist': 'st_km'.trParams({'km': km.toStringAsFixed(1)}),
+      'time': 'st_express'.tr,
+      'badgeTime': 'st_express'.tr,
+      'points': fee.isEmpty
+          ? category
+          : 'st_delivery_amount'.trParams({'amount': fee}),
       'image': ApiConstants.mediaUrl(text(row['image'])) ?? '',
+      // For the store map.
+      'latitude': text(row['latitude']),
+      'longitude': text(row['longitude']),
     };
   }
 
@@ -94,7 +115,7 @@ class ExpressStores {
   static void open(Map<String, dynamic> store) {
     final id = int.tryParse('${store['id'] ?? ''}');
     if (id == null) {
-      showAppToast('This store is not available right now');
+      showAppToast('st_store_unavailable'.tr);
       return;
     }
     final name = '${store['name'] ?? ''}';
@@ -130,13 +151,9 @@ class ExpressStores {
           ),
         );
       case _water:
-        Get.to(
-          () => WaterSupplierDetailsScreen(
-            supplier: common,
-          ),
-        );
+        Get.to(() => WaterSupplierDetailsScreen(supplier: common));
       default:
-        showAppToast('This store is not available right now');
+        showAppToast('st_store_unavailable'.tr);
     }
   }
 }

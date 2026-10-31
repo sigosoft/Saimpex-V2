@@ -76,7 +76,7 @@ class SelectLocationScreen extends StatelessWidget {
               _buildBackButton(),
               const SizedBox(width: 16),
               Text(
-                'Select Your Delivery Location',
+                'core_location_title'.tr,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
@@ -182,7 +182,7 @@ class SelectLocationScreen extends StatelessWidget {
                     _buildBackButton(),
                     const SizedBox(width: 16),
                     Text(
-                      'Select Your Delivery Location',
+                      'core_location_title'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 18,
@@ -204,10 +204,14 @@ class SelectLocationScreen extends StatelessWidget {
                           target: LatLng(
                             SelectLocationController.selectedLatitude != 0.0
                                 ? SelectLocationController.selectedLatitude
-                                : SelectLocationController.defaultCenter.latitude,
+                                : SelectLocationController
+                                      .defaultCenter
+                                      .latitude,
                             SelectLocationController.selectedLongitude != 0.0
                                 ? SelectLocationController.selectedLongitude
-                                : SelectLocationController.defaultCenter.longitude,
+                                : SelectLocationController
+                                      .defaultCenter
+                                      .longitude,
                           ),
                           zoom: 16.0,
                         ),
@@ -323,7 +327,7 @@ class SelectLocationScreen extends StatelessWidget {
                   onChanged: controller.onSearchQueryChanged,
                   onSubmitted: controller.searchAddress,
                   decoration: InputDecoration(
-                    hintText: 'Search for area, street name.....',
+                    hintText: 'core_location_search_hint'.tr,
                     hintStyle: GoogleFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 13,
@@ -391,11 +395,8 @@ class SelectLocationScreen extends StatelessWidget {
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 6),
         itemCount: controller.searchResults.length,
-        separatorBuilder: (_, _) => const Divider(
-          height: 1,
-          indent: 44,
-          color: Color(0xFFF0E8E0),
-        ),
+        separatorBuilder: (_, _) =>
+            const Divider(height: 1, indent: 44, color: Color(0xFFF0E8E0)),
         itemBuilder: (context, index) {
           final result = controller.searchResults[index];
           final label = result['label']?.toString() ?? '';
@@ -508,7 +509,7 @@ class SelectLocationScreen extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'Current Location',
+              'core_location_current_location'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFE03A3A),
                 fontSize: 12,
@@ -562,7 +563,9 @@ class SelectLocationScreen extends StatelessWidget {
                 children: [
                   Obx(() {
                     return Text(
-                      controller.addressTitle.value,
+                      SelectLocationController.display(
+                        controller.addressTitle.value,
+                      ),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 16,
@@ -573,7 +576,9 @@ class SelectLocationScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Obx(() {
                     return Text(
-                      controller.addressSubtitle.value,
+                      SelectLocationController.display(
+                        controller.addressSubtitle.value,
+                      ),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 12,
@@ -594,21 +599,21 @@ class SelectLocationScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildAddressTypeBtn(
-                label: 'Home',
+                label: 'core_location_type_home'.tr,
                 icon: Icons.home_outlined,
                 isSelected: controller.selectedAddressType.value == 'Home',
                 onTap: () => controller.selectAddressType('Home'),
               ),
               const SizedBox(width: 10),
               _buildAddressTypeBtn(
-                label: 'Office',
+                label: 'core_location_type_office'.tr,
                 icon: Icons.desktop_mac_outlined,
                 isSelected: controller.selectedAddressType.value == 'Office',
                 onTap: () => controller.selectAddressType('Office'),
               ),
               const SizedBox(width: 10),
               _buildAddressTypeBtn(
-                label: 'Other',
+                label: 'core_location_type_other'.tr,
                 icon: Icons.near_me_outlined,
                 isSelected: controller.selectedAddressType.value == 'Other',
                 onTap: () => controller.selectAddressType('Other'),
@@ -706,7 +711,7 @@ class SelectLocationScreen extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    'Continue',
+                    'core_location_continue'.tr,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 16,

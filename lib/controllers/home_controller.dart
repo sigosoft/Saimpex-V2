@@ -266,6 +266,15 @@ class HomeController extends GetxController {
 
   int _homeRequest = 0;
 
+  /// Whether a vertical (food, laundry, car_wash, …) is switched on. homeHub
+  /// only lists enabled verticals (disabled ones are dropped when parsed), so
+  /// a slug missing from a loaded list is off. Until home loads, everything
+  /// counts as on; the server still refuses a switched-off service with 422.
+  bool isVerticalEnabled(String slug) {
+    if (homeVerticals.isEmpty) return true;
+    return homeVerticals.any((vertical) => vertical['slug'] == slug);
+  }
+
   String get walletLabel {
     final amount = walletBalance.value.trim();
     final currency = walletCurrency.value.trim();
@@ -279,17 +288,17 @@ class HomeController extends GetxController {
     if (title.isNotEmpty) return title;
     switch (key) {
       case 'trending':
-        return 'Trending in your area';
+        return 'core_home_trending'.tr;
       case 'recent_orders':
-        return 'Recent Orders';
+        return 'core_home_recent_orders'.tr;
       case 'under_30_minutes':
-        return 'Under 30 Minutes';
+        return 'core_home_under_30'.tr;
       case 'top_grocery':
-        return 'Top Grocery Stores Near You';
+        return 'core_home_top_grocery'.tr;
       case 'trusted_pharmacies':
-        return 'Trusted Pharmacies';
+        return 'core_home_trusted_pharmacies'.tr;
       case 'top_rated_suppliers':
-        return 'Top Rated Suppliers';
+        return 'core_home_top_suppliers'.tr;
       default:
         return '';
     }

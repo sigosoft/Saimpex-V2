@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'order_detail_screen.dart';
+import 'order_updated_detail_screen.dart';
 import 'water/water_order_details_screen.dart';
 import 'courier/courier_order_detail_screen.dart';
 import 'courier/courier_track_order_screen.dart';
@@ -43,14 +44,15 @@ class MyOrdersScreen extends StatefulWidget {
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
   // Matches design: All, Food, Pharmacy, Water, Courier, Local Store
   late int selectedCategoryIndex;
+  // Translation keys; tabs are matched by index, never by text.
   final List<String> categories = [
-    "All",
-    "Food",
-    "Grocery",
-    "Pharmacy",
-    "Water",
-    "Courier",
-    "Local Store",
+    'orders_filter_all',
+    'search_vertical_food',
+    'search_vertical_grocery',
+    'search_vertical_pharmacy',
+    'search_vertical_water',
+    'orders_cat_courier',
+    'search_vertical_local_store',
   ];
   Worker? _ordersCategoryWorker;
   Worker? _navWorker;
@@ -59,11 +61,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   List<Map<String, dynamic>> _restaurantOrders = const [];
   bool _restaurantOrdersLoading = false;
   List<Map<String, dynamic>> _groceryOrders = const [];
+  // Grocery order id → store proposals waiting and amount due.
+  Map<int, ({int pending, num due})> _groceryChanges = const {};
   bool _groceryOrdersLoading = false;
   List<Map<String, dynamic>> _waterOrders = const [];
   bool _waterOrdersLoading = false;
   List<Map<String, dynamic>> _courierOrders = const [];
   bool _courierOrdersLoading = false;
+  List<Map<String, dynamic>> _localStoreOrders = const [];
+  bool _localStoreOrdersLoading = false;
 
   @override
   void initState() {
@@ -74,6 +80,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _loadGroceryOrders();
     _loadWaterOrders();
     _loadCourierOrders();
+    _loadLocalStoreOrders();
     if (Get.isRegistered<HomeController>()) {
       final home = Get.find<HomeController>();
       _ordersCategoryWorker = ever<int>(home.pendingOrdersCategoryIndex, (
@@ -98,6 +105,44 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _loadGroceryOrders();
     _loadWaterOrders();
     _loadCourierOrders();
+    _loadLocalStoreOrders();
+  }
+
+  /// customer/orders/localStore, through the local-store GroceryRepository
+  /// (same order shape as grocery).
+  Future<void> _loadLocalStoreOrders() async {
+    if (!Get.isRegistered<GroceryRepository>(
+      tag: GroceryRepository.localStoreTag,
+    )) {
+      return;
+    }
+    setState(() => _localStoreOrdersLoading = true);
+    try {
+      final repository = Get.find<GroceryRepository>(
+        tag: GroceryRepository.localStoreTag,
+      );
+      final language = apiLanguageCode();
+      final first = await repository.fetchGroceryOrders(language: language);
+      final orders = [...first.orders];
+      var page = first.currentPage;
+      var lastPage = first.lastPage;
+      while (page < lastPage && page < 5) {
+        page += 1;
+        final next = await repository.fetchGroceryOrders(
+          language: language,
+          page: page,
+        );
+        orders.addAll(next.orders);
+        lastPage = next.lastPage;
+      }
+      if (!mounted) return;
+      setState(() => _localStoreOrders = orders);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _localStoreOrdersLoading = false);
+    }
   }
 
   @override
@@ -148,12 +193,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               alignment: Alignment.center,
               children: [
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: widget.showBottomNav
                       ? AppBackButton(onTap: () => _handleBack(context))
                       : const SizedBox(width: 38),
                 ),
-                Text('My Orders', style: AppTextStyles.heading()),
+                Text('orders_my_orders'.tr, style: AppTextStyles.heading()),
               ],
             ),
           ),
@@ -187,7 +232,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               });
                             },
                             child: Container(
-                              margin: const EdgeInsets.only(right: 10),
+                              margin: const EdgeInsetsDirectional.only(end: 10),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 22,
                               ),
@@ -205,7 +250,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                categories[index],
+                                categories[index].tr,
                                 style: GoogleFonts.outfit(
                                   color: isSelected
                                       ? Colors.white
@@ -295,12 +340,56 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       }
       if (!mounted) return;
       setState(() => _groceryOrders = orders);
+      _loadGroceryChanges(orders);
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     } finally {
       if (mounted) setState(() => _groceryOrdersLoading = false);
     }
+  }
+
+  /// For active grocery orders: proposals waiting for an answer and any
+  /// amount due from a pricier substitute (orders/{id}/substitutions).
+  Future<void> _loadGroceryChanges(List<Map<String, dynamic>> orders) async {
+    if (!Get.isRegistered<OrderRepository>()) return;
+    final changes = <int, ({int pending, num due})>{};
+    for (final order in orders) {
+      final id = order['numericOrderId'];
+      if (id is! int ||
+          order['isCancelled'] == true ||
+          order['isDelivered'] == true) {
+        continue;
+      }
+      try {
+        final data = await Get.find<OrderRepository>().substitutions(
+          orderId: id,
+          language: apiLanguageCode(),
+        );
+        final rows = data['substitutions'];
+        final pending = rows is List
+            ? rows.whereType<Map>().where((row) => row['status'] == 'pending')
+            : const <Map>[];
+        final due = num.tryParse('${data['amount_due'] ?? ''}') ?? 0;
+        if (pending.isNotEmpty || due > 0) {
+          changes[id] = (pending: pending.length, due: due);
+        }
+      } on ApiException {
+        // An order without substitutions just shows its normal buttons.
+      }
+    }
+    if (mounted) setState(() => _groceryChanges = changes);
+  }
+
+  Future<void> _openGroceryChanges(Map<String, dynamic> order) async {
+    await Get.to(
+      () => OrderUpdatedDetailScreen(
+        orderId: order['numericOrderId'] as int,
+        orderCode: '${order['orderId'] ?? ''}',
+        storeName: '${order['restaurantName'] ?? ''}',
+      ),
+    );
+    if (mounted) _loadGroceryOrders();
   }
 
   Widget _buildGroceryOrders() {
@@ -317,7 +406,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         padding: const EdgeInsets.symmetric(vertical: 28),
         child: Center(
           child: Text(
-            'No orders',
+            'orders_no_orders'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -340,15 +429,16 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final delivered = order['isDelivered'] == true;
     final badge = _pharmacyStatusColors(statusText, cancelled);
     final details = [
-      order['isSelfPickup'] == true ? 'Pickup' : 'Delivery',
+      order['isSelfPickup'] == true ? 'orders_pickup'.tr : 'orders_delivery'.tr,
       if ('${order['totalText'] ?? ''}'.isNotEmpty) '${order['totalText']}',
       if ((order['itemsCount'] is int) && (order['itemsCount'] as int) > 0)
-        '${order['itemsCount']} items',
+        'orders_items_count'.trParams({'count': '${order['itemsCount']}'}),
       if ('${order['orderId'] ?? ''}'.isNotEmpty) '${order['orderId']}',
     ].join(' • ');
 
     return _buildOrderCard(
-      restaurantName: '${order['restaurantName'] ?? 'Grocery'}',
+      restaurantName:
+          '${order['restaurantName'] ?? 'search_vertical_grocery'.tr}',
       statusText: statusText,
       statusColor: badge.$1,
       statusBgColor: badge.$2,
@@ -356,22 +446,28 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       onDetailsLink: () => _showGroceryOrderDetail(order),
       buttons: [
         if (!delivered && !cancelled) ...[
-          _buildOrderButton(
-            text: "Cancel",
-            onTap: () => _cancelRestaurantOrder(order),
-          ),
+          // The store proposed changes (or a substitute left an amount due):
+          // reviewing them comes first.
+          if (_groceryChanges.containsKey(order['numericOrderId']))
+            _buildOrderButton(
+              text: 'subs_review'.tr,
+              onTap: () => _openGroceryChanges(order),
+            )
+          else
+            _buildOrderButton(
+              text: 'cancel'.tr,
+              onTap: () => _cancelRestaurantOrder(order),
+            ),
           const SizedBox(width: 12),
           _buildGradientButton(
-            text: "Track Order",
+            text: 'orders_track_order_btn'.tr,
             onTap: () => _trackRestaurantOrder(order),
           ),
         ] else if (delivered)
           _buildOrderButton(
-            text: "Rate",
+            text: 'orders_rate'.tr,
             onTap: () => Get.to(
-              () => RateOrderScreen(
-                orderId: order['numericOrderId'] as int?,
-              ),
+              () => RateOrderScreen(orderId: order['numericOrderId'] as int?),
             ),
           ),
       ],
@@ -421,7 +517,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         padding: const EdgeInsets.symmetric(vertical: 28),
         child: Center(
           child: Text(
-            'No orders',
+            'orders_no_orders'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -453,15 +549,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final orderId = '${order['orderId'] ?? ''}';
     final badge = _pharmacyStatusColors(statusText, cancelled);
     final details = [
-      order['isSelfPickup'] == true ? 'Pickup' : 'Delivery',
+      order['isSelfPickup'] == true ? 'orders_pickup'.tr : 'orders_delivery'.tr,
       if ('${order['totalText'] ?? ''}'.isNotEmpty) '${order['totalText']}',
       if ((order['itemsCount'] is int) && (order['itemsCount'] as int) > 0)
-        '${order['itemsCount']} items',
+        'orders_items_count'.trParams({'count': '${order['itemsCount']}'}),
       if (orderId.isNotEmpty) orderId,
     ].join(' • ');
 
     return _buildOrderCard(
-      restaurantName: '${order['restaurantName'] ?? 'Restaurant'}',
+      restaurantName: '${order['restaurantName'] ?? 'orders_restaurant'.tr}',
       statusText: statusText,
       statusColor: badge.$1,
       statusBgColor: badge.$2,
@@ -470,21 +566,19 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       buttons: [
         if (delivered)
           _buildOrderButton(
-            text: "Rate",
+            text: 'orders_rate'.tr,
             onTap: () => Get.to(
-              () => RateOrderScreen(
-                orderId: order['numericOrderId'] as int?,
-              ),
+              () => RateOrderScreen(orderId: order['numericOrderId'] as int?),
             ),
           )
         else if (!cancelled) ...[
           _buildOrderButton(
-            text: "Cancel",
+            text: 'cancel'.tr,
             onTap: () => _cancelRestaurantOrder(order),
           ),
           const SizedBox(width: 12),
           _buildGradientButton(
-            text: "Track Order",
+            text: 'orders_track_order_btn'.tr,
             onTap: () => _trackRestaurantOrder(order),
           ),
         ],
@@ -500,7 +594,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Future<void> _trackRestaurantOrder(Map<String, dynamic> order) async {
     final orderId = _restaurantOrderId(order);
     if (orderId == null) {
-      showAppToast('Order tracking unavailable');
+      showAppToast('orders_tracking_unavailable'.tr);
       return;
     }
     try {
@@ -523,21 +617,21 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Future<void> _cancelRestaurantOrder(Map<String, dynamic> order) async {
     final orderId = _restaurantOrderId(order);
     if (orderId == null) {
-      showAppToast('Order cannot be cancelled');
+      showAppToast('orders_cannot_cancel'.tr);
       return;
     }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Cancel this order?'),
+        title: Text('orders_cancel_confirm'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('No'),
+            child: Text('orders_no'.tr),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Yes, cancel'),
+            child: Text('orders_yes_cancel'.tr),
           ),
         ],
       ),
@@ -550,7 +644,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       );
       if (!mounted) return;
       showAppToast(
-        message.isEmpty ? 'Order cancelled' : message,
+        message.isEmpty ? 'orders_cancelled_title'.tr : message,
         backgroundColor: const Color(0xFFFF5E00),
       );
       _loadRestaurantOrders();
@@ -564,7 +658,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   void _showGroceryOrderDetail(Map<String, dynamic> order) {
     final orderId = order['numericOrderId'];
     if (orderId is! int || orderId < 1) {
-      showAppToast('Order details unavailable');
+      showAppToast('orders_details_unavailable'.tr);
       return;
     }
     Get.to(
@@ -580,7 +674,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Future<void> _showRestaurantOrderDetail(Map<String, dynamic> order) async {
     final orderId = order['numericOrderId'];
     if (orderId is! int || orderId < 1) {
-      showAppToast('Order details unavailable');
+      showAppToast('orders_details_unavailable'.tr);
       return;
     }
     try {
@@ -592,7 +686,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       // catalogOrderDetail already returns the order fields, not the envelope
       final orderCode = detail['order_code'];
       if (orderCode == null) {
-        showAppToast('Order details unavailable');
+        showAppToast('orders_details_unavailable'.tr);
         return;
       }
       Get.to(() => OrderDetailScreen(orderId: '$orderCode', detail: detail));
@@ -645,7 +739,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'My Prescriptions  ›',
+              'orders_my_prescriptions'.tr,
               style: GoogleFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 13,
@@ -674,7 +768,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         padding: const EdgeInsets.symmetric(vertical: 28),
         child: Center(
           child: Text(
-            'No orders',
+            'orders_no_orders'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -692,16 +786,17 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Widget _pharmacyOrderCard(Map<String, dynamic> order) {
-    final pharmacyName = '${order['pharmacyName'] ?? 'Pharmacy'}';
+    final pharmacyName =
+        '${order['pharmacyName'] ?? 'search_vertical_pharmacy'.tr}';
     final orderId = '${order['orderId'] ?? ''}';
     final statusText = '${order['statusText'] ?? ''}';
     if (order['isQuotation'] == true) {
       final seconds = order['expiresInSeconds'];
       return PharmacyQuotationReadyCard(
         pharmacyName: pharmacyName,
-        orderId: orderId.isEmpty ? 'Prescription' : orderId,
+        orderId: orderId.isEmpty ? 'orders_prescription'.tr : orderId,
         amount: '${order['amount'] ?? ''}'.isEmpty
-            ? '0 MRU'
+            ? 'mru'.trParams({'amount': '0'})
             : '${order['amount']}',
         expiresIn: Duration(seconds: seconds is int ? seconds : 0),
         prescriptionId:
@@ -742,15 +837,20 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   String _pharmacyDetails(Map<String, dynamic> order) {
     if (order['isPrescription'] == true) {
       final orderId = '${order['orderId'] ?? ''}';
-      return orderId.isEmpty ? 'Prescription' : 'Prescription • $orderId';
+      return orderId.isEmpty
+          ? 'orders_prescription'.tr
+          : '${'orders_prescription'.tr} • $orderId';
     }
     final total = '${order['totalText'] ?? ''}';
     final items = order['itemsCount'];
     final orderId = '${order['orderId'] ?? ''}';
     return [
-      order['isSelfPickup'] == true ? 'Self Pickup' : 'Delivery',
+      order['isSelfPickup'] == true
+          ? 'orders_self_pickup'.tr
+          : 'orders_delivery'.tr,
       if (total.isNotEmpty) total,
-      if (items is int && items > 0) '$items items',
+      if (items is int && items > 0)
+        'orders_items_count'.trParams({'count': '$items'}),
       if (orderId.isNotEmpty) orderId,
     ].join(' • ');
   }
@@ -809,7 +909,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         padding: const EdgeInsets.symmetric(vertical: 28),
         child: Center(
           child: Text(
-            'No orders',
+            'orders_no_orders'.tr,
             style: GoogleFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 13,
@@ -840,18 +940,18 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       statusColor: statusColor,
       statusBgColor: statusBgColor,
       detailsText:
-          'Water • ${order['total']} • ${order['itemsCount']} items • #$orderId',
+          '${'search_vertical_water'.tr} • ${order['total']} • '
+          '${'orders_items_count'.trParams({'count': '${order['itemsCount']}'})} • #$orderId',
       buttons: [
         if (!cancelled)
           _buildGradientButton(
-            text: 'Track Order',
-            onTap: () =>
-                Get.to(
-                  () => WaterTrackOrderScreen(
-                    orderId: '#$orderId',
-                    apiOrderId: order['numericOrderId'] as int?,
-                  ),
-                ),
+            text: 'orders_track_order_btn'.tr,
+            onTap: () => Get.to(
+              () => WaterTrackOrderScreen(
+                orderId: '#$orderId',
+                apiOrderId: order['numericOrderId'] as int?,
+              ),
+            ),
           ),
       ],
       onDetailsLink: () => Get.to(
@@ -916,19 +1016,21 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         : (const Color(0xFFFF8A00), const Color(0xFFFFF4EC));
     final dropoff = '${order['dropoffAddress']}'.trim();
     return _buildOrderCard(
-      restaurantName: dropoff.isEmpty ? 'Courier delivery' : 'To $dropoff',
+      restaurantName: dropoff.isEmpty
+          ? 'orders_courier_delivery'.tr
+          : 'orders_to_address'.trParams({'address': dropoff}),
       statusText: '${order['statusText']}'.toUpperCase(),
       statusColor: statusColor,
       statusBgColor: statusBgColor,
       detailsText: [
-        order['isExpress'] == true ? 'Express' : 'Standard',
+        order['isExpress'] == true ? 'orders_express'.tr : 'orders_standard'.tr,
         '${order['total']}',
         '#$orderId',
       ].join(' • '),
       buttons: [
         if (!cancelled && !delivered)
           _buildGradientButton(
-            text: 'Track Delivery',
+            text: 'orders_track_delivery'.tr,
             onTap: () => Get.to(
               () => CourierTrackOrderScreen(
                 orderId: '#$orderId',
@@ -948,9 +1050,26 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
-  // Local Store orders aren't loaded from the API yet, so this tab shows an
-  // empty state instead of sample orders.
-  Widget _buildOtherCategoryOrders() => _buildUnloadedOrders();
+  /// Local Store orders (customer/orders/localStore), in the grocery cards.
+  Widget _buildOtherCategoryOrders() {
+    final onAllTab = selectedCategoryIndex == 0;
+    if (_localStoreOrdersLoading && _localStoreOrders.isEmpty) {
+      return onAllTab
+          ? const SizedBox.shrink()
+          : const Padding(
+              padding: EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              ),
+            );
+    }
+    if (_localStoreOrders.isEmpty) return _buildUnloadedOrders();
+    return Column(
+      children: [
+        for (final order in _localStoreOrders) _groceryOrderCard(order),
+      ],
+    );
+  }
 
   Widget _buildUnloadedOrders() {
     if (selectedCategoryIndex == 0) return const SizedBox.shrink();
@@ -958,7 +1077,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       padding: const EdgeInsets.symmetric(vertical: 28),
       child: Center(
         child: Text(
-          'No orders',
+          'orders_no_orders'.tr,
           style: GoogleFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 13,
@@ -1078,7 +1197,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'View Order Status & Details',
+                      'orders_view_status_details'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 10.5,
@@ -1194,7 +1313,7 @@ class _TrackingSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Order tracking',
+            'orders_tracking_title'.tr,
             style: GoogleFonts.outfit(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -1203,7 +1322,7 @@ class _TrackingSheet extends StatelessWidget {
           const SizedBox(height: 12),
           if (data.isEmpty)
             Text(
-              '${detail['message'] ?? 'No details'}',
+              '${detail['message'] ?? 'orders_no_details'.tr}',
               style: GoogleFonts.outfit(fontSize: 13),
             )
           else

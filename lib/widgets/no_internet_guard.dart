@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 
 /// Shows [child] when online; otherwise the offline screen overlay.
@@ -74,9 +75,9 @@ class NoInternetScreen extends StatelessWidget {
   static const _text = Color(0xFF5F6368);
 
   static const _tips = [
-    'Turning off aeroplane mode',
-    'Turning on mobile data or Wi-Fi',
-    'Checking the signal in your area',
+    'core_offline_tip_aeroplane',
+    'core_offline_tip_data',
+    'core_offline_tip_signal',
   ];
 
   @override
@@ -115,10 +116,10 @@ class NoInternetScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 28),
-                    const Text(
-                      'No Internet connection',
+                    Text(
+                      'core_offline_title'.tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF3C4043),
@@ -132,9 +133,9 @@ class NoInternetScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Try:',
-                              style: TextStyle(
+                            Text(
+                              'core_offline_try'.tr,
+                              style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w400,
                                 color: _text,
@@ -164,7 +165,7 @@ class NoInternetScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 7, left: 2),
+            padding: const EdgeInsetsDirectional.only(top: 7, start: 2),
             child: Container(
               width: 5,
               height: 5,
@@ -176,7 +177,7 @@ class NoInternetScreen extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            text,
+            text.tr,
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w400,

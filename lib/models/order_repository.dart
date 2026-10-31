@@ -54,6 +54,8 @@ class OrderRepository {
     String redeemAmount = '0',
     String note = '',
     bool version2 = true,
+    bool useWallet = false,
+    DateTime? scheduledFor,
   }) async {
     final fields = <String, dynamic>{
       'is_self_pickup': selfPickup ? '1' : '0',
@@ -65,6 +67,12 @@ class OrderRepository {
       'redeem_amount': redeemAmount,
       'notes': note,
       'order_note': note,
+      // Split payment: with payment_type 2 the wallet pays what it can and
+      // Masrvi charges the rest (online_amount).
+      if (useWallet) 'use_wallet': '1',
+      // Pre-order: delivered at this time instead of now.
+      if (scheduledFor != null)
+        'scheduled_for': scheduledForValue(scheduledFor),
     };
     if (!version2 && cartId != null) fields['cart_id'] = '$cartId';
     final envelope = await _send(
@@ -79,6 +87,34 @@ class OrderRepository {
     return data;
   }
 
+  /// Restaurant (catalog) cart totals (catalog/checkoutSummary): `sub_total`,
+  /// `delivery_charge`, `tax`, `coupon_code`, `coupon_discount` and
+  /// `grand_total` (after the coupon). An invalid [couponCode] is a 422 with
+  /// the reason.
+  Future<Map<String, dynamic>> catalogCheckoutSummary({
+    required bool selfPickup,
+    required double latitude,
+    required double longitude,
+    required String location,
+    required String language,
+    String couponCode = '',
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.catalogCheckoutSummary,
+        data: FormData.fromMap({
+          'is_self_pickup': selfPickup ? '1' : '0',
+          'lat': latitude.toString(),
+          'long': longitude.toString(),
+          'location': location,
+          if (couponCode.trim().isNotEmpty) 'coupon_code': couponCode.trim(),
+        }),
+      ),
+      language,
+    );
+    return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
   /// Restaurant (catalog) checkout; the cart is the server-side catalog cart.
   Future<Map<String, dynamic>> catalogCheckout({
     required bool selfPickup,
@@ -88,11 +124,15 @@ class OrderRepository {
     required String paymentType,
     required String language,
     String note = '',
+    bool useWallet = false,
+    DateTime? scheduledFor,
+    String couponCode = '',
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
         ApiConstants.catalogCheckout,
         data: FormData.fromMap({
+          if (couponCode.trim().isNotEmpty) 'coupon_code': couponCode.trim(),
           'is_self_pickup': selfPickup ? '1' : '0',
           'lat': latitude.toString(),
           'long': longitude.toString(),
@@ -100,6 +140,9 @@ class OrderRepository {
           'payment_type': paymentType,
           'notes': note,
           'order_note': note,
+          if (useWallet) 'use_wallet': '1',
+          if (scheduledFor != null)
+            'scheduled_for': scheduledForValue(scheduledFor),
         }),
       ),
       language,
@@ -204,6 +247,156 @@ class OrderRepository {
       language,
     );
     return envelope.message;
+  }
+
+  /// What the store proposed for a grocery order (orders/{id}/substitutions):
+  /// `order_total`, `amount_due`, `timeout_minutes` and `substitutions[]`.
+  Future<Map<String, dynamic>> substitutions({
+    required int orderId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.orderSubstitutions(orderId)),
+      language,
+    );
+    return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
+  /// Accepts or rejects one proposal. Returns the updated substitution with
+  /// `order_total` and `amount_due`. 409 when it was already decided.
+  Future<Map<String, dynamic>> respondSubstitution({
+    required int substitutionId,
+    required bool accept,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.substitutionRespond(substitutionId),
+        data: {'accept': accept ? 1 : 0},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    data['message'] = envelope.message;
+    return data;
+  }
+
+  /// Pays an order's `amount_due` online instead of cash at the door
+  /// (orders/{id}/payDue). Returns the Masrvi `payment_url`.
+  Future<String?> payDue({
+    required int orderId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.orderPayDue(orderId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final url = '${asJsonMap(envelope.data)?['payment_url'] ?? ''}'.trim();
+    return url.isEmpty || url == 'null' ? null : url;
+  }
+
+  /// The times a pre-order can be scheduled for (GET preorder/window):
+  /// `earliest` and `latest`, as local times.
+  Future<({DateTime earliest, DateTime latest})> preorderWindow(
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.preorderWindow),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final earliest = DateTime.tryParse('${data['earliest'] ?? ''}');
+    final latest = DateTime.tryParse('${data['latest'] ?? ''}');
+    if (earliest == null || latest == null) {
+      throw ApiException('Could not load delivery times. Please try again.');
+    }
+    return (earliest: earliest.toLocal(), latest: latest.toLocal());
+  }
+
+  /// [time] as ISO 8601 with the device's UTC offset, as checkout's
+  /// `scheduled_for` requires (e.g. 2026-11-02T13:30:00+00:00).
+  static String scheduledForValue(DateTime time) {
+    final local = time.toLocal();
+    final offset = local.timeZoneOffset;
+    String two(int value) => value.abs().toString().padLeft(2, '0');
+    final sign = offset.isNegative ? '-' : '+';
+    final stamp = local.toIso8601String().split('.').first;
+    return '$stamp$sign${two(offset.inHours)}:${two(offset.inMinutes % 60)}';
+  }
+
+  /// Whether the customer may use Pay After Delivery (`can_use`), why not
+  /// (`blocked_reason`), and their unpaid PAD orders (customer/payAfterDelivery).
+  Future<Map<String, dynamic>> payAfterDeliveryStatus(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.payAfterDelivery),
+      language,
+    );
+    return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
+  /// Payment types Admin has switched on (customer/paymentMethods), e.g.
+  /// {'1', '2', '3'}. Throws when the server doesn't send the list.
+  Future<Set<String>> enabledPaymentTypes(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.paymentMethods),
+      language,
+    );
+    final methods = (asJsonMap(envelope.data) ?? {})['payment_methods'];
+    if (methods is! List) {
+      throw const ApiException('Payment methods are missing.');
+    }
+    final enabled = <String>{};
+    for (final method in methods) {
+      final map = asJsonMap(method);
+      if (map == null) continue;
+      if (map['enabled'] == true || map['enabled'] == 1) {
+        enabled.add('${map['payment_type']}');
+      }
+    }
+    return enabled;
+  }
+
+  /// Pays a delivered Pay After Delivery order. [method] is `online` (returns
+  /// `payment_url`) or `wallet` (paid now; returns the new `balance`).
+  Future<Map<String, dynamic>> payAfterDeliveryPay({
+    required int orderId,
+    required String method,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.payAfterDeliveryPay(orderId),
+        data: {'method': method},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    data['message'] = envelope.message;
+    return data;
+  }
+
+  /// A new Masrvi `payment_url` for an unpaid online courier order or service
+  /// booking (orders/{id}/payOnline). 404 when nothing is due.
+  Future<String?> payOnline({
+    required int orderId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.orderPayOnline(orderId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final url = '${asJsonMap(envelope.data)?['payment_url'] ?? ''}'.trim();
+    return url.isEmpty || url == 'null' ? null : url;
   }
 
   Future<Map<String, dynamic>> trackOrder({

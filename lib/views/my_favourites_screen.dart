@@ -35,7 +35,7 @@ class MyFavouritesScreen extends StatelessWidget {
                 if (favourites.isEmpty) {
                   return Center(
                     child: Text(
-                      'No favourites yet',
+                      'core_favourites_empty'.tr,
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 15,
@@ -75,7 +75,11 @@ class MyFavouritesScreen extends StatelessWidget {
             child: Obx(() {
               final count = controller.favouritesCount;
               return Text(
-                count > 0 ? 'My Favourites ($count)' : 'My Favourites',
+                count > 0
+                    ? 'core_favourites_title_count'.trParams({
+                        'count': '$count',
+                      })
+                    : 'core_favourites_title'.tr,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF2C2520),
@@ -135,9 +139,9 @@ class MyFavouritesScreen extends StatelessWidget {
                   Positioned.fill(
                     child: _buildImage((item['image'] ?? '').toString()),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 12,
-                    left: 12,
+                    start: 12,
                     child: Row(
                       children: [
                         if (_text(item, 'discount').isNotEmpty) ...[
@@ -194,9 +198,9 @@ class MyFavouritesScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    right: 10,
+                    end: 10,
                     child: GestureDetector(
                       onTap: () => controller.toggleLike(id, item),
                       child: Container(
@@ -215,9 +219,9 @@ class MyFavouritesScreen extends StatelessWidget {
                     ),
                   ),
                   if (_text(item, 'points').isNotEmpty)
-                    Positioned(
+                    PositionedDirectional(
                       bottom: 10,
-                      left: 12,
+                      start: 12,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -258,7 +262,7 @@ class MyFavouritesScreen extends StatelessWidget {
                 children: [
                   Text(
                     _text(item, 'title').isEmpty
-                        ? 'Favourite'
+                        ? 'core_favourites_fallback_title'.tr
                         : _text(item, 'title'),
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF2C2520),
