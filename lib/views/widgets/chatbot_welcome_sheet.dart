@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../l10n/app_locale.dart';
+
 /// Shows the AI chatbot welcome / language bottom sheet.
 /// Returns the selected language code (`EN`, `FR`, `AR`) or `null` if closed.
 Future<String?> showChatBotWelcomeSheet(BuildContext context) {
@@ -22,7 +24,10 @@ class ChatBotWelcomeSheet extends StatefulWidget {
 }
 
 class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
-  int _selectedIndex = 0;
+  // Starts on the app's language.
+  int _selectedIndex = AppLocale.supportedCodes
+      .indexOf(AppLocale.code)
+      .clamp(0, 2);
 
   static const _languages = [
     _LangOption(code: 'EN', label: 'English'),

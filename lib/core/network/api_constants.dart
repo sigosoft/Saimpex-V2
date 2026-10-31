@@ -87,6 +87,10 @@ class ApiConstants {
   static const String cancelOrder = 'customer/cancelOrder';
   static const String payAfterDelivery = 'customer/payAfterDelivery';
   static const String paymentMethods = 'customer/paymentMethods';
+  static const String chatbotMessage = 'customer/chatbot/message';
+  static const String chatbotConversations = 'customer/chatbot/conversations';
+  static String chatbotConversation(int id) =>
+      'customer/chatbot/conversations/$id';
   static const String preorderWindow = 'customer/preorder/window';
   static String orderSubstitutions(int orderId) =>
       'customer/orders/$orderId/substitutions';

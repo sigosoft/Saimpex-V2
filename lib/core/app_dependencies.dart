@@ -5,6 +5,7 @@ import 'network/dio_client.dart';
 import 'storage/session_store.dart';
 import '../models/auth_repository.dart';
 import '../models/cart_repository.dart';
+import '../models/chatbot_repository.dart';
 import '../models/food_repository.dart';
 import '../models/general_repository.dart';
 import '../models/grocery_repository.dart';
@@ -41,6 +42,7 @@ class AppDependencies {
     Get.put<ServiceRepository>(ServiceRepository(client), permanent: true);
     Get.put<GeneralRepository>(GeneralRepository(client), permanent: true);
     Get.put<WalletRepository>(WalletRepository(client), permanent: true);
+    Get.put<ChatbotRepository>(ChatbotRepository(client), permanent: true);
     await SelectLocationController.loadSaved();
   }
 }

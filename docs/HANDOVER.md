@@ -299,7 +299,7 @@ Legend: **Done** = wired to a real API end to end in code (not device-tested unl
 | My Bookings (services) | Done | `service/bookings`, detail, cancel, rate. | `lib/views/my_bookings_screen.dart` |
 | My Schedules (pre-orders) | Not started | Hard-coded list. No backend yet. | `lib/views/my_schedules_screen.dart` |
 | Chat with vendor | Done (unverified on device) | Conversations list, conversation, send text/image/voice note. `markAsRead` and `deleteConversation` are not used. | `lib/views/messages_screen.dart`, `lib/views/chat_screen.dart`, `lib/models/chat_repository.dart` |
-| AI chatbot | Not started | Floating head + chat UI with **canned local replies** (`Future.delayed`). No backend call. | `lib/views/chatbot_ai_chat_screen.dart`, `lib/views/widgets/chatbot_head.dart`, `lib/views/widgets/chatbot_welcome_sheet.dart` |
+| AI chatbot | Done (C15, unverified on device) | Floating head + chat UI wired to `chatbot/message` (API §6.19): keeps `conversation_id`, sends the delivery location, history sheet (`chatbot/conversations`), voice input (speech_to_text in the chat language), reads replies aloud only when the customer spoke and Admin turned `voice_output` on (flutter_tts). Server errors (not configured / daily limit / temporary failure) show as a red bubble. | `lib/views/chatbot_ai_chat_screen.dart`, `lib/views/widgets/chatbot_head.dart`, `lib/views/widgets/chatbot_welcome_sheet.dart` |
 | Notifications | Partial | In-app list (`customer/notifications`) and preferences. **No push notifications** (no Firebase/FCM package). | `lib/views/notifications_screen.dart`, `lib/views/app_preferences_screen.dart` |
 | Profile / account | Done | Profile, edit profile, language, help/support, terms, privacy, about, delete account, logout (resets home data). | `lib/views/account_screen.dart`, `lib/views/edit_profile_screen.dart`, `lib/views/help_support_screen.dart`, `lib/views/terms_conditions_screen.dart` |
 | Coupons screen | Done (unverified) | Lists `customer/coupons`. | `lib/views/coupons_screen.dart` |
@@ -375,7 +375,7 @@ These come from Phase 0/1 of the plan in `V2_DECISIONS_AND_PLAN.md`. **Do not bu
 | **Car wash location types** | `place` values home / workplace / other / station on `service/book` and `service/quote` | **Contract pending from backend.** |
 | **Water subscriptions** (Phase 1 rework) | subscribe / plans / schedule | **Contract pending from backend.** |
 | **Catalog cart coupons / totals** | coupon on `catalog/checkoutSummary` and `catalog/checkout` | **Contract pending from backend.** |
-| **AI chatbot** (Claude, customer's own data only) | chat endpoint (message in, answer out; maybe streaming) | **Contract pending from backend.** |
+| **AI chatbot** (Claude, customer's own data only) | `chatbot/message`, `chatbot/conversations` | ✅ Wired (C15). |
 
 ---
 
@@ -446,7 +446,7 @@ AC: `car_wash_service_location_screen.dart` offers Home, Workplace, Other and At
 **P1-11. Catalog (food) coupons.** ✅ Done (C14, `feat/food-cart-coupons`): food carts now load `catalog/checkoutSummary` (item total, delivery charge, tax and `grand_total` from the server instead of the cart's built-in fee/tax guesses) with `coupon_code`; Apply checks the code there and a 422 shows the server's reason and drops the code; `catalog/checkout` sends `coupon_code`. Gas empty-cylinder confirmation (rest of C14) is not done: the app has no gas screens.
 AC: coupons apply in the food cart and are sent to `catalog/checkout`; coupons are vendor-specific (a coupon for store A is rejected in store B with the server message).
 
-**P1-12. AI chatbot (Claude).** Blocked.
+**P1-12. AI chatbot (Claude).** ✅ Done (C15, `feature/ai-assistant`): canned replies and the fake order-tracking card are gone; every message goes to the server. Read-only by design (the app gives the assistant no actions). Until Admin sets the Anthropic key the server answers 503 and the chat shows that message.
 AC: `chatbot_ai_chat_screen.dart` sends messages to the backend and shows answers; supports EN/FR/AR; can answer about the customer's own orders, wallet and points. The chat must not change the cart or place orders by itself (scope rule). No API key in the app.
 
 **P1-13. Delivery fee display.** ✅ Done (C9, `fix/server-delivery-fee`): the cart's payment rows printed fixed values (delivery 5 MRU, tax 2 MRU, points 1 MRU) and sent `redeem_amount=1` with points on by default. Now delivery fee, tax and points come only from the checkout summary ("…" until it loads); a 0 fee shows "Free Delivery". The points card shows the server's `redeem_points_available` / `redeem_points_amount`, only when `is_reward_enabled` and the customer has points, is off by default, and sends `redeem_amount` = `redeem_points_amount`.
