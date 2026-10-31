@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'laundry_cart_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
+import '../../controllers/service_booking_draft.dart';
+import '../../core/network/api_constants.dart';
 import '../../widgets/app_back_button.dart';
 
 class LaundryDryCleaningScreen extends StatefulWidget {
@@ -23,47 +25,37 @@ class LaundryDryCleaningScreen extends StatefulWidget {
 }
 
 class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
-  static const _items = [
-    {
-      'id': 'shirt',
-      'title': 'Shirt',
-      'price': 50,
-      'image':
-          'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=200&h=200&fit=crop',
-    },
-    {
-      'id': 'trousers',
-      'title': 'Trousers',
-      'price': 40,
-      'image':
-          'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=200&h=200&fit=crop',
-    },
-    {
-      'id': 'dress',
-      'title': 'Dress',
-      'price': 30,
-      'image':
-          'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=200&h=200&fit=crop',
-    },
-    {
-      'id': 'jacket',
-      'title': 'Jacket',
-      'price': 80,
-      'image':
-          'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=200&h=200&fit=crop',
-    },
-    {
-      'id': 'suit',
-      'title': 'Suit',
-      'price': 60,
-      'image':
-          'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=200&h=200&fit=crop',
-    },
+  /// The provider's own garment list and prices for this service, as
+  /// customer/serviceProvider returned it (picked on the provider screen).
+  late final List<Map<String, dynamic>> _items = [
+    for (final row
+        in (ServiceBookingDraft.item['garments'] as List? ?? const []))
+      if (row is Map && '${row['name'] ?? ''}'.trim().isNotEmpty)
+        {
+          'id': '${row['id'] ?? row['name']}',
+          'title': '${row['name']}'.trim(),
+          'price': (num.tryParse('${row['price'] ?? ''}') ?? 0).round(),
+          'image':
+              ApiConstants.mediaUrl(
+                '${row['image'] ?? ''}'.trim().isEmpty
+                    ? null
+                    : '${row['image']}'.trim(),
+              ) ??
+              '',
+        },
   ];
 
-  final Map<String, int> _qty = {
+  late final Map<String, int> _qty = {
     for (final item in _items) item['id'] as String: 0,
   };
+
+  /// `{name, quantity}` for every garment the customer added, as
+  /// customer/service/book takes them.
+  List<Map<String, dynamic>> get _pickedGarments => [
+    for (final item in _items)
+      if ((_qty[item['id']] ?? 0) > 0)
+        {'name': item['title'], 'quantity': _qty[item['id']]},
+  ];
 
   String get _heroImage => 'lib/assets/images/drycleaning_detail.png';
 
@@ -105,6 +97,8 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
         durationLabel: '24 hour',
         slotDate: date,
         slotLabel: slot,
+        garments: _pickedGarments,
+        quantity: _totalItems,
       ),
     );
   }
@@ -146,6 +140,19 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                         ),
                       ),
                       const SizedBox(height: 14),
+                      if (_items.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Text(
+                            'svc_no_garments'.tr,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF7A6A60),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
                       for (var i = 0; i < _items.length; i++) ...[
                         if (i > 0) const SizedBox(height: 10),
                         _buildItemCard(_items[i]),

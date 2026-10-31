@@ -42,6 +42,95 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   double? latitude,
   double? longitude,
 }) async {
+  final request = _bookingRequest(
+    slotDate: slotDate,
+    slotLabel: slotLabel,
+    paymentType: paymentType,
+    spaces: spaces,
+    addons: addons,
+    garments: garments,
+    vehicles: vehicles,
+    productSupply: productSupply,
+    propertyType: propertyType,
+    quantity: quantity,
+    place: place,
+    notes: notes,
+    address: address,
+    latitude: latitude,
+    longitude: longitude,
+  );
+  if (request == null) {
+    showAppToast(
+      'svc_choose_service_again'.tr,
+      backgroundColor: const Color(0xFFEF4444),
+    );
+    return null;
+  }
+
+  if (shownTotal != null && !await _confirmServerPrice(request, shownTotal)) {
+    return null;
+  }
+
+  try {
+    final result = await Get.find<ServiceRepository>().book(
+      request: request,
+      language: apiLanguageCode(),
+    );
+    showAppToast(
+      result.message.isEmpty ? 'svc_booking_created'.tr : result.message,
+      backgroundColor: const Color(0xFFFF5E00),
+    );
+    return result.booking;
+  } on ApiException catch (error) {
+    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    return null;
+  }
+}
+
+/// The server's price for the same booking [placeServiceBooking] would place
+/// (customer/service/quote): `subtotal`, `tax`, `tax_percent`, `total`,
+/// `lines`. Throws [ApiException] when the server can't price it; null when
+/// no service is picked.
+Future<Map<String, dynamic>?> quoteServiceBooking({
+  required DateTime slotDate,
+  required String slotLabel,
+  required String paymentType,
+  List<Map<String, dynamic>> garments = const [],
+  num? quantity,
+}) async {
+  final request = _bookingRequest(
+    slotDate: slotDate,
+    slotLabel: slotLabel,
+    paymentType: paymentType,
+    garments: garments,
+    quantity: quantity,
+  );
+  if (request == null) return null;
+  return Get.find<ServiceRepository>().quote(
+    request: request,
+    language: apiLanguageCode(),
+  );
+}
+
+/// The service/book (and service/quote) body for the picked service, or null
+/// when no service is picked.
+Map<String, dynamic>? _bookingRequest({
+  required DateTime slotDate,
+  required String slotLabel,
+  required String paymentType,
+  List<Map<String, dynamic>> spaces = const [],
+  List<Map<String, dynamic>> addons = const [],
+  List<Map<String, dynamic>> garments = const [],
+  List<Map<String, dynamic>> vehicles = const [],
+  String? productSupply,
+  String propertyType = '',
+  num? quantity,
+  String place = 'home',
+  String notes = '',
+  String? address,
+  double? latitude,
+  double? longitude,
+}) {
   final vertical = ServiceBookingDraft.vertical;
   final vendorId = ServiceBookingDraft.vendorId;
   final itemId = ServiceBookingDraft.serviceItemId;
@@ -49,10 +138,6 @@ Future<Map<String, dynamic>?> placeServiceBooking({
       vendorId == null ||
       itemId == null ||
       !Get.isRegistered<ServiceRepository>()) {
-    showAppToast(
-      'svc_choose_service_again'.tr,
-      backgroundColor: const Color(0xFFEF4444),
-    );
     return null;
   }
 
@@ -98,25 +183,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
       },
   ];
   if (matchedVehicles.isNotEmpty) request['vehicles'] = matchedVehicles;
-
-  if (shownTotal != null && !await _confirmServerPrice(request, shownTotal)) {
-    return null;
-  }
-
-  try {
-    final result = await Get.find<ServiceRepository>().book(
-      request: request,
-      language: apiLanguageCode(),
-    );
-    showAppToast(
-      result.message.isEmpty ? 'svc_booking_created'.tr : result.message,
-      backgroundColor: const Color(0xFFFF5E00),
-    );
-    return result.booking;
-  } on ApiException catch (error) {
-    showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
-    return null;
-  }
+  return request;
 }
 
 /// Prices [request] with customer/service/quote. True when the server's total
