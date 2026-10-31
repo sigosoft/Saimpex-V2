@@ -395,7 +395,7 @@ Masked calls are required (SPX-ADM-02 item 15). AC: the call-driver button in `t
 **P0-4. Courier pickup must be the customer's choice.** ✅ Done (pickup picker; fake totals removed in `fix/courier-online-payment`).
 `lib/views/courier/courier_screen.dart` hard-codes the pickup. AC: customer picks pickup on the map/saved addresses (same picker as drop-off); quote and create use that point. Remove the fake `redeemedPointsDiscount = 1` and `tax = 2` in `courier_review_booking_screen.dart`; the total shown equals the server quote.
 
-**P0-5. Water subscription purchase must not fake success.**
+**P0-5. Water subscription purchase must not fake success.** ✅ Done (C11, `feat/water-subscription-payment`): the plan comes from `water/plans`; the cart offers cash on the first delivery (default), online or wallet and sends `payment_type` + `quantity` (1–50) to `water/subscribe`; total = plan price × quantity. Online opens `payment_url`, polls `wallet/topup/{topup_id}` and shows success only when paid; a failed/closed payment reopens the same payment page instead of buying again.
 AC: until the subscribe contract is confirmed, the Pay button is disabled with a clear message, or it calls `water/subscribe` and shows success only when the server says so. The nearby-suppliers list comes from the API, not the hard-coded list in `water_nearby_suppliers_screen.dart`.
 
 **P0-6. Home search must search.** ✅ Done (P1-2, P1-3).

@@ -13,6 +13,23 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'water_sub_payment': 'Payment',
+  'water_sub_pay_cash': 'Cash',
+  'water_sub_pay_cash_hint': 'Pay the driver on the first delivery',
+  'water_sub_pay_online': 'Online payment',
+  'water_sub_plan_price': 'Plan price',
+  'water_sub_quantity': 'Quantity',
+  'water_sub_total': 'Total',
+  'water_sub_note_cash':
+      'Your subscription starts now; pay the total in cash on the first delivery.',
+  'water_sub_note_online':
+      'Pay the total online now; the subscription starts once the payment is confirmed.',
+  'water_sub_note_wallet': 'The total is paid from your wallet now.',
+  'water_sub_subscribe': 'Subscribe',
+  'water_sub_pay': 'Pay @amount MRU',
+  'water_sub_payment_failed': 'Payment failed. Tap pay to try again.',
+  'water_sub_payment_pending':
+      'Payment not confirmed yet. Tap pay to try again, or check My Subscriptions.',
   'coupon_removed': 'Coupon @code no longer applies and was removed.',
   'subs_review': 'Review changes',
   'subs_order': 'Order @code',
@@ -102,6 +119,24 @@ const _en = {
 };
 
 const _fr = {
+  'water_sub_payment': 'Paiement',
+  'water_sub_pay_cash': 'Espèces',
+  'water_sub_pay_cash_hint': 'Payez le livreur à la première livraison',
+  'water_sub_pay_online': 'Paiement en ligne',
+  'water_sub_plan_price': 'Prix du forfait',
+  'water_sub_quantity': 'Quantité',
+  'water_sub_total': 'Total',
+  'water_sub_note_cash':
+      "Votre abonnement commence maintenant ; payez le total en espèces à la première livraison.",
+  'water_sub_note_online':
+      "Payez le total en ligne maintenant ; l'abonnement commence une fois le paiement confirmé.",
+  'water_sub_note_wallet':
+      'Le total est payé avec votre portefeuille maintenant.',
+  'water_sub_subscribe': "S'abonner",
+  'water_sub_pay': 'Payer @amount MRU',
+  'water_sub_payment_failed': 'Paiement échoué. Touchez payer pour réessayer.',
+  'water_sub_payment_pending':
+      'Paiement pas encore confirmé. Touchez payer pour réessayer ou consultez Mes abonnements.',
   'coupon_removed': "Le coupon @code ne s'applique plus et a été retiré.",
   'subs_review': 'Voir les modifications',
   'subs_order': 'Commande @code',
@@ -192,6 +227,23 @@ const _fr = {
 };
 
 const _ar = {
+  'water_sub_payment': 'الدفع',
+  'water_sub_pay_cash': 'نقدًا',
+  'water_sub_pay_cash_hint': 'ادفع للسائق عند أول توصيل',
+  'water_sub_pay_online': 'الدفع عبر الإنترنت',
+  'water_sub_plan_price': 'سعر الخطة',
+  'water_sub_quantity': 'الكمية',
+  'water_sub_total': 'الإجمالي',
+  'water_sub_note_cash':
+      'يبدأ اشتراكك الآن؛ ادفع الإجمالي نقدًا عند أول توصيل.',
+  'water_sub_note_online':
+      'ادفع الإجمالي عبر الإنترنت الآن؛ يبدأ الاشتراك بعد تأكيد الدفع.',
+  'water_sub_note_wallet': 'يُدفع الإجمالي من محفظتك الآن.',
+  'water_sub_subscribe': 'اشترك',
+  'water_sub_pay': 'ادفع @amount أوقية',
+  'water_sub_payment_failed': 'فشل الدفع. اضغط ادفع للمحاولة مرة أخرى.',
+  'water_sub_payment_pending':
+      'لم يتم تأكيد الدفع بعد. اضغط ادفع للمحاولة مرة أخرى أو راجع اشتراكاتي.',
   'coupon_removed': 'القسيمة @code لم تعد صالحة وتمت إزالتها.',
   'subs_review': 'مراجعة التغييرات',
   'subs_order': 'الطلب @code',
