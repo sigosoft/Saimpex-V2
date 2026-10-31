@@ -44,7 +44,6 @@ class _GroceryScreenState extends State<GroceryScreen> {
   String _walletText = 'mru'.trParams({'amount': '0'});
 
   bool _groceryLoading = true;
-  bool _categoriesLoading = true;
   int? _activeCategoryId;
 
   GroceryRepository _getGroceryRepo() {
@@ -97,8 +96,8 @@ class _GroceryScreenState extends State<GroceryScreen> {
     try {
       final repo = _getGroceryRepo();
       final lang = currentApiLanguage();
-      final lat = SelectLocationController.selectedLatitude ?? 18.0735;
-      final lng = SelectLocationController.selectedLongitude ?? -15.9582;
+      final lat = SelectLocationController.selectedLatitude;
+      final lng = SelectLocationController.selectedLongitude;
 
       final fetched = await repo.fetchGroceryCategories(
         latitude: lat,
@@ -118,13 +117,10 @@ class _GroceryScreenState extends State<GroceryScreen> {
           } else {
             subcategories = fetched;
           }
-          _categoriesLoading = false;
         });
-      } else {
-        setState(() => _categoriesLoading = false);
       }
     } catch (_) {
-      if (mounted) setState(() => _categoriesLoading = false);
+      // Keeps the categories already shown.
     }
   }
 
@@ -133,8 +129,8 @@ class _GroceryScreenState extends State<GroceryScreen> {
     try {
       final repo = _getGroceryRepo();
       final lang = currentApiLanguage();
-      final lat = SelectLocationController.selectedLatitude ?? 18.0735;
-      final lng = SelectLocationController.selectedLongitude ?? -15.9582;
+      final lat = SelectLocationController.selectedLatitude;
+      final lng = SelectLocationController.selectedLongitude;
 
       final result = await repo.fetchGroceryHomeV2(
         latitude: lat,

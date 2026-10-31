@@ -152,8 +152,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     try {
       final repo = _getGroceryRepo();
       final lang = currentApiLanguage();
-      final lat = SelectLocationController.selectedLatitude ?? 18.0735;
-      final lng = SelectLocationController.selectedLongitude ?? -15.9582;
+      final lat = SelectLocationController.selectedLatitude;
+      final lng = SelectLocationController.selectedLongitude;
       final groceryId = _groceryId();
 
       final details = await repo.fetchGroceryDetails(

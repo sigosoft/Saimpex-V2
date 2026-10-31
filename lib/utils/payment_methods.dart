@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../core/network/api_exception.dart';
@@ -12,6 +13,10 @@ class PaymentMethods {
   PaymentMethods._();
 
   static Set<String>? _enabled;
+
+  /// Sets the enabled list directly; null means "not loaded".
+  @visibleForTesting
+  static set enabledForTest(Set<String>? enabled) => _enabled = enabled;
 
   /// Whether payment type [type] ('1' cash, '2' online, '3' wallet, '4' Pay
   /// After Delivery) may be offered.
