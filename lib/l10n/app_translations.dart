@@ -13,6 +13,7 @@ class AppTranslations extends Translations {
 }
 
 const _en = {
+  'coupon_removed': 'Coupon @code no longer applies and was removed.',
   'subs_review': 'Review changes',
   'subs_order': 'Order @code',
   'subs_help': 'Help',
@@ -101,6 +102,7 @@ const _en = {
 };
 
 const _fr = {
+  'coupon_removed': "Le coupon @code ne s'applique plus et a été retiré.",
   'subs_review': 'Voir les modifications',
   'subs_order': 'Commande @code',
   'subs_help': 'Aide',
@@ -190,6 +192,7 @@ const _fr = {
 };
 
 const _ar = {
+  'coupon_removed': 'القسيمة @code لم تعد صالحة وتمت إزالتها.',
   'subs_review': 'مراجعة التغييرات',
   'subs_order': 'الطلب @code',
   'subs_help': 'مساعدة',

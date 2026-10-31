@@ -538,6 +538,10 @@ The backend owner is **Praveen Soman** (praveen@sigosoft.com); APIs are built on
 - The Services screen hides Home cleaning, Car wash and Laundry when their vertical is off (the grid closes up); search results and Express vendors skip switched-off categories.
 - Checkout and booking show the server's 422 message (e.g. "service unavailable") through `ApiException.message`; `resolveApiMessage` also reads messages nested under a field name (`{"field": {"message_en": [...]}}`). The 422 itself is not on `integration/v2` yet, so it wasn't tried against the server.
 
+### Checkout refusals: used-up coupon, hidden product (`fix/checkout-refusals`)
+
+When checkout answers 422 the cart shows the server's message, then re-checks the applied coupon with `applyCoupon` (read-only on the server). If the coupon is refused (4xx), it's removed with a note. The cart and totals then reload, so a product the store hid is no longer shown as orderable. It doesn't depend on a specific error code. The backend change wasn't on GitHub when this was written, so it wasn't tried against the server; if the cart list still returns hidden products, the backend should drop or flag them there.
+
 ## Backend updates since this handover
 
 | Date | What's ready | Contract |

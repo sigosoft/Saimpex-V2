@@ -535,9 +535,42 @@ class _CartScreenState extends State<CartScreen> {
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
       // Refused Pay After Delivery: refresh why, which may hide the option.
       if (selectedPaymentIndex == 3) _loadPayAfterDelivery();
+      if (error.statusCode == 422) await _recheckCartAfterRefusal(payable);
     } finally {
       _placingOrder = false;
     }
+  }
+
+  /// Checkout refused the order (422): the coupon may be used up, or a
+  /// product may have been hidden by the store. The server's message is
+  /// already shown; drop a coupon that no longer applies and reload the cart
+  /// and totals so what's on screen is what can actually be ordered.
+  Future<void> _recheckCartAfterRefusal(int payable) async {
+    final coupon = _appliedCoupon;
+    if (coupon.isNotEmpty && Get.isRegistered<OrderRepository>()) {
+      try {
+        await Get.find<OrderRepository>().applyCoupon(
+          couponCode: coupon,
+          orderAmount: payable,
+          language: apiLanguageCode(),
+        );
+      } on ApiException catch (error) {
+        // 4xx: the coupon itself is refused now. Network errors keep it.
+        final status = error.statusCode ?? 0;
+        if (mounted && status >= 400 && status < 500) {
+          setState(() {
+            _appliedCoupon = '';
+            _couponController.clear();
+          });
+          showAppToast(
+            'coupon_removed'.trParams({'code': coupon}),
+            backgroundColor: const Color(0xFFEF4444),
+          );
+        }
+      }
+    }
+    if (!mounted) return;
+    await _loadCart();
   }
 
   Future<void> _finishPlacedOrder(
