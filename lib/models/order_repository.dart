@@ -206,6 +206,36 @@ class OrderRepository {
     return envelope.message;
   }
 
+  /// Whether the customer may use Pay After Delivery (`can_use`), why not
+  /// (`blocked_reason`), and their unpaid PAD orders (customer/payAfterDelivery).
+  Future<Map<String, dynamic>> payAfterDeliveryStatus(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.payAfterDelivery),
+      language,
+    );
+    return asJsonMap(envelope.data) ?? <String, dynamic>{};
+  }
+
+  /// Pays a delivered Pay After Delivery order. [method] is `online` (returns
+  /// `payment_url`) or `wallet` (paid now; returns the new `balance`).
+  Future<Map<String, dynamic>> payAfterDeliveryPay({
+    required int orderId,
+    required String method,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.payAfterDeliveryPay(orderId),
+        data: {'method': method},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    data['message'] = envelope.message;
+    return data;
+  }
+
   Future<Map<String, dynamic>> trackOrder({
     required int orderId,
     required String language,

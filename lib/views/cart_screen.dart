@@ -21,6 +21,7 @@ import '../navigation/bottom_nav_router.dart';
 import 'pharmacy/widgets/attach_prescription_sheet.dart';
 import '../utils/wallet_balance.dart';
 import 'widgets/coupons_sheet.dart';
+import 'pay_later_screen.dart';
 
 class CartScreen extends StatefulWidget {
   final String? storeName;
@@ -73,13 +74,49 @@ class _CartScreenState extends State<CartScreen> {
   String _appliedCoupon = '';
   final TextEditingController _couponController = TextEditingController();
   Worker? _cartTabWorker;
+  // 0 Wallet, 1 Online, 2 Cash on Delivery, 3 Pay After Delivery.
   late int selectedPaymentIndex;
   String scheduleText = "Pick a delivery time";
+  // customer/payAfterDelivery: whether PAD can be offered, and why not.
+  Map<String, dynamic>? _padStatus;
+
+  bool get _padCanUse => _padStatus?['can_use'] == true;
+  String? get _padBlockedReason => _padStatus?['blocked_reason']?.toString();
+
+  String get _padSubtitle {
+    if (_padCanUse) return 'pad_option_hint'.tr;
+    return switch (_padBlockedReason) {
+      'unpaid_order' => 'pad_blocked_unpaid'.tr,
+      'trust_removed' => 'pad_blocked_removed'.tr,
+      _ => 'pad_blocked_not_trusted'.trParams({
+        'done': '${_padStatus?['paid_orders'] ?? 0}',
+        'needed': '${_padStatus?['paid_orders_needed'] ?? ''}',
+      }),
+    };
+  }
+
+  Future<void> _loadPayAfterDelivery() async {
+    if (!Get.isRegistered<OrderRepository>()) return;
+    try {
+      final status = await Get.find<OrderRepository>().payAfterDeliveryStatus(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _padStatus = status;
+        if (!_padCanUse && selectedPaymentIndex == 3) selectedPaymentIndex = 0;
+      });
+    } on ApiException {
+      // Guests and failed loads just don't see the option.
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    selectedPaymentIndex = widget.isFoodOrGrocery ? 3 : 0;
+    // Wallet by default; Pay After Delivery is never the default.
+    selectedPaymentIndex = 0;
+    _loadPayAfterDelivery();
     final controller = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>()
         : null;
@@ -401,10 +438,12 @@ class _CartScreenState extends State<CartScreen> {
         : SelectLocationController.selectedSubtitle;
     final note = _deliveryNoteController.text.trim();
     // Wallet (0) is paid from the wallet when the order is placed; Online (1)
-    // opens the payment page; Cash on Delivery and Pay After Delivery send 1.
+    // opens the payment page; Cash on Delivery (2) is 1; Pay After Delivery
+    // (3) is 4, which the server refuses when the customer can't use it.
     final paymentType = switch (selectedPaymentIndex) {
       0 => paymentTypeWallet,
       1 => paymentTypeOnline,
+      3 => paymentTypePayAfterDelivery,
       _ => paymentTypeCash,
     };
     Future<Map<String, dynamic>> place(bool version2) {
@@ -456,6 +495,8 @@ class _CartScreenState extends State<CartScreen> {
       }
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      // Refused Pay After Delivery: refresh why, which may hide the option.
+      if (selectedPaymentIndex == 3) _loadPayAfterDelivery();
     } finally {
       _placingOrder = false;
     }
@@ -2211,13 +2252,19 @@ class _CartScreenState extends State<CartScreen> {
                         const SizedBox(height: 10),
 
                         // Payment Cards list
-                        if (widget.isFoodOrGrocery && isDelivery) ...[
-                          // Card 0: Pay After Delivery (Delivery only — select, no schedule popup)
+                        // Card 0: Pay After Delivery. Delivery only, never the
+                        // default, and selectable only when the server says
+                        // can_use; otherwise it says why.
+                        if (isDelivery && _padStatus != null) ...[
                           GestureDetector(
                             onTap: () {
-                              setState(() {
-                                selectedPaymentIndex = 3;
-                              });
+                              if (_padCanUse) {
+                                setState(() => selectedPaymentIndex = 3);
+                              } else if (_padBlockedReason == 'unpaid_order') {
+                                Get.to(() => const PayLaterScreen())?.then(
+                                  (_) => _loadPayAfterDelivery(),
+                                );
+                              }
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 10),
@@ -2265,18 +2312,22 @@ class _CartScreenState extends State<CartScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Pay After Delivery',
+                                          'pad_option'.tr,
                                           style: GoogleFonts.outfit(
-                                            color: const Color(0xFF2C2520),
+                                            color: _padCanUse
+                                                ? const Color(0xFF2C2520)
+                                                : const Color(0xFFA59A94),
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         const SizedBox(height: 3),
                                         Text(
-                                          "Enjoy your order first. Complete your payment whenever it's convenient after delivery.",
+                                          _padSubtitle,
                                           style: GoogleFonts.outfit(
-                                            color: const Color(0xFF8C7D73),
+                                            color: _padCanUse
+                                                ? const Color(0xFF8C7D73)
+                                                : const Color(0xFFEF4444),
                                             fontSize: 10,
                                           ),
                                         ),

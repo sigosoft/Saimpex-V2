@@ -17,6 +17,7 @@ import 'rewards_referral_screen.dart';
 import 'saved_addresses_screen.dart';
 import 'my_subscriptions_screen.dart';
 import 'my_schedules_screen.dart';
+import 'pay_later_screen.dart';
 import 'app_preferences_screen.dart';
 import 'help_support_screen.dart';
 import 'terms_conditions_screen.dart';
@@ -762,6 +763,13 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget _buildSettingsCard(BuildContext context) {
     final items = [
       {'label': 'Language', 'icon': Icons.language_rounded, 'isLogout': false},
+      // Not in Figma: where unpaid Pay After Delivery orders are paid.
+      {
+        'label': 'Pay Later',
+        'text': 'pad_title'.tr,
+        'icon': Icons.receipt_long_outlined,
+        'isLogout': false,
+      },
       {
         'label': 'App Preferences',
         'icon': Icons.settings_outlined,
@@ -809,6 +817,8 @@ class _AccountScreenState extends State<AccountScreen> {
                     _openLogoutConfirmSheet();
                   } else if (item['label'] == 'Language') {
                     openLanguageSelection(context);
+                  } else if (item['label'] == 'Pay Later') {
+                    Get.to(() => const PayLaterScreen());
                   } else if (item['label'] == 'App Preferences') {
                     Get.to(() => const AppPreferencesScreen());
                   } else if (item['label'] == 'Help & Support') {
@@ -864,7 +874,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          item['label'] as String,
+                          (item['text'] ?? item['label']) as String,
                           style: GoogleFonts.outfit(
                             color: isLogout
                                 ? AppColors.primaryOrange

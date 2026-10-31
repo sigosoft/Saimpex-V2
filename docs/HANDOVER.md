@@ -283,7 +283,7 @@ Legend: **Done** = wired to a real API end to end in code (not device-tested unl
 | Home cleaning | Done (payment step pending) | Providers, services, configure, property type + notes, slot, quote, book, cancel. Online payment has no Masrvi step. | `lib/views/services/home_cleaning_*.dart` |
 | Laundry | Partial | Providers, services, pickup slot, book, cancel. Dry-cleaning garment list is **hard-coded** (`laundry_dry_cleaning_screen.dart`). | `lib/views/services/laundry_*.dart` |
 | Other services (plumbing, carpentry, electrical) | Not started | Tiles on the Services screen do nothing. Scope puts them in later updates. | `lib/views/services/services_screen.dart` |
-| Cart and checkout | Partial | Catalog cart (food) and classic cart (grocery/pharmacy/water/local store); coupons on classic cart; points redeem; Wallet/Online/COD; Masrvi WebView with retry of the same order. **Pay After Delivery is offered and is the default for food/grocery, but it sends payment type 1 (cash)**. "Schedule for later" UI is not sent to the API. Coupons are not sent for catalog (food) checkout. | `lib/views/cart_screen.dart`, `lib/models/cart_repository.dart`, `lib/models/order_repository.dart`, `lib/views/payment_webview_screen.dart` |
+| Cart and checkout | Partial | Catalog cart (food) and classic cart (grocery/pharmacy/water/local store); coupons on classic cart; points redeem; Wallet/Online/COD; Masrvi WebView with retry of the same order. Pay After Delivery (type 4) only when the server allows it; Wallet is the default. "Schedule for later" UI is not sent to the API. Coupons are not sent for catalog (food) checkout. | `lib/views/cart_screen.dart`, `lib/models/cart_repository.dart`, `lib/models/order_repository.dart`, `lib/views/payment_webview_screen.dart` |
 | Wallet | Partial | Balance shown (home, account, every checkout); pay with wallet (type 3). **No top-up, no split payment, no transaction history.** | `lib/utils/wallet_balance.dart`, `lib/controllers/home_controller.dart`, `lib/views/account_screen.dart` |
 | Rewards / loyalty | Done (copy cleanup) | Tier, missions (claim), referral (apply), store points, reward baskets, redeem, history, success-screen points preview. Redeem sheet falls back to "Lorem Ipsum" text when the reward has no description. | `lib/views/rewards_referral_screen.dart`, `lib/views/redeem_detail_sheet.dart`, `lib/views/order_success_screen.dart`, `lib/models/profile_repository.dart` |
 | Saved addresses | Done | List / save / delete (`customer/addresses*`). | `lib/views/saved_addresses_screen.dart`, `lib/views/select_location_screen.dart` |
@@ -381,7 +381,7 @@ Each item has acceptance criteria (AC) that follow the client decisions. "Blocke
 
 ### P0 — wrong behaviour today (fix first, no backend needed)
 
-**P0-1. Pay After Delivery must not post as cash.**
+**P0-1. Pay After Delivery must not post as cash.** ✅ Done (`fix/pay-after-delivery`, with P1-5).
 `lib/views/cart_screen.dart` shows "Pay After Delivery", makes it the default for food/grocery (`selectedPaymentIndex = widget.isFoodOrGrocery ? 3 : 0`), and sends `paymentTypeCash`.
 AC: PAD is hidden until the backend exposes the trusted flag (P1-4). Default selection is a real method (Wallet or Online). No order is ever placed as cash when the customer picked something else.
 
@@ -421,7 +421,7 @@ AC: capture or upload a photo → backend identifies the product → list of sto
 **P1-4. Wallet top-up and split payment.** API ready (backend API doc §6.8).
 AC: Wallet screen with balance and transaction history; top-up 100 – 50,000 MRU (validate both limits in the app and expect server validation) paid via Masrvi WebView; balance refreshes after success. At checkout, if the wallet is short, the app shows "Wallet X + Online Y" and pays Y by Masrvi; never place an order the wallet cannot cover without that step.
 
-**P1-5. Trusted customers / Pay After Delivery.** Blocked.
+**P1-5. Trusted customers / Pay After Delivery.** ✅ Done (`fix/pay-after-delivery`): the cart loads `GET customer/payAfterDelivery`; PAD is selectable only when `can_use`, otherwise it shows why (tap opens Pay Later when an order is unpaid); never the default (Wallet is); sends `payment_type=4`. **Pay Later** screen (Account → Pay Later, built without a Figma screen) lists `unpaid_orders` and pays them online (Masrvi) or from the wallet (`POST payAfterDelivery/orders/{id}/pay`).
 AC: PAD appears only when the server says the customer is trusted. Order is placed with payment pending. The order shows "Pay now" and a 24-hour deadline; payment goes through Masrvi. If one PAD order is unpaid, PAD is hidden for new orders. Overdue status comes from the server.
 
 **P1-6. Masrvi for courier and service bookings.** Blocked.

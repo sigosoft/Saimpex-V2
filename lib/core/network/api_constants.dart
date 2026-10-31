@@ -79,6 +79,9 @@ class ApiConstants {
   static const String masrviInit = 'customer/payments/masrvi/init';
   static const String orderDetails = 'customer/orderDetails';
   static const String cancelOrder = 'customer/cancelOrder';
+  static const String payAfterDelivery = 'customer/payAfterDelivery';
+  static String payAfterDeliveryPay(int orderId) =>
+      'customer/payAfterDelivery/orders/$orderId/pay';
   static const String trackOrder = 'customer/trackOrder';
   static const String coupons = 'customer/coupons';
   static const String applyCoupon = 'customer/applyCoupon';
