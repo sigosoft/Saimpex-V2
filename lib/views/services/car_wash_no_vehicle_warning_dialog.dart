@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../utils/app_fonts.dart';
 Future<bool> showNoVehicleWarningDialog(BuildContext context) {
   return showDialog<bool>(
     context: context,
@@ -37,7 +37,7 @@ Future<bool> showNoVehicleWarningDialog(BuildContext context) {
               Text(
                 'svc_no_vehicles_found'.tr,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -47,7 +47,7 @@ Future<bool> showNoVehicleWarningDialog(BuildContext context) {
               Text(
                 'svc_no_vehicles_hint'.tr,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFBDBDBD),
                   fontSize: 14.5,
                   fontWeight: FontWeight.w400,
@@ -67,7 +67,7 @@ Future<bool> showNoVehicleWarningDialog(BuildContext context) {
                   ),
                   child: Text(
                     'svc_add_vehicle'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

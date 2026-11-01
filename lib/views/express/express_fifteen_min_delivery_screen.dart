@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../widgets/filter_chip_style.dart';
@@ -10,6 +9,7 @@ import 'widgets/express_filter_sheet.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/search_camera_button.dart';
 
+import '../../utils/app_fonts.dart';
 class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
   const ExpressFifteenMinDeliveryScreen({super.key});
 
@@ -65,7 +65,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                         child: Text(
                           'st_15_min_delivery'.tr,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -88,7 +88,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
                   'st_15_min_delivery'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -145,13 +145,13 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                 Expanded(
                   child: TextField(
                     controller: controller,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.black,
                       fontSize: 13,
                     ),
                     decoration: InputDecoration(
                       hintText: 'st_search_hint'.tr,
-                      hintStyle: GoogleFonts.outfit(
+                      hintStyle: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 12.5,
                       ),
@@ -293,7 +293,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                           const SizedBox(width: 2),
                           Text(
                             store['rating']!,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
@@ -350,7 +350,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                 children: [
                   Text(
                     store['name']!,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -367,7 +367,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         store['time']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF4A453F),
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
@@ -382,7 +382,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         store['dist']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF4A453F),
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
@@ -422,7 +422,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             text,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white,
               fontSize: 9,
               fontWeight: FontWeight.w600,
@@ -447,7 +447,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             time,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white,
               fontSize: 9,
               fontWeight: FontWeight.w600,

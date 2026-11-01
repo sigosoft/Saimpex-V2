@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../widgets/app_back_button.dart';
 
+import '../utils/app_fonts.dart';
 class PaymentWebViewScreen extends StatefulWidget {
   final String url;
 
@@ -84,7 +84,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         ),
         title: Text(
           'core_payment_title'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 18,
             fontWeight: FontWeight.w700,

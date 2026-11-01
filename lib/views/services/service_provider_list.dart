@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/service_repository.dart';
 import '../../utils/api_language.dart';
 
+import '../../utils/app_fonts.dart';
 /// Loads a service vertical's providers near the selected location and
 /// builds one card per provider, with loading, empty and error states.
 class ServiceProviderList extends StatefulWidget {
@@ -96,7 +96,7 @@ class _ServiceProviderListState extends State<ServiceProviderList> {
             Text(
               text,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFA59A94),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -107,7 +107,7 @@ class _ServiceProviderListState extends State<ServiceProviderList> {
                 onPressed: () => setState(() => _providers = _load()),
                 child: Text(
                   'retry'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontWeight: FontWeight.w700,
                   ),

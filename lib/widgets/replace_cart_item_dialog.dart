@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../utils/app_fonts.dart';
 /// Centered dialog shown when adding an item from a different restaurant
 /// than the one already in the cart.
 class ReplaceCartItemDialog extends StatelessWidget {
@@ -76,7 +76,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                   Text(
                     'core_replace_cart_title'.tr,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -89,7 +89,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                       'to': toName,
                     }),
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,
                       height: 1.45,
@@ -111,7 +111,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                             alignment: Alignment.center,
                             child: Text(
                               'core_replace_cart_no'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
@@ -146,7 +146,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                             alignment: Alignment.center,
                             child: Text(
                               'core_replace_cart_yes'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,

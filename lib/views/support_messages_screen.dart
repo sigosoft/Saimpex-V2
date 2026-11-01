@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/colors.dart';
 import '../core/network/api_exception.dart';
@@ -9,6 +8,7 @@ import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
+import '../utils/app_fonts.dart';
 /// Messages from SAIMPEX support, one thread per order (API §6.37).
 class SupportMessagesScreen extends StatefulWidget {
   const SupportMessagesScreen({super.key});
@@ -72,7 +72,7 @@ class _SupportMessagesScreenState extends State<SupportMessagesScreen> {
                         Center(
                           child: Text(
                             'orders_support_messages_empty'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 14,
                             ),
@@ -123,7 +123,7 @@ class _SupportMessagesScreenState extends State<SupportMessagesScreen> {
                                         'orders_support_order_label'.trParams({
                                           'code': '${thread['order_code']}',
                                         }),
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF2C2520),
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
@@ -134,7 +134,7 @@ class _SupportMessagesScreenState extends State<SupportMessagesScreen> {
                                         last,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF7A6A60),
                                           fontSize: 12.5,
                                           fontWeight: unread > 0
@@ -157,7 +157,7 @@ class _SupportMessagesScreenState extends State<SupportMessagesScreen> {
                                     ),
                                     child: Text(
                                       '$unread',
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
@@ -306,7 +306,7 @@ class _SupportThreadScreenState extends State<SupportThreadScreen> {
                               if (!mine)
                                 Text(
                                   'orders_support_from_saimpex'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: AppColors.primaryOrange,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -314,7 +314,7 @@ class _SupportThreadScreenState extends State<SupportThreadScreen> {
                                 ),
                               Text(
                                 '${message['text'] ?? ''}',
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: mine
                                       ? Colors.white
                                       : const Color(0xFF2C2520),
@@ -342,7 +342,7 @@ class _SupportThreadScreenState extends State<SupportThreadScreen> {
                       maxLength: 2000,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
-                      style: GoogleFonts.outfit(fontSize: 14),
+                      style: AppFonts.outfit(fontSize: 14),
                       decoration: InputDecoration(
                         counterText: '',
                         hintText: 'orders_support_reply_hint'.tr,
@@ -400,7 +400,7 @@ PreferredSizeWidget _supportAppBar(BuildContext context, String title) {
     centerTitle: true,
     title: Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF2C2520),
         fontSize: 18,
         fontWeight: FontWeight.w700,

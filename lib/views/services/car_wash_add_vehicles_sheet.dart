@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../utils/app_fonts.dart';
 class CarWashAddedVehicle {
   final String label;
   final String image;
@@ -110,7 +110,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
         titleText: const SizedBox.shrink(),
         messageText: Text(
           'svc_enter_vehicle_number_error'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w600,
@@ -167,7 +167,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                   child: Text(
                     'svc_add_vehicles'.tr,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5216),
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -188,7 +188,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                       children: [
                         Text(
                           'svc_vehicle_type'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -278,7 +278,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                                     ),
                                                 child: Text(
                                                   type['label'] as String,
-                                                  style: GoogleFonts.outfit(
+                                                  style: AppFonts.outfit(
                                                     color: const Color(
                                                       0xFF0F1E31,
                                                     ),
@@ -301,7 +301,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                         const SizedBox(height: 22),
                         Text(
                           'svc_enter_vehicle_number'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -324,7 +324,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                             textCapitalization: TextCapitalization.characters,
                             keyboardType: TextInputType.text,
                             onChanged: _onPlateChanged,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF1A1A1A),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -332,7 +332,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                             ),
                             decoration: InputDecoration(
                               hintText: 'svc_plate_hint'.tr,
-                              hintStyle: GoogleFonts.outfit(
+                              hintStyle: AppFonts.outfit(
                                 color: const Color(0xFFB0A59C),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -350,7 +350,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                           const SizedBox(height: 8),
                           Text(
                             'svc_enter_vehicle_number_error'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFE53935),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -373,7 +373,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                             Expanded(
                               child: Text(
                                 'svc_plate_help'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF9A8E86),
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w500,
@@ -398,7 +398,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                   ),
                                   child: Text(
                                     'cancel'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF1A1A1A),
                                       fontSize: 15,
                                       fontWeight: FontWeight.w700,
@@ -436,7 +436,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                   ),
                                   child: Text(
                                     'svc_add'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w800,

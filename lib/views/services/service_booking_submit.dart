@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import '../../controllers/service_booking_draft.dart';
@@ -12,6 +11,7 @@ import '../../utils/payment_page.dart';
 import '../../utils/toast_helper.dart';
 import '../../utils/wallet_balance.dart';
 
+import '../../utils/app_fonts.dart';
 /// Places the booking for the service picked on the provider screen
 /// ([ServiceBookingDraft]) through customer/service/book. Returns the created
 /// booking, or null after showing why it failed.
@@ -301,7 +301,7 @@ class _ServerPriceDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle style(double size, FontWeight weight, Color color) =>
-        GoogleFonts.outfit(fontSize: size, fontWeight: weight, color: color);
+        AppFonts.outfit(fontSize: size, fontWeight: weight, color: color);
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),

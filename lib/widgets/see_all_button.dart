@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../utils/app_fonts.dart';
 class SeeAllButton extends StatelessWidget {
   const SeeAllButton({super.key, this.onTap});
 
@@ -14,7 +14,7 @@ class SeeAllButton extends StatelessWidget {
       children: [
         Text(
           'core_see_all'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color.fromARGB(255, 255, 112, 30),
             fontSize: 13,
             fontWeight: FontWeight.w600,

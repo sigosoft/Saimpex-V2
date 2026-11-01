@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
@@ -12,6 +11,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import 'select_location_screen.dart';
 
+import '../utils/app_fonts.dart';
 /// The customer's address book (customer/addresses). Tap an address to
 /// deliver there; add and edit go through the map picker.
 class SavedAddressesScreen extends StatefulWidget {
@@ -216,7 +216,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
       child: Text(
         _error ?? 'core_addresses_empty'.tr,
         textAlign: TextAlign.center,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: const Color(0xFFA59A94),
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -240,7 +240,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
             child: Text(
               'core_addresses_title'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -314,7 +314,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                     children: [
                       Text(
                         _labelText(label),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -323,7 +323,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                       const SizedBox(height: 6),
                       Text(
                         '${address['address'] ?? ''}',
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF6B635C),
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
@@ -352,7 +352,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                   onTap: () => _deleteAddress(address),
                   child: Text(
                     'core_addresses_delete'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5216),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -364,7 +364,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                   onTap: () => _openPicker(editing: address),
                   child: Text(
                     'core_addresses_edit'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5216),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -403,7 +403,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         ),
         child: Text(
           'core_addresses_add_new'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w700,

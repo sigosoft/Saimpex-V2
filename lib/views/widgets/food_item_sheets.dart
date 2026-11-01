@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'auto_slide_network_images.dart';
 
+import '../../utils/app_fonts.dart';
 export 'food_customize_sheet.dart';
 
 const String _kFoodDescription =
@@ -143,7 +143,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                 children: [
                                   Text(
                                     food['title']?.toString() ?? '',
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF1A1A1A),
                                       fontSize: 20,
                                       fontWeight: FontWeight.w800,
@@ -161,7 +161,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                     ),
                                     child: Text(
                                       food['tag']?.toString() ?? 'Spicy',
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 10,
                                         fontWeight: FontWeight.w700,
@@ -176,7 +176,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                     children: [
                                       Text(
                                         food['price']?.toString() ?? '',
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFFFF5216),
                                           fontSize: 18,
                                           fontWeight: FontWeight.w800,
@@ -185,7 +185,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                       const SizedBox(width: 8),
                                       Text(
                                         food['originalPrice']?.toString() ?? '',
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 12,
                                           decoration:
@@ -208,7 +208,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                       const SizedBox(width: 4),
                                       Text(
                                         '${food['rating'] ?? '4.6'} (${food['reviews'] ?? '10k + reviews'})',
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF7A6A60),
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
@@ -219,7 +219,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                   const SizedBox(height: 14),
                                   Text(
                                     _kFoodDescription,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF7A6A60),
                                       fontSize: 13,
                                       height: 1.5,
@@ -230,7 +230,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                   Center(
                                     child: Text(
                                       'core_food_swipe_up'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFFA59A94),
                                         fontSize: 11,
                                         fontWeight: FontWeight.w500,
@@ -297,7 +297,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                   ),
                                   child: Text(
                                     '$_quantity',
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 15,
                                       fontWeight: FontWeight.w800,
@@ -360,7 +360,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                     const SizedBox(width: 8),
                                     Text(
                                       'core_food_add'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 15,
                                         fontWeight: FontWeight.w800,

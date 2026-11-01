@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
 import '../core/network/api_constants.dart';
@@ -28,6 +27,7 @@ import 'select_location_screen.dart';
 import 'notifications_screen.dart';
 import 'wallet_screen.dart';
 
+import '../utils/app_fonts.dart';
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
 
@@ -275,7 +275,7 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text(
                           'core_home_deliver_to'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -290,7 +290,7 @@ class HomeScreen extends StatelessWidget {
                                   maxLines: 1,
                                   softWrap: false,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -347,7 +347,7 @@ class HomeScreen extends StatelessWidget {
                     if (label.isEmpty) return const SizedBox.shrink();
                     return Text(
                       label,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -475,7 +475,7 @@ class HomeScreen extends StatelessWidget {
                     alignment: Alignment.bottomCenter,
                     child: Text(
                       cat['label'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: isSelected
                             ? Colors.white
                             : const Color(0xFF2C2520),
@@ -757,7 +757,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               message,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -853,7 +853,7 @@ class HomeScreen extends StatelessWidget {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -865,7 +865,7 @@ class HomeScreen extends StatelessWidget {
                       subtitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -885,7 +885,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Text(
                         cta,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -951,7 +951,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -1057,7 +1057,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Text(
                         (item['discount'] ?? '').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
@@ -1088,7 +1088,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 2),
                         Text(
                           (item['rating'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.black,
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -1151,7 +1151,7 @@ class HomeScreen extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             (item['points'] ?? '').toString(),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 8,
                               fontWeight: FontWeight.bold,
@@ -1197,7 +1197,7 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Text(
                       (item['title'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -1206,7 +1206,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       (item['subtitle'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 10,
                       ),
@@ -1222,7 +1222,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           (item['time'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF4A453F),
                             fontSize: 9,
                             fontWeight: FontWeight.w500,
@@ -1237,7 +1237,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           (item['dist'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF4A453F),
                             fontSize: 9,
                             fontWeight: FontWeight.w500,
@@ -1278,7 +1278,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   'core_home_closed'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -1299,7 +1299,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'core_home_opens_at'.trParams({'time': opensAt}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.w500,
@@ -1361,7 +1361,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'core_home_temp_closed_line1'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
@@ -1372,7 +1372,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 1),
                 Text(
                   'core_home_temp_closed_line2'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
                     fontWeight: FontWeight.bold,
@@ -1415,7 +1415,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -1428,7 +1428,7 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text(
                           'core_home_view_orders'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1526,7 +1526,7 @@ class HomeScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             textOf('title'),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -1541,7 +1541,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 2),
                         Text(
                           textOf('rating'),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -1555,14 +1555,14 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: textOf('itemPrefix'),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 10,
                             ),
                           ),
                           TextSpan(
                             text: textOf('qty'),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
@@ -1570,7 +1570,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           TextSpan(
                             text: textOf('itemSuffix'),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 10,
                             ),
@@ -1591,7 +1591,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           textOf('date'),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 10,
                           ),
@@ -1609,7 +1609,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               Text(
                 textOf('itemsCount'),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -1640,7 +1640,7 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         'core_home_reorder'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -1743,7 +1743,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Text(
                         (item['discount'] ?? '').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
@@ -1775,7 +1775,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 2),
                         Text(
                           (item['rating'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.black,
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -1814,7 +1814,7 @@ class HomeScreen extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 (item['points'] ?? '').toString(),
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
@@ -1844,7 +1844,7 @@ class HomeScreen extends StatelessWidget {
                             const SizedBox(width: 3),
                             Text(
                               (item['time'] ?? '').toString(),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
@@ -1888,7 +1888,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Text(
                     (item['title'] ?? '').toString(),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -1897,7 +1897,7 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     (item['subtitle'] ?? '').toString(),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 10,
                     ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../utils/app_fonts.dart';
 Future<String?> showCarWashSelectedVehicleSheet(
   BuildContext context, {
   required String label,
@@ -69,7 +69,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                   child: Text(
                     'svc_selected_vehicle'.tr,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5216),
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -90,7 +90,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                       const SizedBox(height: 20),
                       Text(
                         'svc_enter_vehicle_number'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 14.5,
                           fontWeight: FontWeight.w800,
@@ -113,14 +113,14 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                         child: TextField(
                           controller: _plateController,
                           textCapitalization: TextCapitalization.characters,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
                           decoration: InputDecoration(
                             hintText: 'svc_plate_hint'.tr,
-                            hintStyle: GoogleFonts.outfit(
+                            hintStyle: AppFonts.outfit(
                               color: const Color(0xFFB0A59C),
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -149,7 +149,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                           Expanded(
                             child: Text(
                               'svc_plate_help'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF9A8E86),
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w500,
@@ -168,7 +168,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                               SnackBar(
                                 content: Text(
                                   'svc_enter_vehicle_number_error'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -203,7 +203,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                           ),
                           child: Text(
                             'svc_continue'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
@@ -291,7 +291,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                           children: [
                             Text(
                               widget.label,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF1A1A1A),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
@@ -300,7 +300,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                             const SizedBox(height: 4),
                             Text(
                               'mru'.trParams({'amount': '${widget.price}'}),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF9A8E86),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,

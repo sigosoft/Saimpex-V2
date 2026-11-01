@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -13,6 +12,7 @@ import 'order_detail_screen.dart';
 import 'pharmacy/pharmacy_item_order_detail_screen.dart';
 import 'widgets/scheduled_for_banner.dart';
 
+import '../utils/app_fonts.dart';
 /// The customer's open pre-orders (GET customer/preorders), soonest first.
 class MySchedulesScreen extends StatefulWidget {
   const MySchedulesScreen({super.key});
@@ -235,7 +235,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
               child: Text(
                 _error ?? 'schedules_empty'.tr,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -263,7 +263,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
             child: Text(
               'orders_my_schedules'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -301,7 +301,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
               ),
               child: Text(
                 _filters[index].$1.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: selected ? Colors.white : const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -382,7 +382,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                       '${vendor['name'] ?? ''}'.trim(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -391,7 +391,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
@@ -423,7 +423,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     const SizedBox(width: 5),
                     Text(
                       statusLabel,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1FAF5A),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -449,7 +449,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                   ),
                   child: Text(
                     typeLabel.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF6B4BD8),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -481,7 +481,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                         child: Text(
                           formatScheduledFor('${item['scheduled_for'] ?? ''}'),
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -510,7 +510,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                       ),
                       child: Text(
                         'cancel'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -546,7 +546,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     ),
                     child: Text(
                       'orders_view_order'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,

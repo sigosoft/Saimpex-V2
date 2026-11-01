@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
@@ -15,6 +14,7 @@ import '../../widgets/app_back_button.dart';
 import '../../widgets/store_map_button.dart';
 import '../widgets/search_camera_button.dart';
 
+import '../../utils/app_fonts.dart';
 class GroceryStoresScreen extends StatefulWidget {
   const GroceryStoresScreen({super.key});
 
@@ -246,7 +246,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                       ),
                       child: Text(
                         store['discount']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFFFCF8),
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
@@ -277,7 +277,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                           const SizedBox(width: 2),
                           Text(
                             store['rating']!,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.black,
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -345,7 +345,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                           const SizedBox(width: 4),
                           Text(
                             store['points']!,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFFFCF8),
                               fontSize: 8,
                               fontWeight: FontWeight.bold,
@@ -386,7 +386,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                   children: [
                     Text(
                       store['name']!,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -395,7 +395,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     const SizedBox(height: 2),
                     Text(
                       store['category']!,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 10,
                       ),
@@ -411,7 +411,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                         const SizedBox(width: 4),
                         Text(
                           store['time']!,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -426,7 +426,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                         const SizedBox(width: 4),
                         Text(
                           store['dist']!,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -520,7 +520,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                     child: Center(
                                       child: Text(
                                         'st_no_grocery_stores'.tr,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF7A6A60),
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -568,7 +568,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
           AppBackButton(onTap: () => Get.back()),
           Text(
             'st_grocery'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -663,7 +663,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           overflow: TextOverflow.visible,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: isSelected
                                 ? const Color(0xFFFF5216)
                                 : const Color(0xFF3A312C),
@@ -733,10 +733,10 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                 controller: _searchController,
                 textInputAction: TextInputAction.search,
                 onSubmitted: (_) => _loadStores(),
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+                style: AppFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'st_search_hint'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12.5,
                   ),
@@ -813,7 +813,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
         children: [
           Text(
             'st_top_stores'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -841,7 +841,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
               children: [
                 Text(
                   'st_closed'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Color(0xFFFFFCF8),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -862,7 +862,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'st_opens_at'.trParams({'time': opensAt}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Color(0xFFFFFCF8),
                         fontSize: 8,
                         fontWeight: FontWeight.w500,
@@ -917,7 +917,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'st_temporarily_not_accepting'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Color(0xFFFFFCF8),
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
@@ -928,7 +928,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                 const SizedBox(height: 1),
                 Text(
                   'st_orders_lower'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Color(0xFFFFFCF8),
                     fontSize: 8,
                     fontWeight: FontWeight.bold,

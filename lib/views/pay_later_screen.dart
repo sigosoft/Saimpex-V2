@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
 import '../core/network/api_exception.dart';
@@ -10,6 +9,7 @@ import '../utils/payment_page.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
+import '../utils/app_fonts.dart';
 /// The customer's unpaid Pay After Delivery orders (customer/payAfterDelivery),
 /// each paid online or from the wallet once it is delivered.
 /// Built without a Figma screen, in the app's checkout style.
@@ -118,7 +118,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
                   ),
                   Text(
                     'pad_title'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -147,7 +147,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
           child: Text(
             'pad_nothing_due'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF8C7D73),
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -197,7 +197,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
               Expanded(
                 child: Text(
                   code.isEmpty ? '#$orderId' : code,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -206,7 +206,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
               ),
               Text(
                 'mru'.trParams({'amount': _money(amount)}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -221,7 +221,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
                 : payBy == null
                 ? 'pad_due_now'.tr
                 : 'pad_pay_by'.trParams({'time': _dateTime(payBy)}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: delivered
                   ? const Color(0xFFEF4444)
                   : const Color(0xFF8C7D73),
@@ -284,7 +284,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: outlined ? const Color(0xFFFF5216) : Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w800,

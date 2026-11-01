@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../constants/colors.dart';
@@ -14,6 +13,7 @@ import '../models/chatbot_repository.dart';
 import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
 
+import '../utils/app_fonts.dart';
 /// The SAIMPEX assistant (Claude, via the backend; API §6.19). The customer
 /// types or speaks; the server answers about SAIMPEX and their own orders,
 /// wallet and points. It is read-only: it never changes a cart or places an
@@ -222,7 +222,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
 
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message, style: GoogleFonts.outfit())),
+      SnackBar(content: Text(message, style: AppFonts.outfit())),
     );
   }
 
@@ -251,7 +251,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   lang.label,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     color: selected
                         ? AppColors.primaryOrange
@@ -298,7 +298,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
             ),
             title: Text(
               'core_chatbot_new_chat'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 fontWeight: FontWeight.w700,
                 color: AppColors.primaryOrange,
               ),
@@ -326,7 +326,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                         ? (snapshot.error as ApiException).message
                         : 'core_chatbot_no_history'.tr,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(color: const Color(0xFF7A6A60)),
+                    style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
                   ),
                 );
               }
@@ -346,14 +346,14 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                               : '${row['title']}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFF1A1A1A),
                           ),
                         ),
                         subtitle: Text(
                           _dateLabel(row['updated_at'] ?? row['created_at']),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             fontSize: 12,
                             color: const Color(0xFF9A9088),
                           ),
@@ -509,7 +509,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                 const SizedBox(width: 8),
                 Text(
                   'Saimpex Ai',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -568,7 +568,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                         const SizedBox(width: 4),
                         Text(
                           _language.label,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: AppColors.primaryOrange,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -608,7 +608,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           Text(
             _inChatLanguage('core_chatbot_greeting'),
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF111111),
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -618,7 +618,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           Text(
             _inChatLanguage('core_chatbot_intro'),
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF3A3A3A),
               fontSize: 14.5,
               fontWeight: FontWeight.w400,
@@ -732,7 +732,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                       maxLength: 2000,
                       onChanged: (_) => _resetIdleTimer(),
                       onSubmitted: (_) => _sendMessage(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         fontSize: 14,
                         color: const Color(0xFF1A1A1A),
                       ),
@@ -740,7 +740,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                         hintText: _listening
                             ? 'core_chatbot_listening'.tr
                             : 'core_chatbot_type_message'.tr,
-                        hintStyle: GoogleFonts.outfit(
+                        hintStyle: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
                         ),
@@ -907,7 +907,7 @@ class _QuickActionChip extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               action.label,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
@@ -996,7 +996,7 @@ class _MessageBubble extends StatelessWidget {
                   Flexible(
                     child: SelectableText(
                       message.text,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: isUser
                             ? const Color(0xFFE85A1A)
                             : message.isError
@@ -1022,7 +1022,7 @@ class _MessageBubble extends StatelessWidget {
                   children: [
                     Text(
                       timeLabel,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A9088),
                         fontSize: 11,
                       ),

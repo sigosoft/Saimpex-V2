@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../constants/colors.dart';
 
+import '../../utils/app_fonts.dart';
 class OtpInputBox extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -50,7 +50,7 @@ class OtpInputBox extends StatelessWidget {
           controller: controller,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 18,
             fontWeight: FontWeight.bold,

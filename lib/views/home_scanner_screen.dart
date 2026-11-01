@@ -4,11 +4,11 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../utils/toast_helper.dart';
 
+import '../utils/app_fonts.dart';
 class HomeScannerScreen extends StatefulWidget {
   const HomeScannerScreen({super.key});
 
@@ -150,7 +150,7 @@ class _HomeScannerScreenState extends State<HomeScannerScreen> {
                           Text(
                             'core_scanner_upload_gallery'.tr,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 11,
                               height: 1.15,

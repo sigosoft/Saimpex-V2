@@ -6,7 +6,6 @@ import '../../widgets/see_all_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
@@ -19,6 +18,7 @@ import '../../models/water_repository.dart';
 import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
 
+import '../../utils/app_fonts.dart';
 class WaterScreen extends StatefulWidget {
   const WaterScreen({super.key});
 
@@ -224,7 +224,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           children: [
                             Text(
                               'pw_deliver_to_colon'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF7A6A60),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w400,
@@ -239,7 +239,7 @@ class _WaterScreenState extends State<WaterScreen> {
                               child: Obx(
                                 () => Text(
                                   SelectLocationController.deliveryLabel.value,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -296,7 +296,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   const SizedBox(width: 3),
                   Text(
                     'mru'.trParams({'amount': '300'}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -317,7 +317,7 @@ class _WaterScreenState extends State<WaterScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Text(
         'pw_water'.tr,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: const Color(0xFF1A1A1A),
           fontSize: 22,
           fontWeight: FontWeight.bold,
@@ -369,7 +369,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                 children: [
                                   Text(
                                     'pw_subscribe_save_20'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white.withValues(
                                         alpha: 0.85,
                                       ),
@@ -380,7 +380,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     'pw_fresh_water_on_schedule'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -390,7 +390,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     'pw_delivery_plans_line'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white.withValues(
                                         alpha: 0.85,
                                       ),
@@ -409,7 +409,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                     ),
                                     child: Text(
                                       'pw_set_up_plan'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF007BFF),
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
@@ -494,13 +494,13 @@ class _WaterScreenState extends State<WaterScreen> {
             Expanded(
               child: TextField(
                 controller: _searchController,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                 ),
                 decoration: InputDecoration(
                   hintText: 'pw_search_water_suppliers_products'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
@@ -564,7 +564,7 @@ class _WaterScreenState extends State<WaterScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -588,7 +588,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 const SizedBox(height: 10),
                 Text(
                   'pw_no_data_available'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -611,7 +611,7 @@ class _WaterScreenState extends State<WaterScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'pw_categories'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -668,7 +668,7 @@ class _WaterScreenState extends State<WaterScreen> {
                               child: Text(
                                 cat['label']!,
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -722,7 +722,7 @@ class _WaterScreenState extends State<WaterScreen> {
             children: [
               Text(
                 'pw_top_rated_suppliers'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -849,7 +849,7 @@ class _WaterScreenState extends State<WaterScreen> {
                       ),
                       child: Text(
                         item['discount'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -882,7 +882,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           const SizedBox(width: 2),
                           Text(
                             item['rating'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF1A1A1A),
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -940,7 +940,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           const SizedBox(width: 4),
                           Text(
                             item['points'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 9,
                               fontWeight: FontWeight.w600,
@@ -976,7 +976,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     children: [
                       Text(
                         item['name'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -987,7 +987,7 @@ class _WaterScreenState extends State<WaterScreen> {
                       const SizedBox(height: 2),
                       Text(
                         item['subtitle'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 11,
                         ),
@@ -1005,7 +1005,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           const SizedBox(width: 4),
                           Text(
                             item['time'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -1020,7 +1020,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           const SizedBox(width: 4),
                           Text(
                             item['dist'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -1069,7 +1069,7 @@ class _WaterScreenState extends State<WaterScreen> {
               children: [
                 Text(
                   'pw_closed'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -1090,7 +1090,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'pw_opens_at'.trParams({'time': opensAt}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.w500,
@@ -1145,7 +1145,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'pw_temp_not_accepting_line1'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
@@ -1156,7 +1156,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 const SizedBox(height: 1),
                 Text(
                   'pw_temp_not_accepting_line2'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
                     fontWeight: FontWeight.bold,
@@ -1207,7 +1207,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   'pw_choose_water_supplier'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -1236,7 +1236,7 @@ class _WaterScreenState extends State<WaterScreen> {
             children: [
               Text(
                 'pw_popular_products'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -1339,7 +1339,7 @@ class _WaterScreenState extends State<WaterScreen> {
                       const SizedBox(width: 2),
                       Text(
                         prod['rating'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -1360,7 +1360,7 @@ class _WaterScreenState extends State<WaterScreen> {
               children: [
                 Text(
                   prod['title'] as String,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -1371,7 +1371,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 const SizedBox(height: 2),
                 Text(
                   prod['supplier'] as String,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 11,
                   ),
@@ -1384,7 +1384,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   children: [
                     Text(
                       prod['price'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -1423,7 +1423,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           const SizedBox(width: 4),
                           Text(
                             'pw_add_caps'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -1457,7 +1457,7 @@ class _WaterScreenState extends State<WaterScreen> {
             children: [
               Text(
                 'pw_nearby_suppliers'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

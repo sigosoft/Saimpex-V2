@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/store_map_button.dart';
 import '../widgets/search_camera_button.dart';
@@ -14,6 +13,7 @@ import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
 import 'water_supplier_details_screen.dart';
 
+import '../../utils/app_fonts.dart';
 class WaterNearbySuppliersScreen extends StatefulWidget {
   const WaterNearbySuppliersScreen({super.key});
 
@@ -115,7 +115,7 @@ class _WaterNearbySuppliersScreenState
                       ? Center(
                           child: Text(
                             'pw_no_suppliers_found'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -152,7 +152,7 @@ class _WaterNearbySuppliersScreenState
             child: Text(
               'pw_nearby_suppliers'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -195,13 +195,13 @@ class _WaterNearbySuppliersScreenState
               child: TextField(
                 controller: searchController,
                 onChanged: (_) => setState(() {}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                 ),
                 decoration: InputDecoration(
                   hintText: 'pw_search_water_suppliers_products'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
@@ -332,7 +332,7 @@ class _WaterNearbySuppliersScreenState
                             ),
                             child: Text(
                               item['discount'] as String,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
@@ -359,7 +359,7 @@ class _WaterNearbySuppliersScreenState
                                 const SizedBox(width: 2),
                                 Text(
                                   item['rating'] as String,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
@@ -428,7 +428,7 @@ class _WaterNearbySuppliersScreenState
                             const SizedBox(width: 6),
                             Text(
                               item['points'] as String,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -448,7 +448,7 @@ class _WaterNearbySuppliersScreenState
                 children: [
                   Text(
                     '${item['name'] ?? ''}',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -457,7 +457,7 @@ class _WaterNearbySuppliersScreenState
                   const SizedBox(height: 2),
                   Text(
                     item['subtitle'] as String,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -474,7 +474,7 @@ class _WaterNearbySuppliersScreenState
                       const SizedBox(width: 4),
                       Text(
                         item['time'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF4A453F),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -489,7 +489,7 @@ class _WaterNearbySuppliersScreenState
                       const SizedBox(width: 4),
                       Text(
                         item['dist'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF4A453F),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,

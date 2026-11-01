@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../constants/text_styles.dart';
@@ -11,6 +10,7 @@ import 'laundry_services_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/home_background_blend.dart';
 
+import '../../utils/app_fonts.dart';
 class ServicesScreen extends StatelessWidget {
   final bool showBottomNav;
 
@@ -252,14 +252,14 @@ class ServicesScreen extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
                 hintText: 'svc_search_services_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFF8A8078),
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -430,7 +430,7 @@ class ServicesScreen extends StatelessWidget {
                   _label(item.label),
                   textAlign: TextAlign.center,
                   maxLines: 2,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
@@ -463,7 +463,7 @@ class ServicesScreen extends StatelessWidget {
           ),
           child: Text(
             'svc_available_24_7'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 9.5,
               fontWeight: FontWeight.w800,
@@ -536,7 +536,7 @@ class ServicesScreen extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           'svc_minutes'.trParams({'count': '15'}),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,

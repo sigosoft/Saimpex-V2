@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
@@ -16,6 +15,7 @@ import 'pharmacy/pharmacy_items_screen.dart';
 import 'restaurant_details_screen.dart';
 import 'water/water_supplier_details_screen.dart';
 
+import '../utils/app_fonts.dart';
 /// Home search across every category: typed or voice text with GET
 /// customer/search, or a photo with image-recognition/analyze. Stores that
 /// deliver to the selected location, nearest first, grouped by category,
@@ -274,13 +274,13 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
                       autofocus: widget.initialKeyword.isEmpty,
                       textInputAction: TextInputAction.search,
                       onSubmitted: (_) => _search(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.black,
                         fontSize: 13,
                       ),
                       decoration: InputDecoration(
                         hintText: 'search_hint'.tr,
-                        hintStyle: GoogleFonts.outfit(
+                        hintStyle: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 12.5,
                         ),
@@ -316,7 +316,7 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
                     'query': _controller.text.trim(),
                   }),
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF8C7D73),
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -344,7 +344,7 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
   Widget _buildSectionHeader(_Section section) {
     return Text(
       section.title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF2C2520),
         fontSize: 16,
         fontWeight: FontWeight.w800,
@@ -410,7 +410,7 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
                     title.isEmpty ? section.title : title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -421,7 +421,7 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
                       details,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF8C7D73),
                         fontSize: 12,
                       ),

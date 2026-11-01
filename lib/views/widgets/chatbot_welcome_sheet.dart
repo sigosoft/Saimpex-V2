@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../l10n/app_locale.dart';
 
+import '../../utils/app_fonts.dart';
 /// Shows the AI chatbot welcome / language bottom sheet.
 /// Returns the selected language code (`EN`, `FR`, `AR`) or `null` if closed.
 Future<String?> showChatBotWelcomeSheet(BuildContext context) {
@@ -124,7 +124,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                       Text(
                         'core_chatbot_greeting'.tr,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF111111),
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
@@ -135,7 +135,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                       Text(
                         'core_chatbot_intro'.tr,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2A2A2A),
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -148,7 +148,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                         alignment: AlignmentDirectional.centerStart,
                         child: Text(
                           'core_chatbot_choose_language'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF111111),
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -211,7 +211,7 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                           alignment: Alignment.center,
                           child: Text(
                             'core_chatbot_continue'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -280,7 +280,7 @@ class _LanguageChip extends StatelessWidget {
               ),
               child: Text(
                 code,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 8.5,
                   fontWeight: FontWeight.w700,
@@ -297,7 +297,7 @@ class _LanguageChip extends StatelessWidget {
                   label,
                   maxLines: 1,
                   softWrap: false,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

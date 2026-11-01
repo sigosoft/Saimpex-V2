@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/service_booking_draft.dart';
 import '../../core/network/api_constants.dart';
@@ -9,6 +8,7 @@ import '../../models/general_repository.dart';
 import '../../models/service_repository.dart';
 import '../../utils/api_language.dart';
 
+import '../../utils/app_fonts.dart';
 /// Loads a provider's catalog services and reviews for the provider detail
 /// screens and records the picked service in [ServiceBookingDraft] before
 /// configuring it.
@@ -175,7 +175,7 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
             Text(
               _servicesError ?? 'svc_provider_no_services'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFA59A94),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -186,7 +186,7 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
                 onPressed: loadProviderServices,
                 child: Text(
                   'retry'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontWeight: FontWeight.w700,
                   ),

@@ -3,7 +3,6 @@ import '../../widgets/app_back_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
@@ -17,6 +16,7 @@ import '../payment_webview_screen.dart';
 import 'prescription_checkout_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
+import '../../utils/app_fonts.dart';
 /// Asks the customer to confirm, then declines the quotation on the server.
 /// Returns true once it is declined.
 Future<bool> declineQuotation(BuildContext context, int prescriptionId) async {
@@ -25,22 +25,22 @@ Future<bool> declineQuotation(BuildContext context, int prescriptionId) async {
     builder: (dialogContext) => AlertDialog(
       title: Text(
         'pw_decline_quotation_q'.tr,
-        style: GoogleFonts.outfit(fontWeight: FontWeight.w800),
+        style: AppFonts.outfit(fontWeight: FontWeight.w800),
       ),
       content: Text(
         'pw_decline_quotation_body'.tr,
-        style: GoogleFonts.outfit(),
+        style: AppFonts.outfit(),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, false),
-          child: Text('pw_keep'.tr, style: GoogleFonts.outfit()),
+          child: Text('pw_keep'.tr, style: AppFonts.outfit()),
         ),
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, true),
           child: Text(
             'pw_decline'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFEF4444),
               fontWeight: FontWeight.w700,
             ),
@@ -425,7 +425,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                   ),
                   Text(
                     'pw_order_id'.trParams({'id': widget.orderId}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -454,7 +454,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                     const SizedBox(height: 20),
                     Text(
                       'pw_medicines_in_quotation'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -472,7 +472,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                     const SizedBox(height: 20),
                     Text(
                       'pw_order_status'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -516,7 +516,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               children: [
                 Text(
                   _pharmacyName,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -527,7 +527,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                   'pw_delivery_prescription_order'.trParams({
                     'id': widget.orderId,
                   }),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -544,7 +544,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             ),
             child: Text(
               'pw_quotation_ready_caps'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF00A854),
                 fontSize: 9,
                 fontWeight: FontWeight.w800,
@@ -582,7 +582,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
           const SizedBox(width: 10),
           Text(
             'pw_quote_expires_in'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -591,7 +591,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
           const Spacer(),
           Text(
             _timerText,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -633,7 +633,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               children: [
                 Text(
                   _fileName.isEmpty ? 'pw_prescription'.tr : _fileName,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -644,7 +644,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                   children: [
                     Text(
                       'pw_view_full_prescription'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -677,7 +677,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         ),
         child: Text(
           'pw_no_quoted_items'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -716,7 +716,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             alignment: AlignmentDirectional.centerEnd,
             child: Text(
               _amountText,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5216),
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -774,7 +774,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -783,7 +783,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               const SizedBox(height: 3),
               Text(
                 meta,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: metaColor ?? const Color(0xFFA59A94),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -794,7 +794,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         ),
         Text(
           price,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -830,7 +830,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                 Expanded(
                   child: Text(
                     originalName.isEmpty ? '${item['name']}' : originalName,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -850,7 +850,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                   ),
                   child: Text(
                     'quote_not_available'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFE53935),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -900,7 +900,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                     ),
                     child: Text(
                       'quote_suggested_alternative'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -918,7 +918,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                         children: [
                           Text(
                             title,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -930,7 +930,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                               'qty': '${item['alternativeQty']}',
                               'unit': '${item['alternativeUnitText']}',
                             }),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -941,7 +941,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                     ),
                     Text(
                       '${item['alternativeTotalText']}',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -969,7 +969,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         alignment: AlignmentDirectional.centerEnd,
         child: Text(
           accepted ? 'quote_alt_accepted'.tr : 'quote_alt_rejected'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: accepted ? const Color(0xFF00B25C) : const Color(0xFF8A7F77),
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -1001,7 +1001,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
           ),
           child: Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: accept ? Colors.white : const Color(0xFF2C2520),
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -1123,7 +1123,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                         Text(
                           step.label.tr,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -1135,7 +1135,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                           Text(
                             step.time,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 8.5,
                               fontWeight: FontWeight.w500,
@@ -1168,7 +1168,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         children: [
           Text(
             'pw_quotation_summary_caps'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -1180,7 +1180,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             children: [
               Text(
                 'pw_item_total'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -1189,7 +1189,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               const Spacer(),
               Text(
                 _amountText,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -1205,7 +1205,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             children: [
               Text(
                 'pw_to_pay'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -1214,7 +1214,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               const Spacer(),
               Text(
                 _amountText,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -1250,7 +1250,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               alignment: Alignment.center,
               child: Text(
                 'pw_decline_quotation'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1287,7 +1287,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                   const SizedBox(width: 6),
                   Text(
                     'pw_chat_with_pharmacy'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -1327,7 +1327,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
           children: [
             Text(
               'pw_review_and_pay'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -1336,7 +1336,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             const Spacer(),
             Text(
               _amountText,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w800,

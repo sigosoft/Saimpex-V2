@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import 'app_fonts.dart';
 void showAppToast(
   String message, {
   Color backgroundColor = const Color(0xFF2C2520),
@@ -13,7 +13,7 @@ void showAppToast(
       messageText: Text(
         message,
         textAlign: TextAlign.center,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: backgroundColor.computeLuminance() > 0.5
               ? Colors.black87
               : Colors.white,

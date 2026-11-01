@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/network/api_exception.dart';
 import '../models/service_repository.dart';
@@ -8,6 +7,7 @@ import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../views/booking_cancelled_success_screen.dart';
 
+import '../utils/app_fonts.dart';
 /// [bookingId] is the booking code shown to the customer; [apiOrderId] is
 /// the numeric id service/cancel needs. The success screen only opens once
 /// the server confirms the cancellation.
@@ -83,7 +83,7 @@ void showCancelBookingBottomSheet(
                       child: Text(
                         'core_cancel_booking_title'.tr,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -104,7 +104,7 @@ void showCancelBookingBottomSheet(
                             alignment: AlignmentDirectional.centerStart,
                             child: Text(
                               'core_cancel_booking_confirm'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF1A1A1A),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
@@ -116,7 +116,7 @@ void showCancelBookingBottomSheet(
                             alignment: AlignmentDirectional.centerStart,
                             child: Text(
                               'core_cancel_booking_reason_hint'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF9A8A84),
                                 fontSize: 12.5,
                                 height: 1.4,
@@ -153,7 +153,7 @@ void showCancelBookingBottomSheet(
                                       Expanded(
                                         child: Text(
                                           cancelReasonKeys[index].tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF626465),
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
@@ -209,7 +209,7 @@ void showCancelBookingBottomSheet(
                                     alignment: Alignment.center,
                                     child: Text(
                                       'core_cancel_no'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF1B1B1B),
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
@@ -234,7 +234,7 @@ void showCancelBookingBottomSheet(
                                             titleText: const SizedBox.shrink(),
                                             messageText: Text(
                                               'core_cancel_select_reason'.tr,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 13.5,
                                                 fontWeight: FontWeight.w600,
@@ -286,7 +286,7 @@ void showCancelBookingBottomSheet(
                                         alignment: Alignment.center,
                                         child: Text(
                                           'core_cancel_booking_title'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: Colors.white,
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,

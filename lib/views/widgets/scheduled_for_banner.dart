@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../utils/app_fonts.dart';
 /// A pre-order's `scheduled_for` as "Sat 02/11, 13:30" in the device's time
 /// zone, with the weekday in the app's language.
 String formatScheduledFor(String value) {
@@ -52,7 +52,7 @@ class ScheduledForBanner extends StatelessWidget {
               'orders_scheduled_for'.trParams({
                 'time': formatScheduledFor(value),
               }),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
