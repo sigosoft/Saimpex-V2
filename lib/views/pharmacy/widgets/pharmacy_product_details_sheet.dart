@@ -15,6 +15,7 @@ void showPharmacyProductDetailsSheet(
   required Future<bool> Function() onAdd,
   int? menuId,
   int? pharmacyId,
+  void Function(Map<String, dynamic> generic)? onOpenGeneric,
 }) {
   var requested = false;
   var isLiked = false;
@@ -57,6 +58,10 @@ void showPharmacyProductDetailsSheet(
               : 'pw_product_default_description'.tr;
           final discount = food['discount']?.toString() ?? '';
           final needsPrescription = food['prescriptionRequired'] == true;
+          final genericName = food['genericName']?.toString() ?? '';
+          final generic = food['genericEquivalent'] is Map
+              ? Map<String, dynamic>.from(food['genericEquivalent'] as Map)
+              : null;
           final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
           return Padding(
             padding: EdgeInsets.only(bottom: bottomSafe),
@@ -213,6 +218,69 @@ void showPharmacyProductDetailsSheet(
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
+                                    if (genericName.isNotEmpty) ...[
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        'pw_generic_name'.trParams({
+                                          'name': genericName,
+                                        }),
+                                        style: GoogleFonts.outfit(
+                                          color: const Color(0xFF2C2520),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                    if (generic != null &&
+                                        onOpenGeneric != null) ...[
+                                      const SizedBox(height: 8),
+                                      InkWell(
+                                        borderRadius: BorderRadius.circular(10),
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                          onOpenGeneric(generic);
+                                        },
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFE6F4F4),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.medication_outlined,
+                                                color: Color(0xFF008282),
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  'pw_see_generic'.trParams({
+                                                    'name':
+                                                        '${generic['title'] ?? ''}',
+                                                  }),
+                                                  style: GoogleFonts.outfit(
+                                                    color: const Color(
+                                                      0xFF008282,
+                                                    ),
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                              ),
+                                              const Icon(
+                                                Icons.chevron_right_rounded,
+                                                color: Color(0xFF008282),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                     const SizedBox(height: 8),
                                   ],
                                 ),
