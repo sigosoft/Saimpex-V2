@@ -92,6 +92,7 @@ class ApiConstants {
   static String chatbotConversation(int id) =>
       'customer/chatbot/conversations/$id';
   static const String preorderWindow = 'customer/preorder/window';
+  static const String preorders = 'customer/preorders';
   static String orderSubstitutions(int orderId) =>
       'customer/orders/$orderId/substitutions';
   static String substitutionRespond(int id) =>

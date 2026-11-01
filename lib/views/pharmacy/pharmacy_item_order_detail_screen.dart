@@ -10,6 +10,7 @@ import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
 import 'widgets/pharmacy_order_detail_loader.dart';
+import '../widgets/scheduled_for_banner.dart';
 
 /// Loads the order from the API, then shows it.
 class PharmacyItemOrderDetailScreen extends StatelessWidget {
@@ -224,6 +225,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 10),
+                    if (detail != null) ScheduledForBanner(detail: detail!),
                     _buildOrderStatusCard(),
                     if (!isDelivery ||
                         _deliveryAddress.isNotEmpty ||
