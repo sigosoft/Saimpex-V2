@@ -2,6 +2,11 @@
 /// Keys start with `orders_`. Every key needs en, fr and ar.
 const ordersStrings = <String, Map<String, String>>{
   'en': {
+    'orders_support_messages_title': 'Messages from SAIMPEX',
+    'orders_support_messages_empty': 'No messages from SAIMPEX support yet.',
+    'orders_support_order_label': 'Order @code',
+    'orders_support_from_saimpex': 'SAIMPEX Support',
+    'orders_support_reply_hint': 'Write a reply',
     'orders_cat_gas': 'Gas',
     'orders_placed_title': 'Order Placed Successfully!',
     'orders_earn_points_on_delivery':
@@ -188,6 +193,12 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_late': 'Late night',
   },
   'fr': {
+    'orders_support_messages_title': 'Messages de SAIMPEX',
+    'orders_support_messages_empty':
+        'Aucun message du support SAIMPEX pour le moment.',
+    'orders_support_order_label': 'Commande @code',
+    'orders_support_from_saimpex': 'Support SAIMPEX',
+    'orders_support_reply_hint': 'Écrire une réponse',
     'orders_cat_gas': 'Gaz',
     'orders_placed_title': 'Commande passée avec succès !',
     'orders_earn_points_on_delivery':
@@ -227,11 +238,11 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_no_bookings': 'Aucune réservation trouvée',
     'orders_my_bookings': 'Mes réservations',
     'orders_status_completed': 'Terminée',
-    'orders_reorder': 'Commander à nouveau',
+    'orders_reorder': 'Recommander',
     'orders_rate': 'Noter',
     'orders_balance_due_badge': 'SOLDE À PAYER',
     'orders_estimated_weight': 'Poids estimé : @weight kg',
-    'orders_actual_weight': 'Poids réel pesé : ',
+    'orders_actual_weight': 'Poids réel à la pesée : ',
     'orders_balance_due': 'Solde à payer',
     'orders_balance_due_hint': 'Montant dû après la pesée finale',
     'orders_balance_unavailable':
@@ -244,7 +255,7 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_no_orders': 'Aucune commande',
     'orders_pickup': 'Retrait',
     'orders_delivery': 'Livraison',
-    'orders_self_pickup': 'Retrait en magasin',
+    'orders_self_pickup': 'Retrait sur place',
     'orders_items_count': '@count articles',
     'orders_restaurant': 'Restaurant',
     'orders_tracking_unavailable': 'Suivi de commande indisponible',
@@ -376,6 +387,11 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_late': 'Tard le soir',
   },
   'ar': {
+    'orders_support_messages_title': 'رسائل من SAIMPEX',
+    'orders_support_messages_empty': 'لا توجد رسائل من دعم SAIMPEX بعد.',
+    'orders_support_order_label': 'الطلب @code',
+    'orders_support_from_saimpex': 'دعم SAIMPEX',
+    'orders_support_reply_hint': 'اكتب ردًا',
     'orders_cat_gas': 'غاز',
     'orders_placed_title': 'تم تقديم طلبك بنجاح!',
     'orders_earn_points_on_delivery': 'ستحصل على @points نقطة عند توصيل طلبك',
@@ -430,7 +446,7 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_pickup': 'استلام',
     'orders_delivery': 'توصيل',
     'orders_self_pickup': 'استلام من المتجر',
-    'orders_items_count': '@count منتجات',
+    'orders_items_count': 'المنتجات: @count',
     'orders_restaurant': 'مطعم',
     'orders_tracking_unavailable': 'تتبع الطلب غير متاح',
     'orders_cannot_cancel': 'لا يمكن إلغاء هذا الطلب',
@@ -438,7 +454,7 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_no': 'لا',
     'orders_yes_cancel': 'نعم، إلغاء',
     'orders_details_unavailable': 'تفاصيل الطلب غير متاحة',
-    'orders_my_prescriptions': 'وصفاتي الطبية  ‹',
+    'orders_my_prescriptions': 'وصفاتي الطبية  ›',
     'orders_prescription': 'وصفة طبية',
     'orders_courier_delivery': 'توصيل طرد',
     'orders_to_address': 'إلى @address',

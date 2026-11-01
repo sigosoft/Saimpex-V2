@@ -158,7 +158,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
   Widget _buildPlaceholder() {
     return Center(
       child: _loading
-          ? const CircularProgressIndicator(color: Color(0xFFFF5E00))
+          ? const CircularProgressIndicator(color: Color(0xFFFF5216))
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
@@ -206,7 +206,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               child: Text(
                 'subs_help'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -296,7 +296,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 style: GoogleFonts.outfit(
                   color: isSelfPickup
                       ? const Color(0xFF007DFE)
-                      : const Color(0xFFFF5E00),
+                      : const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -315,7 +315,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                   SizedBox(
                     height: circle,
                     child: Stack(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       children: [
                         // Line through exact vertical center of circles
                         Positioned(
@@ -330,7 +330,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                                 width: segment,
                                 height: 3,
                                 color: segmentActive
-                                    ? const Color(0xFFFF5E00)
+                                    ? const Color(0xFFFF5216)
                                     : const Color(0xFFE8E0D8),
                               );
                             }),
@@ -345,14 +345,14 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                                 height: circle,
                                 decoration: BoxDecoration(
                                   color: step.isActive
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFEFEBE7),
                                   shape: BoxShape.circle,
                                   boxShadow: step.isActive
                                       ? [
                                           BoxShadow(
                                             color: const Color(
-                                              0xFFFF5E00,
+                                              0xFFFF5216,
                                             ).withValues(alpha: 0.40),
                                             blurRadius: 12,
                                             spreadRadius: 1,
@@ -444,7 +444,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               color: Color(0xFFFFF0E6),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: const Color(0xFFFF5E00), size: 18),
+            child: Icon(icon, color: const Color(0xFFFF5216), size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -536,7 +536,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
     final avatar = const CircleAvatar(
       radius: 20,
       backgroundColor: Color(0xFFFFF0E6),
-      child: Icon(Icons.person_rounded, color: Color(0xFFFF5E00), size: 24),
+      child: Icon(Icons.person_rounded, color: Color(0xFFFF5216), size: 24),
     );
     return Container(
       width: double.infinity,
@@ -632,7 +632,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                     width: 36,
                     height: 36,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -748,7 +748,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               Text(
                 'x${item['quantity'] ?? 1}',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -799,7 +799,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
           Text(
             'pw_payment_details_caps'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 12,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.8,
@@ -882,7 +882,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
         Text(
           value,
           style: GoogleFonts.outfit(
-            color: isOrange ? const Color(0xFFFF5E00) : Colors.white,
+            color: isOrange ? const Color(0xFFFF5216) : Colors.white,
             fontSize: 12,
             fontWeight: isOrange ? FontWeight.bold : FontWeight.w500,
           ),
@@ -941,14 +941,14 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                    colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                      color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

@@ -160,7 +160,7 @@ class _ExchangeNote extends StatelessWidget {
         children: [
           const Icon(
             Icons.propane_tank_outlined,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 22,
           ),
           const SizedBox(width: 10),
@@ -230,7 +230,7 @@ class _SupplierCard extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.star_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 15,
                       ),
                       const SizedBox(width: 3),
@@ -239,7 +239,7 @@ class _SupplierCard extends StatelessWidget {
                         const SizedBox(width: 12),
                         const Icon(
                           Icons.location_on_outlined,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 14,
                         ),
                         const SizedBox(width: 3),
@@ -252,7 +252,7 @@ class _SupplierCard extends StatelessWidget {
                     Text(
                       'gas_from_price'.trParams({'price': from}),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
                       ),
@@ -325,7 +325,7 @@ class _ProductCard extends StatelessWidget {
                   Text(
                     card['price'] ?? '',
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -336,7 +336,7 @@ class _ProductCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -370,7 +370,7 @@ class _Thumb extends StatelessWidget {
       alignment: Alignment.center,
       child: const Icon(
         Icons.propane_tank_rounded,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
         size: 30,
       ),
     );

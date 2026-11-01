@@ -20,7 +20,7 @@ class CarWashSelectVehiclesScreen extends StatefulWidget {
   const CarWashSelectVehiclesScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanRide Car Wash',
+    this.providerName = '',
     this.selectedLocation = 0,
     this.homeServiceFee = 0,
     this.homeInstructions = '',
@@ -110,7 +110,7 @@ class _CarWashSelectVehiclesScreenState
                       ? ListView.separated(
                           padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
                           itemCount: _vehicles.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 14),
                           itemBuilder: (context, index) {
                             return _buildVehicleCard(_vehicles[index], index);
@@ -173,7 +173,7 @@ class _CarWashSelectVehiclesScreenState
                                 borderRadius: BorderRadius.circular(30),
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFFFF5E00),
+                                    Color(0xFFFF5216),
                                     Color(0xFFFFAE00),
                                   ],
                                   begin: Alignment.centerLeft,
@@ -182,7 +182,7 @@ class _CarWashSelectVehiclesScreenState
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(
-                                      0xFFFF5E00,
+                                      0xFFFF5216,
                                     ).withValues(alpha: 0.28),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
@@ -212,7 +212,7 @@ class _CarWashSelectVehiclesScreenState
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               width: 1.5,
                             ),
                           ),
@@ -222,14 +222,14 @@ class _CarWashSelectVehiclesScreenState
                             children: [
                               const Icon(
                                 Icons.add_rounded,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 22,
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 'svc_add_new_vehicle'.tr,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -286,12 +286,12 @@ class _CarWashSelectVehiclesScreenState
               child: Image.asset(
                 vehicle.image,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const ColoredBox(
+                errorBuilder: (_, _, _) => const ColoredBox(
                   color: Color(0xFFF5F0EB),
                   child: Center(
                     child: Icon(
                       Icons.directions_car_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                     ),
                   ),
                 ),
@@ -330,7 +330,7 @@ class _CarWashSelectVehiclesScreenState
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFC4B8AF),
                   width: selected ? 1.8 : 1.4,
                 ),
@@ -341,7 +341,7 @@ class _CarWashSelectVehiclesScreenState
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     )

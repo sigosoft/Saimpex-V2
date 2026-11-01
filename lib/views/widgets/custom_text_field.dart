@@ -37,20 +37,13 @@ class CustomTextField extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(25),
-            border: Border.all(
-              color: AppColors.inputBorder,
-              width: 1.2,
-            ),
+            border: Border.all(color: AppColors.inputBorder, width: 1.2),
           ),
           child: Row(
             children: [
               if (prefix != null) ...[
                 prefix!,
-                Container(
-                  height: 24,
-                  width: 1,
-                  color: AppColors.inputBorder,
-                ),
+                Container(height: 24, width: 1, color: AppColors.inputBorder),
               ],
               Expanded(
                 child: TextField(

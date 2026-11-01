@@ -20,7 +20,7 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
   final SpeechToText _speech = SpeechToText();
 
   bool _listening = false;
-  bool _scanning = false;
+  final bool _scanning = false;
   bool _speechReady = false;
   bool _heardListening = false;
 
@@ -190,7 +190,7 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
                     : 'core_home_search_hint'.tr,
                 hintStyle: GoogleFonts.outfit(
                   color: _listening
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFA59A94),
                   fontSize: 12.5,
                 ),
@@ -213,7 +213,7 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                         ),
                       )
                     : Image.asset(
@@ -234,7 +234,7 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
               height: 32,
               decoration: BoxDecoration(
                 color: _listening
-                    ? const Color(0xFFFF5E00)
+                    ? const Color(0xFFFF5216)
                     : const Color(0xFFFFF0E0),
                 shape: BoxShape.circle,
               ),
@@ -243,7 +243,7 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
                 'lib/assets/images/Voice.png',
                 width: 16,
                 height: 16,
-                color: _listening ? Colors.white : const Color(0xFFFF5E00),
+                color: _listening ? Colors.white : const Color(0xFFFF5216),
               ),
             ),
           ),
@@ -302,7 +302,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
                   height: 36,
                   decoration: BoxDecoration(
                     color: const Color(
-                      0xFFFF5E00,
+                      0xFFFF5216,
                     ).withValues(alpha: 0.18 + (_pulse.value * 0.25)),
                     shape: BoxShape.circle,
                   ),
@@ -315,7 +315,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
               width: 22,
               height: 22,
               decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -333,7 +333,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
                 Text(
                   'core_home_search_recording'.tr,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),

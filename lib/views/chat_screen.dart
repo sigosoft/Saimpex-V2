@@ -375,7 +375,7 @@ class _ChatScreenState extends State<ChatScreen> {
             'core_chat_hold_longer'.tr,
             style: GoogleFonts.outfit(),
           ),
-          backgroundColor: const Color(0xFFFF5E00),
+          backgroundColor: const Color(0xFFFF5216),
         ),
       );
       return;
@@ -496,7 +496,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.restaurant['title'] as String? ?? 'Pharmacy Nasr';
+    final title = widget.restaurant['title'] as String? ?? '';
     final image =
         widget.restaurant['image'] as String? ??
         'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=150&auto=format&fit=crop';
@@ -530,7 +530,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             color: const Color(0xFFF3EFEA),
                             child: const Icon(
                               Icons.local_pharmacy_rounded,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                               size: 22,
                             ),
                           )
@@ -539,13 +539,13 @@ class _ChatScreenState extends State<ChatScreen> {
                             width: 40,
                             height: 40,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (_, _, _) => Container(
                               width: 40,
                               height: 40,
                               color: const Color(0xFFF3EFEA),
                               child: const Icon(
                                 Icons.local_pharmacy_rounded,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 22,
                               ),
                             ),
@@ -589,7 +589,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: (_isLoadingMessages && _messages.isEmpty)
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         strokeWidth: 2.5,
                       ),
                     )
@@ -734,12 +734,12 @@ class _ChatScreenState extends State<ChatScreen> {
                               width: 48,
                               height: 48,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(
-                                      0xFFFF5E00,
+                                      0xFFFF5216,
                                     ).withValues(alpha: 0.35),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
@@ -827,7 +827,7 @@ class _RecordingBar extends StatelessWidget {
                 Text(
                   elapsedLabel,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
@@ -843,11 +843,11 @@ class _RecordingBar extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                  color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -941,7 +941,7 @@ class _OutgoingTextBubble extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               borderRadius: BorderRadius.circular(18),
             ),
             child: Text(
@@ -971,7 +971,7 @@ class _OutgoingTextBubble extends StatelessWidget {
                 const SizedBox(width: 4),
                 const Icon(
                   Icons.done_all_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 14,
                 ),
               ],
@@ -1053,7 +1053,7 @@ class _VoiceOutgoingBubble extends StatelessWidget {
                       isPlaying
                           ? Icons.pause_rounded
                           : Icons.play_arrow_rounded,
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       size: 18,
                     ),
                   ),
@@ -1101,7 +1101,7 @@ class _VoiceOutgoingBubble extends StatelessWidget {
                   const SizedBox(width: 4),
                   const Icon(
                     Icons.done_all_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 14,
                   ),
                 ],

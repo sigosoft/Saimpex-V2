@@ -114,7 +114,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                       padding: EdgeInsets.all(24),
                       child: Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                         ),
                       ),
                     ),
@@ -188,8 +188,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                           if (Get.isRegistered<HomeController>()) {
                             Get.find<HomeController>().setCartItem(
                               storeName:
-                                  widget.supplier['title']?.toString() ??
-                                  'PureLife Water Co.',
+                                  widget.supplier['title']?.toString() ?? '',
                               itemName: product['title']?.toString(),
                               itemPortion: product['size']?.toString(),
                               basePrice: parsePrice(
@@ -364,8 +363,8 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Positioned(
-            right: -20,
+          PositionedDirectional(
+            end: -20,
             bottom: -10,
             child: Image.asset(
               'lib/assets/images/19Lbottle.png',
@@ -380,8 +379,8 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               ),
             ),
           ),
-          Positioned(
-            left: 40,
+          PositionedDirectional(
+            start: 40,
             top: 40,
             child: Icon(
               Icons.water_drop,
@@ -473,7 +472,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
             children: [
               const Icon(
                 Icons.access_time_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 12,
               ),
               const SizedBox(width: 4),
@@ -488,7 +487,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               const SizedBox(width: 10),
               const Icon(
                 Icons.location_on_outlined,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 12,
               ),
               const SizedBox(width: 4),
@@ -504,7 +503,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -559,8 +558,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                     Get.to(
                       () => ChatScreen(
                         restaurant: {
-                          'title':
-                              widget.supplier['title'] ?? 'PureLife Water Co.',
+                          'title': widget.supplier['title'] ?? '',
                           'image': headerImageForChat(),
                         },
                       ),
@@ -570,7 +568,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                     height: 38,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -619,7 +617,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                           ? Icons.favorite_rounded
                           : Icons.favorite_border_rounded,
                       color: liked
-                          ? const Color(0xFFFF5E00)
+                          ? const Color(0xFFFF5216)
                           : const Color(0xFFA59A94),
                       size: 16,
                     ),
@@ -680,7 +678,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               width: 36,
               height: 36,
               decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -724,7 +722,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 Text(
                   price,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                   ),
@@ -732,7 +730,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 const SizedBox(width: 6),
                 const Icon(
                   Icons.chevron_right_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 20,
                 ),
               ],

@@ -21,10 +21,7 @@ class AuthUser {
   final String? countryCode;
   final bool isNewUser;
 
-  factory AuthUser.fromJson(
-    Map<String, dynamic> json, {
-    bool? isNewUser,
-  }) {
+  factory AuthUser.fromJson(Map<String, dynamic> json, {bool? isNewUser}) {
     return AuthUser(
       id: _asInt(json['id']),
       name: _asString(json['name']),

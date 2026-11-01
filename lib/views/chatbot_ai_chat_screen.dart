@@ -193,7 +193,6 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     setState(() => _listening = true);
     try {
       await _speech.listen(
-        localeId: _language.speechLocale,
         onResult: (result) {
           if (!mounted) return;
           final words = result.recognizedWords.trim();
@@ -207,6 +206,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           }
         },
         listenOptions: SpeechListenOptions(
+          localeId: _language.speechLocale,
           listenFor: const Duration(seconds: 30),
           pauseFor: const Duration(seconds: 3),
           cancelOnError: true,
@@ -880,7 +880,7 @@ class _QuickActionChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.08),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.08),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),

@@ -34,8 +34,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
       widget.isAboutUs || widget.title.toLowerCase().trim() == 'about us';
 
   bool get _shouldFetchPrivacyPolicy =>
-      widget.isPrivacyPolicy ||
-      widget.title.toLowerCase().contains('privacy');
+      widget.isPrivacyPolicy || widget.title.toLowerCase().contains('privacy');
 
   bool get _shouldFetchTerms =>
       widget.isTermsAndConditions ||
@@ -170,7 +169,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
               child: _isLoading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     )
                   : SingleChildScrollView(

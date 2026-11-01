@@ -51,7 +51,9 @@ class _ProfileImageViewState extends State<ProfileImageView> {
   Future<void> _loadPhoto() async {
     final imageUrl = widget.useSessionImage
         ? (Get.isRegistered<SessionStore>()
-              ? ApiConstants.mediaUrl(Get.find<SessionStore>().readUser()?.image)
+              ? ApiConstants.mediaUrl(
+                  Get.find<SessionStore>().readUser()?.image,
+                )
               : null)
         : ApiConstants.mediaUrl(widget.imagePath);
     if (imageUrl == null || !Get.isRegistered<DioClient>()) {

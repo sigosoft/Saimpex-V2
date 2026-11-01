@@ -45,7 +45,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                           width: 88,
                           height: 88,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -97,7 +97,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                     child: Text(
                       'orders_back_to_home'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),

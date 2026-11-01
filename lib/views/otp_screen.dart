@@ -151,7 +151,7 @@ class OtpScreen extends StatelessWidget {
         Expanded(
           flex: 6,
           child: Container(
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
             child: SingleChildScrollView(
               child: Column(
@@ -185,7 +185,7 @@ class OtpScreen extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -284,7 +284,7 @@ class OtpScreen extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primaryOrange.withOpacity(0.3),
+                color: AppColors.primaryOrange.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),

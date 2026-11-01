@@ -123,7 +123,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         missionId: id,
         language: apiLanguageCode(),
       );
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       await _load();
     } on ApiException catch (error) {
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -142,7 +142,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         vendorId: vendorId,
         language: apiLanguageCode(),
       );
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       Get.to(() => const CartScreen(isFoodOrGrocery: true));
     } on ApiException catch (error) {
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -163,7 +163,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
     );
     showAppToast(
       'core_rewards_invite_copied'.tr,
-      backgroundColor: const Color(0xFFFF5E00),
+      backgroundColor: const Color(0xFFFF5216),
     );
   }
 
@@ -196,7 +196,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
             child: Text(
               'core_rewards_apply'.tr,
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -211,7 +211,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         code: code,
         language: apiLanguageCode(),
       );
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       await _load();
     } on ApiException catch (error) {
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -238,7 +238,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
               child: _loading && _tier.isEmpty
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     )
                   : _tier.isEmpty && _error != null
@@ -257,7 +257,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                       ),
                     )
                   : RefreshIndicator(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       onRefresh: _load,
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(
@@ -303,7 +303,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                   child: Text(
                                     'core_rewards_have_code'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -550,7 +550,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                      colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                     ),
                   ),
                 ),
@@ -570,7 +570,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                   height: 8,
                   decoration: BoxDecoration(
                     color: active
-                        ? const Color(0xFFFF5E00)
+                        ? const Color(0xFFFF5216)
                         : const Color(0xFF6A6A6A),
                     shape: BoxShape.circle,
                   ),
@@ -580,7 +580,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                   tiers[index],
                   style: GoogleFonts.outfit(
                     color: active
-                        ? const Color(0xFFFF5E00)
+                        ? const Color(0xFFFF5216)
                         : const Color(0xFF8A8A8A),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -620,7 +620,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
           else
             const Icon(
               Icons.percent_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 24,
             ),
           const SizedBox(height: 2),
@@ -813,7 +813,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                           Text(
                             item['points'] as String,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
@@ -838,7 +838,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                 gradient: redeemable
                                     ? const LinearGradient(
                                         colors: [
-                                          Color(0xFFFF5E00),
+                                          Color(0xFFFF5216),
                                           Color(0xFFFFAE00),
                                         ],
                                       )
@@ -889,7 +889,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                    colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   ),
                 ),
               ),
@@ -944,7 +944,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                    colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -995,7 +995,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                     color: claimable ? null : const Color(0xFFFFF0E6),
                     gradient: claimable
                         ? const LinearGradient(
-                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                           )
                         : null,
                     borderRadius: BorderRadius.circular(20),
@@ -1011,7 +1011,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                 }))
                         : reward,
                     style: GoogleFonts.outfit(
-                      color: claimable ? Colors.white : const Color(0xFFFF5E00),
+                      color: claimable ? Colors.white : const Color(0xFFFF5216),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1117,14 +1117,14 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                       children: [
                         const Icon(
                           Icons.copy_rounded,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 16,
                         ),
                         const SizedBox(width: 7),
                         Text(
                           'core_rewards_copy'.tr,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.2,
@@ -1299,7 +1299,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                       style: GoogleFonts.outfit(
                         color: credited
                             ? const Color(0xFF1FAF5A)
-                            : const Color(0xFFFF5E00),
+                            : const Color(0xFFFF5216),
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),

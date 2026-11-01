@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -313,7 +314,7 @@ class OrderRepository {
     final earliest = DateTime.tryParse('${data['earliest'] ?? ''}');
     final latest = DateTime.tryParse('${data['latest'] ?? ''}');
     if (earliest == null || latest == null) {
-      throw ApiException('Could not load delivery times. Please try again.');
+      throw ApiException('core_delivery_times_failed'.tr);
     }
     return (earliest: earliest.toLocal(), latest: latest.toLocal());
   }
@@ -348,7 +349,7 @@ class OrderRepository {
     );
     final methods = (asJsonMap(envelope.data) ?? {})['payment_methods'];
     if (methods is! List) {
-      throw const ApiException('Payment methods are missing.');
+      throw ApiException('core_payment_methods_missing'.tr);
     }
     final enabled = <String>{};
     for (final method in methods) {
@@ -494,6 +495,9 @@ class OrderRepository {
     required String language,
     String vendorComment = '',
     String driverComment = '',
+    // Home cleaning with an assigned cleaner: rated apart from the business.
+    int cleanerRating = 0,
+    String cleanerComment = '',
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
@@ -505,6 +509,8 @@ class OrderRepository {
           // The API accepts 1-5 only, so an unrated driver is left out.
           if (driverRating > 0) 'driver_rating': '$driverRating',
           if (driverRating > 0) 'driver_comment': driverComment,
+          if (cleanerRating > 0) 'cleaner_rating': '$cleanerRating',
+          if (cleanerRating > 0) 'cleaner_comment': cleanerComment,
           'products': '',
         },
         options: Options(contentType: Headers.jsonContentType),
@@ -528,9 +534,7 @@ class OrderRepository {
         );
       } on FormatException catch (error) {
         throw ApiException(
-          error.message.isEmpty
-              ? 'Request failed. Please try again.'
-              : error.message,
+          error.message.isEmpty ? 'core_request_failed'.tr : error.message,
           statusCode: response.statusCode,
         );
       }

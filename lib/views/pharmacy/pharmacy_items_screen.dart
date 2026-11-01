@@ -111,7 +111,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       });
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().setCartItem(
-          storeName: _storeText('title', 'Pharmacy Nasr'),
+          storeName: _storeText('title', ''),
           itemName: item['title']?.toString(),
           itemPortion: portion ?? item['tag']?.toString() ?? '10 Tablets',
           basePrice: parsePrice(item['price']?.toString() ?? '50'),
@@ -119,7 +119,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
           quantity: quantity,
         );
       }
-      showAppToast(added.message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(added.message, backgroundColor: const Color(0xFFFF5216));
       if (added.needsPrescription) {
         await _attachPrescription(pharmacyId);
       }
@@ -304,8 +304,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 _loadStore(reset: true);
               },
               child: Padding(
-                padding: EdgeInsets.only(
-                  right: index == subcategories.length - 1 ? 0 : 10,
+                padding: EdgeInsetsDirectional.only(
+                  end: index == subcategories.length - 1 ? 0 : 10,
                 ),
                 child: SizedBox(
                   width: 62,
@@ -326,7 +326,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                       'lib/assets/images/All.png',
                                       width: 22,
                                       height: 22,
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                     ),
                                   ),
                                 )
@@ -335,7 +335,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.10),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.10,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -358,7 +360,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                             overflow: TextOverflow.visible,
                             style: GoogleFonts.outfit(
                               color: isSelected
-                                  ? const Color(0xFFFF5E00)
+                                  ? const Color(0xFFFF5216)
                                   : const Color(0xFF3A312C),
                               fontSize: 11,
                               fontWeight: isSelected
@@ -376,7 +378,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                             width: 56,
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                               ),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(12),
@@ -436,7 +438,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 color: const Color(0xFFFFF0EA),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: const Color(0xFFFF5E00).withOpacity(0.35),
+                  color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                   width: 1,
                 ),
               ),
@@ -445,7 +447,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                   'lib/assets/images/Voice.png',
                   width: 12,
                   height: 12,
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                 ),
               ),
             ),
@@ -505,7 +507,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     final storeId = _storeText('id', 'p1');
-    final storeTitle = _storeText('title', 'Pharmacy Nasr');
+    final storeTitle = _storeText('title', '');
     final storeImage = _storeText('image', '');
     final storeTime = _storeText('time', '30-35 min');
     final storeDistance = _storeText('dist', '10 Km');
@@ -585,7 +587,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.06,
+                                      ),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -656,7 +660,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                         if (storeTime.isNotEmpty) ...[
                                           const Icon(
                                             Icons.access_time_rounded,
-                                            color: Color(0xFFFF5E00),
+                                            color: Color(0xFFFF5216),
                                             size: 12,
                                           ),
                                           const SizedBox(width: 4),
@@ -673,7 +677,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                         if (storeDistance.isNotEmpty) ...[
                                           const Icon(
                                             Icons.location_on_outlined,
-                                            color: Color(0xFFFF5E00),
+                                            color: Color(0xFFFF5216),
                                             size: 12,
                                           ),
                                           const SizedBox(width: 4),
@@ -694,7 +698,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                               vertical: 2,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFFFF5E00),
+                                              color: const Color(0xFFFF5216),
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                             ),
@@ -770,7 +774,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                               decoration: BoxDecoration(
                                                 gradient: const LinearGradient(
                                                   colors: [
-                                                    Color(0xFFFF5E00),
+                                                    Color(0xFFFF5216),
                                                     Color(0xFFFFAE00),
                                                   ],
                                                   begin: Alignment.centerLeft,
@@ -828,7 +832,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black
-                                                        .withOpacity(0.04),
+                                                        .withValues(
+                                                          alpha: 0.04,
+                                                        ),
                                                     blurRadius: 6,
                                                     offset: const Offset(0, 2),
                                                   ),
@@ -840,7 +846,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                                     : Icons
                                                           .favorite_border_rounded,
                                                 color: liked
-                                                    ? const Color(0xFFFF5E00)
+                                                    ? const Color(0xFFFF5216)
                                                     : const Color(0xFFA59A94),
                                                 size: 16,
                                               ),
@@ -992,7 +998,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                         const Padding(
                           padding: EdgeInsets.only(top: 28),
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         ),
                       if (!_loadingStore && menuItems.isEmpty)
@@ -1015,7 +1021,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.4,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                             ),
                           ),
                         ),

@@ -346,7 +346,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
                       if (rating.isNotEmpty && rating != '0') ...[
                         const Icon(
                           Icons.star_rounded,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 14,
                         ),
                         const SizedBox(width: 4),
@@ -356,7 +356,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
                       if (distance.isNotEmpty) ...[
                         const Icon(
                           Icons.location_on_outlined,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 13,
                         ),
                         const SizedBox(width: 4),

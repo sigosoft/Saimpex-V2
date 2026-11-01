@@ -130,7 +130,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: _filters.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final selected = index == _filterIndex;
                   return GestureDetector(
@@ -140,7 +140,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: selected
-                            ? const Color(0xFFFF5E00)
+                            ? const Color(0xFFFF5216)
                             : Colors.white,
                         borderRadius: BorderRadius.circular(22),
                         border: Border.all(color: const Color(0xFFE8DFD6)),
@@ -171,7 +171,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
   Widget _buildList(double bottomInset) {
     if (_loading && _items.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+        child: CircularProgressIndicator(color: Color(0xFFFF5216)),
       );
     }
     if (_items.isEmpty) {
@@ -190,7 +190,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(16, 4, 16, 24 + bottomInset),
       itemCount: _items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) => _buildCard(_items[index]),
     );
   }
@@ -247,7 +247,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                         ? '${item['status']}'
                         : '${item['statusLabel']}',
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),

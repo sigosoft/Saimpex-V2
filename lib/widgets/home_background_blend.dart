@@ -13,10 +13,7 @@ class HomeBackgroundBlend extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFDDCC9),
-            Color(0xFFFAF6F0),
-          ],
+          colors: [Color(0xFFFDDCC9), Color(0xFFFAF6F0)],
         ),
       ),
       child: child,

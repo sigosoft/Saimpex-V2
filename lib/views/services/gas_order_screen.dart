@@ -265,7 +265,7 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
       alignment: Alignment.center,
       child: const Icon(
         Icons.propane_tank_rounded,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
         size: 28,
       ),
     );
@@ -325,7 +325,7 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
         width: 30,
         height: 30,
         decoration: const BoxDecoration(
-          color: Color(0xFFFF5E00),
+          color: Color(0xFFFF5216),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: Colors.white, size: 18),
@@ -359,7 +359,7 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
                   : Icons.check_box_outline_blank_rounded,
               color: _returnsEmpty
                   ? const Color(0xFF00B25C)
-                  : const Color(0xFFFF5E00),
+                  : const Color(0xFFFF5216),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -387,7 +387,7 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
         decoration: _cardDecoration,
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFFFF5E00), size: 22),
+            Icon(icon, color: const Color(0xFFFF5216), size: 22),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -414,7 +414,7 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
             ),
             Text(
               'gas_change'.tr,
-              style: _style(12.5, FontWeight.w700, const Color(0xFFFF5E00)),
+              style: _style(12.5, FontWeight.w700, const Color(0xFFFF5216)),
             ),
           ],
         ),
@@ -438,13 +438,13 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFEAD8C9),
             width: selected ? 1.5 : 0.8,
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFFFF5E00), size: 22),
+            Icon(icon, color: const Color(0xFFFF5216), size: 22),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -461,7 +461,7 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
                   ? Icons.radio_button_checked_rounded
                   : Icons.radio_button_off_rounded,
               color: selected
-                  ? const Color(0xFFFF5E00)
+                  ? const Color(0xFFFF5216)
                   : const Color(0xFFD9D0C8),
             ),
           ],
@@ -535,7 +535,7 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
             borderRadius: BorderRadius.circular(30),
             gradient: LinearGradient(
               colors: ready
-                  ? const [Color(0xFFFF5E00), Color(0xFFFFAE00)]
+                  ? const [Color(0xFFFF5216), Color(0xFFFFAE00)]
                   : const [Color(0xFFD9D0C8), Color(0xFFD9D0C8)],
             ),
           ),

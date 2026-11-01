@@ -122,7 +122,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFFFF5E00),
+                                    Color(0xFFFF5216),
                                     Color(0xFFFFAE00),
                                   ],
                                   begin: Alignment.centerLeft,
@@ -132,7 +132,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(
-                                      0xFFFF5E00,
+                                      0xFFFF5216,
                                     ).withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
@@ -235,7 +235,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                             alignment: Alignment.center,
                             child: const Icon(
                               Icons.picture_as_pdf_rounded,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                               size: 26,
                             ),
                           ),
@@ -265,7 +265,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                             Text(
                               'pw_view_full_prescription'.tr,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -273,7 +273,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                             const SizedBox(width: 4),
                             const Icon(
                               Icons.open_in_new_rounded,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                               size: 14,
                             ),
                           ],
@@ -318,7 +318,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                       ),
                       child: const Icon(
                         Icons.close_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 20,
                       ),
                     ),
@@ -338,14 +338,14 @@ class PrescriptionSuccessScreen extends StatelessWidget {
           'pw_opening_file'.trParams({'name': fileName}),
           style: GoogleFonts.outfit(),
         ),
-        backgroundColor: const Color(0xFFFF5E00),
+        backgroundColor: const Color(0xFFFF5216),
       ),
     );
   }
 
   Widget _buildInfoBanner() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
       decoration: BoxDecoration(
         color: const Color(0xFFFFE8DC),
         borderRadius: BorderRadius.circular(16),
@@ -357,7 +357,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
             width: 22,
             height: 22,
             decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
@@ -413,7 +413,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                 final segment = usable / 3;
 
                 return Stack(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   children: [
                     Positioned(
                       left: circleSize / 2,
@@ -524,7 +524,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
             alignment: Alignment.center,
             child: const Icon(
               Icons.assignment_outlined,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 24,
             ),
           ),
@@ -574,8 +574,8 @@ class _ProgressConnector extends StatelessWidget {
         ? const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFFFF5E00),
-                Color(0xFFFF5E00),
+                Color(0xFFFF5216),
+                Color(0xFFFF5216),
                 Color(0xFFE8DFD6),
                 Color(0xFFE8DFD6),
               ],
@@ -608,12 +608,12 @@ class _ProgressCircle extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: active ? const Color(0xFFFF5E00) : const Color(0xFFF3EDE7),
+        color: active ? const Color(0xFFFF5216) : const Color(0xFFF3EDE7),
         shape: BoxShape.circle,
         boxShadow: active
             ? [
                 BoxShadow(
-                  color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                  color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                   blurRadius: 12,
                   spreadRadius: 1,
                   offset: const Offset(0, 3),

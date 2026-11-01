@@ -65,11 +65,10 @@ class HomeCleaningCartScreen extends StatefulWidget {
 
   const HomeCleaningCartScreen({
     super.key,
-    this.providerName = 'CleanPro Elite',
-    this.serviceTitle = 'Regular Cleaning',
+    this.providerName = '',
+    this.serviceTitle = '',
     this.serviceImage = 'lib/assets/images/regular_cleaning.jpg',
-    this.serviceDescription =
-        'Standard cleaning for bedrooms, bathrooms, living...',
+    this.serviceDescription = '',
     this.bedrooms = 2,
     this.bathrooms = 2,
     this.kitchens = 0,
@@ -473,14 +472,14 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             children: [
               const Icon(
                 Icons.delete_outline_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 18,
               ),
               const SizedBox(width: 4),
               Text(
                 'svc_clear_all'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -531,14 +530,14 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                     width: 72,
                     height: 72,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(72),
+                    errorBuilder: (_, _, _) => _imageFallback(72),
                   )
                 : Image.asset(
                     image,
                     width: 72,
                     height: 72,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(72),
+                    errorBuilder: (_, _, _) => _imageFallback(72),
                   ),
           ),
           const SizedBox(width: 12),
@@ -564,7 +563,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       child: Text(
                         'svc_edit'.tr,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -624,7 +623,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: widget.selectedPests.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final pest = widget.selectedPests[index];
           final label = pest['label'] as String? ?? '';
@@ -652,7 +651,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       ? Image.asset(
                           image,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (_, _, _) => const Icon(
                             Icons.bug_report_outlined,
                             color: Color(0xFF2B5A9E),
                             size: 22,
@@ -710,7 +709,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   ? 'svc_plus_mru'.trParams({'amount': '${widget.productsFee}'})
                   : 'mru'.trParams({'amount': '0'}),
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -739,7 +738,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         width: 1.8,
                       ),
                     ),
@@ -748,7 +747,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -799,7 +798,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                           'amount': '${widget.productsFee}',
                         }),
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -856,7 +855,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           Text(
             'mru'.trParams({'amount': '$total'}),
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 14.5,
               fontWeight: FontWeight.w800,
             ),
@@ -891,7 +890,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             ),
             child: const Icon(
               Icons.home_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ),
@@ -901,9 +900,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  SelectLocationController.selectedTitle.isNotEmpty
-                      ? SelectLocationController.selectedTitle
-                      : 'Sahara View Home',
+                  SelectLocationController.selectedTitle,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
@@ -912,9 +909,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  SelectLocationController.selectedSubtitle.isNotEmpty
-                      ? SelectLocationController.selectedSubtitle
-                      : 'Near Marhaba Supermarket, Nouakchott',
+                  SelectLocationController.selectedSubtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
@@ -928,7 +923,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           Text(
             'svc_edit'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
@@ -946,7 +941,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFFFF3EB),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+          border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
         ),
         child: Row(
           children: [
@@ -954,7 +949,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
@@ -971,7 +966,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   Text(
                     'svc_your_slot'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
                     ),
@@ -988,7 +983,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFFFF5E00)),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFFFF5216)),
           ],
         ),
       ),
@@ -1034,12 +1029,12 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 imageAsset,
                 width: 20,
                 height: 20,
-                color: const Color(0xFFFF5E00),
-                errorBuilder: (_, __, ___) => Icon(
+                color: const Color(0xFFFF5216),
+                errorBuilder: (_, _, _) => Icon(
                   index == 0
                       ? Icons.account_balance_wallet_outlined
                       : Icons.credit_card_rounded,
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   size: 20,
                 ),
               ),
@@ -1074,7 +1069,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFC4B8AF),
                   width: 1.8,
                 ),
@@ -1085,7 +1080,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     )
@@ -1111,7 +1106,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           Text(
             'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
@@ -1220,7 +1215,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           Text(
             'mru'.trParams({'amount': '$_toPay'}),
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 20,
               fontWeight: FontWeight.w800,
             ),
@@ -1235,13 +1230,13 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(28),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1272,7 +1267,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       alignment: Alignment.center,
       child: const Icon(
         Icons.cleaning_services_rounded,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
       ),
     );
   }

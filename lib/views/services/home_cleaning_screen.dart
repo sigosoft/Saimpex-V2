@@ -102,8 +102,8 @@ class HomeCleaningScreen extends StatelessWidget {
           'lib/assets/images/Home_cleaning_banner.png',
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) =>
-              Container(height: 240, color: const Color(0xFFFF5E00)),
+          errorBuilder: (_, _, _) =>
+              Container(height: 240, color: const Color(0xFFFF5216)),
         ),
         Positioned(
           left: 16,
@@ -143,7 +143,7 @@ class HomeCleaningScreen extends StatelessWidget {
               ),
               child: const Icon(
                 Icons.location_on_outlined,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 20,
               ),
             ),
@@ -210,9 +210,9 @@ class HomeCleaningScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const Positioned(
+              const PositionedDirectional(
                 top: -1,
-                right: -2,
+                end: -2,
                 child: Icon(
                   Icons.star_rounded,
                   color: Color(0xFFFF8A65),
@@ -312,14 +312,14 @@ class HomeCleaningScreen extends StatelessWidget {
             width: 66,
             height: 66,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               width: 58,
               height: 58,
               color: const Color(0xFFFFF3EB),
               alignment: Alignment.center,
               child: const Icon(
                 Icons.cleaning_services_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 24,
               ),
             ),
@@ -388,10 +388,10 @@ class HomeCleaningScreen extends StatelessWidget {
               'lib/assets/images/Voice.png',
               width: 16,
               height: 16,
-              color: const Color(0xFFFF5E00),
-              errorBuilder: (_, __, ___) => const Icon(
+              color: const Color(0xFFFF5216),
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.settings_voice_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 18,
               ),
             ),
@@ -469,14 +469,12 @@ class HomeCleaningScreen extends StatelessWidget {
                       ? Image.network(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _providerImageFallback(),
+                          errorBuilder: (_, _, _) => _providerImageFallback(),
                         )
                       : Image.asset(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _providerImageFallback(),
+                          errorBuilder: (_, _, _) => _providerImageFallback(),
                         ),
                 ),
                 PositionedDirectional(
@@ -498,7 +496,7 @@ class HomeCleaningScreen extends StatelessWidget {
                           'lib/assets/images/Coin.png',
                           width: 12,
                           height: 12,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (_, _, _) => const Icon(
                             Icons.monetization_on,
                             color: Color(0xFFFFAE00),
                             size: 12,
@@ -563,7 +561,7 @@ class HomeCleaningScreen extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -597,7 +595,7 @@ class HomeCleaningScreen extends StatelessWidget {
                             RichText(
                               text: TextSpan(
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontWeight: FontWeight.w800,
                                 ),
                                 children: [
@@ -626,12 +624,12 @@ class HomeCleaningScreen extends StatelessWidget {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.25),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),

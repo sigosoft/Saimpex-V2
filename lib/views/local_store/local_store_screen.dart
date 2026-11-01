@@ -240,7 +240,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               ),
               child: const Icon(
                 Icons.tune_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 16,
               ),
             ),
@@ -295,7 +295,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                       children: [
                                         const Icon(
                                           Icons.home_outlined,
-                                          color: Color(0xFFFF5E00),
+                                          color: Color(0xFFFF5216),
                                           size: 22,
                                         ),
                                         const SizedBox(width: 6),
@@ -362,14 +362,15 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                   ),
                                   child: Container(
                                     height: 36,
-                                    padding: const EdgeInsets.fromLTRB(
-                                      4,
-                                      4,
-                                      6,
-                                      4,
-                                    ),
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                          4,
+                                          4,
+                                          6,
+                                          4,
+                                        ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
@@ -453,7 +454,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                                     Icons.storefront_rounded,
                                                     size: 50,
                                                     color: const Color(
-                                                      0xFFFF5E00,
+                                                      0xFFFF5216,
                                                     ).withValues(alpha: 0.5),
                                                   ),
                                                 ),
@@ -481,7 +482,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                 height: 7,
                                 decoration: BoxDecoration(
                                   color: _bannerIndex == index
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFE5D5C9),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
@@ -553,8 +554,8 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                             ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.04,
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.04,
                                                 ),
                                                 blurRadius: 6,
                                                 offset: const Offset(0, 3),
@@ -605,16 +606,16 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                                   height: 28,
                                                   color: isSelected
                                                       ? Colors.white
-                                                      : const Color(0xFFFF5E00),
+                                                      : const Color(0xFFFF5216),
                                                 ),
                                               )
                                             : Image.asset(
                                                 cat['icon'] as String,
                                                 fit: BoxFit.contain,
-                                                errorBuilder: (_, __, ___) =>
+                                                errorBuilder: (_, _, _) =>
                                                     const Icon(
                                                       Icons.store_rounded,
-                                                      color: Color(0xFFFF5E00),
+                                                      color: Color(0xFFFF5216),
                                                       size: 24,
                                                     ),
                                               ),
@@ -696,7 +697,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               child: Center(
                                 child: _storesLoading
                                     ? const CircularProgressIndicator(
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                       )
                                     : Text(
                                         'st_no_local_stores'.tr,
@@ -804,12 +805,12 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               child: _storeImage(
                                 store['image'],
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
+                                errorBuilder: (_, _, _) => Container(
                                   color: const Color(0xFFF3E7DC),
                                   child: const Icon(
                                     Icons.storefront_rounded,
                                     size: 40,
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                   ),
                                 ),
                               ),
@@ -818,12 +819,12 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         : _storeImage(
                             store['image'],
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (_, _, _) => Container(
                               color: const Color(0xFFF3E7DC),
                               child: const Icon(
                                 Icons.storefront_rounded,
                                 size: 40,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                               ),
                             ),
                           ),
@@ -846,9 +847,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                   ),
 
                 // Top Left Badges (Discount + Rating)
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  left: 8,
+                  start: 8,
                   child: Row(
                     children: [
                       Container(
@@ -857,7 +858,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -903,9 +904,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Favorite Heart Button Top Right
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -924,7 +925,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
                         color: store['isFavorite'] == true
-                            ? const Color(0xFFFF5E00)
+                            ? const Color(0xFFFF5216)
                             : const Color(0xFF2C2520),
                         size: 16,
                       ),
@@ -933,9 +934,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Points Badge Bottom Left on Image
-                Positioned(
+                PositionedDirectional(
                   bottom: 8,
-                  left: 8,
+                  start: 8,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -1007,7 +1008,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         children: [
                           const Icon(
                             Icons.access_time_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 13,
                           ),
                           const SizedBox(width: 3),
@@ -1022,7 +1023,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           const SizedBox(width: 8),
                           const Icon(
                             Icons.location_on_outlined,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 13,
                           ),
                           const SizedBox(width: 3),
@@ -1146,12 +1147,12 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     child: _storeImage(
                       store['image'],
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         color: const Color(0xFFF3E7DC),
                         child: const Icon(
                           Icons.storefront_rounded,
                           size: 40,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                         ),
                       ),
                     ),
@@ -1159,9 +1160,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Top Left Badges (Discount + Rating)
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  left: 10,
+                  start: 10,
                   child: Row(
                     children: [
                       Container(
@@ -1170,7 +1171,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -1216,9 +1217,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Favorite Heart Button Top Right
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  right: 10,
+                  end: 10,
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -1237,7 +1238,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
                         color: store['isFavorite'] == true
-                            ? const Color(0xFFFF5E00)
+                            ? const Color(0xFFFF5216)
                             : const Color(0xFF2C2520),
                         size: 18,
                       ),
@@ -1246,9 +1247,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Points Badge Bottom Left on Image
-                Positioned(
+                PositionedDirectional(
                   bottom: 10,
-                  left: 10,
+                  start: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -1304,7 +1305,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     children: [
                       const Icon(
                         Icons.access_time_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -1319,7 +1320,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                       const SizedBox(width: 12),
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),

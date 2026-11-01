@@ -101,7 +101,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
               ),
               child: const Icon(
                 Icons.close_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 22,
               ),
             ),
@@ -146,7 +146,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                           ),
                           child: const Icon(
                             Icons.calendar_month_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 24,
                           ),
                         ),
@@ -222,7 +222,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                 return Theme(
                   data: Theme.of(context).copyWith(
                     colorScheme: const ColorScheme.light(
-                      primary: Color(0xFFFF5E00),
+                      primary: Color(0xFFFF5216),
                       onPrimary: Colors.white,
                       onSurface: Color(0xFF1A1A1A),
                     ),
@@ -255,14 +255,14 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
             children: [
               const Icon(
                 Icons.calendar_today_outlined,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 14,
               ),
               const SizedBox(width: 5),
               Text(
                 'svc_calendar_view'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -281,7 +281,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: _dates.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final date = _dates[index];
           final selected = index == _selectedDateIndex;
@@ -299,7 +299,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFE8E4E0),
                   width: selected ? 1.6 : 1,
                 ),
@@ -311,7 +311,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                     _monthLabel(date),
                     style: GoogleFonts.outfit(
                       color: selected
-                          ? const Color(0xFFFF5E00)
+                          ? const Color(0xFFFF5216)
                           : const Color(0xFFA39A93),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -334,7 +334,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.outfit(
                       color: selected
-                          ? const Color(0xFFFF5E00)
+                          ? const Color(0xFFFF5216)
                           : const Color(0xFFA39A93),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w500,
@@ -385,7 +385,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE8E4E0),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFE8E4E0),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -394,7 +394,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
           children: [
             const Icon(
               Icons.access_time_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 16,
             ),
             const SizedBox(width: 6),
@@ -471,13 +471,13 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.28),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

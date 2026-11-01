@@ -76,12 +76,13 @@ class _GroceryScreenState extends State<GroceryScreen> {
     final wallet = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>().walletLabel.trim()
         : '';
-    if (mounted)
+    if (mounted) {
       setState(
         () => _walletText = wallet.isEmpty
             ? 'mru'.trParams({'amount': '0'})
             : wallet,
       );
+    }
   }
 
   @override
@@ -417,9 +418,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
           Container(
             height: 36,
-            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+            padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -481,7 +482,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 width: 40,
                 height: 40,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
@@ -495,7 +496,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
               Text(
                 'st_ai_predictive'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.6,
@@ -530,14 +531,14 @@ class _GroceryScreenState extends State<GroceryScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                     blurRadius: 12,
                     offset: const Offset(0, 5),
                   ),
@@ -587,7 +588,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.auto_awesome, color: Color(0xFFFF5E00), size: 18),
+          const Icon(Icons.auto_awesome, color: Color(0xFFFF5216), size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: RichText(
@@ -619,14 +620,14 @@ class _GroceryScreenState extends State<GroceryScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -669,7 +670,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
           borderRadius: BorderRadius.circular(23),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -792,8 +793,8 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 );
               },
               child: Padding(
-                padding: EdgeInsets.only(
-                  right: index == subcategories.length - 1 ? 0 : 10,
+                padding: EdgeInsetsDirectional.only(
+                  end: index == subcategories.length - 1 ? 0 : 10,
                 ),
                 child: SizedBox(
                   width: 62,
@@ -814,7 +815,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                       'lib/assets/images/All.png',
                                       width: 22,
                                       height: 22,
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                     ),
                                   ),
                                 )
@@ -823,7 +824,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.10),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.10,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -860,7 +863,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             overflow: TextOverflow.visible,
                             style: GoogleFonts.outfit(
                               color: isSelected
-                                  ? const Color(0xFFFF5E00)
+                                  ? const Color(0xFFFF5216)
                                   : const Color(0xFF3A312C),
                               fontSize: 11,
                               fontWeight: isSelected
@@ -878,7 +881,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             width: 56,
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                               ),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(12),
@@ -905,7 +908,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
         height: 220,
         child: Center(
           child: CircularProgressIndicator(
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             strokeWidth: 2.5,
           ),
         ),
@@ -951,7 +954,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1005,16 +1008,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Discount tag
                         if (hasDiscount)
-                          Positioned(
+                          PositionedDirectional(
                             top: 10,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -1029,9 +1032,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
 
                         // Rating badge
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          left: hasDiscount ? 62 : 10,
+                          start: hasDiscount ? 62 : 10,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -1042,7 +1045,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 4,
                                 ),
                               ],
@@ -1070,9 +1073,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Favorite button
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          right: 10,
+                          end: 10,
                           child: Obx(() {
                             final isLiked = homeController.isLiked(
                               (store['id'] ?? '').toString(),
@@ -1102,16 +1105,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Points overlay bottom-left
                         if (hasPoints)
-                          Positioned(
+                          PositionedDirectional(
                             bottom: 8,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
@@ -1178,7 +1181,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             if (timeText.isNotEmpty) ...[
                               const Icon(
                                 Icons.access_time_rounded,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 12,
                               ),
                               const SizedBox(width: 4),
@@ -1195,7 +1198,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             if (distText.isNotEmpty) ...[
                               const Icon(
                                 Icons.location_on_outlined,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 12,
                               ),
                               const SizedBox(width: 4),
@@ -1229,7 +1232,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
         height: 100,
         child: Center(
           child: CircularProgressIndicator(
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             strokeWidth: 2.5,
           ),
         ),
@@ -1264,7 +1267,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -1357,7 +1360,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         children: [
                           const Icon(
                             Icons.calendar_today_outlined,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 9,
                           ),
                           const SizedBox(width: 4),
@@ -1397,7 +1400,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             width: 1,
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -1407,14 +1410,14 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           children: [
                             const Icon(
                               Icons.refresh_rounded,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                               size: 10,
                             ),
                             const SizedBox(width: 2),
                             Text(
                               'st_reorder'.tr,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1440,7 +1443,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
         height: 220,
         child: Center(
           child: CircularProgressIndicator(
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             strokeWidth: 2.5,
           ),
         ),
@@ -1485,7 +1488,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1539,16 +1542,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Discount tag
                         if (hasDiscount)
-                          Positioned(
+                          PositionedDirectional(
                             top: 10,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -1563,9 +1566,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
 
                         // Rating badge
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          left: hasDiscount ? 62 : 10,
+                          start: hasDiscount ? 62 : 10,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -1576,7 +1579,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 4,
                                 ),
                               ],
@@ -1604,9 +1607,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Favorite button
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          right: 10,
+                          end: 10,
                           child: Obx(() {
                             final isLiked = homeController.isLiked(
                               (store['id'] ?? '').toString(),
@@ -1635,9 +1638,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Points + Time badge overlay bottom-left
-                        Positioned(
+                        PositionedDirectional(
                           bottom: 8,
-                          left: 10,
+                          start: 10,
                           child: Row(
                             children: [
                               if (hasPoints) ...[
@@ -1647,7 +1650,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
+                                    color: Colors.black.withValues(alpha: 0.6),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
@@ -1685,7 +1688,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.6),
+                                  color: Colors.black.withValues(alpha: 0.6),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -1760,7 +1763,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
         height: 195,
         child: Center(
           child: CircularProgressIndicator(
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             strokeWidth: 2.5,
           ),
         ),
@@ -1793,7 +1796,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -1845,16 +1848,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       ),
 
                       // Rating badge
-                      Positioned(
+                      PositionedDirectional(
                         top: 8,
-                        left: 8,
+                        start: 8,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 5,
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -1918,7 +1921,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1926,7 +1929,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             padding: const EdgeInsets.symmetric(
@@ -1995,7 +1998,7 @@ Widget _buildSectionHeader(
                     Text(
                       actionText.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -2003,7 +2006,7 @@ Widget _buildSectionHeader(
                     const SizedBox(width: 2),
                     const Icon(
                       Icons.chevron_right_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 16,
                     ),
                   ],

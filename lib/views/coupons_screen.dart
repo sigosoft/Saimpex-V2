@@ -10,7 +10,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
 class CouponsScreen extends StatefulWidget {
-  const CouponsScreen({Key? key}) : super(key: key);
+  const CouponsScreen({super.key});
 
   @override
   State<CouponsScreen> createState() => _CouponsScreenState();
@@ -87,7 +87,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
       ),
       body: _loading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              child: CircularProgressIndicator(color: Color(0xFFFF5216)),
             )
           : ListView.builder(
               itemCount: coupons.length,
@@ -117,7 +117,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -197,7 +197,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                         width: 72,
                         height: 72,
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        errorBuilder: (_, _, _) => const SizedBox.shrink(),
                       ),
                     ),
                 ],
@@ -305,7 +305,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                                   }),
                                   style: GoogleFonts.outfit(),
                                 ),
-                                backgroundColor: const Color(0xFFFF5E00),
+                                backgroundColor: const Color(0xFFFF5216),
                                 duration: const Duration(seconds: 1),
                               ),
                             );
@@ -330,7 +330,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                                   Text(
                                     coupon['code'] as String,
                                     style: GoogleFonts.outfit(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 0.5,
@@ -339,7 +339,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                                   const SizedBox(width: 6),
                                   const Icon(
                                     Icons.copy_rounded,
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                     size: 12,
                                   ),
                                 ],
@@ -355,7 +355,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                                   'core_coupons_applied'.tr,
                                   style: GoogleFonts.outfit(),
                                 ),
-                                backgroundColor: const Color(0xFFFF5E00),
+                                backgroundColor: const Color(0xFFFF5216),
                               ),
                             );
                             Navigator.pop(context);
@@ -365,7 +365,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             width: 80,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -373,8 +373,8 @@ class _CouponsScreenState extends State<CouponsScreen> {
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(
-                                    0xFFFF5E00,
-                                  ).withOpacity(0.3),
+                                    0xFFFF5216,
+                                  ).withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),

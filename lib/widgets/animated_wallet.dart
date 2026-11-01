@@ -30,17 +30,20 @@ class _AnimatedWalletState extends State<AnimatedWallet>
       duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
 
-    _float = Tween<double>(begin: 0, end: -4).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _float = Tween<double>(
+      begin: 0,
+      end: -4,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    _pulse = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _pulse = Tween<double>(
+      begin: 1.0,
+      end: 1.1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    _tilt = Tween<double>(begin: -0.08, end: 0.08).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _tilt = Tween<double>(
+      begin: -0.08,
+      end: 0.08,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -58,10 +61,7 @@ class _AnimatedWalletState extends State<AnimatedWallet>
           offset: Offset(0, _float.value),
           child: Transform.rotate(
             angle: _tilt.value,
-            child: Transform.scale(
-              scale: _pulse.value,
-              child: child,
-            ),
+            child: Transform.scale(scale: _pulse.value, child: child),
           ),
         );
       },

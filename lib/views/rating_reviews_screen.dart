@@ -67,7 +67,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
   Future<void> _load() async {
     final target = widget.target;
     if (target == null) {
-      setState(() => _unavailableMessage = 'Reviews are not available here.');
+      setState(() => _unavailableMessage = 'core_reviews_unavailable_here'.tr);
       return;
     }
     final requestId = ++_requestId;
@@ -88,7 +88,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
       if (!mounted || requestId != _requestId) return;
       if (result.subjectType != target.expectedSubjectType) {
         setState(() {
-          _unavailableMessage = 'Reviews are not available for this yet.';
+          _unavailableMessage = 'core_reviews_unavailable_yet'.tr;
           _reviews = const [];
         });
         return;
@@ -133,7 +133,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
             alignment: Alignment.center,
             children: [
               Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: AppBackButton(onTap: () => Navigator.pop(context)),
               ),
               Text(
@@ -153,7 +153,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
       ),
       body: _loading && _reviews.isEmpty
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              child: CircularProgressIndicator(color: Color(0xFFFF5216)),
             )
           : _unavailableMessage != null
           ? _buildMessage(_unavailableMessage!)
@@ -167,7 +167,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                   _buildTabs(),
                   const SizedBox(height: 16),
                   if (_reviews.isEmpty)
-                    _buildMessage('No reviews yet')
+                    _buildMessage('core_no_reviews_yet'.tr)
                   else
                     Column(
                       children: [
@@ -211,7 +211,10 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF00B25C),
                   borderRadius: BorderRadius.circular(12),
@@ -219,7 +222,11 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.white, size: 12),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.white,
+                      size: 12,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       _average.toStringAsFixed(1),
@@ -292,7 +299,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                 child: Container(
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -325,16 +332,19 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
         children: List.generate(_tabs.length, (index) {
           final isSelected = _activeTab == index;
           return Padding(
-            padding: EdgeInsets.only(
-              right: index == _tabs.length - 1 ? 0 : 10,
+            padding: EdgeInsetsDirectional.only(
+              end: index == _tabs.length - 1 ? 0 : 10,
             ),
             child: GestureDetector(
               onTap: () => _selectTab(index),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 11,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFFFEDE6),
                   borderRadius: BorderRadius.circular(50),
                 ),
@@ -391,10 +401,8 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                         width: 36,
                         height: 36,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox(
-                          width: 36,
-                          height: 36,
-                        ),
+                        errorBuilder: (_, _, _) =>
+                            const SizedBox(width: 36, height: 36),
                       ),
               ),
               const SizedBox(width: 10),

@@ -21,6 +21,8 @@ import 'pay_later_screen.dart';
 import 'wallet_screen.dart';
 import 'app_preferences_screen.dart';
 import 'help_support_screen.dart';
+import 'support_messages_screen.dart';
+import '../models/support_repository.dart';
 import 'terms_conditions_screen.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
@@ -44,6 +46,7 @@ class _AccountScreenState extends State<AccountScreen> {
   bool _showDeleteMenu = false;
   String _walletAmount = '0';
   String _rewardPoints = '0';
+  int _supportUnread = 0;
   Worker? _navWorker;
   Worker? _sessionWorker;
 
@@ -77,6 +80,20 @@ class _AccountScreenState extends State<AccountScreen> {
   void _loadAccountData() {
     _fetchProfile();
     _fetchUserPoints();
+    _fetchSupportUnread();
+  }
+
+  /// Unread messages from SAIMPEX support (API §6.37); 0 for guests.
+  Future<void> _fetchSupportUnread() async {
+    if (!Get.isRegistered<SessionStore>()) return;
+    final token = Get.find<SessionStore>().token;
+    if (token == null || token.isEmpty) return;
+    try {
+      final result = await SupportRepository.instance.threads(
+        apiLanguageCode(),
+      );
+      if (mounted) setState(() => _supportUnread = result.unread);
+    } catch (_) {}
   }
 
   Future<void> _fetchProfile() async {
@@ -179,8 +196,6 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildAccountAvatar() {
-    const fallback =
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop';
     return ProfileImageView(
       size: 62,
       placeholder: Container(
@@ -188,10 +203,12 @@ class _AccountScreenState extends State<AccountScreen> {
         height: 62,
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          image: DecorationImage(
-            image: NetworkImage(fallback),
-            fit: BoxFit.cover,
-          ),
+          color: Color(0xFFFFE8DC),
+        ),
+        child: const Icon(
+          Icons.person_rounded,
+          color: Color(0xFFFF5216),
+          size: 34,
         ),
       ),
     );
@@ -201,7 +218,7 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFF5E00),
+        statusBarColor: Color(0xFFFF5216),
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: Color(0xFFFAF6F0),
@@ -308,7 +325,7 @@ class _AccountScreenState extends State<AccountScreen> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -322,14 +339,14 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               const Icon(
                 Icons.delete_outline_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 20,
               ),
               const SizedBox(width: 10),
               Text(
                 'core_account_delete_account'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -337,7 +354,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(width: 8),
               const Icon(
                 Icons.chevron_right_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 20,
               ),
             ],
@@ -362,7 +379,7 @@ class _AccountScreenState extends State<AccountScreen> {
           bottomRight: Radius.circular(35),
         ),
         gradient: LinearGradient(
-          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+          colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -426,7 +443,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       Text(
                         _accountPhone(),
                         style: AppTextStyles.subtitle(
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                         ),
                       ),
                     ],
@@ -445,11 +462,11 @@ class _AccountScreenState extends State<AccountScreen> {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
@@ -465,7 +482,7 @@ class _AccountScreenState extends State<AccountScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Container(height: 1, color: Colors.white.withOpacity(0.35)),
+          Container(height: 1, color: Colors.white.withValues(alpha: 0.35)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -520,7 +537,7 @@ class _AccountScreenState extends State<AccountScreen> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -705,7 +722,7 @@ class _AccountScreenState extends State<AccountScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -807,6 +824,13 @@ class _AccountScreenState extends State<AccountScreen> {
         'isLogout': false,
       },
       {
+        'label': 'Support Messages',
+        'text': 'orders_support_messages_title'.tr,
+        'icon': Icons.support_agent_rounded,
+        'isLogout': false,
+        if (_supportUnread > 0) 'trailing': '$_supportUnread',
+      },
+      {
         'label': 'Terms & Conditions',
         'text': 'core_account_terms'.tr,
         'icon': Icons.description_outlined,
@@ -857,6 +881,10 @@ class _AccountScreenState extends State<AccountScreen> {
                     Get.to(() => const AppPreferencesScreen());
                   } else if (item['label'] == 'Help & Support') {
                     Get.to(() => const HelpSupportScreen());
+                  } else if (item['label'] == 'Support Messages') {
+                    Get.to(
+                      () => const SupportMessagesScreen(),
+                    )?.then((_) => _fetchSupportUnread());
                   } else if (item['label'] == 'Terms & Conditions') {
                     Get.to(
                       () => const TermsConditionsScreen(
@@ -982,7 +1010,7 @@ class _AccountScreenState extends State<AccountScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -1106,7 +1134,7 @@ class _DeleteAccountSheet extends StatelessWidget {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -1244,7 +1272,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),

@@ -33,7 +33,7 @@ Future<void> openLanguageSelection(BuildContext context) async {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.45),
+    barrierColor: Colors.black.withValues(alpha: 0.45),
     builder: (context) => LanguageSelectionSheet(
       currentLanguage: controller.selectedLanguage.value,
     ),
@@ -57,9 +57,12 @@ class LanguageSelector extends StatelessWidget {
         () => Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.12),
+            color: Colors.white.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.25),
+              width: 1,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -270,7 +273,7 @@ class _LanguageOptionCard extends StatelessWidget {
           color: const Color(0xFFFFF4EF),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFF3DDD2),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFF3DDD2),
             width: selected ? 1.6 : 1,
           ),
         ),
@@ -287,7 +290,7 @@ class _LanguageOptionCard extends StatelessWidget {
               child: Text(
                 language.code,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.2,
@@ -310,7 +313,7 @@ class _LanguageOptionCard extends StatelessWidget {
                 width: 24,
                 height: 24,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

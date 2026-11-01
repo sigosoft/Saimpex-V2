@@ -42,11 +42,11 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
                   width: 100,
                   height: 100,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 100,
                     height: 100,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -95,7 +95,7 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
                     child: Text(
                       'core_cancelled_back_home'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),

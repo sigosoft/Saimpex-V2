@@ -23,7 +23,7 @@ void showWaterProductDetailsSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (context) {
       bool isFavorite = false;
       return StatefulBuilder(
@@ -114,7 +114,7 @@ void showWaterProductDetailsSheet(
                                   Text(
                                     price,
                                     style: GoogleFonts.outfit(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -179,7 +179,9 @@ void showWaterProductDetailsSheet(
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.03,
+                                      ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 3),
                                     ),
@@ -199,7 +201,7 @@ void showWaterProductDetailsSheet(
                                         Text(
                                           'pw_return_empty_bottle'.tr,
                                           style: GoogleFonts.outfit(
-                                            color: const Color(0xFFFF5E00),
+                                            color: const Color(0xFFFF5216),
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -234,7 +236,7 @@ void showWaterProductDetailsSheet(
                           color: const Color(0xFFFAF6F0),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, -4),
                             ),
@@ -261,7 +263,7 @@ void showWaterProductDetailsSheet(
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [
-                                        Color(0xFFFF5E00),
+                                        Color(0xFFFF5216),
                                         Color(0xFFFFAE00),
                                       ],
                                       begin: Alignment.centerLeft,
@@ -271,8 +273,8 @@ void showWaterProductDetailsSheet(
                                     boxShadow: [
                                       BoxShadow(
                                         color: const Color(
-                                          0xFFFF5E00,
-                                        ).withOpacity(0.35),
+                                          0xFFFF5216,
+                                        ).withValues(alpha: 0.35),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -319,7 +321,9 @@ void showWaterProductDetailsSheet(
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.04,
+                                      ),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -330,7 +334,7 @@ void showWaterProductDetailsSheet(
                                       ? Icons.favorite_rounded
                                       : Icons.favorite_border_rounded,
                                   color: isFavorite
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFF2C2520),
                                   size: 22,
                                 ),
@@ -356,7 +360,7 @@ void showWaterProductDetailsSheet(
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black.withValues(alpha: 0.15),
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
@@ -364,7 +368,7 @@ void showWaterProductDetailsSheet(
                       ),
                       child: const Icon(
                         Icons.close_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 24,
                       ),
                     ),
@@ -392,7 +396,7 @@ Widget _buildFeatureCard({
       border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.02),
+          color: Colors.black.withValues(alpha: 0.02),
           blurRadius: 6,
           offset: const Offset(0, 2),
         ),
@@ -415,7 +419,7 @@ Widget _buildFeatureCard({
                   height: 18,
                   fit: BoxFit.contain,
                 )
-              : Icon(icon, color: const Color(0xFFFF5E00), size: 18),
+              : Icon(icon, color: const Color(0xFFFF5216), size: 18),
         ),
         const SizedBox(width: 10),
         Text(

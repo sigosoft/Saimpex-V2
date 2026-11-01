@@ -14,7 +14,7 @@ class HomeCleaningServiceConfigureScreen extends StatefulWidget {
   const HomeCleaningServiceConfigureScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanPro Elite',
+    this.providerName = '',
   });
 
   @override
@@ -348,7 +348,7 @@ class _HomeCleaningServiceConfigureScreenState
             ? Image.network(
                 _heroImage,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   'lib/assets/images/cleanproelitee.jpg',
                   fit: BoxFit.cover,
                 ),
@@ -356,7 +356,7 @@ class _HomeCleaningServiceConfigureScreenState
             : Image.asset(
                 _heroImage,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   'lib/assets/images/cleanproelitee.jpg',
                   fit: BoxFit.cover,
                 ),
@@ -395,15 +395,15 @@ class _HomeCleaningServiceConfigureScreenState
               imageAsset,
               width: 15,
               height: 15,
-              color: const Color(0xFFFF5E00),
-              errorBuilder: (_, __, ___) => const Icon(
+              color: const Color(0xFFFF5216),
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.account_balance_wallet_outlined,
                 size: 15,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
               ),
             )
           else
-            Icon(icon, size: 15, color: const Color(0xFFFF5E00)),
+            Icon(icon, size: 15, color: const Color(0xFFFF5216)),
           const SizedBox(width: 6),
           Text(
             label,
@@ -491,7 +491,7 @@ class _HomeCleaningServiceConfigureScreenState
           color: selected ? const Color(0xFFFFF3EB) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE8DFD6),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFE8DFD6),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -502,7 +502,7 @@ class _HomeCleaningServiceConfigureScreenState
                   ? Icons.radio_button_checked_rounded
                   : Icons.radio_button_off_rounded,
               color: selected
-                  ? const Color(0xFFFF5E00)
+                  ? const Color(0xFFFF5216)
                   : const Color(0xFFB0A59C),
               size: 20,
             ),
@@ -510,7 +510,7 @@ class _HomeCleaningServiceConfigureScreenState
             Icon(
               icon,
               color: selected
-                  ? const Color(0xFFFF5E00)
+                  ? const Color(0xFFFF5216)
                   : const Color(0xFF8A7E76),
               size: 22,
             ),
@@ -520,7 +520,7 @@ class _HomeCleaningServiceConfigureScreenState
                 type == 'Villa' ? 'svc_villa'.tr : 'svc_apartment'.tr,
                 style: GoogleFonts.outfit(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFF1B2B4A),
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
@@ -646,7 +646,7 @@ class _HomeCleaningServiceConfigureScreenState
             width: 72,
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.end,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 13.5,
@@ -725,7 +725,7 @@ class _HomeCleaningServiceConfigureScreenState
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: selected
-                        ? const Color(0xFFFF5E00)
+                        ? const Color(0xFFFF5216)
                         : const Color(0xFFEDE4DA),
                     width: selected ? 1.5 : 1,
                   ),
@@ -756,11 +756,11 @@ class _HomeCleaningServiceConfigureScreenState
                               child: Image.asset(
                                 item['image'] as String,
                                 fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) => Icon(
+                                errorBuilder: (_, _, _) => Icon(
                                   Icons.bug_report_outlined,
                                   size: 22,
                                   color: selected
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFF2B5A9E),
                                 ),
                               ),
@@ -772,7 +772,7 @@ class _HomeCleaningServiceConfigureScreenState
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: selected
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFF1B2B4A),
                                   width: 1.6,
                                 ),
@@ -782,7 +782,7 @@ class _HomeCleaningServiceConfigureScreenState
                                 Icons.north_east_rounded,
                                 size: 14,
                                 color: selected
-                                    ? const Color(0xFFFF5E00)
+                                    ? const Color(0xFFFF5216)
                                     : const Color(0xFF1B2B4A),
                               ),
                             ),
@@ -889,7 +889,7 @@ class _HomeCleaningServiceConfigureScreenState
             width: 72,
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.end,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 13.5,
@@ -981,7 +981,7 @@ class _HomeCleaningServiceConfigureScreenState
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEDE4DA),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFEDE4DA),
             width: selected ? 1.5 : 1,
           ),
           boxShadow: [
@@ -1003,7 +1003,7 @@ class _HomeCleaningServiceConfigureScreenState
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFC4B8AF),
                   width: 1.8,
                 ),
@@ -1014,7 +1014,7 @@ class _HomeCleaningServiceConfigureScreenState
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     )
@@ -1051,7 +1051,7 @@ class _HomeCleaningServiceConfigureScreenState
               priceLabel,
               style: GoogleFonts.outfit(
                 color: priceOrange
-                    ? const Color(0xFFFF5E00)
+                    ? const Color(0xFFFF5216)
                     : const Color(0xFF1B2B4A),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w700,
@@ -1074,7 +1074,7 @@ class _HomeCleaningServiceConfigureScreenState
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: filled ? const Color(0xFFFF5E00) : Colors.white,
+          color: filled ? const Color(0xFFFF5216) : Colors.white,
           shape: BoxShape.circle,
           boxShadow: filled
               ? null
@@ -1089,7 +1089,7 @@ class _HomeCleaningServiceConfigureScreenState
         child: Icon(
           icon,
           size: 16,
-          color: filled ? Colors.white : const Color(0xFFFF5E00),
+          color: filled ? Colors.white : const Color(0xFFFF5216),
         ),
       ),
     );
@@ -1156,10 +1156,10 @@ class _HomeCleaningServiceConfigureScreenState
                     'lib/assets/images/Voice.png',
                     width: 15,
                     height: 15,
-                    color: const Color(0xFFFF5E00),
-                    errorBuilder: (_, __, ___) => const Icon(
+                    color: const Color(0xFFFF5216),
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.settings_voice_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 16,
                     ),
                   ),
@@ -1278,7 +1278,7 @@ class _HomeCleaningServiceConfigureScreenState
             width: 64,
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.end,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 13.5,
@@ -1330,7 +1330,7 @@ class _HomeCleaningServiceConfigureScreenState
                     Text(
                       'mru'.trParams({'amount': '$_totalPrice'}),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1350,13 +1350,13 @@ class _HomeCleaningServiceConfigureScreenState
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

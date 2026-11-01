@@ -53,7 +53,7 @@ void showCancelOrderBottomSheet(
                     alignment: Alignment.center,
                     child: const Icon(
                       Icons.close_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 18,
                     ),
                   ),
@@ -132,7 +132,7 @@ void showCancelOrderBottomSheet(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: cancelReasons.length,
-                              separatorBuilder: (_, __) =>
+                              separatorBuilder: (_, _) =>
                                   const SizedBox(height: 10),
                               itemBuilder: (context, index) {
                                 final isSelected = selectedReasonIndex == index;
@@ -170,7 +170,7 @@ void showCancelOrderBottomSheet(
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: isSelected
-                                                  ? const Color(0xFFFF5E00)
+                                                  ? const Color(0xFFFF5216)
                                                   : const Color(0xFF8A7264),
                                               width: 1.4,
                                             ),
@@ -181,7 +181,7 @@ void showCancelOrderBottomSheet(
                                                   decoration:
                                                       const BoxDecoration(
                                                         color: Color(
-                                                          0xFFFF5E00,
+                                                          0xFFFF5216,
                                                         ),
                                                         shape: BoxShape.circle,
                                                       ),
@@ -344,7 +344,7 @@ Future<bool> _cancelOrderById(int? orderId) async {
     );
     showAppToast(
       message.isEmpty ? 'core_cancel_order_done'.tr : message,
-      backgroundColor: const Color(0xFFFF5E00),
+      backgroundColor: const Color(0xFFFF5216),
     );
     return true;
   } on ApiException catch (error) {

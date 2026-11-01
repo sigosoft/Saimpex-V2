@@ -121,7 +121,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final selected = _selectedFilter == index;
           return GestureDetector(
@@ -130,7 +130,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 18),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFFFF5E00) : Colors.white,
+                color: selected ? const Color(0xFFFF5216) : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: selected
                     ? null
@@ -160,7 +160,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -174,7 +174,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -278,14 +278,14 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                   children: [
                     const Icon(
                       Icons.access_time_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 14,
                     ),
                     const SizedBox(width: 5),
                     Text(
                       (item['time'] ?? '').toString(),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -324,13 +324,13 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                      colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF5E00).withOpacity(0.25),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.25),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),

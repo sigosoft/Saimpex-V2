@@ -197,7 +197,7 @@ class _CourierSelectRecipientLocationScreenState
               height: 18,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
               ),
             );
           }),
@@ -226,7 +226,7 @@ class _CourierSelectRecipientLocationScreenState
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 6),
         itemCount: controller.searchResults.length,
-        separatorBuilder: (_, __) =>
+        separatorBuilder: (_, _) =>
             const Divider(height: 1, indent: 44, color: Color(0xFFF0E8E0)),
         itemBuilder: (context, index) {
           final result = controller.searchResults[index];
@@ -240,7 +240,7 @@ class _CourierSelectRecipientLocationScreenState
                 children: [
                   const Icon(
                     Icons.location_on_outlined,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 18,
                   ),
                   const SizedBox(width: 10),
@@ -314,7 +314,7 @@ class _CourierSelectRecipientLocationScreenState
             children: [
               const Icon(
                 Icons.location_on_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 24,
               ),
               const SizedBox(width: 10),
@@ -364,12 +364,12 @@ class _CourierSelectRecipientLocationScreenState
               height: 52,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                 ),
                 borderRadius: BorderRadius.circular(26),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),

@@ -210,7 +210,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 children: [
                   const Icon(
                     Icons.home_outlined,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 20,
                   ),
                   const SizedBox(width: 6),
@@ -271,9 +271,9 @@ class _WaterScreenState extends State<WaterScreen> {
             onTap: () => Get.to(() => const RewardsReferralScreen()),
             child: Container(
               height: 36,
-              padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+              padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -370,7 +370,9 @@ class _WaterScreenState extends State<WaterScreen> {
                                   Text(
                                     'pw_subscribe_save_20'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: Colors.white.withOpacity(0.85),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.85,
+                                      ),
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -389,7 +391,9 @@ class _WaterScreenState extends State<WaterScreen> {
                                   Text(
                                     'pw_delivery_plans_line'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: Colors.white.withOpacity(0.85),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.85,
+                                      ),
                                       fontSize: 10,
                                     ),
                                   ),
@@ -420,7 +424,7 @@ class _WaterScreenState extends State<WaterScreen> {
                               width: 90,
                               height: 90,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, _, _) => const Icon(
                                 Icons.water_drop,
                                 size: 60,
                                 color: Colors.white,
@@ -449,8 +453,8 @@ class _WaterScreenState extends State<WaterScreen> {
               height: 6,
               decoration: BoxDecoration(
                 color: isActive
-                    ? const Color(0xFFFF5E00)
-                    : Colors.black.withOpacity(0.12),
+                    ? const Color(0xFFFF5216)
+                    : Colors.black.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(3),
               ),
             );
@@ -466,7 +470,7 @@ class _WaterScreenState extends State<WaterScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 48,
-        padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 8, 0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -515,7 +519,7 @@ class _WaterScreenState extends State<WaterScreen> {
                 width: 20,
                 height: 20,
                 color: const Color(0xFF9A938C),
-                errorBuilder: (_, __, ___) => const Icon(
+                errorBuilder: (_, _, _) => const Icon(
                   Icons.qr_code_scanner_rounded,
                   color: Color(0xFF9A938C),
                   size: 20,
@@ -535,10 +539,10 @@ class _WaterScreenState extends State<WaterScreen> {
                   'lib/assets/images/Voice.png',
                   width: 15,
                   height: 15,
-                  color: const Color(0xFFFF5E00),
-                  errorBuilder: (_, __, ___) => const Icon(
+                  color: const Color(0xFFFF5216),
+                  errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_none_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 16,
                   ),
                 ),
@@ -649,7 +653,7 @@ class _WaterScreenState extends State<WaterScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
+                                    color: Colors.black.withValues(alpha: 0.04),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3),
                                   ),
@@ -683,7 +687,7 @@ class _WaterScreenState extends State<WaterScreen> {
                             child: waterImage(
                               cat['image'] as String,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, _, _) => const Icon(
                                 Icons.water_drop,
                                 color: Color(0xFF007BFF),
                                 size: 36,
@@ -840,7 +844,7 @@ class _WaterScreenState extends State<WaterScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -927,7 +931,7 @@ class _WaterScreenState extends State<WaterScreen> {
                             'lib/assets/images/Coin.png',
                             width: 12,
                             height: 12,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.monetization_on,
                               color: Color(0xFFFFAE00),
                               size: 12,
@@ -995,7 +999,7 @@ class _WaterScreenState extends State<WaterScreen> {
                         children: [
                           const Icon(
                             Icons.access_time_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 14,
                           ),
                           const SizedBox(width: 4),
@@ -1010,7 +1014,7 @@ class _WaterScreenState extends State<WaterScreen> {
                           const SizedBox(width: 10),
                           const Icon(
                             Icons.location_on_outlined,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 14,
                           ),
                           const SizedBox(width: 4),
@@ -1043,7 +1047,7 @@ class _WaterScreenState extends State<WaterScreen> {
       child: waterImage(
         item['image'] as String,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) =>
+        errorBuilder: (_, _, _) =>
             const Icon(Icons.water_drop, size: 50, color: Color(0xFF007BFF)),
       ),
     );
@@ -1278,7 +1282,7 @@ class _WaterScreenState extends State<WaterScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -1302,7 +1306,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   child: waterImage(
                     prod['image'] as String,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.water_drop,
                       size: 40,
                       color: Color(0xFF007BFF),
@@ -1321,7 +1325,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -1381,7 +1385,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     Text(
                       prod['price'] as String,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
@@ -1393,14 +1397,16 @@ class _WaterScreenState extends State<WaterScreen> {
                       ),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFF5E00).withOpacity(0.25),
+                            color: const Color(
+                              0xFFFF5216,
+                            ).withValues(alpha: 0.25),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),

@@ -20,7 +20,7 @@ import '../widgets/auto_slide_network_images.dart';
 class GroceryDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
 
-  const GroceryDetailsScreen({Key? key, required this.store}) : super(key: key);
+  const GroceryDetailsScreen({super.key, required this.store});
 
   @override
   State<GroceryDetailsScreen> createState() => _GroceryDetailsScreenState();
@@ -104,6 +104,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
       return true;
     }
 
+    if (!context.mounted) return false;
     final replace = await ReplaceCartItemDialog.show(
       context: context,
       currentCartRestaurant: existingStore,
@@ -321,11 +322,11 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFFFF5E00) : Colors.white,
+                color: selected ? const Color(0xFFFF5216) : Colors.white,
                 borderRadius: BorderRadius.circular(17),
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFEAD8C9),
                 ),
               ),
@@ -432,7 +433,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
           borderRadius: BorderRadius.circular(23),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -611,8 +612,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
         ? currentStore['image'].toString()
         : (widget.store['image']?.toString() ??
               'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop');
-    final storeRating =
-        (currentStore['rating'] ?? widget.store['rating'] ?? '4.6').toString();
+    final storeRating = (currentStore['rating'] ?? widget.store['rating'] ?? '')
+        .toString();
     final storeCategory =
         (currentStore['category'] ??
                 widget.store['category'] ??
@@ -698,7 +699,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 borderRadius: BorderRadius.circular(24),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.06),
+                                    color: Colors.black.withValues(alpha: 0.06),
                                     blurRadius: 16,
                                     offset: const Offset(0, 8),
                                   ),
@@ -768,7 +769,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                     children: [
                                       const Icon(
                                         Icons.access_time_rounded,
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                         size: 13,
                                       ),
                                       const SizedBox(width: 4),
@@ -783,7 +784,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       const SizedBox(width: 14),
                                       const Icon(
                                         Icons.location_on_outlined,
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                         size: 13,
                                       ),
                                       const SizedBox(width: 4),
@@ -803,7 +804,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                             vertical: 3,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFFF5E00),
+                                            color: const Color(0xFFFF5216),
                                             borderRadius: BorderRadius.circular(
                                               10,
                                             ),
@@ -876,7 +877,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                             decoration: BoxDecoration(
                                               gradient: const LinearGradient(
                                                 colors: [
-                                                  Color(0xFFFF5E00),
+                                                  Color(0xFFFF5216),
                                                   Color(0xFFFFAE00),
                                                 ],
                                                 begin: Alignment.centerLeft,
@@ -887,8 +888,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: const Color(
-                                                    0xFFFF5E00,
-                                                  ).withOpacity(0.3),
+                                                    0xFFFF5216,
+                                                  ).withValues(alpha: 0.3),
                                                   blurRadius: 10,
                                                   offset: const Offset(0, 4),
                                                 ),
@@ -941,7 +942,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.04),
+                                                      .withValues(alpha: 0.04),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 3),
                                                 ),
@@ -1008,8 +1009,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                           _selectCategory(index);
                                         },
                                         child: Padding(
-                                          padding: EdgeInsets.only(
-                                            right:
+                                          padding: EdgeInsetsDirectional.only(
+                                            end:
                                                 index ==
                                                     subcategories.length - 1
                                                 ? 0
@@ -1038,7 +1039,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                                 height: 22,
                                                                 color:
                                                                     const Color(
-                                                                      0xFFFF5E00,
+                                                                      0xFFFF5216,
                                                                     ),
                                                               ),
                                                             ),
@@ -1051,8 +1052,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                                 BoxShadow(
                                                                   color: Colors
                                                                       .black
-                                                                      .withOpacity(
-                                                                        0.10,
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.10,
                                                                       ),
                                                                   blurRadius:
                                                                       10,
@@ -1111,7 +1113,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                       style: GoogleFonts.outfit(
                                                         color: isSelected
                                                             ? const Color(
-                                                                0xFFFF5E00,
+                                                                0xFFFF5216,
                                                               )
                                                             : const Color(
                                                                 0xFF3A312C,
@@ -1135,7 +1137,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                             const LinearGradient(
                                                               colors: [
                                                                 Color(
-                                                                  0xFFFF5E00,
+                                                                  0xFFFF5216,
                                                                 ),
                                                                 Color(
                                                                   0xFFFFAE00,
@@ -1207,7 +1209,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         padding: EdgeInsets.symmetric(vertical: 24),
                         child: Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         ),
                       ),
@@ -1237,7 +1239,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         padding: EdgeInsets.symmetric(vertical: 32),
                         child: Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         ),
                       )
@@ -1298,9 +1300,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
 
           // 3. Floating Back Button (hidden while sticky search is pinned)
           if (!_showStickySearch)
-            Positioned(
+            PositionedDirectional(
               top: topInset + 12,
-              left: 16,
+              start: 16,
               child: AppBackButton(onTap: () => Navigator.pop(context)),
             ),
 
@@ -1332,7 +1334,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -1345,7 +1347,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         width: 36,
                         height: 36,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
@@ -1393,11 +1395,12 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         children: [
                           Text(
                             'mru'.trParams({
-                              'amount':
-                                  '${_cartAmountText(controller.cartAmount.value)}',
+                              'amount': _cartAmountText(
+                                controller.cartAmount.value,
+                              ),
                             }),
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
                             ),
@@ -1405,7 +1408,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           const SizedBox(width: 6),
                           const Icon(
                             Icons.chevron_right_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 20,
                           ),
                         ],
@@ -1440,7 +1443,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
         borderRadius: BorderRadius.circular(35),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -1452,7 +1455,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
             width: 52,
             height: 52,
             decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -1489,7 +1492,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     Text(
                       price,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1557,7 +1560,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 gradient: isNotAccepting
                     ? null
                     : const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -1568,7 +1571,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     : [
                         BoxShadow(
                           color: const Color(
-                            0xFFFF5E00,
+                            0xFFFF5216,
                           ).withValues(alpha: 0.35),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
@@ -1621,7 +1624,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFFF5E00)
+                ? const Color(0xFFFF5216)
                 : const Color(0xFFEAD8C9),
             width: isSelected ? 1.5 : 0.8,
           ),
@@ -1635,7 +1638,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFA59A94),
                   width: 1.5,
                 ),
@@ -1644,7 +1647,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               child: isSelected
                   ? Container(
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     )
@@ -1669,7 +1672,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     inStock ? '${variant['price']}' : 'st_out_of_stock'.tr,
                     style: GoogleFonts.outfit(
                       color: inStock
-                          ? const Color(0xFFFF5E00)
+                          ? const Color(0xFFFF5216)
                           : const Color(0xFF7A6A60),
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -1697,7 +1700,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -1716,16 +1719,16 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       images: foodGalleryImages(food),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    left: 8,
+                    start: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -1802,7 +1805,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     Text(
                       (food['price'] ?? '').toString(),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1837,7 +1840,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               ? null
                               : const LinearGradient(
                                   colors: [
-                                    Color(0xFFFF5E00),
+                                    Color(0xFFFF5216),
                                     Color(0xFFFFAE00),
                                   ],
                                   begin: Alignment.centerLeft,
@@ -1957,7 +1960,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
@@ -1978,7 +1981,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   Text(
                                     (food['price'] ?? '').toString(),
                                     style: GoogleFonts.outfit(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -2063,7 +2066,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               ? null
                                               : const LinearGradient(
                                                   colors: [
-                                                    Color(0xFFFF5E00),
+                                                    Color(0xFFFF5216),
                                                     Color(0xFFFFAE00),
                                                   ],
                                                   begin: Alignment.centerLeft,
@@ -2080,8 +2083,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               : [
                                                   BoxShadow(
                                                     color: const Color(
-                                                      0xFFFF5E00,
-                                                    ).withOpacity(0.3),
+                                                      0xFFFF5216,
+                                                    ).withValues(alpha: 0.3),
                                                     blurRadius: 10,
                                                     offset: const Offset(0, 4),
                                                   ),
@@ -2131,8 +2134,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.04,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.04,
                                             ),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
@@ -2143,7 +2146,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                         isLiked
                                             ? Icons.favorite_rounded
                                             : Icons.favorite_border_rounded,
-                                        color: const Color(0xFFFF5E00),
+                                        color: const Color(0xFFFF5216),
                                         size: 20,
                                       ),
                                     ),
@@ -2173,7 +2176,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: const Color(
-                              0xFFFF5E00,
+                              0xFFFF5216,
                             ).withValues(alpha: 0.35),
                             width: 1.2,
                           ),
@@ -2187,7 +2190,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         ),
                         child: const Icon(
                           Icons.close_rounded,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 22,
                         ),
                       ),
@@ -2395,7 +2398,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                     width: 0.8,
                                   ),
                                 ),
-                                padding: const EdgeInsets.fromLTRB(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
                                   12,
                                   10,
                                   10,
@@ -2449,7 +2452,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                         height: 16,
                                         errorBuilder: (_, _, _) => const Icon(
                                           Icons.mic_none_rounded,
-                                          color: Color(0xFFFF5E00),
+                                          color: Color(0xFFFF5216),
                                           size: 16,
                                         ),
                                       ),
@@ -2511,7 +2514,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       ),
                                       child: const Icon(
                                         Icons.remove,
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                         size: 16,
                                       ),
                                     ),
@@ -2536,7 +2539,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       width: 30,
                                       height: 30,
                                       decoration: const BoxDecoration(
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -2630,7 +2633,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                         }),
                                         style: GoogleFonts.outfit(),
                                       ),
-                                      backgroundColor: const Color(0xFFFF5E00),
+                                      backgroundColor: const Color(0xFFFF5216),
                                       duration: const Duration(seconds: 2),
                                     ),
                                   );
@@ -2640,7 +2643,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [
-                                        Color(0xFFFF5E00),
+                                        Color(0xFFFF5216),
                                         Color(0xFFFFAE00),
                                       ],
                                       begin: Alignment.centerLeft,
@@ -2650,8 +2653,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                     boxShadow: [
                                       BoxShadow(
                                         color: const Color(
-                                          0xFFFF5E00,
-                                        ).withOpacity(0.3),
+                                          0xFFFF5216,
+                                        ).withValues(alpha: 0.3),
                                         blurRadius: 8,
                                         offset: const Offset(0, 3),
                                       ),
@@ -2700,7 +2703,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: const Color(
-                              0xFFFF5E00,
+                              0xFFFF5216,
                             ).withValues(alpha: 0.35),
                             width: 1.2,
                           ),
@@ -2714,7 +2717,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         ),
                         child: const Icon(
                           Icons.close_rounded,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 22,
                         ),
                       ),
@@ -2870,7 +2873,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFFF5E00)
+                ? const Color(0xFFFF5216)
                 : const Color(0xFFEAD8C9),
             width: isSelected ? 1.5 : 1,
           ),
@@ -2879,7 +2882,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
           _chipKeys[label]?.tr ?? label,
           style: GoogleFonts.outfit(
             color: isSelected
-                ? const Color(0xFFFF5E00)
+                ? const Color(0xFFFF5216)
                 : const Color(0xFF2C2520),
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -2927,7 +2930,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                         child: Text(
                           'st_clear_all'.tr,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -2985,7 +2988,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                           'max': '${priceRange.end.round()}',
                         }),
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
@@ -2998,9 +3001,11 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: const Color(0xFFFF5E00),
+                      activeTrackColor: const Color(0xFFFF5216),
                       inactiveTrackColor: const Color(0xFFF3EFEA),
-                      overlayColor: const Color(0xFFFF5E00).withOpacity(0.12),
+                      overlayColor: const Color(
+                        0xFFFF5216,
+                      ).withValues(alpha: 0.12),
                       rangeThumbShape: const _GroceryRangeThumbShape(
                         enabledThumbRadius: 10,
                       ),
@@ -3092,7 +3097,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                           child: Text(
                             'st_clear_all'.tr,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
@@ -3108,7 +3113,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -3116,8 +3121,8 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(
-                                    0xFFFF5E00,
-                                  ).withOpacity(0.35),
+                                    0xFFFF5216,
+                                  ).withValues(alpha: 0.35),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -3153,7 +3158,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -3161,7 +3166,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
               ),
               child: const Icon(
                 Icons.close_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 22,
               ),
             ),
@@ -3198,7 +3203,7 @@ class _GroceryRangeThumbShape extends RangeSliderThumbShape {
   }) {
     final canvas = context.canvas;
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.15)
+      ..color = Colors.black.withValues(alpha: 0.15)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
     canvas.drawCircle(center, enabledThumbRadius, shadowPaint);
 
@@ -3208,7 +3213,7 @@ class _GroceryRangeThumbShape extends RangeSliderThumbShape {
     canvas.drawCircle(center, enabledThumbRadius, fillPaint);
 
     final borderPaint = Paint()
-      ..color = const Color(0xFFFF5E00)
+      ..color = const Color(0xFFFF5216)
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(center, enabledThumbRadius - 1.25, borderPaint);

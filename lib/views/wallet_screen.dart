@@ -125,7 +125,7 @@ class _WalletScreenState extends State<WalletScreen> {
           _ => 'wallet_topup_pending'.tr,
         },
         backgroundColor: status == 'paid'
-            ? const Color(0xFFFF5E00)
+            ? const Color(0xFFFF5216)
             : const Color(0xFFEF4444),
       );
       await _load();
@@ -293,11 +293,11 @@ class _WalletScreenState extends State<WalletScreen> {
               child: _loading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     )
                   : RefreshIndicator(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       onRefresh: _load,
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (notification) {
@@ -344,7 +344,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 padding: EdgeInsets.all(12),
                                 child: Center(
                                   child: CircularProgressIndicator(
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                   ),
                                 ),
                               ),
@@ -364,7 +364,7 @@ class _WalletScreenState extends State<WalletScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+          colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),
@@ -405,14 +405,14 @@ class _WalletScreenState extends State<WalletScreen> {
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         strokeWidth: 2.4,
                       ),
                     )
                   : Text(
                       'wallet_topup'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
@@ -499,7 +499,7 @@ class _WalletScreenState extends State<WalletScreen> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
           ),
           borderRadius: BorderRadius.circular(25),
         ),

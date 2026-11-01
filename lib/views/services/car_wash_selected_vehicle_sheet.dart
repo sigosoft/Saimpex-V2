@@ -70,7 +70,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                     'svc_selected_vehicle'.tr,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                     ),
@@ -187,14 +187,14 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(28),
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.28),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
@@ -229,7 +229,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.18),
+                      color: const Color(0xFFFF5216).withValues(alpha: 0.18),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -237,7 +237,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                 ),
                 child: const Icon(
                   Icons.close_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 22,
                 ),
               ),
@@ -256,7 +256,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: const Color(0xFFFF5E00), width: borderWidth),
+        border: Border.all(color: const Color(0xFFFF5216), width: borderWidth),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius - borderWidth),
@@ -269,12 +269,12 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                 child: Image.asset(
                   widget.image,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: const Color(0xFFF5F0EB),
                     alignment: Alignment.center,
                     child: const Icon(
                       Icons.directions_car_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                     ),
                   ),
                 ),
@@ -315,7 +315,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             width: 1.8,
                           ),
                         ),
@@ -324,7 +324,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                           width: 12,
                           height: 12,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             shape: BoxShape.circle,
                           ),
                         ),

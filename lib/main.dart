@@ -88,7 +88,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.light,
       theme: ThemeData(
         brightness: Brightness.light,
-        primaryColor: const Color(0xFFFF5E00),
+        primaryColor: const Color(0xFFFF5216),
         scaffoldBackgroundColor: const Color(0xFFFAF6F0),
         useMaterial3: true,
         appBarTheme: const AppBarTheme(

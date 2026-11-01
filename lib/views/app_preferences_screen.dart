@@ -83,7 +83,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                         Text(
                           'core_prefs_notifications'.tr,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -92,7 +92,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                         _buildToggleRow(
                           icon: Icons.notifications_active_outlined,
                           iconBg: const Color(0xFFFFF0E6),
-                          iconColor: const Color(0xFFFF5E00),
+                          iconColor: const Color(0xFFFF5216),
                           title: 'core_prefs_push'.tr,
                           subtitle: 'core_prefs_push_hint'.tr,
                           value: _pushNotifications,
@@ -116,7 +116,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                         Text(
                           'core_prefs_appearance'.tr,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -185,7 +185,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -248,7 +248,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
           value: value,
           onChanged: onChanged,
           activeThumbColor: Colors.white,
-          activeTrackColor: const Color(0xFFFF5E00),
+          activeTrackColor: const Color(0xFFFF5216),
           inactiveThumbColor: Colors.white,
           inactiveTrackColor: const Color(0xFFE8DFD6),
           trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
@@ -281,9 +281,9 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                   width: 22,
                   height: 22,
                   fit: BoxFit.contain,
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                 )
-              : Icon(icon, color: const Color(0xFFFF5E00), size: 22),
+              : Icon(icon, color: const Color(0xFFFF5216), size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -300,7 +300,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
             ? Text(
                 value,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -309,7 +309,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                 () => Text(
                   languageController().selectedLanguage.value,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -321,7 +321,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
           child: showChevron
               ? const Icon(
                   Icons.chevron_right_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 22,
                 )
               : null,

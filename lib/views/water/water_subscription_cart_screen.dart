@@ -157,7 +157,7 @@ class _WaterSubscriptionCartScreenState
       );
       if (!mounted) return;
       if (result.message.isNotEmpty) {
-        showAppToast(result.message, backgroundColor: const Color(0xFFFF5E00));
+        showAppToast(result.message, backgroundColor: const Color(0xFFFF5216));
       }
       final data = result.data;
       final needsPayment =
@@ -201,7 +201,7 @@ class _WaterSubscriptionCartScreenState
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
                     'pw_from_pharmacy'.trParams({'name': widget.storeName}),
                     style: GoogleFonts.outfit(
@@ -245,7 +245,7 @@ class _WaterSubscriptionCartScreenState
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -253,7 +253,7 @@ class _WaterSubscriptionCartScreenState
                       boxShadow: [
                         BoxShadow(
                           color: const Color(
-                            0xFFFF5E00,
+                            0xFFFF5216,
                           ).withValues(alpha: 0.28),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
@@ -395,7 +395,7 @@ class _WaterSubscriptionCartScreenState
                     }),
                   }),
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                   ),
@@ -451,7 +451,7 @@ class _WaterSubscriptionCartScreenState
                     width: 28,
                     height: 28,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.add, color: Colors.white, size: 16),
@@ -484,7 +484,7 @@ class _WaterSubscriptionCartScreenState
               child: Text(
                 'pw_edit'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -607,7 +607,7 @@ class _WaterSubscriptionCartScreenState
             width: 40,
             height: 40,
             decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -662,7 +662,7 @@ class _WaterSubscriptionCartScreenState
           Text(
             'pw_payment_details_caps'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
@@ -714,7 +714,7 @@ class _WaterSubscriptionCartScreenState
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
-              color: selected ? const Color(0xFFFF5E00) : Colors.transparent,
+              color: selected ? const Color(0xFFFF5216) : Colors.transparent,
               width: selected ? 1.4 : 0,
             ),
           ),
@@ -727,7 +727,7 @@ class _WaterSubscriptionCartScreenState
                   color: Color(0xFFFFF0EA),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: const Color(0xFFFF5E00), size: 18),
+                child: Icon(icon, color: const Color(0xFFFF5216), size: 18),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -758,7 +758,7 @@ class _WaterSubscriptionCartScreenState
                     ? Icons.radio_button_checked_rounded
                     : Icons.radio_button_unchecked_rounded,
                 color: selected
-                    ? const Color(0xFFFF5E00)
+                    ? const Color(0xFFFF5216)
                     : const Color(0xFFD9D1C9),
                 size: 20,
               ),

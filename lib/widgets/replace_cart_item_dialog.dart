@@ -128,7 +128,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                             height: 48,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -136,7 +136,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(
-                                    0xFFFF5E00,
+                                    0xFFFF5216,
                                   ).withValues(alpha: 0.28),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
@@ -178,7 +178,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.18),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.18),
                         blurRadius: 10,
                         spreadRadius: 1,
                       ),
@@ -192,7 +192,7 @@ class ReplaceCartItemDialog extends StatelessWidget {
                   alignment: Alignment.center,
                   child: const Icon(
                     Icons.close,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 20,
                   ),
                 ),

@@ -46,6 +46,8 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   String? address,
   double? latitude,
   double? longitude,
+  // Laundry: where the clean laundry goes when it isn't the pickup address.
+  String? deliveryAddress,
 }) async {
   final request = _bookingRequest(
     slotDate: slotDate,
@@ -64,6 +66,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     address: address,
     latitude: latitude,
     longitude: longitude,
+    deliveryAddress: deliveryAddress,
   );
   if (request == null) {
     showAppToast(
@@ -100,7 +103,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     }
     showAppToast(
       result.message.isEmpty ? 'svc_booking_created'.tr : result.message,
-      backgroundColor: const Color(0xFFFF5E00),
+      backgroundColor: const Color(0xFFFF5216),
     );
     return booking;
   } on ApiException catch (error) {
@@ -197,6 +200,7 @@ Map<String, dynamic>? _bookingRequest({
   String? address,
   double? latitude,
   double? longitude,
+  String? deliveryAddress,
 }) {
   final vertical = ServiceBookingDraft.vertical;
   final vendorId = ServiceBookingDraft.vendorId;
@@ -231,6 +235,8 @@ Map<String, dynamic>? _bookingRequest({
     'product_supply': ?productSupply,
     if (propertyType.trim().isNotEmpty) 'property_type': propertyType.trim(),
     if (returnEmptyCylinder) 'return_empty_cylinder': true,
+    if (deliveryAddress != null && deliveryAddress.trim().isNotEmpty)
+      'delivery_address': deliveryAddress.trim(),
   };
   final matchedSpaces = _catalogRows(spaces, 'spaces');
   if (matchedSpaces.isNotEmpty) request['spaces'] = matchedSpaces;
@@ -354,7 +360,7 @@ class _ServerPriceDialog extends StatelessWidget {
               ),
               Text(
                 _mru(total),
-                style: style(16, FontWeight.w800, const Color(0xFFFF5E00)),
+                style: style(16, FontWeight.w800, const Color(0xFFFF5216)),
               ),
             ],
           ),
@@ -372,7 +378,7 @@ class _ServerPriceDialog extends StatelessWidget {
           onPressed: () => Get.back(result: true),
           child: Text(
             'svc_book_at'.trParams({'amount': _mru(total)}),
-            style: style(14, FontWeight.w800, const Color(0xFFFF5E00)),
+            style: style(14, FontWeight.w800, const Color(0xFFFF5216)),
           ),
         ),
       ],

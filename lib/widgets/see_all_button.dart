@@ -23,7 +23,7 @@ class SeeAllButton extends StatelessWidget {
         const SizedBox(width: 2),
         const Icon(
           Icons.chevron_right_rounded,
-          color: Color(0xFFFF5E00),
+          color: Color(0xFFFF5216),
           size: 20,
         ),
       ],

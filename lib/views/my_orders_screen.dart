@@ -238,12 +238,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFFFF5E00)
+                                    ? const Color(0xFFFF5216)
                                     : Colors.white,
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(
                                   color: isSelected
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFEAD8C9),
                                   width: 0.8,
                                 ),
@@ -397,7 +397,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 28),
         child: Center(
-          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+          child: CircularProgressIndicator(color: Color(0xFFFF5216)),
         ),
       );
     }
@@ -508,7 +508,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 28),
         child: Center(
-          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+          child: CircularProgressIndicator(color: Color(0xFFFF5216)),
         ),
       );
     }
@@ -645,7 +645,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       if (!mounted) return;
       showAppToast(
         message.isEmpty ? 'orders_cancelled_title'.tr : message,
-        backgroundColor: const Color(0xFFFF5E00),
+        backgroundColor: const Color(0xFFFF5216),
       );
       _loadRestaurantOrders();
     } on ApiException catch (error) {
@@ -741,7 +741,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             child: Text(
               'orders_my_prescriptions'.tr,
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -759,7 +759,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 28),
         child: Center(
-          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+          child: CircularProgressIndicator(color: Color(0xFFFF5216)),
         ),
       );
     }
@@ -900,7 +900,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 28),
         child: Center(
-          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+          child: CircularProgressIndicator(color: Color(0xFFFF5216)),
         ),
       );
     }
@@ -997,7 +997,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 28),
         child: Center(
-          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+          child: CircularProgressIndicator(color: Color(0xFFFF5216)),
         ),
       );
     }
@@ -1059,7 +1059,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           : const Padding(
               padding: EdgeInsets.symmetric(vertical: 28),
               child: Center(
-                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+                child: CircularProgressIndicator(color: Color(0xFFFF5216)),
               ),
             );
     }
@@ -1105,7 +1105,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
@@ -1165,41 +1165,19 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           // Action Buttons
           Row(children: buttons),
 
-          if (onDetailsLink != null || statusText != "DELIVERED") ...[
+          if (onDetailsLink != null) ...[
             const SizedBox(height: 12),
             // Bottom details link
             Center(
               child: GestureDetector(
-                onTap:
-                    onDetailsLink ??
-                    () {
-                      final parts = detailsText.split('#');
-                      final orderId = parts.length > 1
-                          ? '#${parts[1]}'
-                          : '#22789002';
-                      if (restaurantName.contains('Water')) {
-                        Get.to(
-                          () => WaterOrderDetailsScreen(
-                            orderId: orderId,
-                            isSelfPickup: statusText == "SELF PICKUP",
-                          ),
-                        );
-                      } else {
-                        Get.to(
-                          () => OrderDetailScreen(
-                            orderId: orderId,
-                            isSelfPickup: statusText == "SELF PICKUP",
-                          ),
-                        );
-                      }
-                    },
+                onTap: onDetailsLink,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'orders_view_status_details'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 10.5,
                         fontWeight: FontWeight.bold,
                       ),
@@ -1207,7 +1185,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     const SizedBox(width: 4),
                     const Icon(
                       Icons.chevron_right_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 14,
                     ),
                   ],
@@ -1258,14 +1236,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           height: 38,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF5E00).withOpacity(0.2),
+                color: const Color(0xFFFF5216).withValues(alpha: 0.2),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),

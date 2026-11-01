@@ -282,7 +282,7 @@ class ServicesScreen extends StatelessWidget {
               'lib/assets/images/Voice.png',
               width: 16,
               height: 16,
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
             ),
           ),
         ],
@@ -410,7 +410,7 @@ class ServicesScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.1),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -464,7 +464,7 @@ class ServicesScreen extends StatelessWidget {
           child: Text(
             'svc_available_24_7'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 9.5,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.3,
@@ -531,13 +531,13 @@ class ServicesScreen extends StatelessWidget {
                         const Icon(
                           Icons.access_time_rounded,
                           size: 14,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'svc_minutes'.trParams({'count': '15'}),
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -554,7 +554,7 @@ class ServicesScreen extends StatelessWidget {
                           child: const Icon(
                             Icons.chevron_right_rounded,
                             size: 14,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         ),
                       ],
@@ -632,9 +632,9 @@ class _PopularServiceCard extends StatelessWidget {
                   clipBehavior: Clip.hardEdge,
                   children: [
                     if (data.showGhost)
-                      Positioned(
+                      PositionedDirectional(
                         top: data.ghostTop,
-                        right: data.ghostRight,
+                        end: data.ghostRight,
                         child: Opacity(
                           opacity: 0.09,
                           child: _ServiceImage(
@@ -659,8 +659,8 @@ class _PopularServiceCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(
-                      right: data.imageRight,
+                    PositionedDirectional(
+                      end: data.imageRight,
                       bottom: data.imageBottom,
                       child: _ServiceImage(
                         asset: data.image,

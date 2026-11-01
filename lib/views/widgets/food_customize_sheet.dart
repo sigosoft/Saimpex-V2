@@ -81,7 +81,7 @@ Widget _radio({required bool selected}) {
     decoration: BoxDecoration(
       shape: BoxShape.circle,
       border: Border.all(
-        color: selected ? const Color(0xFFFF5E00) : const Color(0xFFC8C2BC),
+        color: selected ? const Color(0xFFFF5216) : const Color(0xFFC8C2BC),
         width: 1.6,
       ),
     ),
@@ -89,7 +89,7 @@ Widget _radio({required bool selected}) {
     child: selected
         ? Container(
             decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               shape: BoxShape.circle,
             ),
           )
@@ -116,7 +116,7 @@ Widget _networkImage(
       width: width,
       height: height,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => fallback,
+      errorBuilder: (_, _, _) => fallback,
     ),
   );
 }
@@ -211,7 +211,7 @@ Widget _portionCard({
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: selected ? const Color(0xFFFF5E00) : Colors.transparent,
+          color: selected ? const Color(0xFFFF5216) : Colors.transparent,
           width: 1.4,
         ),
         boxShadow: [
@@ -247,7 +247,7 @@ Widget _portionCard({
                 Text(
                   price,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
@@ -507,7 +507,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 itemCount: variants.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
                 itemBuilder: (context, i) => SizedBox(
                   width: needed[i] > 180 ? needed[i] : 180,
                   child: _portionCard(
@@ -578,7 +578,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: options.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
               itemBuilder: (context, index) => optionCard(options[index]),
             ),
           )
@@ -647,7 +647,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                   ? 'core_food_plus_price'.trParams({'amount': '$price'})
                   : 'core_food_included'.tr,
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -708,7 +708,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                         ? 'core_food_plus_price'.trParams({'amount': '$price'})
                         : 'core_food_included'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -770,7 +770,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                   image,
                                   fit: BoxFit.cover,
                                   alignment: Alignment.center,
-                                  errorBuilder: (_, __, ___) =>
+                                  errorBuilder: (_, _, _) =>
                                       Container(color: const Color(0xFFFFE8DC)),
                                 ),
                               ),
@@ -943,7 +943,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                         width: 32,
                                         height: 32,
                                         decoration: const BoxDecoration(
-                                          color: Color(0xFFFF5E00),
+                                          color: Color(0xFFFF5216),
                                           shape: BoxShape.circle,
                                         ),
                                         child: const Icon(
@@ -1005,7 +1005,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                   ),
                                   child: const Icon(
                                     Icons.remove,
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                     size: 16,
                                   ),
                                 ),
@@ -1029,7 +1029,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                   width: 30,
                                   height: 30,
                                   decoration: const BoxDecoration(
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -1051,7 +1051,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFFFF5E00),
+                                    Color(0xFFFF5216),
                                     Color(0xFFFFAE00),
                                   ],
                                   begin: Alignment.centerLeft,
@@ -1061,7 +1061,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(
-                                      0xFFFF5E00,
+                                      0xFFFF5216,
                                     ).withValues(alpha: 0.32),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
@@ -1121,7 +1121,7 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                   ),
                   child: const Icon(
                     Icons.close,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 22,
                   ),
                 ),

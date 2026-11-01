@@ -66,7 +66,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               child: _isLoading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     )
                   : SingleChildScrollView(
@@ -144,7 +144,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -161,7 +161,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Icon(icon, color: const Color(0xFFFF5E00), size: 22),
+            child: Icon(icon, color: const Color(0xFFFF5216), size: 22),
           ),
           const SizedBox(height: 12),
           Text(
@@ -191,7 +191,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
@@ -220,7 +220,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -268,7 +268,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: const Color(0xFFFF5E00), size: 22),
+        Icon(icon, color: const Color(0xFFFF5216), size: 22),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

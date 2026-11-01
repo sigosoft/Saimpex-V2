@@ -22,8 +22,7 @@ import 'cart_screen.dart';
 class RestaurantDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> restaurant;
 
-  const RestaurantDetailsScreen({Key? key, required this.restaurant})
-    : super(key: key);
+  const RestaurantDetailsScreen({super.key, required this.restaurant});
 
   @override
   State<RestaurantDetailsScreen> createState() =>
@@ -330,7 +329,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           borderRadius: BorderRadius.circular(23),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -369,7 +368,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
               ),
               child: const Icon(
                 Icons.mic_none_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 15,
               ),
             ),
@@ -549,6 +548,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       return true;
     }
 
+    if (!context.mounted) return false;
     final replace = await ReplaceCartItemDialog.show(
       context: context,
       currentCartRestaurant: existingStore,
@@ -563,7 +563,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         await repo.clearCatalogCart(language: apiLanguageCode());
         final text = message.trim();
         if (text.isNotEmpty) {
-          showAppToast(text, backgroundColor: const Color(0xFFFF5E00));
+          showAppToast(text, backgroundColor: const Color(0xFFFF5216));
         }
       } on ApiException catch (error) {
         showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -621,7 +621,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         language: apiLanguageCode(),
       );
       if (message.trim().isNotEmpty) {
-        showAppToast(message.trim(), backgroundColor: const Color(0xFFFF5E00));
+        showAppToast(message.trim(), backgroundColor: const Color(0xFFFF5216));
       }
     } on ApiException catch (error) {
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -673,7 +673,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           }),
           style: GoogleFonts.outfit(),
         ),
-        backgroundColor: const Color(0xFFFF5E00),
+        backgroundColor: const Color(0xFFFF5216),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -803,7 +803,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                 borderRadius: BorderRadius.circular(24),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.06),
+                                    color: Colors.black.withValues(alpha: 0.06),
                                     blurRadius: 16,
                                     offset: const Offset(0, 8),
                                   ),
@@ -884,7 +884,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                         if (_restaurantTime.isNotEmpty) ...[
                                           const Icon(
                                             Icons.access_time_rounded,
-                                            color: Color(0xFFFF5E00),
+                                            color: Color(0xFFFF5216),
                                             size: 13,
                                           ),
                                           const SizedBox(width: 4),
@@ -903,7 +903,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                         if (_restaurantDistance.isNotEmpty) ...[
                                           const Icon(
                                             Icons.location_on_outlined,
-                                            color: Color(0xFFFF5E00),
+                                            color: Color(0xFFFF5216),
                                             size: 13,
                                           ),
                                           const SizedBox(width: 4),
@@ -928,7 +928,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                               vertical: 3,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFFFF5E00),
+                                              color: const Color(0xFFFF5216),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -961,7 +961,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                             decoration: BoxDecoration(
                                               gradient: const LinearGradient(
                                                 colors: [
-                                                  Color(0xFFFF5E00),
+                                                  Color(0xFFFF5216),
                                                   Color(0xFFFFAE00),
                                                 ],
                                                 begin: Alignment.centerLeft,
@@ -972,8 +972,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: const Color(
-                                                    0xFFFF5E00,
-                                                  ).withOpacity(0.3),
+                                                    0xFFFF5216,
+                                                  ).withValues(alpha: 0.3),
                                                   blurRadius: 10,
                                                   offset: const Offset(0, 4),
                                                 ),
@@ -1025,7 +1025,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.04),
+                                                      .withValues(alpha: 0.04),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 3),
                                                 ),
@@ -1036,7 +1036,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                   ? Icons.favorite_rounded
                                                   : Icons
                                                         .favorite_border_rounded,
-                                              color: const Color(0xFFFF5E00),
+                                              color: const Color(0xFFFF5216),
                                               size: 18,
                                             ),
                                           ),
@@ -1124,7 +1124,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                               height: 22,
                                                               color:
                                                                   const Color(
-                                                                    0xFFFF5E00,
+                                                                    0xFFFF5216,
                                                                   ),
                                                             ),
                                                           ),
@@ -1137,8 +1137,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                               BoxShadow(
                                                                 color: Colors
                                                                     .black
-                                                                    .withOpacity(
-                                                                      0.10,
+                                                                    .withValues(
+                                                                      alpha:
+                                                                          0.10,
                                                                     ),
                                                                 blurRadius: 10,
                                                                 offset:
@@ -1193,7 +1194,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                     style: GoogleFonts.outfit(
                                                       color: isSelected
                                                           ? const Color(
-                                                              0xFFFF5E00,
+                                                              0xFFFF5216,
                                                             )
                                                           : const Color(
                                                               0xFF3A312C,
@@ -1216,7 +1217,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                       gradient:
                                                           const LinearGradient(
                                                             colors: [
-                                                              Color(0xFFFF5E00),
+                                                              Color(0xFFFF5216),
                                                               Color(0xFFFFAE00),
                                                             ],
                                                           ),
@@ -1282,7 +1283,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                               padding: EdgeInsets.symmetric(vertical: 32),
                               child: Center(
                                 child: CircularProgressIndicator(
-                                  color: Color(0xFFFF5E00),
+                                  color: Color(0xFFFF5216),
                                 ),
                               ),
                             )
@@ -1356,7 +1357,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       itemName:
                           controller.lastCartItem?['itemName']?.toString() ??
                           lastAddedFood?['title']?.toString() ??
-                          'Chicken Tagine',
+                          '',
                       itemPortion:
                           controller.lastCartItem?['itemPortion']?.toString() ??
                           'Full portion',
@@ -1376,7 +1377,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -1389,7 +1390,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         width: 36,
                         height: 36,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
@@ -1436,7 +1437,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           ),
                         }),
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
@@ -1444,7 +1445,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       const SizedBox(width: 6),
                       const Icon(
                         Icons.chevron_right_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 20,
                       ),
                     ],
@@ -1492,7 +1493,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -1532,7 +1533,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             vertical: 3.5,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
@@ -1574,7 +1575,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             child: Text(
                               tag,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1637,7 +1638,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                               Text(
                                 price,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -1675,7 +1676,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -1683,8 +1684,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(
-                                    0xFFFF5E00,
-                                  ).withOpacity(0.2),
+                                    0xFFFF5216,
+                                  ).withValues(alpha: 0.2),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -1731,7 +1732,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     required bool fromBottomSheet,
   }) async {
     final detailed = await _withMenuVariants(food);
-    if (!mounted) return;
+    if (!mounted || !context.mounted) return;
     return showFoodItemCustomizeSheet(
       context: context,
       food: detailed,

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -102,27 +103,14 @@ class CourierRepository {
     );
   }
 
-  // Order status codes used by the backend order lists.
-  static const _statusText = {
-    1: 'Placed',
-    2: 'Accepted',
-    3: 'Preparing',
-    4: 'Ready',
-    5: 'Assigned',
-    6: 'Arrived',
-    7: 'Picked Up',
-    8: 'On the way',
-    9: 'Delivered',
-    10: 'Cancelled',
-  };
-
   Map<String, dynamic> _courierOrder(Map<String, dynamic> item) {
     final status = _asInt(item['status']) ?? 0;
     final code = item['order_code']?.toString().trim() ?? '';
     return {
       'orderId': code.isEmpty ? '${item['order_id'] ?? ''}' : code,
       'numericOrderId': _asInt(item['order_id']),
-      'statusText': _statusText[status] ?? '',
+      // Order status codes 1–10 used by the backend order lists.
+      'statusText': status >= 1 && status <= 10 ? 'core_status_$status'.tr : '',
       'isCancelled': status == 10,
       'isDelivered': status == 9,
       'isExpress': item['is_express'] == true || item['is_express'] == 1,
