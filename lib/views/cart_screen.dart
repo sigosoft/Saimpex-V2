@@ -99,8 +99,8 @@ class _CartScreenState extends State<CartScreen> {
     final offered = [
       paymentTypeWallet,
       paymentTypeOnline,
-      if (isDelivery) paymentTypeCash,
-      if (isDelivery && _padCanUse) paymentTypePayAfterDelivery,
+      if (_cashAllowed) paymentTypeCash,
+      if (_cashAllowed && _padCanUse) paymentTypePayAfterDelivery,
     ];
     final current = _indexTypes[selectedPaymentIndex];
     String? type;
@@ -126,6 +126,10 @@ class _CartScreenState extends State<CartScreen> {
   Map<String, dynamic>? _padStatus;
 
   bool get _padCanUse => _padStatus?['can_use'] == true;
+
+  /// Cash and Pay After Delivery: delivery orders only, and never when the
+  /// cart has prescription items (prescription orders are online or wallet).
+  bool get _cashAllowed => isDelivery && !_needsPrescription;
   String? get _padBlockedReason => _padStatus?['blocked_reason']?.toString();
 
   String get _padSubtitle {
@@ -401,6 +405,7 @@ class _CartScreenState extends State<CartScreen> {
       _needsPrescription = flag(data['needs_prescription']);
       _hasPrescription = flag(data['has_prescription']);
       _prescriptionId = _positiveId(data['prescription_id']);
+      _applyPaymentMethods();
     });
   }
 
@@ -2491,7 +2496,19 @@ class _CartScreenState extends State<CartScreen> {
                         // Card 0: Pay After Delivery. Delivery only, never the
                         // default, and selectable only when the server says
                         // can_use; otherwise it says why.
-                        if (isDelivery &&
+                        if (_needsPrescription)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Text(
+                              'cart_prescription_pay_online'.tr,
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFF7A6A60),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        if (_cashAllowed &&
                             _padStatus != null &&
                             PaymentMethods.isOn(
                               paymentTypePayAfterDelivery,
@@ -2791,7 +2808,8 @@ class _CartScreenState extends State<CartScreen> {
                           ),
 
                         // Card 3: Cash on Delivery (Shown ONLY if Delivery type is Delivery)
-                        if (isDelivery && PaymentMethods.isOn(paymentTypeCash))
+                        if (_cashAllowed &&
+                            PaymentMethods.isOn(paymentTypeCash))
                           GestureDetector(
                             onTap: () {
                               setState(() {

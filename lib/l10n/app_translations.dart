@@ -158,6 +158,8 @@ const _en = {
   // Pay After Delivery
   'pad_title': 'Pay Later',
   'pad_option': 'Pay After Delivery',
+  'cart_prescription_pay_online':
+      'Prescription orders are paid online or with your wallet.',
   'pad_option_hint':
       "Enjoy your order first. Pay within the time shown after it's delivered.",
   'pad_blocked_unpaid': 'Pay your earlier order first. Tap to pay it.',
@@ -305,6 +307,8 @@ const _fr = {
   'payment_not_completed': 'Paiement non effectué.',
   'pad_title': 'Payer plus tard',
   'pad_option': 'Payer après la livraison',
+  'cart_prescription_pay_online':
+      'Les commandes avec ordonnance se paient en ligne ou avec votre portefeuille.',
   'pad_option_hint':
       'Profitez de votre commande, puis payez dans le délai indiqué après la livraison.',
   'pad_blocked_unpaid':
@@ -448,6 +452,8 @@ const _ar = {
   'payment_not_completed': 'لم تكتمل عملية الدفع.',
   'pad_title': 'الدفع لاحقًا',
   'pad_option': 'الدفع بعد التوصيل',
+  'cart_prescription_pay_online':
+      'تُدفع طلبات الوصفات الطبية عبر الإنترنت أو من محفظتك.',
   'pad_option_hint':
       'استمتع بطلبك أولًا، ثم ادفع خلال المهلة المحددة بعد التوصيل.',
   'pad_blocked_unpaid': 'ادفع طلبك السابق أولًا. اضغط للدفع.',
