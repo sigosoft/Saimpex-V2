@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'controllers/home_controller.dart';
 import 'core/app_dependencies.dart';
 import 'core/network/dio_client.dart';
+import 'core/push/push_notifications.dart';
 import 'core/storage/session_store.dart';
 import 'l10n/app_locale.dart';
 import 'l10n/app_translations.dart';
@@ -35,6 +36,7 @@ Future<void> main() async {
   Get.find<DioClient>().onSessionExpired = _handleSessionExpired;
   runApp(const MyApp());
   unawaited(_confirmStoredSession());
+  unawaited(PushNotifications.init());
 }
 
 /// The server refused the session (401): clear it and go back to Login once,

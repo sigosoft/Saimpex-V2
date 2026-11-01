@@ -75,6 +75,12 @@ class AuthRepository {
     }
   }
 
+  /// Links this device's push token to the account (API §6.45); an empty
+  /// token unlinks it.
+  Future<void> updateFcmToken(String token) async {
+    await _post(ApiConstants.updateFcmToken, {'fcm_token': token}, 'en');
+  }
+
   Future<String> logout(String language) async {
     try {
       final response = await _client.dio.post(
