@@ -1,3 +1,4 @@
+import '../widgets/motion.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -1451,7 +1452,7 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: orders.length,
                 itemBuilder: (context, index) {
-                  return _buildRecentOrderCard(orders[index]);
+                  return FadeSlideIn(child: _buildRecentOrderCard(orders[index]));
                 },
               ),
             )

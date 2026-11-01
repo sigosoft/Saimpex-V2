@@ -75,6 +75,11 @@ class SelectLocationController extends GetxController {
 
   // Search controller
   final searchController = TextEditingController();
+
+  /// "near the Ksar mosque": drivers in Nouakchott find homes by landmarks (V2_DECISIONS §17).
+  final landmarkController = TextEditingController();
+
+  String get _landmark => landmarkController.text.trim();
   final searchText = ''.obs;
   final searchResults = <Map<String, dynamic>>[].obs;
   final showSearchResults = false.obs;
@@ -128,7 +133,8 @@ class SelectLocationController extends GetxController {
         message = await profile.saveAddress(
           addressId: editAddressId,
           label: selectedAddressType.value,
-          address: selectedTitle,
+          address: _landmark.isEmpty ? selectedTitle : selectedTitle.replaceAll(' · $_landmark', ''),
+          landmark: _landmark,
           latitude: selectedLatitude,
           longitude: selectedLongitude,
           language: apiLanguageCode(),
@@ -539,8 +545,11 @@ class SelectLocationController extends GetxController {
         ? picked
         : (!_isPlaceholder(title) ? title : '');
     if (chosen.isNotEmpty) {
-      selectedTitle = chosen;
-      selectedSubtitle = chosen;
+      // The landmark travels with the delivery address, so every checkout and
+      // the driver app show it.
+      final full = _landmark.isEmpty ? chosen : '$chosen · $_landmark';
+      selectedTitle = full;
+      selectedSubtitle = full;
     }
     final camera = currentCameraPosition?.target;
     if (camera != null) {
@@ -648,6 +657,7 @@ class SelectLocationController extends GetxController {
     _searchDebounce?.cancel();
     _isDisposed = true;
     searchController.dispose();
+    landmarkController.dispose();
     mapController?.dispose();
     mapController = null;
     super.onClose();

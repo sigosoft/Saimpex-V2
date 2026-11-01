@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../storage/session_store.dart';
 import 'api_constants.dart';
@@ -38,6 +39,23 @@ class DioClient {
         onError: (error, handler) {
           logDioError(error);
           _checkSessionExpired(error);
+          if (_isGuestLoginRequired(error)) {
+            // Guest tried something that needs an account: friendly message, and
+            // the login sheet (V2_DECISIONS §17), not "Unauthenticated."
+            onLoginRequired?.call();
+            handler.reject(
+              DioException(
+                requestOptions: error.requestOptions,
+                type: DioExceptionType.badResponse,
+                response: Response(
+                  requestOptions: error.requestOptions,
+                  statusCode: 401,
+                  data: {'status': false, 'message': 'ease_login_required'.tr},
+                ),
+              ),
+            );
+            return;
+          }
           handler.next(error);
         },
       ),
@@ -51,6 +69,15 @@ class DioClient {
   /// session (token expired or revoked). Set in main.dart: it clears the
   /// session and returns to Login. Not called again once the session is gone.
   void Function()? onSessionExpired;
+
+  /// Called when a guest (no session) gets a 401: show the login sheet.
+  void Function()? onLoginRequired;
+
+  bool _isGuestLoginRequired(DioException error) {
+    if (error.response?.statusCode != 401) return false;
+    final token = session.token;
+    return token == null || token.isEmpty;
+  }
 
   void _checkSessionExpired(DioException error) {
     if (error.response?.statusCode != 401) return;

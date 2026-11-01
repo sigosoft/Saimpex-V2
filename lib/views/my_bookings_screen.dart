@@ -1,3 +1,4 @@
+import '../widgets/motion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -241,7 +242,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           separatorBuilder: (_, __) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
-                            return _buildBookingCard(list[index]);
+                            return FadeSlideIn(child: _buildBookingCard(list[index]));
                           },
                         ),
                 ),

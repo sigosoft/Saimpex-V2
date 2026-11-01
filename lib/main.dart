@@ -9,6 +9,8 @@ import 'core/app_dependencies.dart';
 import 'core/network/dio_client.dart';
 import 'core/storage/session_store.dart';
 import 'l10n/app_locale.dart';
+import 'utils/guest_gate.dart';
+import 'controllers/onboarding_controller.dart';
 import 'l10n/app_translations.dart';
 import 'models/auth_repository.dart';
 import 'utils/toast_helper.dart';
@@ -20,6 +22,7 @@ import 'widgets/no_internet_guard.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppLocale.load();
+  await OnboardingController.loadSeen();
   await AppDependencies.init();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
@@ -33,6 +36,7 @@ Future<void> main() async {
     ),
   );
   Get.find<DioClient>().onSessionExpired = _handleSessionExpired;
+  Get.find<DioClient>().onLoginRequired = GuestGate.prompt;
   runApp(const MyApp());
   unawaited(_confirmStoredSession());
 }
@@ -72,6 +76,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      // Direction-aware slide between screens (mirrors in Arabic), quick enough not to slow anyone down.
+      defaultTransition: Transition.cupertino,
+      transitionDuration: const Duration(milliseconds: 300),
       title: 'Saimpex V2',
       debugShowCheckedModeBanner: false,
       // UI strings come from AppTranslations; Arabic lays the app out right
@@ -115,5 +122,8 @@ Widget _startScreen() {
   if (token != null && token.isNotEmpty) {
     return const MainShellScreen();
   }
+  // Guests browse without logging in once they have seen the welcome slides
+  // (and picked a language) (V2_DECISIONS §17).
+  if (OnboardingController.seen) return const MainShellScreen();
   return const OnboardingScreen();
 }

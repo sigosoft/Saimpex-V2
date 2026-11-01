@@ -119,6 +119,7 @@ class ProfileRepository {
     required double latitude,
     required double longitude,
     required String language,
+    String? landmark,
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
@@ -129,6 +130,7 @@ class ProfileRepository {
           'address': address,
           'latitude': latitude,
           'longitude': longitude,
+          'landmark': ?landmark,
         },
         options: Options(contentType: Headers.jsonContentType),
       ),

@@ -1,3 +1,4 @@
+import '../utils/guest_gate.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -102,7 +103,11 @@ class HomeController extends GetxController {
     cartAmount.value = 0;
   }
 
+  /// Tabs that only make sense with an account; guests get the login sheet.
+  static const _accountTabs = {navChat, navBookings, navOrders, navCart, navProfile};
+
   void selectNavigation(int index) {
+    if (_accountTabs.contains(index) && !GuestGate.ensureLoggedIn()) return;
     currentNavIndex.value = index;
     if (index == navHome) {
       loadHome();

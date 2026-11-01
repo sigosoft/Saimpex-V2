@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/network/api_exception.dart';
 import '../l10n/app_locale.dart';
 import '../models/general_repository.dart';
 import '../models/onboarding_model.dart';
-import '../views/login_screen.dart';
+import '../views/main_shell_screen.dart';
 import '../utils/toast_helper.dart';
 
 class OnboardingController extends GetxController {
@@ -105,9 +106,26 @@ class OnboardingController extends GetxController {
     currentIndex.value = index;
   }
 
+  static const _seenKey = 'onboarding_seen';
+  static bool seen = false;
+
+  static Future<void> loadSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    seen = prefs.getBool(_seenKey) ?? false;
+  }
+
+  /// After the slides, guests go straight into the app; login is asked only
+  /// when an action needs an account (V2_DECISIONS §17).
+  Future<void> _finish() async {
+    seen = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_seenKey, true);
+    Get.offAll(() => const MainShellScreen(), transition: Transition.fadeIn);
+  }
+
   void nextPage() {
     if (isLastPage) {
-      Get.offAll(() => const LoginScreen(), transition: Transition.fadeIn);
+      _finish();
     } else {
       pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -116,9 +134,7 @@ class OnboardingController extends GetxController {
     }
   }
 
-  void skipPage() {
-    Get.offAll(() => const LoginScreen(), transition: Transition.fadeIn);
-  }
+  void skipPage() => _finish();
 
   Future<void> setLanguage(String language) async {
     selectedLanguage.value = language;

@@ -202,6 +202,7 @@ class ApiConstants {
   static const String getPrivacyPolicy = 'customer/getPrivacyPolicy';
   static const String getTermsAndConditions = 'customer/getTermsandConditions';
   static const String getContact = 'customer/getContact';
+  static const String branding = 'customer/branding';
   static const String chatAllConversations = 'customer/chat/allConversations';
   static const String chatGetConversation = 'customer/chat/getConversation';
   static const String chatSendMessage = 'customer/chat/sendMessage';

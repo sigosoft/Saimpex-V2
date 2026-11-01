@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import 'areas/core.dart';
+import 'areas/ease.dart';
 import 'areas/orders.dart';
 import 'areas/pharmacy_water.dart';
 import 'areas/services.dart';
@@ -13,6 +14,7 @@ import 'areas/stores.dart';
 class AppTranslations extends Translations {
   static const _areas = [
     coreStrings,
+    easeStrings,
     ordersStrings,
     pharmacyWaterStrings,
     servicesStrings,
