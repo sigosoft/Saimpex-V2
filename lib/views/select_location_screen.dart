@@ -621,7 +621,31 @@ class SelectLocationScreen extends StatelessWidget {
             ],
           );
         }),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
+
+        // Landmark: how drivers find homes in Nouakchott (V2_DECISIONS §17)
+        TextField(
+          controller: controller.landmarkController,
+          maxLength: 150,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            labelText: 'ease_landmark_label'.tr,
+            hintText: 'ease_landmark_hint'.tr,
+            prefixIcon: const Icon(Icons.place_outlined, color: Color(0xFFFF5216)),
+            counterText: '',
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
 
         // Continue button
         _buildBottomContinueBtn(controller),
