@@ -2,6 +2,9 @@
 /// Keys start with `core_`. Every key needs en, fr and ar.
 const coreStrings = <String, Map<String, String>>{
   'en': {
+    'core_down_title': "We'll be right back",
+    'core_down_body': "SAIMPEX is under maintenance. Your orders are safe. Please try again in a few minutes.",
+    'core_down_retry': "Retry",
     'core_update_title': 'Update SAIMPEX',
     'core_update_body': 'A new version is required to keep ordering. It takes less than a minute.',
     'core_update_body_optional': 'A new version is available. It takes less than a minute.',
@@ -464,6 +467,9 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_your_driver': 'Your Driver',
   },
   'fr': {
+    'core_down_title': "Nous revenons vite",
+    'core_down_body': "SAIMPEX est en maintenance. Vos commandes sont en sécurité. Réessayez dans quelques minutes.",
+    'core_down_retry': "Réessayer",
     'core_update_title': 'Mettre à jour SAIMPEX',
     'core_update_body': 'Une nouvelle version est nécessaire pour continuer à commander. Cela prend moins d’une minute.',
     'core_update_body_optional': 'Une nouvelle version est disponible. Cela prend moins d’une minute.',
@@ -949,6 +955,9 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_your_driver': 'Votre livreur',
   },
   'ar': {
+    'core_down_title': "سنعود قريبًا",
+    'core_down_body': "SAIMPEX قيد الصيانة. طلباتك في أمان. يرجى المحاولة بعد بضع دقائق.",
+    'core_down_retry': "إعادة المحاولة",
     'core_update_title': 'حدّث SAIMPEX',
     'core_update_body': 'يلزم إصدار جديد لمتابعة الطلب. يستغرق ذلك أقل من دقيقة.',
     'core_update_body_optional': 'يتوفر إصدار جديد. يستغرق ذلك أقل من دقيقة.',

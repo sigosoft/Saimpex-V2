@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'order_success_screen.dart';
+import 'payment_failed_screen.dart';
 import 'payment_webview_screen.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
@@ -25,6 +26,7 @@ import 'widgets/coupons_sheet.dart';
 import 'pay_later_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 class CartScreen extends StatefulWidget {
   final String? storeName;
   final String? itemName;
@@ -740,16 +742,35 @@ class _CartScreenState extends State<CartScreen> {
       Get.closeAllSnackbars();
       await Future<void>.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
-      final paid = await Get.to<bool>(() => PaymentWebViewScreen(url: url));
-      if (!mounted) return;
-      if (paid != true) {
-        showAppToast(
-          paid == false
-              ? 'orders_payment_failed_retry'.tr
-              : 'orders_payment_not_completed_retry'.tr,
-          backgroundColor: const Color(0xFFEF4444),
+      var paid = await Get.to<bool>(() => PaymentWebViewScreen(url: url));
+      // Not confirmed: "Payment not completed" offers try again, cash or wallet.
+      while (paid != true) {
+        if (!mounted) return;
+        if (orderId == null) {
+          showAppToast(
+            'orders_payment_not_completed_retry'.tr,
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          return;
+        }
+        final code = '${placed['order_code'] ?? orderId}';
+        final choice = await Get.to<PaymentFailedChoice>(
+          () => PaymentFailedScreen(
+            orderId: orderId,
+            orderCode: code,
+            amount: 'mru'.trParams({
+              'amount': '${placed['payable'] ?? placed['to_pay'] ?? payable}',
+            }),
+            cashAllowed: _cashAllowed,
+          ),
         );
-        return;
+        if (!mounted) return;
+        if (choice == PaymentFailedChoice.placed) break;
+        // Back: the order keeps waiting for payment, as before.
+        if (choice != PaymentFailedChoice.retry) return;
+        final again = await _startMasrviPayment(placed, payable) ?? url;
+        if (!mounted) return;
+        paid = await Get.to<bool>(() => PaymentWebViewScreen(url: again));
       }
       _unpaidOrder = null;
     }

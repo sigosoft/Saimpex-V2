@@ -180,6 +180,24 @@ class OrderRepository {
     return data;
   }
 
+  /// Pays a pending online order by `wallet` or switches it to `cash`
+  /// (API §6.59). Throws [ApiException] with the server's message on 422.
+  Future<String> switchPayment({
+    required int orderId,
+    required String method,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.switchPayment(orderId),
+        data: {'method': method},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
   Future<Map<String, dynamic>> masrviInit({
     required int orderId,
     required String amount,

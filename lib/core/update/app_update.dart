@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../views/server_down_screen.dart';
 import '../../views/update_required_screen.dart';
 import '../network/api_constants.dart';
 import '../network/api_message.dart';
@@ -16,19 +18,50 @@ class AppUpdate {
   AppUpdate._();
 
   static bool _shown = false;
+  static bool _downShown = false;
+
+  static Future<Map<String, dynamic>?> _settings() async {
+    final response = await Get.find<DioClient>().dio.get(
+      ApiConstants.appSettings,
+    );
+    final data = asJsonMap(asJsonMap(response.data)?['data']);
+    final list = data?['settings'];
+    return list is List && list.isNotEmpty ? asJsonMap(list.first) : null;
+  }
+
+  static String get _platform => Platform.isIOS ? 'ios' : 'android';
+
+  /// True while Admin has maintenance on for this platform, or the server
+  /// can't be reached with a 5xx answer.
+  static Future<bool> isServerDown() async {
+    try {
+      final settings = await _settings();
+      return '${settings?['maintenance_$_platform'] ?? 0}' == '1';
+    } on DioException catch (error) {
+      return (error.response?.statusCode ?? 0) >= 500;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Shows "We'll be right back" once at a time (Admin maintenance or a 503).
+  static void showServerDown([String reason = '']) {
+    if (_downShown) return;
+    _downShown = true;
+    Get.to(() => ServerDownScreen(reason: reason))?.whenComplete(() {
+      _downShown = false;
+    });
+  }
 
   static Future<void> check() async {
     if (_shown || kIsWeb || !Get.isRegistered<DioClient>()) return;
     try {
-      final response = await Get.find<DioClient>().dio.get(
-        ApiConstants.appSettings,
-      );
-      final data = asJsonMap(asJsonMap(response.data)?['data']);
-      final list = data?['settings'];
-      final settings = list is List && list.isNotEmpty
-          ? asJsonMap(list.first)
-          : null;
+      final settings = await _settings();
       if (settings == null) return;
+      if ('${settings['maintenance_$_platform'] ?? 0}' == '1') {
+        showServerDown('${settings['maintenance_reason_$_platform'] ?? ''}');
+        return;
+      }
       final prefix = Platform.isIOS ? 'app_store' : 'play_store';
       final latest = '${settings['${prefix}_version'] ?? ''}'.trim();
       final force = '${settings['${prefix}_update'] ?? 0}' == '1';
