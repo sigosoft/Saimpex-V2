@@ -188,7 +188,7 @@ Point at the dev server.
 Ordered roughly by launch impact.
 
 ### 6.1 Vendor Android — service verticals (largest item)
-- **Car Wash and Laundry sections don't exist**; laundry and car wash vendors are told to use the vendor web panel at login.
+- **Car Wash and Laundry sections don't exist yet** in the vendor app; their vendors are blocked at login for now. **Final (1 Nov): every vendor type uses the vendor app** (backend `V2_DECISIONS_AND_PLAN.md` §18); vendor task V14 builds these sections and removes the block.
 - **Home Cleaning is sample UI**: `lib/home_cleaning/view/home_cleaning_home.dart` (fake bookings), `add_service_view.dart` ("Add Service" just closes), `my_services_view.dart` (`defaultServices`).
 - Backend routes already exist in `routes/vendorapp.php`: `serviceTypes`, `requestServiceType`, `serviceItems`, `add/update/deleteServiceItem`, `updateServiceItemStatus`, `serviceBookings`, `serviceBookingDetail`, `updateServiceBookingStatus`, `serviceHours`, `saveServiceHours`, `serviceAvailability`, `serviceDashboard`, `serviceEarnings`, `serviceProfile`, `serviceReport*`.
 - The vendor **web** panel already implements these flows and can be used as the reference (`src/pages/home`, `carwash`, `laundry`, `src/composables/useHomeApp.js`, `useCarwashApp.js`, `useLaundryApp.js`).
