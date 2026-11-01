@@ -2,6 +2,7 @@
 /// Keys start with `core_`. Every key needs en, fr and ar.
 const coreStrings = <String, Map<String, String>>{
   'en': {
+    'core_account_guest_name': 'Your name',
     'core_down_title': "We'll be right back",
     'core_down_body': "SAIMPEX is under maintenance. Your orders are safe. Please try again in a few minutes.",
     'core_down_retry': "Retry",
@@ -467,6 +468,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_your_driver': 'Your Driver',
   },
   'fr': {
+    'core_account_guest_name': 'Votre nom',
     'core_down_title': "Nous revenons vite",
     'core_down_body': "SAIMPEX est en maintenance. Vos commandes sont en sécurité. Réessayez dans quelques minutes.",
     'core_down_retry': "Réessayer",
@@ -955,6 +957,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_your_driver': 'Votre livreur',
   },
   'ar': {
+    'core_account_guest_name': 'اسمك',
     'core_down_title': "سنعود قريبًا",
     'core_down_body': "SAIMPEX قيد الصيانة. طلباتك في أمان. يرجى المحاولة بعد بضع دقائق.",
     'core_down_retry': "إعادة المحاولة",

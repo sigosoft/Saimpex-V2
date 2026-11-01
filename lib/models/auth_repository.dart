@@ -31,8 +31,11 @@ class AuthRepository {
     required String otp,
     required String language,
     String? fcmToken,
+    String name = '',
   }) async {
     final envelope = await _post(ApiConstants.verifyOtp, {
+      // New accounts keep the name typed on the login screen (existing ones don't change).
+      if (name.trim().isNotEmpty) 'name': name.trim(),
       'country_code': countryCode,
       'mobile': mobile,
       'otp': otp,

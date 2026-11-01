@@ -183,14 +183,12 @@ class _AccountScreenState extends State<AccountScreen> {
 
   String _accountName() {
     final name = Get.find<SessionStore>().readUser()?.name.trim() ?? '';
-    return name.isEmpty ? 'Ahmed Ould Salem' : name;
+    return name.isEmpty ? 'core_account_guest_name'.tr : name;
   }
 
   String _accountPhone() {
     final user = Get.find<SessionStore>().readUser();
-    if (user == null || user.mobile.trim().isEmpty) {
-      return '+222 45 12 34 56';
-    }
+    if (user == null || user.mobile.trim().isEmpty) return '';
     final code = user.countryCode?.trim() ?? '';
     if (code.isEmpty) return user.mobile;
     return '$code ${user.mobile}';

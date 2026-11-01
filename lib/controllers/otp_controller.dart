@@ -16,8 +16,11 @@ class OtpArgs {
     required this.mobile,
     required this.language,
     required this.displayNumber,
+    this.name = '',
   });
 
+  /// The name typed on the login screen; saved for a new account.
+  final String name;
   final String countryCode;
   final String mobile;
   final String language;
@@ -128,6 +131,7 @@ class OtpController extends GetxController {
         mobile: args.mobile,
         otp: code,
         language: args.language,
+        name: args.name,
       );
       await _session.saveSession(token: result.token, user: result.user);
       showAppToast(result.message, backgroundColor: AppColors.primaryOrange);
