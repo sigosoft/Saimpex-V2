@@ -2,6 +2,11 @@
 /// Keys start with `orders_`. Every key needs en, fr and ar.
 const ordersStrings = <String, Map<String, String>>{
   'en': {
+    'orders_support_messages_title': 'Messages from SAIMPEX',
+    'orders_support_messages_empty': 'No messages from SAIMPEX support yet.',
+    'orders_support_order_label': 'Order @code',
+    'orders_support_from_saimpex': 'SAIMPEX Support',
+    'orders_support_reply_hint': 'Write a reply',
     'orders_cat_gas': 'Gas',
     'orders_placed_title': 'Order Placed Successfully!',
     'orders_earn_points_on_delivery':
@@ -188,6 +193,12 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_late': 'Late night',
   },
   'fr': {
+    'orders_support_messages_title': 'Messages de SAIMPEX',
+    'orders_support_messages_empty':
+        'Aucun message du support SAIMPEX pour le moment.',
+    'orders_support_order_label': 'Commande @code',
+    'orders_support_from_saimpex': 'Support SAIMPEX',
+    'orders_support_reply_hint': 'Écrire une réponse',
     'orders_cat_gas': 'Gaz',
     'orders_placed_title': 'Commande passée avec succès !',
     'orders_earn_points_on_delivery':
@@ -376,6 +387,11 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_late': 'Tard le soir',
   },
   'ar': {
+    'orders_support_messages_title': 'رسائل من SAIMPEX',
+    'orders_support_messages_empty': 'لا توجد رسائل من دعم SAIMPEX بعد.',
+    'orders_support_order_label': 'الطلب @code',
+    'orders_support_from_saimpex': 'دعم SAIMPEX',
+    'orders_support_reply_hint': 'اكتب ردًا',
     'orders_cat_gas': 'غاز',
     'orders_placed_title': 'تم تقديم طلبك بنجاح!',
     'orders_earn_points_on_delivery': 'ستحصل على @points نقطة عند توصيل طلبك',
