@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Centered title block matching the Home Cleaning reference design.
 class HomeCleaningHeader extends StatelessWidget {
@@ -37,7 +37,7 @@ class HomeCleaningHeader extends StatelessWidget {
                   Text(
                     'svc_home_cleaning'.tr,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: _titleColor,
                       fontSize: titleSize,
                       fontWeight: FontWeight.w800,
@@ -49,7 +49,7 @@ class HomeCleaningHeader extends StatelessWidget {
                     offset: Offset(1, titleSize * -0.12),
                     child: Text(
                       '*',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: _accent,
                         fontSize: starSize,
                         fontWeight: FontWeight.w600,
@@ -73,7 +73,7 @@ class HomeCleaningHeader extends StatelessWidget {
               Text(
                 'svc_home_cleaning_subtitle'.tr,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: _subtitleColor,
                   fontSize: subtitleSize,
                   fontWeight: FontWeight.w400,

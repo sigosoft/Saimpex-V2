@@ -1,3 +1,4 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -77,7 +78,7 @@ class OtpScreen extends StatelessWidget {
                           'phone': controller.phoneNumber,
                         }),
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: AppColors.textMuted,
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -137,7 +138,7 @@ class OtpScreen extends StatelessWidget {
                     'phone': controller.phoneNumber,
                   }),
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: AppColors.textMuted,
                     fontSize: 12,
                     height: 1.3,
@@ -239,7 +240,7 @@ class OtpScreen extends StatelessWidget {
         children: [
           Text(
             'core_otp_not_received'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: AppColors.textMuted,
               fontSize: 13,
               fontWeight: FontWeight.w400,
@@ -252,7 +253,7 @@ class OtpScreen extends StatelessWidget {
               isTimerActive
                   ? 'core_otp_resend_in'.trParams({'time': timeStr})
                   : 'core_otp_resend'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: AppColors.primaryOrange,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -302,7 +303,7 @@ class OtpScreen extends StatelessWidget {
                   )
                 : Text(
                     'core_otp_continue'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

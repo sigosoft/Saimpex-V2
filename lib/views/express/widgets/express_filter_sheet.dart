@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void showExpressFilterSheet(BuildContext context) {
   showModalBottomSheet(
@@ -85,7 +85,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
         ),
         child: Text(
           _chipKeys[label]?.tr ?? label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5E00)
                 : const Color(0xFF2C2520),
@@ -148,7 +148,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                     const SizedBox(width: 60),
                     Text(
                       'st_filters'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -158,7 +158,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                       onTap: _clearAll,
                       child: Text(
                         'st_clear_all'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -180,7 +180,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                   children: [
                     Text(
                       'st_price_range'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -191,7 +191,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                         'min': '${priceRange.start.round()}',
                         'max': '${priceRange.end.round()}',
                       }),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -232,7 +232,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                   children: [
                     Text(
                       'mru'.trParams({'amount': '0'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -240,7 +240,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                     ),
                     Text(
                       'mru'.trParams({'amount': '3000'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -253,7 +253,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
               Center(
                 child: Text(
                   'st_sort_by'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -298,7 +298,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                         ),
                         child: Text(
                           'st_clear_all'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -330,7 +330,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                           ),
                           child: Text(
                             'st_apply'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w800,

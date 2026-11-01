@@ -1,3 +1,4 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -323,7 +324,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 onSubmitted: (_) => _reloadRestaurants(),
                 decoration: InputDecoration(
                   hintText: 'core_category_search_hint'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
                   ),
@@ -433,7 +434,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   AppBackButton(onTap: () => Get.back()),
                   Text(
                     _titleLabel(displayTitle),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -535,7 +536,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                           textAlign: TextAlign.center,
                                           maxLines: 1,
                                           overflow: TextOverflow.visible,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: isSelected
                                                 ? const Color(0xFFFF5E00)
                                                 : const Color(0xFF3A312C),
@@ -737,7 +738,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 trendingTitle.isNotEmpty
                     ? trendingTitle
                     : 'core_category_trending_in_city'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -841,7 +842,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         ),
                         child: Text(
                           (item['discount'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -874,7 +875,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           const SizedBox(width: 2),
                           Text(
                             (item['rating'] ?? '').toString(),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.black,
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -931,7 +932,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           const SizedBox(width: 4),
                           Text(
                             (item['points'] ?? '').toString(),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 8,
                               fontWeight: FontWeight.bold,
@@ -972,7 +973,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     children: [
                       Text(
                         (item['title'] ?? '').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -981,7 +982,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       const SizedBox(height: 2),
                       Text(
                         (item['subtitle'] ?? '').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 11,
                         ),
@@ -997,7 +998,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           const SizedBox(width: 4),
                           Text(
                             (item['time'] ?? '').toString(),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 11,
                             ),
@@ -1011,7 +1012,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           const SizedBox(width: 4),
                           Text(
                             (item['dist'] ?? '').toString(),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 11,
                             ),
@@ -1058,7 +1059,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             const SizedBox(height: 10),
             Text(
               message,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -1082,7 +1083,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             children: [
               Text(
                 'core_category_under_30'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -1189,7 +1190,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         ),
                         child: Text(
                           (item['discount'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -1220,7 +1221,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           const SizedBox(width: 2),
                           Text(
                             (item['rating'] ?? '').toString(),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.black,
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -1257,7 +1258,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 (item['points'] ?? '').toString(),
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
@@ -1286,7 +1287,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               const SizedBox(width: 3),
                               Text(
                                 (item['time'] ?? '').toString(),
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
@@ -1325,7 +1326,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   children: [
                     Text(
                       (item['title'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -1334,7 +1335,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     const SizedBox(height: 2),
                     Text(
                       (item['subtitle'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 10,
                       ),
@@ -1372,7 +1373,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               children: [
                 Text(
                   'core_category_closed'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -1393,7 +1394,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'core_category_opens_at'.trParams({'time': opensAt}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.w500,
@@ -1455,7 +1456,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'core_category_temp_closed_line1'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
@@ -1466,7 +1467,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 const SizedBox(height: 1),
                 Text(
                   'core_category_temp_closed_line2'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
                     fontWeight: FontWeight.bold,
@@ -1552,7 +1553,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         ),
         child: Text(
           label.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5E00)
                 : const Color(0xFF2C2520),
@@ -1639,7 +1640,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         const SizedBox(width: 60),
                         Text(
                           'core_category_filters'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -1655,7 +1656,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           },
                           child: Text(
                             'core_category_clear_all'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1699,7 +1700,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       children: [
                         Text(
                           'core_category_price_range'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1710,7 +1711,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                             'min': '${priceRange.start.round()}',
                             'max': '${priceRange.end.round()}',
                           }),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1760,7 +1761,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       children: [
                         Text(
                           'mru'.trParams({'amount': '0'}),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -1768,7 +1769,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         ),
                         Text(
                           'mru'.trParams({'amount': '3000'}),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -1824,7 +1825,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               child: Center(
                                 child: Text(
                                   'core_category_clear_all'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFFFF5E00),
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -1866,7 +1867,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               child: Center(
                                 child: Text(
                                   'core_category_apply'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,

@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class LaundryChoosePickupSheet extends StatefulWidget {
   const LaundryChoosePickupSheet({super.key});
@@ -146,7 +146,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
                       const SizedBox(width: 12),
                       Text(
                         'svc_choose_pickup_time'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -168,7 +168,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
                     const SizedBox(height: 24),
                     Text(
                       'svc_time_slot'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -193,7 +193,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
       children: [
         Text(
           'svc_select_date'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 15,
             fontWeight: FontWeight.w800,
@@ -249,7 +249,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
               const SizedBox(width: 5),
               Text(
                 'svc_calendar_view'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -296,7 +296,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
                 children: [
                   Text(
                     _monthLabel(date),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: selected
                           ? const Color(0xFFFF5E00)
                           : const Color(0xFF9A8E86),
@@ -307,7 +307,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
                   const SizedBox(height: 2),
                   Text(
                     '${date.day}',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: selected
                           ? const Color(0xFF1A1A1A)
                           : const Color(0xFF5A5048),
@@ -321,7 +321,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
                     _dayLabel(date, index),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: selected
                           ? const Color(0xFFFF5E00)
                           : const Color(0xFF9A8E86),
@@ -385,7 +385,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
             const SizedBox(width: 6),
             Text(
               _slots[index],
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -427,7 +427,7 @@ class _LaundryChoosePickupSheetState extends State<LaundryChoosePickupSheet> {
         ),
         child: Text(
           'svc_continue'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 15.5,
             fontWeight: FontWeight.w800,

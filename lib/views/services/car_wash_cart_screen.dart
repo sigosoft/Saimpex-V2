@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'car_wash_choose_slot_sheet.dart';
 import 'car_wash_booking_success_screen.dart';
@@ -270,7 +270,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                         'svc_from_provider'.trParams({
                           'provider': widget.providerName,
                         }),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF9A8E86),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w500,
@@ -330,7 +330,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           ),
           Text(
             'svc_cart'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -344,7 +344,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1A1A1A),
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
@@ -412,7 +412,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                             widget.vehicleLabel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
@@ -431,7 +431,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   children: [
                     Text(
                       widget.plateNumber,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -441,7 +441,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                     const SizedBox(height: 4),
                     Text(
                       widget.serviceTitle,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF6B6560),
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -465,7 +465,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                     onTap: () => Get.back(),
                     child: Text(
                       'svc_edit'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
@@ -487,7 +487,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             const SizedBox(height: 16),
             Text(
               'svc_addon_services'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF5C6578),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w700,
@@ -558,7 +558,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
@@ -570,7 +570,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                     description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 11.5,
                       fontWeight: FontWeight.w400,
@@ -584,7 +584,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           const SizedBox(width: 8),
           Text(
             priceLabel,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 13,
               fontWeight: FontWeight.w800,
@@ -644,7 +644,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               children: [
                 Text(
                   'svc_location'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -655,7 +655,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   _locationText,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -706,7 +706,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 children: [
                   Text(
                     'svc_your_slot'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
@@ -715,7 +715,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   const SizedBox(height: 2),
                   Text(
                     _slotDisplay,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
@@ -783,7 +783,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -792,7 +792,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -844,7 +844,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
@@ -863,7 +863,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             const SizedBox(height: 10),
             Text(
               _quoteError!,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF8A80),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -877,7 +877,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             children: [
               Text(
                 'svc_to_pay'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -886,7 +886,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               const Spacer(),
               Text(
                 'mru'.trParams({'amount': '$_toPay'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -904,7 +904,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -913,7 +913,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w700,
@@ -943,7 +943,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         children: [
           Text(
             'svc_total_upper'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2E3A59),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -953,7 +953,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           const SizedBox(height: 2),
           Text(
             'mru'.trParams({'amount': '$_toPay'}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -985,7 +985,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 _booking
                     ? 'svc_booking_in_progress'.tr
                     : 'svc_pay_amount'.trParams({'amount': '$_toPay'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,

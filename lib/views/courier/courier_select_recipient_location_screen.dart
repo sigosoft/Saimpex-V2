@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../widgets/app_back_button.dart';
 
@@ -134,7 +134,7 @@ class _CourierSelectRecipientLocationScreenState
             child: Text(
               widget.title.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -169,7 +169,7 @@ class _CourierSelectRecipientLocationScreenState
           Expanded(
             child: TextField(
               controller: controller.searchController,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 13,
               ),
@@ -178,7 +178,7 @@ class _CourierSelectRecipientLocationScreenState
               onSubmitted: controller.searchAddress,
               decoration: InputDecoration(
                 hintText: 'st_search_area'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
                 ),
@@ -249,7 +249,7 @@ class _CourierSelectRecipientLocationScreenState
                       label,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -325,7 +325,7 @@ class _CourierSelectRecipientLocationScreenState
                     children: [
                       Text(
                         controller.addressTitle.value,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -334,7 +334,7 @@ class _CourierSelectRecipientLocationScreenState
                       const SizedBox(height: 4),
                       Text(
                         controller.addressSubtitle.value,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -378,7 +378,7 @@ class _CourierSelectRecipientLocationScreenState
               alignment: Alignment.center,
               child: Text(
                 'st_continue'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,

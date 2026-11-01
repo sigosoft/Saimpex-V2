@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'water_track_order_screen.dart';
 import '../help_support_screen.dart';
 import '../../core/network/api_constants.dart';
@@ -164,7 +164,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               child: Text(
                 _error ?? 'pw_order_details_unavailable'.tr,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -186,7 +186,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
             _displayId.isEmpty
                 ? 'pw_order'.tr
                 : 'pw_order_id'.trParams({'id': _displayId}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -205,7 +205,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               ),
               child: Text(
                 'subs_help'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -284,7 +284,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
             children: [
               Text(
                 'pw_order_status'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -293,7 +293,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               const Spacer(),
               Text(
                 isSelfPickup ? 'pw_self_pickup'.tr : 'pw_delivery'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: isSelfPickup
                       ? const Color(0xFF007DFE)
                       : const Color(0xFFFF5E00),
@@ -383,7 +383,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                             Text(
                               step.title,
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF1A1A1A),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -395,7 +395,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                               Text(
                                 step.subtitle,
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFA59A94),
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w500,
@@ -453,7 +453,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -462,7 +462,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 if (subtitle.isNotEmpty)
                   Text(
                     subtitle,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8C7E75),
                       fontSize: 10,
                     ),
@@ -486,7 +486,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
         children: [
           Text(
             'pw_pickup_location'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -508,7 +508,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
       children: [
         Text(
           'pw_delivery_details'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -559,7 +559,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 detail.isFinished
                     ? 'pw_no_driver'.tr
                     : 'pw_driver_assigned_soon'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF8C7E75),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -588,7 +588,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                         detail.driverName.isEmpty
                             ? 'pw_driver'.tr
                             : detail.driverName,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -612,7 +612,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                                   'count': '${detail.driverReviews}',
                                 }),
                             ].join(' '),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF8C7E75),
                               fontSize: 10,
                             ),
@@ -656,7 +656,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
       children: [
         Text(
           'pw_order_summary'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -681,7 +681,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
           child: items.isEmpty
               ? Text(
                   'pw_no_items'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8C7E75),
                     fontSize: 12,
                   ),
@@ -739,7 +739,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -747,7 +747,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               ),
               Text(
                 'x${item['quantity'] ?? 1}',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -758,7 +758,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
         ),
         Text(
           _money(item['total_price']),
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -798,7 +798,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
         children: [
           Text(
             'pw_payment_details_caps'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -847,7 +847,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
             children: [
               Text(
                 totalLabel,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -855,7 +855,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
               ),
               Text(
                 _money(payment['total_bill']),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -874,14 +874,14 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFD4CDC5),
             fontSize: 12,
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: isOrange ? const Color(0xFFFF5E00) : Colors.white,
             fontSize: 12,
             fontWeight: isOrange ? FontWeight.bold : FontWeight.w500,
@@ -915,7 +915,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 child: Center(
                   child: Text(
                     'cancel'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -957,7 +957,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                 child: Center(
                   child: Text(
                     'pw_track_order'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,

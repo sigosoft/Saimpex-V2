@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/courier_repository.dart';
 import '../../utils/api_language.dart';
@@ -166,7 +166,7 @@ class _CourierScreenState extends State<CourierScreen> {
                             const SizedBox(height: 22),
                             Text(
                               'st_choose_vehicle'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
@@ -177,7 +177,7 @@ class _CourierScreenState extends State<CourierScreen> {
                             const SizedBox(height: 22),
                             Text(
                               'st_exclusive_offers'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
@@ -217,7 +217,7 @@ class _CourierScreenState extends State<CourierScreen> {
           ),
           Text(
             'st_courier'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -416,7 +416,7 @@ class _CourierScreenState extends State<CourierScreen> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -428,7 +428,7 @@ class _CourierScreenState extends State<CourierScreen> {
                   title,
                   maxLines: maxLines,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: isPlaceholder
                         ? const Color(0xFF8C7D73)
                         : const Color(0xFF2C2520),
@@ -511,7 +511,7 @@ class _CourierScreenState extends State<CourierScreen> {
                             children: [
                               Text(
                                 vehicle['label']!.toString().tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
@@ -520,7 +520,7 @@ class _CourierScreenState extends State<CourierScreen> {
                               const SizedBox(height: 3),
                               Text(
                                 _timeText,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -529,7 +529,7 @@ class _CourierScreenState extends State<CourierScreen> {
                               const SizedBox(height: 2),
                               Text(
                                 _priceText(vehicle['isExpress']! as bool),
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFA59A94),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
@@ -675,7 +675,7 @@ class _CourierScreenState extends State<CourierScreen> {
         alignment: Alignment.center,
         child: Text(
           'st_confirm_pickup'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 15,
             fontWeight: FontWeight.w800,

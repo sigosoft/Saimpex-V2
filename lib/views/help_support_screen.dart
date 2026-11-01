@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../models/general_repository.dart';
 import '../utils/api_language.dart';
@@ -116,7 +116,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             child: Text(
               'core_help_title'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -166,7 +166,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           const SizedBox(height: 12),
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -175,7 +175,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -198,7 +198,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               ),
               child: Text(
                 buttonLabel,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -231,7 +231,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         children: [
           Text(
             'core_help_support_info'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -276,7 +276,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -285,7 +285,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF6B625C),
                   fontSize: 13,
                   fontWeight: FontWeight.w400,

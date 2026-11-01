@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../widgets/auto_slide_network_images.dart';
 
@@ -77,7 +77,7 @@ class WaterProductCard extends StatelessWidget {
                       ),
                       child: Text(
                         (product['discount'] ?? '50% OFF').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
@@ -99,7 +99,7 @@ class WaterProductCard extends StatelessWidget {
                       ),
                       child: Text(
                         (product['quantity'] ?? '1 BOTTLE').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
@@ -121,7 +121,7 @@ class WaterProductCard extends StatelessWidget {
                       ),
                       child: Text(
                         (product['size'] ?? '19L').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
@@ -143,7 +143,7 @@ class WaterProductCard extends StatelessWidget {
                       (product['title'] ?? '').toString(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -163,7 +163,7 @@ class WaterProductCard extends StatelessWidget {
                             '${product['rating']} (${product['reviews']})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 9,
                               fontWeight: FontWeight.w500,
@@ -178,7 +178,7 @@ class WaterProductCard extends StatelessWidget {
                       children: [
                         Text(
                           (product['price'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -187,7 +187,7 @@ class WaterProductCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           (product['originalPrice'] ?? '').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 9,
                             decoration: TextDecoration.lineThrough,
@@ -217,7 +217,7 @@ class WaterProductCard extends StatelessWidget {
                               ),
                               child: Text(
                                 'pw_subscribe_caps'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: isNotAccepting
                                       ? const Color(0xFFA59A94)
                                       : const Color(0xFFFF5E00),
@@ -273,7 +273,7 @@ class WaterProductCard extends StatelessWidget {
                                     isNotAccepting
                                         ? 'pw_closed_caps'.tr
                                         : 'pw_add_caps'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 9,
                                       fontWeight: FontWeight.w800,

@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../controllers/onboarding_controller.dart';
 import 'widgets/language_selector.dart';
 import 'widgets/next_button.dart';
@@ -88,7 +88,7 @@ class OnboardingScreen extends StatelessWidget {
                     children: [
                       Text(
                         page.title,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
@@ -99,7 +99,7 @@ class OnboardingScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       Text(
                         page.description,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white.withOpacity(0.65),
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
@@ -142,7 +142,7 @@ class OnboardingScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'core_onboarding_skip'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -224,7 +224,7 @@ class OnboardingScreen extends StatelessWidget {
                       children: [
                         Text(
                           page.title.replaceAll('\n', ' '),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
@@ -234,7 +234,7 @@ class OnboardingScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         Text(
                           page.description,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white.withOpacity(0.65),
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -278,7 +278,7 @@ class OnboardingScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'core_onboarding_skip'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

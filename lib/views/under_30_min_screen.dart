@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/app_back_button.dart';
 import 'widgets/search_camera_button.dart';
@@ -84,7 +84,7 @@ class Under30MinScreen extends StatelessWidget {
                         AppBackButton(onTap: () => Get.back()),
                         Text(
                           title == 'Food' ? 'search_vertical_food'.tr : title,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -131,7 +131,7 @@ class Under30MinScreen extends StatelessWidget {
                             controller: controller,
                             decoration: InputDecoration(
                               hintText: 'orders_search_hint'.tr,
-                              hintStyle: GoogleFonts.outfit(
+                              hintStyle: AppFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 13,
                               ),
@@ -210,7 +210,7 @@ class Under30MinScreen extends StatelessWidget {
                 children: [
                   Text(
                     'orders_under_30_title'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -227,7 +227,7 @@ class Under30MinScreen extends StatelessWidget {
                   ? Center(
                       child: Text(
                         'under30_empty'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -314,7 +314,7 @@ class Under30MinScreen extends StatelessWidget {
                                           ),
                                           child: Text(
                                             item['discount']!,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: Colors.white,
                                               fontSize: 9,
                                               fontWeight: FontWeight.bold,
@@ -350,7 +350,7 @@ class Under30MinScreen extends StatelessWidget {
                                               const SizedBox(width: 2),
                                               Text(
                                                 item['rating']!,
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   color: Colors.black,
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.bold,
@@ -419,7 +419,7 @@ class Under30MinScreen extends StatelessWidget {
                                               const SizedBox(width: 4),
                                               Text(
                                                 item['points']!,
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   color: Colors.white,
                                                   fontSize: 8,
                                                   fontWeight: FontWeight.bold,
@@ -457,7 +457,7 @@ class Under30MinScreen extends StatelessWidget {
                                               const SizedBox(width: 4),
                                               Text(
                                                 'orders_30_min'.tr,
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   color: Colors.white,
                                                   fontSize: 8,
                                                   fontWeight: FontWeight.bold,
@@ -510,7 +510,7 @@ class Under30MinScreen extends StatelessWidget {
                                       children: [
                                         Text(
                                           item['title']!,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
@@ -519,7 +519,7 @@ class Under30MinScreen extends StatelessWidget {
                                         const SizedBox(height: 2),
                                         Text(
                                           item['subtitle']!,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF7A6A60),
                                             fontSize: 11,
                                           ),
@@ -535,7 +535,7 @@ class Under30MinScreen extends StatelessWidget {
                                             const SizedBox(width: 4),
                                             Text(
                                               item['time']!,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: const Color(0xFF7A6A60),
                                                 fontSize: 11,
                                               ),
@@ -549,7 +549,7 @@ class Under30MinScreen extends StatelessWidget {
                                             const SizedBox(width: 4),
                                             Text(
                                               item['dist']!,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: const Color(0xFF7A6A60),
                                                 fontSize: 11,
                                               ),
@@ -596,7 +596,7 @@ class Under30MinScreen extends StatelessWidget {
               children: [
                 Text(
                   'orders_closed'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -617,7 +617,7 @@ class Under30MinScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'orders_opens_at'.trParams({'time': opensAt}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.w500,
@@ -679,7 +679,7 @@ class Under30MinScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'orders_temp_closed_line1'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
@@ -690,7 +690,7 @@ class Under30MinScreen extends StatelessWidget {
                 const SizedBox(height: 1),
                 Text(
                   'orders_temp_closed_line2'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
                     fontWeight: FontWeight.bold,
@@ -793,7 +793,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
         ),
         child: Text(
           _chipText(label),
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5E00)
                 : const Color(0xFF2C2520),
@@ -875,7 +875,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         const SizedBox(width: 60),
                         Text(
                           'orders_filters'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -891,7 +891,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           },
                           child: Text(
                             'orders_clear_all_link'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -935,7 +935,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       children: [
                         Text(
                           'orders_price_range'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -944,7 +944,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         Text(
                           '${'mru'.trParams({'amount': '${priceRange.start.round()}'})} - '
                           '${'mru'.trParams({'amount': '${priceRange.end.round()}'})}',
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -994,7 +994,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                       children: [
                         Text(
                           'mru'.trParams({'amount': '0'}),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -1002,7 +1002,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         ),
                         Text(
                           'mru'.trParams({'amount': '3000'}),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -1017,7 +1017,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                   Center(
                     child: Text(
                       'orders_sort_by'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -1058,7 +1058,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               child: Center(
                                 child: Text(
                                   'orders_clear_all'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFFFF5E00),
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -1100,7 +1100,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               child: Center(
                                 child: Text(
                                   'orders_apply'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,

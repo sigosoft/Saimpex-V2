@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../controllers/select_location_controller.dart';
@@ -230,10 +230,10 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: _onSearch,
-              style: GoogleFonts.outfit(fontSize: 13),
+              style: AppFonts.outfit(fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'core_store_map_search_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12.5,
                 ),
@@ -259,7 +259,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
       child: Text(
         'core_store_map_empty'.tr,
         textAlign: TextAlign.center,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: const Color(0xFF7A6A60),
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -321,7 +321,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
                     _titleOf(store),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -333,7 +333,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -373,7 +373,7 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
     );
   }
 
-  TextStyle get _metaStyle => GoogleFonts.outfit(
+  TextStyle get _metaStyle => AppFonts.outfit(
     color: const Color(0xFF4A453F),
     fontSize: 10,
     fontWeight: FontWeight.w500,

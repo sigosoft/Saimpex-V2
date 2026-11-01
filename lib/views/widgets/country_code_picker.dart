@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Countries offered for phone numbers, the same list the login screen uses.
 const List<Map<String, String>> kCountryCodeOptions = [
@@ -43,7 +43,7 @@ void showCountryCodePicker({
             children: [
               Text(
                 'core_country_select'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -65,14 +65,14 @@ void showCountryCodePicker({
                       title: Text(
                         _countryNameKeys[country['name']]?.tr ??
                             country['name']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.black87,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       trailing: Text(
                         country['code']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.black54,
                           fontWeight: FontWeight.bold,
                         ),

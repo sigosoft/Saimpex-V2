@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
 import '../main_shell_screen.dart';
@@ -71,7 +71,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                 Text(
                   'svc_booking_confirmed'.tr,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -97,7 +97,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                           ),
                           child: Text(
                             'svc_back_to_home'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -132,7 +132,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                           ),
                           child: Text(
                             'svc_view_bookings'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,

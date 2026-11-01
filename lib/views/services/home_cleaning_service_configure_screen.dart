@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'home_cleaning_cart_screen.dart';
 import 'home_cleaning_choose_slot_sheet.dart';
@@ -328,7 +328,7 @@ class _HomeCleaningServiceConfigureScreenState
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1B2B4A),
               fontSize: _isPestControl ? 15.5 : 18,
               fontWeight: FontWeight.w800,
@@ -407,7 +407,7 @@ class _HomeCleaningServiceConfigureScreenState
           const SizedBox(width: 6),
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2B5A9E),
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -421,7 +421,7 @@ class _HomeCleaningServiceConfigureScreenState
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1B2B4A),
         fontSize: 15,
         fontWeight: FontWeight.w800,
@@ -435,7 +435,7 @@ class _HomeCleaningServiceConfigureScreenState
         children: [
           TextSpan(
             text: title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -443,7 +443,7 @@ class _HomeCleaningServiceConfigureScreenState
           ),
           TextSpan(
             text: ' (${'svc_optional'.tr})',
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF6B6B6B),
               fontSize: 13,
               fontWeight: FontWeight.w400,
@@ -518,7 +518,7 @@ class _HomeCleaningServiceConfigureScreenState
             Flexible(
               child: Text(
                 type == 'Villa' ? 'svc_villa'.tr : 'svc_apartment'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: selected
                       ? const Color(0xFFFF5E00)
                       : const Color(0xFF1B2B4A),
@@ -618,7 +618,7 @@ class _HomeCleaningServiceConfigureScreenState
               children: [
                 Text(
                   homeCleaningLabelText(room['label'] as String),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 14.5,
                     fontWeight: FontWeight.w700,
@@ -627,7 +627,7 @@ class _HomeCleaningServiceConfigureScreenState
                 const SizedBox(height: 3),
                 Text(
                   (room['unitLabel'] as String).trParams({'rate': '$rate'}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
@@ -647,7 +647,7 @@ class _HomeCleaningServiceConfigureScreenState
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
               textAlign: TextAlign.right,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w700,
@@ -678,7 +678,7 @@ class _HomeCleaningServiceConfigureScreenState
           child: Text(
             '$value',
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1B2B4A),
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -793,7 +793,7 @@ class _HomeCleaningServiceConfigureScreenState
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
@@ -861,7 +861,7 @@ class _HomeCleaningServiceConfigureScreenState
               children: [
                 Text(
                   homeCleaningLabelText(room['label'] as String),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 14.5,
                     fontWeight: FontWeight.w700,
@@ -870,7 +870,7 @@ class _HomeCleaningServiceConfigureScreenState
                 const SizedBox(height: 3),
                 Text(
                   (room['unitLabel'] as String).trParams({'rate': '$rate'}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
@@ -890,7 +890,7 @@ class _HomeCleaningServiceConfigureScreenState
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
               textAlign: TextAlign.right,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w700,
@@ -926,7 +926,7 @@ class _HomeCleaningServiceConfigureScreenState
             child: Text(
               '$value',
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -1027,7 +1027,7 @@ class _HomeCleaningServiceConfigureScreenState
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1B2B4A),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -1036,7 +1036,7 @@ class _HomeCleaningServiceConfigureScreenState
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -1049,7 +1049,7 @@ class _HomeCleaningServiceConfigureScreenState
             const SizedBox(width: 8),
             Text(
               priceLabel,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: priceOrange
                     ? const Color(0xFFFF5E00)
                     : const Color(0xFF1B2B4A),
@@ -1121,13 +1121,13 @@ class _HomeCleaningServiceConfigureScreenState
                 maxLines: null,
                 expands: true,
                 textAlignVertical: TextAlignVertical.top,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1B2B4A),
                   fontSize: 13.5,
                 ),
                 decoration: InputDecoration(
                   hintText: 'svc_notes_example_kitchen'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFB0A59C),
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
@@ -1250,7 +1250,7 @@ class _HomeCleaningServiceConfigureScreenState
               children: [
                 Text(
                   homeCleaningLabelText(item['label'] as String),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1259,7 +1259,7 @@ class _HomeCleaningServiceConfigureScreenState
                 const SizedBox(height: 3),
                 Text(
                   (item['unitLabel'] as String).trParams({'rate': '$rate'}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
@@ -1279,7 +1279,7 @@ class _HomeCleaningServiceConfigureScreenState
             child: Text(
               'mru'.trParams({'amount': '$lineTotal'}),
               textAlign: TextAlign.right,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
@@ -1319,7 +1319,7 @@ class _HomeCleaningServiceConfigureScreenState
                   children: [
                     Text(
                       'svc_total_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
@@ -1329,7 +1329,7 @@ class _HomeCleaningServiceConfigureScreenState
                     const SizedBox(height: 2),
                     Text(
                       'mru'.trParams({'amount': '$_totalPrice'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -1364,7 +1364,7 @@ class _HomeCleaningServiceConfigureScreenState
               ),
               child: Text(
                 'svc_choose_your_slot'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,
                   fontWeight: FontWeight.w800,

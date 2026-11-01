@@ -1,9 +1,9 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
 import '../core/network/api_exception.dart';
@@ -194,7 +194,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     children: [
                       Text(
                         'wallet_topup'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -206,7 +206,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           'min': _money(_minTopUp),
                           'max': _money(_maxTopUp),
                         }),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF8C7D73),
                           fontSize: 12,
                         ),
@@ -231,7 +231,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                           onSubmitted: (_) => submit(),
-                          style: GoogleFonts.outfit(fontSize: 16),
+                          style: AppFonts.outfit(fontSize: 16),
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: 'wallet_topup_amount'.tr,
@@ -243,7 +243,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         const SizedBox(height: 6),
                         Text(
                           error!,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFEF4444),
                             fontSize: 12,
                           ),
@@ -280,7 +280,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                   Text(
                     'wallet_title'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -313,7 +313,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             const SizedBox(height: 22),
                             Text(
                               'wallet_history'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
@@ -328,7 +328,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 child: Text(
                                   'wallet_no_history'.tr,
                                   textAlign: TextAlign.center,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF8C7D73),
                                     fontSize: 13,
                                   ),
@@ -375,7 +375,7 @@ class _WalletScreenState extends State<WalletScreen> {
         children: [
           Text(
             'wallet_balance'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white.withValues(alpha: 0.9),
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -384,7 +384,7 @@ class _WalletScreenState extends State<WalletScreen> {
           const SizedBox(height: 6),
           Text(
             'mru'.trParams({'amount': _money(_balance)}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white,
               fontSize: 30,
               fontWeight: FontWeight.w800,
@@ -411,7 +411,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     )
                   : Text(
                       'wallet_topup'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -461,7 +461,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       : description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -470,7 +470,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 if (date != null)
                   Text(
                     _date(date),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 11,
                     ),
@@ -480,7 +480,7 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
           Text(
             '${credit ? '+' : '-'}${'mru'.trParams({'amount': _money(amount)})}',
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: credit ? const Color(0xFF16A34A) : const Color(0xFFEF4444),
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -505,7 +505,7 @@ class _WalletScreenState extends State<WalletScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 15,
             fontWeight: FontWeight.w800,

@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
@@ -154,7 +154,7 @@ class HomeCleaningScreen extends StatelessWidget {
                 children: [
                   Text(
                     'svc_current_location'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF9A8E86),
                       fontSize: 9.5,
                       fontWeight: FontWeight.w600,
@@ -166,7 +166,7 @@ class HomeCleaningScreen extends StatelessWidget {
                     SelectLocationController.selectedTitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -202,7 +202,7 @@ class HomeCleaningScreen extends StatelessWidget {
                 child: Text(
                   'svc_home_cleaning'.tr,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A202C),
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -243,7 +243,7 @@ class HomeCleaningScreen extends StatelessWidget {
           Text(
             'svc_home_cleaning_subtitle'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF718096),
               fontSize: 13.5,
               fontWeight: FontWeight.w400,
@@ -278,7 +278,7 @@ class HomeCleaningScreen extends StatelessWidget {
             children: [
               Text(
                 'svc_explore_categories'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -330,7 +330,7 @@ class HomeCleaningScreen extends StatelessWidget {
           cat['label']!.tr,
           textAlign: TextAlign.center,
           maxLines: 2,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -362,10 +362,10 @@ class HomeCleaningScreen extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
-              style: GoogleFonts.outfit(color: Colors.black, fontSize: 14),
+              style: AppFonts.outfit(color: Colors.black, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'svc_search_cleaning_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -410,7 +410,7 @@ class HomeCleaningScreen extends StatelessWidget {
           children: [
             Text(
               'svc_cleaning_near_you'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -507,7 +507,7 @@ class HomeCleaningScreen extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           item['points']!,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
@@ -530,7 +530,7 @@ class HomeCleaningScreen extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item['name']!,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -548,7 +548,7 @@ class HomeCleaningScreen extends StatelessWidget {
                           const SizedBox(width: 2),
                           Text(
                             item['rating']!,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -569,7 +569,7 @@ class HomeCleaningScreen extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         item['distance']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 11.5,
                           fontWeight: FontWeight.w500,
@@ -587,7 +587,7 @@ class HomeCleaningScreen extends StatelessWidget {
                           children: [
                             Text(
                               'svc_starting_from'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF9A8E86),
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w500,
@@ -596,7 +596,7 @@ class HomeCleaningScreen extends StatelessWidget {
                             const SizedBox(height: 2),
                             RichText(
                               text: TextSpan(
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -640,7 +640,7 @@ class HomeCleaningScreen extends StatelessWidget {
                           ),
                           child: Text(
                             'svc_view_services'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,

@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../../widgets/app_back_button.dart';
@@ -236,7 +236,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
             child: Text(
               'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -256,7 +256,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               ),
               child: Text(
                 'svc_help'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -272,7 +272,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1A1A1A),
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
@@ -303,7 +303,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         children: [
           Text(
             'svc_booking_status'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 15.5,
               fontWeight: FontWeight.w800,
@@ -401,7 +401,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         Text(
           (step['label'] as String).tr,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -413,7 +413,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
           Text(
             time,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 9.5,
               fontWeight: FontWeight.w500,
@@ -480,7 +480,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                             _vehicleLabel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -499,7 +499,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                   children: [
                     Text(
                       _plateNumber,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF0D1B2A),
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -509,7 +509,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       _service,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF5A6B7D),
                         fontSize: 13.5,
                         fontWeight: FontWeight.w500,
@@ -539,7 +539,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'svc_addon_services'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF5A6B7D),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
@@ -605,7 +605,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF0D1B2A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -617,7 +617,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                     description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF64748B),
                       fontSize: 11.5,
                       fontWeight: FontWeight.w400,
@@ -631,7 +631,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             priceLabel,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 13.5,
               fontWeight: FontWeight.w800,
@@ -691,7 +691,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   'svc_location'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -702,7 +702,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                   _location,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -751,7 +751,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   'svc_your_slot'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
@@ -760,7 +760,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _slot,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF6B6560),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -792,7 +792,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
@@ -816,7 +816,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
             children: [
               Text(
                 'svc_total_paid'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -825,7 +825,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               const Spacer(),
               Text(
                 _totalPaid,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -843,7 +843,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -852,7 +852,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w700,
@@ -882,7 +882,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
           ),
           child: Text(
             'cancel'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 15,
               fontWeight: FontWeight.w700,

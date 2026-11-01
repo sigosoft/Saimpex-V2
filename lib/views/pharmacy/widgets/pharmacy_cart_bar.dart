@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class PharmacyCartBar extends StatelessWidget {
   final String price;
@@ -38,7 +38,7 @@ class PharmacyCartBar extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 '1',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -53,7 +53,7 @@ class PharmacyCartBar extends StatelessWidget {
                 children: [
                   Text(
                     'pw_view_cart_items'.trParams({'count': '1'}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -61,7 +61,7 @@ class PharmacyCartBar extends StatelessWidget {
                   ),
                   Text(
                     'pw_ready_in_15_20'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -75,7 +75,7 @@ class PharmacyCartBar extends StatelessWidget {
               children: [
                 Text(
                   price,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,

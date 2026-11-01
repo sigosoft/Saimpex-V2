@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class LaundryBookingDetailScreen extends StatelessWidget {
   final Map<String, dynamic> booking;
@@ -169,7 +169,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
             child: Text(
               'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -187,7 +187,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               ),
               child: Text(
                 'svc_help'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -203,7 +203,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1B2B4A),
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
@@ -312,7 +312,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
         Text(
           (step['label'] as String).tr,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1B2B4A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -324,7 +324,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
           Text(
             time,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 9.5,
               fontWeight: FontWeight.w500,
@@ -377,7 +377,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   _service,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -386,7 +386,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   _estimate,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -395,7 +395,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   _paid,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -412,7 +412,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
             ),
             child: Text(
               _status.toUpperCase(),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B7A3E),
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
@@ -498,7 +498,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: labelColor,
             fontSize: 10.5,
             fontWeight: FontWeight.w700,
@@ -508,7 +508,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           _locationTitle,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1B2B4A),
             fontSize: 14,
             fontWeight: FontWeight.w800,
@@ -516,7 +516,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
         ),
         Text(
           _location,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF8A7E76),
             fontSize: 11.5,
           ),
@@ -555,7 +555,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   'svc_pickup_slot'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -564,7 +564,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _slot,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
@@ -609,7 +609,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -618,7 +618,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
@@ -662,7 +662,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   'Amadou Sy',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 14.5,
                     fontWeight: FontWeight.w800,
@@ -682,7 +682,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                         'rating': '4.6',
                         'count': '10k+',
                       }),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -724,7 +724,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -748,7 +748,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
             children: [
               Text(
                 'svc_total_paid'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -757,7 +757,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               const Spacer(),
               Text(
                 'mru'.trParams({'amount': '410'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -775,7 +775,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFD4CBC3),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -784,7 +784,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w700,
@@ -833,7 +833,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'svc_balance_due_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 9.5,
                         fontWeight: FontWeight.w800,
@@ -851,7 +851,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                     'svc_estimated_weight'.trParams({
                       'weight': '${booking['estimateLabel'] ?? '3.0 kg'}',
                     }),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w500,
@@ -859,7 +859,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   ),
                   Text(
                     booking['estimatedPrice'] ?? '460 MRU',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
@@ -873,7 +873,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 children: [
                   RichText(
                     text: TextSpan(
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w500,
@@ -882,7 +882,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                         TextSpan(text: 'svc_actual_weight'.tr),
                         TextSpan(
                           text: booking['actualWeight'] ?? '3.6 kg',
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontWeight: FontWeight.w800,
                           ),
@@ -892,7 +892,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   ),
                   Text(
                     booking['price'] ?? '545 MRU',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w800,
@@ -918,7 +918,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 children: [
                   Text(
                     'svc_balance_due'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -927,7 +927,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     'svc_amount_due_after_weighing'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -937,7 +937,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
               ),
               Text(
                 booking['balanceDue'] ?? '85 MRU',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
@@ -986,7 +986,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                           const SizedBox(height: 16),
                           Text(
                             'svc_pay_balance_due'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF2C2520),
@@ -997,7 +997,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                             'svc_amount_due_after_weighing_value'.trParams({
                               'amount': '$balance',
                             }),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF7A6A60),
@@ -1037,7 +1037,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                                 'svc_confirm_pay'.trParams({
                                   'amount': '$balance',
                                 }),
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
@@ -1069,7 +1069,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'svc_pay_value'.trParams({'amount': '$balance'}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -1092,7 +1092,7 @@ class LaundryBookingDetailScreen extends StatelessWidget {
                 ),
                 child: Text(
                   'cancel'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

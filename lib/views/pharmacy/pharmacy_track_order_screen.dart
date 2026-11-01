@@ -1,9 +1,9 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:math' as math;
 import '../../widgets/app_back_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../models/order_tracking.dart';
 import '../widgets/tracking_widgets.dart';
@@ -249,7 +249,7 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen>
                 ),
                 Text(
                   'pw_track_order_id'.trParams({'id': displayId}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 17,
                     fontWeight: FontWeight.w800,

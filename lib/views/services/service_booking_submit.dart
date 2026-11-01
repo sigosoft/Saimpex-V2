@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import '../../controllers/service_booking_draft.dart';
@@ -295,7 +295,7 @@ class _ServerPriceDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle style(double size, FontWeight weight, Color color) =>
-        GoogleFonts.outfit(fontSize: size, fontWeight: weight, color: color);
+        AppFonts.outfit(fontSize: size, fontWeight: weight, color: color);
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),

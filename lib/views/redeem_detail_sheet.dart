@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RedeemDetailSheet extends StatelessWidget {
   final Map<String, dynamic> reward;
@@ -119,7 +119,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                       const SizedBox(width: 6),
                                       Text(
                                         store,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: Colors.white,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -138,7 +138,7 @@ class RedeemDetailSheet extends StatelessWidget {
                               children: [
                                 Text(
                                   title,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF1A1A1A),
                                     fontSize: 22,
                                     fontWeight: FontWeight.w800,
@@ -147,7 +147,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                 const SizedBox(height: 6),
                                 Text(
                                   subtitle,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF8A8A8A),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w400,
@@ -176,7 +176,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                           Expanded(
                                             child: Text(
                                               'core_redeem_reward_value'.tr,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: const Color(0xFFA59A94),
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
@@ -195,7 +195,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                       const SizedBox(height: 10),
                                       Text(
                                         '${reward['rewardValue'] ?? ''}',
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFFFF5E00),
                                           fontSize: 20,
                                           fontWeight: FontWeight.w800,
@@ -209,7 +209,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                         const SizedBox(height: 8),
                                         Text(
                                           '${reward['rewardDescription']}',
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF6B635C),
                                             fontSize: 12,
                                             fontWeight: FontWeight.w400,
@@ -231,7 +231,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                     const SizedBox(width: 8),
                                     Text(
                                       'core_redeem_whats_inside'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF1A1A1A),
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
@@ -271,7 +271,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                           const SizedBox(width: 12),
                                           Text(
                                             item,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFF2C2520),
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
@@ -285,7 +285,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                 const SizedBox(height: 8),
                                 Text(
                                   points,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFFFF5E00),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -354,7 +354,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                     ),
                                     child: Text(
                                       'core_redeem_redeem'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,

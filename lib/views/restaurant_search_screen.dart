@@ -1,8 +1,8 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/select_location_controller.dart';
 import '../core/network/api_exception.dart';
@@ -152,7 +152,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                         ),
                         child: Text(
                           '${filter['label']}',
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: selected
                                 ? Colors.white
                                 : const Color(0xFF2C2520),
@@ -177,7 +177,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                   ? Center(
                       child: Text(
                         'core_restaurant_search_no_results'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -245,14 +245,14 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
               controller: _searchController,
               textInputAction: TextInputAction.search,
               textAlignVertical: TextAlignVertical.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 13,
                 height: 1,
               ),
               decoration: InputDecoration(
                 hintText: 'core_restaurant_search_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12.5,
                   height: 1,
@@ -271,7 +271,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF2C2520),
         fontSize: 14,
         fontWeight: FontWeight.w700,
@@ -328,7 +328,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -340,7 +340,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                           subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -353,7 +353,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                           meta,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,

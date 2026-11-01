@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../constants/colors.dart';
 import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
@@ -244,7 +244,7 @@ class _AccountScreenState extends State<AccountScreen> {
                               children: [
                                 Text(
                                   'V2.8.2',
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFFA59A94),
                                     fontSize: 12,
                                   ),
@@ -252,7 +252,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 const SizedBox(width: 8),
                                 Text(
                                   'core_account_check_update'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFFA59A94),
                                     fontSize: 12,
                                     decoration: TextDecoration.underline,
@@ -328,7 +328,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(width: 10),
               Text(
                 'core_account_delete_account'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -580,7 +580,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   const SizedBox(height: 12),
                   Text(
                     label,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -593,7 +593,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     children: [
                       Text(
                         value,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -606,7 +606,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           padding: const EdgeInsets.only(bottom: 2),
                           child: Text(
                             unit,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -751,7 +751,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 : 'core_account_my_favourite'.tr,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -763,7 +763,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           (action['text'] ?? action['label']) as String,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -909,7 +909,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       Expanded(
                         child: Text(
                           (item['text'] ?? item['label']) as String,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: isLogout
                                 ? AppColors.primaryOrange
                                 : const Color(0xFF2C2520),
@@ -922,7 +922,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         Obx(
                           () => Text(
                             languageController().selectedLanguage.value,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: AppColors.primaryOrange,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -933,7 +933,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       ] else if (item['trailing'] != null) ...[
                         Text(
                           item['trailing'] as String,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: AppColors.primaryOrange,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -1004,7 +1004,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(height: 8),
               Text(
                 social['label'] as String,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -1040,7 +1040,7 @@ class _DeleteAccountSheet extends StatelessWidget {
         children: [
           Text(
             'core_account_delete_account'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -1050,7 +1050,7 @@ class _DeleteAccountSheet extends StatelessWidget {
           Text(
             'core_account_delete_confirm'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 14,
               fontWeight: FontWeight.w400,
@@ -1088,7 +1088,7 @@ class _DeleteAccountSheet extends StatelessWidget {
                     ),
                     child: Text(
                       'core_account_yes'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -1114,7 +1114,7 @@ class _DeleteAccountSheet extends StatelessWidget {
                     ),
                     child: Text(
                       'core_account_no'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -1194,7 +1194,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
         children: [
           Text(
             'core_account_logout'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -1204,7 +1204,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
           Text(
             'core_account_logout_confirm'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 14,
               fontWeight: FontWeight.w400,
@@ -1226,7 +1226,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
                     ),
                     child: Text(
                       'core_account_no'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -1263,7 +1263,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
                           )
                         : Text(
                             'core_account_yes'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.bold,

@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../utils/toast_helper.dart';
@@ -181,14 +181,14 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
           Expanded(
             child: TextField(
               controller: _controller,
-              style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+              style: AppFonts.outfit(color: Colors.black, fontSize: 13),
               textInputAction: TextInputAction.search,
               onSubmitted: _search,
               decoration: InputDecoration(
                 hintText: _listening
                     ? 'core_home_search_listening'.tr
                     : 'core_home_search_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: _listening
                       ? const Color(0xFFFF5E00)
                       : const Color(0xFFA59A94),
@@ -332,7 +332,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
               children: [
                 Text(
                   'core_home_search_recording'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -340,7 +340,7 @@ class _RecordingBannerState extends State<_RecordingBanner>
                 ),
                 Text(
                   'core_home_search_tap_to_stop'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,

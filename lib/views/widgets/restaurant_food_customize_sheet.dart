@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'auto_slide_network_images.dart';
 
@@ -185,7 +185,7 @@ class _RestaurantFoodCustomizeSheetState
                                       Expanded(
                                         child: Text(
                                           food['title']!.toString(),
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 17,
                                             fontWeight: FontWeight.w800,
@@ -202,7 +202,7 @@ class _RestaurantFoodCustomizeSheetState
                                           ),
                                           Text(
                                             '${food['rating']} (${food['reviews']})',
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFF7A6A60),
                                               fontSize: 11,
                                             ),
@@ -214,7 +214,7 @@ class _RestaurantFoodCustomizeSheetState
                                   const SizedBox(height: 8),
                                   Text(
                                     'Slow-cooked traditional Moroccan tagine with tender chicken, preserved lemons, olives, and aromatic spices. Served with a side of fluffy couscous.',
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF7A6A60),
                                       fontSize: 12,
                                       height: 1.45,
@@ -274,10 +274,10 @@ class _RestaurantFoodCustomizeSheetState
                                 alignment: AlignmentDirectional.centerStart,
                                 child: TextField(
                                   controller: _customQtyController,
-                                  style: GoogleFonts.outfit(fontSize: 12),
+                                  style: AppFonts.outfit(fontSize: 12),
                                   decoration: InputDecoration(
                                     hintText: 'core_food_qty_hint'.tr,
-                                    hintStyle: GoogleFonts.outfit(
+                                    hintStyle: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
                                     ),
@@ -324,7 +324,7 @@ class _RestaurantFoodCustomizeSheetState
                                               side['name'].toString(),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
                                                 color: const Color(0xFF2C2520),
@@ -334,7 +334,7 @@ class _RestaurantFoodCustomizeSheetState
                                               'core_food_plus_price'.trParams({
                                                 'amount': '${side['price']}',
                                               }),
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.w700,
                                                 color: const Color(0xFFFF5E00),
@@ -393,7 +393,7 @@ class _RestaurantFoodCustomizeSheetState
                                             children: [
                                               Text(
                                                 extra['name'].toString(),
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.w600,
                                                   color: const Color(
@@ -408,7 +408,7 @@ class _RestaurantFoodCustomizeSheetState
                                                         '${extra['price']}',
                                                   },
                                                 ),
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w700,
                                                   color: const Color(
@@ -445,10 +445,10 @@ class _RestaurantFoodCustomizeSheetState
                                       child: TextField(
                                         controller: _notesController,
                                         maxLines: 3,
-                                        style: GoogleFonts.outfit(fontSize: 12),
+                                        style: AppFonts.outfit(fontSize: 12),
                                         decoration: InputDecoration(
                                           hintText: 'core_food_notes_hint'.tr,
-                                          hintStyle: GoogleFonts.outfit(
+                                          hintStyle: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 12,
                                           ),
@@ -522,7 +522,7 @@ class _RestaurantFoodCustomizeSheetState
                               ),
                               child: Text(
                                 '$_quantity',
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
                                   color: const Color(0xFF2C2520),
@@ -575,7 +575,7 @@ class _RestaurantFoodCustomizeSheetState
                                 const SizedBox(width: 8),
                                 Text(
                                   'core_food_add'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
@@ -625,7 +625,7 @@ class _RestaurantFoodCustomizeSheetState
   Widget _sectionTitle(String text) {
     return Text(
       text,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF2C2520),
         fontSize: 15,
         fontWeight: FontWeight.w800,
@@ -662,7 +662,7 @@ class _RestaurantFoodCustomizeSheetState
                 children: [
                   Text(
                     label,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF2C2520),
@@ -670,7 +670,7 @@ class _RestaurantFoodCustomizeSheetState
                   ),
                   Text(
                     price,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFFFF5E00),

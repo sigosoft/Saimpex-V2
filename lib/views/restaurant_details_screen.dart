@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
@@ -351,7 +351,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                 onChanged: _onSearchChanged,
                 decoration: InputDecoration(
                   hintText: 'core_restaurant_find_hint'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12,
                   ),
@@ -671,7 +671,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           'core_restaurant_added_to_cart'.trParams({
             'name': '${food['title']}',
           }),
-          style: GoogleFonts.outfit(),
+          style: AppFonts.outfit(),
         ),
         backgroundColor: const Color(0xFFFF5E00),
         duration: const Duration(seconds: 2),
@@ -716,7 +716,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             const SizedBox(height: 10),
             Text(
               'core_restaurant_no_items'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -823,7 +823,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                               : (widget.restaurant['title'] ??
                                                     widget.restaurant['name'] ??
                                                     ''),
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -853,7 +853,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                               const SizedBox(width: 2),
                                               Text(
                                                 _restaurantRating,
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   color: Colors.white,
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.bold,
@@ -868,7 +868,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       _restaurantSubtitle,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF7A6A60),
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -890,7 +890,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                           const SizedBox(width: 4),
                                           Text(
                                             _restaurantTime,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFF7A6A60),
                                               fontSize: 11,
                                               fontWeight: FontWeight.w600,
@@ -909,7 +909,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                           const SizedBox(width: 4),
                                           Text(
                                             _restaurantDistance,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFF7A6A60),
                                               fontSize: 11,
                                               fontWeight: FontWeight.w600,
@@ -934,7 +934,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                             ),
                                             child: Text(
                                               _restaurantDiscount,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 9,
                                                 fontWeight: FontWeight.bold,
@@ -991,7 +991,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                 const SizedBox(width: 8),
                                                 Text(
                                                   'core_restaurant_chat'.tr,
-                                                  style: GoogleFonts.outfit(
+                                                  style: AppFonts.outfit(
                                                     color: Colors.white,
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.bold,
@@ -1190,7 +1190,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.visible,
-                                                    style: GoogleFonts.outfit(
+                                                    style: AppFonts.outfit(
                                                       color: isSelected
                                                           ? const Color(
                                                               0xFFFF5E00,
@@ -1263,7 +1263,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         alignment: AlignmentDirectional.centerStart,
                         child: Text(
                           'core_restaurant_all_items'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1395,7 +1395,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                         alignment: Alignment.center,
                         child: Text(
                           controller.cartItemCount.value.toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1412,7 +1412,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                               'core_restaurant_view_cart'.trParams({
                                 'count': '${controller.cartItemCount.value}',
                               }),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -1420,7 +1420,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             ),
                             Text(
                               'core_restaurant_ready_in'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
@@ -1435,7 +1435,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             controller.cartAmount.value,
                           ),
                         }),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -1537,7 +1537,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           ),
                           child: Text(
                             discount,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 8.5,
                               fontWeight: FontWeight.bold,
@@ -1573,7 +1573,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             ),
                             child: Text(
                               tag,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5E00),
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
@@ -1587,7 +1587,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     ),
                     Text(
                       title.isNotEmpty ? title : 'core_restaurant_item'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -1607,7 +1607,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             const SizedBox(width: 2),
                             Text(
                               rating,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -1617,7 +1617,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           if (reviews.isNotEmpty)
                             Text(
                               rating.isNotEmpty ? ' ($reviews)' : reviews,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 9,
                               ),
@@ -1636,7 +1636,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             if (price.isNotEmpty)
                               Text(
                                 price,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
@@ -1646,7 +1646,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                               const SizedBox(width: 6),
                               Text(
                                 originalPrice,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFA59A94),
                                   fontSize: 10,
                                   decoration: TextDecoration.lineThrough,
@@ -1703,7 +1703,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                   food['inStock'] == false
                                       ? 'core_restaurant_sold_out'.tr
                                       : 'core_restaurant_add'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,

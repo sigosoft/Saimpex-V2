@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../controllers/select_location_controller.dart';
@@ -100,7 +100,7 @@ class _PrescriptionCheckoutScreenState
                   ),
                   Text(
                     'pw_checkout'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -119,7 +119,7 @@ class _PrescriptionCheckoutScreenState
             children: [
               Text(
                 'pw_from_pharmacy'.trParams({'name': widget.pharmacyName}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -132,7 +132,7 @@ class _PrescriptionCheckoutScreenState
               ],
               Text(
                 'pw_delivery_type'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -152,7 +152,7 @@ class _PrescriptionCheckoutScreenState
               const SizedBox(height: 18),
               Text(
                 'water_sub_payment'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -180,7 +180,7 @@ class _PrescriptionCheckoutScreenState
                 const SizedBox(height: 10),
                 Text(
                   'pw_no_payment_method'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFEF4444),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -207,7 +207,7 @@ class _PrescriptionCheckoutScreenState
         alignment: AlignmentDirectional.centerStart,
         child: TextField(
           controller: _noteController,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 12,
             fontWeight: FontWeight.w500,
@@ -216,7 +216,7 @@ class _PrescriptionCheckoutScreenState
             isDense: true,
             border: InputBorder.none,
             hintText: 'pw_add_delivery_note'.tr,
-            hintStyle: GoogleFonts.outfit(
+            hintStyle: AppFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -282,7 +282,7 @@ class _PrescriptionCheckoutScreenState
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -291,7 +291,7 @@ class _PrescriptionCheckoutScreenState
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -366,7 +366,7 @@ class _PrescriptionCheckoutScreenState
                   _addressTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -377,7 +377,7 @@ class _PrescriptionCheckoutScreenState
                   _addressSubtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -388,7 +388,7 @@ class _PrescriptionCheckoutScreenState
           ),
           Text(
             'pw_edit'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -435,7 +435,7 @@ class _PrescriptionCheckoutScreenState
               children: [
                 Text(
                   widget.pharmacyName,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -446,7 +446,7 @@ class _PrescriptionCheckoutScreenState
                   '${widget.pharmacyName}, $_addressSubtitle',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -470,7 +470,7 @@ class _PrescriptionCheckoutScreenState
       children: [
         Text(
           'pw_save_more'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
             fontWeight: FontWeight.w800,
@@ -485,7 +485,7 @@ class _PrescriptionCheckoutScreenState
           },
           child: Text(
             'pw_view_coupons'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -516,7 +516,7 @@ class _PrescriptionCheckoutScreenState
           Expanded(
             child: TextField(
               controller: _couponController,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 fontSize: 12,
                 color: const Color(0xFF2C2520),
               ),
@@ -524,7 +524,7 @@ class _PrescriptionCheckoutScreenState
                 isDense: true,
                 border: InputBorder.none,
                 hintText: 'pw_enter_coupon'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
                 ),
@@ -573,7 +573,7 @@ class _PrescriptionCheckoutScreenState
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
@@ -582,7 +582,7 @@ class _PrescriptionCheckoutScreenState
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -611,7 +611,7 @@ class _PrescriptionCheckoutScreenState
         children: [
           Text(
             'pw_quotation_summary_caps'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -626,7 +626,7 @@ class _PrescriptionCheckoutScreenState
           const SizedBox(height: 10),
           Text(
             'pw_fees_worked_out_on_pay'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white.withValues(alpha: 0.75),
               fontSize: 11.5,
               height: 1.35,
@@ -640,7 +640,7 @@ class _PrescriptionCheckoutScreenState
             children: [
               Text(
                 'pw_to_pay'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -649,7 +649,7 @@ class _PrescriptionCheckoutScreenState
               const Spacer(),
               Text(
                 'mru'.trParams({'amount': '$_toPay'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -667,7 +667,7 @@ class _PrescriptionCheckoutScreenState
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -676,7 +676,7 @@ class _PrescriptionCheckoutScreenState
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -722,7 +722,7 @@ class _PrescriptionCheckoutScreenState
         alignment: Alignment.center,
         child: Text(
           'water_sub_pay'.trParams({'amount': '$_toPay'}),
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 15,
             fontWeight: FontWeight.w800,

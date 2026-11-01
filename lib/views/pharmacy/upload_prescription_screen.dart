@@ -1,3 +1,4 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:io';
 import '../../widgets/app_back_button.dart';
 import '../widgets/country_code_picker.dart';
@@ -5,7 +6,6 @@ import '../widgets/country_code_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/pharmacy_repository.dart';
@@ -85,7 +85,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                     ),
                     Text(
                       'pw_upload_prescription'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -105,7 +105,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                     Text(
                       'pw_upload_prescription_intro'.tr,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 12,
                         height: 1.45,
@@ -121,7 +121,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                     const SizedBox(height: 18),
                     Text(
                       'pw_choose_pharmacy'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -132,7 +132,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'pw_enter_contact_number'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -176,7 +176,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                               )
                             : Text(
                                 'pw_submit_for_quotation'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
@@ -322,7 +322,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
               Expanded(
                 child: Text(
                   'pw_add_your_prescription'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -339,7 +339,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   'i',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -353,7 +353,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           if (uploadedLabel != null)
             Text(
               'pw_selected_file'.trParams({'name': uploadedLabel!}),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF00B25C),
                 fontSize: 12,
                 height: 1.4,
@@ -363,7 +363,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           else
             Text.rich(
               TextSpan(
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
                   height: 1.45,
@@ -373,7 +373,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   TextSpan(text: 'pw_accept_files_prefix'.tr),
                   TextSpan(
                     text: 'JPG, PNG',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -382,7 +382,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   TextSpan(text: 'pw_accept_files_and'.tr),
                   TextSpan(
                     text: 'PDF',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -464,7 +464,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
               const SizedBox(height: 8),
               Text(
                 label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: filled
                       ? const Color(0xFFFF5E00)
                       : const Color(0xFF2C2520),
@@ -491,7 +491,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           Expanded(
             child: Text(
               'pw_call_before_alternative'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -530,7 +530,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
             Expanded(
               child: Text(
                 selectedPharmacy ?? 'pw_choose_pharmacy'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: selectedPharmacy == null
                       ? const Color(0xFFA59A94)
                       : const Color(0xFF2C2520),
@@ -589,7 +589,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   const SizedBox(width: 4),
                   Text(
                     countryCode,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -610,7 +610,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 focusNode: contactFocus,
                 keyboardType: TextInputType.phone,
                 cursorColor: const Color(0xFF2C2520),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -723,7 +723,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           const SizedBox(height: 22),
                           Text(
                             'pw_choose_pharmacy'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -761,7 +761,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                                           () => query = value.trim(),
                                         );
                                       },
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF2C2520),
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
@@ -772,7 +772,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                                         border: InputBorder.none,
                                         hintText:
                                             'pw_search_near_nouakchott'.tr,
-                                        hintStyle: GoogleFonts.outfit(
+                                        hintStyle: AppFonts.outfit(
                                           color: const Color(0xFFB0A59C),
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -790,7 +790,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                                 ? Center(
                                     child: Text(
                                       'pw_no_pharmacies_found'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFFA59A94),
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
@@ -939,7 +939,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                               const SizedBox(width: 2),
                               Text(
                                 pharmacy['rating']!,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
@@ -964,7 +964,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                               pharmacy['title']!,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
@@ -985,7 +985,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                               pharmacy['status'] == 'CLOSED'
                                   ? 'pw_closed_caps'.tr
                                   : 'pw_open_caps'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF00A854),
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
@@ -1006,7 +1006,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           const SizedBox(width: 4),
                           Text(
                             pharmacy['time']!,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1021,7 +1021,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           const SizedBox(width: 2),
                           Text(
                             pharmacy['dist']!,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1181,7 +1181,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
   void _showToast(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.outfit()),
+        content: Text(message, style: AppFonts.outfit()),
         backgroundColor: isError
             ? const Color(0xFFEF4444)
             : const Color(0xFF00B25C),

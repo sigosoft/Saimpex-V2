@@ -1,5 +1,5 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Shared pill-style filter chip used across grocery, food, express, etc.
 class AppFilterChip extends StatelessWidget {
@@ -95,7 +95,7 @@ class AppFilterChip extends StatelessWidget {
           if (leading != null) ...[leading!, const SizedBox(width: 6)],
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: selected ? Colors.white : const Color(0xFF2C2520),
               fontSize: 12,
               fontWeight: FontWeight.w600,

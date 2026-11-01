@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../help_support_screen.dart';
@@ -140,7 +140,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             child: Text(
               'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -158,7 +158,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               ),
               child: Text(
                 'svc_help'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -174,7 +174,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1A1A1A),
         fontSize: 16,
         fontWeight: FontWeight.w800,
@@ -207,7 +207,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             padding: const EdgeInsetsDirectional.only(start: 4, bottom: 18),
             child: Text(
               'svc_booking_status'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 15.5,
                 fontWeight: FontWeight.w800,
@@ -303,7 +303,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
         Text(
           (step['label'] as String).tr,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -315,7 +315,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
           Text(
             time,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 9.5,
               fontWeight: FontWeight.w500,
@@ -360,7 +360,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                       children: [
                         Text(
                           homeCleaningLabelText(rows[i]['label']!),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 14.5,
                             fontWeight: FontWeight.w700,
@@ -369,7 +369,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                         const SizedBox(height: 3),
                         Text(
                           rows[i]['detail']!,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF8A7E76),
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
@@ -380,7 +380,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                   ),
                   Text(
                     rows[i]['total']!,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 14.5,
                       fontWeight: FontWeight.w800,
@@ -404,7 +404,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             Expanded(child: _sectionTitle('svc_cleaning_products'.tr)),
             Text(
               'svc_plus_mru'.trParams({'amount': '120'}),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -439,7 +439,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   'svc_provider_provides_products'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -448,7 +448,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'svc_provider_products_hint'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,
                     height: 1.35,
@@ -498,7 +498,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   _locationTitle,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -509,7 +509,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                   _locationSubtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 11.5,
                   ),
@@ -552,7 +552,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   'svc_your_slot'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
@@ -561,7 +561,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _slot,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -615,7 +615,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   'Amadou Sy',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -632,7 +632,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       '4.8',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
@@ -641,7 +641,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'svc_reviews_count_paren'.trParams({'count': '10k+'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 12,
                       ),
@@ -682,7 +682,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
@@ -706,7 +706,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             children: [
               Text(
                 'svc_total_paid'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -715,7 +715,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               const Spacer(),
               Text(
                 'mru'.trParams({'amount': '730'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -733,7 +733,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -742,7 +742,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w600,
@@ -772,7 +772,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
           ),
           child: Text(
             'cancel'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15.5,
               fontWeight: FontWeight.w700,

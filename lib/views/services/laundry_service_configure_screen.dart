@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'laundry_cart_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
@@ -107,7 +107,7 @@ class _LaundryServiceConfigureScreenState
                       const SizedBox(height: 20),
                       Text(
                         'svc_how_much_laundry'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1B2B4A),
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
@@ -137,7 +137,7 @@ class _LaundryServiceConfigureScreenState
             child: Text(
               _title,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -192,7 +192,7 @@ class _LaundryServiceConfigureScreenState
         children: [
           Text(
             _title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1B2B4A),
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -232,7 +232,7 @@ class _LaundryServiceConfigureScreenState
                   children: [
                     TextSpan(
                       text: '$_kg',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -240,7 +240,7 @@ class _LaundryServiceConfigureScreenState
                     ),
                     TextSpan(
                       text: ' ${'svc_kg'.tr}',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -302,7 +302,7 @@ class _LaundryServiceConfigureScreenState
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF4A5A6A),
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -319,7 +319,7 @@ class _LaundryServiceConfigureScreenState
             ),
             TextSpan(
               text: '$_estimatedPrice',
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -355,7 +355,7 @@ class _LaundryServiceConfigureScreenState
           Expanded(
             child: Text(
               'svc_final_price_after_weighing'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF5A6A7A),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -393,7 +393,7 @@ class _LaundryServiceConfigureScreenState
                   children: [
                     Text(
                       'svc_total_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
@@ -403,7 +403,7 @@ class _LaundryServiceConfigureScreenState
                     const SizedBox(height: 2),
                     Text(
                       'mru'.trParams({'amount': '$_estimatedPrice'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -418,7 +418,7 @@ class _LaundryServiceConfigureScreenState
                   children: [
                     Text(
                       'svc_duration_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
@@ -430,7 +430,7 @@ class _LaundryServiceConfigureScreenState
                       _durationLabel == '24 hours'
                           ? 'svc_24_hours'.tr
                           : _durationLabel,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -465,7 +465,7 @@ class _LaundryServiceConfigureScreenState
               ),
               child: Text(
                 'svc_choose_pickup_time'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,
                   fontWeight: FontWeight.w700,

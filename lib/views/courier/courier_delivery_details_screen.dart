@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/country_code_picker.dart';
@@ -142,7 +142,7 @@ class _CourierDeliveryDetailsScreenState
             child: Text(
               'st_delivery_details_guidelines'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -244,7 +244,7 @@ class _CourierDeliveryDetailsScreenState
             children: [
               Text(
                 label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -256,7 +256,7 @@ class _CourierDeliveryDetailsScreenState
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -295,7 +295,7 @@ class _CourierDeliveryDetailsScreenState
         children: [
           Text(
             'st_recipient'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -304,7 +304,7 @@ class _CourierDeliveryDetailsScreenState
           const SizedBox(height: 16),
           Text(
             'st_recipient_name'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 11,
               fontWeight: FontWeight.w500,
@@ -322,14 +322,14 @@ class _CourierDeliveryDetailsScreenState
             alignment: AlignmentDirectional.centerStart,
             child: TextField(
               controller: _nameController,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
                 hintText: 'st_recipient_name_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12,
                 ),
@@ -342,7 +342,7 @@ class _CourierDeliveryDetailsScreenState
           const SizedBox(height: 16),
           Text(
             'st_phone_number'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 11,
               fontWeight: FontWeight.w500,
@@ -374,7 +374,7 @@ class _CourierDeliveryDetailsScreenState
                       const SizedBox(width: 4),
                       Text(
                         countryCode,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -398,14 +398,14 @@ class _CourierDeliveryDetailsScreenState
                   child: TextField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
                     decoration: InputDecoration(
                       hintText: 'st_phone_hint'.tr,
-                      hintStyle: GoogleFonts.outfit(
+                      hintStyle: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 12,
                       ),
@@ -472,7 +472,7 @@ class _CourierDeliveryDetailsScreenState
         alignment: Alignment.center,
         child: Text(
           'st_confirm_pickup'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 15,
             fontWeight: FontWeight.w800,
@@ -490,7 +490,7 @@ class _CourierDeliveryDetailsScreenState
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             'st_guidelines'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -522,7 +522,7 @@ class _CourierDeliveryDetailsScreenState
         children: [
           Text(
             'st_safety_guidelines'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2F80ED),
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -539,7 +539,7 @@ class _CourierDeliveryDetailsScreenState
                 children: [
                   Text(
                     '${index + 1}.',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -549,7 +549,7 @@ class _CourierDeliveryDetailsScreenState
                   Expanded(
                     child: Text(
                       items[index].tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -580,7 +580,7 @@ class _CourierDeliveryDetailsScreenState
         children: [
           Text(
             'st_restricted_items'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF8B2E2E),
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -589,7 +589,7 @@ class _CourierDeliveryDetailsScreenState
           const SizedBox(height: 10),
           Text(
             'st_restricted_text'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -601,7 +601,7 @@ class _CourierDeliveryDetailsScreenState
             children: [
               Text(
                 'st_view_policy'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

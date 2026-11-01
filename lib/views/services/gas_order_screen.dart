@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
@@ -568,5 +568,5 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
   );
 
   TextStyle _style(double size, FontWeight weight, Color color) =>
-      GoogleFonts.outfit(fontSize: size, fontWeight: weight, color: color);
+      AppFonts.outfit(fontSize: size, fontWeight: weight, color: color);
 }

@@ -1,9 +1,9 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
@@ -206,13 +206,13 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
             Expanded(
               child: TextField(
                 controller: _searchController,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                 ),
                 decoration: InputDecoration(
                   hintText: 'st_search_hint'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA0938A),
                     fontSize: 13,
                   ),
@@ -308,7 +308,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                                 children: [
                                                   Text(
                                                     'st_deliver_to_colon'.tr,
-                                                    style: GoogleFonts.outfit(
+                                                    style: AppFonts.outfit(
                                                       color: const Color(
                                                         0xFF8C7D73,
                                                       ),
@@ -326,7 +326,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                                       SelectLocationController
                                                           .deliveryLabel
                                                           .value,
-                                                      style: GoogleFonts.outfit(
+                                                      style: AppFonts.outfit(
                                                         color: const Color(
                                                           0xFF2C2520,
                                                         ),
@@ -392,7 +392,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                         const SizedBox(width: 3),
                                         Text(
                                           'mru'.trParams({'amount': '300'}),
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: Colors.white,
                                             fontSize: 13,
                                             fontWeight: FontWeight.w700,
@@ -412,7 +412,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               'st_local_stores'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
@@ -567,7 +567,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                           alignment: Alignment.bottomCenter,
                                           child: Text(
                                             (cat['key'] as String).tr,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: isSelected
                                                   ? Colors.white
                                                   : const Color(0xFF2C2520),
@@ -636,7 +636,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               children: [
                                 Text(
                                   'st_local_stores_nearby'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -676,7 +676,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               children: [
                                 Text(
                                   'st_browse_all_stores'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -700,7 +700,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                       )
                                     : Text(
                                         'st_no_local_stores'.tr,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 13,
                                           fontWeight: FontWeight.w600,
@@ -862,7 +862,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         ),
                         child: Text(
                           store['discount'],
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -889,7 +889,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             const SizedBox(width: 2),
                             Text(
                               store['rating'],
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
@@ -951,7 +951,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         const SizedBox(width: 4),
                         Text(
                           store['points'],
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
@@ -984,7 +984,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     children: [
                       Text(
                         store['name'],
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -995,7 +995,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                       const SizedBox(height: 2),
                       Text(
                         store['subtitle'],
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF8C7D73),
                           fontSize: 11,
                         ),
@@ -1013,7 +1013,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           const SizedBox(width: 3),
                           Text(
                             store['time'],
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF6B635C),
                               fontSize: 10,
                               fontWeight: FontWeight.w500,
@@ -1028,7 +1028,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           const SizedBox(width: 3),
                           Text(
                             store['dist'],
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF6B635C),
                               fontSize: 10,
                               fontWeight: FontWeight.w500,
@@ -1063,7 +1063,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               children: [
                 Text(
                   'st_closed'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -1084,7 +1084,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'st_opens_at'.trParams({'time': opensAt}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.w500,
@@ -1175,7 +1175,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         ),
                         child: Text(
                           store['discount'],
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -1202,7 +1202,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             const SizedBox(width: 3),
                             Text(
                               store['rating'],
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -1264,7 +1264,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         const SizedBox(width: 5),
                         Text(
                           store['points'],
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -1285,7 +1285,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 children: [
                   Text(
                     store['name'],
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -1294,7 +1294,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                   const SizedBox(height: 3),
                   Text(
                     store['subtitle'],
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8C7D73),
                       fontSize: 12,
                     ),
@@ -1310,7 +1310,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                       const SizedBox(width: 4),
                       Text(
                         store['time'],
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF6B635C),
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -1325,7 +1325,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                       const SizedBox(width: 4),
                       Text(
                         store['dist'],
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF6B635C),
                           fontSize: 11,
                           fontWeight: FontWeight.w500,

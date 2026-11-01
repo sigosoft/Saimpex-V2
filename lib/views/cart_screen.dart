@@ -1,8 +1,8 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'order_success_screen.dart';
 import 'payment_webview_screen.dart';
 import '../controllers/home_controller.dart';
@@ -460,7 +460,7 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 Text(
                   attached ? 'orders_rx_attached'.tr : 'orders_rx_required'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -475,7 +475,7 @@ class _CartScreenState extends State<CartScreen> {
                                 'id': '$_prescriptionId',
                               }))
                       : 'orders_rx_upload_hint'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -489,7 +489,7 @@ class _CartScreenState extends State<CartScreen> {
               onTap: _attachPrescription,
               child: Text(
                 'orders_upload'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -1248,7 +1248,7 @@ class _CartScreenState extends State<CartScreen> {
                       name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -1258,7 +1258,7 @@ class _CartScreenState extends State<CartScreen> {
                       const SizedBox(height: 4),
                       Text(
                         portion,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -1271,7 +1271,7 @@ class _CartScreenState extends State<CartScreen> {
                         'orders_addons'.trParams({
                           'addons': '${item['addOns']}',
                         }),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -1281,7 +1281,7 @@ class _CartScreenState extends State<CartScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'mru'.trParams({'amount': '$total'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -1321,7 +1321,7 @@ class _CartScreenState extends State<CartScreen> {
                     const SizedBox(width: 8),
                     Text(
                       count.toString(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -1366,14 +1366,14 @@ class _CartScreenState extends State<CartScreen> {
             child: TextField(
               controller: cartItemId < 1 ? null : _apiQuantityField(cartItemId),
               keyboardType: TextInputType.number,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 fontSize: 11,
                 color: const Color(0xFF2C2520),
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
                 hintText: 'orders_quantity_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -1507,7 +1507,7 @@ class _CartScreenState extends State<CartScreen> {
                         if (storeName.isNotEmpty) ...[
                           Text(
                             'orders_from_vendor'.trParams({'name': storeName}),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -1521,7 +1521,7 @@ class _CartScreenState extends State<CartScreen> {
                       ] else if (quantity > 0) ...[
                         Text(
                           'orders_from_vendor'.trParams({'name': storeName}),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -1610,7 +1610,7 @@ class _CartScreenState extends State<CartScreen> {
                                       children: [
                                         Text(
                                           itemTitle,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
@@ -1619,7 +1619,7 @@ class _CartScreenState extends State<CartScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           itemPortion,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 11,
                                             fontWeight: FontWeight.w500,
@@ -1630,7 +1630,7 @@ class _CartScreenState extends State<CartScreen> {
                                           'mru'.trParams({
                                             'amount': '${basePrice * quantity}',
                                           }),
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFFF5E00),
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold,
@@ -1675,7 +1675,7 @@ class _CartScreenState extends State<CartScreen> {
                                         const SizedBox(width: 8),
                                         Text(
                                           quantity.toString(),
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
@@ -1722,14 +1722,14 @@ class _CartScreenState extends State<CartScreen> {
                                 child: TextField(
                                   controller: _customQuantityController,
                                   keyboardType: TextInputType.number,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     fontSize: 11,
                                     color: const Color(0xFF2C2520),
                                     fontWeight: FontWeight.w500,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: 'orders_quantity_hint'.tr,
-                                    hintStyle: GoogleFonts.outfit(
+                                    hintStyle: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500,
@@ -1770,7 +1770,7 @@ class _CartScreenState extends State<CartScreen> {
                               Expanded(
                                 child: Text(
                                   'orders_cart_empty'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
@@ -1782,7 +1782,7 @@ class _CartScreenState extends State<CartScreen> {
                                   onTap: () => _setQuantity(1),
                                   child: Text(
                                     'orders_add_product'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFFF5E00),
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -1822,14 +1822,14 @@ class _CartScreenState extends State<CartScreen> {
                                   focusNode: _deliveryNoteFocus,
                                   minLines: 2,
                                   maxLines: 4,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: 'orders_delivery_note_hint'.tr,
-                                    hintStyle: GoogleFonts.outfit(
+                                    hintStyle: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -1869,7 +1869,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   child: Text(
                                     'orders_add_delivery_note'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -1884,7 +1884,7 @@ class _CartScreenState extends State<CartScreen> {
                         // 3. Delivery Type
                         Text(
                           'orders_delivery_type'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1950,7 +1950,7 @@ class _CartScreenState extends State<CartScreen> {
                                         children: [
                                           Text(
                                             'orders_delivery'.tr,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFF2C2520),
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
@@ -1959,7 +1959,7 @@ class _CartScreenState extends State<CartScreen> {
                                           const SizedBox(height: 2),
                                           Text(
                                             'orders_delivery_eta'.tr,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFFA59A94),
                                               fontSize: 9,
                                               fontWeight: FontWeight.w500,
@@ -2030,7 +2030,7 @@ class _CartScreenState extends State<CartScreen> {
                                         children: [
                                           Text(
                                             'orders_self_pickup'.tr,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFF2C2520),
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
@@ -2039,7 +2039,7 @@ class _CartScreenState extends State<CartScreen> {
                                           const SizedBox(height: 2),
                                           Text(
                                             'orders_pickup_ready'.tr,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFFA59A94),
                                               fontSize: 9,
                                               fontWeight: FontWeight.w500,
@@ -2101,7 +2101,7 @@ class _CartScreenState extends State<CartScreen> {
                                             .value,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF2C2520),
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -2120,7 +2120,7 @@ class _CartScreenState extends State<CartScreen> {
                                                   .selectedSubtitle,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 10,
                                           fontWeight: FontWeight.w500,
@@ -2133,7 +2133,7 @@ class _CartScreenState extends State<CartScreen> {
                                   onTap: () {},
                                   child: Text(
                                     'orders_edit'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFFF5E00),
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
@@ -2184,7 +2184,7 @@ class _CartScreenState extends State<CartScreen> {
                                     children: [
                                       Text(
                                         'orders_pickup_location'.tr,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF2C2520),
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
@@ -2195,7 +2195,7 @@ class _CartScreenState extends State<CartScreen> {
                                         'orders_pickup_near'.trParams({
                                           'store': storeName,
                                         }),
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w500,
@@ -2255,7 +2255,7 @@ class _CartScreenState extends State<CartScreen> {
                                     children: [
                                       Text(
                                         'preorder_title'.tr,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF0E5A2A),
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -2266,7 +2266,7 @@ class _CartScreenState extends State<CartScreen> {
                                         _scheduledFor == null
                                             ? 'preorder_pick'.tr
                                             : scheduleText,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF3BA162),
                                           fontSize: 10,
                                           fontWeight: FontWeight.w500,
@@ -2316,7 +2316,7 @@ class _CartScreenState extends State<CartScreen> {
                               },
                               child: Text(
                                 'orders_view_coupons'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -2349,13 +2349,13 @@ class _CartScreenState extends State<CartScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: _couponController,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     fontSize: 12,
                                     color: const Color(0xFF2C2520),
                                   ),
                                   decoration: InputDecoration(
                                     hintText: 'orders_enter_coupon'.tr,
-                                    hintStyle: GoogleFonts.outfit(
+                                    hintStyle: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
                                     ),
@@ -2368,7 +2368,7 @@ class _CartScreenState extends State<CartScreen> {
                                 onTap: () => _applyCoupon(itemTotal),
                                 child: Text(
                                   'orders_apply'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFFFF5E00),
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -2427,7 +2427,7 @@ class _CartScreenState extends State<CartScreen> {
                                           'cart_use_points'.trParams({
                                             'points': '$_pointsAvailable',
                                           }),
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
@@ -2438,7 +2438,7 @@ class _CartScreenState extends State<CartScreen> {
                                           'cart_points_off'.trParams({
                                             'amount': '$_pointsAmount',
                                           }),
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 10,
                                             fontWeight: FontWeight.w500,
@@ -2479,7 +2479,7 @@ class _CartScreenState extends State<CartScreen> {
                         // 7. Payment Header
                         Text(
                           'water_sub_payment'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -2556,7 +2556,7 @@ class _CartScreenState extends State<CartScreen> {
                                       children: [
                                         Text(
                                           'pad_option'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: _padCanUse
                                                 ? const Color(0xFF2C2520)
                                                 : const Color(0xFFA59A94),
@@ -2567,7 +2567,7 @@ class _CartScreenState extends State<CartScreen> {
                                         const SizedBox(height: 3),
                                         Text(
                                           _padSubtitle,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: _padCanUse
                                                 ? const Color(0xFF8C7D73)
                                                 : const Color(0xFFEF4444),
@@ -2653,7 +2653,7 @@ class _CartScreenState extends State<CartScreen> {
                                       children: [
                                         Text(
                                           'wallet_title'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
@@ -2662,7 +2662,7 @@ class _CartScreenState extends State<CartScreen> {
                                         const SizedBox(height: 2),
                                         Text(
                                           _walletSubtitle(toPay),
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 10,
                                             fontWeight: FontWeight.w500,
@@ -2745,7 +2745,7 @@ class _CartScreenState extends State<CartScreen> {
                                       children: [
                                         Text(
                                           'water_sub_pay_online'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
@@ -2754,7 +2754,7 @@ class _CartScreenState extends State<CartScreen> {
                                         const SizedBox(height: 2),
                                         Text(
                                           'orders_card_mobile_money'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 10,
                                             fontWeight: FontWeight.w500,
@@ -2837,7 +2837,7 @@ class _CartScreenState extends State<CartScreen> {
                                       children: [
                                         Text(
                                           'orders_cash_on_delivery'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
@@ -2846,7 +2846,7 @@ class _CartScreenState extends State<CartScreen> {
                                         const SizedBox(height: 2),
                                         Text(
                                           'orders_pay_driver'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 10,
                                             fontWeight: FontWeight.w500,
@@ -2898,7 +2898,7 @@ class _CartScreenState extends State<CartScreen> {
                             children: [
                               Text(
                                 'orders_payment_details'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -2911,7 +2911,7 @@ class _CartScreenState extends State<CartScreen> {
                                 children: [
                                   Text(
                                     'orders_item_total'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -2919,7 +2919,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   Text(
                                     'mru'.trParams({'amount': '$itemTotal'}),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -2935,7 +2935,7 @@ class _CartScreenState extends State<CartScreen> {
                                   children: [
                                     Text(
                                       'cart_redeemed_points'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -2943,7 +2943,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                     Text(
                                       '-${'mru'.trParams({'amount': '$pointsOff'})}',
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFFFF5E00),
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
@@ -2960,7 +2960,7 @@ class _CartScreenState extends State<CartScreen> {
                                   children: [
                                     Text(
                                       'cart_delivery_fee'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -2976,7 +2976,7 @@ class _CartScreenState extends State<CartScreen> {
                                           : 'mru'.trParams({
                                               'amount': '$currentDeliveryFee',
                                             }),
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
@@ -2992,7 +2992,7 @@ class _CartScreenState extends State<CartScreen> {
                                 children: [
                                   Text(
                                     'cart_tax'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -3004,7 +3004,7 @@ class _CartScreenState extends State<CartScreen> {
                                             'amount': '$currentTax',
                                           })
                                         : '…',
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -3024,7 +3024,7 @@ class _CartScreenState extends State<CartScreen> {
                                 children: [
                                   Text(
                                     'orders_to_pay'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
@@ -3032,7 +3032,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   Text(
                                     'mru'.trParams({'amount': '$toPay'}),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -3083,7 +3083,7 @@ class _CartScreenState extends State<CartScreen> {
                                         'amount': '$toPay',
                                       }),
                                     }),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -3201,7 +3201,7 @@ class _CartScreenState extends State<CartScreen> {
                             }),
                             maxLines: 1,
                             softWrap: false,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2118),
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -3214,7 +3214,7 @@ class _CartScreenState extends State<CartScreen> {
                     const SizedBox(height: 12),
                     Text.rich(
                       TextSpan(
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF3D2C22),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -3276,7 +3276,7 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         child: Text(
                           'orders_continue_shopping'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -3449,7 +3449,7 @@ class _CartScreenState extends State<CartScreen> {
                                 children: [
                                   Text(
                                     'preorder_sheet_title'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -3458,7 +3458,7 @@ class _CartScreenState extends State<CartScreen> {
                                   const SizedBox(height: 2),
                                   Text(
                                     'preorder_sheet_subtitle'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
                                       fontWeight: FontWeight.w400,
@@ -3480,7 +3480,7 @@ class _CartScreenState extends State<CartScreen> {
                             children: [
                               Text(
                                 'preorder_select_date'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -3532,7 +3532,7 @@ class _CartScreenState extends State<CartScreen> {
                                           children: [
                                             Text(
                                               months[date.month - 1].tr,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: isSelected
                                                     ? const Color(0xFFFF5E00)
                                                     : const Color(0xFFA59A94),
@@ -3543,7 +3543,7 @@ class _CartScreenState extends State<CartScreen> {
                                             const SizedBox(height: 4),
                                             Text(
                                               '${date.day}',
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: const Color(0xFF2C2520),
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w800,
@@ -3552,7 +3552,7 @@ class _CartScreenState extends State<CartScreen> {
                                             const SizedBox(height: 2),
                                             Text(
                                               weekdays[date.weekday - 1].tr,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: isSelected
                                                     ? const Color(0xFFFF5E00)
                                                     : const Color(0xFFA59A94),
@@ -3570,7 +3570,7 @@ class _CartScreenState extends State<CartScreen> {
                               const SizedBox(height: 22),
                               Text(
                                 'preorder_time_slot'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -3626,7 +3626,7 @@ class _CartScreenState extends State<CartScreen> {
                                               child: Text(
                                                 _slotText(slot),
                                                 overflow: TextOverflow.ellipsis,
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   color: const Color(
                                                     0xFFFF5E00,
                                                   ),
@@ -3673,7 +3673,7 @@ class _CartScreenState extends State<CartScreen> {
                                   'preorder_scheduled'.trParams({
                                     'time': scheduleText,
                                   }),
-                                  style: GoogleFonts.outfit(),
+                                  style: AppFonts.outfit(),
                                 ),
                                 backgroundColor: const Color(0xFFFF5E00),
                               ),
@@ -3701,7 +3701,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             child: Text(
                               'orders_continue'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,

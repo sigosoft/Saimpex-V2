@@ -1,8 +1,8 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../models/order_repository.dart';
@@ -102,7 +102,7 @@ class _PharmacyQuotationReadyCardState
                     Expanded(
                       child: Text(
                         widget.pharmacyName,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -119,7 +119,7 @@ class _PharmacyQuotationReadyCardState
                 const SizedBox(height: 4),
                 Text(
                   'pw_prescription_order'.trParams({'id': widget.orderId}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -153,7 +153,7 @@ class _PharmacyQuotationReadyCardState
                       const SizedBox(width: 10),
                       Text(
                         'pw_quote_expires_in'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -162,7 +162,7 @@ class _PharmacyQuotationReadyCardState
                       const Spacer(),
                       Text(
                         _timerText,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -185,7 +185,7 @@ class _PharmacyQuotationReadyCardState
                     children: [
                       Text(
                         'pw_quotation_summary'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
@@ -196,7 +196,7 @@ class _PharmacyQuotationReadyCardState
                         children: [
                           Text(
                             'pw_item_total'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF8A7F77),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -205,7 +205,7 @@ class _PharmacyQuotationReadyCardState
                           const Spacer(),
                           Text(
                             widget.amount,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5E00),
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
@@ -262,7 +262,7 @@ class _PharmacyQuotationReadyCardState
                               const SizedBox(width: 6),
                               Text(
                                 'pw_chat_with_pharmacy'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -306,7 +306,7 @@ class _PharmacyQuotationReadyCardState
                 children: [
                   Text(
                     'pw_review_and_pay'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -315,7 +315,7 @@ class _PharmacyQuotationReadyCardState
                   const Spacer(),
                   Text(
                     widget.amount,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -436,18 +436,18 @@ class PharmacyActiveOrderCard extends StatelessWidget {
             }
 
             return AlertDialog(
-              title: Text('pw_rate_order'.tr, style: GoogleFonts.outfit()),
+              title: Text('pw_rate_order'.tr, style: AppFonts.outfit()),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('pw_pharmacy'.tr, style: GoogleFonts.outfit()),
+                  Text('pw_pharmacy'.tr, style: AppFonts.outfit()),
                   stars(vendorRating, (value) => vendorRating = value),
                   TextField(
                     controller: vendorComment,
                     decoration: InputDecoration(hintText: 'pw_comment'.tr),
                   ),
                   const SizedBox(height: 8),
-                  Text('pw_driver'.tr, style: GoogleFonts.outfit()),
+                  Text('pw_driver'.tr, style: AppFonts.outfit()),
                   stars(driverRating, (value) => driverRating = value),
                   TextField(
                     controller: driverComment,
@@ -530,7 +530,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     pharmacyName,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -547,7 +547,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               detailsText,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFA59A94),
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
@@ -586,7 +586,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                             prescriptionName ?? 'Prescription.jpg',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -597,7 +597,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                             children: [
                               Text(
                                 'pw_view_full_prescription'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -667,7 +667,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           'pw_track_order'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -692,7 +692,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                   ),
                   child: Text(
                     'pw_rate_order'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -710,7 +710,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                   children: [
                     Text(
                       'pw_view_order_status_details'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -754,7 +754,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: color,
           fontSize: 9,
           fontWeight: FontWeight.w800,
@@ -792,7 +792,7 @@ class _SoftButton extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 11,
             fontWeight: FontWeight.w700,

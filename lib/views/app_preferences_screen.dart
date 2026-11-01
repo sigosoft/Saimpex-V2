@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/network/api_exception.dart';
 import '../models/profile_repository.dart';
@@ -82,7 +82,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                       children: [
                         Text(
                           'core_prefs_notifications'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -115,7 +115,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
                       children: [
                         Text(
                           'core_prefs_appearance'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -163,7 +163,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
             child: Text(
               'core_prefs_title'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -226,7 +226,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -235,7 +235,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF8A7E76),
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
@@ -289,7 +289,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
         Expanded(
           child: Text(
             title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -299,7 +299,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
         onTap == null
             ? Text(
                 value,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -308,7 +308,7 @@ class _AppPreferencesScreenState extends State<AppPreferencesScreen> {
             : Obx(
                 () => Text(
                   languageController().selectedLanguage.value,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

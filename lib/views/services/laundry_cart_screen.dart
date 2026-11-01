@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'laundry_booking_success_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
@@ -296,7 +296,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             child: Text(
               'svc_cart'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -319,7 +319,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         Expanded(
           child: Text(
             'svc_from_provider'.trParams({'provider': widget.providerName}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -339,7 +339,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               const SizedBox(width: 4),
               Text(
                 'svc_clear_all'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFE53935),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -355,7 +355,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1A1A1A),
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
@@ -408,7 +408,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
                       widget.serviceTitle,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -421,7 +421,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 onTap: () => Get.back(),
                 child: Text(
                   'svc_edit'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
@@ -443,7 +443,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 Expanded(
                   child: Text(
                     widget.estimateLabel,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF5A6A7A),
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -452,7 +452,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 ),
                 Text(
                   'mru'.trParams({'amount': '${widget.basePrice}'}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -488,7 +488,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               children: [
                 Text(
                   'svc_estimated_delivery'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
@@ -497,7 +497,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 const SizedBox(height: 2),
                 Text(
                   _estimatedDelivery,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF5A6A7A),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -598,7 +598,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             children: [
               Text(
                 label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: labelColor,
                   fontSize: 10.5,
                   fontWeight: FontWeight.w700,
@@ -608,7 +608,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               const SizedBox(height: 2),
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1B2B4A),
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -616,7 +616,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               ),
               Text(
                 subtitle,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF8A7E76),
                   fontSize: 11.5,
                 ),
@@ -626,7 +626,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         ),
         Text(
           'svc_edit'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFFF5E00),
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -668,7 +668,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 children: [
                   Text(
                     'svc_pickup_slot'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
@@ -677,7 +677,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   const SizedBox(height: 2),
                   Text(
                     _slotDisplay,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF5A5A5A),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w500,
@@ -737,7 +737,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1B2B4A),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -745,7 +745,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   ),
                   Text(
                     subtitle,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
                     ),
@@ -780,7 +780,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -795,7 +795,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             const SizedBox(height: 10),
             Text(
               _quoteError!,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF8A80),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -809,7 +809,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             children: [
               Text(
                 'svc_to_pay'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -818,7 +818,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               const Spacer(),
               Text(
                 'mru'.trParams({'amount': '$_toPay'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -836,7 +836,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFD4CBC3),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -845,7 +845,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w700,
@@ -880,7 +880,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   children: [
                     Text(
                       'svc_total_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
@@ -890,7 +890,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     const SizedBox(height: 2),
                     Text(
                       'mru'.trParams({'amount': '$_toPay'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -905,7 +905,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   children: [
                     Text(
                       'svc_duration_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
@@ -917,7 +917,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                       widget.durationLabel == '24 hour'
                           ? 'svc_24_hours'.tr
                           : widget.durationLabel,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -954,7 +954,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 _booking
                     ? 'svc_booking_in_progress'.tr
                     : 'svc_pay_amount'.trParams({'amount': '$_toPay'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,
                   fontWeight: FontWeight.w700,

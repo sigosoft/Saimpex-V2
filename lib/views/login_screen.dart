@@ -1,3 +1,4 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'widgets/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -104,7 +105,7 @@ class LoginScreen extends StatelessWidget {
                         // Subtitle
                         Text(
                           'core_login_subtitle'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: AppColors.textMuted,
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -164,7 +165,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     child: Text(
                       'core_login_badge'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -248,7 +249,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                           child: Text(
                             'core_login_badge_short'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -260,7 +261,7 @@ class LoginScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'core_login_subtitle'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: AppColors.textMuted,
                         fontSize: 13,
                       ),
@@ -320,7 +321,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 controller.selectedCountryCode.value,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.black87,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -374,7 +375,7 @@ class LoginScreen extends StatelessWidget {
                   )
                 : Text(
                     'core_login_continue'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -403,7 +404,7 @@ class LoginScreen extends StatelessWidget {
         child: Center(
           child: Text(
             'core_login_guest'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: AppColors.guestText,
               fontSize: 16,
               fontWeight: FontWeight.bold,

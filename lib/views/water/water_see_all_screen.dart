@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'water_supplier_details_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/search_camera_button.dart';
@@ -104,7 +104,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     children: [
                       Text(
                         'pw_open_map'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -128,7 +128,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     ? Center(
                         child: Text(
                           'pw_no_suppliers_found'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 14,
                           ),
@@ -162,7 +162,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
             child: Text(
               widget.title,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -192,10 +192,10 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
       child: TextField(
         controller: _searchController,
         onChanged: _onSearchChanged,
-        style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF1A1A1A)),
+        style: AppFonts.outfit(fontSize: 13, color: const Color(0xFF1A1A1A)),
         decoration: InputDecoration(
           hintText: 'pw_search_water_suppliers'.tr,
-          hintStyle: GoogleFonts.outfit(
+          hintStyle: AppFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 13,
           ),
@@ -329,7 +329,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                             ),
                             child: Text(
                               discount,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -356,7 +356,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                                 const SizedBox(width: 3),
                                 Text(
                                   rating,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF1A1A1A),
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
@@ -435,7 +435,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                             const SizedBox(width: 4),
                             Text(
                               points,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -456,7 +456,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -465,7 +465,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 12,
                         ),
@@ -483,7 +483,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                           const SizedBox(width: 4),
                           Text(
                             time,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF1A1A1A),
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -498,7 +498,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                           const SizedBox(width: 4),
                           Text(
                             dist,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF1A1A1A),
                               fontSize: 12,
                               fontWeight: FontWeight.bold,

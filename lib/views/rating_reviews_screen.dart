@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/network/api_exception.dart';
 import '../models/general_repository.dart';
@@ -141,7 +141,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                     ? target!.title
                     : 'Rating & Reviews',
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -187,7 +187,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
         child: Text(
           text,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -223,7 +223,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                     const SizedBox(width: 4),
                     Text(
                       _average.toStringAsFixed(1),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -235,7 +235,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
               const SizedBox(height: 8),
               Text(
                 '$_total reviews',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
@@ -270,7 +270,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
       children: [
         Text(
           starLabel,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 10,
             fontWeight: FontWeight.bold,
@@ -306,7 +306,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
           child: Text(
             count,
             textAlign: TextAlign.end,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 10,
               fontWeight: FontWeight.w500,
@@ -340,7 +340,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                 ),
                 child: Text(
                   _tabs[index].$1,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: isSelected ? Colors.white : const Color(0xFF5C5651),
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
@@ -404,7 +404,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                   children: [
                     Text(
                       name.isEmpty ? 'Customer' : name,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 11.5,
                         fontWeight: FontWeight.bold,
@@ -413,7 +413,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                     const SizedBox(height: 2),
                     Text(
                       when,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 9.5,
                         fontWeight: FontWeight.w500,
@@ -438,7 +438,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
             const SizedBox(height: 12),
             Text(
               comment,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 10.5,
                 height: 1.5,

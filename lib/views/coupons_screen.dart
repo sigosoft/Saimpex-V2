@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/network/api_exception.dart';
 import '../models/order_repository.dart';
@@ -74,7 +74,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                 ),
                 Text(
                   'core_coupons_title'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -160,7 +160,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                           children: [
                             Text(
                               coupon['discount'].toString().replaceAll('%', ''),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             ),
                             Text(
                               '%',
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -179,7 +179,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                         ),
                         Text(
                           'core_coupons_off'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -257,7 +257,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             ),
                             child: Text(
                               badge,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: textColor,
                                 fontSize: 8.5,
                                 fontWeight: FontWeight.bold,
@@ -271,7 +271,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                     // Discount title
                     Text(
                       coupon['title'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -281,7 +281,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                     // Subtitle
                     Text(
                       coupon['subtitle'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
@@ -303,7 +303,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                                   'core_coupons_copied'.trParams({
                                     'code': '${coupon['code']}',
                                   }),
-                                  style: GoogleFonts.outfit(),
+                                  style: AppFonts.outfit(),
                                 ),
                                 backgroundColor: const Color(0xFFFF5E00),
                                 duration: const Duration(seconds: 1),
@@ -329,7 +329,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                                 children: [
                                   Text(
                                     coupon['code'] as String,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFFF5E00),
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
@@ -353,7 +353,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                               SnackBar(
                                 content: Text(
                                   'core_coupons_applied'.tr,
-                                  style: GoogleFonts.outfit(),
+                                  style: AppFonts.outfit(),
                                 ),
                                 backgroundColor: const Color(0xFFFF5E00),
                               ),
@@ -383,7 +383,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                             child: Center(
                               child: Text(
                                 'core_coupons_apply'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,

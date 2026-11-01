@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import '../../utils/toast_helper.dart';
@@ -102,7 +102,7 @@ class _CarWashServiceLocationScreenState
                     children: [
                       Text(
                         'car_wash_where'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -196,7 +196,7 @@ class _CarWashServiceLocationScreenState
                     ),
                     child: Text(
                       'car_wash_continue'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -224,7 +224,7 @@ class _CarWashServiceLocationScreenState
           ),
           Text(
             'car_wash_location_title'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -285,7 +285,7 @@ class _CarWashServiceLocationScreenState
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -294,7 +294,7 @@ class _CarWashServiceLocationScreenState
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w400,
@@ -353,7 +353,7 @@ class _CarWashServiceLocationScreenState
         children: [
           Text(
             'car_wash_service_address'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color.fromARGB(255, 94, 90, 87),
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -400,7 +400,7 @@ class _CarWashServiceLocationScreenState
                               'car_wash_choose_address'.tr,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: _serviceAddress == null
                                 ? const Color(0xFF8A7E76)
                                 : const Color(0xFF1A1A1A),
@@ -427,7 +427,7 @@ class _CarWashServiceLocationScreenState
               Expanded(
                 child: Text(
                   'car_wash_instructions'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color.fromARGB(255, 94, 90, 87),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -436,7 +436,7 @@ class _CarWashServiceLocationScreenState
               ),
               Text(
                 'car_wash_optional'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFB0A59C),
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -454,13 +454,13 @@ class _CarWashServiceLocationScreenState
             child: TextField(
               controller: _instructionsController,
               maxLines: 3,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 13.5,
               ),
               decoration: InputDecoration(
                 hintText: 'car_wash_instructions_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFFB0A59C),
                   fontSize: 13,
                   height: 1.35,

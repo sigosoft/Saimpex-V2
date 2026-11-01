@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../core/network/api_exception.dart';
@@ -216,7 +216,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
               child: Text(
                 _error ?? 'st_order_details_unavailable'.tr,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -229,7 +229,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF2C2520),
         fontSize: 15,
         fontWeight: FontWeight.w800,
@@ -249,7 +249,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                   ? 'st_order'.tr
                   : 'st_order_id'.trParams({'id': _displayId}),
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -267,7 +267,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
               ),
               child: Text(
                 'st_help'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -372,7 +372,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                         Text(
                           step.label,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: step.done
                                 ? const Color(0xFF2C2520)
                                 : const Color(0xFFA59A94),
@@ -386,7 +386,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                           Text(
                             step.time,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 8.5,
                               fontWeight: FontWeight.w500,
@@ -512,7 +512,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 10,
             fontWeight: FontWeight.w600,
@@ -522,7 +522,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         const SizedBox(height: 4),
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -533,7 +533,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
           const SizedBox(height: 3),
           Text(
             contact,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -583,7 +583,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -593,7 +593,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                   const SizedBox(height: 3),
                   Text(
                     detail.packageDescription,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -633,7 +633,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
       child: !detail.hasDriver
           ? Text(
               detail.isFinished ? 'st_no_driver'.tr : 'st_driver_soon'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -661,7 +661,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                         detail.driverName.isEmpty
                             ? 'st_driver'.tr
                             : detail.driverName,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -686,7 +686,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                                   'count': '${detail.driverReviews}',
                                 }),
                             ].join(' '),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -748,7 +748,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         children: [
           Text(
             'st_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -787,7 +787,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
             children: [
               Text(
                 totalLabel,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -796,7 +796,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
               const Spacer(),
               Text(
                 _money(payment['total_bill']),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -814,7 +814,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFD4CDC5),
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -823,7 +823,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -852,7 +852,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         alignment: Alignment.center,
         child: Text(
           'cancel'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -890,7 +890,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         alignment: Alignment.center,
         child: Text(
           'st_track_delivery'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 14,
             fontWeight: FontWeight.w800,

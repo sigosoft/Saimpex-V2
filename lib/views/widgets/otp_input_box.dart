@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../constants/colors.dart';
 
 class OtpInputBox extends StatelessWidget {
@@ -53,7 +53,7 @@ class OtpInputBox extends StatelessWidget {
           controller: controller,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 18,
             fontWeight: FontWeight.bold,

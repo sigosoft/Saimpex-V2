@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/courier_repository.dart';
 import '../../models/order_repository.dart';
@@ -249,7 +249,7 @@ class _CourierReviewBookingScreenState
                             const SizedBox(height: 18),
                             Text(
                               'st_otp_verification'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
@@ -268,7 +268,7 @@ class _CourierReviewBookingScreenState
                             ],
                             Text(
                               'st_payment'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
@@ -302,7 +302,7 @@ class _CourierReviewBookingScreenState
                             const SizedBox(height: 12),
                             Text(
                               'st_terms_note'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 10,
                                 height: 1.45,
@@ -341,7 +341,7 @@ class _CourierReviewBookingScreenState
           ),
           Text(
             'st_review_booking'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 17,
               fontWeight: FontWeight.w800,
@@ -436,7 +436,7 @@ class _CourierReviewBookingScreenState
               Expanded(
                 child: Text(
                   'st_receiver_contact'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -445,7 +445,7 @@ class _CourierReviewBookingScreenState
               ),
               Text(
                 'st_edit'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -464,7 +464,7 @@ class _CourierReviewBookingScreenState
                   children: [
                     Text(
                       widget.recipientName,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -473,7 +473,7 @@ class _CourierReviewBookingScreenState
                     const SizedBox(height: 2),
                     Text(
                       _formattedPhone,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -514,7 +514,7 @@ class _CourierReviewBookingScreenState
             children: [
               Text(
                 label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -526,7 +526,7 @@ class _CourierReviewBookingScreenState
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -576,7 +576,7 @@ class _CourierReviewBookingScreenState
               Expanded(
                 child: Text(
                   'st_otp_share_hint'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 11,
                     height: 1.45,
@@ -607,7 +607,7 @@ class _CourierReviewBookingScreenState
                       ),
                       child: Text(
                         digits[index],
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -656,7 +656,7 @@ class _CourierReviewBookingScreenState
               children: [
                 Text(
                   widget.vehicleLabel.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -665,7 +665,7 @@ class _CourierReviewBookingScreenState
                 const SizedBox(height: 3),
                 Text(
                   widget.vehicleTime,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -674,7 +674,7 @@ class _CourierReviewBookingScreenState
                 const SizedBox(height: 2),
                 Text(
                   widget.vehiclePrice,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -693,7 +693,7 @@ class _CourierReviewBookingScreenState
               const SizedBox(height: 2),
               Text(
                 'st_km'.trParams({'km': '10'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -736,7 +736,7 @@ class _CourierReviewBookingScreenState
               children: [
                 Text(
                   'st_schedule_later'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF0E5A2A),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -745,7 +745,7 @@ class _CourierReviewBookingScreenState
                 const SizedBox(height: 2),
                 Text(
                   'st_select_pickup_time'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF3BA162),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -773,7 +773,7 @@ class _CourierReviewBookingScreenState
           children: [
             Text(
               'st_save_more'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -781,7 +781,7 @@ class _CourierReviewBookingScreenState
             ),
             Text(
               'st_view_coupons'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5E00),
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
@@ -808,10 +808,10 @@ class _CourierReviewBookingScreenState
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
-                  style: GoogleFonts.outfit(fontSize: 12),
+                  style: AppFonts.outfit(fontSize: 12),
                   decoration: InputDecoration(
                     hintText: 'st_enter_coupon'.tr,
-                    hintStyle: GoogleFonts.outfit(
+                    hintStyle: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 12,
                     ),
@@ -822,7 +822,7 @@ class _CourierReviewBookingScreenState
               ),
               Text(
                 'st_apply'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -860,7 +860,7 @@ class _CourierReviewBookingScreenState
                     children: [
                       Text(
                         'cart_use_points'.trParams({'points': '500'}),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -869,7 +869,7 @@ class _CourierReviewBookingScreenState
                       const SizedBox(height: 2),
                       Text(
                         'cart_points_off'.trParams({'amount': '50'}),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 10,
                         ),
@@ -951,7 +951,7 @@ class _CourierReviewBookingScreenState
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -960,7 +960,7 @@ class _CourierReviewBookingScreenState
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 10,
                     ),
@@ -1008,7 +1008,7 @@ class _CourierReviewBookingScreenState
         children: [
           Text(
             'st_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -1026,7 +1026,7 @@ class _CourierReviewBookingScreenState
               children: [
                 Text(
                   'cart_redeemed_points'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -1034,7 +1034,7 @@ class _CourierReviewBookingScreenState
                 ),
                 Text(
                   '-${'mru'.trParams({'amount': '$redeemedPointsDiscount'})}',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -1049,14 +1049,14 @@ class _CourierReviewBookingScreenState
                 children: [
                   Text(
                     'st_points_discount'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 12,
                     ),
                   ),
                   Text(
                     '-${'mru'.trParams({'amount': '50'})}',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -1076,7 +1076,7 @@ class _CourierReviewBookingScreenState
             children: [
               Text(
                 'st_to_pay'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -1084,7 +1084,7 @@ class _CourierReviewBookingScreenState
               ),
               Text(
                 'mru'.trParams({'amount': '$toPay'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -1103,7 +1103,7 @@ class _CourierReviewBookingScreenState
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w500,
@@ -1111,7 +1111,7 @@ class _CourierReviewBookingScreenState
         ),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w800,
@@ -1142,7 +1142,7 @@ class _CourierReviewBookingScreenState
         alignment: Alignment.center,
         child: Text(
           'st_pay_amount'.trParams({'amount': '$toPay'}),
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 15,
             fontWeight: FontWeight.w800,

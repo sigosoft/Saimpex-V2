@@ -1,5 +1,5 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../water_product_subscription_screen.dart';
 import '../../widgets/auto_slide_network_images.dart';
@@ -71,7 +71,7 @@ void showWaterProductDetailsSheet(
                               // 2. Product Title
                               Text(
                                 title,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF1A1A1A),
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -90,7 +90,7 @@ void showWaterProductDetailsSheet(
                                   const SizedBox(width: 4),
                                   Text(
                                     rating,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF1A1A1A),
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -99,7 +99,7 @@ void showWaterProductDetailsSheet(
                                   const SizedBox(width: 6),
                                   Text(
                                     reviews,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF7A6A60),
                                       fontSize: 11,
                                     ),
@@ -113,7 +113,7 @@ void showWaterProductDetailsSheet(
                                 children: [
                                   Text(
                                     price,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFFF5E00),
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -122,7 +122,7 @@ void showWaterProductDetailsSheet(
                                   const SizedBox(width: 8),
                                   Text(
                                     originalPrice,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
                                       decoration: TextDecoration.lineThrough,
@@ -135,7 +135,7 @@ void showWaterProductDetailsSheet(
                               // 5. Description Paragraph
                               Text(
                                 description,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF5C524B),
                                   fontSize: 12,
                                   height: 1.5,
@@ -198,7 +198,7 @@ void showWaterProductDetailsSheet(
                                         const SizedBox(width: 8),
                                         Text(
                                           'pw_return_empty_bottle'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFFF5E00),
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
@@ -209,7 +209,7 @@ void showWaterProductDetailsSheet(
                                     const SizedBox(height: 8),
                                     Text(
                                       'pw_return_empty_bottle_body'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF6B635C),
                                         fontSize: 11,
                                         height: 1.45,
@@ -289,7 +289,7 @@ void showWaterProductDetailsSheet(
                                       const SizedBox(width: 8),
                                       Text(
                                         'pw_add_caps'.tr,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: Colors.white,
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
@@ -420,7 +420,7 @@ Widget _buildFeatureCard({
         const SizedBox(width: 10),
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 11,
             fontWeight: FontWeight.w600,

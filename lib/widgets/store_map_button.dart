@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class StoreMapButton extends StatelessWidget {
   const StoreMapButton({super.key, this.onTap});
@@ -21,7 +21,7 @@ class StoreMapButton extends StatelessWidget {
         children: [
           Text(
             'core_store_map_button'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 14,
               fontWeight: FontWeight.w600,

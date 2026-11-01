@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../widgets/app_back_button.dart';
 import '../controllers/home_controller.dart';
 import 'restaurant_details_screen.dart';
@@ -36,7 +36,7 @@ class MyFavouritesScreen extends StatelessWidget {
                   return Center(
                     child: Text(
                       'core_favourites_empty'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -81,7 +81,7 @@ class MyFavouritesScreen extends StatelessWidget {
                       })
                     : 'core_favourites_title'.tr,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -156,7 +156,7 @@ class MyFavouritesScreen extends StatelessWidget {
                             ),
                             child: Text(
                               _text(item, 'discount'),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
@@ -186,7 +186,7 @@ class MyFavouritesScreen extends StatelessWidget {
                                 const SizedBox(width: 3),
                                 Text(
                                   _text(item, 'rating'),
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -242,7 +242,7 @@ class MyFavouritesScreen extends StatelessWidget {
                             const SizedBox(width: 6),
                             Text(
                               _text(item, 'points'),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -264,7 +264,7 @@ class MyFavouritesScreen extends StatelessWidget {
                     _text(item, 'title').isEmpty
                         ? 'core_favourites_fallback_title'.tr
                         : _text(item, 'title'),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -273,7 +273,7 @@ class MyFavouritesScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     (item['subtitle'] ?? '').toString(),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
@@ -293,7 +293,7 @@ class MyFavouritesScreen extends StatelessWidget {
                           const SizedBox(width: 5),
                           Text(
                             _text(item, 'time'),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF4A453F),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -310,7 +310,7 @@ class MyFavouritesScreen extends StatelessWidget {
                           const SizedBox(width: 5),
                           Text(
                             _text(item, 'dist'),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF4A453F),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,

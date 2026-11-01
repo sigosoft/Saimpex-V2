@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../constants/colors.dart';
 import '../../controllers/onboarding_controller.dart';
 import '../../core/storage/session_store.dart';
@@ -68,7 +68,7 @@ class LanguageSelector extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 controller.selectedLanguage.value,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -158,7 +158,7 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
           children: [
             Text(
               'core_language_select_title'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -168,7 +168,7 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
             const SizedBox(height: 6),
             Text(
               'core_language_select_subtitle'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF8A7E76),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -236,7 +236,7 @@ class _SheetActionButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: filled ? Colors.white : Colors.black,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -286,7 +286,7 @@ class _LanguageOptionCard extends StatelessWidget {
               ),
               child: Text(
                 language.code,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -298,7 +298,7 @@ class _LanguageOptionCard extends StatelessWidget {
             Expanded(
               child: Text(
                 language.label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

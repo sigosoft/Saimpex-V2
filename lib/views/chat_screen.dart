@@ -1,10 +1,10 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
@@ -297,7 +297,7 @@ class _ChatScreenState extends State<ChatScreen> {
           SnackBar(
             content: Text(
               'core_chat_mic_permission'.tr,
-              style: GoogleFonts.outfit(),
+              style: AppFonts.outfit(),
             ),
             backgroundColor: const Color(0xFFFF3E3E),
           ),
@@ -329,7 +329,7 @@ class _ChatScreenState extends State<ChatScreen> {
         SnackBar(
           content: Text(
             'core_chat_record_failed'.tr,
-            style: GoogleFonts.outfit(),
+            style: AppFonts.outfit(),
           ),
           backgroundColor: const Color(0xFFFF3E3E),
         ),
@@ -373,7 +373,7 @@ class _ChatScreenState extends State<ChatScreen> {
         SnackBar(
           content: Text(
             'core_chat_hold_longer'.tr,
-            style: GoogleFonts.outfit(),
+            style: AppFonts.outfit(),
           ),
           backgroundColor: const Color(0xFFFF5E00),
         ),
@@ -413,7 +413,7 @@ class _ChatScreenState extends State<ChatScreen> {
           : 'core_chat_voice_send_failed'.tr;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMsg, style: GoogleFonts.outfit()),
+          content: Text(errorMsg, style: AppFonts.outfit()),
           backgroundColor: const Color(0xFFFF3E3E),
         ),
       );
@@ -453,7 +453,7 @@ class _ChatScreenState extends State<ChatScreen> {
           : 'core_chat_send_failed'.tr;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMsg, style: GoogleFonts.outfit()),
+          content: Text(errorMsg, style: AppFonts.outfit()),
           backgroundColor: const Color(0xFFFF3E3E),
         ),
       );
@@ -561,7 +561,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -569,7 +569,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         Text(
                           'core_chat_online'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -613,7 +613,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               ),
                               child: Text(
                                 'core_chat_today'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF8A7F77),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -688,14 +688,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                       controller: _textController,
                                       textInputAction: TextInputAction.send,
                                       onSubmitted: (_) => _sendText(),
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         fontSize: 13,
                                         color: const Color(0xFF2C2520),
                                         fontWeight: FontWeight.w500,
                                       ),
                                       decoration: InputDecoration(
                                         hintText: 'core_chat_type_message'.tr,
-                                        hintStyle: GoogleFonts.outfit(
+                                        hintStyle: AppFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -817,7 +817,7 @@ class _RecordingBar extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(
                   'core_chat_recording'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -826,7 +826,7 @@ class _RecordingBar extends StatelessWidget {
                 const Spacer(),
                 Text(
                   elapsedLabel,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -896,7 +896,7 @@ class _IncomingBubble extends StatelessWidget {
             ),
             child: Text(
               text,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 13,
                 height: 1.45,
@@ -909,7 +909,7 @@ class _IncomingBubble extends StatelessWidget {
             padding: const EdgeInsetsDirectional.only(start: 4, bottom: 18),
             child: Text(
               time,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFA59A94),
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
@@ -946,7 +946,7 @@ class _OutgoingTextBubble extends StatelessWidget {
             ),
             child: Text(
               text,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: Colors.white,
                 fontSize: 13,
                 height: 1.45,
@@ -962,7 +962,7 @@ class _OutgoingTextBubble extends StatelessWidget {
               children: [
                 Text(
                   time,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -1069,7 +1069,7 @@ class _VoiceOutgoingBubble extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     durationLabel,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -1091,7 +1091,7 @@ class _VoiceOutgoingBubble extends StatelessWidget {
               children: [
                 Text(
                   time,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,

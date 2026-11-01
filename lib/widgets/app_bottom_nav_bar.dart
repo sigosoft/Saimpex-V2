@@ -1,9 +1,9 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
 import 'bottom_chat_icon.dart';
@@ -184,7 +184,7 @@ class AppBottomNavBar extends StatelessWidget {
               const SizedBox(height: _labelGap),
               Text(
                 _labelKeys[label]?.tr ?? label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: _inactive,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -212,7 +212,7 @@ class AppBottomNavBar extends StatelessWidget {
               const SizedBox(height: _labelGap),
               Text(
                 'core_nav_services'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: _orange,
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
@@ -289,7 +289,7 @@ class AppBottomNavBar extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 '$badgeCount',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 9,
                   fontWeight: FontWeight.w700,

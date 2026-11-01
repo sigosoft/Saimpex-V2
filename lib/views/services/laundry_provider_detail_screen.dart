@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../chat_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
@@ -195,7 +195,7 @@ class _LaundryProviderDetailScreenState
           Text(
             _name,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1B2B4A),
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -216,7 +216,7 @@ class _LaundryProviderDetailScreenState
                   'rating': _rating,
                   'count': '126',
                 }),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
@@ -232,7 +232,7 @@ class _LaundryProviderDetailScreenState
               Flexible(
                 child: Text(
                   _distance,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -254,7 +254,7 @@ class _LaundryProviderDetailScreenState
               const SizedBox(width: 5),
               Text(
                 'svc_open_until'.trParams({'time': '11:00 PM'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A6BB5),
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -294,7 +294,7 @@ class _LaundryProviderDetailScreenState
                   const SizedBox(width: 6),
                   Text(
                     'svc_chat'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -328,7 +328,7 @@ class _LaundryProviderDetailScreenState
                           child: Text(
                             _tabs[i].tr,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: _selectedTab == i
                                   ? const Color(0xFFFF5E00)
                                   : const Color(0xFF9A8E86),
@@ -454,7 +454,7 @@ class _LaundryProviderDetailScreenState
                     children: [
                       Text(
                         item['title']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -466,7 +466,7 @@ class _LaundryProviderDetailScreenState
                         item['description']!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF8A7E76),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w400,
@@ -489,7 +489,7 @@ class _LaundryProviderDetailScreenState
                           children: [
                             Text(
                               'svc_starting_from'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF9A8E86),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -498,7 +498,7 @@ class _LaundryProviderDetailScreenState
                             const SizedBox(height: 2),
                             Text(
                               item['price']!,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5E00),
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
@@ -510,7 +510,7 @@ class _LaundryProviderDetailScreenState
                           children: [
                             Text(
                               item['price']!,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5E00),
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.w800,
@@ -523,7 +523,7 @@ class _LaundryProviderDetailScreenState
                                 ),
                                 child: Text(
                                   '·',
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFFB0A59C),
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
@@ -541,7 +541,7 @@ class _LaundryProviderDetailScreenState
                                   duration,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF9A8E86),
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w500,
@@ -571,7 +571,7 @@ class _LaundryProviderDetailScreenState
                       ),
                       child: Text(
                         'svc_view_prices'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
@@ -606,7 +606,7 @@ class _LaundryProviderDetailScreenState
                       ),
                       child: Text(
                         'svc_add_upper'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
@@ -680,7 +680,7 @@ class _LaundryProviderDetailScreenState
                     const SizedBox(width: 2),
                     Text(
                       _rating,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -692,7 +692,7 @@ class _LaundryProviderDetailScreenState
               const SizedBox(height: 8),
               Text(
                 'svc_reviews_count'.trParams({'count': '9,480'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -725,7 +725,7 @@ class _LaundryProviderDetailScreenState
       children: [
         Text(
           star,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1B2B4A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -755,7 +755,7 @@ class _LaundryProviderDetailScreenState
           child: Text(
             count,
             textAlign: TextAlign.end,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 10.5,
               fontWeight: FontWeight.w500,
@@ -789,7 +789,7 @@ class _LaundryProviderDetailScreenState
                 ),
                 child: Text(
                   _reviewFilters[i].tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: _reviewFilter == i
                         ? Colors.white
                         : const Color(0xFF5C5651),
@@ -851,7 +851,7 @@ class _LaundryProviderDetailScreenState
                   children: [
                     Text(
                       review['name'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
@@ -860,7 +860,7 @@ class _LaundryProviderDetailScreenState
                     const SizedBox(height: 2),
                     Text(
                       (review['time'] as String).tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -886,7 +886,7 @@ class _LaundryProviderDetailScreenState
           const SizedBox(height: 10),
           Text(
             review['text'] as String,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF5A5048),
               fontSize: 12.5,
               fontWeight: FontWeight.w400,
@@ -920,7 +920,7 @@ class _LaundryProviderDetailScreenState
           children: [
             Text(
               'svc_about_name'.trParams({'name': _name}),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -929,7 +929,7 @@ class _LaundryProviderDetailScreenState
             const SizedBox(height: 10),
             Text(
               'svc_about_laundry'.trParams({'name': _name}),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF5A5048),
                 fontSize: 13,
                 fontWeight: FontWeight.w400,

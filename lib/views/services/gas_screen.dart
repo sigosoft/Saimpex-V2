@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/service_repository.dart';
 import '../../widgets/app_back_button.dart';
@@ -92,7 +92,7 @@ class _GasProviderScreenState extends State<GasProviderScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'gas_choose_product'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -127,7 +127,7 @@ class _GasHeader extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -167,7 +167,7 @@ class _ExchangeNote extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF5A4A40),
                 fontSize: 12.5,
                 fontWeight: FontWeight.w500,
@@ -219,7 +219,7 @@ class _SupplierCard extends StatelessWidget {
                     provider['name'] ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -251,7 +251,7 @@ class _SupplierCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       'gas_from_price'.trParams({'price': from}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
@@ -303,7 +303,7 @@ class _ProductCard extends StatelessWidget {
                 children: [
                   Text(
                     card['title'] ?? '',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14.5,
                       fontWeight: FontWeight.w800,
@@ -315,7 +315,7 @@ class _ProductCard extends StatelessWidget {
                       description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 11.5,
                       ),
@@ -324,7 +324,7 @@ class _ProductCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     card['price'] ?? '',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -341,7 +341,7 @@ class _ProductCard extends StatelessWidget {
               ),
               child: Text(
                 'gas_order'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -389,7 +389,7 @@ class _Thumb extends StatelessWidget {
   }
 }
 
-final _metaStyle = GoogleFonts.outfit(
+final _metaStyle = AppFonts.outfit(
   color: const Color(0xFF4A453F),
   fontSize: 11.5,
   fontWeight: FontWeight.w500,

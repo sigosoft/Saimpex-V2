@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void showAppToast(
   String message, {
@@ -13,7 +13,7 @@ void showAppToast(
       messageText: Text(
         message,
         textAlign: TextAlign.center,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: backgroundColor.computeLuminance() > 0.5
               ? Colors.black87
               : Colors.white,

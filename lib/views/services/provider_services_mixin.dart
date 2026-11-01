@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/service_booking_draft.dart';
 import '../../core/network/api_constants.dart';
@@ -105,7 +105,7 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
             Text(
               _servicesError ?? 'svc_provider_no_services'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFA59A94),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -116,7 +116,7 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
                 onPressed: loadProviderServices,
                 child: Text(
                   'retry'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontWeight: FontWeight.w700,
                   ),

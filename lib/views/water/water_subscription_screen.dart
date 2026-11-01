@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import 'water_nearby_suppliers_screen.dart';
@@ -81,7 +81,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                       child: Center(
                         child: Text(
                           'pw_find_supplier'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -118,7 +118,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
             child: Text(
               'pw_subscription'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -173,7 +173,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
           // Section Heading
           Text(
             'pw_how_it_works'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -284,7 +284,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                           children: [
                             Text(
                               step['title'] as String,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5E00),
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -293,7 +293,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               step['subtitle'] as String,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF6B635C),
                                 fontSize: 11,
                                 height: 1.35,
@@ -345,7 +345,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
           // Section Heading
           Text(
             'pw_why_subscribe'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -422,7 +422,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                     const SizedBox(height: 10),
                     Text(
                       feat['title'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -433,7 +433,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       feat['subtitle'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF6B635C),
                         fontSize: 10,
                         height: 1.35,

@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../controllers/home_controller.dart';
@@ -306,10 +306,10 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 Expanded(
                   child: TextField(
                     controller: searchController,
-                    style: GoogleFonts.outfit(fontSize: 12),
+                    style: AppFonts.outfit(fontSize: 12),
                     decoration: InputDecoration(
                       hintText: 'pw_find_from_supplier'.tr,
-                      hintStyle: GoogleFonts.outfit(
+                      hintStyle: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
                       ),
@@ -341,7 +341,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Text(
             'pw_products'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -423,7 +423,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 child: Text(
                   widget.supplier['title']?.toString() ??
                       'pw_water_supplier'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -447,7 +447,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                     const SizedBox(width: 2),
                     Text(
                       widget.supplier['rating']?.toString() ?? '4.6',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -462,7 +462,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
           Text(
             widget.supplier['subtitle']?.toString() ??
                 'pw_premium_purified_water'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 11,
               fontWeight: FontWeight.w500,
@@ -479,7 +479,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               const SizedBox(width: 4),
               Text(
                 widget.supplier['time']?.toString() ?? '30-35 min',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -494,7 +494,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               const SizedBox(width: 4),
               Text(
                 widget.supplier['dist']?.toString() ?? '10 Km',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -509,7 +509,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 ),
                 child: Text(
                   widget.supplier['discount']?.toString() ?? '50% OFF',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
@@ -539,7 +539,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                       isTemporarilyClosed
                           ? 'pw_temporarily_not_accepting_orders'.tr
                           : 'pw_currently_closed'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFEF4444),
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -587,7 +587,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                         const SizedBox(width: 6),
                         Text(
                           'pw_chat_with_supplier'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -686,7 +686,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               alignment: Alignment.center,
               child: Text(
                 '1',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -701,7 +701,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 children: [
                   Text(
                     'pw_view_cart_items'.trParams({'count': '1'}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
@@ -709,7 +709,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                   ),
                   Text(
                     'pw_ready_in'.trParams({'time': readyIn}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -723,7 +723,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
               children: [
                 Text(
                   price,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5E00),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,

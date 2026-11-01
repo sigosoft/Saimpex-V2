@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
 import '../widgets/app_back_button.dart';
@@ -60,7 +60,7 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
                 Text(
                   'core_cancelled_title'.tr,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -70,7 +70,7 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
                 Text(
                   'core_cancelled_message'.tr,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF6E6E6E),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -94,7 +94,7 @@ class BookingCancelledSuccessScreen extends StatelessWidget {
                     ),
                     child: Text(
                       'core_cancelled_back_home'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,

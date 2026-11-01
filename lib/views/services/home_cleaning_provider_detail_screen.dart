@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../chat_screen.dart';
 import '../../models/service_repository.dart';
@@ -188,7 +188,7 @@ class _HomeCleaningProviderDetailScreenState
         children: [
           Text(
             _name,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -208,7 +208,7 @@ class _HomeCleaningProviderDetailScreenState
                   'rating': _rating,
                   'count': '126',
                 }),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -224,7 +224,7 @@ class _HomeCleaningProviderDetailScreenState
               Flexible(
                 child: Text(
                   _distance,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -245,7 +245,7 @@ class _HomeCleaningProviderDetailScreenState
               const SizedBox(width: 5),
               Text(
                 'svc_open_until'.trParams({'time': '8:00 PM'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A3A6B),
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -289,7 +289,7 @@ class _HomeCleaningProviderDetailScreenState
                   const SizedBox(width: 8),
                   Text(
                     'svc_chat'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -323,7 +323,7 @@ class _HomeCleaningProviderDetailScreenState
                           child: Text(
                             _tabs[i].tr,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: _selectedTab == i
                                   ? const Color(0xFFFF5E00)
                                   : const Color(0xFF9A8E86),
@@ -416,7 +416,7 @@ class _HomeCleaningProviderDetailScreenState
                     children: [
                       Text(
                         item['title']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -428,7 +428,7 @@ class _HomeCleaningProviderDetailScreenState
                         item['description']!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF8A7E76),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w400,
@@ -450,7 +450,7 @@ class _HomeCleaningProviderDetailScreenState
                     children: [
                       Text(
                         'svc_starting_from'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF9A8E86),
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
@@ -459,7 +459,7 @@ class _HomeCleaningProviderDetailScreenState
                       const SizedBox(height: 2),
                       Text(
                         item['price']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5E00),
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -518,7 +518,7 @@ class _HomeCleaningProviderDetailScreenState
       ),
       child: Text(
         'svc_add_upper'.tr,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: Colors.white,
           fontSize: 13,
           fontWeight: FontWeight.w800,
@@ -585,7 +585,7 @@ class _HomeCleaningProviderDetailScreenState
                     const SizedBox(width: 3),
                     Text(
                       '4.6',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -607,7 +607,7 @@ class _HomeCleaningProviderDetailScreenState
               const SizedBox(height: 6),
               Text(
                 'svc_reviews_count'.trParams({'count': '126'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -642,7 +642,7 @@ class _HomeCleaningProviderDetailScreenState
       children: [
         Text(
           star,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1B2B4A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -672,7 +672,7 @@ class _HomeCleaningProviderDetailScreenState
           child: Text(
             count,
             textAlign: TextAlign.end,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 10.5,
               fontWeight: FontWeight.w500,
@@ -706,7 +706,7 @@ class _HomeCleaningProviderDetailScreenState
                 ),
                 child: Text(
                   _reviewFilters[i].tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: _reviewFilter == i
                         ? Colors.white
                         : const Color(0xFF5C5651),
@@ -768,7 +768,7 @@ class _HomeCleaningProviderDetailScreenState
                   children: [
                     Text(
                       review['name'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
@@ -777,7 +777,7 @@ class _HomeCleaningProviderDetailScreenState
                     const SizedBox(height: 2),
                     Text(
                       (review['time'] as String).tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -803,7 +803,7 @@ class _HomeCleaningProviderDetailScreenState
           const SizedBox(height: 12),
           Text(
             review['text'] as String,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 12.5,
               height: 1.45,
@@ -820,7 +820,7 @@ class _HomeCleaningProviderDetailScreenState
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
       child: Text(
         'svc_about_home_cleaning'.trParams({'name': _name}),
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: const Color(0xFF5A5048),
           fontSize: 13.5,
           height: 1.45,

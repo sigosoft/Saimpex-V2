@@ -1,10 +1,10 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
@@ -182,7 +182,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                             ),
                             child: Text(
                               'pw_pharmacy'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
@@ -208,7 +208,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                               child: Text(
                                 _sectionTitle('categories', ''),
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -320,7 +320,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                         children: [
                           Text(
                             'pw_deliver_to'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 10,
                               fontWeight: FontWeight.w500,
@@ -337,7 +337,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                                         .value,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
@@ -388,7 +388,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                   const SizedBox(width: 3),
                   Text(
                     'mru'.trParams({'amount': '300'}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -491,7 +491,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
               const SizedBox(width: 10),
               Text(
                 'pw_upload_your_prescription'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF006064),
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -535,14 +535,14 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                     () => PharmacySearchScreen(initialKeyword: value.trim()),
                   );
                 },
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.black,
                   fontSize: 13,
                   height: 1,
                 ),
                 decoration: InputDecoration(
                   hintText: 'pw_what_do_you_need'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12.5,
                     height: 1,
@@ -707,7 +707,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                     alignment: Alignment.bottomCenter,
                     child: Text(
                       cat['label']?.toString() ?? '',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: isAll ? Colors.white : const Color(0xFF2C2520),
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -783,7 +783,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -885,7 +885,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                               ),
                               child: Text(
                                 discount,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
@@ -916,7 +916,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                                 const SizedBox(width: 2),
                                 Text(
                                   store['rating'] as String,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.black,
                                     fontSize: 9,
                                     fontWeight: FontWeight.bold,
@@ -982,7 +982,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                                   store['title'] as String,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -1003,7 +1003,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                                     const SizedBox(width: 4),
                                     Text(
                                       'pw_open_24_7'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF4CAF50),
                                         fontSize: 9,
                                         fontWeight: FontWeight.w600,
@@ -1017,7 +1017,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                           if (points.isNotEmpty)
                             Text(
                               points,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5E00),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -1034,7 +1034,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 store['time'] as String,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF7A6A60),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -1049,7 +1049,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 store['dist'] as String,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF7A6A60),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -1087,7 +1087,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
               children: [
                 Text(
                   'pw_closed'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -1108,7 +1108,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'pw_opens_at'.trParams({'time': opensAt}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.w500,
@@ -1164,7 +1164,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'pw_temp_not_accepting_line1'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
@@ -1175,7 +1175,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                 const SizedBox(height: 1),
                 Text(
                   'pw_temp_not_accepting_line2'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 8,
                     fontWeight: FontWeight.bold,

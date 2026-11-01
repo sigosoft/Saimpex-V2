@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/onboarding_controller.dart';
 
 class NextButton extends StatelessWidget {
@@ -37,7 +37,7 @@ class NextButton extends StatelessWidget {
           children: [
             Text(
               'core_next'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

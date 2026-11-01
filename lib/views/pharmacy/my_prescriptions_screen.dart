@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/network/api_exception.dart';
 import '../../models/pharmacy_repository.dart';
@@ -111,7 +111,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                   ),
                   Text(
                     'pw_my_prescriptions'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -147,7 +147,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                       ),
                       child: Text(
                         _filters[index].$1.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: selected
                               ? Colors.white
                               : const Color(0xFF2C2520),
@@ -178,7 +178,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
       return Center(
         child: Text(
           'pw_no_prescriptions'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -223,7 +223,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                 children: [
                   Text(
                     pharmacy.isEmpty ? 'pw_pharmacy'.tr : pharmacy,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -235,7 +235,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                       'id': '${item['prescriptionId']}',
                       'date': '${item['createdAt']}',
                     }),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -246,7 +246,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                     '${item['statusLabel'] ?? ''}'.isEmpty
                         ? '${item['status']}'
                         : '${item['statusLabel']}',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -258,7 +258,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
             if (amount.isNotEmpty)
               Text(
                 amount,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,

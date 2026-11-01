@@ -1,6 +1,6 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../core/network/api_constants.dart';
@@ -110,7 +110,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                   ),
                   Text(
                     'pw_order_id'.trParams({'id': orderId}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -124,7 +124,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                           SnackBar(
                             content: Text(
                               'pw_help_center_opened'.tr,
-                              style: GoogleFonts.outfit(),
+                              style: AppFonts.outfit(),
                             ),
                             backgroundColor: const Color(0xFFFF5E00),
                           ),
@@ -145,7 +145,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                         ),
                         child: Text(
                           'subs_help'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5E00),
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -172,7 +172,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                       children: [
                         Text(
                           'pw_order_status'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -181,7 +181,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                         const Spacer(),
                         Text(
                           isDelivery ? 'pw_delivery'.tr : 'pw_self_pickup'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: isDelivery
                                 ? const Color(0xFFFF5E00)
                                 : const Color(0xFF007DFE),
@@ -198,7 +198,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                       isDelivery
                           ? 'pw_delivery_details'.tr
                           : 'pw_pickup_location'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -214,7 +214,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     const SizedBox(height: 18),
                     Text(
                       'pw_order_summary'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -267,7 +267,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           'cancel'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -307,7 +307,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           'pw_track_order'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 14,
             fontWeight: FontWeight.w800,
@@ -462,7 +462,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                         Text(
                           step.label.tr,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: step.done
                                 ? const Color(0xFF2C2520)
                                 : const Color(0xFFA59A94),
@@ -476,7 +476,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                           Text(
                             step.time,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 8.5,
                               fontWeight: FontWeight.w500,
@@ -532,7 +532,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               children: [
                 Text(
                   'Sahara View Home',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -541,7 +541,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   'Near Marhaba Supermarket, Nouakchott',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -593,7 +593,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                   (storeName == null || storeName!.isEmpty)
                       ? 'pw_store'.tr
                       : storeName!,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -643,7 +643,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               children: [
                 Text(
                   'Amadou Sy',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -660,7 +660,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     const SizedBox(width: 3),
                     Text(
                       '4.6',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -669,7 +669,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'pw_reviews_count'.trParams({'count': '10k +'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -751,7 +751,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -760,7 +760,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               const SizedBox(height: 3),
               Text(
                 subtitle,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -769,7 +769,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 qty,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5E00),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -780,7 +780,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         ),
         Text(
           price,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 13,
             fontWeight: FontWeight.w800,
@@ -803,7 +803,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         children: [
           Text(
             'pw_payment_details_caps'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5E00),
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -835,7 +835,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
             children: [
               Text(
                 isDelivery ? 'pw_total_paid'.tr : 'pw_to_pay'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -844,7 +844,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               const Spacer(),
               Text(
                 orderMoneyText(_payment['total_bill']),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -862,7 +862,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -871,7 +871,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w700,

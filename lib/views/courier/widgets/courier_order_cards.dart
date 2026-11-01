@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../widgets/cancel_order_bottom_sheet.dart';
 import '../courier_order_detail_screen.dart';
@@ -33,7 +33,7 @@ class CourierActiveOrderCard extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: otp));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('st_otp_copied'.tr, style: GoogleFonts.outfit()),
+        content: Text('st_otp_copied'.tr, style: AppFonts.outfit()),
         backgroundColor: const Color(0xFFFF5E00),
         duration: const Duration(seconds: 2),
       ),
@@ -75,7 +75,7 @@ class CourierActiveOrderCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   hubName,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -94,7 +94,7 @@ class CourierActiveOrderCard extends StatelessWidget {
             padding: const EdgeInsetsDirectional.only(start: 24),
             child: Text(
               detailsText,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFA59A94),
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
@@ -116,7 +116,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                   children: [
                     Text(
                       'st_share_otp'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF8A7F77),
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
@@ -126,7 +126,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       otp,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
@@ -195,7 +195,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         'st_track_delivery'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -223,7 +223,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                 children: [
                   Text(
                     'st_view_order_status'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5E00),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -266,7 +266,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: color,
           fontSize: 9,
           fontWeight: FontWeight.w800,
@@ -296,7 +296,7 @@ class _SoftButton extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 11,
             fontWeight: FontWeight.w700,

@@ -1,7 +1,7 @@
+import 'package:saimpex_v2/utils/app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'car_wash_add_vehicles_sheet.dart';
 import 'car_wash_choose_wash_services_screen.dart';
@@ -133,7 +133,7 @@ class _CarWashSelectVehiclesScreenState
                                 Text(
                                   'svc_no_vehicles_found'.tr,
                                   textAlign: TextAlign.center,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF8A909C),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -143,7 +143,7 @@ class _CarWashSelectVehiclesScreenState
                                 Text(
                                   'svc_add_vehicle_to_continue'.tr,
                                   textAlign: TextAlign.center,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFFB0B5C0),
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w400,
@@ -191,7 +191,7 @@ class _CarWashSelectVehiclesScreenState
                               ),
                               child: Text(
                                 'svc_continue'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
@@ -228,7 +228,7 @@ class _CarWashSelectVehiclesScreenState
                               const SizedBox(width: 6),
                               Text(
                                 'svc_add_new_vehicle'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w700,
@@ -304,7 +304,7 @@ class _CarWashSelectVehiclesScreenState
                 children: [
                   Text(
                     vehicle.label,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1F36),
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -313,7 +313,7 @@ class _CarWashSelectVehiclesScreenState
                   const SizedBox(height: 4),
                   Text(
                     vehicle.plateNumber,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -365,7 +365,7 @@ class _CarWashSelectVehiclesScreenState
           ),
           Text(
             'svc_select_vehicles'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1F36),
               fontSize: 18,
               fontWeight: FontWeight.w800,
