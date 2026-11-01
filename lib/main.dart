@@ -38,6 +38,7 @@ Future<void> main() async {
     ),
   );
   Get.find<DioClient>().onSessionExpired = _handleSessionExpired;
+  Get.find<DioClient>().onServerDown = AppUpdate.showServerDown;
   Get.find<DioClient>().onLoginRequired = GuestGate.prompt;
   runApp(const MyApp());
   // Newer version in Admin → App versions: show the Update screen.

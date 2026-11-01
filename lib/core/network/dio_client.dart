@@ -50,6 +50,8 @@ class DioClient {
             await session.saveGuestToken(null);
           }
           _checkSessionExpired(error);
+          // 503: the server is under maintenance; show "We'll be right back".
+          if (error.response?.statusCode == 503) onServerDown?.call();
           if (_isGuestLoginRequired(error)) {
             // Guest tried something that needs an account: friendly message, and
             // the login sheet (V2_DECISIONS §17), not "Unauthenticated."
@@ -80,6 +82,9 @@ class DioClient {
   /// session (token expired or revoked). Set in main.dart: it clears the
   /// session and returns to Login. Not called again once the session is gone.
   void Function()? onSessionExpired;
+
+  /// Called when the server answers 503 (maintenance). Set in main.dart.
+  void Function()? onServerDown;
 
   /// Called when a guest (no session) gets a 401: show the login sheet.
   void Function()? onLoginRequired;
