@@ -319,6 +319,22 @@ class OrderRepository {
     return (earliest: earliest.toLocal(), latest: latest.toLocal());
   }
 
+  /// The customer's open pre-orders of every type, soonest first
+  /// (GET preorders): `order_id`, `order_code`, `order_type`, `status`,
+  /// `total`, `scheduled_for`, `is_self_pickup`, `vendor`.
+  Future<List<Map<String, dynamic>>> preorders(String language) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.preorders),
+      language,
+    );
+    final rows = asJsonMap(envelope.data)?['orders'];
+    if (rows is! List) return const [];
+    return [
+      for (final row in rows)
+        if (row is Map) Map<String, dynamic>.from(row),
+    ];
+  }
+
   /// [time] as ISO 8601 with the device's UTC offset, as checkout's
   /// `scheduled_for` requires (e.g. 2026-11-02T13:30:00+00:00).
   static String scheduledForValue(DateTime time) {

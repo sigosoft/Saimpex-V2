@@ -6,6 +6,7 @@ import '../core/network/api_constants.dart';
 import 'track_order_screen.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/cancel_order_bottom_sheet.dart';
+import 'widgets/scheduled_for_banner.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
@@ -114,6 +115,7 @@ class OrderDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 8),
+                    ScheduledForBanner(detail: detail),
 
                     // 2. Order Status Stepper Card
                     Container(
