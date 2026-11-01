@@ -238,6 +238,7 @@ Note: "models" holds **repositories** (API classes), not plain data classes. Mos
 - **Not translated on purpose:** server data, and sample/mock data still in some screens (to be replaced by real data, not translated).
 - Error fallbacks in the repositories ("Request failed…"), courier statuses, provider-card tags and review messages are translated (`core_request_failed`, `core_status_1`…`10`, …).
 - French and Arabic were reviewed key by key (AI review, not a native speaker), with consistent terms. French: livreur, prestataire, réservation, portefeuille, retrait (customer collects), collecte (courier/laundry pickup), programmer, noter.
+- **Numbers stay left to right in Arabic:** the verification code boxes (`lib/views/widgets/otp_code_row.dart`) are always laid out left to right, so the first digit goes in the left box (before, 123456 showed as 654321). Test: `test/otp_code_row_test.dart`. Use the same for any other digit-by-digit input.
 - **Still to do:** the client's native-speaker QA (16–25 Nov) and an RTL pass on a device (custom painters, gradients and maps were not changed).
 
 See pending item P1-1.
