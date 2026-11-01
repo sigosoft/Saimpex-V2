@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'controllers/home_controller.dart';
 import 'core/app_dependencies.dart';
 import 'core/network/dio_client.dart';
+import 'core/update/app_update.dart';
 import 'core/push/push_notifications.dart';
 import 'core/storage/session_store.dart';
 import 'l10n/app_locale.dart';
@@ -39,6 +40,8 @@ Future<void> main() async {
   Get.find<DioClient>().onSessionExpired = _handleSessionExpired;
   Get.find<DioClient>().onLoginRequired = GuestGate.prompt;
   runApp(const MyApp());
+  // Newer version in Admin → App versions: show the Update screen.
+  unawaited(Future.delayed(const Duration(seconds: 2), AppUpdate.check));
   unawaited(_confirmStoredSession());
   unawaited(PushNotifications.init());
 }

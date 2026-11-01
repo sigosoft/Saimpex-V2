@@ -206,6 +206,8 @@ class ApiConstants {
   static const String getTermsAndConditions = 'customer/getTermsandConditions';
   static const String getContact = 'customer/getContact';
   static const String branding = 'customer/branding';
+  // Admin → App versions: latest version, force update, store links.
+  static const String appSettings = 'customer/settings';
   static const String chatAllConversations = 'customer/chat/allConversations';
   // Messages from SAIMPEX support about an order (API §6.37).
   static const String supportMessages = 'customer/supportMessages';
