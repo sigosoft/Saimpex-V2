@@ -584,3 +584,7 @@ Service bookings paid online (`feature/gas-refills`): laundry, car wash, home cl
 | 31 Oct 2026 | Service quotes (`service/quote`) return `tax`, `tax_percent`, `total` (= subtotal + tax); courier quotes return `tax`, `total` (= fee + tax). Prices are tax-exclusive. | Show a Tax line and charge `total` on service and courier checkout (§6.27). |
 | 31 Oct 2026 | **Payment methods on/off:** `GET customer/paymentMethods` → `payment_methods[]` with `enabled`. Admin can switch cash / online / wallet / Pay After Delivery off; the server refuses a disabled one (422 `payment_type_*`). | Load it on every checkout/booking screen and hide disabled methods (§6.30). |
 | 31 Oct 2026 | **FAQ and policies:** `GET customer/getFaqs` (active FAQs + intro), `GET customer/getCancellationPolicy`, `GET customer/getRefundPolicy`. | Wire the Help / FAQ and policy screens to these (§6.32). |
+
+### Update Required (Figma V2 Additions, 1 Nov) ✅
+On start the app reads Admin → App versions (`GET customer/settings`: `play_store_version` / `app_store_version`, `…_update` = force, `…_link`) and compares with its own version (`package_info_plus`). Newer and forced → **Update SAIMPEX** screen that can't be left (`Get.offAll`, back disabled); newer, not forced → same screen with **Later**. "Update now" opens the store link (disabled while Admin hasn't set one). Files: `lib/core/update/app_update.dart`, `lib/views/update_required_screen.dart`. Bump `version:` in `pubspec.yaml` with each store release so this works.
+

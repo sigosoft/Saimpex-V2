@@ -2,6 +2,11 @@
 /// Keys start with `core_`. Every key needs en, fr and ar.
 const coreStrings = <String, Map<String, String>>{
   'en': {
+    'core_update_title': 'Update SAIMPEX',
+    'core_update_body': 'A new version is required to keep ordering. It takes less than a minute.',
+    'core_update_body_optional': 'A new version is available. It takes less than a minute.',
+    'core_update_now': 'Update now',
+    'core_update_later': 'Later',
     'core_account_about_us': 'About Us',
     'core_account_app_preferences': 'App Preferences',
     'core_account_check_update': 'Check for update',
@@ -459,6 +464,11 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_your_driver': 'Your Driver',
   },
   'fr': {
+    'core_update_title': 'Mettre à jour SAIMPEX',
+    'core_update_body': 'Une nouvelle version est nécessaire pour continuer à commander. Cela prend moins d’une minute.',
+    'core_update_body_optional': 'Une nouvelle version est disponible. Cela prend moins d’une minute.',
+    'core_update_now': 'Mettre à jour',
+    'core_update_later': 'Plus tard',
     'core_account_about_us': 'À propos',
     'core_account_app_preferences': 'Préférences de l\'application',
     'core_account_check_update': 'Rechercher une mise à jour',
@@ -939,6 +949,11 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_your_driver': 'Votre livreur',
   },
   'ar': {
+    'core_update_title': 'حدّث SAIMPEX',
+    'core_update_body': 'يلزم إصدار جديد لمتابعة الطلب. يستغرق ذلك أقل من دقيقة.',
+    'core_update_body_optional': 'يتوفر إصدار جديد. يستغرق ذلك أقل من دقيقة.',
+    'core_update_now': 'حدّث الآن',
+    'core_update_later': 'لاحقًا',
     'core_account_about_us': 'من نحن',
     'core_account_app_preferences': 'تفضيلات التطبيق',
     'core_account_check_update': 'البحث عن تحديث',
