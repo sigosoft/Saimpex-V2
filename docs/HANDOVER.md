@@ -595,3 +595,10 @@ On start the app reads Admin → App versions (`GET customer/settings`: `play_st
 ### Gas Booking Details (Figma V2 Additions, 1 Nov) ✅
 `lib/views/services/gas_booking_detail_screen.dart`, opened from My Bookings for gas (it used the home cleaning screen before). From `customer/service/booking`: booking number + status pill, supplier, slot; items ("2 × Butane refill 12 kg", subtotal) and **empty cylinders to hand over**; status steps Booked → Accepted by supplier → Driver on the way → Delivered, empties collected (with times from the timeline; Cancelled shows instead when cancelled); payment and total; **Chat with supplier** (vendor chat) and **Help** (Help sheet); Cancel while the booking can still be cancelled. The gas branches left in the home cleaning screen are no longer used for gas.
 
+### Guest browsing fixed + release build (1 Nov, emulator Pixel 5 / Android 14, Arabic) ✅
+- `MainShellScreen` no longer returns `LoginScreen` for guests; **Skip** on the slides and **Continue as guest** on Login both open Home. Logout and session expiry still open Login themselves.
+- A guest's **background** loads that need an account (GET → `login_required`) fail quietly: no login sheet, no toast. **Actions** (non-GET) and the account tabs (Orders, Bookings, Chat, Profile) still show the **Log in to continue** sheet. This was the framework error behind the sheet on Home.
+- **Version 2.0.0+100** (`pubspec.yaml`): V2 replaces V1 (`app.saimpex`) on the stores, so it must be above V1's 1.0.6; with 1.0.0 the Update screen blocked every build (dev Admin says 1.0.6, forced). **Check V1's last build number** before the Play upload; 100 must be higher.
+- **Release build fixed:** `android/app/proguard-rules.pro` (`-dontwarn com.google.firebase.iid.FirebaseInstanceId`): ML Kit references the excluded firebase-iid and R8 stopped `flutter build apk --release`.
+- Seen on the emulator: Arabic + Cairo + RTL on slides and Home; guest cart opens; Orders asks to log in. Not reached yet (needs a dev test number, `OTP_TEST_NUMBERS`): logged-in screens.
+

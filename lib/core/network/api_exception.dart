@@ -11,6 +11,10 @@ class ApiException implements Exception {
 
   factory ApiException.fromDio(DioException error, String language) {
     final statusCode = error.response?.statusCode;
+    // A guest's background load that needs an account: no message to show.
+    if (error.requestOptions.extra['guest_silent'] == true) {
+      return ApiException('', statusCode: statusCode);
+    }
     final body = asJsonMap(error.response?.data);
     if (body != null && body['message'] != null) {
       return ApiException(

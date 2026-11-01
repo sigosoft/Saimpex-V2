@@ -1,3 +1,4 @@
+import '../views/main_shell_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -72,6 +73,8 @@ class LoginController extends GetxController {
       'core_login_guest_success'.tr,
       backgroundColor: const Color(0xFF333333),
     );
+    // Into the app as a guest: browse, add to cart; login is asked later.
+    Get.offAll(() => const MainShellScreen());
   }
 
   @override

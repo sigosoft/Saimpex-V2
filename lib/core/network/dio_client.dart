@@ -55,7 +55,14 @@ class DioClient {
           if (_isGuestLoginRequired(error)) {
             // Guest tried something that needs an account: friendly message, and
             // the login sheet (V2_DECISIONS §17), not "Unauthenticated."
-            onLoginRequired?.call();
+            // Only for actions: screens load account data (wallet, notifications)
+            // in the background with GET, and those must not pop the sheet.
+            if (error.requestOptions.method.toUpperCase() != 'GET') {
+              onLoginRequired?.call();
+            } else {
+              // Background load for a guest: fail quietly (no toast).
+              error.requestOptions.extra['guest_silent'] = true;
+            }
             handler.reject(
               DioException(
                 requestOptions: error.requestOptions,
