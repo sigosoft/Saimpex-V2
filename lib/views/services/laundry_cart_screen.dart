@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'laundry_booking_success_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
 import 'service_booking_submit.dart';
+import '../courier/courier_select_recipient_location_screen.dart';
+import '../../controllers/service_booking_draft.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../widgets/app_back_button.dart';
@@ -71,6 +73,35 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         RegExp(r'[\d.]+').firstMatch(widget.estimateLabel)?.group(0) ?? '',
       );
 
+  // Pickup starts at the selected delivery location; the customer can move it
+  // or send the clean laundry somewhere else.
+  late _LaundryAddress _pickup = _LaundryAddress.current();
+  late _LaundryAddress _delivery = _pickup;
+
+  Future<void> _editAddress({required bool pickup}) async {
+    final result = await Get.to<Map<String, dynamic>>(
+      () => CourierSelectRecipientLocationScreen(
+        title: pickup
+            ? 'st_select_pickup_location'
+            : 'svc_select_delivery_location',
+      ),
+    );
+    if (!mounted || result == null) return;
+    final address = _LaundryAddress.fromResult(result);
+    if (address == null) return;
+    final samePlace = _delivery == _pickup;
+    setState(() {
+      if (pickup) {
+        _pickup = address;
+        // Delivery follows the pickup until the customer sets it apart.
+        if (samePlace) _delivery = address;
+      } else {
+        _delivery = address;
+      }
+    });
+    if (pickup) _loadQuote();
+  }
+
   Future<void> _loadQuote() async {
     setState(() {
       _quote = null;
@@ -83,6 +114,9 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         paymentType: _paymentType,
         garments: widget.garments,
         quantity: _quantity,
+        address: _pickup.text,
+        latitude: _pickup.latitude,
+        longitude: _pickup.longitude,
       );
       if (!mounted) return;
       setState(() {
@@ -117,6 +151,10 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       paymentType: _paymentType,
       garments: widget.garments,
       quantity: _quantity,
+      address: _pickup.text,
+      latitude: _pickup.latitude,
+      longitude: _pickup.longitude,
+      deliveryAddress: _delivery == _pickup ? null : _delivery.text,
     );
     if (!mounted) return;
     setState(() => _booking = false);
@@ -245,6 +283,12 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                       _buildFromClearRow(),
                       const SizedBox(height: 12),
                       _buildServiceCard(),
+                      if (_speed != null) ...[
+                        const SizedBox(height: 22),
+                        _sectionTitle('svc_delivery_speed'.tr),
+                        const SizedBox(height: 12),
+                        _buildDeliverySpeedCard(_speed!),
+                      ],
                       const SizedBox(height: 22),
                       _buildPickupSlotCard(),
                       const SizedBox(height: 10),
@@ -467,6 +511,66 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
     );
   }
 
+  // How fast the vendor returns this service (its "processing"): Standard
+  // (24h) or Express. The vendor sets it per service, so it's shown, not chosen.
+  String? get _speed {
+    final processing = '${ServiceBookingDraft.item['processing'] ?? ''}'.trim();
+    return processing.isEmpty ? null : processing;
+  }
+
+  Widget _buildDeliverySpeedCard(String speed) {
+    final express = speed.toLowerCase().contains('express');
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3EB),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            express ? Icons.bolt_rounded : Icons.local_shipping_rounded,
+            color: express ? const Color(0xFFFFB800) : const Color(0xFFFF5E00),
+            size: 26,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  express ? 'svc_express'.tr : 'svc_standard'.tr,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF1A1A1A),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (!express) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'svc_within_24_hours'.tr,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF8A7E76),
+                      fontSize: 12.5,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const Icon(
+            Icons.radio_button_checked,
+            color: Color(0xFFFF5E00),
+            size: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEstimatedDeliveryCard() {
     return Container(
       width: double.infinity,
@@ -565,15 +669,15 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   _addressContent(
                     label: 'svc_pickup_upper'.tr,
                     labelColor: const Color(0xFFFF5E00),
-                    title: SelectLocationController.selectedTitle,
-                    subtitle: _addressSubtitle,
+                    address: _pickup,
+                    onEdit: () => _editAddress(pickup: true),
                   ),
                   const SizedBox(height: 18),
                   _addressContent(
                     label: 'svc_delivery_upper'.tr,
                     labelColor: const Color(0xFF00B25C),
-                    title: SelectLocationController.selectedTitle,
-                    subtitle: _addressSubtitle,
+                    address: _delivery,
+                    onEdit: () => _editAddress(pickup: false),
                   ),
                 ],
               ),
@@ -584,18 +688,11 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
     );
   }
 
-  // Service bookings go to the selected delivery location; pickup and
-  // delivery are the same address.
-  String get _addressSubtitle {
-    final subtitle = SelectLocationController.selectedSubtitle.trim();
-    return subtitle == SelectLocationController.selectedTitle ? '' : subtitle;
-  }
-
   Widget _addressContent({
     required String label,
     required Color labelColor,
-    required String title,
-    required String subtitle,
+    required _LaundryAddress address,
+    required VoidCallback onEdit,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -615,29 +712,33 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               ),
               const SizedBox(height: 2),
               Text(
-                title,
+                address.title,
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF1B2B4A),
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              Text(
-                subtitle,
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF8A7E76),
-                  fontSize: 11.5,
+              if (address.subtitle.isNotEmpty)
+                Text(
+                  address.subtitle,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF8A7E76),
+                    fontSize: 11.5,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
-        Text(
-          'svc_edit'.tr,
-          style: GoogleFonts.outfit(
-            color: const Color(0xFFFF5E00),
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
+        GestureDetector(
+          onTap: onEdit,
+          child: Text(
+            'svc_edit'.tr,
+            style: GoogleFonts.outfit(
+              color: const Color(0xFFFF5E00),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],
@@ -1053,4 +1154,49 @@ class _ClockHandsPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _ClockHandsPainter oldDelegate) =>
       oldDelegate.color != color;
+}
+
+/// A pickup or delivery address for the laundry booking.
+class _LaundryAddress {
+  const _LaundryAddress(
+    this.title,
+    this.subtitle,
+    this.latitude,
+    this.longitude,
+  );
+
+  /// The selected delivery location.
+  factory _LaundryAddress.current() {
+    final title = SelectLocationController.selectedTitle.trim();
+    final subtitle = SelectLocationController.selectedSubtitle.trim();
+    return _LaundryAddress(
+      title,
+      subtitle == title ? '' : subtitle,
+      SelectLocationController.selectedLatitude,
+      SelectLocationController.selectedLongitude,
+    );
+  }
+
+  /// A place picked on the map screen, or null without a usable point.
+  static _LaundryAddress? fromResult(Map<String, dynamic> result) {
+    final title = '${result['title'] ?? ''}'.trim();
+    final subtitle = '${result['subtitle'] ?? ''}'.trim();
+    final latitude = double.tryParse('${result['latitude']}');
+    final longitude = double.tryParse('${result['longitude']}');
+    if (title.isEmpty || latitude == null || longitude == null) return null;
+    return _LaundryAddress(
+      title,
+      subtitle == title ? '' : subtitle,
+      latitude,
+      longitude,
+    );
+  }
+
+  final String title;
+  final String subtitle;
+  final double latitude;
+  final double longitude;
+
+  /// The address line sent with the booking.
+  String get text => subtitle.isEmpty ? title : '$title, $subtitle';
 }

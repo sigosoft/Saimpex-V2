@@ -501,13 +501,35 @@ class LaundryServicesScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              item['name']!,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF122037),
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    item['name']!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF122037),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.star_rounded,
+                  color: Color(0xFFFFB800),
+                  size: 16,
+                ),
+                const SizedBox(width: 3),
+                Text(
+                  item['rating'] ?? '',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF122037),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 6),
             Row(
@@ -526,7 +548,7 @@ class LaundryServicesScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 14),
+                const Spacer(),
                 const Icon(
                   Icons.access_time_rounded,
                   color: Color(0xFF9AA3B2),
@@ -556,8 +578,6 @@ class LaundryServicesScreen extends StatelessWidget {
               child: Row(
                 children: [
                   _serviceTag(item['tag1']!, item['price1']!),
-                  const SizedBox(width: 10),
-                  _serviceTag(item['tag2']!, item['price2']!),
                   if (item['tag3'] != null) ...[
                     const SizedBox(width: 10),
                     _serviceTag(item['tag3']!, item['price3']!),

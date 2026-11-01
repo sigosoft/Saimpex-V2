@@ -46,6 +46,8 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   String? address,
   double? latitude,
   double? longitude,
+  // Laundry: where the clean laundry goes when it isn't the pickup address.
+  String? deliveryAddress,
 }) async {
   final request = _bookingRequest(
     slotDate: slotDate,
@@ -64,6 +66,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     address: address,
     latitude: latitude,
     longitude: longitude,
+    deliveryAddress: deliveryAddress,
   );
   if (request == null) {
     showAppToast(
@@ -197,6 +200,7 @@ Map<String, dynamic>? _bookingRequest({
   String? address,
   double? latitude,
   double? longitude,
+  String? deliveryAddress,
 }) {
   final vertical = ServiceBookingDraft.vertical;
   final vendorId = ServiceBookingDraft.vendorId;
@@ -231,6 +235,8 @@ Map<String, dynamic>? _bookingRequest({
     'product_supply': ?productSupply,
     if (propertyType.trim().isNotEmpty) 'property_type': propertyType.trim(),
     if (returnEmptyCylinder) 'return_empty_cylinder': true,
+    if (deliveryAddress != null && deliveryAddress.trim().isNotEmpty)
+      'delivery_address': deliveryAddress.trim(),
   };
   final matchedSpaces = _catalogRows(spaces, 'spaces');
   if (matchedSpaces.isNotEmpty) request['spaces'] = matchedSpaces;

@@ -249,6 +249,7 @@ const servicesStrings = <String, Map<String, String>>{
     'svc_estimated_item': 'Estimated @count item',
     'svc_estimated_items': 'Estimated @count items',
     'svc_24_hours': '24 hours',
+    'svc_select_delivery_location': 'Select Delivery Location',
     'svc_select_dry_clean_items': 'Select the items you want to dry clean',
     'svc_no_garments':
         "This provider hasn't added its garment list and prices yet.",
@@ -570,6 +571,7 @@ const servicesStrings = <String, Map<String, String>>{
     'svc_estimated_item': 'Estimé : @count article',
     'svc_estimated_items': 'Estimé : @count articles',
     'svc_24_hours': '24 heures',
+    'svc_select_delivery_location': 'Choisir l\'adresse de livraison',
     'svc_select_dry_clean_items': 'Sélectionnez les articles à nettoyer à sec',
     'svc_no_garments':
         "Ce prestataire n'a pas encore ajouté ses articles et leurs prix.",
@@ -877,6 +879,7 @@ const servicesStrings = <String, Map<String, String>>{
     'svc_estimated_item': 'تقديريًا @count قطعة',
     'svc_estimated_items': 'عدد القطع التقديري: @count',
     'svc_24_hours': '24 ساعة',
+    'svc_select_delivery_location': 'اختر موقع التوصيل',
     'svc_select_dry_clean_items': 'اختر القطع التي تريد تنظيفها تنظيفًا جافًا',
     'svc_no_garments': 'لم يُضف مقدم الخدمة قائمة القطع وأسعارها بعد.',
     'svc_dry_cleaning': 'التنظيف الجاف',

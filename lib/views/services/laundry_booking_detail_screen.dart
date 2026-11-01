@@ -7,6 +7,7 @@ import '../../core/network/api_exception.dart';
 import '../../models/service_booking_detail.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_booking_bottom_sheet.dart';
+import '../help_support_screen.dart';
 
 class LaundryBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
@@ -325,7 +326,7 @@ class _LaundryBookingDetailScreenState
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () => Get.to(() => const HelpSupportScreen()),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(

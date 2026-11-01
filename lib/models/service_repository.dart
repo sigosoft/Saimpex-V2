@@ -181,7 +181,7 @@ class ServiceRepository {
     return {
       'id': text(row['id']),
       'name': text(row['name']).isEmpty ? 'Provider' : text(row['name']),
-      'rating': rating > 0 ? rating.toStringAsFixed(1) : 'New',
+      'rating': rating > 0 ? rating.toStringAsFixed(1) : 'core_new'.tr,
       'distance': text(row['distance_label']),
       'price': rate.replaceAll(' MRU', ''),
       'points': availability.isEmpty ? 'core_open'.tr : availability,
