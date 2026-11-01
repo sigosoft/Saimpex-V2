@@ -6,6 +6,7 @@ import '../constants/colors.dart';
 import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
 import '../core/network/api_exception.dart';
+import '../core/push/push_notifications.dart';
 import '../core/storage/session_store.dart';
 import '../models/auth_repository.dart';
 import '../models/profile_repository.dart';
@@ -1178,6 +1179,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
 
     try {
       if (session.token != null && session.token!.isNotEmpty) {
+        await PushNotifications.clearToken();
         toastMsg = await Get.find<AuthRepository>().logout(apiLanguageCode());
       }
     } on ApiException catch (error) {

@@ -10,6 +10,7 @@ class ApiConstants {
   static const String verifyOtp = 'customer/verifyOtp';
   static const String customerCheck = 'customer/customerCheck';
   static const String logout = 'customer/logout';
+  static const String updateFcmToken = 'customer/updateFcmToken';
   static const String profile = 'customer/profile';
   static const String updateProfile = 'customer/updateProfile';
   static const String updateLanguage = 'customer/updateLanguage';
