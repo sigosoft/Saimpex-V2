@@ -240,7 +240,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
               ),
               child: const Icon(
                 Icons.tune_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 16,
               ),
             ),
@@ -295,7 +295,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                       children: [
                                         const Icon(
                                           Icons.home_outlined,
-                                          color: Color(0xFFFF5E00),
+                                          color: Color(0xFFFF5216),
                                           size: 22,
                                         ),
                                         const SizedBox(width: 6),
@@ -370,7 +370,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                           4,
                                         ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
@@ -454,7 +454,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                                     Icons.storefront_rounded,
                                                     size: 50,
                                                     color: const Color(
-                                                      0xFFFF5E00,
+                                                      0xFFFF5216,
                                                     ).withValues(alpha: 0.5),
                                                   ),
                                                 ),
@@ -482,7 +482,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                 height: 7,
                                 decoration: BoxDecoration(
                                   color: _bannerIndex == index
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFE5D5C9),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
@@ -606,7 +606,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                                   height: 28,
                                                   color: isSelected
                                                       ? Colors.white
-                                                      : const Color(0xFFFF5E00),
+                                                      : const Color(0xFFFF5216),
                                                 ),
                                               )
                                             : Image.asset(
@@ -615,7 +615,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                                 errorBuilder: (_, _, _) =>
                                                     const Icon(
                                                       Icons.store_rounded,
-                                                      color: Color(0xFFFF5E00),
+                                                      color: Color(0xFFFF5216),
                                                       size: 24,
                                                     ),
                                               ),
@@ -697,7 +697,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               child: Center(
                                 child: _storesLoading
                                     ? const CircularProgressIndicator(
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                       )
                                     : Text(
                                         'st_no_local_stores'.tr,
@@ -810,7 +810,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                   child: const Icon(
                                     Icons.storefront_rounded,
                                     size: 40,
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                   ),
                                 ),
                               ),
@@ -824,7 +824,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               child: const Icon(
                                 Icons.storefront_rounded,
                                 size: 40,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                               ),
                             ),
                           ),
@@ -858,7 +858,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -925,7 +925,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
                         color: store['isFavorite'] == true
-                            ? const Color(0xFFFF5E00)
+                            ? const Color(0xFFFF5216)
                             : const Color(0xFF2C2520),
                         size: 16,
                       ),
@@ -1008,7 +1008,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         children: [
                           const Icon(
                             Icons.access_time_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 13,
                           ),
                           const SizedBox(width: 3),
@@ -1023,7 +1023,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           const SizedBox(width: 8),
                           const Icon(
                             Icons.location_on_outlined,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 13,
                           ),
                           const SizedBox(width: 3),
@@ -1152,7 +1152,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         child: const Icon(
                           Icons.storefront_rounded,
                           size: 40,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                         ),
                       ),
                     ),
@@ -1171,7 +1171,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -1238,7 +1238,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
                         color: store['isFavorite'] == true
-                            ? const Color(0xFFFF5E00)
+                            ? const Color(0xFFFF5216)
                             : const Color(0xFF2C2520),
                         size: 18,
                       ),
@@ -1305,7 +1305,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     children: [
                       const Icon(
                         Icons.access_time_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -1320,7 +1320,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                       const SizedBox(width: 12),
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),

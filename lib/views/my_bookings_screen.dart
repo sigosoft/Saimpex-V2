@@ -94,7 +94,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   static const _categoryByVertical = {
-    ServiceRepository.homeCleaning: ('Home Cleaning', 0xFFFF5E00),
+    ServiceRepository.homeCleaning: ('Home Cleaning', 0xFFFF5216),
     ServiceRepository.carWash: ('Car Wash', 0xFF2B7DE9),
     ServiceRepository.laundry: ('Laundry', 0xFF7B4FD6),
     ServiceRepository.gas: ('Gas', 0xFF00A86B),
@@ -104,7 +104,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   Map<String, dynamic> _fromApi(Map<String, dynamic> row) {
     String text(dynamic value) => '${value ?? ''}'.trim();
     final category =
-        _categoryByVertical[text(row['vertical'])] ?? ('Service', 0xFFFF5E00);
+        _categoryByVertical[text(row['vertical'])] ?? ('Service', 0xFFFF5216);
     final status = int.tryParse(text(row['status'])) ?? 0;
     final code = text(row['order_code']);
     final total = double.tryParse(text(row['total'])) ?? 0;
@@ -237,7 +237,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   child: _loading && _bookings.isEmpty
                       ? const Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         )
                       : list.isEmpty
@@ -319,11 +319,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFFFF5E00) : Colors.white,
+                color: selected ? const Color(0xFFFF5216) : Colors.white,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : Colors.transparent,
                 ),
               ),
@@ -347,7 +347,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     final status = statusText.toLowerCase();
     final isCompleted = status == 'completed';
     final category = booking['category'] as String? ?? '';
-    final categoryColor = Color(booking['categoryColor'] as int? ?? 0xFFFF5E00);
+    final categoryColor = Color(booking['categoryColor'] as int? ?? 0xFFFF5216);
     final hasBalanceDue = booking['hasBalanceDue'] == true;
 
     return Container(
@@ -500,7 +500,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               children: [
                 const Icon(
                   Icons.calendar_month_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 16,
                 ),
                 const SizedBox(width: 8),
@@ -523,7 +523,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               children: [
                 const Icon(
                   Icons.location_on_outlined,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 16,
                 ),
                 const SizedBox(width: 8),
@@ -566,7 +566,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                             width: 5,
                             height: 5,
                             decoration: const BoxDecoration(
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -574,7 +574,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           Text(
                             'orders_balance_due_badge'.tr,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 9.5,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.3,
@@ -624,7 +624,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                                 text:
                                     '${booking['actualWeight'] ?? ''} ${'svc_kg'.tr}',
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -682,7 +682,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     Text(
                       '${booking['balanceDue'] ?? ''}',
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
@@ -700,12 +700,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                      colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                     ),
                     borderRadius: BorderRadius.circular(23),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.3),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -779,7 +779,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       Text(
                         'orders_view_booking_details'.tr,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -787,7 +787,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       const SizedBox(width: 3),
                       const Icon(
                         Icons.chevron_right_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 16,
                       ),
                     ],

@@ -57,7 +57,7 @@ void showCancelBookingBottomSheet(
                   alignment: Alignment.center,
                   child: const Icon(
                     Icons.close_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 18,
                   ),
                 ),
@@ -167,7 +167,7 @@ void showCancelBookingBottomSheet(
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: isSelected
-                                                ? const Color(0xFFFF5E00)
+                                                ? const Color(0xFFFF5216)
                                                 : const Color(0xFF8A7264),
                                             width: 1.4,
                                           ),
@@ -176,7 +176,7 @@ void showCancelBookingBottomSheet(
                                         child: isSelected
                                             ? Container(
                                                 decoration: const BoxDecoration(
-                                                  color: Color(0xFFFF5E00),
+                                                  color: Color(0xFFFF5216),
                                                   shape: BoxShape.circle,
                                                 ),
                                               )
@@ -331,7 +331,7 @@ Future<bool> _cancelBooking(int? orderId, String reason) async {
     );
     showAppToast(
       message.isEmpty ? 'core_cancel_booking_done'.tr : message,
-      backgroundColor: const Color(0xFFFF5E00),
+      backgroundColor: const Color(0xFFFF5216),
     );
     return true;
   } on ApiException catch (error) {

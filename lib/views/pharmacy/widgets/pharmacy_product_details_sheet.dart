@@ -152,7 +152,7 @@ void showPharmacyProductDetailsSheet(
                                         Text(
                                           food['price']!,
                                           style: GoogleFonts.outfit(
-                                            color: const Color(0xFFFF5E00),
+                                            color: const Color(0xFFFF5216),
                                             fontSize: 20,
                                             fontWeight: FontWeight.w800,
                                           ),
@@ -175,7 +175,7 @@ void showPharmacyProductDetailsSheet(
                                           Text(
                                             discount,
                                             style: GoogleFonts.outfit(
-                                              color: const Color(0xFFFF5E00),
+                                              color: const Color(0xFFFF5216),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w700,
                                             ),
@@ -264,7 +264,7 @@ void showPharmacyProductDetailsSheet(
                                         ? null
                                         : const LinearGradient(
                                             colors: [
-                                              Color(0xFFFF5E00),
+                                              Color(0xFFFF5216),
                                               Color(0xFFFFAE00),
                                             ],
                                             begin: Alignment.centerLeft,
@@ -279,7 +279,7 @@ void showPharmacyProductDetailsSheet(
                                         : [
                                             BoxShadow(
                                               color: const Color(
-                                                0xFFFF5E00,
+                                                0xFFFF5216,
                                               ).withValues(alpha: 0.28),
                                               blurRadius: 10,
                                               offset: const Offset(0, 4),
@@ -342,7 +342,7 @@ void showPharmacyProductDetailsSheet(
                                       ? Icons.favorite_rounded
                                       : Icons.favorite_border_rounded,
                                   color: isLiked
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFA59A94),
                                   size: 20,
                                 ),
@@ -377,7 +377,7 @@ void showPharmacyProductDetailsSheet(
                         ),
                         child: const Icon(
                           Icons.close_rounded,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 22,
                         ),
                       ),

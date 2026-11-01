@@ -440,7 +440,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     color: const Color(0xFFFFF3EB),
                     child: const Icon(
                       Icons.local_laundry_service_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                     ),
                   ),
                 ),
@@ -467,7 +467,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 child: Text(
                   'svc_edit'.tr,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
                   ),
@@ -498,7 +498,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 Text(
                   'mru'.trParams({'amount': '${widget.basePrice}'}),
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
@@ -526,13 +526,13 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF3EB),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+        border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
       ),
       child: Row(
         children: [
           Icon(
             express ? Icons.bolt_rounded : Icons.local_shipping_rounded,
-            color: express ? const Color(0xFFFFB800) : const Color(0xFFFF5E00),
+            color: express ? const Color(0xFFFFB800) : const Color(0xFFFF5216),
             size: 26,
           ),
           const SizedBox(width: 14),
@@ -563,7 +563,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           ),
           const Icon(
             Icons.radio_button_checked,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 20,
           ),
         ],
@@ -647,7 +647,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     alignment: Alignment.topCenter,
                     child: Icon(
                       Icons.radio_button_checked,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: iconSize,
                     ),
                   ),
@@ -668,7 +668,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 children: [
                   _addressContent(
                     label: 'svc_pickup_upper'.tr,
-                    labelColor: const Color(0xFFFF5E00),
+                    labelColor: const Color(0xFFFF5216),
                     address: _pickup,
                     onEdit: () => _editAddress(pickup: true),
                   ),
@@ -735,7 +735,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           child: Text(
             'svc_edit'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
@@ -753,7 +753,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFFFF3EB),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+          border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
         ),
         child: Row(
           children: [
@@ -766,7 +766,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               ),
               child: const Icon(
                 Icons.calendar_month_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 20,
               ),
             ),
@@ -778,7 +778,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   Text(
                     'svc_pickup_slot'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -797,7 +797,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
             ),
             const Icon(
               Icons.chevron_right_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ],
@@ -824,7 +824,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE8DFD6),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFE8DFD6),
             width: selected ? 1.3 : 1,
           ),
         ),
@@ -837,7 +837,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                 color: Color(0xFFFFF0E6),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: const Color(0xFFFF5E00), size: 20),
+              child: Icon(icon, color: const Color(0xFFFF5216), size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -867,7 +867,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                   ? Icons.radio_button_checked_rounded
                   : Icons.radio_button_off_rounded,
               color: selected
-                  ? const Color(0xFFFF5E00)
+                  ? const Color(0xFFFF5216)
                   : const Color(0xFFB0A59C),
             ),
           ],
@@ -890,7 +890,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
           Text(
             'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
@@ -1000,7 +1000,7 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
                     Text(
                       'mru'.trParams({'amount': '$_toPay'}),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1047,13 +1047,13 @@ class _LaundryCartScreenState extends State<LaundryCartScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

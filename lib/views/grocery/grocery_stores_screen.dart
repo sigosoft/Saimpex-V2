@@ -405,7 +405,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                       children: [
                         const Icon(
                           Icons.access_time_rounded,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 13,
                         ),
                         const SizedBox(width: 4),
@@ -420,7 +420,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                         const SizedBox(width: 14),
                         const Icon(
                           Icons.location_on_outlined,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 13,
                         ),
                         const SizedBox(width: 4),
@@ -508,7 +508,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                     padding: EdgeInsets.symmetric(vertical: 32),
                                     child: Center(
                                       child: CircularProgressIndicator(
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                       ),
                                     ),
                                   )
@@ -619,7 +619,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                                     'lib/assets/images/All.png',
                                     width: 22,
                                     height: 22,
-                                    color: const Color(0xFFFF5E00),
+                                    color: const Color(0xFFFF5216),
                                   ),
                                 ),
                               )
@@ -665,7 +665,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                           overflow: TextOverflow.visible,
                           style: GoogleFonts.outfit(
                             color: isSelected
-                                ? const Color(0xFFFF5E00)
+                                ? const Color(0xFFFF5216)
                                 : const Color(0xFF3A312C),
                             fontSize: 11,
                             fontWeight: isSelected
@@ -683,7 +683,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                           width: 56,
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                             ),
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(12),

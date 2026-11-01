@@ -396,7 +396,7 @@ class _CarWashChooseWashServicesScreenState
                 alignment: Alignment.center,
                 child: const Icon(
                   Icons.directions_car_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                 ),
               ),
             ),
@@ -450,7 +450,7 @@ class _CarWashChooseWashServicesScreenState
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected ? const Color(0xFFFF5E00) : const Color(0xFFC4B8AF),
+          color: selected ? const Color(0xFFFF5216) : const Color(0xFFC4B8AF),
           width: selected ? 1.8 : 1.4,
         ),
       ),
@@ -460,7 +460,7 @@ class _CarWashChooseWashServicesScreenState
               width: 10,
               height: 10,
               decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 shape: BoxShape.circle,
               ),
             )
@@ -486,7 +486,7 @@ class _CarWashChooseWashServicesScreenState
           color: selected ? const Color(0xFFFFF2E9) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE5E5E5),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFE5E5E5),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -506,7 +506,7 @@ class _CarWashChooseWashServicesScreenState
                   color: const Color(0xFFFFF3EB),
                   child: const Icon(
                     Icons.local_car_wash_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 22,
                   ),
                 ),
@@ -553,7 +553,7 @@ class _CarWashChooseWashServicesScreenState
               'mru'.trParams({'amount': '$price'}),
               style: GoogleFonts.outfit(
                 color: selected
-                    ? const Color(0xFFFF5E00)
+                    ? const Color(0xFFFF5216)
                     : const Color(0xFF1A1A1A),
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -585,7 +585,7 @@ class _CarWashChooseWashServicesScreenState
           color: selected ? const Color(0xFFFFF2E9) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE5E5E5),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFE5E5E5),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -605,7 +605,7 @@ class _CarWashChooseWashServicesScreenState
                   color: const Color(0xFFFFF3EB),
                   child: const Icon(
                     Icons.local_car_wash_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 22,
                   ),
                 ),
@@ -652,7 +652,7 @@ class _CarWashChooseWashServicesScreenState
               'svc_plus_mru'.trParams({'amount': '$price'}),
               style: GoogleFonts.outfit(
                 color: selected
-                    ? const Color(0xFFFF5E00)
+                    ? const Color(0xFFFF5216)
                     : const Color(0xFF1A1A1A),
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -736,7 +736,7 @@ class _CarWashChooseWashServicesScreenState
           Text(
             'mru'.trParams({'amount': '$_totalPrice'}),
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 20,
               fontWeight: FontWeight.w800,
             ),
@@ -751,13 +751,13 @@ class _CarWashChooseWashServicesScreenState
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(28),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

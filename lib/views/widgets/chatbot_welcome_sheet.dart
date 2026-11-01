@@ -194,14 +194,14 @@ class _ChatBotWelcomeSheetState extends State<ChatBotWelcomeSheet> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.38),
                                 blurRadius: 16,
                                 offset: const Offset(0, 7),
@@ -274,7 +274,7 @@ class _LanguageChip extends StatelessWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: selected
-                    ? const Color(0xFFFF5E00)
+                    ? const Color(0xFFFF5216)
                     : const Color(0xFFBDBDBD),
                 shape: BoxShape.circle,
               ),

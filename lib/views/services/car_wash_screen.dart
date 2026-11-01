@@ -89,7 +89,7 @@ class CarWashScreen extends StatelessWidget {
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
               errorBuilder: (_, _, _) =>
-                  Container(height: 240, color: const Color(0xFFFF5E00)),
+                  Container(height: 240, color: const Color(0xFFFF5216)),
             ),
           ),
         ),
@@ -137,12 +137,12 @@ class CarWashScreen extends StatelessWidget {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.12),
+                      color: const Color(0xFFFF5216).withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.location_on_outlined,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 22,
                     ),
                   ),
@@ -283,10 +283,10 @@ class CarWashScreen extends StatelessWidget {
               'lib/assets/images/Voice.png',
               width: 15,
               height: 15,
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               errorBuilder: (_, _, _) => const Icon(
                 Icons.mic_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 16,
               ),
             ),
@@ -467,7 +467,7 @@ class CarWashScreen extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -507,7 +507,7 @@ class CarWashScreen extends StatelessWidget {
                             RichText(
                               text: TextSpan(
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontWeight: FontWeight.w800,
                                 ),
                                 children: [
@@ -535,12 +535,12 @@ class CarWashScreen extends StatelessWidget {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             borderRadius: BorderRadius.circular(30),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.25),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),

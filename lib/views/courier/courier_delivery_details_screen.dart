@@ -191,7 +191,7 @@ class _CourierDeliveryDetailsScreenState
                     ),
                   ),
                   _routeDot(
-                    fill: const Color(0xFFFF5E00),
+                    fill: const Color(0xFFFF5216),
                     halo: const Color(0xFFFFE0CC),
                   ),
                 ],
@@ -458,12 +458,12 @@ class _CourierDeliveryDetailsScreenState
         height: 54,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
           ),
           borderRadius: BorderRadius.circular(27),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.35),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -491,7 +491,7 @@ class _CourierDeliveryDetailsScreenState
           child: Text(
             'st_guidelines'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
@@ -602,7 +602,7 @@ class _CourierDeliveryDetailsScreenState
               Text(
                 'st_view_policy'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -610,7 +610,7 @@ class _CourierDeliveryDetailsScreenState
               const SizedBox(width: 4),
               const Icon(
                 Icons.chevron_right_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 18,
               ),
             ],

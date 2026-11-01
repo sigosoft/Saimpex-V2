@@ -151,7 +151,7 @@ class MyFavouritesScreen extends StatelessWidget {
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -287,7 +287,7 @@ class MyFavouritesScreen extends StatelessWidget {
                         if (_text(item, 'time').isNotEmpty) ...[
                           const Icon(
                             Icons.timer_outlined,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 15,
                           ),
                           const SizedBox(width: 5),
@@ -304,7 +304,7 @@ class MyFavouritesScreen extends StatelessWidget {
                         if (_text(item, 'dist').isNotEmpty) ...[
                           const Icon(
                             Icons.location_on_outlined,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 15,
                           ),
                           const SizedBox(width: 5),

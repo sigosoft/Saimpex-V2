@@ -121,7 +121,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
       if (!mounted) return;
       final message = '${result['message'] ?? ''}'.trim();
       if (message.isNotEmpty) {
-        showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+        showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       }
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -155,7 +155,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
       showAppToast(
         paid == true ? 'pad_paid'.tr : 'payment_not_completed'.tr,
         backgroundColor: paid == true
-            ? const Color(0xFFFF5E00)
+            ? const Color(0xFFFF5216)
             : const Color(0xFFEF4444),
       );
       await _load(quiet: true);
@@ -188,11 +188,11 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
               child: _loading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     )
                   : RefreshIndicator(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       onRefresh: _load,
                       child: ListView(
                         physics: const AlwaysScrollableScrollPhysics(
@@ -283,7 +283,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                 child: Text(
                   'subs_help'.tr,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -315,7 +315,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(width: 5, color: const Color(0xFFFF5E00)),
+            Container(width: 5, color: const Color(0xFFFF5216)),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(14),
@@ -450,7 +450,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                 'time': _countdown(_secondsLeft[id] ?? 0),
               }),
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -458,7 +458,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
             const SizedBox(height: 10),
             if (_answeringId == id)
               const Center(
-                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+                child: CircularProgressIndicator(color: Color(0xFFFF5216)),
               )
             else
               Row(
@@ -514,7 +514,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                 Text(
                   'mru'.trParams({'amount': _money(price)}),
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
@@ -557,7 +557,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
       ),
       _ => _badge(
         label: 'subs_waiting'.tr,
-        color: const Color(0xFFFF5E00),
+        color: const Color(0xFFFF5216),
         bg: const Color(0xFFFFF0EA),
         dot: true,
       ),
@@ -607,7 +607,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
             const SizedBox(height: 12),
             if (_payingDue)
               const Center(
-                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+                child: CircularProgressIndicator(color: Color(0xFFFF5216)),
               )
             else
               _button('subs_pay_due_online'.tr, onTap: _payDueOnline),
@@ -632,7 +632,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
           gradient: outlined
               ? null
               : const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                 ),
           borderRadius: BorderRadius.circular(22),
         ),

@@ -56,7 +56,7 @@ class LaundryBookingSuccessScreen extends StatelessWidget {
                     width: 110,
                     height: 110,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -94,7 +94,7 @@ class LaundryBookingSuccessScreen extends StatelessWidget {
                           child: Text(
                             'svc_back_to_home'.tr,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w700,
                             ),
@@ -112,14 +112,14 @@ class LaundryBookingSuccessScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.28),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),

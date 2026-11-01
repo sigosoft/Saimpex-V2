@@ -272,12 +272,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFFFF5E00)
+                                ? const Color(0xFFFF5216)
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(19),
                             border: Border.all(
                               color: isSelected
-                                  ? const Color(0xFFFF5E00)
+                                  ? const Color(0xFFFF5216)
                                   : const Color(0xFFEAD8C9),
                               width: 0.8,
                             ),
@@ -305,12 +305,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   child: (_isLoading && _chats.isEmpty)
                       ? const Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             strokeWidth: 2.5,
                           ),
                         )
                       : RefreshIndicator(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           onRefresh: _loadConversations,
                           child: chats.isEmpty
                               ? ListView(
@@ -434,7 +434,7 @@ class _MessageCard extends StatelessWidget {
                       color: const Color(0xFFF3EFEA),
                       child: const Icon(
                         Icons.storefront_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     ),
                   ),
@@ -489,7 +489,7 @@ class _MessageCard extends StatelessWidget {
                     padding: EdgeInsetsDirectional.only(start: 8, bottom: 4),
                     child: Icon(
                       Icons.delete_outline_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 18,
                     ),
                   ),
@@ -500,7 +500,7 @@ class _MessageCard extends StatelessWidget {
                     width: 18,
                     height: 18,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,

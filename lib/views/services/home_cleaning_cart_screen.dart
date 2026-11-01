@@ -472,14 +472,14 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             children: [
               const Icon(
                 Icons.delete_outline_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 18,
               ),
               const SizedBox(width: 4),
               Text(
                 'svc_clear_all'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -563,7 +563,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       child: Text(
                         'svc_edit'.tr,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -709,7 +709,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   ? 'svc_plus_mru'.trParams({'amount': '${widget.productsFee}'})
                   : 'mru'.trParams({'amount': '0'}),
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -738,7 +738,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         width: 1.8,
                       ),
                     ),
@@ -747,7 +747,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -798,7 +798,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                           'amount': '${widget.productsFee}',
                         }),
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -855,7 +855,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           Text(
             'mru'.trParams({'amount': '$total'}),
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 14.5,
               fontWeight: FontWeight.w800,
             ),
@@ -890,7 +890,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             ),
             child: const Icon(
               Icons.home_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ),
@@ -923,7 +923,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           Text(
             'svc_edit'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
@@ -941,7 +941,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFFFF3EB),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+          border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
         ),
         child: Row(
           children: [
@@ -949,7 +949,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
@@ -966,7 +966,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   Text(
                     'svc_your_slot'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
                     ),
@@ -983,7 +983,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFFFF5E00)),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFFFF5216)),
           ],
         ),
       ),
@@ -1029,12 +1029,12 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 imageAsset,
                 width: 20,
                 height: 20,
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 errorBuilder: (_, _, _) => Icon(
                   index == 0
                       ? Icons.account_balance_wallet_outlined
                       : Icons.credit_card_rounded,
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   size: 20,
                 ),
               ),
@@ -1069,7 +1069,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFC4B8AF),
                   width: 1.8,
                 ),
@@ -1080,7 +1080,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     )
@@ -1106,7 +1106,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           Text(
             'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
@@ -1215,7 +1215,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           Text(
             'mru'.trParams({'amount': '$_toPay'}),
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 20,
               fontWeight: FontWeight.w800,
             ),
@@ -1230,13 +1230,13 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(28),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1267,7 +1267,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       alignment: Alignment.center,
       child: const Icon(
         Icons.cleaning_services_rounded,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
       ),
     );
   }

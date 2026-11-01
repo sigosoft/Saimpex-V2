@@ -9,7 +9,7 @@ class BottomChatIcon extends StatelessWidget {
   const BottomChatIcon({
     super.key,
     this.size = 22,
-    this.color = const Color(0xFFFF5E00),
+    this.color = const Color(0xFFFF5216),
     this.strokeFactor = 0.075,
   });
 

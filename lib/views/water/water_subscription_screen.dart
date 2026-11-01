@@ -65,7 +65,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                       height: 50,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
@@ -73,7 +73,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                         boxShadow: [
                           BoxShadow(
                             color: const Color(
-                              0xFFFF5E00,
+                              0xFFFF5216,
                             ).withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
@@ -176,7 +176,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
           Text(
             'pw_how_it_works'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -213,17 +213,17 @@ class WaterSubscriptionScreen extends StatelessWidget {
                           height: 44,
                           decoration: BoxDecoration(
                             color: (step['isFilled'] as bool)
-                                ? const Color(0xFFFF5E00)
+                                ? const Color(0xFFFF5216)
                                 : Colors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               width: (step['isFilled'] as bool) ? 0 : 1.5,
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.12),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
@@ -248,7 +248,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                                     step['icon'] as IconData,
                                     color: (step['isFilled'] as bool)
                                         ? Colors.white
-                                        : const Color(0xFFFF5E00),
+                                        : const Color(0xFFFF5216),
                                     size: 22,
                                   ),
                           ),
@@ -287,7 +287,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                             Text(
                               step['title'] as String,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -348,7 +348,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
           Text(
             'pw_why_subscribe'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -416,7 +416,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                               )
                             : Icon(
                                 feat['icon'] as IconData,
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 size: 20,
                               ),
                       ),
@@ -425,7 +425,7 @@ class WaterSubscriptionScreen extends StatelessWidget {
                     Text(
                       feat['title'] as String,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),

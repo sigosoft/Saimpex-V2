@@ -285,7 +285,7 @@ class _CourierScreenState extends State<CourierScreen> {
                     ),
                   ),
                   _routeDot(
-                    fill: const Color(0xFFFF5E00),
+                    fill: const Color(0xFFFF5216),
                     halo: const Color(0xFFFFE0CC),
                   ),
                 ],
@@ -478,7 +478,7 @@ class _CourierScreenState extends State<CourierScreen> {
                       borderRadius: BorderRadius.circular(18),
                       border: isSelected
                           ? Border.all(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               width: 1.5,
                             )
                           : null,
@@ -521,7 +521,7 @@ class _CourierScreenState extends State<CourierScreen> {
                               Text(
                                 _timeText,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -549,7 +549,7 @@ class _CourierScreenState extends State<CourierScreen> {
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [
@@ -661,12 +661,12 @@ class _CourierScreenState extends State<CourierScreen> {
         height: 54,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
           ),
           borderRadius: BorderRadius.circular(27),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.35),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

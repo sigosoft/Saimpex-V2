@@ -121,7 +121,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
       alignment: Alignment.center,
       child: const Icon(
         Icons.description_outlined,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
         size: 40,
       ),
     );
@@ -280,14 +280,14 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.28),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -327,7 +327,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           Text(
             'pw_prescription'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
@@ -430,7 +430,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                 isDelivery ? 'pw_delivery'.tr : 'pw_self_pickup'.tr,
                 style: GoogleFonts.outfit(
                   color: isDelivery
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFF007DFE),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -462,7 +462,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                                 width: segment,
                                 height: 3,
                                 color: active
-                                    ? const Color(0xFFFF5E00)
+                                    ? const Color(0xFFFF5216)
                                     : const Color(0xFFE5DDD4),
                               );
                             }),
@@ -477,14 +477,14 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                                 height: circle,
                                 decoration: BoxDecoration(
                                   color: steps[i].done
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFEFE8E1),
                                   shape: BoxShape.circle,
                                   boxShadow: steps[i].highlight
                                       ? [
                                           BoxShadow(
                                             color: const Color(
-                                              0xFFFF5E00,
+                                              0xFFFF5216,
                                             ).withValues(alpha: 0.35),
                                             blurRadius: 10,
                                             spreadRadius: 1,
@@ -625,7 +625,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               Text(
                 ' ${'pw_mru_suffix'.tr}',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -662,7 +662,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
             ),
             child: const Icon(
               Icons.home_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ),
@@ -728,7 +728,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
             ),
             child: const Icon(
               Icons.local_pharmacy_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ),
@@ -763,7 +763,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           ),
           const Icon(
             Icons.chevron_right_rounded,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 22,
           ),
         ],
@@ -777,7 +777,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
       width: 46,
       height: 46,
       color: const Color(0xFFF3EFEA),
-      child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
+      child: const Icon(Icons.person, color: Color(0xFFFF5216)),
     );
     return Container(
       padding: const EdgeInsets.all(14),
@@ -874,7 +874,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           Text(
             'pw_quotation_summary_caps'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
@@ -893,8 +893,8 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           _payRow(
             'cart_redeemed_points'.tr,
             orderMoneyText(_payment['redeemed_points'], negative: true),
-            valueColor: const Color(0xFFFF5E00),
-            labelColor: const Color(0xFFFF5E00),
+            valueColor: const Color(0xFFFF5216),
+            labelColor: const Color(0xFFFF5216),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),

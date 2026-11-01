@@ -168,7 +168,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                     'svc_add_vehicles'.tr,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                     ),
@@ -220,7 +220,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                     ),
                                     border: Border.all(
                                       color: selected
-                                          ? const Color(0xFFFF5E00)
+                                          ? const Color(0xFFFF5216)
                                           : const Color(0xFFD8DEE8),
                                       width: selected ? 1.8 : 1.2,
                                     ),
@@ -255,7 +255,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                                     child: Icon(
                                                       Icons
                                                           .directions_car_rounded,
-                                                      color: Color(0xFFFF5E00),
+                                                      color: Color(0xFFFF5216),
                                                     ),
                                                   ),
                                             ),
@@ -418,7 +418,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                     borderRadius: BorderRadius.circular(28),
                                     gradient: const LinearGradient(
                                       colors: [
-                                        Color(0xFFFF5E00),
+                                        Color(0xFFFF5216),
                                         Color(0xFFFFAE00),
                                       ],
                                       begin: Alignment.centerLeft,
@@ -427,7 +427,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                     boxShadow: [
                                       BoxShadow(
                                         color: const Color(
-                                          0xFFFF5E00,
+                                          0xFFFF5216,
                                         ).withValues(alpha: 0.28),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
@@ -474,7 +474,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                 ),
                 child: const Icon(
                   Icons.close_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 22,
                 ),
               ),

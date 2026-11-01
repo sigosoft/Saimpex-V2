@@ -196,7 +196,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                       Text(
                                         '${reward['rewardValue'] ?? ''}',
                                         style: GoogleFonts.outfit(
-                                          color: const Color(0xFFFF5E00),
+                                          color: const Color(0xFFFF5216),
                                           fontSize: 20,
                                           fontWeight: FontWeight.w800,
                                         ),
@@ -227,7 +227,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                     children: [
                                       const Icon(
                                         Icons.shopping_basket_outlined,
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                         size: 20,
                                       ),
                                       const SizedBox(width: 8),
@@ -262,7 +262,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                             width: 24,
                                             height: 24,
                                             decoration: const BoxDecoration(
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               shape: BoxShape.circle,
                                             ),
                                             child: const Icon(
@@ -289,7 +289,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                 Text(
                                   points,
                                   style: GoogleFonts.outfit(
-                                    color: const Color(0xFFFF5E00),
+                                    color: const Color(0xFFFF5216),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -319,7 +319,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                             ),
                                             gradient: const LinearGradient(
                                               colors: [
-                                                Color(0xFFFF5E00),
+                                                Color(0xFFFF5216),
                                                 Color(0xFFFFAE00),
                                               ],
                                             ),
@@ -348,7 +348,7 @@ class RedeemDetailSheet extends StatelessWidget {
                                       gradient: redeemable
                                           ? const LinearGradient(
                                               colors: [
-                                                Color(0xFFFF5E00),
+                                                Color(0xFFFF5216),
                                                 Color(0xFFFFAE00),
                                               ],
                                             )
@@ -401,7 +401,7 @@ class RedeemDetailSheet extends StatelessWidget {
                   ),
                   child: const Icon(
                     Icons.close,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 22,
                   ),
                 ),

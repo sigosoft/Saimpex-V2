@@ -387,7 +387,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                           errorBuilder: (_, _, _) => const Center(
                             child: Icon(
                               Icons.directions_car_rounded,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                             ),
                           ),
                         ),
@@ -464,7 +464,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                     child: Text(
                       'svc_edit'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
                       ),
@@ -583,7 +583,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           Text(
             priceLabel,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 13,
               fontWeight: FontWeight.w800,
             ),
@@ -600,7 +600,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
       color: const Color(0xFFFFF3EB),
       child: const Icon(
         Icons.local_car_wash_rounded,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
         size: 22,
       ),
     );
@@ -631,7 +631,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             ),
             child: Icon(
               _atCustomer ? Icons.home_rounded : Icons.storefront_rounded,
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               size: 20,
             ),
           ),
@@ -664,7 +664,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           ),
           const Icon(
             Icons.chevron_right_rounded,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 22,
           ),
         ],
@@ -680,7 +680,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFFFF3EB),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+          border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
         ),
         child: Row(
           children: [
@@ -688,12 +688,12 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: const Color(0xFFFF5E00).withValues(alpha: 0.12),
+                color: const Color(0xFFFF5216).withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.calendar_month_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 20,
               ),
             ),
@@ -705,7 +705,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                   Text(
                     'svc_your_slot'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
                     ),
@@ -724,7 +724,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
             ),
             const Icon(
               Icons.chevron_right_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ],
@@ -751,7 +751,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : Colors.transparent,
+            color: selected ? const Color(0xFFFF5216) : Colors.transparent,
             width: 1.2,
           ),
           boxShadow: [
@@ -770,7 +770,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               height: 36,
               errorBuilder: (_, _, _) => const Icon(
                 Icons.account_balance_wallet_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 28,
               ),
             ),
@@ -806,7 +806,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFC4B8AF),
                   width: 1.8,
                 ),
@@ -817,7 +817,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     )
@@ -843,7 +843,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           Text(
             'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -952,7 +952,7 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
           Text(
             'mru'.trParams({'amount': '$_toPay'}),
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 20,
               fontWeight: FontWeight.w800,
             ),
@@ -967,13 +967,13 @@ class _CarWashCartScreenState extends State<CarWashCartScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(28),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

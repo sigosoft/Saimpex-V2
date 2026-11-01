@@ -59,7 +59,7 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen>
   bool _needsPinUpdate = false;
 
   static const Color _bg = Color(0xFFFFFDF9);
-  static const Color _orange = Color(0xFFFF5E00);
+  static const Color _orange = Color(0xFFFF5216);
 
   static const String _lightMapStyle = '''
 [

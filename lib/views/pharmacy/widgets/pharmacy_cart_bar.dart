@@ -32,7 +32,7 @@ class PharmacyCartBar extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -76,7 +76,7 @@ class PharmacyCartBar extends StatelessWidget {
                 Text(
                   price,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
@@ -84,7 +84,7 @@ class PharmacyCartBar extends StatelessWidget {
                 const SizedBox(width: 6),
                 const Icon(
                   Icons.chevron_right_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 20,
                 ),
               ],

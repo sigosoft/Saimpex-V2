@@ -164,7 +164,7 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
       child = const Padding(
         padding: EdgeInsets.symmetric(vertical: 28),
         child: Center(
-          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+          child: CircularProgressIndicator(color: Color(0xFFFF5216)),
         ),
       );
     } else if (_servicesError != null || _services.isEmpty) {
@@ -187,7 +187,7 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
                 child: Text(
                   'retry'.tr,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontWeight: FontWeight.w700,
                   ),
                 ),

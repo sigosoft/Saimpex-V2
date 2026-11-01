@@ -78,7 +78,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFFF5E00)
+                ? const Color(0xFFFF5216)
                 : const Color(0xFFEAD8C9),
             width: isSelected ? 1.5 : 1,
           ),
@@ -87,7 +87,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
           _chipKeys[label]?.tr ?? label,
           style: GoogleFonts.outfit(
             color: isSelected
-                ? const Color(0xFFFF5E00)
+                ? const Color(0xFFFF5216)
                 : const Color(0xFF2C2520),
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
@@ -159,7 +159,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                       child: Text(
                         'st_clear_all'.tr,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -192,7 +192,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                         'max': '${priceRange.end.round()}',
                       }),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
@@ -205,10 +205,10 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: const Color(0xFFFF5E00),
+                    activeTrackColor: const Color(0xFFFF5216),
                     inactiveTrackColor: const Color(0xFFF3EFEA),
                     overlayColor: const Color(
-                      0xFFFF5E00,
+                      0xFFFF5216,
                     ).withValues(alpha: 0.12),
                     rangeThumbShape: const _ExpressRangeThumbShape(
                       enabledThumbRadius: 10,
@@ -299,7 +299,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                         child: Text(
                           'st_clear_all'.tr,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                           ),
@@ -315,13 +315,13 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                             ),
                             borderRadius: BorderRadius.circular(25),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.35),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
@@ -365,7 +365,7 @@ class _ExpressFilterSheetState extends State<ExpressFilterSheet> {
               ),
               child: const Icon(
                 Icons.close_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 22,
               ),
             ),
@@ -412,7 +412,7 @@ class _ExpressRangeThumbShape extends RangeSliderThumbShape {
     canvas.drawCircle(center, enabledThumbRadius, fillPaint);
 
     final borderPaint = Paint()
-      ..color = const Color(0xFFFF5E00)
+      ..color = const Color(0xFFFF5216)
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(center, enabledThumbRadius - 1.25, borderPaint);

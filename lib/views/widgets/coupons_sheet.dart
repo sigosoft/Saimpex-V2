@@ -90,7 +90,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 32),
         child: Center(
-          child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+          child: CircularProgressIndicator(color: Color(0xFFFF5216)),
         ),
       );
     }
@@ -131,7 +131,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
               children: [
                 const Icon(
                   Icons.local_offer_outlined,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -171,7 +171,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
                   Text(
                     discount,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),

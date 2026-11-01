@@ -198,11 +198,11 @@ class _PharmacyTrackOrderScreenState extends State<PharmacyTrackOrderScreen>
           width: size,
           height: size,
           decoration: BoxDecoration(
-            color: const Color(0xFFFF5E00),
+            color: const Color(0xFFFF5216),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                 blurRadius: 10,
                 spreadRadius: 1,
               ),

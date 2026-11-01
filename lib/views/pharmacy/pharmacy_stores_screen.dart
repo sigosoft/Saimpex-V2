@@ -311,7 +311,7 @@ class _PharmacyStoreTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),

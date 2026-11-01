@@ -143,7 +143,7 @@ class OnboardingScreen extends StatelessWidget {
                   child: Text(
                     'core_onboarding_skip'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
@@ -279,7 +279,7 @@ class OnboardingScreen extends StatelessWidget {
                   child: Text(
                     'core_onboarding_skip'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),

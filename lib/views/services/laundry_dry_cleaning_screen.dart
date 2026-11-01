@@ -209,7 +209,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => const Icon(
                 Icons.dry_cleaning_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 48,
               ),
             ),
@@ -253,7 +253,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                 alignment: Alignment.center,
                 child: const Icon(
                   Icons.checkroom_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 26,
                 ),
               ),
@@ -276,7 +276,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                 Text(
                   'svc_price_per_item'.trParams({'amount': '$price'}),
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
                   ),
@@ -340,7 +340,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
         width: 30,
         height: 30,
         decoration: BoxDecoration(
-          color: filled ? const Color(0xFFFF5E00) : Colors.white,
+          color: filled ? const Color(0xFFFF5216) : Colors.white,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
@@ -352,7 +352,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
         ),
         child: Icon(
           icon,
-          color: filled ? Colors.white : const Color(0xFFFF5E00),
+          color: filled ? Colors.white : const Color(0xFFFF5216),
           size: 18,
         ),
       ),
@@ -395,7 +395,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                     Text(
                       'mru'.trParams({'amount': '$_totalPrice'}),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                       ),
@@ -440,13 +440,13 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

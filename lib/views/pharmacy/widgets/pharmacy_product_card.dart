@@ -90,7 +90,7 @@ class PharmacyProductCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: const BoxDecoration(
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(18),
                             bottomRight: Radius.circular(10),
@@ -185,7 +185,7 @@ class PharmacyProductCard extends StatelessWidget {
                               Text(
                                 food['price']!,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -215,7 +215,7 @@ class PharmacyProductCard extends StatelessWidget {
                                   ? null
                                   : const LinearGradient(
                                       colors: [
-                                        Color(0xFFFF5E00),
+                                        Color(0xFFFF5216),
                                         Color(0xFFFFAE00),
                                       ],
                                       begin: Alignment.centerLeft,
@@ -230,7 +230,7 @@ class PharmacyProductCard extends StatelessWidget {
                                   : [
                                       BoxShadow(
                                         color: const Color(
-                                          0xFFFF5E00,
+                                          0xFFFF5216,
                                         ).withValues(alpha: 0.30),
                                         blurRadius: 8,
                                         offset: const Offset(0, 3),

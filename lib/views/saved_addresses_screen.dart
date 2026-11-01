@@ -74,7 +74,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
             if (_id(row) != id) row,
         ],
       );
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
     } on ApiException catch (error) {
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     } finally {
@@ -116,7 +116,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
               ? 'core_addresses_this_address'.tr
               : _labelText('${address['label']}'),
         }),
-        backgroundColor: const Color(0xFFFF5E00),
+        backgroundColor: const Color(0xFFFF5216),
       );
       Get.back();
     } on ApiException catch (error) {
@@ -172,7 +172,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
             _buildHeader(context),
             Expanded(
               child: RefreshIndicator(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 onRefresh: _load,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(
@@ -185,7 +185,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 40),
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         )
                       else if (_addresses.isEmpty)
@@ -303,7 +303,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                   ),
                   child: Icon(
                     _iconFor(label),
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     size: 24,
                   ),
                 ),
@@ -339,7 +339,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                     ),
                   ),
               ],
@@ -353,7 +353,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                   child: Text(
                     'core_addresses_delete'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -365,7 +365,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
                   child: Text(
                     'core_addresses_edit'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -389,13 +389,13 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.32),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.32),
               blurRadius: 14,
               offset: const Offset(0, 6),
             ),

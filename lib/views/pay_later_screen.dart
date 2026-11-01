@@ -67,7 +67,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
           '${result['message'] ?? ''}'.trim().isEmpty
               ? 'pad_paid'.tr
               : '${result['message']}',
-          backgroundColor: const Color(0xFFFF5E00),
+          backgroundColor: const Color(0xFFFF5216),
         );
         if (Get.isRegistered<HomeController>()) {
           Get.find<HomeController>().walletBalance.value =
@@ -87,7 +87,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
         showAppToast(
           paid == true ? 'pad_paid'.tr : 'payment_not_completed'.tr,
           backgroundColor: paid == true
-              ? const Color(0xFFFF5E00)
+              ? const Color(0xFFFF5216)
               : const Color(0xFFEF4444),
         );
       }
@@ -137,7 +137,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
   Widget _buildBody() {
     if (_loading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+        child: CircularProgressIndicator(color: Color(0xFFFF5216)),
       );
     }
     if (_orders.isEmpty) {
@@ -157,7 +157,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
       );
     }
     return RefreshIndicator(
-      color: const Color(0xFFFF5E00),
+      color: const Color(0xFFFF5216),
       onRefresh: _load,
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -207,7 +207,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
               Text(
                 'mru'.trParams({'amount': _money(amount)}),
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
@@ -233,7 +233,7 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
             const SizedBox(height: 14),
             if (paying)
               const Center(
-                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+                child: CircularProgressIndicator(color: Color(0xFFFF5216)),
               )
             else
               Row(
@@ -275,17 +275,17 @@ class _PayLaterScreenState extends State<PayLaterScreen> {
           gradient: outlined
               ? null
               : const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                 ),
           borderRadius: BorderRadius.circular(22),
           border: outlined
-              ? Border.all(color: const Color(0xFFFF5E00), width: 1.3)
+              ? Border.all(color: const Color(0xFFFF5216), width: 1.3)
               : null,
         ),
         child: Text(
           label,
           style: GoogleFonts.outfit(
-            color: outlined ? const Color(0xFFFF5E00) : Colors.white,
+            color: outlined ? const Color(0xFFFF5216) : Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w800,
           ),

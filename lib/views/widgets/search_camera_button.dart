@@ -106,7 +106,7 @@ class _SearchCameraButtonState extends State<SearchCameraButton> {
               height: 18,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
               ),
             )
           : ColorFiltered(

@@ -139,7 +139,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 alignment: Alignment.center,
                 child: const Icon(
                   Icons.photo_camera_outlined,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 16,
                 ),
               ),
@@ -178,7 +178,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
-                      cursorColor: const Color(0xFFFF5E00),
+                      cursorColor: const Color(0xFFFF5216),
                       textInputAction: TextInputAction.done,
                       onSubmitted: (_) => controller.finishNameEdit(),
                       decoration: const InputDecoration(
@@ -264,7 +264,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
-                      cursorColor: const Color(0xFFFF5E00),
+                      cursorColor: const Color(0xFFFF5216),
                       textInputAction: TextInputAction.done,
                       onSubmitted: (_) => controller.finishPhoneEdit(),
                       decoration: const InputDecoration(
@@ -314,12 +314,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.edit_outlined, color: Color(0xFFFF5E00), size: 15),
+          const Icon(Icons.edit_outlined, color: Color(0xFFFF5216), size: 15),
           const SizedBox(width: 4),
           Text(
             'core_profile_edit'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
@@ -346,13 +346,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(27),
             gradient: const LinearGradient(
-              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF5E00).withValues(alpha: 0.40),
+                color: const Color(0xFFFF5216).withValues(alpha: 0.40),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),

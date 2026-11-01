@@ -97,7 +97,7 @@ class _HomeCleaningChooseSlotSheetState
             ),
             child: const Icon(
               Icons.close_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ),
@@ -142,7 +142,7 @@ class _HomeCleaningChooseSlotSheetState
                         ),
                         child: const Icon(
                           Icons.calendar_month_rounded,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 22,
                         ),
                       ),
@@ -217,7 +217,7 @@ class _HomeCleaningChooseSlotSheetState
                 return Theme(
                   data: Theme.of(context).copyWith(
                     colorScheme: const ColorScheme.light(
-                      primary: Color(0xFFFF5E00),
+                      primary: Color(0xFFFF5216),
                       onPrimary: Colors.white,
                       onSurface: Color(0xFF1A1A1A),
                     ),
@@ -250,14 +250,14 @@ class _HomeCleaningChooseSlotSheetState
             children: [
               const Icon(
                 Icons.calendar_today_outlined,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 14,
               ),
               const SizedBox(width: 5),
               Text(
                 'svc_calendar_view'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -294,7 +294,7 @@ class _HomeCleaningChooseSlotSheetState
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFE6E0DA),
                   width: selected ? 1.5 : 1,
                 ),
@@ -306,7 +306,7 @@ class _HomeCleaningChooseSlotSheetState
                     _monthLabel(date),
                     style: GoogleFonts.outfit(
                       color: selected
-                          ? const Color(0xFFFF5E00)
+                          ? const Color(0xFFFF5216)
                           : const Color(0xFF9A8E86),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -331,7 +331,7 @@ class _HomeCleaningChooseSlotSheetState
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.outfit(
                       color: selected
-                          ? const Color(0xFFFF5E00)
+                          ? const Color(0xFFFF5216)
                           : const Color(0xFF9A8E86),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w500,
@@ -381,7 +381,7 @@ class _HomeCleaningChooseSlotSheetState
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE6E0DA),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFE6E0DA),
             width: selected ? 1.4 : 1,
           ),
         ),
@@ -390,7 +390,7 @@ class _HomeCleaningChooseSlotSheetState
           children: [
             const Icon(
               Icons.access_time_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 16,
             ),
             const SizedBox(width: 6),
@@ -463,13 +463,13 @@ class _HomeCleaningChooseSlotSheetState
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.28),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

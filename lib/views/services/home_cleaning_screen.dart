@@ -103,7 +103,7 @@ class HomeCleaningScreen extends StatelessWidget {
           width: double.infinity,
           fit: BoxFit.cover,
           errorBuilder: (_, _, _) =>
-              Container(height: 240, color: const Color(0xFFFF5E00)),
+              Container(height: 240, color: const Color(0xFFFF5216)),
         ),
         Positioned(
           left: 16,
@@ -143,7 +143,7 @@ class HomeCleaningScreen extends StatelessWidget {
               ),
               child: const Icon(
                 Icons.location_on_outlined,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 20,
               ),
             ),
@@ -319,7 +319,7 @@ class HomeCleaningScreen extends StatelessWidget {
               alignment: Alignment.center,
               child: const Icon(
                 Icons.cleaning_services_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 24,
               ),
             ),
@@ -388,10 +388,10 @@ class HomeCleaningScreen extends StatelessWidget {
               'lib/assets/images/Voice.png',
               width: 16,
               height: 16,
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               errorBuilder: (_, _, _) => const Icon(
                 Icons.settings_voice_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 18,
               ),
             ),
@@ -561,7 +561,7 @@ class HomeCleaningScreen extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -595,7 +595,7 @@ class HomeCleaningScreen extends StatelessWidget {
                             RichText(
                               text: TextSpan(
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontWeight: FontWeight.w800,
                                 ),
                                 children: [
@@ -624,12 +624,12 @@ class HomeCleaningScreen extends StatelessWidget {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.25),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),

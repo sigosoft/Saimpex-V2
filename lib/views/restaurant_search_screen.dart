@@ -141,12 +141,12 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: selected
-                              ? const Color(0xFFFF5E00)
+                              ? const Color(0xFFFF5216)
                               : Colors.white,
                           borderRadius: BorderRadius.circular(17),
                           border: Border.all(
                             color: selected
-                                ? const Color(0xFFFF5E00)
+                                ? const Color(0xFFFF5216)
                                 : const Color(0xFFEAD8C9),
                           ),
                         ),
@@ -170,7 +170,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
               child: _loading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     )
                   : !hasResults
@@ -354,7 +354,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),

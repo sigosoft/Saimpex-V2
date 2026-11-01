@@ -169,7 +169,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
               child: _isLoading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     )
                   : SingleChildScrollView(

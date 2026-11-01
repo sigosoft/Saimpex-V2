@@ -424,7 +424,7 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _buildPrescriptionSection() {
     final attached = _hasPrescription;
-    final accent = attached ? const Color(0xFF00A854) : const Color(0xFFFF5E00);
+    final accent = attached ? const Color(0xFF00A854) : const Color(0xFFFF5216);
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
@@ -490,7 +490,7 @@ class _CartScreenState extends State<CartScreen> {
               child: Text(
                 'orders_upload'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -533,7 +533,7 @@ class _CartScreenState extends State<CartScreen> {
       if (mounted && _appliedCoupon == code && code != previous) {
         showAppToast(
           'coupon_applied'.tr,
-          backgroundColor: const Color(0xFFFF5E00),
+          backgroundColor: const Color(0xFFFF5216),
         );
       }
       return;
@@ -546,7 +546,7 @@ class _CartScreenState extends State<CartScreen> {
       );
       if (!mounted) return;
       _appliedCoupon = code;
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       await _loadCheckoutSummary();
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -702,7 +702,7 @@ class _CartScreenState extends State<CartScreen> {
   ) async {
     final checkoutMessage = '${placed['message'] ?? ''}'.trim();
     if (checkoutMessage.isNotEmpty) {
-      showAppToast(checkoutMessage, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(checkoutMessage, backgroundColor: const Color(0xFFFF5216));
     }
     var paymentUrl = _paymentPageUrl(placed['payment_url']);
     if (selectedPaymentIndex == 1) {
@@ -782,7 +782,7 @@ class _CartScreenState extends State<CartScreen> {
       if (!mounted) return null;
       final message = '${started['message'] ?? ''}'.trim();
       if (message.isNotEmpty) {
-        showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+        showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       }
       return _paymentPageUrlFrom(started);
     } on ApiException catch (error) {
@@ -1284,7 +1284,7 @@ class _CartScreenState extends State<CartScreen> {
                     Text(
                       'mru'.trParams({'amount': '$total'}),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1315,7 +1315,7 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         child: const Icon(
                           Icons.remove,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           size: 13,
                         ),
                       ),
@@ -1340,7 +1340,7 @@ class _CartScreenState extends State<CartScreen> {
                         width: 22,
                         height: 22,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -1501,7 +1501,7 @@ class _CartScreenState extends State<CartScreen> {
                           padding: EdgeInsets.symmetric(vertical: 28),
                           child: Center(
                             child: CircularProgressIndicator(
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                             ),
                           ),
                         ),
@@ -1633,7 +1633,7 @@ class _CartScreenState extends State<CartScreen> {
                                             'amount': '${basePrice * quantity}',
                                           }),
                                           style: GoogleFonts.outfit(
-                                            color: const Color(0xFFFF5E00),
+                                            color: const Color(0xFFFF5216),
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -1669,7 +1669,7 @@ class _CartScreenState extends State<CartScreen> {
                                             ),
                                             child: const Icon(
                                               Icons.remove,
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               size: 13,
                                             ),
                                           ),
@@ -1691,7 +1691,7 @@ class _CartScreenState extends State<CartScreen> {
                                             width: 22,
                                             height: 22,
                                             decoration: const BoxDecoration(
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               shape: BoxShape.circle,
                                             ),
                                             child: const Icon(
@@ -1785,7 +1785,7 @@ class _CartScreenState extends State<CartScreen> {
                                   child: Text(
                                     'orders_add_product'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -1917,7 +1917,7 @@ class _CartScreenState extends State<CartScreen> {
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
                                       color: isDelivery
-                                          ? const Color(0xFFFF5E00)
+                                          ? const Color(0xFFFF5216)
                                           : const Color(0xFFEAD8C9),
                                       width: isDelivery ? 1.5 : 0.8,
                                     ),
@@ -1931,7 +1931,7 @@ class _CartScreenState extends State<CartScreen> {
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: isDelivery
-                                                ? const Color(0xFFFF5E00)
+                                                ? const Color(0xFFFF5216)
                                                 : const Color(0xFFA59A94),
                                             width: 1.5,
                                           ),
@@ -1940,7 +1940,7 @@ class _CartScreenState extends State<CartScreen> {
                                         child: isDelivery
                                             ? Container(
                                                 decoration: const BoxDecoration(
-                                                  color: Color(0xFFFF5E00),
+                                                  color: Color(0xFFFF5216),
                                                   shape: BoxShape.circle,
                                                 ),
                                               )
@@ -1997,7 +1997,7 @@ class _CartScreenState extends State<CartScreen> {
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
                                       color: !isDelivery
-                                          ? const Color(0xFFFF5E00)
+                                          ? const Color(0xFFFF5216)
                                           : const Color(0xFFEAD8C9),
                                       width: !isDelivery ? 1.5 : 0.8,
                                     ),
@@ -2011,7 +2011,7 @@ class _CartScreenState extends State<CartScreen> {
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: !isDelivery
-                                                ? const Color(0xFFFF5E00)
+                                                ? const Color(0xFFFF5216)
                                                 : const Color(0xFFA59A94),
                                             width: 1.5,
                                           ),
@@ -2020,7 +2020,7 @@ class _CartScreenState extends State<CartScreen> {
                                         child: !isDelivery
                                             ? Container(
                                                 decoration: const BoxDecoration(
-                                                  color: Color(0xFFFF5E00),
+                                                  color: Color(0xFFFF5216),
                                                   shape: BoxShape.circle,
                                                 ),
                                               )
@@ -2086,7 +2086,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   child: const Icon(
                                     Icons.home_outlined,
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                     size: 16,
                                   ),
                                 ),
@@ -2137,7 +2137,7 @@ class _CartScreenState extends State<CartScreen> {
                                   child: Text(
                                     'orders_edit'.tr,
                                     style: GoogleFonts.outfit(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -2175,7 +2175,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   child: const Icon(
                                     Icons.location_on_rounded,
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                     size: 20,
                                   ),
                                 ),
@@ -2210,7 +2210,7 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                                 const Icon(
                                   Icons.chevron_right_rounded,
-                                  color: Color(0xFFFF5E00),
+                                  color: Color(0xFFFF5216),
                                   size: 22,
                                 ),
                               ],
@@ -2320,7 +2320,7 @@ class _CartScreenState extends State<CartScreen> {
                               child: Text(
                                 'orders_view_coupons'.tr,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -2345,7 +2345,7 @@ class _CartScreenState extends State<CartScreen> {
                             children: [
                               const Icon(
                                 Icons.local_offer_outlined,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 16,
                               ),
                               const SizedBox(width: 8),
@@ -2372,7 +2372,7 @@ class _CartScreenState extends State<CartScreen> {
                                 child: Text(
                                   'orders_apply'.tr,
                                   style: GoogleFonts.outfit(
-                                    color: const Color(0xFFFF5E00),
+                                    color: const Color(0xFFFF5216),
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -2416,7 +2416,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                     child: const Icon(
                                       Icons.monetization_on_outlined,
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       size: 15,
                                     ),
                                   ),
@@ -2457,7 +2457,7 @@ class _CartScreenState extends State<CartScreen> {
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: usePoints
-                                            ? const Color(0xFFFF5E00)
+                                            ? const Color(0xFFFF5216)
                                             : const Color(0xFFA59A94),
                                         width: 1.5,
                                       ),
@@ -2466,7 +2466,7 @@ class _CartScreenState extends State<CartScreen> {
                                     child: usePoints
                                         ? Container(
                                             decoration: const BoxDecoration(
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               shape: BoxShape.circle,
                                             ),
                                           )
@@ -2521,7 +2521,7 @@ class _CartScreenState extends State<CartScreen> {
                                 borderRadius: BorderRadius.circular(100),
                                 border: Border.all(
                                   color: selectedPaymentIndex == 3
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFEAD8C9),
                                   width: selectedPaymentIndex == 3 ? 1.5 : 0.8,
                                 ),
@@ -2546,7 +2546,7 @@ class _CartScreenState extends State<CartScreen> {
                                     child: const Center(
                                       child: Icon(
                                         Icons.verified_user_rounded,
-                                        color: Color(0xFFFF5E00),
+                                        color: Color(0xFFFF5216),
                                         size: 20,
                                       ),
                                     ),
@@ -2588,7 +2588,7 @@ class _CartScreenState extends State<CartScreen> {
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: selectedPaymentIndex == 3
-                                            ? const Color(0xFFFF5E00)
+                                            ? const Color(0xFFFF5216)
                                             : const Color(0xFFA59A94),
                                         width: 1.5,
                                       ),
@@ -2597,7 +2597,7 @@ class _CartScreenState extends State<CartScreen> {
                                     child: selectedPaymentIndex == 3
                                         ? Container(
                                             decoration: const BoxDecoration(
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               shape: BoxShape.circle,
                                             ),
                                           )
@@ -2624,7 +2624,7 @@ class _CartScreenState extends State<CartScreen> {
                                 borderRadius: BorderRadius.circular(100),
                                 border: Border.all(
                                   color: selectedPaymentIndex == 0
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFEAD8C9),
                                   width: selectedPaymentIndex == 0 ? 1.5 : 0.8,
                                 ),
@@ -2644,7 +2644,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                     child: const Icon(
                                       Icons.account_balance_wallet_outlined,
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       size: 16,
                                     ),
                                   ),
@@ -2681,7 +2681,7 @@ class _CartScreenState extends State<CartScreen> {
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: selectedPaymentIndex == 0
-                                            ? const Color(0xFFFF5E00)
+                                            ? const Color(0xFFFF5216)
                                             : const Color(0xFFA59A94),
                                         width: 1.5,
                                       ),
@@ -2690,7 +2690,7 @@ class _CartScreenState extends State<CartScreen> {
                                     child: selectedPaymentIndex == 0
                                         ? Container(
                                             decoration: const BoxDecoration(
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               shape: BoxShape.circle,
                                             ),
                                           )
@@ -2716,7 +2716,7 @@ class _CartScreenState extends State<CartScreen> {
                                 borderRadius: BorderRadius.circular(100),
                                 border: Border.all(
                                   color: selectedPaymentIndex == 1
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFEAD8C9),
                                   width: selectedPaymentIndex == 1 ? 1.5 : 0.8,
                                 ),
@@ -2736,7 +2736,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                     child: const Icon(
                                       Icons.credit_card_outlined,
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       size: 16,
                                     ),
                                   ),
@@ -2773,7 +2773,7 @@ class _CartScreenState extends State<CartScreen> {
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: selectedPaymentIndex == 1
-                                            ? const Color(0xFFFF5E00)
+                                            ? const Color(0xFFFF5216)
                                             : const Color(0xFFA59A94),
                                         width: 1.5,
                                       ),
@@ -2782,7 +2782,7 @@ class _CartScreenState extends State<CartScreen> {
                                     child: selectedPaymentIndex == 1
                                         ? Container(
                                             decoration: const BoxDecoration(
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               shape: BoxShape.circle,
                                             ),
                                           )
@@ -2808,7 +2808,7 @@ class _CartScreenState extends State<CartScreen> {
                                 borderRadius: BorderRadius.circular(100),
                                 border: Border.all(
                                   color: selectedPaymentIndex == 2
-                                      ? const Color(0xFFFF5E00)
+                                      ? const Color(0xFFFF5216)
                                       : const Color(0xFFEAD8C9),
                                   width: selectedPaymentIndex == 2 ? 1.5 : 0.8,
                                 ),
@@ -2828,7 +2828,7 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                     child: const Icon(
                                       Icons.monetization_on_outlined,
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       size: 16,
                                     ),
                                   ),
@@ -2865,7 +2865,7 @@ class _CartScreenState extends State<CartScreen> {
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: selectedPaymentIndex == 2
-                                            ? const Color(0xFFFF5E00)
+                                            ? const Color(0xFFFF5216)
                                             : const Color(0xFFA59A94),
                                         width: 1.5,
                                       ),
@@ -2874,7 +2874,7 @@ class _CartScreenState extends State<CartScreen> {
                                     child: selectedPaymentIndex == 2
                                         ? Container(
                                             decoration: const BoxDecoration(
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               shape: BoxShape.circle,
                                             ),
                                           )
@@ -2902,7 +2902,7 @@ class _CartScreenState extends State<CartScreen> {
                               Text(
                                 'orders_payment_details'.tr,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -2947,7 +2947,7 @@ class _CartScreenState extends State<CartScreen> {
                                     Text(
                                       '-${'mru'.trParams({'amount': '$pointsOff'})}',
                                       style: GoogleFonts.outfit(
-                                        color: const Color(0xFFFF5E00),
+                                        color: const Color(0xFFFF5216),
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -3062,7 +3062,7 @@ class _CartScreenState extends State<CartScreen> {
                             height: 48,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -3070,7 +3070,7 @@ class _CartScreenState extends State<CartScreen> {
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(
-                                    0xFFFF5E00,
+                                    0xFFFF5216,
                                   ).withValues(alpha: 0.3),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
@@ -3147,7 +3147,7 @@ class _CartScreenState extends State<CartScreen> {
                   alignment: Alignment.center,
                   child: const Icon(
                     Icons.close_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 18,
                   ),
                 ),
@@ -3192,7 +3192,7 @@ class _CartScreenState extends State<CartScreen> {
                           alignment: Alignment.center,
                           child: const Icon(
                             Icons.shopping_cart,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 22,
                           ),
                         ),
@@ -3249,7 +3249,7 @@ class _CartScreenState extends State<CartScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFC14D)],
+                              colors: [Color(0xFFFF5216), Color(0xFFFFC14D)],
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -3271,7 +3271,7 @@ class _CartScreenState extends State<CartScreen> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
@@ -3441,7 +3441,7 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                               child: const Icon(
                                 Icons.calendar_today_outlined,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 20,
                               ),
                             ),
@@ -3524,7 +3524,7 @@ class _CartScreenState extends State<CartScreen> {
                                           ),
                                           border: Border.all(
                                             color: isSelected
-                                                ? const Color(0xFFFF5E00)
+                                                ? const Color(0xFFFF5216)
                                                 : const Color(0xFFEAD8C9),
                                             width: isSelected ? 1.5 : 1,
                                           ),
@@ -3537,7 +3537,7 @@ class _CartScreenState extends State<CartScreen> {
                                               months[date.month - 1].tr,
                                               style: GoogleFonts.outfit(
                                                 color: isSelected
-                                                    ? const Color(0xFFFF5E00)
+                                                    ? const Color(0xFFFF5216)
                                                     : const Color(0xFFA59A94),
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.w600,
@@ -3557,7 +3557,7 @@ class _CartScreenState extends State<CartScreen> {
                                               weekdays[date.weekday - 1].tr,
                                               style: GoogleFonts.outfit(
                                                 color: isSelected
-                                                    ? const Color(0xFFFF5E00)
+                                                    ? const Color(0xFFFF5216)
                                                     : const Color(0xFFA59A94),
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w500,
@@ -3607,7 +3607,7 @@ class _CartScreenState extends State<CartScreen> {
                                           ),
                                           border: Border.all(
                                             color: isSelected
-                                                ? const Color(0xFFFF5E00)
+                                                ? const Color(0xFFFF5216)
                                                 : const Color(0xFFE6E0DB),
                                             width: isSelected ? 1.5 : 1,
                                           ),
@@ -3621,7 +3621,7 @@ class _CartScreenState extends State<CartScreen> {
                                           children: [
                                             const Icon(
                                               Icons.access_time_rounded,
-                                              color: Color(0xFFFF5E00),
+                                              color: Color(0xFFFF5216),
                                               size: 16,
                                             ),
                                             const SizedBox(width: 6),
@@ -3631,7 +3631,7 @@ class _CartScreenState extends State<CartScreen> {
                                                 overflow: TextOverflow.ellipsis,
                                                 style: GoogleFonts.outfit(
                                                   color: const Color(
-                                                    0xFFFF5E00,
+                                                    0xFFFF5216,
                                                   ),
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
@@ -3678,7 +3678,7 @@ class _CartScreenState extends State<CartScreen> {
                                   }),
                                   style: GoogleFonts.outfit(),
                                 ),
-                                backgroundColor: const Color(0xFFFF5E00),
+                                backgroundColor: const Color(0xFFFF5216),
                               ),
                             );
                           },
@@ -3687,7 +3687,7 @@ class _CartScreenState extends State<CartScreen> {
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -3695,7 +3695,7 @@ class _CartScreenState extends State<CartScreen> {
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(
-                                    0xFFFF5E00,
+                                    0xFFFF5216,
                                   ).withValues(alpha: 0.35),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
@@ -3736,7 +3736,7 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                       child: const Icon(
                         Icons.close_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 22,
                       ),
                     ),

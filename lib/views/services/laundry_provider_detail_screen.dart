@@ -139,7 +139,7 @@ class _LaundryProviderDetailScreenState
         height: 80,
         errorBuilder: (_, _, _) => const Icon(
           Icons.local_laundry_service_rounded,
-          color: Color(0xFFFF5E00),
+          color: Color(0xFFFF5216),
           size: 48,
         ),
       ),
@@ -196,7 +196,7 @@ class _LaundryProviderDetailScreenState
               const SizedBox(width: 12),
               const Icon(
                 Icons.location_on_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 15,
               ),
               const SizedBox(width: 3),
@@ -246,13 +246,13 @@ class _LaundryProviderDetailScreenState
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -301,7 +301,7 @@ class _LaundryProviderDetailScreenState
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
                               color: _selectedTab == i
-                                  ? const Color(0xFFFF5E00)
+                                  ? const Color(0xFFFF5216)
                                   : const Color(0xFF9A8E86),
                               fontSize: 14,
                               fontWeight: _selectedTab == i
@@ -315,7 +315,7 @@ class _LaundryProviderDetailScreenState
                           height: 2.5,
                           width: _selectedTab == i ? 64 : 0,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -345,7 +345,7 @@ class _LaundryProviderDetailScreenState
       alignment: Alignment.center,
       child: const Icon(
         Icons.local_laundry_service_rounded,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
       ),
     );
 
@@ -470,7 +470,7 @@ class _LaundryProviderDetailScreenState
                             Text(
                               item['price']!,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -482,7 +482,7 @@ class _LaundryProviderDetailScreenState
                             Text(
                               item['price']!,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -536,14 +536,14 @@ class _LaundryProviderDetailScreenState
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           width: 1.4,
                         ),
                       ),
                       child: Text(
                         'svc_view_prices'.tr,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -561,14 +561,14 @@ class _LaundryProviderDetailScreenState
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
                         boxShadow: [
                           BoxShadow(
                             color: const Color(
-                              0xFFFF5E00,
+                              0xFFFF5216,
                             ).withValues(alpha: 0.28),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
@@ -613,7 +613,7 @@ class _LaundryProviderDetailScreenState
               padding: const EdgeInsets.symmetric(vertical: 28),
               child: Center(
                 child: reviewsLoading
-                    ? const CircularProgressIndicator(color: Color(0xFFFF5E00))
+                    ? const CircularProgressIndicator(color: Color(0xFFFF5216))
                     : Text(
                         'core_no_reviews_yet'.tr,
                         style: GoogleFonts.outfit(
@@ -729,7 +729,7 @@ class _LaundryProviderDetailScreenState
                   Container(color: const Color(0xFFFFE8DC)),
                   FractionallySizedBox(
                     widthFactor: pct.clamp(0.0, 1.0),
-                    child: Container(color: const Color(0xFFFF5E00)),
+                    child: Container(color: const Color(0xFFFF5216)),
                   ),
                 ],
               ),
@@ -773,7 +773,7 @@ class _LaundryProviderDetailScreenState
                 ),
                 decoration: BoxDecoration(
                   color: _reviewFilter == i
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFFFEDE6),
                   borderRadius: BorderRadius.circular(50),
                 ),
@@ -829,7 +829,7 @@ class _LaundryProviderDetailScreenState
                     color: const Color(0xFFFFF3EB),
                     child: const Icon(
                       Icons.person_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                     ),
                   ),
                 ),
@@ -866,7 +866,7 @@ class _LaundryProviderDetailScreenState
                     Icons.star_rounded,
                     size: 14,
                     color: i < rating
-                        ? const Color(0xFFFF5E00)
+                        ? const Color(0xFFFF5216)
                         : const Color(0xFFE0D6CC),
                   ),
                 ),

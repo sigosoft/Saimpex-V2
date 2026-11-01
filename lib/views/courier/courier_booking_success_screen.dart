@@ -83,7 +83,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                             child: Text(
                               'st_back_to_home'.tr,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -103,7 +103,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                           height: 50,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -111,7 +111,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.35),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),

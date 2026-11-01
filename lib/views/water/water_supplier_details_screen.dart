@@ -156,7 +156,7 @@ class _WaterSupplierDetailsScreenState
                   height: 14,
                   errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 16,
                   ),
                 ),
@@ -323,7 +323,7 @@ class _WaterSupplierDetailsScreenState
                                 children: [
                                   const Icon(
                                     Icons.access_time_rounded,
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                     size: 15,
                                   ),
                                   const SizedBox(width: 4),
@@ -338,7 +338,7 @@ class _WaterSupplierDetailsScreenState
                                   const SizedBox(width: 14),
                                   const Icon(
                                     Icons.location_on_outlined,
-                                    color: Color(0xFFFF5E00),
+                                    color: Color(0xFFFF5216),
                                     size: 15,
                                   ),
                                   const SizedBox(width: 4),
@@ -357,7 +357,7 @@ class _WaterSupplierDetailsScreenState
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
@@ -390,7 +390,7 @@ class _WaterSupplierDetailsScreenState
                                         decoration: BoxDecoration(
                                           gradient: const LinearGradient(
                                             colors: [
-                                              Color(0xFFFF5E00),
+                                              Color(0xFFFF5216),
                                               Color(0xFFFFAE00),
                                             ],
                                             begin: Alignment.centerLeft,
@@ -402,7 +402,7 @@ class _WaterSupplierDetailsScreenState
                                           boxShadow: [
                                             BoxShadow(
                                               color: const Color(
-                                                0xFFFF5E00,
+                                                0xFFFF5216,
                                               ).withValues(alpha: 0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 4),
@@ -454,7 +454,7 @@ class _WaterSupplierDetailsScreenState
                                             ? Icons.favorite_rounded
                                             : Icons.favorite_border_rounded,
                                         color: _isFavorite
-                                            ? const Color(0xFFFF5E00)
+                                            ? const Color(0xFFFF5216)
                                             : const Color(0xFF2C2520),
                                         size: 20,
                                       ),
@@ -501,7 +501,7 @@ class _WaterSupplierDetailsScreenState
                       child: _productsLoading
                           ? const Center(
                               child: CircularProgressIndicator(
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                               ),
                             )
                           : products.isEmpty
@@ -631,7 +631,7 @@ class _WaterSupplierDetailsScreenState
               width: 36,
               height: 36,
               decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -687,7 +687,7 @@ class _WaterSupplierDetailsScreenState
                 Text(
                   price,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
@@ -695,7 +695,7 @@ class _WaterSupplierDetailsScreenState
                 const SizedBox(width: 6),
                 const Icon(
                   Icons.chevron_right_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 20,
                 ),
               ],
@@ -753,7 +753,7 @@ class _WaterSupplierDetailsScreenState
             'pw_added_to_cart'.trParams({'name': '${item['title']}'}),
             style: GoogleFonts.outfit(),
           ),
-          backgroundColor: const Color(0xFFFF5E00),
+          backgroundColor: const Color(0xFFFF5216),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -807,7 +807,7 @@ class _WaterSupplierDetailsScreenState
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -840,7 +840,7 @@ class _WaterSupplierDetailsScreenState
                         child: Text(
                           item['bottleTag'] as String,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
                           ),
@@ -859,7 +859,7 @@ class _WaterSupplierDetailsScreenState
                         child: Text(
                           item['sizeTag'] as String,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
                           ),
@@ -924,7 +924,7 @@ class _WaterSupplierDetailsScreenState
                       Text(
                         item['price'] as String,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
@@ -956,7 +956,7 @@ class _WaterSupplierDetailsScreenState
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 width: 1.0,
                               ),
                             ),
@@ -964,7 +964,7 @@ class _WaterSupplierDetailsScreenState
                               child: Text(
                                 'pw_subscribe_caps'.tr,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -981,7 +981,7 @@ class _WaterSupplierDetailsScreenState
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -989,7 +989,7 @@ class _WaterSupplierDetailsScreenState
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(
-                                    0xFFFF5E00,
+                                    0xFFFF5216,
                                   ).withValues(alpha: 0.25),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
