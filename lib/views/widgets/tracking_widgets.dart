@@ -41,7 +41,7 @@ class TrackingSummary extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 )
-              : const CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              : const CircularProgressIndicator(color: Color(0xFFFF5216)),
         ),
       );
     }
@@ -58,7 +58,7 @@ class TrackingSummary extends StatelessWidget {
         ? const Color(0xFFE03A3A)
         : data.isDelivered
         ? const Color(0xFF00B25C)
-        : const Color(0xFFFF5E00);
+        : const Color(0xFFFF5216);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -121,7 +121,7 @@ class TrackingSummary extends StatelessWidget {
     Widget line(bool done) => Expanded(
       child: Container(
         height: 2,
-        color: done ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
+        color: done ? const Color(0xFFFF5216) : const Color(0xFFEAD8C9),
       ),
     );
     return Stack(
@@ -178,12 +178,12 @@ class TrackingSummary extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: active ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
+              color: active ? const Color(0xFFFF5216) : const Color(0xFFEAD8C9),
               shape: BoxShape.circle,
               boxShadow: active
                   ? [
                       BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                         blurRadius: 10,
                         spreadRadius: 1,
                         offset: const Offset(0, 2),
@@ -319,7 +319,7 @@ class TrackingSummary extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(

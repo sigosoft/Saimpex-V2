@@ -173,7 +173,7 @@ class _CarWashSelectVehiclesScreenState
                                 borderRadius: BorderRadius.circular(30),
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFFFF5E00),
+                                    Color(0xFFFF5216),
                                     Color(0xFFFFAE00),
                                   ],
                                   begin: Alignment.centerLeft,
@@ -182,7 +182,7 @@ class _CarWashSelectVehiclesScreenState
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(
-                                      0xFFFF5E00,
+                                      0xFFFF5216,
                                     ).withValues(alpha: 0.28),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
@@ -212,7 +212,7 @@ class _CarWashSelectVehiclesScreenState
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               width: 1.5,
                             ),
                           ),
@@ -222,14 +222,14 @@ class _CarWashSelectVehiclesScreenState
                             children: [
                               const Icon(
                                 Icons.add_rounded,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 22,
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 'svc_add_new_vehicle'.tr,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -291,7 +291,7 @@ class _CarWashSelectVehiclesScreenState
                   child: Center(
                     child: Icon(
                       Icons.directions_car_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                     ),
                   ),
                 ),
@@ -330,7 +330,7 @@ class _CarWashSelectVehiclesScreenState
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: selected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFC4B8AF),
                   width: selected ? 1.8 : 1.4,
                 ),
@@ -341,7 +341,7 @@ class _CarWashSelectVehiclesScreenState
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     )

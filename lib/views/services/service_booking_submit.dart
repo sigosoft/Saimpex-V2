@@ -103,7 +103,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     }
     showAppToast(
       result.message.isEmpty ? 'svc_booking_created'.tr : result.message,
-      backgroundColor: const Color(0xFFFF5E00),
+      backgroundColor: const Color(0xFFFF5216),
     );
     return booking;
   } on ApiException catch (error) {
@@ -360,7 +360,7 @@ class _ServerPriceDialog extends StatelessWidget {
               ),
               Text(
                 _mru(total),
-                style: style(16, FontWeight.w800, const Color(0xFFFF5E00)),
+                style: style(16, FontWeight.w800, const Color(0xFFFF5216)),
               ),
             ],
           ),
@@ -378,7 +378,7 @@ class _ServerPriceDialog extends StatelessWidget {
           onPressed: () => Get.back(result: true),
           child: Text(
             'svc_book_at'.trParams({'amount': _mru(total)}),
-            style: style(14, FontWeight.w800, const Color(0xFFFF5E00)),
+            style: style(14, FontWeight.w800, const Color(0xFFFF5216)),
           ),
         ),
       ],

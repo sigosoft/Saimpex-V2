@@ -239,13 +239,13 @@ class _CarWashBookingDetailScreenState
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: const Color(0xFFFF5E00).withValues(alpha: 0.45),
+                  color: const Color(0xFFFF5216).withValues(alpha: 0.45),
                 ),
               ),
               child: Text(
                 'svc_help'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -333,7 +333,7 @@ class _CarWashBookingDetailScreenState
                       child: Container(
                         height: 3,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -365,12 +365,12 @@ class _CarWashBookingDetailScreenState
           width: circleSize,
           height: circleSize,
           decoration: BoxDecoration(
-            color: done ? const Color(0xFFFF5E00) : const Color(0xFFF0EAE4),
+            color: done ? const Color(0xFFFF5216) : const Color(0xFFF0EAE4),
             shape: BoxShape.circle,
             boxShadow: done
                 ? [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                      color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                       blurRadius: 10,
                       spreadRadius: 1,
                       offset: const Offset(0, 2),
@@ -539,7 +539,7 @@ class _CarWashBookingDetailScreenState
                       ? const Center(
                           child: Icon(
                             Icons.directions_car_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         )
                       : Image.asset(
@@ -548,7 +548,7 @@ class _CarWashBookingDetailScreenState
                           errorBuilder: (_, _, _) => const Center(
                             child: Icon(
                               Icons.directions_car_rounded,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                             ),
                           ),
                         ),
@@ -675,7 +675,7 @@ class _CarWashBookingDetailScreenState
             Text(
               priceLabel,
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w800,
               ),
@@ -691,7 +691,7 @@ class _CarWashBookingDetailScreenState
       width: 54,
       height: 54,
       color: const Color(0xFFFFF3EB),
-      child: Icon(icon, color: const Color(0xFFFF5E00), size: 22),
+      child: Icon(icon, color: const Color(0xFFFF5216), size: 22),
     );
   }
 
@@ -720,7 +720,7 @@ class _CarWashBookingDetailScreenState
             ),
             child: const Icon(
               Icons.location_on_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 20,
             ),
           ),
@@ -753,7 +753,7 @@ class _CarWashBookingDetailScreenState
           ),
           const Icon(
             Icons.chevron_right_rounded,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 22,
           ),
         ],
@@ -767,7 +767,7 @@ class _CarWashBookingDetailScreenState
       decoration: BoxDecoration(
         color: const Color(0xFFFFF3EB),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+        border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
       ),
       child: Row(
         children: [
@@ -775,12 +775,12 @@ class _CarWashBookingDetailScreenState
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.12),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.calendar_month_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 20,
             ),
           ),
@@ -792,7 +792,7 @@ class _CarWashBookingDetailScreenState
                 Text(
                   'svc_your_slot'.tr,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
                   ),
@@ -811,7 +811,7 @@ class _CarWashBookingDetailScreenState
           ),
           const Icon(
             Icons.chevron_right_rounded,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 22,
           ),
         ],
@@ -847,7 +847,7 @@ class _CarWashBookingDetailScreenState
           Text(
             'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,

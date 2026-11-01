@@ -57,7 +57,7 @@ Future<bool> declineQuotation(BuildContext context, int prescriptionId) async {
     );
     showAppToast(
       message.isEmpty ? 'pw_quotation_declined'.tr : message,
-      backgroundColor: const Color(0xFFFF5E00),
+      backgroundColor: const Color(0xFFFF5216),
     );
     return true;
   } on ApiException catch (error) {
@@ -261,7 +261,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   Future<void> _finishPaidPrescription(Map<String, dynamic> placed) async {
     final message = '${placed['message'] ?? ''}'.trim();
     if (message.isNotEmpty) {
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
     }
     // Paid from the wallet: the order is placed and paid already.
     if (placed['payment_required'] == false) {
@@ -322,7 +322,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       if (!mounted) return null;
       final message = '${started['message'] ?? ''}'.trim();
       if (message.isNotEmpty) {
-        showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+        showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       }
       return _paymentPageUrlFrom(started);
     } on ApiException catch (error) {
@@ -438,7 +438,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         ),
         body: _loading
             ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+                child: CircularProgressIndicator(color: Color(0xFFFF5216)),
               )
             : SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -570,7 +570,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               borderRadius: BorderRadius.circular(7),
             ),
             child: const Icon(
@@ -592,7 +592,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
           Text(
             _timerText,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 16,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.5,
@@ -645,7 +645,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                     Text(
                       'pw_view_full_prescription'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -653,7 +653,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                     const SizedBox(width: 4),
                     const Icon(
                       Icons.open_in_new_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 13,
                     ),
                   ],
@@ -717,7 +717,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             child: Text(
               _amountText,
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
               ),
@@ -901,7 +901,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                     child: Text(
                       'quote_suggested_alternative'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
@@ -980,7 +980,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
     if (_status != 'quoted' || itemId <= 0) return const SizedBox.shrink();
     if (_decidingItemId == itemId) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+        child: CircularProgressIndicator(color: Color(0xFFFF5216)),
       );
     }
     Widget button(String label, bool accept) => Expanded(
@@ -993,7 +993,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             color: accept ? null : Colors.white,
             gradient: accept
                 ? const LinearGradient(
-                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                    colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   )
                 : null,
             borderRadius: BorderRadius.circular(20),
@@ -1083,7 +1083,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                             width: segment,
                             height: 3,
                             color: active
-                                ? const Color(0xFFFF5E00)
+                                ? const Color(0xFFFF5216)
                                 : const Color(0xFFE5DDD4),
                           );
                         }),
@@ -1097,7 +1097,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
                           height: circle,
                           decoration: BoxDecoration(
                             color: step.done
-                                ? const Color(0xFFFF5E00)
+                                ? const Color(0xFFFF5216)
                                 : const Color(0xFFEFE8E1),
                             shape: BoxShape.circle,
                           ),
@@ -1169,7 +1169,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
           Text(
             'pw_quotation_summary_caps'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
@@ -1272,7 +1272,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 borderRadius: BorderRadius.circular(23),
               ),
               alignment: Alignment.center,
@@ -1310,14 +1310,14 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           borderRadius: BorderRadius.circular(26),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.3),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

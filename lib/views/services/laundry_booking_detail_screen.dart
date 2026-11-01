@@ -252,7 +252,7 @@ class _LaundryBookingDetailScreenState
                         _buildInfoCard(
                           icon: Icons.local_shipping_outlined,
                           iconBg: const Color(0xFFFFF0E6),
-                          iconColor: const Color(0xFFFF5E00),
+                          iconColor: const Color(0xFFFF5216),
                           label: 'svc_delivery_speed'.tr,
                           value: _deliverySpeed,
                         ),
@@ -309,7 +309,7 @@ class _LaundryBookingDetailScreenState
               ),
               child: const Icon(
                 Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 15,
               ),
             ),
@@ -337,7 +337,7 @@ class _LaundryBookingDetailScreenState
               child: Text(
                 'svc_help'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -413,7 +413,7 @@ class _LaundryBookingDetailScreenState
                   child: Container(
                     height: 3,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -443,12 +443,12 @@ class _LaundryBookingDetailScreenState
           width: circleSize,
           height: circleSize,
           decoration: BoxDecoration(
-            color: done ? const Color(0xFFFF5E00) : const Color(0xFFF0EAE4),
+            color: done ? const Color(0xFFFF5216) : const Color(0xFFF0EAE4),
             shape: BoxShape.circle,
             boxShadow: done
                 ? [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                      color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                       blurRadius: 10,
                       spreadRadius: 1,
                       offset: const Offset(0, 2),
@@ -497,7 +497,7 @@ class _LaundryBookingDetailScreenState
       color: const Color(0xFFFFF3EB),
       child: const Icon(
         Icons.local_laundry_service_rounded,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
       ),
     );
   }
@@ -562,7 +562,7 @@ class _LaundryBookingDetailScreenState
                   Text(
                     _price,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
@@ -686,7 +686,7 @@ class _LaundryBookingDetailScreenState
                     alignment: Alignment.topCenter,
                     child: Icon(
                       Icons.radio_button_checked,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: iconSize,
                     ),
                   ),
@@ -707,7 +707,7 @@ class _LaundryBookingDetailScreenState
                 children: [
                   _addressContent(
                     label: 'svc_pickup_upper'.tr,
-                    labelColor: const Color(0xFFFF5E00),
+                    labelColor: const Color(0xFFFF5216),
                     title: pickupTitle,
                     subtitle: pickupSubtitle,
                   ),
@@ -775,7 +775,7 @@ class _LaundryBookingDetailScreenState
       decoration: BoxDecoration(
         color: const Color(0xFFFFF3EB),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+        border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
       ),
       child: Row(
         children: [
@@ -788,7 +788,7 @@ class _LaundryBookingDetailScreenState
             ),
             child: const Icon(
               Icons.calendar_month_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 20,
             ),
           ),
@@ -800,7 +800,7 @@ class _LaundryBookingDetailScreenState
                 Text(
                   'svc_pickup_slot'.tr,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                   ),
@@ -893,7 +893,7 @@ class _LaundryBookingDetailScreenState
           Text(
             'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
@@ -1001,7 +1001,7 @@ class _LaundryBookingDetailScreenState
                       width: 5,
                       height: 5,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -1009,7 +1009,7 @@ class _LaundryBookingDetailScreenState
                     Text(
                       'svc_balance_due_upper'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 9.5,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.3,
@@ -1062,7 +1062,7 @@ class _LaundryBookingDetailScreenState
                           TextSpan(
                             text: '${_trimNumber(actual)} ${'svc_kg'.tr}',
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -1119,7 +1119,7 @@ class _LaundryBookingDetailScreenState
               Text(
                 serviceMru(_balanceDue),
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
                 ),
@@ -1148,12 +1148,12 @@ class _LaundryBookingDetailScreenState
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                      colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                     ),
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.3),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),

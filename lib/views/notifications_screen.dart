@@ -76,12 +76,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _body() {
     if (_loading && _notifications.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+        child: CircularProgressIndicator(color: Color(0xFFFF5216)),
       );
     }
     if (_notifications.isEmpty) {
       return RefreshIndicator(
-        color: const Color(0xFFFF5E00),
+        color: const Color(0xFFFF5216),
         onRefresh: _load,
         child: ListView(
           children: [
@@ -101,7 +101,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       );
     }
     return RefreshIndicator(
-      color: const Color(0xFFFF5E00),
+      color: const Color(0xFFFF5216),
       onRefresh: _load,
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),

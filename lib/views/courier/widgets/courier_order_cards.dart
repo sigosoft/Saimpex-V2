@@ -34,7 +34,7 @@ class CourierActiveOrderCard extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('st_otp_copied'.tr, style: GoogleFonts.outfit()),
-        backgroundColor: const Color(0xFFFF5E00),
+        backgroundColor: const Color(0xFFFF5216),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -67,7 +67,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                 padding: EdgeInsets.only(top: 1),
                 child: Icon(
                   Icons.location_on_outlined,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   size: 18,
                 ),
               ),
@@ -127,7 +127,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                     Text(
                       otp,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.2,
@@ -147,7 +147,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                     ),
                     child: const Icon(
                       Icons.copy_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 16,
                     ),
                   ),
@@ -177,7 +177,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                       height: 42,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                          colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
@@ -185,7 +185,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                         boxShadow: [
                           BoxShadow(
                             color: const Color(
-                              0xFFFF5E00,
+                              0xFFFF5216,
                             ).withValues(alpha: 0.22),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
@@ -224,7 +224,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                   Text(
                     'st_view_order_status'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
@@ -232,7 +232,7 @@ class CourierActiveOrderCard extends StatelessWidget {
                   const SizedBox(width: 2),
                   const Icon(
                     Icons.chevron_right_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 16,
                   ),
                 ],

@@ -262,7 +262,7 @@ class _HomeCleaningBookingDetailScreenState
               child: Text(
                 'svc_help'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -349,7 +349,7 @@ class _HomeCleaningBookingDetailScreenState
                       child: Container(
                         height: 3,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -383,12 +383,12 @@ class _HomeCleaningBookingDetailScreenState
           width: circleSize,
           height: circleSize,
           decoration: BoxDecoration(
-            color: done ? const Color(0xFFFF5E00) : const Color(0xFFF0EAE4),
+            color: done ? const Color(0xFFFF5216) : const Color(0xFFF0EAE4),
             shape: BoxShape.circle,
             boxShadow: done
                 ? [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.38),
+                      color: const Color(0xFFFF5216).withValues(alpha: 0.38),
                       blurRadius: 12,
                       spreadRadius: 1,
                       offset: const Offset(0, 2),
@@ -488,7 +488,7 @@ class _HomeCleaningBookingDetailScreenState
                   Text(
                     rows[i]['total']!,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 14.5,
                       fontWeight: FontWeight.w800,
                     ),
@@ -515,7 +515,7 @@ class _HomeCleaningBookingDetailScreenState
               Text(
                 'svc_plus_mru'.trParams({'amount': '${fee.round()}'}),
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
@@ -601,7 +601,7 @@ class _HomeCleaningBookingDetailScreenState
             ),
             child: const Icon(
               Icons.home_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ),
@@ -644,7 +644,7 @@ class _HomeCleaningBookingDetailScreenState
       decoration: BoxDecoration(
         color: const Color(0xFFFFF3EB),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+        border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
       ),
       child: Row(
         children: [
@@ -657,7 +657,7 @@ class _HomeCleaningBookingDetailScreenState
             ),
             child: const Icon(
               Icons.calendar_month_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 22,
             ),
           ),
@@ -669,7 +669,7 @@ class _HomeCleaningBookingDetailScreenState
                 Text(
                   'svc_your_slot'.tr,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
                   ),
@@ -740,7 +740,7 @@ class _HomeCleaningBookingDetailScreenState
                 color: const Color(0xFFFFF0E6),
                 child: const Icon(
                   Icons.person_rounded,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                 ),
               ),
             ),
@@ -811,7 +811,7 @@ class _HomeCleaningBookingDetailScreenState
           Text(
             'svc_payment_details'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,

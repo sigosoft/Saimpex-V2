@@ -180,14 +180,14 @@ class _CarWashServiceLocationScreenState
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: const Color(
-                            0xFFFF5E00,
+                            0xFFFF5216,
                           ).withValues(alpha: 0.28),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
@@ -252,7 +252,7 @@ class _CarWashServiceLocationScreenState
           color: selected ? const Color(0xFFFFF0EA) : Colors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFE8DFD6),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFE8DFD6),
             width: selected ? 1.5 : 1,
           ),
           boxShadow: selected
@@ -276,7 +276,7 @@ class _CarWashServiceLocationScreenState
                 borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: const Color(0xFFFF5E00), size: 24),
+              child: Icon(icon, color: const Color(0xFFFF5216), size: 24),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -312,7 +312,7 @@ class _CarWashServiceLocationScreenState
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     width: 1.8,
                   ),
                 ),
@@ -321,7 +321,7 @@ class _CarWashServiceLocationScreenState
                   width: 12,
                   height: 12,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -378,15 +378,15 @@ class _CarWashServiceLocationScreenState
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          const Color(0xFFFF5E00).withValues(alpha: 0.20),
-                          const Color(0xFFFF5E00).withValues(alpha: 0.08),
+                          const Color(0xFFFF5216).withValues(alpha: 0.20),
+                          const Color(0xFFFF5216).withValues(alpha: 0.08),
                         ],
                       ),
                     ),
                     alignment: Alignment.center,
                     child: const Icon(
                       Icons.location_on_outlined,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 22,
                     ),
                   ),

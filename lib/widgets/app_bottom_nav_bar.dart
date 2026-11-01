@@ -23,7 +23,7 @@ class AppBottomNavBar extends StatelessWidget {
   static const double _labelGap = 4;
 
   static const Color _barColor = Colors.white;
-  static const Color _orange = Color(0xFFFF5E00);
+  static const Color _orange = Color(0xFFFF5216);
   static const Color _inactive = Color(0xFF7B7B7B);
 
   final int selectedIndex;

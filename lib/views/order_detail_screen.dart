@@ -69,7 +69,7 @@ class OrderDetailScreen extends StatelessWidget {
                               'orders_help_opened'.tr,
                               style: GoogleFonts.outfit(),
                             ),
-                            backgroundColor: const Color(0xFFFF5E00),
+                            backgroundColor: const Color(0xFFFF5216),
                           ),
                         );
                       },
@@ -83,7 +83,7 @@ class OrderDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: const Color(
-                              0xFFFF5E00,
+                              0xFFFF5216,
                             ).withValues(alpha: 0.35),
                             width: 1.0,
                           ),
@@ -91,7 +91,7 @@ class OrderDetailScreen extends StatelessWidget {
                         child: Text(
                           'subs_help'.tr,
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -150,7 +150,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 style: GoogleFonts.outfit(
                                   color: isSelfPickup
                                       ? const Color(0xFF007DFE)
-                                      : const Color(0xFFFF5E00),
+                                      : const Color(0xFFFF5216),
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -173,13 +173,13 @@ class OrderDetailScreen extends StatelessWidget {
                                     Expanded(
                                       child: Container(
                                         height: 2,
-                                        color: const Color(0xFFFF5E00),
+                                        color: const Color(0xFFFF5216),
                                       ),
                                     ),
                                     Expanded(
                                       child: Container(
                                         height: 2,
-                                        color: const Color(0xFFFF5E00),
+                                        color: const Color(0xFFFF5216),
                                       ),
                                     ),
                                     Expanded(
@@ -244,7 +244,7 @@ class OrderDetailScreen extends StatelessWidget {
                               ),
                               child: const Icon(
                                 Icons.location_on_outlined,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 18,
                               ),
                             ),
@@ -307,7 +307,7 @@ class OrderDetailScreen extends StatelessWidget {
                               ),
                               child: const Icon(
                                 Icons.home_outlined,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 18,
                               ),
                             ),
@@ -389,7 +389,7 @@ class OrderDetailScreen extends StatelessWidget {
                           Text(
                             'orders_payment_details'.tr,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
@@ -513,7 +513,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
                                     colors: [
-                                      Color(0xFFFF5E00),
+                                      Color(0xFFFF5216),
                                       Color(0xFFFFAE00),
                                     ],
                                     begin: Alignment.centerLeft,
@@ -523,7 +523,7 @@ class OrderDetailScreen extends StatelessWidget {
                                   boxShadow: [
                                     BoxShadow(
                                       color: const Color(
-                                        0xFFFF5E00,
+                                        0xFFFF5216,
                                       ).withValues(alpha: 0.3),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
@@ -662,13 +662,13 @@ class OrderDetailScreen extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
               color: isActive
-                  ? const Color(0xFFFF5E00)
+                  ? const Color(0xFFFF5216)
                   : const Color(0xFFEAD8C9),
               shape: BoxShape.circle,
               boxShadow: showGlow
                   ? [
                       BoxShadow(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.4),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.4),
                         blurRadius: 10,
                         spreadRadius: 1,
                       ),
@@ -746,7 +746,7 @@ class OrderDetailScreen extends StatelessWidget {
                       color: const Color(0xFFF3E7DC),
                       child: const Icon(
                         Icons.fastfood_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 24,
                       ),
                     ),
@@ -758,7 +758,7 @@ class OrderDetailScreen extends StatelessWidget {
                       color: const Color(0xFFF3E7DC),
                       child: const Icon(
                         Icons.fastfood_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 24,
                       ),
                     ),
@@ -790,7 +790,7 @@ class OrderDetailScreen extends StatelessWidget {
               Text(
                 quantity,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                 ),
@@ -825,7 +825,7 @@ class OrderDetailScreen extends StatelessWidget {
         Text(
           value,
           style: GoogleFonts.outfit(
-            color: isOrange ? const Color(0xFFFF5E00) : Colors.white,
+            color: isOrange ? const Color(0xFFFF5216) : Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),

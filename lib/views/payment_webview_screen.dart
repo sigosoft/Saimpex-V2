@@ -96,7 +96,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
           WebViewWidget(controller: _controller),
           if (_loading)
             const Center(
-              child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              child: CircularProgressIndicator(color: Color(0xFFFF5216)),
             ),
         ],
       ),

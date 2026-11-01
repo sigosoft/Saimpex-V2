@@ -302,7 +302,7 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
   Widget _buildResults() {
     if (_loading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+        child: CircularProgressIndicator(color: Color(0xFFFF5216)),
       );
     }
     if (_sections.isEmpty) {
@@ -439,6 +439,6 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
   Widget _imageFallback() => Container(
     color: const Color(0xFFFFF0EA),
     alignment: Alignment.center,
-    child: const Icon(Icons.storefront_outlined, color: Color(0xFFFF5E00)),
+    child: const Icon(Icons.storefront_outlined, color: Color(0xFFFF5216)),
   );
 }

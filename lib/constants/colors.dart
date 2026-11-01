@@ -5,7 +5,7 @@ class AppColors {
   static const Color backgroundDark = Color(0xFF0E0E0E);
 
   // Gradient Colors
-  static const Color primaryOrange = Color(0xFFFF5E00);
+  static const Color primaryOrange = Color(0xFFFF5216);
   static const Color gradientYellow = Color(0xFFFFAE00);
 
   // Login Sheet Colors
@@ -17,7 +17,7 @@ class AppColors {
 
   // Guest Login Button
   static const Color guestBg = Color(0xFFFFF5EC);
-  static const Color guestText = Color(0xFFFF5E00);
+  static const Color guestText = Color(0xFFFF5216);
 
   // OTP Screen Background
   static const Color otpBg = Color(0xFFFAF6F0);

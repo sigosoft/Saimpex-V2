@@ -123,7 +123,7 @@ class _AutoSlideNetworkImagesState extends State<AutoSlideNetworkImages> {
       child: Center(
         child: Icon(
           Icons.image_not_supported_outlined,
-          color: Color(0xFFFF5E00),
+          color: Color(0xFFFF5216),
         ),
       ),
     );
@@ -167,7 +167,7 @@ class _AutoSlideNetworkImagesState extends State<AutoSlideNetworkImages> {
     if (widget.images.isEmpty) {
       return const ColoredBox(
         color: Color(0xFFFFE8DC),
-        child: Center(child: Icon(Icons.restaurant, color: Color(0xFFFF5E00))),
+        child: Center(child: Icon(Icons.restaurant, color: Color(0xFFFF5216))),
       );
     }
 
@@ -206,7 +206,7 @@ class _AutoSlideNetworkImagesState extends State<AutoSlideNetworkImages> {
                   width: active ? 10 : 4,
                   decoration: BoxDecoration(
                     color: active
-                        ? const Color(0xFFFF5E00)
+                        ? const Color(0xFFFF5216)
                         : Colors.white.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(2),
                   ),

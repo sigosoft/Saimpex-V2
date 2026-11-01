@@ -105,7 +105,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                       Text(
                         'pw_open_map'.tr,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
@@ -113,7 +113,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                       const SizedBox(width: 6),
                       const Icon(
                         Icons.pin_drop_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 16,
                       ),
                     ],
@@ -231,7 +231,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                   height: 10,
                   errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_none_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 10,
                   ),
                 ),
@@ -324,7 +324,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -399,7 +399,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                                 ? Icons.favorite_rounded
                                 : Icons.favorite_border_rounded,
                             color: isFav
-                                ? const Color(0xFFFF5E00)
+                                ? const Color(0xFFFF5216)
                                 : const Color(0xFF2C2520),
                             size: 18,
                           ),
@@ -477,7 +477,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                         children: [
                           const Icon(
                             Icons.local_fire_department_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 16,
                           ),
                           const SizedBox(width: 4),
@@ -492,7 +492,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                           const SizedBox(width: 16),
                           const Icon(
                             Icons.location_on_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 16,
                           ),
                           const SizedBox(width: 4),

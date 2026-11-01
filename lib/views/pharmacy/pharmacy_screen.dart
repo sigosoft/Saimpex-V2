@@ -365,7 +365,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
               height: 36,
               padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -444,7 +444,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                   height: 4,
                   decoration: BoxDecoration(
                     color: _sliderIndex % count == index
-                        ? const Color(0xFFFF5E00)
+                        ? const Color(0xFFFF5216)
                         : const Color(0xFFDCD6CF),
                     borderRadius: BorderRadius.circular(2),
                   ),
@@ -644,7 +644,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
             height: 22,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
             ),
           ),
         ),
@@ -951,7 +951,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                                   isLiked
                                       ? Icons.favorite_rounded
                                       : Icons.favorite_border_rounded,
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   size: 16,
                                 ),
                               ),
@@ -1018,7 +1018,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                             Text(
                               points,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1028,7 +1028,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                             children: [
                               const Icon(
                                 Icons.access_time_rounded,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 12,
                               ),
                               const SizedBox(width: 4),
@@ -1043,7 +1043,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                               const SizedBox(width: 12),
                               const Icon(
                                 Icons.location_on_outlined,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 12,
                               ),
                               const SizedBox(width: 4),

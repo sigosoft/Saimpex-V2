@@ -269,7 +269,7 @@ class _PrescriptionCheckoutScreenState
           color: selected ? const Color(0xFFFFF4EC) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFEAD8C9),
             width: selected ? 1.5 : 0.8,
           ),
         ),
@@ -312,7 +312,7 @@ class _PrescriptionCheckoutScreenState
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected ? const Color(0xFFFF5E00) : const Color(0xFFA59A94),
+          color: selected ? const Color(0xFFFF5216) : const Color(0xFFA59A94),
           width: 1.5,
         ),
       ),
@@ -320,7 +320,7 @@ class _PrescriptionCheckoutScreenState
       child: selected
           ? Container(
               decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 shape: BoxShape.circle,
               ),
             )
@@ -353,7 +353,7 @@ class _PrescriptionCheckoutScreenState
             ),
             child: const Icon(
               Icons.home_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 20,
             ),
           ),
@@ -389,7 +389,7 @@ class _PrescriptionCheckoutScreenState
           Text(
             'pw_edit'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -424,7 +424,7 @@ class _PrescriptionCheckoutScreenState
             ),
             child: const Icon(
               Icons.local_pharmacy_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 20,
             ),
           ),
@@ -457,7 +457,7 @@ class _PrescriptionCheckoutScreenState
           ),
           const Icon(
             Icons.chevron_right_rounded,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 22,
           ),
         ],
@@ -486,7 +486,7 @@ class _PrescriptionCheckoutScreenState
           child: Text(
             'pw_view_coupons'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -509,7 +509,7 @@ class _PrescriptionCheckoutScreenState
         children: [
           const Icon(
             Icons.local_offer_outlined,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 18,
           ),
           const SizedBox(width: 8),
@@ -551,7 +551,7 @@ class _PrescriptionCheckoutScreenState
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? const Color(0xFFFF5E00) : const Color(0xFFEAD8C9),
+            color: selected ? const Color(0xFFFF5216) : const Color(0xFFEAD8C9),
             width: selected ? 1.5 : 0.8,
           ),
         ),
@@ -564,7 +564,7 @@ class _PrescriptionCheckoutScreenState
                 color: const Color(0xFFFFF0EA),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: const Color(0xFFFF5E00), size: 20),
+              child: Icon(icon, color: const Color(0xFFFF5216), size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -612,7 +612,7 @@ class _PrescriptionCheckoutScreenState
           Text(
             'pw_quotation_summary_caps'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
@@ -705,7 +705,7 @@ class _PrescriptionCheckoutScreenState
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: canPay
-                ? const [Color(0xFFFF5E00), Color(0xFFFFAE00)]
+                ? const [Color(0xFFFF5216), Color(0xFFFFAE00)]
                 : const [Color(0xFFD9D0C8), Color(0xFFD9D0C8)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
@@ -713,7 +713,7 @@ class _PrescriptionCheckoutScreenState
           borderRadius: BorderRadius.circular(26),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.3),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

@@ -225,7 +225,7 @@ class _WaterProductSubscriptionScreenState
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFFFF5E00),
+              primary: Color(0xFFFF5216),
               onPrimary: Colors.white,
               surface: Color(0xFFFFF9F5),
               onSurface: Color(0xFF2C2520),
@@ -338,7 +338,7 @@ class _WaterProductSubscriptionScreenState
                           child: Text(
                             _planPriceText,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
                             ),
@@ -382,14 +382,14 @@ class _WaterProductSubscriptionScreenState
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? const Color(0xFFFF5E00)
+                                    ? const Color(0xFFFF5216)
                                     : Colors.white,
                                 borderRadius: BorderRadius.circular(24),
                                 boxShadow: selected
                                     ? [
                                         BoxShadow(
                                           color: const Color(
-                                            0xFFFF5E00,
+                                            0xFFFF5216,
                                           ).withValues(alpha: 0.22),
                                           blurRadius: 8,
                                           offset: const Offset(0, 3),
@@ -519,7 +519,7 @@ class _WaterProductSubscriptionScreenState
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -527,7 +527,7 @@ class _WaterProductSubscriptionScreenState
                       boxShadow: [
                         BoxShadow(
                           color: const Color(
-                            0xFFFF5E00,
+                            0xFFFF5216,
                           ).withValues(alpha: 0.28),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
@@ -598,7 +598,7 @@ class _WaterProductSubscriptionScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFFF5E00), width: 1.2),
+        border: Border.all(color: const Color(0xFFFF5216), width: 1.2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -616,7 +616,7 @@ class _WaterProductSubscriptionScreenState
               ),
               child: const Icon(
                 Icons.remove,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 16,
               ),
             ),
@@ -638,7 +638,7 @@ class _WaterProductSubscriptionScreenState
               width: 26,
               height: 26,
               decoration: const BoxDecoration(
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.add, color: Colors.white, size: 16),
@@ -826,7 +826,7 @@ class _WaterProductSubscriptionScreenState
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: selected
-                            ? const Color(0xFFFF5E00)
+                            ? const Color(0xFFFF5216)
                             : Colors.transparent,
                         width: selected ? 1.2 : 0,
                       ),
@@ -844,7 +844,7 @@ class _WaterProductSubscriptionScreenState
                         Icon(
                           Icons.access_time_rounded,
                           color: selected
-                              ? const Color(0xFFFF5E00)
+                              ? const Color(0xFFFF5216)
                               : const Color(0xFF8A7F77),
                           size: 15,
                         ),
@@ -900,7 +900,7 @@ class _WaterProductSubscriptionScreenState
               Text(
                 'pw_return_empty_bottle'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                 ),

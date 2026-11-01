@@ -345,7 +345,7 @@ class SelectLocationScreen extends StatelessWidget {
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                     ),
                   );
                 }
@@ -408,7 +408,7 @@ class SelectLocationScreen extends StatelessWidget {
                 children: [
                   const Icon(
                     Icons.location_on_outlined,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 18,
                   ),
                   const SizedBox(width: 10),
@@ -555,7 +555,7 @@ class SelectLocationScreen extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.location_on, color: Color(0xFFFF5E00), size: 26),
+            const Icon(Icons.location_on, color: Color(0xFFFF5216), size: 26),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -645,7 +645,7 @@ class SelectLocationScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isSelected
-                  ? const Color(0xFFFF5E00)
+                  ? const Color(0xFFFF5216)
                   : const Color(0xFFEAD8C9),
               width: isSelected ? 1.5 : 1.0,
             ),
@@ -660,7 +660,7 @@ class SelectLocationScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: const Color(0xFFFF5E00), size: 18),
+              Icon(icon, color: const Color(0xFFFF5216), size: 18),
               const SizedBox(width: 6),
               Text(
                 label,
@@ -688,13 +688,13 @@ class SelectLocationScreen extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
             gradient: const LinearGradient(
-              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF5E00).withValues(alpha: 0.3),
+                color: const Color(0xFFFF5216).withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),

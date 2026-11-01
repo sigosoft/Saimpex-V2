@@ -153,7 +153,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
       ),
       body: _loading && _reviews.isEmpty
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFFF5E00)),
+              child: CircularProgressIndicator(color: Color(0xFFFF5216)),
             )
           : _unavailableMessage != null
           ? _buildMessage(_unavailableMessage!)
@@ -299,7 +299,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                 child: Container(
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -344,7 +344,7 @@ class _RatingReviewsScreenState extends State<RatingReviewsScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFFFFEDE6),
                   borderRadius: BorderRadius.circular(50),
                 ),

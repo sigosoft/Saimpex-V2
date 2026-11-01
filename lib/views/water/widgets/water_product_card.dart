@@ -72,7 +72,7 @@ class WaterProductCard extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -94,13 +94,13 @@ class WaterProductCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.18),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         (product['quantity'] ?? '1 BOTTLE').toString(),
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
                         ),
@@ -116,13 +116,13 @@ class WaterProductCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00).withValues(alpha: 0.18),
+                        color: const Color(0xFFFF5216).withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         (product['size'] ?? '19L').toString(),
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
                         ),
@@ -179,7 +179,7 @@ class WaterProductCard extends StatelessWidget {
                         Text(
                           (product['price'] ?? '').toString(),
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                           ),
@@ -211,7 +211,7 @@ class WaterProductCard extends StatelessWidget {
                                 border: Border.all(
                                   color: isNotAccepting
                                       ? const Color(0xFFD9D1C9)
-                                      : const Color(0xFFFF5E00),
+                                      : const Color(0xFFFF5216),
                                   width: 1.2,
                                 ),
                               ),
@@ -220,7 +220,7 @@ class WaterProductCard extends StatelessWidget {
                                 style: GoogleFonts.outfit(
                                   color: isNotAccepting
                                       ? const Color(0xFFA59A94)
-                                      : const Color(0xFFFF5E00),
+                                      : const Color(0xFFFF5216),
                                   fontSize: 9,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -241,7 +241,7 @@ class WaterProductCard extends StatelessWidget {
                                     ? null
                                     : const LinearGradient(
                                         colors: [
-                                          Color(0xFFFF5E00),
+                                          Color(0xFFFF5216),
                                           Color(0xFFFFAE00),
                                         ],
                                       ),
@@ -253,7 +253,7 @@ class WaterProductCard extends StatelessWidget {
                                     : [
                                         BoxShadow(
                                           color: const Color(
-                                            0xFFFF5E00,
+                                            0xFFFF5216,
                                           ).withValues(alpha: 0.2),
                                           blurRadius: 6,
                                           offset: const Offset(0, 2),

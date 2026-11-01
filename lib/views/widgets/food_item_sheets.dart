@@ -156,7 +156,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(
@@ -177,7 +177,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                       Text(
                                         food['price']?.toString() ?? '',
                                         style: GoogleFonts.outfit(
-                                          color: const Color(0xFFFF5E00),
+                                          color: const Color(0xFFFF5216),
                                           fontSize: 18,
                                           fontWeight: FontWeight.w800,
                                         ),
@@ -286,7 +286,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                     ),
                                     child: const Icon(
                                       Icons.remove,
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       size: 16,
                                     ),
                                   ),
@@ -310,7 +310,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                     width: 30,
                                     height: 30,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -332,7 +332,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
                                     colors: [
-                                      Color(0xFFFF5E00),
+                                      Color(0xFFFF5216),
                                       Color(0xFFFFAE00),
                                     ],
                                     begin: Alignment.centerLeft,
@@ -342,7 +342,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                   boxShadow: [
                                     BoxShadow(
                                       color: const Color(
-                                        0xFFFF5E00,
+                                        0xFFFF5216,
                                       ).withValues(alpha: 0.32),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
@@ -402,7 +402,7 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                     ),
                     child: const Icon(
                       Icons.close,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 22,
                     ),
                   ),

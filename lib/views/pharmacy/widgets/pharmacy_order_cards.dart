@@ -141,7 +141,7 @@ class _PharmacyQuotationReadyCardState
                         width: 28,
                         height: 28,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: const Icon(
@@ -163,7 +163,7 @@ class _PharmacyQuotationReadyCardState
                       Text(
                         _timerText,
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFFF5E00),
+                          color: const Color(0xFFFF5216),
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
@@ -206,7 +206,7 @@ class _PharmacyQuotationReadyCardState
                           Text(
                             widget.amount,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
                             ),
@@ -247,7 +247,7 @@ class _PharmacyQuotationReadyCardState
                         child: Container(
                           height: 42,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           alignment: Alignment.center,
@@ -297,7 +297,7 @@ class _PharmacyQuotationReadyCardState
               padding: const EdgeInsets.symmetric(horizontal: 18),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
@@ -428,7 +428,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                     onPressed: () => setDialogState(() => onPick(star)),
                     icon: Icon(
                       star <= value ? Icons.star : Icons.star_border,
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                     ),
                   );
                 }),
@@ -484,7 +484,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
         driverComment: driverText,
         language: language,
       );
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
     } on ApiException catch (error) {
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
       return;
@@ -598,7 +598,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                               Text(
                                 'pw_view_full_prescription'.tr,
                                 style: GoogleFonts.outfit(
-                                  color: const Color(0xFFFF5E00),
+                                  color: const Color(0xFFFF5216),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -606,7 +606,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               const Icon(
                                 Icons.open_in_new_rounded,
-                                color: Color(0xFFFF5E00),
+                                color: Color(0xFFFF5216),
                                 size: 13,
                               ),
                             ],
@@ -649,7 +649,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                         height: 42,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
@@ -657,7 +657,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                           boxShadow: [
                             BoxShadow(
                               color: const Color(
-                                0xFFFF5E00,
+                                0xFFFF5216,
                               ).withValues(alpha: 0.22),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
@@ -688,12 +688,12 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: const Color(0xFFFF5E00)),
+                    border: Border.all(color: const Color(0xFFFF5216)),
                   ),
                   child: Text(
                     'pw_rate_order'.tr,
                     style: GoogleFonts.outfit(
-                      color: const Color(0xFFFF5E00),
+                      color: const Color(0xFFFF5216),
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                     ),
@@ -711,7 +711,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                     Text(
                       'pw_view_order_status_details'.tr,
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -719,7 +719,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                     const SizedBox(width: 2),
                     const Icon(
                       Icons.chevron_right_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 16,
                     ),
                   ],

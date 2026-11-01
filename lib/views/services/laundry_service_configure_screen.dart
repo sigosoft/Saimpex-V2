@@ -164,7 +164,7 @@ class _LaundryServiceConfigureScreenState
             alignment: Alignment.center,
             child: const Icon(
               Icons.local_laundry_service_rounded,
-              color: Color(0xFFFF5E00),
+              color: Color(0xFFFF5216),
               size: 48,
             ),
           ),
@@ -272,7 +272,7 @@ class _LaundryServiceConfigureScreenState
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: filled ? const Color(0xFFFF5E00) : Colors.white,
+          color: filled ? const Color(0xFFFF5216) : Colors.white,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
@@ -284,7 +284,7 @@ class _LaundryServiceConfigureScreenState
         ),
         child: Icon(
           icon,
-          color: filled ? Colors.white : const Color(0xFFFF5E00),
+          color: filled ? Colors.white : const Color(0xFFFF5216),
           size: 22,
         ),
       ),
@@ -320,7 +320,7 @@ class _LaundryServiceConfigureScreenState
             TextSpan(
               text: '$_estimatedPrice',
               style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
               ),
@@ -404,7 +404,7 @@ class _LaundryServiceConfigureScreenState
                     Text(
                       'mru'.trParams({'amount': '$_estimatedPrice'}),
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                       ),
@@ -451,13 +451,13 @@ class _LaundryServiceConfigureScreenState
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+                    color: const Color(0xFFFF5216).withValues(alpha: 0.28),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

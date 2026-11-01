@@ -190,7 +190,7 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
         child: const Icon(
           Icons.person_rounded,
-          color: Color(0xFFFF5E00),
+          color: Color(0xFFFF5216),
           size: 34,
         ),
       ),
@@ -201,7 +201,7 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFF5E00),
+        statusBarColor: Color(0xFFFF5216),
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: Color(0xFFFAF6F0),
@@ -322,14 +322,14 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               const Icon(
                 Icons.delete_outline_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 20,
               ),
               const SizedBox(width: 10),
               Text(
                 'core_account_delete_account'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -337,7 +337,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(width: 8),
               const Icon(
                 Icons.chevron_right_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 20,
               ),
             ],
@@ -362,7 +362,7 @@ class _AccountScreenState extends State<AccountScreen> {
           bottomRight: Radius.circular(35),
         ),
         gradient: LinearGradient(
-          colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+          colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -445,7 +445,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -1106,7 +1106,7 @@ class _DeleteAccountSheet extends StatelessWidget {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -1244,7 +1244,7 @@ class _LogoutSheetState extends State<_LogoutSheet> {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),

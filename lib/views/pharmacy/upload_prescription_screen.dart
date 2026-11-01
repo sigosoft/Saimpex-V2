@@ -150,7 +150,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
@@ -158,7 +158,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: const Color(
-                                0xFFFF5E00,
+                                0xFFFF5216,
                               ).withValues(alpha: 0.3),
                               blurRadius: 14,
                               offset: const Offset(0, 5),
@@ -258,11 +258,11 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                      color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -333,7 +333,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 width: 22,
                 height: 22,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
@@ -421,7 +421,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.4,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                 ),
               ),
             ),
@@ -457,7 +457,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
               Icon(
                 icon,
                 color: filled
-                    ? const Color(0xFFFF5E00)
+                    ? const Color(0xFFFF5216)
                     : const Color(0xFF7A6A60),
                 size: 26,
               ),
@@ -466,7 +466,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 label,
                 style: GoogleFonts.outfit(
                   color: filled
-                      ? const Color(0xFFFF5E00)
+                      ? const Color(0xFFFF5216)
                       : const Color(0xFF2C2520),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -502,7 +502,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
           Switch.adaptive(
             value: callBeforeAlternative,
             activeThumbColor: Colors.white,
-            activeTrackColor: const Color(0xFFFF5E00),
+            activeTrackColor: const Color(0xFFFF5216),
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: const Color(0xFFD9CFC6),
             onChanged: (value) {
@@ -545,7 +545,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                 height: 18,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Color(0xFFFF5E00),
+                  color: Color(0xFFFF5216),
                 ),
               )
             else
@@ -724,7 +724,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           Text(
                             'pw_choose_pharmacy'.tr,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                             ),
@@ -766,7 +766,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                       ),
-                                      cursorColor: const Color(0xFFFF5E00),
+                                      cursorColor: const Color(0xFFFF5216),
                                       decoration: InputDecoration(
                                         isDense: true,
                                         border: InputBorder.none,
@@ -856,7 +856,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                             ),
                             child: const Icon(
                               Icons.close_rounded,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                               size: 22,
                             ),
                           ),
@@ -1000,14 +1000,14 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                         children: [
                           const Icon(
                             Icons.access_time_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 14,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             pharmacy['time']!,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1015,14 +1015,14 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                           const SizedBox(width: 14),
                           const Icon(
                             Icons.location_on_outlined,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 14,
                           ),
                           const SizedBox(width: 2),
                           Text(
                             pharmacy['dist']!,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1162,7 +1162,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
         language: apiLanguageCode(),
       );
       if (!mounted) return;
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       Get.to(
         () => PrescriptionSuccessScreen(
           fileName: uploadedLabel ?? 'Prescription.pdf',

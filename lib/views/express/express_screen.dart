@@ -250,7 +250,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                     height: 22,
                     errorBuilder: (_, _, _) => const Icon(
                       Icons.home_rounded,
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       size: 22,
                     ),
                   ),
@@ -300,7 +300,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
             height: 36,
             padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -359,7 +359,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                   height: 148,
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) => Container(
-                    color: const Color(0xFFFF5E00),
+                    color: const Color(0xFFFF5216),
                     child: const Center(
                       child: Icon(
                         Icons.delivery_dining_rounded,
@@ -385,7 +385,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
               width: active ? 18 : 6,
               decoration: BoxDecoration(
                 color: active
-                    ? const Color(0xFFFF5E00)
+                    ? const Color(0xFFFF5216)
                     : const Color(0xFFD8CEC6),
                 borderRadius: BorderRadius.circular(6),
               ),
@@ -466,7 +466,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                   height: 14,
                   errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_none_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 14,
                   ),
                 ),
@@ -569,7 +569,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
       color: const Color(0xFFFFF0EA),
       child: const Icon(
         Icons.shopping_basket_outlined,
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
         size: 22,
       ),
     );
@@ -692,7 +692,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                             const SizedBox(width: 10),
                             const Icon(
                               Icons.location_on_outlined,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                               size: 12,
                             ),
                             const SizedBox(width: 3),
@@ -894,7 +894,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                     children: [
                       const Icon(
                         Icons.timer_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 12,
                       ),
                       const SizedBox(width: 4),
@@ -909,7 +909,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                       const SizedBox(width: 12),
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 12,
                       ),
                       const SizedBox(width: 4),

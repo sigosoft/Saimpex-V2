@@ -212,14 +212,14 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                 height: 52,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                    colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
                   borderRadius: BorderRadius.circular(26),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF5E00).withValues(alpha: 0.32),
+                      color: const Color(0xFFFF5216).withValues(alpha: 0.32),
                       blurRadius: 12,
                       offset: const Offset(0, 5),
                     ),
@@ -341,7 +341,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                         : const Color(0xFFF6EEE8),
                     borderRadius: BorderRadius.circular(20),
                     border: isSelected
-                        ? Border.all(color: const Color(0xFFFF5E00), width: 0.8)
+                        ? Border.all(color: const Color(0xFFFF5216), width: 0.8)
                         : null,
                   ),
                   child: Text(

@@ -353,7 +353,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 "lib/assets/images/Voice.png",
                 width: 16,
                 height: 16,
-                color: const Color(0xFFFF5E00),
+                color: const Color(0xFFFF5216),
               ),
             ),
           ],
@@ -452,7 +452,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFFFF5E00),
+                          color: Color(0xFFFF5216),
                         ),
                       ),
                     )
@@ -502,7 +502,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                                     width: 22,
                                                     height: 22,
                                                     color: const Color(
-                                                      0xFFFF5E00,
+                                                      0xFFFF5216,
                                                     ),
                                                   ),
                                                 ),
@@ -539,7 +539,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                           overflow: TextOverflow.visible,
                                           style: GoogleFonts.outfit(
                                             color: isSelected
-                                                ? const Color(0xFFFF5E00)
+                                                ? const Color(0xFFFF5216)
                                                 : const Color(0xFF3A312C),
                                             fontSize: 11,
                                             fontWeight: isSelected
@@ -558,7 +558,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                           decoration: const BoxDecoration(
                                             gradient: LinearGradient(
                                               colors: [
-                                                Color(0xFFFF5E00),
+                                                Color(0xFFFF5216),
                                                 Color(0xFFFFAE00),
                                               ],
                                             ),
@@ -634,7 +634,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             height: 28,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                             ),
                           ),
                         ),
@@ -748,7 +748,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               const SizedBox(width: 6),
               const Icon(
                 Icons.trending_up_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 18,
               ),
             ],
@@ -997,7 +997,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         children: [
                           const Icon(
                             Icons.access_time_rounded,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 14,
                           ),
                           const SizedBox(width: 4),
@@ -1011,7 +1011,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           const SizedBox(width: 16),
                           const Icon(
                             Icons.location_on_outlined,
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                             size: 14,
                           ),
                           const SizedBox(width: 4),
@@ -1555,7 +1555,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFFF5E00)
+                ? const Color(0xFFFF5216)
                 : const Color(0xFFEAD8C9),
             width: isSelected ? 1.5 : 1,
           ),
@@ -1564,7 +1564,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
           label.tr,
           style: GoogleFonts.outfit(
             color: isSelected
-                ? const Color(0xFFFF5E00)
+                ? const Color(0xFFFF5216)
                 : const Color(0xFF2C2520),
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -1666,7 +1666,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                           child: Text(
                             'core_category_clear_all'.tr,
                             style: GoogleFonts.outfit(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1721,7 +1721,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                             'max': '${priceRange.end.round()}',
                           }),
                           style: GoogleFonts.outfit(
-                            color: const Color(0xFFFF5E00),
+                            color: const Color(0xFFFF5216),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -1736,12 +1736,12 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: SliderTheme(
                       data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: const Color(0xFFFF5E00),
+                        activeTrackColor: const Color(0xFFFF5216),
                         inactiveTrackColor: const Color(0xFFF3EFEA),
                         activeTickMarkColor: Colors.transparent,
                         inactiveTickMarkColor: Colors.transparent,
                         overlayColor: Colors.transparent,
-                        valueIndicatorColor: const Color(0xFFFF5E00),
+                        valueIndicatorColor: const Color(0xFFFF5216),
                         rangeValueIndicatorShape:
                             const RectangularRangeSliderValueIndicatorShape(),
                         rangeThumbShape: const CustomRangeThumbShape(
@@ -1835,7 +1835,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                                 child: Text(
                                   'core_category_clear_all'.tr,
                                   style: GoogleFonts.outfit(
-                                    color: const Color(0xFFFF5E00),
+                                    color: const Color(0xFFFF5216),
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -1856,7 +1856,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFFFF5E00),
+                                    Color(0xFFFF5216),
                                     Color(0xFFFFAE00),
                                   ],
                                   begin: Alignment.centerLeft,
@@ -1866,7 +1866,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(
-                                      0xFFFF5E00,
+                                      0xFFFF5216,
                                     ).withValues(alpha: 0.3),
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
@@ -1916,7 +1916,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
               ),
               child: const Icon(
                 Icons.close_rounded,
-                color: Color(0xFFFF5E00),
+                color: Color(0xFFFF5216),
                 size: 22,
               ),
             ),
@@ -1961,7 +1961,7 @@ class CustomRangeThumbShape extends RangeSliderThumbShape {
 
     // Draw orange border
     final borderPaint = Paint()
-      ..color = const Color(0xFFFF5E00)
+      ..color = const Color(0xFFFF5216)
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(center, enabledThumbRadius - 1.25, borderPaint);

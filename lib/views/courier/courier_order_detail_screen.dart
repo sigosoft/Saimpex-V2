@@ -210,7 +210,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
   Widget _buildPlaceholder() {
     return Center(
       child: _loading
-          ? const CircularProgressIndicator(color: Color(0xFFFF5E00))
+          ? const CircularProgressIndicator(color: Color(0xFFFF5216))
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
@@ -268,7 +268,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
               child: Text(
                 'st_help'.tr,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -318,7 +318,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                             width: segment,
                             height: 3,
                             color: active
-                                ? const Color(0xFFFF5E00)
+                                ? const Color(0xFFFF5216)
                                 : const Color(0xFFE5DDD4),
                           );
                         }),
@@ -333,7 +333,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                             height: circle,
                             decoration: BoxDecoration(
                               color: step.done
-                                  ? const Color(0xFFFF5E00)
+                                  ? const Color(0xFFFF5216)
                                   : const Color(0xFFEFE8E1),
                               shape: BoxShape.circle,
                             ),
@@ -452,7 +452,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                     ),
                   ),
                   _routeDot(
-                    fill: const Color(0xFFFF5E00),
+                    fill: const Color(0xFFFF5216),
                     halo: const Color(0xFFFFE0CC),
                   ),
                 ],
@@ -573,7 +573,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         children: [
           const Icon(
             Icons.inventory_2_outlined,
-            color: Color(0xFFFF5E00),
+            color: Color(0xFFFF5216),
             size: 22,
           ),
           const SizedBox(width: 12),
@@ -614,7 +614,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
       width: 46,
       height: 46,
       color: const Color(0xFFF3EFEA),
-      child: const Icon(Icons.person, color: Color(0xFFFF5E00)),
+      child: const Icon(Icons.person, color: Color(0xFFFF5216)),
     );
     return Container(
       width: double.infinity,
@@ -705,7 +705,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                     width: 42,
                     height: 42,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFFF5E00),
+                      color: Color(0xFFFF5216),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -749,7 +749,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
           Text(
             'st_payment_details'.tr,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
@@ -762,7 +762,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
             _payRow(
               'st_discount'.tr,
               _money(discount, negative: true),
-              valueColor: const Color(0xFFFF5E00),
+              valueColor: const Color(0xFFFF5216),
             ),
           ],
           if (redeemed != null && redeemed > 0) ...[
@@ -770,7 +770,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
             _payRow(
               'cart_redeemed_points'.tr,
               'st_points_negative'.trParams({'points': '${redeemed.round()}'}),
-              valueColor: const Color(0xFFFF5E00),
+              valueColor: const Color(0xFFFF5216),
             ),
           ],
           if (tax > 0) ...[
@@ -874,14 +874,14 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
         height: 48,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.28),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

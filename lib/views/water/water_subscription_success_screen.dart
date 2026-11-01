@@ -43,12 +43,12 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
                       width: 76,
                       height: 76,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF5E00),
+                        color: const Color(0xFFFF5216),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
                             color: const Color(
-                              0xFFFF5E00,
+                              0xFFFF5216,
                             ).withValues(alpha: 0.35),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
@@ -111,7 +111,7 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
                             child: Text(
                               'pw_back_to_home'.tr,
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFFFF5E00),
+                                color: const Color(0xFFFF5216),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -132,7 +132,7 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
                           height: 50,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                              colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -140,7 +140,7 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(
-                                  0xFFFF5E00,
+                                  0xFFFF5216,
                                 ).withValues(alpha: 0.35),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),

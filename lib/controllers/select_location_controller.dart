@@ -135,7 +135,7 @@ class SelectLocationController extends GetxController {
         );
       }
       if (_isDisposed) return;
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       if (isInitialSetup || Get.key.currentState?.canPop() != true) {
         Get.offAll(() => const MainShellScreen());
       } else {

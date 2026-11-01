@@ -113,7 +113,7 @@ void showPharmacyCustomizeSheet(
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
                                           color: selectedQuantityIndex == 0
-                                              ? const Color(0xFFFF5E00)
+                                              ? const Color(0xFFFF5216)
                                               : const Color(0xFFEAD8C9),
                                           width: selectedQuantityIndex == 0
                                               ? 1.5
@@ -131,7 +131,7 @@ void showPharmacyCustomizeSheet(
                                               border: Border.all(
                                                 color:
                                                     selectedQuantityIndex == 0
-                                                    ? const Color(0xFFFF5E00)
+                                                    ? const Color(0xFFFF5216)
                                                     : const Color(0xFFA59A94),
                                                 width: 1.5,
                                               ),
@@ -142,7 +142,7 @@ void showPharmacyCustomizeSheet(
                                                     decoration:
                                                         const BoxDecoration(
                                                           color: Color(
-                                                            0xFFFF5E00,
+                                                            0xFFFF5216,
                                                           ),
                                                           shape:
                                                               BoxShape.circle,
@@ -172,7 +172,7 @@ void showPharmacyCustomizeSheet(
                                                 qtyPrice1,
                                                 style: GoogleFonts.outfit(
                                                   color: const Color(
-                                                    0xFFFF5E00,
+                                                    0xFFFF5216,
                                                   ),
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.bold,
@@ -296,7 +296,7 @@ void showPharmacyCustomizeSheet(
                                     ),
                                     child: const Icon(
                                       Icons.mic_none_rounded,
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       size: 15,
                                     ),
                                   ),
@@ -353,7 +353,7 @@ void showPharmacyCustomizeSheet(
                                     ),
                                     child: const Icon(
                                       Icons.remove,
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       size: 16,
                                     ),
                                   ),
@@ -388,7 +388,7 @@ void showPharmacyCustomizeSheet(
                                     ),
                                     child: const Icon(
                                       Icons.add,
-                                      color: Color(0xFFFF5E00),
+                                      color: Color(0xFFFF5216),
                                       size: 16,
                                     ),
                                   ),
@@ -424,7 +424,7 @@ void showPharmacyCustomizeSheet(
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
                                     colors: [
-                                      Color(0xFFFF5E00),
+                                      Color(0xFFFF5216),
                                       Color(0xFFFFAE00),
                                     ],
                                     begin: Alignment.centerLeft,
@@ -434,7 +434,7 @@ void showPharmacyCustomizeSheet(
                                   boxShadow: [
                                     BoxShadow(
                                       color: const Color(
-                                        0xFFFF5E00,
+                                        0xFFFF5216,
                                       ).withValues(alpha: 0.3),
                                       blurRadius: 8,
                                       offset: const Offset(0, 3),
@@ -492,7 +492,7 @@ void showPharmacyCustomizeSheet(
                       ),
                       child: const Icon(
                         Icons.close_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 22,
                       ),
                     ),

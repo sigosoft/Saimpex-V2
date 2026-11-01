@@ -108,7 +108,7 @@ class _WaterNearbySuppliersScreenState
                   child: _loading
                       ? const Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         )
                       : filteredSuppliers.isEmpty
@@ -241,10 +241,10 @@ class _WaterNearbySuppliersScreenState
                   'lib/assets/images/Voice.png',
                   width: 15,
                   height: 15,
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_none_rounded,
-                    color: Color(0xFFFF5E00),
+                    color: Color(0xFFFF5216),
                     size: 16,
                   ),
                 ),
@@ -327,7 +327,7 @@ class _WaterNearbySuppliersScreenState
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF5E00),
+                              color: const Color(0xFFFF5216),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -468,7 +468,7 @@ class _WaterNearbySuppliersScreenState
                     children: [
                       const Icon(
                         Icons.timer_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -483,7 +483,7 @@ class _WaterNearbySuppliersScreenState
                       const SizedBox(width: 16),
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                       const SizedBox(width: 4),

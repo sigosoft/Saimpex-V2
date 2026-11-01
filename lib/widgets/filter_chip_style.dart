@@ -24,7 +24,7 @@ class AppFilterChip extends StatelessWidget {
       width: 16,
       height: 16,
       decoration: const BoxDecoration(
-        color: Color(0xFFFF5E00),
+        color: Color(0xFFFF5216),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
@@ -79,7 +79,7 @@ class AppFilterChip extends StatelessWidget {
       height: 36,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: selected ? const Color(0xFFFF5E00) : const Color(0xFFFFFCF8),
+        color: selected ? const Color(0xFFFF5216) : const Color(0xFFFFFCF8),
         borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(

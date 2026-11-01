@@ -101,7 +101,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
       final message = await action(Get.find<WaterRepository>(), id);
       if (!mounted) return;
       if (message.isNotEmpty) {
-        showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+        showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       }
       await _load();
     } on ApiException catch (error) {
@@ -195,7 +195,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               child: _loading && _subscriptions.isEmpty
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                       ),
                     )
                   : list.isEmpty
@@ -316,7 +316,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: selected ? const Color(0xFFFF5E00) : Colors.transparent,
+              color: selected ? const Color(0xFFFF5216) : Colors.transparent,
               borderRadius: BorderRadius.circular(24),
             ),
             alignment: Alignment.center,
@@ -339,7 +339,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                 height: 18,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 1.5),
                   boxShadow: [
@@ -557,7 +557,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               Text(
                 (item['qty'] ?? '').toString(),
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5722),
+                  color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -651,7 +651,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                         style: GoogleFonts.outfit(
                           color: isExpired
                               ? secondaryText
-                              : const Color(0xFFFF5E00),
+                              : const Color(0xFFFF5216),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -677,7 +677,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                     style: GoogleFonts.outfit(
                       color: isExpired
                           ? const Color(0xFFA59A94)
-                          : const Color(0xFFFF5E00),
+                          : const Color(0xFFFF5216),
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -807,13 +807,13 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(pill || fullWidth ? 23 : 16),
           gradient: const LinearGradient(
-            colors: [Color(0xFFFF5722), Color(0xFFFFC107)],
+            colors: [Color(0xFFFF5216), Color(0xFFFFC107)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF5E00).withValues(alpha: 0.28),
+              color: const Color(0xFFFF5216).withValues(alpha: 0.28),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),

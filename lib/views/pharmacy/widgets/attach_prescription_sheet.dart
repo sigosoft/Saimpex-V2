@@ -83,7 +83,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
         language: apiLanguageCode(),
       );
       if (!mounted) return;
-      showAppToast(message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
       Navigator.pop(context, true);
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -111,7 +111,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
             'pw_prescription_required'.tr,
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
+              color: const Color(0xFFFF5216),
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
@@ -203,7 +203,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                    colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                   ),
                   borderRadius: BorderRadius.circular(26),
                 ),
@@ -259,7 +259,7 @@ class _SourceButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: const Color(0xFFFF5E00), size: 22),
+            Icon(icon, color: const Color(0xFFFF5216), size: 22),
             const SizedBox(height: 4),
             Text(
               label,

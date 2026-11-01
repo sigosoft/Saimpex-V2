@@ -190,7 +190,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       height: 14,
                       errorBuilder: (_, _, _) => const Icon(
                         Icons.mic_none_rounded,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 14,
                       ),
                     ),
@@ -361,7 +361,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.timer_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 12,
                       ),
                       const SizedBox(width: 4),
@@ -376,7 +376,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFFFF5E00),
+                        color: Color(0xFFFF5216),
                         size: 12,
                       ),
                       const SizedBox(width: 4),

@@ -119,7 +119,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
           quantity: quantity,
         );
       }
-      showAppToast(added.message, backgroundColor: const Color(0xFFFF5E00));
+      showAppToast(added.message, backgroundColor: const Color(0xFFFF5216));
       if (added.needsPrescription) {
         await _attachPrescription(pharmacyId);
       }
@@ -326,7 +326,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                       'lib/assets/images/All.png',
                                       width: 22,
                                       height: 22,
-                                      color: const Color(0xFFFF5E00),
+                                      color: const Color(0xFFFF5216),
                                     ),
                                   ),
                                 )
@@ -360,7 +360,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                             overflow: TextOverflow.visible,
                             style: GoogleFonts.outfit(
                               color: isSelected
-                                  ? const Color(0xFFFF5E00)
+                                  ? const Color(0xFFFF5216)
                                   : const Color(0xFF3A312C),
                               fontSize: 11,
                               fontWeight: isSelected
@@ -378,7 +378,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                             width: 56,
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xFFFF5E00), Color(0xFFFFAE00)],
+                                colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                               ),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(12),
@@ -438,7 +438,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 color: const Color(0xFFFFF0EA),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
+                  color: const Color(0xFFFF5216).withValues(alpha: 0.35),
                   width: 1,
                 ),
               ),
@@ -447,7 +447,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                   'lib/assets/images/Voice.png',
                   width: 12,
                   height: 12,
-                  color: const Color(0xFFFF5E00),
+                  color: const Color(0xFFFF5216),
                 ),
               ),
             ),
@@ -660,7 +660,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                         if (storeTime.isNotEmpty) ...[
                                           const Icon(
                                             Icons.access_time_rounded,
-                                            color: Color(0xFFFF5E00),
+                                            color: Color(0xFFFF5216),
                                             size: 12,
                                           ),
                                           const SizedBox(width: 4),
@@ -677,7 +677,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                         if (storeDistance.isNotEmpty) ...[
                                           const Icon(
                                             Icons.location_on_outlined,
-                                            color: Color(0xFFFF5E00),
+                                            color: Color(0xFFFF5216),
                                             size: 12,
                                           ),
                                           const SizedBox(width: 4),
@@ -698,7 +698,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                               vertical: 2,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFFFF5E00),
+                                              color: const Color(0xFFFF5216),
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                             ),
@@ -774,7 +774,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                               decoration: BoxDecoration(
                                                 gradient: const LinearGradient(
                                                   colors: [
-                                                    Color(0xFFFF5E00),
+                                                    Color(0xFFFF5216),
                                                     Color(0xFFFFAE00),
                                                   ],
                                                   begin: Alignment.centerLeft,
@@ -846,7 +846,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                                     : Icons
                                                           .favorite_border_rounded,
                                                 color: liked
-                                                    ? const Color(0xFFFF5E00)
+                                                    ? const Color(0xFFFF5216)
                                                     : const Color(0xFFA59A94),
                                                 size: 16,
                                               ),
@@ -998,7 +998,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                         const Padding(
                           padding: EdgeInsets.only(top: 28),
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFF5E00),
+                            color: Color(0xFFFF5216),
                           ),
                         ),
                       if (!_loadingStore && menuItems.isEmpty)
@@ -1021,7 +1021,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.4,
-                              color: Color(0xFFFF5E00),
+                              color: Color(0xFFFF5216),
                             ),
                           ),
                         ),
