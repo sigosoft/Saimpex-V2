@@ -7,8 +7,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 
+import '../../controllers/home_controller.dart';
 import '../../models/auth_repository.dart';
 import '../../views/notifications_screen.dart';
+import '../../views/pharmacy/my_prescriptions_screen.dart';
 import '../../views/support_messages_screen.dart';
 import '../storage/session_store.dart';
 
@@ -162,6 +164,15 @@ class PushNotifications {
     final orderId = int.tryParse('${data['order_id'] ?? ''}');
     if (data['type'] == 'admin_message' && orderId != null) {
       Get.to(() => SupportThreadScreen(orderId: orderId));
+      return;
+    }
+    // Chat and pharmacy quote pushes carry their type (backend 41739a8).
+    if (data['type'] == 'chat' && Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().selectNavigation(HomeController.navChat);
+      return;
+    }
+    if (data['type'] == 'prescription') {
+      Get.to(() => const MyPrescriptionsScreen());
       return;
     }
     Get.to(() => const NotificationsScreen());
