@@ -58,6 +58,7 @@ class LoginController extends GetxController {
           mobile: mobile,
           language: language,
           displayNumber: '$countryCode $mobile',
+          name: nameController.text.trim(),
         ),
       );
     } on ApiException catch (error) {

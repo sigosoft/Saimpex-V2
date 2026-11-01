@@ -316,9 +316,38 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         _buildWaterOrders(),
         _buildCourierOrders(),
         _buildOtherCategoryOrders(),
+        if (_noOrdersAtAll)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 28),
+            child: Center(
+              child: Text(
+                'orders_no_orders'.tr,
+                style: AppFonts.outfit(
+                  color: const Color(0xFFA59A94),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
+
+  /// Every list loaded and empty: "All" shows a single "No orders".
+  bool get _noOrdersAtAll =>
+      !_restaurantOrdersLoading &&
+      !_groceryOrdersLoading &&
+      !_pharmacyOrdersLoading &&
+      !_waterOrdersLoading &&
+      !_courierOrdersLoading &&
+      !_localStoreOrdersLoading &&
+      _restaurantOrders.isEmpty &&
+      _groceryOrders.isEmpty &&
+      _pharmacyOrders.isEmpty &&
+      _waterOrders.isEmpty &&
+      _courierOrders.isEmpty &&
+      _localStoreOrders.isEmpty;
 
   Future<void> _loadGroceryOrders() async {
     if (!Get.isRegistered<GroceryRepository>()) return;
@@ -402,21 +431,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       );
     }
-    if (_groceryOrders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        child: Center(
-          child: Text(
-            'orders_no_orders'.tr,
-            style: AppFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
+    // On "All" an empty section shows nothing; one message covers them all.
+    if (_groceryOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [for (final order in _groceryOrders) FadeSlideIn(child: _groceryOrderCard(order))],
     );
@@ -513,21 +529,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       );
     }
-    if (_restaurantOrders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        child: Center(
-          child: Text(
-            'orders_no_orders'.tr,
-            style: AppFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
+    // On "All" an empty section shows nothing; one message covers them all.
+    if (_restaurantOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [
         for (final order in _restaurantOrders) FadeSlideIn(child: _restaurantOrderCard(order)),
@@ -764,21 +767,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       );
     }
-    if (_pharmacyOrders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        child: Center(
-          child: Text(
-            'orders_no_orders'.tr,
-            style: AppFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
+    // On "All" an empty section shows nothing; one message covers them all.
+    if (_pharmacyOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [
         for (final order in _pharmacyOrders) FadeSlideIn(child: _pharmacyOrderCard(order)),
@@ -905,21 +895,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       );
     }
-    if (_waterOrders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        child: Center(
-          child: Text(
-            'orders_no_orders'.tr,
-            style: AppFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
+    // On "All" an empty section shows nothing; one message covers them all.
+    if (_waterOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [for (final order in _waterOrders) _waterOrderCard(order)],
     );
