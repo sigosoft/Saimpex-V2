@@ -35,6 +35,8 @@ class AuthRepository {
       'country_code': countryCode,
       'mobile': mobile,
       'otp': otp,
+      // Guest cart moves into the account at login (V2_DECISIONS §19).
+      if (_client.session.guestToken != null) 'guest_token': _client.session.guestToken,
       if (fcmToken != null && fcmToken.trim().isNotEmpty)
         'fcm_token': fcmToken.trim(),
     }, language);

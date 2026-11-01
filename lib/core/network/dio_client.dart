@@ -25,7 +25,8 @@ class DioClient {
           final path = options.path;
           final isOpenAuth =
               path == ApiConstants.sendOtp || path == ApiConstants.verifyOtp;
-          final token = session.token;
+          // Logged-in token first; otherwise the guest cart token (V2_DECISIONS §19).
+          final token = (session.token != null && session.token!.isNotEmpty) ? session.token : session.guestToken;
           if (!isOpenAuth && token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -36,8 +37,18 @@ class DioClient {
           logDioResponse(response);
           handler.next(response);
         },
-        onError: (error, handler) {
+        onError: (error, handler) async {
           logDioError(error);
+          // A guest's first cart request: start a guest session and retry once.
+          if (_needsGuestSession(error)) {
+            final retried = await _retryWithGuestSession(error.requestOptions);
+            if (retried != null) return handler.resolve(retried);
+          }
+          // A guest token the server no longer knows (e.g. merged at login on another phone): drop it.
+          if (error.response?.statusCode == 401 && !_serverSaysLoginRequired(error) &&
+              session.guestToken != null && error.requestOptions.headers['Authorization']?.toString() == 'Bearer ${session.guestToken}') {
+            await session.saveGuestToken(null);
+          }
           _checkSessionExpired(error);
           if (_isGuestLoginRequired(error)) {
             // Guest tried something that needs an account: friendly message, and
@@ -75,8 +86,37 @@ class DioClient {
 
   bool _isGuestLoginRequired(DioException error) {
     if (error.response?.statusCode != 401) return false;
+    if (_serverSaysLoginRequired(error)) return true;
     final token = session.token;
     return token == null || token.isEmpty;
+  }
+
+  bool _serverSaysLoginRequired(DioException error) {
+    final data = error.response?.data;
+    return data is Map && data['login_required'] == true;
+  }
+
+  static final _cartPath = RegExp(r'^customer/(cart|catalog/cart)/|^customer/(catalog/)?checkoutSummary');
+
+  bool _needsGuestSession(DioException error) {
+    if (error.response?.statusCode != 401) return false;
+    final hasLogin = session.token != null && session.token!.isNotEmpty;
+    return !hasLogin && session.guestToken == null && _cartPath.hasMatch(error.requestOptions.path);
+  }
+
+  Future<Response<dynamic>?> _retryWithGuestSession(RequestOptions failed) async {
+    try {
+      final plain = Dio(BaseOptions(baseUrl: dio.options.baseUrl, headers: const {'Accept': 'application/json'}));
+      final res = await plain.post(ApiConstants.guestSession);
+      final data = res.data is Map ? res.data['data'] : null;
+      final guest = data is Map ? data['token']?.toString() : null;
+      if (guest == null || guest.isEmpty) return null;
+      await session.saveGuestToken(guest);
+      failed.headers['Authorization'] = 'Bearer $guest';
+      return await dio.fetch(failed);
+    } catch (_) {
+      return null;
+    }
   }
 
   void _checkSessionExpired(DioException error) {

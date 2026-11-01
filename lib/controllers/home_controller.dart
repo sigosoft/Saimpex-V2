@@ -104,7 +104,7 @@ class HomeController extends GetxController {
   }
 
   /// Tabs that only make sense with an account; guests get the login sheet.
-  static const _accountTabs = {navChat, navBookings, navOrders, navCart, navProfile};
+  static const _accountTabs = {navChat, navBookings, navOrders, navProfile}; // Cart works for guests (§19)
 
   void selectNavigation(int index) {
     if (_accountTabs.contains(index) && !GuestGate.ensureLoggedIn()) return;

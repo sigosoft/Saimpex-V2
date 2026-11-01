@@ -8,6 +8,7 @@ class ApiConstants {
   static const String imageSearch = 'customer/image-recognition/analyze';
   static const String sendOtp = 'customer/sendOtp';
   static const String verifyOtp = 'customer/verifyOtp';
+  static const String guestSession = 'customer/guestSession';
   static const String customerCheck = 'customer/customerCheck';
   static const String logout = 'customer/logout';
   static const String profile = 'customer/profile';
