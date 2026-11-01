@@ -364,20 +364,38 @@ class GeneralRepository {
     return banners;
   }
 
-  Map<String, Map<String, String>> _sections(dynamic raw, String language) {
+  Map<String, Map<String, String>> _sections(dynamic raw, String language) =>
+      homeSectionsFrom(raw, language);
+
+  /// Home section titles and "see all" targets by key.
+  ///
+  /// `title` is set only when the server sends a title in [language]
+  /// (`title_ar`, `title_fr`, …), so the app's own translation is used when it
+  /// sends English only (it does today: `title_en`). `title_en` is the last
+  /// fallback, for a key the app has no translation for.
+  static Map<String, Map<String, String>> homeSectionsFrom(
+    dynamic raw,
+    String language,
+  ) {
     final sections = <String, Map<String, String>>{};
     if (raw is! List) return sections;
+    String text(dynamic value) {
+      final v = value?.toString().trim() ?? '';
+      return v.toLowerCase() == 'null' ? '' : v;
+    }
+
     for (final item in raw) {
       final section = asJsonMap(item);
       if (section == null) continue;
-      final key = section['key']?.toString() ?? '';
+      final key = text(section['key']);
       if (key.isEmpty) continue;
-      final title = _localized(section, 'title', language);
+      final english = text(section['title_en']).isNotEmpty
+          ? text(section['title_en'])
+          : text(section['title']);
       sections[key] = {
-        'title': title.isNotEmpty
-            ? title
-            : (section['title_en']?.toString().trim() ?? ''),
-        'seeAll': section['see_all']?.toString() ?? '',
+        'title': language == 'en' ? english : text(section['title_$language']),
+        'title_en': english,
+        'seeAll': text(section['see_all']),
       };
     }
     return sections;

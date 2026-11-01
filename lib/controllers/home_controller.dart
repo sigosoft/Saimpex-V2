@@ -283,9 +283,17 @@ class HomeController extends GetxController {
     return '$amount $currency';
   }
 
+  /// Server title in the app's language, else the app's own translation,
+  /// else the server's English title.
   String sectionTitle(String key) {
     final title = homeSections[key]?['title']?.trim() ?? '';
     if (title.isNotEmpty) return title;
+    final translated = _sectionTitleFallback(key);
+    if (translated.isNotEmpty) return translated;
+    return homeSections[key]?['title_en']?.trim() ?? '';
+  }
+
+  String _sectionTitleFallback(String key) {
     switch (key) {
       case 'trending':
         return 'core_home_trending'.tr;
@@ -378,6 +386,7 @@ class HomeController extends GetxController {
           if (value is Map) {
             homeSections[key.toString()] = {
               'title': value['title']?.toString() ?? '',
+              'title_en': value['title_en']?.toString() ?? '',
               'seeAll': value['seeAll']?.toString() ?? '',
             };
           }
