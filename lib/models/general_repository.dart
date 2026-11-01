@@ -496,6 +496,24 @@ class GeneralRepository {
     );
   }
 
+  /// Help contacts set in Admin → Branding (V2_DECISIONS §17): never hard-coded.
+  Future<({String whatsapp, String phone, String email})> fetchSupportContacts(
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.branding),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final branding = asJsonMap(data['branding']) ?? data;
+    String read(String key) => branding[key]?.toString().trim() ?? '';
+    return (
+      whatsapp: read('support_whatsapp'),
+      phone: read('support_phone'),
+      email: read('support_email'),
+    );
+  }
+
   Future<({String email, String phone})> fetchContact(String language) async {
     final envelope = await _send(
       () => _client.dio.get(ApiConstants.getContact),

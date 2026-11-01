@@ -8,6 +8,7 @@ class ApiConstants {
   static const String imageSearch = 'customer/image-recognition/analyze';
   static const String sendOtp = 'customer/sendOtp';
   static const String verifyOtp = 'customer/verifyOtp';
+  static const String guestSession = 'customer/guestSession';
   static const String customerCheck = 'customer/customerCheck';
   static const String logout = 'customer/logout';
   static const String updateFcmToken = 'customer/updateFcmToken';
@@ -204,6 +205,7 @@ class ApiConstants {
   static const String getPrivacyPolicy = 'customer/getPrivacyPolicy';
   static const String getTermsAndConditions = 'customer/getTermsandConditions';
   static const String getContact = 'customer/getContact';
+  static const String branding = 'customer/branding';
   static const String chatAllConversations = 'customer/chat/allConversations';
   // Messages from SAIMPEX support about an order (API §6.37).
   static const String supportMessages = 'customer/supportMessages';

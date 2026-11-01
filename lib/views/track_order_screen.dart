@@ -1,3 +1,4 @@
+import '../widgets/help_sheet.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -245,6 +246,14 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                ),
+              ),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: IconButton(
+                  tooltip: 'ease_help_title'.tr,
+                  icon: const Icon(Icons.support_agent_rounded, color: Color(0xFFFF5216)),
+                  onPressed: () => HelpSheet.show(orderCode: widget.orderId),
                 ),
               ),
             ],

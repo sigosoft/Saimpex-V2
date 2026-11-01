@@ -1,3 +1,4 @@
+import '../widgets/motion.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -107,7 +108,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         itemCount: _notifications.length,
         separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) => _card(_notifications[index]),
+        itemBuilder: (context, index) => FadeSlideIn(child: _card(_notifications[index])),
       ),
     );
   }

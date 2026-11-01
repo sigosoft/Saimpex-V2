@@ -1,3 +1,4 @@
+import '../widgets/motion.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -417,7 +418,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       );
     }
     return Column(
-      children: [for (final order in _groceryOrders) _groceryOrderCard(order)],
+      children: [for (final order in _groceryOrders) FadeSlideIn(child: _groceryOrderCard(order))],
     );
   }
 
@@ -529,7 +530,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     }
     return Column(
       children: [
-        for (final order in _restaurantOrders) _restaurantOrderCard(order),
+        for (final order in _restaurantOrders) FadeSlideIn(child: _restaurantOrderCard(order)),
       ],
     );
   }
@@ -780,7 +781,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     }
     return Column(
       children: [
-        for (final order in _pharmacyOrders) _pharmacyOrderCard(order),
+        for (final order in _pharmacyOrders) FadeSlideIn(child: _pharmacyOrderCard(order)),
       ],
     );
   }

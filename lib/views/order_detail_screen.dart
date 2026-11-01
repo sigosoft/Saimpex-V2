@@ -1,3 +1,4 @@
+import '../widgets/help_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -63,17 +64,7 @@ class OrderDetailScreen extends StatelessWidget {
                   Align(
                     alignment: AlignmentDirectional.centerEnd,
                     child: GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'orders_help_opened'.tr,
-                              style: GoogleFonts.outfit(),
-                            ),
-                            backgroundColor: const Color(0xFFFF5216),
-                          ),
-                        );
-                      },
+                      onTap: () => HelpSheet.show(orderCode: orderId),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
