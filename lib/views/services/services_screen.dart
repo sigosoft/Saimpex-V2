@@ -7,10 +7,12 @@ import '../../constants/text_styles.dart';
 import 'car_wash_screen.dart';
 import 'home_cleaning_screen.dart';
 import 'laundry_services_screen.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/home_background_blend.dart';
 
 import '../../utils/app_fonts.dart';
+
 class ServicesScreen extends StatelessWidget {
   final bool showBottomNav;
 
@@ -311,11 +313,15 @@ class ServicesScreen extends StatelessWidget {
     return Get.find<HomeController>().isVerticalEnabled(slug);
   }
 
-  static VoidCallback? _open(String title) => switch (_verticalOf(title)) {
+  /// True for tiles with no service vertical behind them yet (plumbing,
+  /// electrical, …): they show a "Coming soon" label and say so on tap.
+  static bool _comingSoon(String title) => _verticalOf(title) == null;
+
+  static VoidCallback _open(String title) => switch (_verticalOf(title)) {
     'home_cleaning' => () => Get.to(() => const HomeCleaningScreen()),
     'car_wash' => () => Get.to(() => const CarWashScreen()),
     'laundry' => () => Get.to(() => const LaundryServicesScreen()),
-    _ => null,
+    _ => () => showAppToast('svc_coming_soon_message'.tr),
   };
 
   Widget _buildPopularGrid() {
@@ -335,6 +341,7 @@ class ServicesScreen extends StatelessWidget {
       borderRadius: 26,
       titleFontSize: 14,
       onTap: _open(data.title),
+      comingSoon: _comingSoon(data.title),
     );
 
     return Column(
@@ -352,6 +359,7 @@ class ServicesScreen extends StatelessWidget {
                     borderRadius: 32,
                     titleFontSize: 16,
                     onTap: _open(tall[i].title),
+                    comingSoon: _comingSoon(tall[i].title),
                   ),
                 ),
                 const SizedBox(width: rowGap),
@@ -437,6 +445,10 @@ class ServicesScreen extends StatelessWidget {
                     height: 1.15,
                   ),
                 ),
+                if (_comingSoon(item.label)) ...[
+                  const SizedBox(height: 4),
+                  const _ComingSoonBadge(fontSize: 8),
+                ],
               ],
             ),
           ),
@@ -490,7 +502,7 @@ class ServicesScreen extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {},
+        onTap: _open(data.title),
         borderRadius: BorderRadius.circular(20),
         child: Container(
           height: 96,
@@ -526,39 +538,42 @@ class ServicesScreen extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          size: 14,
-                          color: Color(0xFFFF5216),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'svc_minutes'.trParams({'count': '15'}),
-                          style: AppFonts.outfit(
-                            color: const Color(0xFFFF5216),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Container(
-                          width: 18,
-                          height: 18,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.85),
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.chevron_right_rounded,
+                    if (_comingSoon(data.title))
+                      const _ComingSoonBadge()
+                    else
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time_rounded,
                             size: 14,
                             color: Color(0xFFFF5216),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'svc_minutes'.trParams({'count': '15'}),
+                            style: AppFonts.outfit(
+                              color: const Color(0xFFFF5216),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Container(
+                            width: 18,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.chevron_right_rounded,
+                              size: 14,
+                              color: Color(0xFFFF5216),
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -591,6 +606,7 @@ class _PopularServiceCard extends StatelessWidget {
   final double borderRadius;
   final double titleFontSize;
   final VoidCallback? onTap;
+  final bool comingSoon;
 
   const _PopularServiceCard({
     required this.data,
@@ -598,6 +614,7 @@ class _PopularServiceCard extends StatelessWidget {
     required this.borderRadius,
     required this.titleFontSize,
     this.onTap,
+    this.comingSoon = false,
   });
 
   @override
@@ -672,6 +689,12 @@ class _PopularServiceCard extends StatelessWidget {
                         scale: data.imageScale,
                       ),
                     ),
+                    if (comingSoon)
+                      const PositionedDirectional(
+                        start: 16,
+                        bottom: 12,
+                        child: _ComingSoonBadge(),
+                      ),
                   ],
                 ),
               ),
@@ -848,4 +871,32 @@ class _EmergencyData {
     this.imageSize = 58,
     this.clipBottomFraction = 0,
   });
+}
+
+/// Small orange pill on service tiles that aren't live yet.
+class _ComingSoonBadge extends StatelessWidget {
+  final double fontSize;
+
+  const _ComingSoonBadge({this.fontSize = 9.5});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF0E6),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFFFDDCF)),
+      ),
+      child: Text(
+        'svc_coming_soon'.tr,
+        maxLines: 1,
+        style: AppFonts.outfit(
+          color: const Color(0xFFFF5216),
+          fontSize: fontSize,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
 }
