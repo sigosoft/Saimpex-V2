@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../utils/app_fonts.dart';
 /// Shown in place of the payment options when Admin has switched off every
 /// method this checkout offers.
 class NoPaymentMethodNote extends StatelessWidget {
@@ -13,7 +13,7 @@ class NoPaymentMethodNote extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Text(
         'payment_no_method'.tr,
-        style: GoogleFonts.outfit(
+        style: AppFonts.outfit(
           color: const Color(0xFFEF4444),
           fontSize: 12.5,
           fontWeight: FontWeight.w600,

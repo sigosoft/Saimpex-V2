@@ -4,12 +4,12 @@ import '../../widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../models/order_tracking.dart';
 import '../widgets/tracking_widgets.dart';
 
+import '../../utils/app_fonts.dart';
 class CourierTrackOrderScreen extends StatefulWidget {
   final String orderId;
 
@@ -352,7 +352,7 @@ class _CourierTrackOrderScreenState extends State<CourierTrackOrderScreen>
           child: Text(
             'st_track_order'.trParams({'id': _displayOrderId}),
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 17,
               fontWeight: FontWeight.w800,

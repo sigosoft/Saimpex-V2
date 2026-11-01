@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/network/api_exception.dart';
 import '../../models/order_repository.dart';
 import '../../utils/api_language.dart';
 
+import '../../utils/app_fonts.dart';
 /// Lists the coupons the customer can use with their current cart
 /// (customer/coupons) and returns the code they pick.
 Future<String?> showCouponsSheet(BuildContext context) {
@@ -72,7 +72,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
         children: [
           Text(
             'core_coupons_sheet_title'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -101,7 +101,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
           child: Text(
             _error ?? 'core_coupons_sheet_empty'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF8C7D73),
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -141,7 +141,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
                     children: [
                       Text(
                         '${coupon['code']}',
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -151,7 +151,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
                       if ('${coupon['title']}' != '${coupon['code']}')
                         Text(
                           '${coupon['title']}',
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF5C5048),
                             fontSize: 12,
                           ),
@@ -159,7 +159,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
                       if (subtitle.isNotEmpty)
                         Text(
                           subtitle,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
                           ),
@@ -170,7 +170,7 @@ class _CouponsSheetState extends State<_CouponsSheet> {
                 if (discount.isNotEmpty)
                   Text(
                     discount,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5216),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,

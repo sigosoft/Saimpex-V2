@@ -2,13 +2,13 @@ import '../widgets/help_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../core/network/api_constants.dart';
 import 'track_order_screen.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/cancel_order_bottom_sheet.dart';
 import 'widgets/scheduled_for_banner.dart';
 
+import '../utils/app_fonts.dart';
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
 
@@ -55,7 +55,7 @@ class OrderDetailScreen extends StatelessWidget {
                   ),
                   Text(
                     'orders_order_code'.trParams({'code': orderId}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -82,7 +82,7 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                         child: Text(
                           'subs_help'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -130,7 +130,7 @@ class OrderDetailScreen extends StatelessWidget {
                             children: [
                               Text(
                                 'orders_order_status'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -140,7 +140,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 isSelfPickup
                                     ? 'orders_self_pickup'.tr
                                     : 'orders_delivery'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: isSelfPickup
                                       ? const Color(0xFF007DFE)
                                       : const Color(0xFFFF5216),
@@ -204,7 +204,7 @@ class OrderDetailScreen extends StatelessWidget {
                       isSelfPickup
                           ? 'orders_pickup_location'.tr
                           : 'orders_delivery_details'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -251,7 +251,7 @@ class OrderDetailScreen extends StatelessWidget {
                                       'vendor_name',
                                       'Salam Supermarket',
                                     ),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -263,7 +263,7 @@ class OrderDetailScreen extends StatelessWidget {
                                       'location',
                                       'Salam Supermarket, Near Nouakchott, Mauritania',
                                     ),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF8C7D73),
                                       fontSize: 11,
                                     ),
@@ -311,7 +311,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     _apiText('location', ''),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -325,7 +325,7 @@ class OrderDetailScreen extends StatelessWidget {
                                         'orders_the_restaurant'.tr,
                                       ),
                                     }),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF8C7D73),
                                       fontSize: 11,
                                     ),
@@ -343,7 +343,7 @@ class OrderDetailScreen extends StatelessWidget {
                     // 4. Order Summary Section
                     Text(
                       'orders_order_summary'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -381,7 +381,7 @@ class OrderDetailScreen extends StatelessWidget {
                         children: [
                           Text(
                             'orders_payment_details'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
@@ -410,7 +410,7 @@ class OrderDetailScreen extends StatelessWidget {
                             children: [
                               Text(
                                 'orders_total_paid'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
@@ -418,7 +418,7 @@ class OrderDetailScreen extends StatelessWidget {
                               ),
                               Text(
                                 _amount('total', ''),
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
@@ -452,7 +452,7 @@ class OrderDetailScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             'cancel'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -481,7 +481,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 alignment: Alignment.center,
                                 child: Text(
                                   'cancel'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
@@ -526,7 +526,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 alignment: Alignment.center,
                                 child: Text(
                                   'orders_track_order_btn'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
@@ -685,7 +685,7 @@ class OrderDetailScreen extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: isActive
                   ? const Color(0xFF2C2520)
                   : const Color(0xFF8C7D73),
@@ -702,7 +702,7 @@ class OrderDetailScreen extends StatelessWidget {
                 time,
                 maxLines: 1,
                 softWrap: false,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF8C7D73),
                   fontSize: 8,
                 ),
@@ -765,7 +765,7 @@ class OrderDetailScreen extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -774,7 +774,7 @@ class OrderDetailScreen extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 weight,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF8C7D73),
                   fontSize: 11,
                 ),
@@ -782,7 +782,7 @@ class OrderDetailScreen extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 quantity,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -793,7 +793,7 @@ class OrderDetailScreen extends StatelessWidget {
         ),
         Text(
           price,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 13,
             fontWeight: FontWeight.bold,
@@ -810,14 +810,14 @@ class OrderDetailScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 12,
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: isOrange ? const Color(0xFFFF5216) : Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w600,

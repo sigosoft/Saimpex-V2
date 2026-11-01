@@ -3,13 +3,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../models/order_tracking.dart';
 import '../widgets/app_back_button.dart';
 import 'widgets/tracking_widgets.dart';
 
+import '../utils/app_fonts.dart';
 class TrackOrderScreen extends StatefulWidget {
   final String orderId;
 
@@ -242,7 +242,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
               ),
               Text(
                 'orders_track_order'.trParams({'code': widget.orderId}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

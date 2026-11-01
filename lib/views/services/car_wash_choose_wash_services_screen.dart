@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/service_booking_draft.dart';
 import '../../core/network/api_constants.dart';
@@ -10,6 +9,7 @@ import 'car_wash_cart_screen.dart';
 import 'car_wash_choose_slot_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../utils/app_fonts.dart';
 class _VehicleWashConfig {
   int selectedService = 0;
   final Set<int> selectedAddons = {};
@@ -321,7 +321,7 @@ class _CarWashChooseWashServicesScreenState
           ),
           Text(
             'svc_choose_wash_services'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -409,7 +409,7 @@ class _CarWashChooseWashServicesScreenState
             children: [
               Text(
                 vehicle.label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -418,7 +418,7 @@ class _CarWashChooseWashServicesScreenState
               const SizedBox(height: 3),
               Text(
                 vehicle.plateNumber,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF8A7E76),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -435,7 +435,7 @@ class _CarWashChooseWashServicesScreenState
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF6B6560),
         fontSize: 14,
         fontWeight: FontWeight.w700,
@@ -523,7 +523,7 @@ class _CarWashChooseWashServicesScreenState
                       Expanded(
                         child: Text(
                           item['title'] as String,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -538,7 +538,7 @@ class _CarWashChooseWashServicesScreenState
                     item['description'] as String,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 11.5,
                       fontWeight: FontWeight.w400,
@@ -551,7 +551,7 @@ class _CarWashChooseWashServicesScreenState
             const SizedBox(width: 8),
             Text(
               'mru'.trParams({'amount': '$price'}),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: selected
                     ? const Color(0xFFFF5216)
                     : const Color(0xFF1A1A1A),
@@ -622,7 +622,7 @@ class _CarWashChooseWashServicesScreenState
                       Expanded(
                         child: Text(
                           item['title'] as String,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -637,7 +637,7 @@ class _CarWashChooseWashServicesScreenState
                     item['description'] as String,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 11.5,
                       fontWeight: FontWeight.w400,
@@ -650,7 +650,7 @@ class _CarWashChooseWashServicesScreenState
             const SizedBox(width: 8),
             Text(
               'svc_plus_mru'.trParams({'amount': '$price'}),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: selected
                     ? const Color(0xFFFF5216)
                     : const Color(0xFF1A1A1A),
@@ -677,13 +677,13 @@ class _CarWashChooseWashServicesScreenState
           child: TextField(
             controller: config.notesController,
             maxLines: 3,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 13.5,
             ),
             decoration: InputDecoration(
               hintText: 'svc_notes_hint'.tr,
-              hintStyle: GoogleFonts.outfit(
+              hintStyle: AppFonts.outfit(
                 color: const Color(0xFFB0A59C),
                 fontSize: 13.5,
               ),
@@ -695,7 +695,7 @@ class _CarWashChooseWashServicesScreenState
         const SizedBox(height: 8),
         Text(
           'svc_notes_example_wheels'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF9A8E86),
             fontSize: 11.5,
             fontWeight: FontWeight.w500,
@@ -725,7 +725,7 @@ class _CarWashChooseWashServicesScreenState
         children: [
           Text(
             'svc_total_upper'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF5C6578),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -735,7 +735,7 @@ class _CarWashChooseWashServicesScreenState
           const SizedBox(height: 2),
           Text(
             'mru'.trParams({'amount': '$_totalPrice'}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -765,7 +765,7 @@ class _CarWashChooseWashServicesScreenState
               ),
               child: Text(
                 'svc_continue_to_slot'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,

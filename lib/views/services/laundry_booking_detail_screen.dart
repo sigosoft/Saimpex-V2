@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/network/api_exception.dart';
 import '../../models/service_booking_detail.dart';
@@ -9,6 +8,7 @@ import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../help_support_screen.dart';
 
+import '../../utils/app_fonts.dart';
 class LaundryBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
 
@@ -318,7 +318,7 @@ class _LaundryBookingDetailScreenState
             child: Text(
               'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -336,7 +336,7 @@ class _LaundryBookingDetailScreenState
               ),
               child: Text(
                 'svc_help'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -352,7 +352,7 @@ class _LaundryBookingDetailScreenState
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1B2B4A),
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
@@ -466,7 +466,7 @@ class _LaundryBookingDetailScreenState
         Text(
           (step['label'] as String).tr,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1B2B4A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -478,7 +478,7 @@ class _LaundryBookingDetailScreenState
           Text(
             time,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 9.5,
               fontWeight: FontWeight.w500,
@@ -540,7 +540,7 @@ class _LaundryBookingDetailScreenState
                 if (_service.isNotEmpty)
                   Text(
                     _service,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1B2B4A),
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -550,7 +550,7 @@ class _LaundryBookingDetailScreenState
                   const SizedBox(height: 4),
                   Text(
                     _estimate,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF9A8E86),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w500,
@@ -561,7 +561,7 @@ class _LaundryBookingDetailScreenState
                   const SizedBox(height: 4),
                   Text(
                     _price,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5216),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -582,7 +582,7 @@ class _LaundryBookingDetailScreenState
               ),
               child: Text(
                 _status.toUpperCase(),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: cancelled
                       ? const Color(0xFFD32F2F)
                       : const Color(0xFF1B7A3E),
@@ -616,7 +616,7 @@ class _LaundryBookingDetailScreenState
                     children: [
                       Text(
                         rows[i]['label']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1B2B4A),
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
@@ -625,7 +625,7 @@ class _LaundryBookingDetailScreenState
                       const SizedBox(height: 2),
                       Text(
                         rows[i]['detail']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF9A8E86),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -636,7 +636,7 @@ class _LaundryBookingDetailScreenState
                 ),
                 Text(
                   rows[i]['total']!,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
@@ -740,7 +740,7 @@ class _LaundryBookingDetailScreenState
         children: [
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: labelColor,
               fontSize: 10.5,
               fontWeight: FontWeight.w700,
@@ -750,7 +750,7 @@ class _LaundryBookingDetailScreenState
           const SizedBox(height: 2),
           Text(
             title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1B2B4A),
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -759,7 +759,7 @@ class _LaundryBookingDetailScreenState
           if (subtitle.isNotEmpty)
             Text(
               subtitle,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF8A7E76),
                 fontSize: 11.5,
               ),
@@ -799,7 +799,7 @@ class _LaundryBookingDetailScreenState
               children: [
                 Text(
                   'svc_pickup_slot'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -808,7 +808,7 @@ class _LaundryBookingDetailScreenState
                 const SizedBox(height: 2),
                 Text(
                   _slot,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
@@ -853,7 +853,7 @@ class _LaundryBookingDetailScreenState
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -862,7 +862,7 @@ class _LaundryBookingDetailScreenState
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
@@ -892,7 +892,7 @@ class _LaundryBookingDetailScreenState
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -918,7 +918,7 @@ class _LaundryBookingDetailScreenState
             children: [
               Text(
                 (paid ? 'svc_total_paid' : 'svc_to_pay').tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -927,7 +927,7 @@ class _LaundryBookingDetailScreenState
               const Spacer(),
               Text(
                 serviceMru(amount),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -945,7 +945,7 @@ class _LaundryBookingDetailScreenState
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFD4CBC3),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -954,7 +954,7 @@ class _LaundryBookingDetailScreenState
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w700,
@@ -1008,7 +1008,7 @@ class _LaundryBookingDetailScreenState
                     const SizedBox(width: 4),
                     Text(
                       'svc_balance_due_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 9.5,
                         fontWeight: FontWeight.w800,
@@ -1027,7 +1027,7 @@ class _LaundryBookingDetailScreenState
                       'svc_estimated_weight'.trParams({
                         'weight': '${_trimNumber(estimate)} ${'svc_kg'.tr}',
                       }),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 12.5,
                         fontWeight: FontWeight.w500,
@@ -1036,7 +1036,7 @@ class _LaundryBookingDetailScreenState
                     if (rate > 0)
                       Text(
                         serviceMru(estimate * rate),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
@@ -1052,7 +1052,7 @@ class _LaundryBookingDetailScreenState
                   children: [
                     RichText(
                       text: TextSpan(
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w500,
@@ -1061,7 +1061,7 @@ class _LaundryBookingDetailScreenState
                           TextSpan(text: 'svc_actual_weight'.tr),
                           TextSpan(
                             text: '${_trimNumber(actual)} ${'svc_kg'.tr}',
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontWeight: FontWeight.w800,
                             ),
@@ -1072,7 +1072,7 @@ class _LaundryBookingDetailScreenState
                     if (rate > 0)
                       Text(
                         serviceMru(actual * rate),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w800,
@@ -1099,7 +1099,7 @@ class _LaundryBookingDetailScreenState
                 children: [
                   Text(
                     'svc_balance_due'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -1108,7 +1108,7 @@ class _LaundryBookingDetailScreenState
                   const SizedBox(height: 2),
                   Text(
                     'svc_amount_due_after_weighing'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -1118,7 +1118,7 @@ class _LaundryBookingDetailScreenState
               ),
               Text(
                 serviceMru(_balanceDue),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
@@ -1161,7 +1161,7 @@ class _LaundryBookingDetailScreenState
                   ),
                   child: Text(
                     'svc_pay_value'.trParams({'amount': serviceMru(balance)}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -1190,7 +1190,7 @@ class _LaundryBookingDetailScreenState
                   ),
                   child: Text(
                     'cancel'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1B2B4A),
                       fontSize: 15,
                       fontWeight: FontWeight.w700,

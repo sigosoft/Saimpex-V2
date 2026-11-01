@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../core/network/api_exception.dart';
 import '../models/water_repository.dart';
 import '../utils/api_language.dart';
@@ -10,6 +9,7 @@ import '../widgets/app_back_button.dart';
 import 'home_screen.dart';
 import 'water/water_subscription_screen.dart';
 
+import '../utils/app_fonts.dart';
 class MySubscriptionsScreen extends StatefulWidget {
   const MySubscriptionsScreen({super.key});
 
@@ -204,7 +204,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                         _selectedTab == 0
                             ? 'core_subscriptions_no_active'.tr
                             : 'core_subscriptions_no_inactive'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -249,7 +249,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             child: Text(
               'core_subscriptions_title'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -323,7 +323,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             child: Text(
               label,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: selected ? Colors.white : const Color(0xFF8C7E75),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -352,7 +352,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                 ),
                 child: Text(
                   '$badgeCount',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -531,7 +531,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             children: [
               Text(
                 (item['title'] ?? '').toString(),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -540,14 +540,14 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               const SizedBox(height: 3),
               Text(
                 (item['subtitle'] ?? '').toString(),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF8C7E75),
                   fontSize: 12,
                 ),
               ),
               Text(
                 (item['size'] ?? '').toString(),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -556,7 +556,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               const SizedBox(height: 2),
               Text(
                 (item['qty'] ?? '').toString(),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -579,7 +579,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                 const SizedBox(width: 2),
                 Text(
                   (item['rating'] ?? '').toString(),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8C7E75),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -628,7 +628,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                   Expanded(
                     child: Text(
                       (item['title'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: primaryText,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -648,7 +648,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                       const SizedBox(width: 2),
                       Text(
                         (item['rating'] ?? '').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: isExpired
                               ? secondaryText
                               : const Color(0xFFFF5216),
@@ -663,18 +663,18 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               const SizedBox(height: 4),
               Text(
                 (item['subtitle'] ?? '').toString(),
-                style: GoogleFonts.outfit(color: secondaryText, fontSize: 12),
+                style: AppFonts.outfit(color: secondaryText, fontSize: 12),
               ),
               Text(
                 (item['size'] ?? '').toString(),
-                style: GoogleFonts.outfit(color: secondaryText, fontSize: 12),
+                style: AppFonts.outfit(color: secondaryText, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
                   Text(
                     (item['qty'] ?? '').toString(),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: isExpired
                           ? const Color(0xFFA59A94)
                           : const Color(0xFFFF5216),
@@ -714,7 +714,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
           const SizedBox(width: 5),
           Text(
             status,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: _statusColor(status),
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -742,7 +742,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: muted ? const Color(0xFF8A847E) : const Color(0xFF8C7E75),
               fontSize: 11,
               fontWeight: FontWeight.w500,
@@ -753,7 +753,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             value,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: muted ? const Color(0xFF6B6662) : const Color(0xFF1A1A1A),
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -781,7 +781,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -832,7 +832,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'laundry_cart_screen.dart';
 import 'laundry_choose_pickup_sheet.dart';
@@ -9,6 +8,7 @@ import '../../controllers/service_booking_draft.dart';
 import '../../core/network/api_constants.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../utils/app_fonts.dart';
 class LaundryDryCleaningScreen extends StatefulWidget {
   final Map<String, String> service;
   final String providerName;
@@ -133,7 +133,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                       const SizedBox(height: 18),
                       Text(
                         'svc_select_dry_clean_items'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1B2B4A),
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -146,7 +146,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                           child: Text(
                             'svc_no_garments'.tr,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -179,7 +179,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
             child: Text(
               'svc_dry_cleaning'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -266,7 +266,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
               children: [
                 Text(
                   item['title'] as String,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 14.5,
                     fontWeight: FontWeight.w800,
@@ -275,7 +275,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'svc_price_per_item'.trParams({'amount': '$price'}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
@@ -312,7 +312,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
             child: Text(
               '$qty',
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1B2B4A),
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -384,7 +384,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                   children: [
                     Text(
                       'svc_total_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
@@ -394,7 +394,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                     const SizedBox(height: 2),
                     Text(
                       'mru'.trParams({'amount': '$_totalPrice'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -409,7 +409,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                   children: [
                     Text(
                       'svc_duration_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
@@ -419,7 +419,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
                     const SizedBox(height: 2),
                     Text(
                       'svc_24_hours'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -454,7 +454,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
               ),
               child: Text(
                 'svc_choose_pickup_time'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15.5,
                   fontWeight: FontWeight.w700,

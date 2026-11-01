@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../controllers/select_location_controller.dart';
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -12,6 +11,7 @@ import '../widgets/app_back_button.dart';
 import 'cart_screen.dart';
 import 'redeem_detail_sheet.dart';
 
+import '../utils/app_fonts.dart';
 /// Points balance, tier, redeemable baskets, weekly missions, referral and
 /// points history, from customer/userPoints, loyalty, rewardList and
 /// transactionHistory.
@@ -175,7 +175,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
           'core_rewards_enter_code_title'.tr,
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 17),
+          style: AppFonts.outfit(fontWeight: FontWeight.w800, fontSize: 17),
         ),
         content: TextField(
           controller: controller,
@@ -188,14 +188,14 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
             onPressed: () => Get.back(),
             child: Text(
               'cancel'.tr,
-              style: GoogleFonts.outfit(color: const Color(0xFF7A6A60)),
+              style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
             ),
           ),
           TextButton(
             onPressed: () => Get.back(result: controller.text.trim()),
             child: Text(
               'core_rewards_apply'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5216),
                 fontWeight: FontWeight.w800,
               ),
@@ -248,7 +248,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                         child: Text(
                           _error!,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -302,7 +302,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                   onTap: _enterCode,
                                   child: Text(
                                     'core_rewards_have_code'.tr,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFFF5216),
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
@@ -345,7 +345,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
             child: Text(
               'core_rewards_title'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -368,7 +368,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         Expanded(
           child: Text(
             title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -405,7 +405,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                   children: [
                     Text(
                       'core_rewards_reward_balance'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A9A9A),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -418,7 +418,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                       children: [
                         Text(
                           _grouped(_points),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 34,
                             fontWeight: FontWeight.w800,
@@ -430,7 +430,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                           'core_rewards_pts_approx'.trParams({
                             'amount': _grouped(_redeemableAmount),
                           }),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFBDBDBD),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -466,7 +466,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                         'core_rewards_tier_badge'.trParams({
                           'tier': tierName.toUpperCase(),
                         }),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFBE8D8),
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -489,7 +489,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                       'tier': nextName,
                     }),
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFCFCFCF),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -578,7 +578,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                 const SizedBox(height: 6),
                 Text(
                   tiers[index],
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: active
                         ? const Color(0xFFFF5216)
                         : const Color(0xFF8A8A8A),
@@ -629,7 +629,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -758,7 +758,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                   item['store'] as String,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: redeemable
                                         ? Colors.white
                                         : const Color(0xFFE8E4DF),
@@ -791,7 +791,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                             item['title'] as String,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF1A1A1A),
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -802,7 +802,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                             item['subtitle'] as String,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF8A8A8A),
                               fontSize: 10,
                               height: 1.3,
@@ -812,7 +812,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                           const SizedBox(height: 6),
                           Text(
                             item['points'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -847,7 +847,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                               ),
                               child: Text(
                                 'core_rewards_redeem'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -964,7 +964,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                   children: [
                     Text(
                       '${mission['title'] ?? ''}',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -976,7 +976,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                         'done': '$done',
                         'target': '$target',
                       }),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 11,
                       ),
@@ -1010,7 +1010,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                   'reward': reward,
                                 }))
                         : reward,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: claimable ? Colors.white : const Color(0xFFFF5216),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -1053,7 +1053,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         children: [
           Text(
             'core_rewards_refer_title'.trParams({'amount': amount}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white,
               fontSize: 21,
               fontWeight: FontWeight.w800,
@@ -1063,7 +1063,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
           const SizedBox(height: 8),
           Text(
             'core_rewards_refer_body'.trParams({'amount': amount}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white.withValues(alpha: 0.95),
               fontSize: 13,
               fontWeight: FontWeight.w400,
@@ -1081,7 +1081,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                     children: [
                       Text(
                         'core_rewards_your_code'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -1091,7 +1091,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                       const SizedBox(height: 1),
                       Text(
                         code.isEmpty ? '—' : code,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
@@ -1123,7 +1123,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                         const SizedBox(width: 7),
                         Text(
                           'core_rewards_copy'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -1190,7 +1190,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
         children: [
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -1202,7 +1202,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: Colors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -1272,7 +1272,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                 : (basket.isNotEmpty
                                       ? basket
                                       : 'core_rewards_points'.tr),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -1286,7 +1286,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                                 basket,
                               if (code.isNotEmpty) '#$code',
                             ].where((part) => part.isNotEmpty).join(' · '),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF8A7E76),
                               fontSize: 12,
                             ),
@@ -1296,7 +1296,7 @@ class _RewardsReferralScreenState extends State<RewardsReferralScreen> {
                     ),
                     Text(
                       '${credited ? '+' : '-'}${'core_rewards_pts'.trParams({'points': _grouped(points)})}',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: credited
                             ? const Color(0xFF1FAF5A)
                             : const Color(0xFFFF5216),

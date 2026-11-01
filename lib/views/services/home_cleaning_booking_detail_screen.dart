@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/network/api_exception.dart';
 import '../../models/service_booking_detail.dart';
@@ -12,6 +11,7 @@ import '../help_support_screen.dart';
 import '../../widgets/app_back_button.dart';
 import 'home_cleaning_cart_screen.dart' show homeCleaningLabelText;
 
+import '../../utils/app_fonts.dart';
 /// Home cleaning and gas booking details from customer/service/booking.
 class HomeCleaningBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
@@ -243,7 +243,7 @@ class _HomeCleaningBookingDetailScreenState
             child: Text(
               'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -261,7 +261,7 @@ class _HomeCleaningBookingDetailScreenState
               ),
               child: Text(
                 'svc_help'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -277,7 +277,7 @@ class _HomeCleaningBookingDetailScreenState
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1A1A1A),
         fontSize: 16,
         fontWeight: FontWeight.w800,
@@ -310,7 +310,7 @@ class _HomeCleaningBookingDetailScreenState
             padding: const EdgeInsetsDirectional.only(start: 4, bottom: 18),
             child: Text(
               'svc_booking_status'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 15.5,
                 fontWeight: FontWeight.w800,
@@ -408,7 +408,7 @@ class _HomeCleaningBookingDetailScreenState
         Text(
           (step['label'] as String).tr,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -420,7 +420,7 @@ class _HomeCleaningBookingDetailScreenState
           Text(
             time,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 9.5,
               fontWeight: FontWeight.w500,
@@ -465,7 +465,7 @@ class _HomeCleaningBookingDetailScreenState
                       children: [
                         Text(
                           homeCleaningLabelText(rows[i]['label']!),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 14.5,
                             fontWeight: FontWeight.w700,
@@ -475,7 +475,7 @@ class _HomeCleaningBookingDetailScreenState
                           const SizedBox(height: 3),
                           Text(
                             rows[i]['detail']!,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF8A7E76),
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
@@ -487,7 +487,7 @@ class _HomeCleaningBookingDetailScreenState
                   ),
                   Text(
                     rows[i]['total']!,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5216),
                       fontSize: 14.5,
                       fontWeight: FontWeight.w800,
@@ -514,7 +514,7 @@ class _HomeCleaningBookingDetailScreenState
             if (byProvider && fee > 0)
               Text(
                 'svc_plus_mru'.trParams({'amount': '${fee.round()}'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -551,7 +551,7 @@ class _HomeCleaningBookingDetailScreenState
                   byProvider
                       ? 'svc_provider_provides_products'.tr
                       : 'svc_self_provides_products'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -562,7 +562,7 @@ class _HomeCleaningBookingDetailScreenState
                   byProvider
                       ? 'svc_provider_products_hint'.tr
                       : 'svc_self_products_hint'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,
                     height: 1.35,
@@ -612,7 +612,7 @@ class _HomeCleaningBookingDetailScreenState
               children: [
                 Text(
                   _locationTitle,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -624,7 +624,7 @@ class _HomeCleaningBookingDetailScreenState
                     _locationSubtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 11.5,
                     ),
@@ -668,7 +668,7 @@ class _HomeCleaningBookingDetailScreenState
               children: [
                 Text(
                   'svc_your_slot'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
@@ -677,7 +677,7 @@ class _HomeCleaningBookingDetailScreenState
                 const SizedBox(height: 2),
                 Text(
                   _slot,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -702,7 +702,7 @@ class _HomeCleaningBookingDetailScreenState
         ),
         child: Text(
           'svc_cleaner_pending'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF8A7E76),
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -752,7 +752,7 @@ class _HomeCleaningBookingDetailScreenState
               children: [
                 Text(
                   '${cleaner['name'] ?? ''}',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -770,7 +770,7 @@ class _HomeCleaningBookingDetailScreenState
                       const SizedBox(width: 4),
                       Text(
                         rating.toStringAsFixed(1),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
@@ -781,7 +781,7 @@ class _HomeCleaningBookingDetailScreenState
                         'svc_reviews_count_paren'.trParams({
                           'count': '$reviews',
                         }),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF8A7E76),
                           fontSize: 12,
                         ),
@@ -810,7 +810,7 @@ class _HomeCleaningBookingDetailScreenState
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
@@ -834,7 +834,7 @@ class _HomeCleaningBookingDetailScreenState
             children: [
               Text(
                 detail.isPaid ? 'svc_total_paid'.tr : 'svc_to_pay'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -843,7 +843,7 @@ class _HomeCleaningBookingDetailScreenState
               const Spacer(),
               Text(
                 serviceMru(detail.isPaid ? detail.totalPaid : detail.total),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -861,7 +861,7 @@ class _HomeCleaningBookingDetailScreenState
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -870,7 +870,7 @@ class _HomeCleaningBookingDetailScreenState
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w600,
@@ -901,7 +901,7 @@ class _HomeCleaningBookingDetailScreenState
           ),
           child: Text(
             'cancel'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 15.5,
               fontWeight: FontWeight.w700,

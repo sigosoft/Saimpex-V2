@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../../utils/app_fonts.dart';
 void showPharmacyCustomizeSheet(
   BuildContext context, {
   required Map<String, dynamic> food,
@@ -61,7 +61,7 @@ void showPharmacyCustomizeSheet(
                     const SizedBox(height: 16),
                     Text(
                       title,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -83,7 +83,7 @@ void showPharmacyCustomizeSheet(
                             // Quantity Section
                             Text(
                               'pw_quantity'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -159,7 +159,7 @@ void showPharmacyCustomizeSheet(
                                                 portion.isEmpty
                                                     ? 'pw_one_pack'.tr
                                                     : portion,
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   color: const Color(
                                                     0xFF2C2520,
                                                   ),
@@ -170,7 +170,7 @@ void showPharmacyCustomizeSheet(
                                               const SizedBox(height: 2),
                                               Text(
                                                 qtyPrice1,
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   color: const Color(
                                                     0xFFFF5216,
                                                   ),
@@ -207,13 +207,13 @@ void showPharmacyCustomizeSheet(
                               child: TextField(
                                 controller: quantityController,
                                 keyboardType: TextInputType.number,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   fontSize: 12,
                                   color: const Color(0xFF2C2520),
                                 ),
                                 decoration: InputDecoration(
                                   hintText: 'pw_customize_quantity'.tr,
-                                  hintStyle: GoogleFonts.outfit(
+                                  hintStyle: AppFonts.outfit(
                                     color: const Color(0xFFA59A94),
                                     fontSize: 12,
                                   ),
@@ -245,7 +245,7 @@ void showPharmacyCustomizeSheet(
                             // Add Order Notes Section
                             Text(
                               'pw_add_order_notes'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -269,7 +269,7 @@ void showPharmacyCustomizeSheet(
                                     child: TextField(
                                       controller: notesController,
                                       maxLines: 1,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         fontSize: 12,
                                         color: const Color(0xFF2C2520),
                                       ),
@@ -277,7 +277,7 @@ void showPharmacyCustomizeSheet(
                                         hintText: 'pw_add_notes_hint'.trParams({
                                           'item': title.toLowerCase(),
                                         }),
-                                        hintStyle: GoogleFonts.outfit(
+                                        hintStyle: AppFonts.outfit(
                                           color: const Color(0xFFA59A94),
                                           fontSize: 12,
                                         ),
@@ -361,7 +361,7 @@ void showPharmacyCustomizeSheet(
                                 const SizedBox(width: 12),
                                 Text(
                                   quantity.toString(),
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -452,7 +452,7 @@ void showPharmacyCustomizeSheet(
                                     const SizedBox(width: 8),
                                     Text(
                                       'pw_add_caps'.tr,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold,

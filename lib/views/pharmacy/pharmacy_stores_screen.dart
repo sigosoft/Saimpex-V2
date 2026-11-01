@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../widgets/app_back_button.dart';
 import 'pharmacy_items_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
+import '../../utils/app_fonts.dart';
 class PharmacyStoresScreen extends StatelessWidget {
   const PharmacyStoresScreen({
     super.key,
@@ -147,7 +147,7 @@ class _PharmacyMapScreenState extends State<PharmacyMapScreen> {
                   ? Center(
                       child: Text(
                         'pw_no_pharmacies_to_show'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -215,7 +215,7 @@ class _PharmacyTitleBar extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
@@ -282,7 +282,7 @@ class _PharmacyStoreTile extends StatelessWidget {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -294,7 +294,7 @@ class _PharmacyStoreTile extends StatelessWidget {
                           subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -310,7 +310,7 @@ class _PharmacyStoreTile extends StatelessWidget {
                         ].join('  •  '),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

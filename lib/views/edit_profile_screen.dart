@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/country_codes.dart';
 import '../controllers/edit_profile_controller.dart';
 import '../core/network/api_constants.dart';
 import '../widgets/app_back_button.dart';
 
+import '../utils/app_fonts.dart';
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -82,7 +82,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Text(
               'core_profile_title'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -156,7 +156,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       children: [
         Text(
           'core_profile_name'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF5D534A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -173,7 +173,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return TextField(
                       controller: controller.nameController,
                       focusNode: controller.nameFocus,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -190,7 +190,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   }
                   return Text(
                     controller.nameText.value,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -212,7 +212,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       children: [
         Text(
           'core_profile_whatsapp'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF5D534A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -236,7 +236,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(width: 8),
                       Text(
                         controller.countryCode.value,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -259,7 +259,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       controller: controller.phoneController,
                       focusNode: controller.phoneFocus,
                       keyboardType: TextInputType.phone,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -276,7 +276,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   }
                   return Text(
                     controller.phoneText.value,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -318,7 +318,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const SizedBox(width: 4),
           Text(
             'core_profile_edit'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -369,7 +369,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 )
               : Text(
                   'core_profile_update'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -421,7 +421,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 Text(
                   'core_profile_select_country'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -442,14 +442,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         title: Text(
                           country.name,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.black87,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         trailing: Text(
                           country.code,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.black54,
                             fontWeight: FontWeight.bold,
                           ),

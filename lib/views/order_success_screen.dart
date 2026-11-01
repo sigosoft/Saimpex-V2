@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../widgets/app_back_button.dart';
 import 'my_orders_screen.dart';
 
+import '../utils/app_fonts.dart';
 class OrderSuccessScreen extends StatelessWidget {
   /// Store points this order will earn once delivered (0 hides the line).
   final int pointsToEarn;
@@ -62,7 +62,7 @@ class OrderSuccessScreen extends StatelessWidget {
                       const SizedBox(height: 24),
                       Text(
                         'orders_placed_title'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -76,7 +76,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           'orders_earn_points_on_delivery'.trParams({
                             'points': '$pointsToEarn',
                           }),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF8C7D73),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -114,7 +114,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             'orders_back_to_home'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -151,7 +151,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             'orders_view_order'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,

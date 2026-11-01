@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../widgets/auto_slide_network_images.dart';
 
+import '../../../utils/app_fonts.dart';
 class PharmacyProductCard extends StatelessWidget {
   final Map<String, dynamic> food;
   final bool isNotAccepting;
@@ -71,7 +71,7 @@ class PharmacyProductCard extends StatelessWidget {
                         ),
                         child: Text(
                           'pw_prescription_required'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -98,7 +98,7 @@ class PharmacyProductCard extends StatelessWidget {
                         ),
                         child: Text(
                           food['discount'].toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -125,7 +125,7 @@ class PharmacyProductCard extends StatelessWidget {
                       food['title']!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -136,7 +136,7 @@ class PharmacyProductCard extends StatelessWidget {
                       food['tag']!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
@@ -156,7 +156,7 @@ class PharmacyProductCard extends StatelessWidget {
                             '${food['rating']!} (${food['reviews']})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF6B5E56),
                               fontSize: 10,
                               fontWeight: FontWeight.w500,
@@ -175,7 +175,7 @@ class PharmacyProductCard extends StatelessWidget {
                             children: [
                               Text(
                                 food['originalPrice']!,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFA59A94),
                                   fontSize: 10,
                                   decoration: TextDecoration.lineThrough,
@@ -184,7 +184,7 @@ class PharmacyProductCard extends StatelessWidget {
                               ),
                               Text(
                                 food['price']!,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5216),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
@@ -200,7 +200,7 @@ class PharmacyProductCard extends StatelessWidget {
                                     SnackBar(
                                       content: Text(
                                         'pw_pharmacy_closed_msg'.tr,
-                                        style: GoogleFonts.outfit(),
+                                        style: AppFonts.outfit(),
                                       ),
                                       backgroundColor: const Color(0xFFEF4444),
                                     ),
@@ -250,7 +250,7 @@ class PharmacyProductCard extends StatelessWidget {
                                   isNotAccepting
                                       ? 'pw_closed_caps'.tr
                                       : 'pw_add_caps'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,

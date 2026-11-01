@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/network/api_exception.dart';
 import '../models/order_repository.dart';
@@ -8,6 +7,7 @@ import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../views/order_cancelled_success_screen.dart';
 
+import '../utils/app_fonts.dart';
 /// [orderId] is the order code shown to the customer; [apiOrderId] is the
 /// numeric id the cancel API needs. Without [onConfirm] the sheet cancels
 /// [apiOrderId] itself. The success screen only opens once the cancel succeeds.
@@ -81,7 +81,7 @@ void showCancelOrderBottomSheet(
                         child: Text(
                           'core_cancel_order_title'.tr,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -107,7 +107,7 @@ void showCancelOrderBottomSheet(
                               alignment: AlignmentDirectional.centerStart,
                               child: Text(
                                 'core_cancel_order_confirm'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF1A1A1A),
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -119,7 +119,7 @@ void showCancelOrderBottomSheet(
                               alignment: AlignmentDirectional.centerStart,
                               child: Text(
                                 'core_cancel_order_reason_hint'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF9A8A84),
                                   fontSize: 12.5,
                                   height: 1.4,
@@ -156,7 +156,7 @@ void showCancelOrderBottomSheet(
                                         Expanded(
                                           child: Text(
                                             cancelReasons[index].tr,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFF626465),
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -215,7 +215,7 @@ void showCancelOrderBottomSheet(
                                       alignment: Alignment.center,
                                       child: Text(
                                         'core_cancel_no'.tr,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF1B1B1B),
                                           fontSize: 15,
                                           fontWeight: FontWeight.w700,
@@ -242,7 +242,7 @@ void showCancelOrderBottomSheet(
                                                   const SizedBox.shrink(),
                                               messageText: Text(
                                                 'core_cancel_select_reason'.tr,
-                                                style: GoogleFonts.outfit(
+                                                style: AppFonts.outfit(
                                                   color: Colors.white,
                                                   fontSize: 13.5,
                                                   fontWeight: FontWeight.w600,
@@ -301,7 +301,7 @@ void showCancelOrderBottomSheet(
                                             cancelling
                                                 ? 'core_cancel_cancelling'.tr
                                                 : 'core_cancel_order_title'.tr,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: Colors.white,
                                               fontSize: 15,
                                               fontWeight: FontWeight.w700,

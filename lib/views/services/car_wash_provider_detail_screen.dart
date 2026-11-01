@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../chat_screen.dart';
 import '../../models/service_repository.dart';
@@ -9,6 +8,7 @@ import 'car_wash_service_location_screen.dart';
 import 'provider_services_mixin.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../utils/app_fonts.dart';
 class CarWashProviderDetailScreen extends StatefulWidget {
   final Map<String, String> provider;
 
@@ -155,7 +155,7 @@ class _CarWashProviderDetailScreenState
           Text(
             _name,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1B2B4A),
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -167,7 +167,7 @@ class _CarWashProviderDetailScreenState
             children: [
               Text(
                 '$_rating ',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1B2B4A),
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -175,7 +175,7 @@ class _CarWashProviderDetailScreenState
               ),
               Text(
                 'svc_reviews_count_paren'.trParams({'count': '$reviewTotal'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 12.5,
                   fontWeight: FontWeight.w500,
@@ -191,7 +191,7 @@ class _CarWashProviderDetailScreenState
               Flexible(
                 child: Text(
                   _distance,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -213,7 +213,7 @@ class _CarWashProviderDetailScreenState
               const SizedBox(width: 5),
               Text(
                 'svc_open_until'.trParams({'time': '6:00 PM'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A6BB5),
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -253,7 +253,7 @@ class _CarWashProviderDetailScreenState
           const SizedBox(width: 6),
           Text(
             'svc_get_directions'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -299,7 +299,7 @@ class _CarWashProviderDetailScreenState
             const SizedBox(width: 6),
             Text(
               'svc_chat'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: Colors.white,
                 fontSize: 13.5,
                 fontWeight: FontWeight.w700,
@@ -330,7 +330,7 @@ class _CarWashProviderDetailScreenState
                           child: Text(
                             _tabs[i].tr,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: _selectedTab == i
                                   ? const Color(0xFFFF5216)
                                   : const Color(0xFF9A8E86),
@@ -422,7 +422,7 @@ class _CarWashProviderDetailScreenState
                     children: [
                       Text(
                         item['title']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -434,7 +434,7 @@ class _CarWashProviderDetailScreenState
                         item['description']!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF8A7E76),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w400,
@@ -456,7 +456,7 @@ class _CarWashProviderDetailScreenState
                     children: [
                       Text(
                         'svc_starting_from'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF9A8E86),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -465,7 +465,7 @@ class _CarWashProviderDetailScreenState
                       const SizedBox(height: 2),
                       Text(
                         item['price']!,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -500,7 +500,7 @@ class _CarWashProviderDetailScreenState
                     ),
                     child: Text(
                       'svc_add_upper'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -539,7 +539,7 @@ class _CarWashProviderDetailScreenState
                     ? const CircularProgressIndicator(color: Color(0xFFFF5216))
                     : Text(
                         'core_no_reviews_yet'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -590,7 +590,7 @@ class _CarWashProviderDetailScreenState
                     const SizedBox(width: 3),
                     Text(
                       reviewAverage.toStringAsFixed(1),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -616,7 +616,7 @@ class _CarWashProviderDetailScreenState
               const SizedBox(height: 6),
               Text(
                 'svc_reviews_count'.trParams({'count': '$reviewTotal'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -651,7 +651,7 @@ class _CarWashProviderDetailScreenState
       children: [
         Text(
           star,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1B2B4A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -681,7 +681,7 @@ class _CarWashProviderDetailScreenState
           child: Text(
             count,
             textAlign: TextAlign.end,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 10.5,
               fontWeight: FontWeight.w500,
@@ -718,7 +718,7 @@ class _CarWashProviderDetailScreenState
                 ),
                 child: Text(
                   _reviewFilters[i].tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: _reviewFilter == i
                         ? Colors.white
                         : const Color(0xFF5C5651),
@@ -780,7 +780,7 @@ class _CarWashProviderDetailScreenState
                   children: [
                     Text(
                       review['name'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1B2B4A),
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
@@ -789,7 +789,7 @@ class _CarWashProviderDetailScreenState
                     const SizedBox(height: 2),
                     Text(
                       (review['time'] as String).tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF9A8E86),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -815,7 +815,7 @@ class _CarWashProviderDetailScreenState
           const SizedBox(height: 12),
           Text(
             review['text'] as String,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF7A6A60),
               fontSize: 12.5,
               height: 1.45,
@@ -846,7 +846,7 @@ class _CarWashProviderDetailScreenState
         ),
         child: Text(
           'svc_about_car_wash'.trParams({'name': _name}),
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF7A6A60),
             fontSize: 13.5,
             height: 1.5,

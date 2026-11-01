@@ -3,11 +3,11 @@ import '../../widgets/app_back_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../my_orders_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
+import '../../utils/app_fonts.dart';
 class PrescriptionSuccessScreen extends StatelessWidget {
   final String fileName;
   final String? filePath;
@@ -73,7 +73,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                     const SizedBox(height: 18),
                     Text(
                       'pw_order_progress'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -102,7 +102,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                               ),
                               child: Text(
                                 'cancel'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -141,7 +141,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                               ),
                               child: Text(
                                 'pw_view_order'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
@@ -194,7 +194,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
           Text(
             'pw_prescription_submitted'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -204,7 +204,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
           Text(
             'pw_prescription_submitted_body'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF8A7F77),
               fontSize: 12,
               height: 1.5,
@@ -250,7 +250,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                         fileName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -264,7 +264,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                           children: [
                             Text(
                               'pw_view_full_prescription'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5216),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -336,7 +336,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
       SnackBar(
         content: Text(
           'pw_opening_file'.trParams({'name': fileName}),
-          style: GoogleFonts.outfit(),
+          style: AppFonts.outfit(),
         ),
         backgroundColor: const Color(0xFFFF5216),
       ),
@@ -363,7 +363,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               'i',
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -375,7 +375,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
           Expanded(
             child: Text(
               'pw_prescription_unclear_info'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF5A5048),
                 fontSize: 12,
                 height: 1.45,
@@ -535,7 +535,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
               children: [
                 Text(
                   'pw_track_your_request'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -544,7 +544,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'pw_track_your_request_body'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF6F655D),
                     fontSize: 11,
                     height: 1.45,
@@ -646,7 +646,7 @@ class _ProgressLabel extends StatelessWidget {
           label.tr,
           textAlign: TextAlign.center,
           maxLines: 2,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 11,
             height: 1.25,
@@ -659,7 +659,7 @@ class _ProgressLabel extends StatelessWidget {
             subtitle!,
             textAlign: TextAlign.center,
             maxLines: 2,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 8,
               height: 1.25,

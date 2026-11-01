@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../models/general_repository.dart';
 import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
 
+import '../utils/app_fonts.dart';
 class TermsConditionsScreen extends StatefulWidget {
   const TermsConditionsScreen({
     super.key,
@@ -182,7 +182,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                             if (i > 0) const SizedBox(height: 18),
                             Text(
                               _paragraphs[i],
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF1A1A1A),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
@@ -215,7 +215,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
             child: Text(
               _pageTitle,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/network/api_exception.dart';
 import '../../models/service_booking_detail.dart';
@@ -9,6 +8,7 @@ import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../utils/app_fonts.dart';
 class CarWashBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
 
@@ -224,7 +224,7 @@ class _CarWashBookingDetailScreenState
                   ? ''
                   : 'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -244,7 +244,7 @@ class _CarWashBookingDetailScreenState
               ),
               child: Text(
                 'svc_help'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -260,7 +260,7 @@ class _CarWashBookingDetailScreenState
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1A1A1A),
         fontSize: 15.5,
         fontWeight: FontWeight.w800,
@@ -292,7 +292,7 @@ class _CarWashBookingDetailScreenState
         children: [
           Text(
             'svc_booking_status'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 15.5,
               fontWeight: FontWeight.w800,
@@ -388,7 +388,7 @@ class _CarWashBookingDetailScreenState
         Text(
           (step['label'] as String).tr,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -400,7 +400,7 @@ class _CarWashBookingDetailScreenState
           Text(
             time,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 9.5,
               fontWeight: FontWeight.w500,
@@ -482,7 +482,7 @@ class _CarWashBookingDetailScreenState
             ],
             Text(
               'svc_addon_services'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF5A6B7D),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
@@ -566,7 +566,7 @@ class _CarWashBookingDetailScreenState
                         type,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -586,7 +586,7 @@ class _CarWashBookingDetailScreenState
               if (plate.isNotEmpty) ...[
                 Text(
                   plate,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF0D1B2A),
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -598,7 +598,7 @@ class _CarWashBookingDetailScreenState
               if (_service.isNotEmpty)
                 Text(
                   _service,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF5A6B7D),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w500,
@@ -647,7 +647,7 @@ class _CarWashBookingDetailScreenState
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF0D1B2A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -659,7 +659,7 @@ class _CarWashBookingDetailScreenState
                     description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF64748B),
                       fontSize: 11.5,
                       fontWeight: FontWeight.w400,
@@ -674,7 +674,7 @@ class _CarWashBookingDetailScreenState
             const SizedBox(width: 10),
             Text(
               priceLabel,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5216),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w800,
@@ -731,7 +731,7 @@ class _CarWashBookingDetailScreenState
               children: [
                 Text(
                   'svc_location'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -742,7 +742,7 @@ class _CarWashBookingDetailScreenState
                   _location,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -791,7 +791,7 @@ class _CarWashBookingDetailScreenState
               children: [
                 Text(
                   'svc_your_slot'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
@@ -800,7 +800,7 @@ class _CarWashBookingDetailScreenState
                 const SizedBox(height: 2),
                 Text(
                   _slot,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF6B6560),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -846,7 +846,7 @@ class _CarWashBookingDetailScreenState
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
@@ -872,7 +872,7 @@ class _CarWashBookingDetailScreenState
             children: [
               Text(
                 bottomLabel,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -881,7 +881,7 @@ class _CarWashBookingDetailScreenState
               const Spacer(),
               Text(
                 bottomValue,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -899,7 +899,7 @@ class _CarWashBookingDetailScreenState
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -908,7 +908,7 @@ class _CarWashBookingDetailScreenState
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w700,
@@ -934,7 +934,7 @@ class _CarWashBookingDetailScreenState
           ),
           child: Text(
             'cancel'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 15,
               fontWeight: FontWeight.w700,

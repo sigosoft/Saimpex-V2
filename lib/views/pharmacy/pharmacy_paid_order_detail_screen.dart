@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../models/order_tracking.dart';
@@ -10,6 +9,7 @@ import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
 import 'widgets/pharmacy_order_detail_loader.dart';
 
+import '../../utils/app_fonts.dart';
 /// Loads the order from the API, then shows it.
 class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   final String orderId;
@@ -151,7 +151,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                     ),
                     Text(
                       'pw_order_id'.trParams({'id': displayId}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -177,7 +177,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                       const SizedBox(height: 18),
                       Text(
                         'pw_medicines_in_quotation'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -194,7 +194,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                         isDelivery
                             ? 'pw_delivery_details'.tr
                             : 'pw_pickup_location'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -256,7 +256,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           'cancel'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -296,7 +296,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           'pw_track_order'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 14,
             fontWeight: FontWeight.w800,
@@ -326,7 +326,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         children: [
           Text(
             'pw_prescription'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -419,7 +419,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
             children: [
               Text(
                 'pw_order_status'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -428,7 +428,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               const Spacer(),
               Text(
                 isDelivery ? 'pw_delivery'.tr : 'pw_self_pickup'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: isDelivery
                       ? const Color(0xFFFF5216)
                       : const Color(0xFF007DFE),
@@ -527,7 +527,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                             Text(
                               step.label.tr,
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: step.done
                                     ? const Color(0xFF2C2520)
                                     : const Color(0xFFA59A94),
@@ -541,7 +541,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                               Text(
                                 step.time,
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFA59A94),
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w500,
@@ -587,7 +587,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A2338),
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -599,7 +599,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               Expanded(
                 child: Text(
                   'pw_unit_value'.trParams({'unit': unit}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -608,7 +608,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               ),
               Text(
                 'pw_total_colon'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -616,7 +616,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               ),
               Text(
                 totalAmount,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -624,7 +624,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               ),
               Text(
                 ' ${'pw_mru_suffix'.tr}',
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -673,7 +673,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               children: [
                 Text(
                   'pw_delivery_address'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -682,7 +682,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   _deliveryAddress,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -739,7 +739,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -751,7 +751,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                     address,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -812,7 +812,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               children: [
                 Text(
                   order.driverName.isEmpty ? 'pw_driver'.tr : order.driverName,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -830,7 +830,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                       const SizedBox(width: 3),
                       Text(
                         order.driverRating.toStringAsFixed(1),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -842,7 +842,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                           'pw_reviews_count'.trParams({
                             'count': '${order.driverReviews}',
                           }),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -873,7 +873,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         children: [
           Text(
             'pw_quotation_summary_caps'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -904,7 +904,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
             children: [
               Text(
                 'pw_total_paid'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -913,7 +913,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
               const Spacer(),
               Text(
                 orderMoneyText(_payment['total_bill']),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -936,7 +936,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: labelColor ?? Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -945,7 +945,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w700,
