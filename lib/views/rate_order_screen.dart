@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/network/api_exception.dart';
 import '../models/order_repository.dart';
+import '../models/service_booking_detail.dart' show cleanerPhotoUrl;
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
@@ -14,7 +15,24 @@ class RateOrderScreen extends StatefulWidget {
   /// Numeric order id sent to customer/submitRating.
   final int? orderId;
 
-  const RateOrderScreen({super.key, this.reviewTarget, this.orderId});
+  /// A service booking: the first card rates the provider, not a restaurant.
+  final bool isService;
+
+  /// Service bookings without a delivery driver (car wash, home cleaning,
+  /// gas at home) hide the delivery card.
+  final bool hasDelivery;
+
+  /// Home cleaning: the booking's assigned cleaner, rated separately.
+  final Map<String, dynamic>? cleaner;
+
+  const RateOrderScreen({
+    super.key,
+    this.reviewTarget,
+    this.orderId,
+    this.isService = false,
+    this.hasDelivery = true,
+    this.cleaner,
+  });
 
   @override
   State<RateOrderScreen> createState() => _RateOrderScreenState();
@@ -23,9 +41,17 @@ class RateOrderScreen extends StatefulWidget {
 class _RateOrderScreenState extends State<RateOrderScreen> {
   int restaurantRating = 0;
   int deliveryRating = 0;
+  int cleanerRating = 0;
 
   final Set<String> selectedRestaurantTags = {};
   final Set<String> selectedDeliveryTags = {};
+  final Set<String> selectedCleanerTags = {};
+
+  final List<String> cleanerTags = [
+    'svc_tag_on_time',
+    'svc_tag_thorough',
+    'svc_tag_friendly',
+  ];
 
   // Translation keys; the comment sent to the server uses the shown text.
   final List<String> restaurantTags = [
@@ -74,6 +100,8 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
           _reviewController.text.trim(),
         ),
         driverComment: comment(selectedDeliveryTags, ''),
+        cleanerRating: widget.cleaner == null ? 0 : cleanerRating,
+        cleanerComment: comment(selectedCleanerTags, ''),
         language: apiLanguageCode(),
       );
       if (!mounted) return;
@@ -140,26 +168,46 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   _buildExperienceCard(
                     imageUrl: '',
                     fallbackAsset: 'lib/assets/images/Food.png',
-                    title: 'orders_rate_restaurant'.tr,
+                    title: widget.isService
+                        ? 'svc_rate_provider'.tr
+                        : 'orders_rate_restaurant'.tr,
                     rating: restaurantRating,
                     onRatingChanged: (value) {
                       setState(() => restaurantRating = value);
                     },
-                    tags: restaurantTags,
+                    // Food tags (tasty, portion) don't fit a service.
+                    tags: widget.isService ? const [] : restaurantTags,
                     selectedTags: selectedRestaurantTags,
                   ),
-                  const SizedBox(height: 14),
-                  _buildExperienceCard(
-                    imageUrl: '',
-                    fallbackAsset: 'lib/assets/images/delivery_icon.png',
-                    title: 'orders_rate_delivery'.tr,
-                    rating: deliveryRating,
-                    onRatingChanged: (value) {
-                      setState(() => deliveryRating = value);
-                    },
-                    tags: deliveryTags,
-                    selectedTags: selectedDeliveryTags,
-                  ),
+                  if (widget.cleaner != null) ...[
+                    const SizedBox(height: 14),
+                    _buildExperienceCard(
+                      imageUrl: cleanerPhotoUrl(widget.cleaner!),
+                      title: 'svc_rate_cleaner'.trParams({
+                        'name': '${widget.cleaner!['name'] ?? ''}'.trim(),
+                      }),
+                      rating: cleanerRating,
+                      onRatingChanged: (value) {
+                        setState(() => cleanerRating = value);
+                      },
+                      tags: cleanerTags,
+                      selectedTags: selectedCleanerTags,
+                    ),
+                  ],
+                  if (widget.hasDelivery) ...[
+                    const SizedBox(height: 14),
+                    _buildExperienceCard(
+                      imageUrl: '',
+                      fallbackAsset: 'lib/assets/images/delivery_icon.png',
+                      title: 'orders_rate_delivery'.tr,
+                      rating: deliveryRating,
+                      onRatingChanged: (value) {
+                        setState(() => deliveryRating = value);
+                      },
+                      tags: deliveryTags,
+                      selectedTags: selectedDeliveryTags,
+                    ),
+                  ],
                   // Per-item ratings were sample products and were never
                   // sent; the order rating covers the store and delivery.
                   const SizedBox(height: 20),
