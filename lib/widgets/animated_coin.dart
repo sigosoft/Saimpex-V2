@@ -33,31 +33,31 @@ class _AnimatedCoinState extends State<AnimatedCoin>
 
     _flip = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: math.pi * 2)
-            .chain(CurveTween(curve: Curves.easeInOutCubic)),
+        tween: Tween<double>(
+          begin: 0.0,
+          end: math.pi * 2,
+        ).chain(CurveTween(curve: Curves.easeInOutCubic)),
         weight: 55,
       ),
-      TweenSequenceItem(
-        tween: ConstantTween<double>(math.pi * 2),
-        weight: 45,
-      ),
+      TweenSequenceItem(tween: ConstantTween<double>(math.pi * 2), weight: 45),
     ]).animate(_controller);
 
     _bounce = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.12)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 1.12,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.12, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween<double>(
+          begin: 1.12,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
-      TweenSequenceItem(
-        tween: ConstantTween<double>(1.0),
-        weight: 60,
-      ),
+      TweenSequenceItem(tween: ConstantTween<double>(1.0), weight: 60),
     ]).animate(_controller);
   }
 
@@ -79,10 +79,7 @@ class _AnimatedCoinState extends State<AnimatedCoin>
           transform: Matrix4.identity()
             ..setEntry(3, 2, 0.0015)
             ..rotateY(angle),
-          child: Transform.scale(
-            scale: _bounce.value,
-            child: child,
-          ),
+          child: Transform.scale(scale: _bounce.value, child: child),
         );
       },
       child: Image.asset(

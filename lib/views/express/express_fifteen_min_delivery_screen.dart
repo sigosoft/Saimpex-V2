@@ -168,7 +168,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                     width: 18,
                     height: 18,
                     color: const Color(0xFFA59A94),
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.camera_alt_outlined,
                       color: Color(0xFFA59A94),
                       size: 18,
@@ -188,7 +188,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       'lib/assets/images/Voice.png',
                       width: 14,
                       height: 14,
-                      errorBuilder: (_, __, ___) => const Icon(
+                      errorBuilder: (_, _, _) => const Icon(
                         Icons.mic_none_rounded,
                         color: Color(0xFFFF5E00),
                         size: 14,
@@ -260,7 +260,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                     child: Image.network(
                       store['image']!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         color: const Color(0xFFF3EFEA),
                         child: const Icon(
                           Icons.store_outlined,
@@ -270,9 +270,9 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 7,
@@ -303,9 +303,9 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    right: 8,
+                    end: 8,
                     child: Obx(() {
                       final liked = controller.isLiked(store['id']!);
                       return GestureDetector(
@@ -330,13 +330,13 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
                       );
                     }),
                   ),
-                  Positioned(
-                    left: 10,
+                  PositionedDirectional(
+                    start: 10,
                     bottom: 8,
                     child: _pointsBadge(store['points']!),
                   ),
-                  Positioned(
-                    right: 10,
+                  PositionedDirectional(
+                    end: 10,
                     bottom: 8,
                     child: _timeBadge(store['badgeTime']!),
                   ),
@@ -413,7 +413,7 @@ class ExpressFifteenMinDeliveryScreen extends StatelessWidget {
             'lib/assets/images/Coin.png',
             width: 14,
             height: 14,
-            errorBuilder: (_, __, ___) => const Icon(
+            errorBuilder: (_, _, _) => const Icon(
               Icons.monetization_on_rounded,
               color: Color(0xFFFFAE00),
               size: 14,

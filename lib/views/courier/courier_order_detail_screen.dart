@@ -306,7 +306,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
               SizedBox(
                 height: circle + 8,
                 child: Stack(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   children: [
                     Positioned(
                       left: circle / 2,

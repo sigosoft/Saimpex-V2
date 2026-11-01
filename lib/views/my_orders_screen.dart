@@ -1105,7 +1105,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
@@ -1165,34 +1165,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           // Action Buttons
           Row(children: buttons),
 
-          if (onDetailsLink != null || statusText != "DELIVERED") ...[
+          if (onDetailsLink != null) ...[
             const SizedBox(height: 12),
             // Bottom details link
             Center(
               child: GestureDetector(
-                onTap:
-                    onDetailsLink ??
-                    () {
-                      final parts = detailsText.split('#');
-                      final orderId = parts.length > 1
-                          ? '#${parts[1]}'
-                          : '#22789002';
-                      if (restaurantName.contains('Water')) {
-                        Get.to(
-                          () => WaterOrderDetailsScreen(
-                            orderId: orderId,
-                            isSelfPickup: statusText == "SELF PICKUP",
-                          ),
-                        );
-                      } else {
-                        Get.to(
-                          () => OrderDetailScreen(
-                            orderId: orderId,
-                            isSelfPickup: statusText == "SELF PICKUP",
-                          ),
-                        );
-                      }
-                    },
+                onTap: onDetailsLink,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -1265,7 +1243,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF5E00).withOpacity(0.2),
+                color: const Color(0xFFFF5E00).withValues(alpha: 0.2),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),

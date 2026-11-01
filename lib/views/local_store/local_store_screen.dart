@@ -362,12 +362,13 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                   ),
                                   child: Container(
                                     height: 36,
-                                    padding: const EdgeInsets.fromLTRB(
-                                      4,
-                                      4,
-                                      6,
-                                      4,
-                                    ),
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                          4,
+                                          4,
+                                          6,
+                                          4,
+                                        ),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFFF5E00),
                                       borderRadius: BorderRadius.circular(20),
@@ -553,8 +554,8 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                             ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.04,
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.04,
                                                 ),
                                                 blurRadius: 6,
                                                 offset: const Offset(0, 3),
@@ -611,7 +612,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                             : Image.asset(
                                                 cat['icon'] as String,
                                                 fit: BoxFit.contain,
-                                                errorBuilder: (_, __, ___) =>
+                                                errorBuilder: (_, _, _) =>
                                                     const Icon(
                                                       Icons.store_rounded,
                                                       color: Color(0xFFFF5E00),
@@ -804,7 +805,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                               child: _storeImage(
                                 store['image'],
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
+                                errorBuilder: (_, _, _) => Container(
                                   color: const Color(0xFFF3E7DC),
                                   child: const Icon(
                                     Icons.storefront_rounded,
@@ -818,7 +819,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                         : _storeImage(
                             store['image'],
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (_, _, _) => Container(
                               color: const Color(0xFFF3E7DC),
                               child: const Icon(
                                 Icons.storefront_rounded,
@@ -846,9 +847,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                   ),
 
                 // Top Left Badges (Discount + Rating)
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  left: 8,
+                  start: 8,
                   child: Row(
                     children: [
                       Container(
@@ -903,9 +904,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Favorite Heart Button Top Right
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -933,9 +934,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Points Badge Bottom Left on Image
-                Positioned(
+                PositionedDirectional(
                   bottom: 8,
-                  left: 8,
+                  start: 8,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -1146,7 +1147,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     child: _storeImage(
                       store['image'],
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         color: const Color(0xFFF3E7DC),
                         child: const Icon(
                           Icons.storefront_rounded,
@@ -1159,9 +1160,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Top Left Badges (Discount + Rating)
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  left: 10,
+                  start: 10,
                   child: Row(
                     children: [
                       Container(
@@ -1216,9 +1217,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Favorite Heart Button Top Right
-                Positioned(
+                PositionedDirectional(
                   top: 10,
-                  right: 10,
+                  end: 10,
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -1246,9 +1247,9 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                 ),
 
                 // Points Badge Bottom Left on Image
-                Positioned(
+                PositionedDirectional(
                   bottom: 10,
-                  left: 10,
+                  start: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,

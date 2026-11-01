@@ -102,7 +102,7 @@ class HomeCleaningScreen extends StatelessWidget {
           'lib/assets/images/Home_cleaning_banner.png',
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) =>
+          errorBuilder: (_, _, _) =>
               Container(height: 240, color: const Color(0xFFFF5E00)),
         ),
         Positioned(
@@ -210,9 +210,9 @@ class HomeCleaningScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const Positioned(
+              const PositionedDirectional(
                 top: -1,
-                right: -2,
+                end: -2,
                 child: Icon(
                   Icons.star_rounded,
                   color: Color(0xFFFF8A65),
@@ -312,7 +312,7 @@ class HomeCleaningScreen extends StatelessWidget {
             width: 66,
             height: 66,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               width: 58,
               height: 58,
               color: const Color(0xFFFFF3EB),
@@ -389,7 +389,7 @@ class HomeCleaningScreen extends StatelessWidget {
               width: 16,
               height: 16,
               color: const Color(0xFFFF5E00),
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.settings_voice_rounded,
                 color: Color(0xFFFF5E00),
                 size: 18,
@@ -469,14 +469,12 @@ class HomeCleaningScreen extends StatelessWidget {
                       ? Image.network(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _providerImageFallback(),
+                          errorBuilder: (_, _, _) => _providerImageFallback(),
                         )
                       : Image.asset(
                           item['image']!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _providerImageFallback(),
+                          errorBuilder: (_, _, _) => _providerImageFallback(),
                         ),
                 ),
                 PositionedDirectional(
@@ -498,7 +496,7 @@ class HomeCleaningScreen extends StatelessWidget {
                           'lib/assets/images/Coin.png',
                           width: 12,
                           height: 12,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (_, _, _) => const Icon(
                             Icons.monetization_on,
                             color: Color(0xFFFFAE00),
                             size: 12,

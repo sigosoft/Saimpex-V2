@@ -3,106 +3,88 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/network/api_exception.dart';
+import '../../models/service_booking_detail.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
-class CarWashBookingDetailScreen extends StatelessWidget {
+class CarWashBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
 
   const CarWashBookingDetailScreen({super.key, required this.booking});
 
-  String get _bookingId => (booking['id'] as String?) ?? '22789002';
+  @override
+  State<CarWashBookingDetailScreen> createState() =>
+      _CarWashBookingDetailScreenState();
+}
 
-  String get _service {
-    final raw =
-        (booking['service'] as String?) ??
-        (booking['serviceTitle'] as String?) ??
-        'Exterior Wash';
-    // Avoid old sample labels like "Basic Wash x2".
-    if (raw.toLowerCase().contains('basic')) {
-      return 'Full Wash';
-    }
-    return raw.contains(' x') ? raw.split(' x').first : raw;
+class _CarWashBookingDetailScreenState
+    extends State<CarWashBookingDetailScreen> {
+  ServiceBookingDetail? _detail;
+
+  Map<String, dynamic> get _booking => widget.booking;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
   }
 
-  String get _serviceDescription {
-    final fromBooking = booking['serviceDescription'] as String?;
-    if (fromBooking != null && fromBooking.isNotEmpty) return fromBooking;
-    switch (_service) {
-      case 'Interior Wash':
-        return 'Deep antimicrobial vacuum, UV dashboard polish & crystal glass cleaning';
-      case 'Full Wash':
-        return 'Complete interior & exterior detailing with premium ceramic tire gloss';
-      default:
-        return 'High pressure snow foam, detailed rim cleaning & streak-free hand dry';
-    }
-  }
-
-  String get _serviceImage {
-    final fromBooking = booking['serviceImage'] as String?;
-    if (fromBooking != null && fromBooking.isNotEmpty) return fromBooking;
-    switch (_service) {
-      case 'Interior Wash':
-        return 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=300&h=300&fit=crop';
-      case 'Full Wash':
-        return 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&h=300&fit=crop';
-      default:
-        return 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=300&h=300&fit=crop';
+  Future<void> _load() async {
+    try {
+      final detail = await loadServiceBooking(_booking['apiOrderId'] as int?);
+      if (!mounted || detail == null) return;
+      setState(() => _detail = detail);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
     }
   }
 
-  String get _servicePrice {
-    final fromBooking =
-        (booking['servicePrice'] as String?) ??
-        (booking['vehiclePrice'] as String?);
-    if (fromBooking != null && fromBooking.isNotEmpty) return fromBooking;
-    switch (_service) {
-      case 'Full Wash':
-        return '1000 MRU';
-      default:
-        return '550 MRU';
+  String _text(dynamic value) => '${value ?? ''}'.trim();
+
+  String _firstOf(String fromDetail, List<String> keys) {
+    if (fromDetail.isNotEmpty) return fromDetail;
+    for (final key in keys) {
+      final value = _text(_booking[key]);
+      if (value.isNotEmpty) return value;
     }
+    return '';
   }
 
-  List<Map<String, dynamic>> get _washServices {
-    final raw = booking['washServices'];
-    if (raw is List && raw.isNotEmpty) {
-      return raw
-          .whereType<Map>()
-          .map((e) => Map<String, dynamic>.from(e))
-          .where((e) => e['isAddon'] != true)
-          .toList();
+  String get _bookingId => _firstOf(_detail?.orderCode ?? '', ['id']);
+
+  String get _service =>
+      _firstOf(_detail?.serviceName ?? '', ['service', 'serviceTitle']);
+
+  String get _serviceImage => _text(_detail?['service_image']);
+
+  String get _slot => _firstOf(_detail?.slot ?? '', ['slot', 'datetime']);
+
+  String get _location {
+    final detail = _detail;
+    if (detail != null) {
+      final parts = [
+        detail.location,
+        detail.address,
+      ].where((part) => part.isNotEmpty).toSet();
+      if (parts.isNotEmpty) return parts.join(' · ');
     }
-    return [
-      {
-        'title': _service,
-        'description': _serviceDescription,
-        'price': _servicePrice,
-        'image': _serviceImage,
-      },
-    ];
+    return _text(_booking['location']);
   }
 
-  String get _slot =>
-      (booking['slot'] as String?) ??
-      (booking['datetime'] as String?) ??
-      '15 Aug 2026, 2:00 - 4:00 PM';
+  String get _paymentLabel =>
+      _firstOf(_detail?.paymentLabel ?? '', ['payment']);
 
-  String get _location =>
-      (booking['location'] as String?) ??
-      'CleanRide Car Wash, Near Nouakchott, Mauritania';
+  bool get _canCancel => _detail?.canCancel ?? _booking['canCancel'] == true;
 
-  String get _vehicleLabel => (booking['vehicleLabel'] as String?) ?? 'Sedan';
+  static String _amount(double value) => value == value.roundToDouble()
+      ? '${value.round()}'
+      : value.toStringAsFixed(2);
 
-  String get _vehicleImage {
-    final fromBooking =
-        (booking['vehicleImage'] as String?) ?? (booking['image'] as String?);
-    if (fromBooking != null &&
-        fromBooking.isNotEmpty &&
-        !fromBooking.startsWith('http')) {
-      return fromBooking;
-    }
-    final label = _vehicleLabel.toLowerCase();
+  String _vehicleImage(String type) {
+    final label = type.toLowerCase();
     if (label.contains('suv') || label.contains('4x4')) {
       return 'lib/assets/images/SUV.png';
     }
@@ -115,64 +97,61 @@ class CarWashBookingDetailScreen extends StatelessWidget {
     return 'lib/assets/images/Sedan.png';
   }
 
-  String get _plateNumber =>
-      (booking['plateNumber'] as String?) ?? '1234 AB 01';
-
-  String get _total => (booking['total'] as String?) ?? '550 MRU';
-  String get _redeemed => (booking['redeemed'] as String?) ?? '-50 MRU';
-  String get _tax => (booking['tax'] as String?) ?? '10 MRU';
-  String get _totalPaid => (booking['totalPaid'] as String?) ?? '510 MRU';
-
-  List<Map<String, dynamic>> get _addons {
-    final raw = booking['addons'];
-    if (raw is List && raw.isNotEmpty) {
-      return raw
-          .whereType<Map>()
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
-    }
-    return const [
+  List<Map<String, dynamic>> get _statusSteps {
+    final detail = _detail!;
+    final cancelled = detail.isCancelled;
+    return [
       {
-        'title': 'Engine Wash',
-        'description':
-            'Safe hydraulic degreasing and rinse for bay components without water damage.',
-        'price': '+50 MRU',
-        'image':
-            'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=200&h=200&fit=crop',
+        'label': 'svc_step_booking_confirmed',
+        'time': detail.timeOf(1),
+        'icon': Icons.check_rounded,
+        'done': detail.reached(1),
       },
+      {
+        'label': 'svc_step_vehicle_received',
+        'time': detail.timeOf(2),
+        'icon': Icons.directions_car_filled_rounded,
+        'done': detail.reached(2),
+      },
+      {
+        'label': 'svc_step_ready_for_pickup',
+        'time': detail.timeOf(4),
+        'icon': Icons.check_rounded,
+        'done': detail.reached(4),
+      },
+      if (cancelled)
+        {
+          'label': 'svc_step_cancelled',
+          'time': detail.timeOf(10),
+          'icon': Icons.close_rounded,
+          'done': true,
+          'cancelled': true,
+        }
+      else
+        {
+          'label': 'svc_step_completed',
+          'time': detail.timeOf(9),
+          'icon': Icons.check_rounded,
+          'done': detail.reached(9),
+        },
     ];
   }
 
-  static const _statusSteps = [
-    {
-      'label': 'svc_step_booking_confirmed',
-      'time': '15 Aug 2026,\n10:00 AM',
-      'icon': Icons.check_rounded,
-      'done': true,
-    },
-    {
-      'label': 'svc_step_vehicle_received',
-      'time': '15 Aug 2026,\n10:05 AM',
-      'icon': Icons.directions_car_filled_rounded,
-      'done': true,
-    },
-    {
-      'label': 'svc_step_ready_for_pickup',
-      'time': '15 Aug 2026,\n10:10 AM',
-      'icon': Icons.check_rounded,
-      'done': true,
-    },
-    {
-      'label': 'svc_step_completed',
-      'time': '',
-      'icon': Icons.check_rounded,
-      'done': false,
-    },
-  ];
+  void _cancel() {
+    showCancelBookingBottomSheet(
+      context,
+      bookingId: _bookingId,
+      apiOrderId: _booking['apiOrderId'] as int?,
+      onCancelled: () {
+        if (mounted) Navigator.of(context).pop(true);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    final detail = _detail;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -196,23 +175,30 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                     16,
                     10,
                     16,
-                    20 + bottomInset + 72,
+                    20 + bottomInset + (_canCancel ? 72 : 0),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildStatusCard(),
-                      const SizedBox(height: 22),
-                      _sectionTitle('svc_vehicles'.tr),
-                      const SizedBox(height: 12),
-                      _buildVehicleCard(),
-                      const SizedBox(height: 22),
-                      _sectionTitle('svc_washing_details'.tr),
-                      const SizedBox(height: 12),
-                      _buildLocationCard(),
-                      const SizedBox(height: 10),
-                      _buildSlotCard(),
-                      const SizedBox(height: 22),
+                      if (detail != null) ...[
+                        _buildStatusCard(),
+                        const SizedBox(height: 22),
+                      ],
+                      if (_hasVehicleSection) ...[
+                        _sectionTitle('svc_vehicles'.tr),
+                        const SizedBox(height: 12),
+                        _buildVehicleCard(),
+                        const SizedBox(height: 22),
+                      ],
+                      if (_location.isNotEmpty || _slot.isNotEmpty) ...[
+                        _sectionTitle('svc_washing_details'.tr),
+                        const SizedBox(height: 12),
+                        if (_location.isNotEmpty) _buildLocationCard(),
+                        if (_location.isNotEmpty && _slot.isNotEmpty)
+                          const SizedBox(height: 10),
+                        if (_slot.isNotEmpty) _buildSlotCard(),
+                        const SizedBox(height: 22),
+                      ],
                       _buildPaymentDetails(),
                     ],
                   ),
@@ -221,7 +207,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
             ],
           ),
         ),
-        bottomNavigationBar: _buildCancelBar(bottomInset),
+        bottomNavigationBar: _canCancel ? _buildCancelBar(bottomInset) : null,
       ),
     );
   }
@@ -234,7 +220,9 @@ class CarWashBookingDetailScreen extends StatelessWidget {
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'svc_booking_number'.trParams({'id': _bookingId}),
+              _bookingId.isEmpty
+                  ? ''
+                  : 'svc_booking_number'.trParams({'id': _bookingId}),
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 color: const Color(0xFF1A1A1A),
@@ -283,6 +271,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
   Widget _buildStatusCard() {
     const circleSize = 36.0;
     const lineTop = 18.0;
+    final steps = _statusSteps;
 
     return Container(
       width: double.infinity,
@@ -312,24 +301,22 @@ class CarWashBookingDetailScreen extends StatelessWidget {
           const SizedBox(height: 18),
           LayoutBuilder(
             builder: (context, constraints) {
-              final count = _statusSteps.length;
+              final count = steps.length;
               final stepWidth = constraints.maxWidth / count;
               final lineLeft = stepWidth / 2;
               final lineWidth = constraints.maxWidth - stepWidth;
-              final doneCount = _statusSteps
-                  .where((s) => s['done'] == true)
-                  .length;
-              final progress = doneCount <= 1
-                  ? 0.0
-                  : (doneCount - 1) / (count - 1);
+              final lastDone = steps.lastIndexWhere(
+                (s) => s['done'] == true && s['cancelled'] != true,
+              );
+              final progress = lastDone <= 0 ? 0.0 : lastDone / (count - 1);
 
               return SizedBox(
                 height: 118,
                 child: Stack(
                   children: [
-                    Positioned(
+                    PositionedDirectional(
                       top: lineTop - 1.5,
-                      left: lineLeft,
+                      start: lineLeft,
                       width: lineWidth,
                       child: Container(
                         height: 3,
@@ -339,9 +326,9 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(
+                    PositionedDirectional(
                       top: lineTop - 1.5,
-                      left: lineLeft,
+                      start: lineLeft,
                       width: lineWidth * progress,
                       child: Container(
                         height: 3,
@@ -354,7 +341,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (final step in _statusSteps)
+                        for (final step in steps)
                           Expanded(child: _statusStep(step, circleSize)),
                       ],
                     ),
@@ -425,7 +412,29 @@ class CarWashBookingDetailScreen extends StatelessWidget {
     );
   }
 
+  List<ServiceBookingLine> _lines(String kind) =>
+      _detail?.lines(kind) ?? const [];
+
+  bool get _hasVehicleSection =>
+      _lines('vehicle').isNotEmpty ||
+      _lines('addon').isNotEmpty ||
+      _lines('distance').isNotEmpty ||
+      (_detail == null && _service.isNotEmpty);
+
+  String _lineDescription(ServiceBookingLine line) {
+    if (line.quantity <= 1) return '';
+    return 'svc_rate_times_qty'.trParams({
+      'rate': _amount(line.price),
+      'qty': _amount(line.quantity),
+    });
+  }
+
   Widget _buildVehicleCard() {
+    final vehicles = _lines('vehicle');
+    final addons = _lines('addon');
+    final distances = _lines('distance');
+    final fallbackPrice = _text(_booking['price']);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -443,100 +452,34 @@ class CarWashBookingDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: SizedBox(
-                  width: 96,
-                  height: 78,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      const ColoredBox(color: Color(0xFFECECEC)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 22),
-                        child: Image.asset(
-                          _vehicleImage,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Center(
-                            child: Icon(
-                              Icons.directions_car_rounded,
-                              color: Color(0xFFFF5E00),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          color: Colors.black.withValues(alpha: 0.55),
-                          alignment: Alignment.center,
-                          child: Text(
-                            _vehicleLabel,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _plateNumber,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF0D1B2A),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      _service,
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF5A6B7D),
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          for (var i = 0; i < _washServices.length; i++) ...[
-            if (i > 0) const SizedBox(height: 10),
+          if (_detail == null)
             _nestedServiceRow(
-              image: (_washServices[i]['image'] as String?) ?? _serviceImage,
-              title: (_washServices[i]['title'] as String?) ?? _service,
-              description:
-                  (_washServices[i]['description'] as String?) ??
-                  _serviceDescription,
-              priceLabel:
-                  (_washServices[i]['price'] as String?) ?? _servicePrice,
+              image: _serviceImage,
+              title: _service,
+              description: '',
+              priceLabel: fallbackPrice,
+            ),
+          for (var i = 0; i < vehicles.length; i++) ...[
+            if (i > 0) ...[
+              const SizedBox(height: 14),
+              const Divider(height: 1, thickness: 1, color: Color(0xFFEDE8E2)),
+              const SizedBox(height: 14),
+            ],
+            _vehicleHeader(vehicles[i]),
+            const SizedBox(height: 16),
+            _nestedServiceRow(
+              image: _serviceImage,
+              title: _service.isNotEmpty ? _service : vehicles[i].name,
+              description: _lineDescription(vehicles[i]),
+              priceLabel: serviceMru(vehicles[i].total),
             ),
           ],
-          if (_addons.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFEDE8E2)),
-            const SizedBox(height: 12),
+          if (addons.isNotEmpty) ...[
+            if (vehicles.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              const Divider(height: 1, thickness: 1, color: Color(0xFFEDE8E2)),
+              const SizedBox(height: 12),
+            ],
             Text(
               'svc_addon_services'.tr,
               style: GoogleFonts.outfit(
@@ -546,20 +489,125 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            for (var i = 0; i < _addons.length; i++) ...[
+            for (var i = 0; i < addons.length; i++) ...[
               if (i > 0) const SizedBox(height: 10),
               _nestedServiceRow(
-                image: (_addons[i]['image'] as String?) ?? _serviceImage,
-                title: (_addons[i]['title'] as String?) ?? 'svc_addon'.tr,
-                description: (_addons[i]['description'] as String?) ?? '',
-                priceLabel:
-                    (_addons[i]['price'] as String?) ??
-                    'svc_plus_mru'.trParams({'amount': '0'}),
+                image: '',
+                title: addons[i].name.isNotEmpty
+                    ? addons[i].name
+                    : 'svc_addon'.tr,
+                description: _lineDescription(addons[i]),
+                priceLabel: '+${serviceMru(addons[i].total)}',
               ),
             ],
           ],
+          for (final distance in distances) ...[
+            if (vehicles.isNotEmpty || addons.isNotEmpty)
+              const SizedBox(height: 10),
+            _nestedServiceRow(
+              image: '',
+              icon: Icons.near_me_rounded,
+              title: distance.name,
+              description: '',
+              priceLabel: '+${serviceMru(distance.total)}',
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _vehicleHeader(ServiceBookingLine vehicle) {
+    final type = vehicle.name;
+    final plate = vehicle.unit;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            width: 96,
+            height: 78,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                const ColoredBox(color: Color(0xFFECECEC)),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, type.isEmpty ? 0 : 22),
+                  child: type.isEmpty
+                      ? const Center(
+                          child: Icon(
+                            Icons.directions_car_rounded,
+                            color: Color(0xFFFF5E00),
+                          ),
+                        )
+                      : Image.asset(
+                          _vehicleImage(type),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const Center(
+                            child: Icon(
+                              Icons.directions_car_rounded,
+                              color: Color(0xFFFF5E00),
+                            ),
+                          ),
+                        ),
+                ),
+                if (type.isNotEmpty)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      color: Colors.black.withValues(alpha: 0.55),
+                      alignment: Alignment.center,
+                      child: Text(
+                        type,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (plate.isNotEmpty) ...[
+                Text(
+                  plate,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF0D1B2A),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(height: 5),
+              ],
+              if (_service.isNotEmpty)
+                Text(
+                  _service,
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF5A6B7D),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -568,8 +616,8 @@ class CarWashBookingDetailScreen extends StatelessWidget {
     required String title,
     required String description,
     required String priceLabel,
+    IconData icon = Icons.local_car_wash_rounded,
   }) {
-    final isNetwork = image.startsWith('http');
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -582,21 +630,15 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: isNetwork
+            child: image.startsWith('http')
                 ? Image.network(
                     image,
                     width: 54,
                     height: 54,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(),
+                    errorBuilder: (_, _, _) => _imageFallback(icon),
                   )
-                : Image.asset(
-                    image,
-                    width: 54,
-                    height: 54,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(),
-                  ),
+                : _imageFallback(icon),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -628,30 +670,28 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 10),
-          Text(
-            priceLabel,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFFF5E00),
-              fontSize: 13.5,
-              fontWeight: FontWeight.w800,
+          if (priceLabel.isNotEmpty) ...[
+            const SizedBox(width: 10),
+            Text(
+              priceLabel,
+              style: GoogleFonts.outfit(
+                color: const Color(0xFFFF5E00),
+                fontSize: 13.5,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _imageFallback() {
+  Widget _imageFallback(IconData icon) {
     return Container(
       width: 54,
       height: 54,
       color: const Color(0xFFFFF3EB),
-      child: const Icon(
-        Icons.local_car_wash_rounded,
-        color: Color(0xFFFF5E00),
-        size: 22,
-      ),
+      child: Icon(icon, color: const Color(0xFFFF5E00), size: 22),
     );
   }
 
@@ -780,6 +820,20 @@ class CarWashBookingDetailScreen extends StatelessWidget {
   }
 
   Widget _buildPaymentDetails() {
+    final detail = _detail;
+    final String bottomLabel;
+    final String bottomValue;
+    if (detail == null) {
+      bottomLabel = 'svc_total'.tr;
+      bottomValue = _text(_booking['price']);
+    } else if (detail.isPaid) {
+      bottomLabel = 'svc_total_paid'.tr;
+      bottomValue = serviceMru(detail.totalPaid);
+    } else {
+      bottomLabel = 'svc_to_pay'.tr;
+      bottomValue = serviceMru(detail.total);
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
@@ -800,22 +854,24 @@ class CarWashBookingDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _payRow('svc_total'.tr, _total),
-          const SizedBox(height: 10),
-          _payRow(
-            'svc_redeemed_points'.tr,
-            _redeemed,
-            valueColor: const Color(0xFFFF5E00),
-          ),
-          const SizedBox(height: 10),
-          _payRow('svc_tax'.tr, _tax),
-          const SizedBox(height: 14),
-          const Divider(height: 1, thickness: 1, color: Color(0xFF4A4A4A)),
-          const SizedBox(height: 14),
+          if (_paymentLabel.isNotEmpty) ...[
+            _payRow('svc_payment'.tr, _paymentLabel),
+            const SizedBox(height: 10),
+          ],
+          if (detail != null) ...[
+            _payRow('svc_subtotal'.tr, serviceMru(detail.subtotal)),
+            const SizedBox(height: 10),
+            _payRow('svc_tax'.tr, serviceMru(detail.tax)),
+            const SizedBox(height: 10),
+            _payRow('svc_total'.tr, serviceMru(detail.total)),
+            const SizedBox(height: 14),
+            const Divider(height: 1, thickness: 1, color: Color(0xFF4A4A4A)),
+            const SizedBox(height: 14),
+          ],
           Row(
             children: [
               Text(
-                'svc_total_paid'.tr,
+                bottomLabel,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
@@ -824,7 +880,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                _totalPaid,
+                bottomValue,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -838,7 +894,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _payRow(String label, String value, {Color? valueColor}) {
+  Widget _payRow(String label, String value) {
     return Row(
       children: [
         Text(
@@ -853,7 +909,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
         Text(
           value,
           style: GoogleFonts.outfit(
-            color: valueColor ?? Colors.white,
+            color: Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w700,
           ),
@@ -867,11 +923,7 @@ class CarWashBookingDetailScreen extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16, 10, 16, 12 + bottomInset),
       color: const Color(0xFFFDFBF7),
       child: GestureDetector(
-        onTap: () => showCancelBookingBottomSheet(
-          Get.context!,
-          bookingId: _bookingId,
-          apiOrderId: booking['apiOrderId'] as int?,
-        ),
+        onTap: _cancel,
         child: Container(
           width: double.infinity,
           height: 52,

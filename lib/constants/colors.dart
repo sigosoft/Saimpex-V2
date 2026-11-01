@@ -14,7 +14,7 @@ class AppColors {
   static const Color labelMuted = Color(0xFF7A6A60);
   static const Color textMuted = Color(0xFF7A6A60);
   static const Color inputHint = Color(0xFFA59A94);
-  
+
   // Guest Login Button
   static const Color guestBg = Color(0xFFFFF5EC);
   static const Color guestText = Color(0xFFFF5E00);

@@ -111,7 +111,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
       });
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().setCartItem(
-          storeName: _storeText('title', 'Pharmacy Nasr'),
+          storeName: _storeText('title', ''),
           itemName: item['title']?.toString(),
           itemPortion: portion ?? item['tag']?.toString() ?? '10 Tablets',
           basePrice: parsePrice(item['price']?.toString() ?? '50'),
@@ -304,8 +304,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 _loadStore(reset: true);
               },
               child: Padding(
-                padding: EdgeInsets.only(
-                  right: index == subcategories.length - 1 ? 0 : 10,
+                padding: EdgeInsetsDirectional.only(
+                  end: index == subcategories.length - 1 ? 0 : 10,
                 ),
                 child: SizedBox(
                   width: 62,
@@ -335,7 +335,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.10),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.10,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -436,7 +438,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                 color: const Color(0xFFFFF0EA),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: const Color(0xFFFF5E00).withOpacity(0.35),
+                  color: const Color(0xFFFF5E00).withValues(alpha: 0.35),
                   width: 1,
                 ),
               ),
@@ -505,7 +507,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
     final storeId = _storeText('id', 'p1');
-    final storeTitle = _storeText('title', 'Pharmacy Nasr');
+    final storeTitle = _storeText('title', '');
     final storeImage = _storeText('image', '');
     final storeTime = _storeText('time', '30-35 min');
     final storeDistance = _storeText('dist', '10 Km');
@@ -585,7 +587,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.06,
+                                      ),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -828,7 +832,9 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black
-                                                        .withOpacity(0.04),
+                                                        .withValues(
+                                                          alpha: 0.04,
+                                                        ),
                                                     blurRadius: 6,
                                                     offset: const Offset(0, 2),
                                                   ),

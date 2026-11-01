@@ -5,11 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/service_booking_draft.dart';
 import '../../core/network/api_constants.dart';
 import '../../core/network/api_exception.dart';
+import '../../models/general_repository.dart';
 import '../../models/service_repository.dart';
 import '../../utils/api_language.dart';
 
-/// Loads a provider's catalog services for the provider detail screens and
-/// records the picked one in [ServiceBookingDraft] before configuring it.
+/// Loads a provider's catalog services and reviews for the provider detail
+/// screens and records the picked service in [ServiceBookingDraft] before
+/// configuring it.
 mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
   List<Map<String, dynamic>> _services = const [];
   bool _servicesLoading = true;
@@ -19,6 +21,74 @@ mixin ProviderServicesMixin<T extends StatefulWidget> on State<T> {
   Map<String, String> get providerCard;
 
   int? get providerId => int.tryParse(providerCard['id'] ?? '');
+
+  // Vendor types the reviews API takes for each service vertical.
+  static const _vendorTypes = {
+    ServiceRepository.laundry: 7,
+    ServiceRepository.carWash: 8,
+    ServiceRepository.homeCleaning: 9,
+    ServiceRepository.gas: 10,
+  };
+
+  /// Review cards: name, time, rating, avatar, text.
+  List<Map<String, dynamic>> providerReviews = const [];
+  double reviewAverage = 0;
+  int reviewTotal = 0;
+
+  /// One row per star, 5 to 1: star, pct (0–1), count.
+  List<Map<String, dynamic>> reviewBreakdown = const [];
+  bool reviewsLoading = true;
+
+  /// [filter]: 0 all, 1 most recent, 2 highest rated.
+  Future<void> loadProviderReviews([int filter = 0]) async {
+    final id = providerId;
+    if (id == null || !Get.isRegistered<GeneralRepository>()) {
+      setState(() => reviewsLoading = false);
+      return;
+    }
+    setState(() => reviewsLoading = true);
+    try {
+      final result = await Get.find<GeneralRepository>().fetchReviews(
+        type: 'provider',
+        language: apiLanguageCode(),
+        vendorId: id,
+        vendorType: _vendorTypes[serviceVertical],
+        filter: const ['', 'most_recent', 'highest_rated'][filter],
+      );
+      if (!mounted) return;
+      final total = result.totalReviews;
+      setState(() {
+        reviewAverage = result.averageRating;
+        reviewTotal = total;
+        reviewBreakdown = [
+          for (final star in ['5', '4', '3', '2', '1'])
+            {
+              'star': star,
+              'pct': total == 0
+                  ? 0.0
+                  : (result.ratingBreakdown[star] ?? 0) / total,
+              'count': '${result.ratingBreakdown[star] ?? 0}',
+            },
+        ];
+        providerReviews = [
+          for (final review in result.reviews)
+            {
+              'name': review['userName'],
+              'time': review['timeAgo'].toString().isEmpty
+                  ? review['date']
+                  : review['timeAgo'],
+              'rating': review['rating'],
+              'avatar': review['userImage'],
+              'text': review['comment'],
+            },
+        ];
+      });
+    } on ApiException {
+      // The tab shows "No reviews yet" when they can't load.
+    } finally {
+      if (mounted) setState(() => reviewsLoading = false);
+    }
+  }
 
   Future<void> loadProviderServices() async {
     final id = providerId;

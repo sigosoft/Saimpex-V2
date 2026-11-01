@@ -9,30 +9,25 @@ import '../widgets/cancel_order_bottom_sheet.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
-  final bool isSelfPickup;
 
-  /// Food order from customer/catalog/orderDetail. Null keeps the sample layout.
-  final Map<String, dynamic>? detail;
+  /// Food order from customer/catalog/orderDetail.
+  final Map<String, dynamic> detail;
 
   const OrderDetailScreen({
     super.key,
-    this.orderId = "#22789000",
-    this.isSelfPickup = false,
-    this.detail,
+    required this.orderId,
+    required this.detail,
   });
 
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.viewPaddingOf(context).top;
-    final orderId = detail == null
-        ? this.orderId
-        : '${detail!['order_code'] ?? this.orderId}';
-    // Numeric id for the cancel API; the sample layout has none.
-    final apiOrderId = int.tryParse('${detail?['id'] ?? detail?['order_id']}');
-    final isSelfPickup = detail == null
-        ? this.isSelfPickup
-        : '${detail!['is_self_pickup']}' == '1' ||
-              detail!['is_self_pickup'] == true;
+    final orderId = '${detail['order_code'] ?? this.orderId}';
+    // Numeric id for the cancel API.
+    final apiOrderId = int.tryParse('${detail['id'] ?? detail['order_id']}');
+    final isSelfPickup =
+        '${detail['is_self_pickup']}' == '1' ||
+        detail['is_self_pickup'] == true;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -201,69 +196,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: detail != null
-                                    ? _stepperNodes(isSelfPickup)
-                                    : isSelfPickup
-                                    ? [
-                                        _buildStepperNode(
-                                          isActive: true,
-                                          icon: Icons.check,
-                                          title: 'orders_step_placed'.tr,
-                                          time: '22 Oct 2025, 10:00 AM',
-                                        ),
-                                        _buildStepperNode(
-                                          isActive: true,
-                                          icon: Icons.check,
-                                          iconAsset:
-                                              'lib/assets/images/preparingfood.png',
-                                          title: 'orders_step_preparing'.tr,
-                                          time: '22 Oct 2025, 10:05 AM',
-                                        ),
-                                        _buildStepperNode(
-                                          isActive: true,
-                                          icon: Icons.check,
-                                          iconAsset:
-                                              'lib/assets/images/readyforpickup.png',
-                                          title: 'orders_step_ready'.tr,
-                                          time: '22 Oct 2025, 10:10 AM',
-                                        ),
-                                        _buildStepperNode(
-                                          isActive: false,
-                                          icon: Icons.check,
-                                          title: 'orders_step_delivered'.tr,
-                                          time: '',
-                                        ),
-                                      ]
-                                    : [
-                                        _buildStepperNode(
-                                          isActive: true,
-                                          icon: Icons.check,
-                                          title: 'orders_step_placed'.tr,
-                                          time: '22 Oct 2025, 10:00 AM',
-                                        ),
-                                        _buildStepperNode(
-                                          isActive: true,
-                                          icon: Icons.check,
-                                          iconAsset:
-                                              'lib/assets/images/preparingfood.png',
-                                          title: 'orders_step_preparing'.tr,
-                                          time: '22 Oct 2025, 10:05 AM',
-                                        ),
-                                        _buildStepperNode(
-                                          isActive: true,
-                                          icon: Icons.check,
-                                          iconAsset:
-                                              'lib/assets/images/ontheway.png',
-                                          title: 'orders_step_on_the_way'.tr,
-                                          time: '22 Oct 2025, 10:10 AM',
-                                        ),
-                                        _buildStepperNode(
-                                          isActive: false,
-                                          icon: Icons.check,
-                                          title: 'orders_step_delivered'.tr,
-                                          time: '',
-                                        ),
-                                      ],
+                                children: _stepperNodes(isSelfPickup),
                               ),
                             ],
                           ),
@@ -384,7 +317,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _apiText('location', 'Sahara View Home'),
+                                    _apiText('location', ''),
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 13,
@@ -393,14 +326,12 @@ class OrderDetailScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    detail == null
-                                        ? 'Near Marhaba Supermarket,Nouakchott'
-                                        : 'orders_from_vendor'.trParams({
-                                            'name': _apiText(
-                                              'vendor_name',
-                                              'orders_the_restaurant'.tr,
-                                            ),
-                                          }),
+                                    'orders_from_vendor'.trParams({
+                                      'name': _apiText(
+                                        'vendor_name',
+                                        'orders_the_restaurant'.tr,
+                                      ),
+                                    }),
                                     style: GoogleFonts.outfit(
                                       color: const Color(0xFF8C7D73),
                                       fontSize: 11,
@@ -412,116 +343,6 @@ class OrderDetailScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-
-                      // The API has no driver details yet, so the card shows only for the sample
-                      if (detail == null) ...[
-                        const SizedBox(height: 10),
-
-                        // Driver Info Card
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              ClipOval(
-                                child: Container(
-                                  width: 48,
-                                  height: 48,
-                                  color: const Color(0xFFF3E7DC),
-                                  child: const Icon(
-                                    Icons.person_rounded,
-                                    color: Color(0xFFFF5E00),
-                                    size: 28,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Amadou Sy',
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF2C2520),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.star_rounded,
-                                          color: Color(0xFFFFAE00),
-                                          size: 14,
-                                        ),
-                                        const SizedBox(width: 2),
-                                        Text(
-                                          '4.6',
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF2C2520),
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'orders_reviews_count'.trParams({
-                                            'count': '10k+',
-                                          }),
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF8C7D73),
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'orders_calling'.trParams({
-                                          'name': 'Amadou Sy',
-                                        }),
-                                        style: GoogleFonts.outfit(),
-                                      ),
-                                      backgroundColor: const Color(0xFFFF5E00),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFF5E00),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.call_rounded,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ],
 
                     const SizedBox(height: 18),
@@ -550,69 +371,7 @@ class OrderDetailScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Column(
-                        children: detail != null
-                            ? _apiSummaryRows()
-                            : [
-                                // Item 1: Butter Croissant
-                                _buildSummaryItem(
-                                  title: 'Butter Croissant',
-                                  weight: '1 Portion',
-                                  quantity: 'x1',
-                                  price: '50 MRU',
-                                  assetPath:
-                                      'lib/assets/images/butter_croissant.png',
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Divider(
-                                    color: Color(0xFFF3E7DC),
-                                    height: 1,
-                                  ),
-                                ),
-                                // Item 2: Artisan Bread Loaf
-                                _buildSummaryItem(
-                                  title: 'Artisan Bread Loaf',
-                                  weight: '1 Loaf',
-                                  quantity: 'x1',
-                                  price: '50 MRU',
-                                  assetPath:
-                                      'lib/assets/images/artisan_bread.png',
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Divider(
-                                    color: Color(0xFFF3E7DC),
-                                    height: 1,
-                                  ),
-                                ),
-                                // Item 3: Pain Au Chocolat
-                                _buildSummaryItem(
-                                  title: 'Pain Au Chocolat',
-                                  weight: '1 Portion',
-                                  quantity: 'x1',
-                                  price: '50 MRU',
-                                  assetPath:
-                                      'lib/assets/images/pain_chocolat.png',
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Divider(
-                                    color: Color(0xFFF3E7DC),
-                                    height: 1,
-                                  ),
-                                ),
-                                // Item 4: Citrus Lemon Tart
-                                _buildSummaryItem(
-                                  title: 'Citrus Lemon Tart',
-                                  weight: '1 Portion',
-                                  quantity: 'x1',
-                                  price: '50 MRU',
-                                  assetPath:
-                                      'lib/assets/images/citrus_lemon.png',
-                                ),
-                              ],
-                      ),
+                      child: Column(children: _apiSummaryRows()),
                     ),
 
                     const SizedBox(height: 18),
@@ -639,29 +398,17 @@ class OrderDetailScreen extends StatelessWidget {
                           const SizedBox(height: 14),
                           _buildPaymentRow(
                             'orders_item_total'.tr,
-                            _amount('sub_total', '200 MRU'),
+                            _amount('sub_total', ''),
                           ),
-                          // The API has no redeemed-points amount yet
-                          if (detail == null) ...[
-                            const SizedBox(height: 8),
-                            _buildPaymentRow(
-                              'cart_redeemed_points'.tr,
-                              '-50 MRU',
-                              isOrange: true,
-                            ),
-                          ],
                           if (!isSelfPickup) ...[
                             const SizedBox(height: 8),
                             _buildPaymentRow(
                               'cart_delivery_fee'.tr,
-                              _amount('delivery_fee', '5 MRU'),
+                              _amount('delivery_fee', ''),
                             ),
                           ],
                           const SizedBox(height: 8),
-                          _buildPaymentRow(
-                            'cart_tax'.tr,
-                            _amount('tax', '2 MRU'),
-                          ),
+                          _buildPaymentRow('cart_tax'.tr, _amount('tax', '')),
                           const SizedBox(height: 14),
                           Container(height: 1, color: Colors.white12),
                           const SizedBox(height: 14),
@@ -677,7 +424,7 @@ class OrderDetailScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                _amount('total', '157 MRU'),
+                                _amount('total', ''),
                                 style: GoogleFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -810,12 +557,12 @@ class OrderDetailScreen extends StatelessWidget {
   }
 
   String _apiText(String key, String fallback) {
-    final value = detail?[key]?.toString().trim() ?? '';
+    final value = detail[key]?.toString().trim() ?? '';
     return value.isEmpty || value == 'null' ? fallback : value;
   }
 
   String _amount(String key, String fallback) =>
-      detail == null ? fallback : _money(detail![key]);
+      detail.containsKey(key) ? _money(detail[key]) : fallback;
 
   static String _money(dynamic value) {
     final number = double.tryParse('${value ?? ''}') ?? 0;
@@ -862,8 +609,8 @@ class OrderDetailScreen extends StatelessWidget {
 
   /// One row per food item: name, portion and chosen options, quantity and line total.
   List<Widget> _apiSummaryRows() {
-    final items = detail?['items'] is List
-        ? (detail!['items'] as List).whereType<Map>().toList()
+    final items = detail['items'] is List
+        ? (detail['items'] as List).whereType<Map>().toList()
         : const <Map>[];
     final rows = <Widget>[];
     for (var i = 0; i < items.length; i++) {
@@ -995,7 +742,7 @@ class OrderDetailScreen extends StatelessWidget {
                 ? Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: const Color(0xFFF3E7DC),
                       child: const Icon(
                         Icons.fastfood_rounded,
@@ -1007,7 +754,7 @@ class OrderDetailScreen extends StatelessWidget {
                 : Image.asset(
                     assetPath ?? '',
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: const Color(0xFFF3E7DC),
                       child: const Icon(
                         Icons.fastfood_rounded,

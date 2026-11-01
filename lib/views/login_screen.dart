@@ -54,7 +54,7 @@ class LoginScreen extends StatelessWidget {
           left: 0,
           right: 0,
           height: size.height * 0.35,
-          child: Container(color: Colors.black.withOpacity(0.25)),
+          child: Container(color: Colors.black.withValues(alpha: 0.25)),
         ),
         // Language Selector on Background
         PositionedDirectional(
@@ -196,7 +196,7 @@ class LoginScreen extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               Image.asset('lib/assets/images/Onboard1.png', fit: BoxFit.cover),
-              Container(color: Colors.black.withOpacity(0.3)),
+              Container(color: Colors.black.withValues(alpha: 0.3)),
               PositionedDirectional(
                 top: padding.top + 16,
                 start: 20,
@@ -356,7 +356,7 @@ class LoginScreen extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primaryOrange.withOpacity(0.3),
+                color: AppColors.primaryOrange.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),
@@ -396,7 +396,7 @@ class LoginScreen extends StatelessWidget {
           color: AppColors.guestBg,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: AppColors.inputBorder.withOpacity(0.5),
+            color: AppColors.inputBorder.withValues(alpha: 0.5),
             width: 1,
           ),
         ),

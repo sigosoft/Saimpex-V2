@@ -167,7 +167,7 @@ class ExpressTrendingScreen extends StatelessWidget {
                     width: 18,
                     height: 18,
                     color: const Color(0xFFA59A94),
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.camera_alt_outlined,
                       color: Color(0xFFA59A94),
                       size: 18,
@@ -187,7 +187,7 @@ class ExpressTrendingScreen extends StatelessWidget {
                       'lib/assets/images/Voice.png',
                       width: 14,
                       height: 14,
-                      errorBuilder: (_, __, ___) => const Icon(
+                      errorBuilder: (_, _, _) => const Icon(
                         Icons.mic_none_rounded,
                         color: Color(0xFFFF5E00),
                         size: 14,
@@ -264,17 +264,17 @@ class ExpressTrendingScreen extends StatelessWidget {
                         ? Image.asset(
                             imagePath,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _imageFallback(),
+                            errorBuilder: (_, _, _) => _imageFallback(),
                           )
                         : Image.network(
                             imagePath,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _imageFallback(),
+                            errorBuilder: (_, _, _) => _imageFallback(),
                           ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 7,
@@ -305,9 +305,9 @@ class ExpressTrendingScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    right: 8,
+                    end: 8,
                     child: Obx(() {
                       final liked = controller.isLiked(store['id'].toString());
                       return GestureDetector(
@@ -335,8 +335,8 @@ class ExpressTrendingScreen extends StatelessWidget {
                       );
                     }),
                   ),
-                  Positioned(
-                    left: 10,
+                  PositionedDirectional(
+                    start: 10,
                     bottom: 8,
                     child: _pointsBadge(store['points'].toString()),
                   ),
@@ -420,7 +420,7 @@ class ExpressTrendingScreen extends StatelessWidget {
             'lib/assets/images/Coin.png',
             width: 14,
             height: 14,
-            errorBuilder: (_, __, ___) => const Icon(
+            errorBuilder: (_, _, _) => const Icon(
               Icons.monetization_on_rounded,
               color: Color(0xFFFFAE00),
               size: 14,

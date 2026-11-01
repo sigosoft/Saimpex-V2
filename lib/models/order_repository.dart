@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -313,7 +314,7 @@ class OrderRepository {
     final earliest = DateTime.tryParse('${data['earliest'] ?? ''}');
     final latest = DateTime.tryParse('${data['latest'] ?? ''}');
     if (earliest == null || latest == null) {
-      throw ApiException('Could not load delivery times. Please try again.');
+      throw ApiException('core_delivery_times_failed'.tr);
     }
     return (earliest: earliest.toLocal(), latest: latest.toLocal());
   }
@@ -348,7 +349,7 @@ class OrderRepository {
     );
     final methods = (asJsonMap(envelope.data) ?? {})['payment_methods'];
     if (methods is! List) {
-      throw const ApiException('Payment methods are missing.');
+      throw ApiException('core_payment_methods_missing'.tr);
     }
     final enabled = <String>{};
     for (final method in methods) {
@@ -528,9 +529,7 @@ class OrderRepository {
         );
       } on FormatException catch (error) {
         throw ApiException(
-          error.message.isEmpty
-              ? 'Request failed. Please try again.'
-              : error.message,
+          error.message.isEmpty ? 'core_request_failed'.tr : error.message,
           statusCode: response.statusCode,
         );
       }

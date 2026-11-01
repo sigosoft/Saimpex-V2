@@ -346,7 +346,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
 
   const PharmacyActiveOrderCard({
     super.key,
-    this.pharmacyName = 'Pharmacy Nasr',
+    this.pharmacyName = '',
     required this.statusText,
     required this.statusColor,
     required this.statusBgColor,
@@ -356,7 +356,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
     this.apiOrderId,
     this.showPrescription = false,
     this.showTrack = true,
-    this.prescriptionName = 'Prescription_Jun25.jpg',
+    this.prescriptionName,
   });
 
   void _openOrderDetails() {

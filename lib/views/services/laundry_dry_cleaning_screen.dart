@@ -16,7 +16,7 @@ class LaundryDryCleaningScreen extends StatefulWidget {
   const LaundryDryCleaningScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanPro Laundry',
+    this.providerName = '',
   });
 
   @override
@@ -201,13 +201,13 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
           _heroImage,
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
+          errorBuilder: (_, _, _) => Container(
             color: const Color(0xFFFFF3EB),
             alignment: Alignment.center,
             child: Image.asset(
               'lib/assets/images/Dry Cleaning.png',
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.dry_cleaning_rounded,
                 color: Color(0xFFFF5E00),
                 size: 48,
@@ -246,7 +246,7 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
               width: 58,
               height: 58,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 width: 58,
                 height: 58,
                 color: const Color(0xFFFFF3EB),

@@ -226,7 +226,7 @@ class _CourierSelectRecipientLocationScreenState
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 6),
         itemCount: controller.searchResults.length,
-        separatorBuilder: (_, __) =>
+        separatorBuilder: (_, _) =>
             const Divider(height: 1, indent: 44, color: Color(0xFFF0E8E0)),
         itemBuilder: (context, index) {
           final result = controller.searchResults[index];

@@ -20,7 +20,7 @@ class CarWashSelectVehiclesScreen extends StatefulWidget {
   const CarWashSelectVehiclesScreen({
     super.key,
     required this.service,
-    this.providerName = 'CleanRide Car Wash',
+    this.providerName = '',
     this.selectedLocation = 0,
     this.homeServiceFee = 0,
     this.homeInstructions = '',
@@ -110,7 +110,7 @@ class _CarWashSelectVehiclesScreenState
                       ? ListView.separated(
                           padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
                           itemCount: _vehicles.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 14),
                           itemBuilder: (context, index) {
                             return _buildVehicleCard(_vehicles[index], index);
@@ -286,7 +286,7 @@ class _CarWashSelectVehiclesScreenState
               child: Image.asset(
                 vehicle.image,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const ColoredBox(
+                errorBuilder: (_, _, _) => const ColoredBox(
                   color: Color(0xFFF5F0EB),
                   child: Center(
                     child: Icon(

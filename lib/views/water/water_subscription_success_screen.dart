@@ -28,7 +28,7 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: AppBackButton(onTap: () => Get.back()),
                 ),
               ),
@@ -47,7 +47,9 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFF5E00).withOpacity(0.35),
+                            color: const Color(
+                              0xFFFF5E00,
+                            ).withValues(alpha: 0.35),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -99,7 +101,7 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
+                                color: Colors.black.withValues(alpha: 0.03),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -139,7 +141,7 @@ class WaterSubscriptionSuccessScreen extends StatelessWidget {
                               BoxShadow(
                                 color: const Color(
                                   0xFFFF5E00,
-                                ).withOpacity(0.35),
+                                ).withValues(alpha: 0.35),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),

@@ -100,7 +100,7 @@ class LaundryServicesScreen extends StatelessWidget {
               width: double.infinity,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
-              errorBuilder: (_, __, ___) =>
+              errorBuilder: (_, _, _) =>
                   Container(height: 240, color: const Color(0xFFFF5E00)),
             ),
           ),
@@ -297,7 +297,7 @@ class LaundryServicesScreen extends StatelessWidget {
             width: 66,
             height: 66,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               width: 66,
               height: 66,
               color: const Color(0xFFFFF3EB),
@@ -374,7 +374,7 @@ class LaundryServicesScreen extends StatelessWidget {
               width: 15,
               height: 15,
               color: const Color(0xFFFF5E00),
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.mic_rounded,
                 color: Color(0xFFFF5E00),
                 size: 16,
@@ -456,7 +456,7 @@ class LaundryServicesScreen extends StatelessWidget {
                     Image.network(
                       item['image']!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _providerImageFallback(),
+                      errorBuilder: (_, _, _) => _providerImageFallback(),
                     ),
                     PositionedDirectional(
                       start: 10,
@@ -477,7 +477,7 @@ class LaundryServicesScreen extends StatelessWidget {
                               'lib/assets/images/Coin.png',
                               width: 14,
                               height: 14,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, _, _) => const Icon(
                                 Icons.monetization_on,
                                 color: Color(0xFFFFAE00),
                                 size: 14,
@@ -501,13 +501,35 @@ class LaundryServicesScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              item['name']!,
-              style: GoogleFonts.outfit(
-                color: const Color(0xFF122037),
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    item['name']!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF122037),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.star_rounded,
+                  color: Color(0xFFFFB800),
+                  size: 16,
+                ),
+                const SizedBox(width: 3),
+                Text(
+                  item['rating'] ?? '',
+                  style: GoogleFonts.outfit(
+                    color: const Color(0xFF122037),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 6),
             Row(
@@ -526,7 +548,7 @@ class LaundryServicesScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 14),
+                const Spacer(),
                 const Icon(
                   Icons.access_time_rounded,
                   color: Color(0xFF9AA3B2),
@@ -556,8 +578,6 @@ class LaundryServicesScreen extends StatelessWidget {
               child: Row(
                 children: [
                   _serviceTag(item['tag1']!, item['price1']!),
-                  const SizedBox(width: 10),
-                  _serviceTag(item['tag2']!, item['price2']!),
                   if (item['tag3'] != null) ...[
                     const SizedBox(width: 10),
                     _serviceTag(item['tag3']!, item['price3']!),

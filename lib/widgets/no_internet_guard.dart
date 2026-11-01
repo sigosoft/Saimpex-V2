@@ -108,7 +108,7 @@ class NoInternetScreen extends StatelessWidget {
                         width: 260,
                         fit: BoxFit.contain,
                         alignment: Alignment.center,
-                        errorBuilder: (_, __, ___) => const Icon(
+                        errorBuilder: (_, _, _) => const Icon(
                           Icons.cell_tower_rounded,
                           size: 120,
                           color: Color(0xFF9AA0A6),

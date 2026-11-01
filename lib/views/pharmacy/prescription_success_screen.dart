@@ -345,7 +345,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
 
   Widget _buildInfoBanner() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
       decoration: BoxDecoration(
         color: const Color(0xFFFFE8DC),
         borderRadius: BorderRadius.circular(16),
@@ -413,7 +413,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                 final segment = usable / 3;
 
                 return Stack(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   children: [
                     Positioned(
                       left: circleSize / 2,

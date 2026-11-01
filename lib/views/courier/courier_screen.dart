@@ -237,7 +237,7 @@ class _CourierScreenState extends State<CourierScreen> {
           'lib/assets/images/courier_banner.png',
           width: double.infinity,
           fit: BoxFit.fill,
-          errorBuilder: (_, __, ___) => Container(
+          errorBuilder: (_, _, _) => Container(
             color: const Color(0xFFE8F0FF),
             alignment: Alignment.center,
             child: const Icon(Icons.image_not_supported_outlined),
@@ -497,7 +497,7 @@ class _CourierScreenState extends State<CourierScreen> {
                           child: Image.asset(
                             vehicle['image']!.toString(),
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.two_wheeler_outlined,
                               color: Color(0xFFA59A94),
                             ),
@@ -589,7 +589,7 @@ class _CourierScreenState extends State<CourierScreen> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsetsDirectional.only(end: 16),
         itemCount: offers.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           return ClipRRect(
             borderRadius: BorderRadius.circular(18),
@@ -598,7 +598,7 @@ class _CourierScreenState extends State<CourierScreen> {
               width: bannerWidth,
               height: bannerHeight,
               fit: BoxFit.fill,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 width: bannerWidth,
                 height: bannerHeight,
                 color: const Color(0xFFFFF0EA),

@@ -53,7 +53,7 @@ class CarWashBookingSuccessScreen extends StatelessWidget {
                   width: 108,
                   height: 108,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 108,
                     height: 108,
                     decoration: const BoxDecoration(

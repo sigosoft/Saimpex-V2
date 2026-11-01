@@ -65,11 +65,10 @@ class HomeCleaningCartScreen extends StatefulWidget {
 
   const HomeCleaningCartScreen({
     super.key,
-    this.providerName = 'CleanPro Elite',
-    this.serviceTitle = 'Regular Cleaning',
+    this.providerName = '',
+    this.serviceTitle = '',
     this.serviceImage = 'lib/assets/images/regular_cleaning.jpg',
-    this.serviceDescription =
-        'Standard cleaning for bedrooms, bathrooms, living...',
+    this.serviceDescription = '',
     this.bedrooms = 2,
     this.bathrooms = 2,
     this.kitchens = 0,
@@ -531,14 +530,14 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                     width: 72,
                     height: 72,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(72),
+                    errorBuilder: (_, _, _) => _imageFallback(72),
                   )
                 : Image.asset(
                     image,
                     width: 72,
                     height: 72,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(72),
+                    errorBuilder: (_, _, _) => _imageFallback(72),
                   ),
           ),
           const SizedBox(width: 12),
@@ -624,7 +623,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: widget.selectedPests.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final pest = widget.selectedPests[index];
           final label = pest['label'] as String? ?? '';
@@ -652,7 +651,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       ? Image.asset(
                           image,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (_, _, _) => const Icon(
                             Icons.bug_report_outlined,
                             color: Color(0xFF2B5A9E),
                             size: 22,
@@ -901,9 +900,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  SelectLocationController.selectedTitle.isNotEmpty
-                      ? SelectLocationController.selectedTitle
-                      : 'Sahara View Home',
+                  SelectLocationController.selectedTitle,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
@@ -912,9 +909,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  SelectLocationController.selectedSubtitle.isNotEmpty
-                      ? SelectLocationController.selectedSubtitle
-                      : 'Near Marhaba Supermarket, Nouakchott',
+                  SelectLocationController.selectedSubtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
@@ -1035,7 +1030,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 width: 20,
                 height: 20,
                 color: const Color(0xFFFF5E00),
-                errorBuilder: (_, __, ___) => Icon(
+                errorBuilder: (_, _, _) => Icon(
                   index == 0
                       ? Icons.account_balance_wallet_outlined
                       : Icons.credit_card_rounded,

@@ -248,7 +248,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                     'lib/assets/images/Home.png',
                     width: 22,
                     height: 22,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.home_rounded,
                       color: Color(0xFFFF5E00),
                       size: 22,
@@ -298,7 +298,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
           ),
           Container(
             height: 36,
-            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+            padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
             decoration: BoxDecoration(
               color: const Color(0xFFFF5E00),
               borderRadius: BorderRadius.circular(20),
@@ -350,7 +350,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
             itemCount: slideCount,
             physics: const BouncingScrollPhysics(),
             onPageChanged: (index) => setState(() => _bannerIndex = index),
-            itemBuilder: (_, __) {
+            itemBuilder: (_, _) {
               return ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Image.asset(
@@ -358,7 +358,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                   width: double.infinity,
                   height: 148,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: const Color(0xFFFF5E00),
                     child: const Center(
                       child: Icon(
@@ -444,7 +444,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                 width: 18,
                 height: 18,
                 color: const Color(0xFFA59A94),
-                errorBuilder: (_, __, ___) => const Icon(
+                errorBuilder: (_, _, _) => const Icon(
                   Icons.camera_alt_outlined,
                   color: Color(0xFFA59A94),
                   size: 18,
@@ -464,7 +464,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                   'lib/assets/images/Voice.png',
                   width: 14,
                   height: 14,
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_none_rounded,
                     color: Color(0xFFFF5E00),
                     size: 14,
@@ -533,12 +533,12 @@ class _ExpressScreenState extends State<ExpressScreen> {
                           ? Image.asset(
                               cat['image'] as String,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => _categoryFallback(),
+                              errorBuilder: (_, _, _) => _categoryFallback(),
                             )
                           : Image.network(
                               cat['image'] as String,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _categoryFallback(),
+                              errorBuilder: (_, _, _) => _categoryFallback(),
                             ),
                     ),
                   ),
@@ -639,14 +639,14 @@ class _ExpressScreenState extends State<ExpressScreen> {
                         height: 110,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           height: 110,
                           color: Colors.grey.shade300,
                           child: const Icon(Icons.store, color: Colors.grey),
                         ),
                       ),
-                      Positioned(
-                        left: 10,
+                      PositionedDirectional(
+                        start: 10,
                         bottom: 8,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -795,19 +795,19 @@ class _ExpressScreenState extends State<ExpressScreen> {
                         ? Image.asset(
                             imagePath,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
+                            errorBuilder: (_, _, _) =>
                                 _storeImageFallback(imageHeight),
                           )
                         : Image.network(
                             imagePath,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
+                            errorBuilder: (_, _, _) =>
                                 _storeImageFallback(imageHeight),
                           ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    left: 10,
+                    start: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 7,
@@ -838,9 +838,9 @@ class _ExpressScreenState extends State<ExpressScreen> {
                       ),
                     ),
                   ),
-                  Positioned(
+                  PositionedDirectional(
                     top: 8,
-                    right: 8,
+                    end: 8,
                     child: Obx(() {
                       final liked = controller.isLiked(store['id']!.toString());
                       return GestureDetector(
@@ -868,8 +868,8 @@ class _ExpressScreenState extends State<ExpressScreen> {
                       );
                     }),
                   ),
-                  Positioned(
-                    left: 10,
+                  PositionedDirectional(
+                    start: 10,
                     bottom: 8,
                     child: _pointsBadge(store['points']!.toString()),
                   ),
@@ -954,7 +954,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
             'lib/assets/images/Coin.png',
             width: 14,
             height: 14,
-            errorBuilder: (_, __, ___) => const Icon(
+            errorBuilder: (_, _, _) => const Icon(
               Icons.monetization_on_rounded,
               color: Color(0xFFFFAE00),
               size: 14,

@@ -93,7 +93,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -183,7 +183,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -229,7 +229,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                   'lib/assets/images/Voice.png',
                   width: 10,
                   height: 10,
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (_, _, _) => const Icon(
                     Icons.mic_none_rounded,
                     color: Color(0xFFFF5E00),
                     size: 10,
@@ -271,7 +271,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -302,7 +302,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                             image,
                             height: 140,
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.water_drop,
                               size: 80,
                               color: Colors.white,
@@ -388,7 +388,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -417,7 +417,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.4),
+                          color: Colors.black.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -426,7 +426,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                               'lib/assets/images/Coin.png',
                               width: 14,
                               height: 14,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, _, _) => const Icon(
                                 Icons.monetization_on_rounded,
                                 color: Color(0xFFFFB800),
                                 size: 14,

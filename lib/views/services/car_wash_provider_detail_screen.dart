@@ -35,6 +35,7 @@ class _CarWashProviderDetailScreenState
   void initState() {
     super.initState();
     loadProviderServices();
+    loadProviderReviews();
   }
 
   // Translation keys.
@@ -45,42 +46,10 @@ class _CarWashProviderDetailScreenState
     'svc_filter_highest_rated',
   ];
 
-  static const _ratingBreakdown = [
-    {'star': '5', 'pct': 0.75, 'count': '7,542'},
-    {'star': '4', 'pct': 0.32, 'count': '1,210'},
-    {'star': '3', 'pct': 0.14, 'count': '452'},
-    {'star': '2', 'pct': 0.06, 'count': '190'},
-    {'star': '1', 'pct': 0.03, 'count': '86'},
-  ];
-
-  static const _reviews = [
-    {
-      'name': 'Aicha Mint Ahmed',
-      'time': 'svc_two_days_ago',
-      'rating': 5,
-      'avatar':
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
-      'text':
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-    },
-    {
-      'name': 'Aicha Mint Ahmed',
-      'time': 'svc_two_days_ago',
-      'rating': 5,
-      'avatar':
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
-      'text':
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-    },
-  ];
-
-  String get _name => widget.provider['name'] ?? 'CleanRide Car Wash';
-  String get _rating => widget.provider['rating'] ?? '4.8';
-  String get _distance =>
-      widget.provider['distance'] ?? 'svc_km_away'.trParams({'km': '2.4'});
-  String get _banner =>
-      widget.provider['image'] ??
-      'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=800&h=480&fit=crop';
+  String get _name => widget.provider['name'] ?? '';
+  String get _rating => widget.provider['rating'] ?? '';
+  String get _distance => widget.provider['distance'] ?? '';
+  String get _banner => widget.provider['image'] ?? '';
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +115,7 @@ class _CarWashProviderDetailScreenState
         fit: BoxFit.cover,
         width: double.infinity,
         height: 210,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           color: const Color(0xFFFFE8DC),
           alignment: Alignment.center,
           child: Image.asset('lib/assets/images/car_wash.png', height: 80),
@@ -158,7 +127,7 @@ class _CarWashProviderDetailScreenState
       fit: BoxFit.cover,
       width: double.infinity,
       height: 210,
-      errorBuilder: (_, __, ___) => Container(
+      errorBuilder: (_, _, _) => Container(
         color: const Color(0xFFFFE8DC),
         alignment: Alignment.center,
         child: Image.asset('lib/assets/images/car_wash.png', height: 80),
@@ -205,7 +174,7 @@ class _CarWashProviderDetailScreenState
                 ),
               ),
               Text(
-                'svc_reviews_count_paren'.trParams({'count': '126'}),
+                'svc_reviews_count_paren'.trParams({'count': '$reviewTotal'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 12.5,
@@ -433,7 +402,7 @@ class _CarWashProviderDetailScreenState
                     width: 72,
                     height: 72,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       width: 72,
                       height: 72,
                       color: const Color(0xFFFFF3EB),
@@ -558,10 +527,26 @@ class _CarWashProviderDetailScreenState
           const SizedBox(height: 14),
           _buildReviewFilters(),
           const SizedBox(height: 14),
-          for (var i = 0; i < _reviews.length; i++) ...[
+          for (var i = 0; i < providerReviews.length; i++) ...[
             if (i > 0) const SizedBox(height: 12),
-            _buildReviewCard(_reviews[i]),
+            _buildReviewCard(providerReviews[i]),
           ],
+          if (providerReviews.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: reviewsLoading
+                    ? const CircularProgressIndicator(color: Color(0xFFFF5E00))
+                    : Text(
+                        'core_no_reviews_yet'.tr,
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFA59A94),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
+            ),
         ],
       ),
     );
@@ -604,7 +589,7 @@ class _CarWashProviderDetailScreenState
                     ),
                     const SizedBox(width: 3),
                     Text(
-                      '4.6',
+                      reviewAverage.toStringAsFixed(1),
                       style: GoogleFonts.outfit(
                         color: Colors.white,
                         fontSize: 12,
@@ -618,7 +603,11 @@ class _CarWashProviderDetailScreenState
               Row(
                 children: List.generate(5, (index) {
                   return Icon(
-                    index == 4 ? Icons.star_half_rounded : Icons.star_rounded,
+                    reviewAverage >= index + 1
+                        ? Icons.star_rounded
+                        : reviewAverage > index
+                        ? Icons.star_half_rounded
+                        : Icons.star_border_rounded,
                     color: const Color(0xFFFFAE00),
                     size: 15,
                   );
@@ -626,7 +615,7 @@ class _CarWashProviderDetailScreenState
               ),
               const SizedBox(height: 6),
               Text(
-                'svc_reviews_count'.trParams({'count': '126'}),
+                'svc_reviews_count'.trParams({'count': '$reviewTotal'}),
                 style: GoogleFonts.outfit(
                   color: const Color(0xFF9A8E86),
                   fontSize: 11,
@@ -641,12 +630,12 @@ class _CarWashProviderDetailScreenState
           Expanded(
             child: Column(
               children: [
-                for (var i = 0; i < _ratingBreakdown.length; i++) ...[
+                for (var i = 0; i < reviewBreakdown.length; i++) ...[
                   if (i > 0) const SizedBox(height: 6),
                   _buildBreakdownRow(
-                    _ratingBreakdown[i]['star'] as String,
-                    _ratingBreakdown[i]['pct'] as double,
-                    _ratingBreakdown[i]['count'] as String,
+                    reviewBreakdown[i]['star'] as String,
+                    reviewBreakdown[i]['pct'] as double,
+                    reviewBreakdown[i]['count'] as String,
                   ),
                 ],
               ],
@@ -712,7 +701,10 @@ class _CarWashProviderDetailScreenState
           for (var i = 0; i < _reviewFilters.length; i++) ...[
             if (i > 0) const SizedBox(width: 8),
             GestureDetector(
-              onTap: () => setState(() => _reviewFilter = i),
+              onTap: () {
+                setState(() => _reviewFilter = i);
+                loadProviderReviews(i);
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 18,
@@ -770,7 +762,7 @@ class _CarWashProviderDetailScreenState
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     width: 40,
                     height: 40,
                     color: const Color(0xFFFFF3EB),

@@ -114,7 +114,26 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     final slot = text(row['slot']).isEmpty
         ? text(row['scheduled_for'])
         : text(row['slot']);
+    // Laundry by kg: the vendor's re-weigh can leave an extra amount to pay.
+    double? number(dynamic value) => double.tryParse(text(value));
+    String kg(double value) => value.toStringAsFixed(1);
+    String mru(double value) => 'mru'.trParams({'amount': '${value.round()}'});
+    final rate = number(row['rate_per_kg']) ?? number(row['rate']) ?? 0;
+    final estimateKg = number(row['estimate_kg']);
+    final actualKg = number(row['actual_kg']);
+    final balance = number(row['additional_payment']) ?? 0;
     return {
+      'hasBalanceDue':
+          balance > 0 && status != 10 && estimateKg != null && actualKg != null,
+      if (estimateKg != null) ...{
+        'estimatedWeight': kg(estimateKg),
+        'estimatedPrice': mru(estimateKg * rate),
+      },
+      if (actualKg != null) ...{
+        'actualWeight': kg(actualKg),
+        'actualPrice': mru(actualKg * rate),
+      },
+      'balanceDue': mru(balance),
       'id': code.isEmpty ? text(row['id']) : code,
       'apiOrderId': int.tryParse(text(row['id'])),
       'provider': text(row['provider_name']).isEmpty
@@ -238,7 +257,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                             120 + bottomInset,
                           ),
                           itemCount: list.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             return _buildBookingCard(list[index]);
@@ -289,7 +308,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: _filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final selected = _selectedFilter == index;
           return GestureDetector(
@@ -349,7 +368,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             children: [
               Expanded(
                 child: Text(
-                  booking['provider'] as String? ?? 'CleanPro Elite',
+                  booking['provider'] as String? ?? '',
                   style: AppTextStyles.title(),
                 ),
               ),
@@ -503,8 +522,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    booking['location'] as String? ??
-                        'Near Marhaba Supermarket,Nouakchott',
+                    booking['location'] as String? ?? '',
                     style: GoogleFonts.outfit(
                       color: const Color(0xFF5A5048),
                       fontSize: 12.5,
@@ -563,7 +581,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'orders_estimated_weight'.trParams({'weight': '3.0'}),
+                          'orders_estimated_weight'.trParams({
+                            'weight': '${booking['estimatedWeight'] ?? ''}',
+                          }),
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 12,
@@ -571,7 +591,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           ),
                         ),
                         Text(
-                          '460 MRU',
+                          '${booking['estimatedPrice'] ?? ''}',
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 12,
@@ -594,7 +614,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                             children: [
                               TextSpan(text: 'orders_actual_weight'.tr),
                               TextSpan(
-                                text: '3.6 kg',
+                                text:
+                                    '${booking['actualWeight'] ?? ''} ${'svc_kg'.tr}',
                                 style: GoogleFonts.outfit(
                                   color: const Color(0xFFFF5E00),
                                   fontWeight: FontWeight.w800,
@@ -604,7 +625,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           ),
                         ),
                         Text(
-                          '545 MRU',
+                          '${booking['actualPrice'] ?? ''}',
                           style: GoogleFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 12,
@@ -652,7 +673,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       ],
                     ),
                     Text(
-                      '85 MRU',
+                      '${booking['balanceDue'] ?? ''}',
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFFF5E00),
                         fontSize: 16,
@@ -685,7 +706,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   ),
                   child: Text(
                     'orders_pay_amount'.trParams({
-                      'amount': '${booking['balanceDue'] ?? '85 MRU'}',
+                      'amount': '${booking['balanceDue'] ?? ''}',
                     }),
                     style: GoogleFonts.outfit(
                       color: Colors.white,
@@ -727,19 +748,23 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 child: GestureDetector(
                   onTap: () {
                     final category = booking['category'] as String?;
-                    if (category == 'Car Wash') {
-                      Get.to(
-                        () => CarWashBookingDetailScreen(booking: booking),
-                      );
-                    } else if (category == 'Laundry') {
-                      Get.to(
-                        () => LaundryBookingDetailScreen(booking: booking),
-                      );
-                    } else {
-                      Get.to(
-                        () => HomeCleaningBookingDetailScreen(booking: booking),
-                      );
-                    }
+                    // Gas uses the home cleaning screen, which shows
+                    // cylinders instead of spaces for gas bookings.
+                    final Widget Function() screen = switch (category) {
+                      'Car Wash' => () => CarWashBookingDetailScreen(
+                        booking: booking,
+                      ),
+                      'Laundry' => () => LaundryBookingDetailScreen(
+                        booking: booking,
+                      ),
+                      _ => () => HomeCleaningBookingDetailScreen(
+                        booking: booking,
+                      ),
+                    };
+                    // true when the booking was cancelled there.
+                    Get.to(screen)?.then((result) {
+                      if (result == true) _load();
+                    });
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

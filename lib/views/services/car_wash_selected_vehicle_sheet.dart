@@ -269,7 +269,7 @@ class _SelectedVehicleSheetState extends State<_SelectedVehicleSheet> {
                 child: Image.asset(
                   widget.image,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: const Color(0xFFF5F0EB),
                     alignment: Alignment.center,
                     child: const Icon(

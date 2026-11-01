@@ -3,69 +3,137 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/network/api_exception.dart';
+import '../../models/service_booking_detail.dart';
+import '../../models/service_repository.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../help_support_screen.dart';
 import '../../widgets/app_back_button.dart';
 import 'home_cleaning_cart_screen.dart' show homeCleaningLabelText;
 
-class HomeCleaningBookingDetailScreen extends StatelessWidget {
+/// Home cleaning and gas booking details from customer/service/booking.
+class HomeCleaningBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
 
   const HomeCleaningBookingDetailScreen({super.key, required this.booking});
 
-  String get _bookingId => (booking['id'] as String?) ?? '22789002';
-  String get _slot =>
-      (booking['slot'] as String?) ??
-      (booking['datetime'] as String?) ??
-      '15 Aug 2024, 2:00 – 4:00 PM';
-  String get _locationTitle =>
-      (booking['locationTitle'] as String?) ?? 'Sahara View Home';
-  String get _locationSubtitle =>
-      (booking['location'] as String?) ??
-      'Near Marhaba Supermarket, Nouakchott';
+  @override
+  State<HomeCleaningBookingDetailScreen> createState() =>
+      _HomeCleaningBookingDetailScreenState();
+}
 
-  static const _statusSteps = [
-    {
-      'label': 'svc_step_booking_confirmed',
-      'time': '15 Aug 2026,\n10:00 AM',
-      'icon': Icons.check_rounded,
-      'custom': null,
-      'done': true,
-    },
-    {
-      'label': 'svc_step_cleaner_assigned',
-      'time': '15 Aug 2026,\n10:05 AM',
-      'icon': Icons.person_rounded,
-      'custom': 'person',
-      'done': true,
-    },
-    {
-      'label': 'svc_step_cleaner_arriving',
-      'time': '15 Aug 2026,\n10:10 AM',
-      'icon': Icons.directions_car_filled_rounded,
-      'custom': null,
-      'done': true,
-    },
-    {
-      'label': 'svc_step_completed',
-      'time': '',
-      'icon': Icons.check_rounded,
-      'custom': null,
-      'done': false,
-    },
-  ];
+class _HomeCleaningBookingDetailScreenState
+    extends State<HomeCleaningBookingDetailScreen> {
+  ServiceBookingDetail? _detail;
 
-  static const _spaces = [
-    {'label': 'Bedrooms', 'detail': '100 MRU x 4', 'total': '400 MRU'},
-    {'label': 'Kitchens', 'detail': '150 MRU x 1', 'total': '150 MRU'},
-  ];
+  Map<String, dynamic> get booking => widget.booking;
 
-  static const _extras = [
-    {'label': 'Fridge Cleaning', 'detail': '100 MRU x 1', 'total': '100 MRU'},
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final detail = await loadServiceBooking(booking['apiOrderId'] as int?);
+      if (!mounted || detail == null) return;
+      setState(() => _detail = detail);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  String _bookingText(String key) => '${booking[key] ?? ''}'.trim();
+
+  bool get _isGas =>
+      _detail?.vertical == ServiceRepository.gas ||
+      booking['category'] == 'Gas';
+
+  String get _bookingId {
+    final code = _detail?.orderCode ?? '';
+    return code.isNotEmpty ? code : _bookingText('id');
+  }
+
+  String get _slot {
+    final slot = _detail?.slot ?? '';
+    if (slot.isNotEmpty) return slot;
+    final fromList = _bookingText('slot');
+    return fromList.isNotEmpty ? fromList : _bookingText('datetime');
+  }
+
+  String get _locationTitle {
+    final label = _detail?.addressLabel ?? '';
+    if (label.isNotEmpty) return label;
+    final location = _detail?.location ?? '';
+    return location.isNotEmpty ? location : _bookingText('location');
+  }
+
+  String get _locationSubtitle {
+    final address = _detail?.address ?? '';
+    return address == _locationTitle ? '' : address;
+  }
+
+  bool get _canCancel => _detail?.canCancel ?? booking['canCancel'] == true;
+
+  List<Map<String, dynamic>> get _statusSteps {
+    final steps = _isGas
+        ? const [
+            (1, 'svc_step_booking_confirmed', Icons.check_rounded, null),
+            (8, 'svc_step_on_the_way', Icons.local_shipping_rounded, null),
+            (9, 'svc_step_delivered', Icons.check_rounded, null),
+          ]
+        : const [
+            (1, 'svc_step_booking_confirmed', Icons.check_rounded, null),
+            (2, 'svc_step_cleaner_assigned', Icons.person_rounded, 'person'),
+            (
+              8,
+              'svc_step_cleaner_arriving',
+              Icons.directions_car_filled_rounded,
+              null,
+            ),
+            (9, 'svc_step_completed', Icons.check_rounded, null),
+          ];
+    final detail = _detail;
+    final cancelled = detail?.isCancelled ?? false;
+    return [
+      for (var i = 0; i < steps.length; i++)
+        if (cancelled && i == steps.length - 1)
+          {
+            'label': 'svc_step_cancelled',
+            'time': detail!.timeOf(10),
+            'icon': Icons.close_rounded,
+            'custom': null,
+            'done': true,
+          }
+        else
+          {
+            'label': steps[i].$2,
+            'time': detail?.timeOf(steps[i].$1) ?? '',
+            'icon': steps[i].$3,
+            'custom': steps[i].$4,
+            'done': detail?.reached(steps[i].$1) ?? i == 0,
+          },
+    ];
+  }
+
+  List<Map<String, String>> _rows(String kind) => [
+    for (final line in _detail?.lines(kind) ?? const <ServiceBookingLine>[])
+      {
+        'label': line.name,
+        'detail':
+            '${serviceMru(line.price)} x ${line.quantity == line.quantity.roundToDouble() ? line.quantity.round() : line.quantity}',
+        'total': serviceMru(line.total),
+      },
   ];
 
   @override
   Widget build(BuildContext context) {
+    final spaces = _rows('space');
+    final extras = _rows('addon');
+    final detail = _detail;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -96,28 +164,63 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStatusCard(),
+                      if (_isGas && detail != null) ...[
+                        const SizedBox(height: 22),
+                        _sectionTitle('gas_title'.tr),
+                        const SizedBox(height: 12),
+                        _buildLineItemsCard([
+                          {
+                            'label': detail.serviceName,
+                            'detail': 'gas_cylinders'.trParams({
+                              'count': '${detail.quantity}',
+                            }),
+                            'total': serviceMru(detail.subtotal),
+                          },
+                          if (detail.emptyCylinders > 0)
+                            {
+                              'label': 'gas_empty_to_return'.tr,
+                              'detail': '',
+                              'total': '${detail.emptyCylinders}',
+                            },
+                        ]),
+                      ],
+                      if (spaces.isNotEmpty) ...[
+                        const SizedBox(height: 22),
+                        _sectionTitle('svc_spaces'.tr),
+                        const SizedBox(height: 12),
+                        _buildLineItemsCard(spaces),
+                      ],
+                      if (extras.isNotEmpty) ...[
+                        const SizedBox(height: 22),
+                        _sectionTitle('svc_extra_clean'.tr),
+                        const SizedBox(height: 12),
+                        _buildLineItemsCard(extras),
+                      ],
+                      if (!_isGas &&
+                          (detail?.productSupply ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 22),
+                        _buildCleaningProductsSection(detail!),
+                      ],
                       const SizedBox(height: 22),
-                      _sectionTitle('svc_spaces'.tr),
+                      _sectionTitle(
+                        _isGas ? 'gas_delivery'.tr : 'svc_cleaning_details'.tr,
+                      ),
                       const SizedBox(height: 12),
-                      _buildLineItemsCard(_spaces),
-                      const SizedBox(height: 22),
-                      _sectionTitle('svc_extra_clean'.tr),
-                      const SizedBox(height: 12),
-                      _buildLineItemsCard(_extras),
-                      const SizedBox(height: 22),
-                      _buildCleaningProductsSection(),
-                      const SizedBox(height: 22),
-                      _sectionTitle('svc_cleaning_details'.tr),
-                      const SizedBox(height: 12),
-                      _buildAddressCard(),
-                      const SizedBox(height: 10),
-                      _buildSlotCard(),
-                      const SizedBox(height: 22),
-                      _sectionTitle('svc_assigned_cleaner'.tr),
-                      const SizedBox(height: 12),
-                      _buildCleanerCard(),
-                      const SizedBox(height: 22),
-                      _buildPaymentDetails(),
+                      if (_locationTitle.isNotEmpty) ...[
+                        _buildAddressCard(),
+                        const SizedBox(height: 10),
+                      ],
+                      if (_slot.isNotEmpty) _buildSlotCard(),
+                      if (!_isGas && detail != null) ...[
+                        const SizedBox(height: 22),
+                        _sectionTitle('svc_assigned_cleaner'.tr),
+                        const SizedBox(height: 12),
+                        _buildCleanerCard(detail.cleaner),
+                      ],
+                      if (detail != null) ...[
+                        const SizedBox(height: 22),
+                        _buildPaymentDetails(detail),
+                      ],
                     ],
                   ),
                 ),
@@ -125,7 +228,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             ],
           ),
         ),
-        bottomNavigationBar: _buildCancelBar(bottomInset),
+        bottomNavigationBar: _canCancel ? _buildCancelBar(bottomInset) : null,
       ),
     );
   }
@@ -216,18 +319,20 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
           ),
           LayoutBuilder(
             builder: (context, constraints) {
-              final count = _statusSteps.length;
+              final steps = _statusSteps;
+              final count = steps.length;
               final stepWidth = constraints.maxWidth / count;
               final lineLeft = stepWidth / 2;
               final lineWidth = constraints.maxWidth - stepWidth;
+              final done = steps.lastIndexWhere((step) => step['done'] == true);
 
               return SizedBox(
                 height: 120,
                 child: Stack(
                   children: [
-                    Positioned(
+                    PositionedDirectional(
                       top: lineTop - 1.5,
-                      left: lineLeft,
+                      start: lineLeft,
                       width: lineWidth,
                       child: Container(
                         height: 3,
@@ -237,10 +342,10 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(
+                    PositionedDirectional(
                       top: lineTop - 1.5,
-                      left: lineLeft,
-                      width: lineWidth * (2 / 3),
+                      start: lineLeft,
+                      width: lineWidth * (done < 1 ? 0 : done / (count - 1)),
                       child: Container(
                         height: 3,
                         decoration: BoxDecoration(
@@ -252,7 +357,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (final step in _statusSteps)
+                        for (final step in steps)
                           Expanded(child: _statusStep(step, circleSize)),
                       ],
                     ),
@@ -366,15 +471,17 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          rows[i]['detail']!,
-                          style: GoogleFonts.outfit(
-                            color: const Color(0xFF8A7E76),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
+                        if (rows[i]['detail']!.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            rows[i]['detail']!,
+                            style: GoogleFonts.outfit(
+                              color: const Color(0xFF8A7E76),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
@@ -395,21 +502,24 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCleaningProductsSection() {
+  Widget _buildCleaningProductsSection(ServiceBookingDetail detail) {
+    final byProvider = detail.productSupply == 'vendor';
+    final fee = detail.supplyFee;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Expanded(child: _sectionTitle('svc_cleaning_products'.tr)),
-            Text(
-              'svc_plus_mru'.trParams({'amount': '120'}),
-              style: GoogleFonts.outfit(
-                color: const Color(0xFFFF5E00),
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
+            if (byProvider && fee > 0)
+              Text(
+                'svc_plus_mru'.trParams({'amount': '${fee.round()}'}),
+                style: GoogleFonts.outfit(
+                  color: const Color(0xFFFF5E00),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -438,7 +548,9 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'svc_provider_provides_products'.tr,
+                  byProvider
+                      ? 'svc_provider_provides_products'.tr
+                      : 'svc_self_provides_products'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
@@ -447,7 +559,9 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'svc_provider_products_hint'.tr,
+                  byProvider
+                      ? 'svc_provider_products_hint'.tr
+                      : 'svc_self_products_hint'.tr,
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12,
@@ -504,16 +618,18 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  _locationSubtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF8A7E76),
-                    fontSize: 11.5,
+                if (_locationSubtitle.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    _locationSubtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF8A7E76),
+                      fontSize: 11.5,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -575,7 +691,28 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCleanerCard() {
+  Widget _buildCleanerCard(Map<String, dynamic>? cleaner) {
+    if (cleaner == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Text(
+          'svc_cleaner_pending'.tr,
+          style: GoogleFonts.outfit(
+            color: const Color(0xFF8A7E76),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+    final photo = cleanerPhotoUrl(cleaner);
+    final rating = double.tryParse('${cleaner['rating'] ?? ''}');
+    final reviews = int.tryParse('${cleaner['reviews_count'] ?? ''}') ?? 0;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -593,11 +730,11 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
         children: [
           ClipOval(
             child: Image.network(
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop',
+              photo,
               width: 52,
               height: 52,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 width: 52,
                 height: 52,
                 color: const Color(0xFFFFF0E6),
@@ -614,54 +751,45 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Amadou Sy',
+                  '${cleaner['name'] ?? ''}',
                   style: GoogleFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFB800),
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '4.8',
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF1A1A1A),
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
+                if (rating != null) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Color(0xFFFFB800),
+                        size: 16,
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'svc_reviews_count_paren'.trParams({'count': '10k+'}),
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFF8A7E76),
-                        fontSize: 12,
+                      const SizedBox(width: 4),
+                      Text(
+                        rating.toStringAsFixed(1),
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1A1A1A),
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'svc_reviews_count_paren'.trParams({
+                          'count': '$reviews',
+                        }),
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF8A7E76),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
-            ),
-          ),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFF5E00),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.phone_rounded,
-              color: Colors.white,
-              size: 20,
             ),
           ),
         ],
@@ -669,7 +797,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentDetails() {
+  Widget _buildPaymentDetails(ServiceBookingDetail detail) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
@@ -690,22 +818,22 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          _detailRow('svc_total'.tr, 'mru'.trParams({'amount': '770'})),
-          const SizedBox(height: 10),
-          _detailRow(
-            'svc_redeemed_points'.tr,
-            '-${'mru'.trParams({'amount': '50'})}',
-            valueColor: const Color(0xFFFF5E00),
-          ),
-          const SizedBox(height: 10),
-          _detailRow('svc_tax'.tr, 'mru'.trParams({'amount': '10'})),
+          _detailRow('svc_subtotal'.tr, serviceMru(detail.subtotal)),
+          if (detail.tax > 0) ...[
+            const SizedBox(height: 10),
+            _detailRow('svc_tax'.tr, serviceMru(detail.tax)),
+          ],
+          if (detail.paymentLabel.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            _detailRow('svc_payment'.tr, detail.paymentLabel),
+          ],
           const SizedBox(height: 14),
           const Divider(color: Color(0xFF4A4A4A), height: 1),
           const SizedBox(height: 14),
           Row(
             children: [
               Text(
-                'svc_total_paid'.tr,
+                detail.isPaid ? 'svc_total_paid'.tr : 'svc_to_pay'.tr,
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
@@ -714,7 +842,7 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                'mru'.trParams({'amount': '730'}),
+                serviceMru(detail.isPaid ? detail.totalPaid : detail.total),
                 style: GoogleFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
@@ -758,9 +886,10 @@ class HomeCleaningBookingDetailScreen extends StatelessWidget {
       color: const Color(0xFFFAF6F0),
       child: GestureDetector(
         onTap: () => showCancelBookingBottomSheet(
-          Get.context!,
+          context,
           bookingId: _bookingId,
           apiOrderId: booking['apiOrderId'] as int?,
+          onCancelled: () => Get.back(result: true),
         ),
         child: Container(
           width: double.infinity,

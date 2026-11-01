@@ -111,7 +111,7 @@ class Under30MinScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
@@ -264,7 +264,7 @@ class Under30MinScreen extends StatelessWidget {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.02),
+                                  color: Colors.black.withValues(alpha: 0.02),
                                   blurRadius: 6,
                                   offset: const Offset(0, 3),
                                 ),
@@ -332,8 +332,8 @@ class Under30MinScreen extends StatelessWidget {
                                             vertical: 3,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.white.withOpacity(
-                                              0.9,
+                                            color: Colors.white.withValues(
+                                              alpha: 0.9,
                                             ),
                                             borderRadius: BorderRadius.circular(
                                               10,
@@ -401,8 +401,8 @@ class Under30MinScreen extends StatelessWidget {
                                             vertical: 4,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(
-                                              0.6,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.6,
                                             ),
                                             borderRadius: BorderRadius.circular(
                                               8,
@@ -439,8 +439,8 @@ class Under30MinScreen extends StatelessWidget {
                                             vertical: 4,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(
-                                              0.6,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.6,
                                             ),
                                             borderRadius: BorderRadius.circular(
                                               8,
@@ -470,8 +470,8 @@ class Under30MinScreen extends StatelessWidget {
                                       if (isClosed) ...[
                                         Positioned.fill(
                                           child: Container(
-                                            color: Colors.black.withOpacity(
-                                              0.35,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.35,
                                             ),
                                           ),
                                         ),
@@ -484,8 +484,8 @@ class Under30MinScreen extends StatelessWidget {
                                       ] else if (isTemporarilyClosed) ...[
                                         Positioned.fill(
                                           child: Container(
-                                            color: Colors.black.withOpacity(
-                                              0.35,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.35,
                                             ),
                                           ),
                                         ),
@@ -585,7 +585,7 @@ class Under30MinScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -656,7 +656,7 @@ class Under30MinScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -728,7 +728,7 @@ class Under30MinScreen extends StatelessWidget {
 }
 
 class _FilterBottomSheetContent extends StatefulWidget {
-  const _FilterBottomSheetContent({Key? key}) : super(key: key);
+  const _FilterBottomSheetContent();
 
   @override
   State<_FilterBottomSheetContent> createState() =>
@@ -964,7 +964,9 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                         inactiveTrackColor: const Color(0xFFF3EFEA),
                         activeTickMarkColor: Colors.transparent,
                         inactiveTickMarkColor: Colors.transparent,
-                        overlayColor: const Color(0xFFFF5E00).withOpacity(0.12),
+                        overlayColor: const Color(
+                          0xFFFF5E00,
+                        ).withValues(alpha: 0.12),
                         valueIndicatorColor: const Color(0xFFFF5E00),
                         rangeValueIndicatorShape:
                             const RectangularRangeSliderValueIndicatorShape(),
@@ -1091,7 +1093,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                                   BoxShadow(
                                     color: const Color(
                                       0xFFFF5E00,
-                                    ).withOpacity(0.3),
+                                    ).withValues(alpha: 0.3),
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
                                   ),
@@ -1132,7 +1134,7 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1179,7 +1181,7 @@ class CustomRangeThumbShape extends RangeSliderThumbShape {
 
     // Draw shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.15)
+      ..color = Colors.black.withValues(alpha: 0.15)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
     canvas.drawCircle(center, enabledThumbRadius, shadowPaint);
 

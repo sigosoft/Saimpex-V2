@@ -10,7 +10,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
 class CouponsScreen extends StatefulWidget {
-  const CouponsScreen({Key? key}) : super(key: key);
+  const CouponsScreen({super.key});
 
   @override
   State<CouponsScreen> createState() => _CouponsScreenState();
@@ -117,7 +117,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -197,7 +197,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                         width: 72,
                         height: 72,
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        errorBuilder: (_, _, _) => const SizedBox.shrink(),
                       ),
                     ),
                 ],
@@ -374,7 +374,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                                 BoxShadow(
                                   color: const Color(
                                     0xFFFF5E00,
-                                  ).withOpacity(0.3),
+                                  ).withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -41,12 +42,12 @@ class AuthRepository {
 
     final data = asJsonMap(envelope.data);
     if (data == null) {
-      throw const ApiException('Unexpected server response');
+      throw ApiException('core_unexpected_response'.tr);
     }
 
     final token = _readToken(data);
     if (token == null || token.isEmpty) {
-      throw const ApiException('Login succeeded but no token was returned');
+      throw ApiException('core_login_no_token'.tr);
     }
 
     final userJson = asJsonMap(data['user']) ?? <String, dynamic>{};
@@ -85,7 +86,7 @@ class AuthRepository {
       final message = resolveApiMessage(
         body?['message'],
         language,
-        fallback: 'You are logged out successfully.',
+        fallback: 'core_logged_out'.tr,
       );
       if (response.statusCode == 200) return message;
 
@@ -96,9 +97,7 @@ class AuthRepository {
       ).message;
     } on FormatException catch (error) {
       throw ApiException(
-        error.message.isEmpty
-            ? 'Request failed. Please try again.'
-            : error.message,
+        error.message.isEmpty ? 'core_request_failed'.tr : error.message,
       );
     } on DioException catch (error) {
       throw ApiException.fromDio(error, language);
@@ -124,9 +123,7 @@ class AuthRepository {
         );
       } on FormatException catch (error) {
         throw ApiException(
-          error.message.isEmpty
-              ? 'Request failed. Please try again.'
-              : error.message,
+          error.message.isEmpty ? 'core_request_failed'.tr : error.message,
           statusCode: response.statusCode,
         );
       }

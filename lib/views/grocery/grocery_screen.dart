@@ -76,12 +76,13 @@ class _GroceryScreenState extends State<GroceryScreen> {
     final wallet = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>().walletLabel.trim()
         : '';
-    if (mounted)
+    if (mounted) {
       setState(
         () => _walletText = wallet.isEmpty
             ? 'mru'.trParams({'amount': '0'})
             : wallet,
       );
+    }
   }
 
   @override
@@ -417,7 +418,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
           Container(
             height: 36,
-            padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+            padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),
             decoration: BoxDecoration(
               color: const Color(0xFFFF5E00),
               borderRadius: BorderRadius.circular(20),
@@ -669,7 +670,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
           borderRadius: BorderRadius.circular(23),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -792,8 +793,8 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 );
               },
               child: Padding(
-                padding: EdgeInsets.only(
-                  right: index == subcategories.length - 1 ? 0 : 10,
+                padding: EdgeInsetsDirectional.only(
+                  end: index == subcategories.length - 1 ? 0 : 10,
                 ),
                 child: SizedBox(
                   width: 62,
@@ -823,7 +824,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.10),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.10,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -951,7 +954,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1005,9 +1008,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Discount tag
                         if (hasDiscount)
-                          Positioned(
+                          PositionedDirectional(
                             top: 10,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -1029,9 +1032,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
 
                         // Rating badge
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          left: hasDiscount ? 62 : 10,
+                          start: hasDiscount ? 62 : 10,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -1042,7 +1045,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 4,
                                 ),
                               ],
@@ -1070,9 +1073,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Favorite button
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          right: 10,
+                          end: 10,
                           child: Obx(() {
                             final isLiked = homeController.isLiked(
                               (store['id'] ?? '').toString(),
@@ -1102,16 +1105,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Points overlay bottom-left
                         if (hasPoints)
-                          Positioned(
+                          PositionedDirectional(
                             bottom: 8,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
@@ -1264,7 +1267,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -1485,7 +1488,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -1539,9 +1542,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
                         // Discount tag
                         if (hasDiscount)
-                          Positioned(
+                          PositionedDirectional(
                             top: 10,
-                            left: 10,
+                            start: 10,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -1563,9 +1566,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
 
                         // Rating badge
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          left: hasDiscount ? 62 : 10,
+                          start: hasDiscount ? 62 : 10,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -1576,7 +1579,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 4,
                                 ),
                               ],
@@ -1604,9 +1607,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Favorite button
-                        Positioned(
+                        PositionedDirectional(
                           top: 10,
-                          right: 10,
+                          end: 10,
                           child: Obx(() {
                             final isLiked = homeController.isLiked(
                               (store['id'] ?? '').toString(),
@@ -1635,9 +1638,9 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         ),
 
                         // Points + Time badge overlay bottom-left
-                        Positioned(
+                        PositionedDirectional(
                           bottom: 8,
-                          left: 10,
+                          start: 10,
                           child: Row(
                             children: [
                               if (hasPoints) ...[
@@ -1647,7 +1650,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
+                                    color: Colors.black.withValues(alpha: 0.6),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
@@ -1685,7 +1688,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.6),
+                                  color: Colors.black.withValues(alpha: 0.6),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -1793,7 +1796,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -1845,16 +1848,16 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       ),
 
                       // Rating badge
-                      Positioned(
+                      PositionedDirectional(
                         top: 8,
-                        left: 8,
+                        start: 8,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 5,
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
