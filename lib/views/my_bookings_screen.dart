@@ -15,6 +15,7 @@ import 'rate_order_screen.dart';
 import 'services/car_wash_screen.dart';
 import 'services/home_cleaning_screen.dart';
 import 'services/laundry_services_screen.dart';
+import 'services/gas_booking_detail_screen.dart';
 import 'services/gas_screen.dart';
 import '../widgets/cancel_booking_bottom_sheet.dart';
 import 'services/car_wash_booking_detail_screen.dart';
@@ -756,9 +757,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 child: GestureDetector(
                   onTap: () {
                     final category = booking['category'] as String?;
-                    // Gas uses the home cleaning screen, which shows
-                    // cylinders instead of spaces for gas bookings.
                     final Widget Function() screen = switch (category) {
+                      'Gas' => () => GasBookingDetailScreen(booking: booking),
                       'Car Wash' => () => CarWashBookingDetailScreen(
                         booking: booking,
                       ),
