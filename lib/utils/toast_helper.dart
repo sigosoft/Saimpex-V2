@@ -6,6 +6,7 @@ void showAppToast(
   String message, {
   Color backgroundColor = const Color(0xFF2C2520),
 }) {
+  if (message.trim().isEmpty) return; // e.g. a guest's quiet background load
   Get.closeAllSnackbars(); // Dismiss any active toast immediately
 
   Get.showSnackbar(

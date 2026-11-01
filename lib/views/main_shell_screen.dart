@@ -11,7 +11,6 @@ import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'account_screen.dart';
-import 'login_screen.dart';
 import 'cart_screen.dart';
 import 'home_screen.dart';
 import 'messages_screen.dart';
@@ -177,12 +176,10 @@ class _MainShellScreenState extends State<MainShellScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      if (!Get.find<SessionStore>().isLoggedIn.value) {
-        return const LoginScreen();
-      }
-      return _buildShell(context);
-    });
+    // Guests browse too (V2_DECISIONS §17); actions that need an account ask
+    // with the login sheet (GuestGate). Logout and session expiry open Login
+    // themselves.
+    return _buildShell(context);
   }
 
   Widget _buildShell(BuildContext context) {
