@@ -9,6 +9,10 @@ import 'package:get/get.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../models/auth_repository.dart';
+import '../../models/order_repository.dart';
+import '../../utils/api_language.dart';
+import '../../views/order_detail_screen.dart';
+import '../../views/pharmacy/pharmacy_item_order_detail_screen.dart';
 import '../../views/notifications_screen.dart';
 import '../../views/pharmacy/my_prescriptions_screen.dart';
 import '../../views/support_messages_screen.dart';
@@ -175,7 +179,44 @@ class PushNotifications {
       Get.to(() => const MyPrescriptionsScreen());
       return;
     }
+    // Order updates and substitutions carry order_id + order_type (backend c46b7bf).
+    if ((data['type'] == 'order_status' || data['type'] == 'substitution') &&
+        orderId != null) {
+      _openOrder(orderId, int.tryParse('${data['order_type'] ?? ''}') ?? 0);
+      return;
+    }
     Get.to(() => const NotificationsScreen());
+  }
+
+  /// Food → Order Details; grocery, pharmacy and local store → their order
+  /// screen (where substitutions show); other types → the Orders tab.
+  static Future<void> _openOrder(int orderId, int orderType) async {
+    switch (orderType) {
+      case 1:
+        try {
+          final detail = await Get.find<OrderRepository>().catalogOrderDetail(
+            orderId: orderId,
+            language: apiLanguageCode(),
+          );
+          final code = detail['order_code'];
+          if (code != null) {
+            Get.to(() => OrderDetailScreen(orderId: '$code', detail: detail));
+            return;
+          }
+        } catch (_) {}
+      case 2 || 3 || 11:
+        Get.to(
+          () => PharmacyItemOrderDetailScreen(
+            orderId: '$orderId',
+            apiOrderId: orderId,
+            isDelivery: true,
+          ),
+        );
+        return;
+    }
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().selectNavigation(HomeController.navOrders);
+    }
   }
 }
 
