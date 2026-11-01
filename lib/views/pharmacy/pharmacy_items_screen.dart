@@ -85,6 +85,46 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
 
   bool get _usesApi => _pharmacyId != null;
 
+  /// Opens the generic equivalent (API §6.36): its detail sheet when this
+  /// pharmacy sells it, otherwise the pharmacy that does.
+  void _openGeneric(Map<String, dynamic> generic, bool isNotAccepting) {
+    final menuId = generic['menuId'] as int;
+    final pharmacyId = generic['pharmacyId'] as int;
+    if (pharmacyId != _pharmacyId) {
+      Get.to(
+        () => PharmacyItemsScreen(
+          store: {
+            'id': '$pharmacyId',
+            'title': 'pw_pharmacy'.tr,
+            'image': '',
+            'subtitle': '',
+          },
+        ),
+        preventDuplicates: false,
+      );
+      return;
+    }
+    final food = <String, dynamic>{
+      'id': '$menuId',
+      'title': generic['title'] ?? '',
+      'image': '',
+      'images': <String>[],
+      'price': '',
+      'originalPrice': '',
+      'rating': '0',
+      'reviews': '0',
+      'tag': '',
+    };
+    showPharmacyProductDetailsSheet(
+      context,
+      food: food,
+      menuId: menuId,
+      pharmacyId: pharmacyId,
+      isNotAccepting: isNotAccepting,
+      onAdd: () => _addPharmacyItem(food, portion: food['tag']?.toString()),
+    );
+  }
+
   Future<bool> _addPharmacyItem(
     Map<String, dynamic> item, {
     String? portion,
@@ -972,6 +1012,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                   food,
                                   portion: food['tag']?.toString(),
                                 ),
+                                onOpenGeneric: (generic) =>
+                                    _openGeneric(generic, isNotAccepting),
                               ),
                               onAdd: () => showPharmacyCustomizeSheet(
                                 context,

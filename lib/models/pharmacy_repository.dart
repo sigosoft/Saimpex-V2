@@ -787,6 +787,24 @@ class PharmacyRepository {
       'description': description,
       'quantityAllowed': _positiveInt(variant?['quantity_allowed']),
       'stock': _positiveInt(variant?['stock']),
+      'genericName': menu['generic_name']?.toString().trim() ?? '',
+      'genericEquivalent': _genericEquivalent(
+        menu['generic_equivalent'],
+        language,
+      ),
+    };
+  }
+
+  /// The cheaper generic product (API §6.36), or null.
+  Map<String, dynamic>? _genericEquivalent(dynamic raw, String language) {
+    final generic = asJsonMap(raw);
+    final menuId = _asInt(generic?['menu_id']);
+    final pharmacyId = _asInt(generic?['pharmacy_id']);
+    if (generic == null || menuId < 1 || pharmacyId < 1) return null;
+    return {
+      'menuId': menuId,
+      'pharmacyId': pharmacyId,
+      'title': _localized(generic, 'name', language),
     };
   }
 

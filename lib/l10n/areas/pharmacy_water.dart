@@ -17,6 +17,8 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_view_cart_items': 'View Cart • @count items',
     'pw_ready_in_15_20': 'Ready in 15-20 min',
     'pw_prescription_required': 'Prescription Required',
+    'pw_generic_name': 'Generic: @name',
+    'pw_see_generic': 'See the generic: @name',
     'pw_pharmacy_closed_msg':
         'Pharmacy is currently closed or temporarily not accepting orders.',
     'pw_closed_caps': 'CLOSED',
@@ -300,6 +302,8 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_view_cart_items': 'Voir le panier • @count articles',
     'pw_ready_in_15_20': 'Prêt dans 15-20 min',
     'pw_prescription_required': 'Ordonnance requise',
+    'pw_generic_name': 'Générique : @name',
+    'pw_see_generic': 'Voir le générique : @name',
     'pw_pharmacy_closed_msg':
         'La pharmacie est actuellement fermée ou n\'accepte temporairement pas de commandes.',
     'pw_closed_caps': 'FERMÉ',
@@ -595,6 +599,8 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_view_cart_items': 'عرض السلة • @count منتجات',
     'pw_ready_in_15_20': 'جاهز خلال 15-20 دقيقة',
     'pw_prescription_required': 'وصفة طبية مطلوبة',
+    'pw_generic_name': 'الاسم العلمي: @name',
+    'pw_see_generic': 'عرض البديل الجنيس: @name',
     'pw_pharmacy_closed_msg':
         'الصيدلية مغلقة حاليًا أو لا تستقبل الطلبات مؤقتًا.',
     'pw_closed_caps': 'مغلق',
