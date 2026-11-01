@@ -203,6 +203,9 @@ class ApiConstants {
   static const String getTermsAndConditions = 'customer/getTermsandConditions';
   static const String getContact = 'customer/getContact';
   static const String chatAllConversations = 'customer/chat/allConversations';
+  // Messages from SAIMPEX support about an order (API §6.37).
+  static const String supportMessages = 'customer/supportMessages';
+  static const String replySupportMessage = 'customer/replySupportMessage';
   static const String chatGetConversation = 'customer/chat/getConversation';
   static const String chatSendMessage = 'customer/chat/sendMessage';
   static const String chatMarkAsRead = 'customer/chat/markAsRead';

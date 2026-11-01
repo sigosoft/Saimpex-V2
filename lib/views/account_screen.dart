@@ -21,6 +21,8 @@ import 'pay_later_screen.dart';
 import 'wallet_screen.dart';
 import 'app_preferences_screen.dart';
 import 'help_support_screen.dart';
+import 'support_messages_screen.dart';
+import '../models/support_repository.dart';
 import 'terms_conditions_screen.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
@@ -44,6 +46,7 @@ class _AccountScreenState extends State<AccountScreen> {
   bool _showDeleteMenu = false;
   String _walletAmount = '0';
   String _rewardPoints = '0';
+  int _supportUnread = 0;
   Worker? _navWorker;
   Worker? _sessionWorker;
 
@@ -77,6 +80,20 @@ class _AccountScreenState extends State<AccountScreen> {
   void _loadAccountData() {
     _fetchProfile();
     _fetchUserPoints();
+    _fetchSupportUnread();
+  }
+
+  /// Unread messages from SAIMPEX support (API §6.37); 0 for guests.
+  Future<void> _fetchSupportUnread() async {
+    if (!Get.isRegistered<SessionStore>()) return;
+    final token = Get.find<SessionStore>().token;
+    if (token == null || token.isEmpty) return;
+    try {
+      final result = await SupportRepository.instance.threads(
+        apiLanguageCode(),
+      );
+      if (mounted) setState(() => _supportUnread = result.unread);
+    } catch (_) {}
   }
 
   Future<void> _fetchProfile() async {
@@ -807,6 +824,13 @@ class _AccountScreenState extends State<AccountScreen> {
         'isLogout': false,
       },
       {
+        'label': 'Support Messages',
+        'text': 'orders_support_messages_title'.tr,
+        'icon': Icons.support_agent_rounded,
+        'isLogout': false,
+        if (_supportUnread > 0) 'trailing': '$_supportUnread',
+      },
+      {
         'label': 'Terms & Conditions',
         'text': 'core_account_terms'.tr,
         'icon': Icons.description_outlined,
@@ -857,6 +881,10 @@ class _AccountScreenState extends State<AccountScreen> {
                     Get.to(() => const AppPreferencesScreen());
                   } else if (item['label'] == 'Help & Support') {
                     Get.to(() => const HelpSupportScreen());
+                  } else if (item['label'] == 'Support Messages') {
+                    Get.to(
+                      () => const SupportMessagesScreen(),
+                    )?.then((_) => _fetchSupportUnread());
                   } else if (item['label'] == 'Terms & Conditions') {
                     Get.to(
                       () => const TermsConditionsScreen(
