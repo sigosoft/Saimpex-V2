@@ -495,6 +495,7 @@ class OrderRepository {
     required String language,
     String vendorComment = '',
     String driverComment = '',
+    int cleanerRating = 0,
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
@@ -506,6 +507,8 @@ class OrderRepository {
           // The API accepts 1-5 only, so an unrated driver is left out.
           if (driverRating > 0) 'driver_rating': '$driverRating',
           if (driverRating > 0) 'driver_comment': driverComment,
+          // Home cleaning: the cleaner's own rating (API §6.39).
+          if (cleanerRating > 0) 'cleaner_rating': '$cleanerRating',
           'products': '',
         },
         options: Options(contentType: Headers.jsonContentType),

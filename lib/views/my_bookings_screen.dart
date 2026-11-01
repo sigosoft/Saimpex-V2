@@ -157,6 +157,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       'canCancel': row['can_cancel'] == true,
       'notes': text(row['notes']),
       'payment': text(row['payment_type_label']),
+      // Home cleaning: the assigned cleaner (API §6.39), rated separately.
+      if (row['cleaner'] is Map)
+        'cleaner': Map<String, dynamic>.from(row['cleaner'] as Map),
     };
   }
 
@@ -456,6 +459,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     onTap: () => Get.to(
                       () => RateOrderScreen(
                         orderId: booking['apiOrderId'] as int?,
+                        cleaner: booking['cleaner'] as Map<String, dynamic>?,
                       ),
                     ),
                     child: Container(
