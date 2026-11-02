@@ -238,6 +238,7 @@ Note: "models" holds **repositories** (API classes), not plain data classes. Mos
 - **Not translated on purpose:** server data, and sample/mock data still in some screens (to be replaced by real data, not translated).
 - Error fallbacks in the repositories ("Request failed…"), courier statuses, provider-card tags and review messages are translated (`core_request_failed`, `core_status_1`…`10`, …).
 - French and Arabic were reviewed key by key (AI review, not a native speaker), with consistent terms. French: livreur, prestataire, réservation, portefeuille, retrait (customer collects), collecte (courier/laundry pickup), programmer, noter.
+- **Home section titles:** `homeHub` sends `title_en` only, so in FR/AR the app uses its own keys (`core_home_recent_orders`, `core_home_under_30`, …); a server `title_fr` / `title_ar` would win, and `title_en` is the last fallback (`GeneralRepository.homeSectionsFrom`, test `test/home_sections_test.dart`).
 - **Still to do:** the client's native-speaker QA (16–25 Nov) and an RTL pass on a device (custom painters, gradients and maps were not changed).
 
 See pending item P1-1.
