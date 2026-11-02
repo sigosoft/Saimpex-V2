@@ -602,3 +602,9 @@ On start the app reads Admin → App versions (`GET customer/settings`: `play_st
 - **Release build fixed:** `android/app/proguard-rules.pro` (`-dontwarn com.google.firebase.iid.FirebaseInstanceId`): ML Kit references the excluded firebase-iid and R8 stopped `flutter build apk --release`.
 - Seen on the emulator: Arabic + Cairo + RTL on slides and Home; guest cart opens; Orders asks to log in. Not reached yet (needs a dev test number, `OTP_TEST_NUMBERS`): logged-in screens.
 
+
+### Minimum order from the server (`fix/server-min-order`, 2 Nov) ✅
+The cart blocked every order under a hard-coded 500 MRU (`cart_screen.dart`), so a 90 MRU water order asked for 410 MRU more and most water orders couldn't be placed; a store with a higher minimum got the server's 422 instead. The cart now reads `min_order_value` and `min_order_shortfall` from the checkout summary (classic and catalog, §6.22; see "Backend updates", 31 Oct). Place order shows the minimum-order sheet only while the shortfall is > 0, with the server's minimum and "add X MRU". If the summary didn't load, the order goes through and the server's 422 explains.
+- **Checked** (iOS simulator, dev, 2 Nov): Pizzeria Atlantique (dev minimum is 150, not 500) with one Iced Tea (60) → server shortfall 90 → Pay shows "Minimum order: 150 MRU / Add 90 MRU more" and no checkout call is sent. One pizza (260) → shortfall 0, not blocked. Water 1.5 L pack (90 MRU) at Source Tevragh Zeina is no longer blocked; stopped at Pay.
+- **Backend gap:** on dev, `checkoutSummaryV2` (classic carts: water, grocery, pharmacy, local store) returns no `min_order_value` / `min_order_shortfall`; only `catalog/checkoutSummary` does. Classic carts below a store's minimum get the server's 422 at checkout until the backend adds them.
+- Not in this change: "Minimum order X MRU" on the store page (`restaurantDetails.min_order_value`).
