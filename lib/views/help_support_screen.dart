@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/general_repository.dart';
 import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
@@ -17,6 +19,12 @@ class HelpSupportScreen extends StatefulWidget {
 class _HelpSupportScreenState extends State<HelpSupportScreen> {
   String _phone = '';
   String _email = '';
+  Future<void> _open(Uri uri) async {
+    if (uri.path.trim().isEmpty ||
+        !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      showAppToast('ease_help_unavailable'.tr);
+    }
+  }
   bool _isLoading = true;
 
   @override
@@ -79,7 +87,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                             label: 'core_help_call_us'.tr,
                             value: _phone,
                             buttonLabel: 'core_help_call_now'.tr,
-                            onTap: () {},
+                            onTap: () => _open(Uri(scheme: 'tel', path: _phone)),
                           ),
                           const SizedBox(height: 14),
                           _buildContactCard(
@@ -87,7 +95,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                             label: 'core_help_email_us'.tr,
                             value: _email,
                             buttonLabel: 'core_help_send_mail'.tr,
-                            onTap: () {},
+                            onTap: () => _open(Uri(scheme: 'mailto', path: _email)),
                           ),
                           const SizedBox(height: 14),
                           _buildSupportInfoCard(),

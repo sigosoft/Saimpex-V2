@@ -7,6 +7,7 @@ import 'payment_failed_screen.dart';
 import 'payment_webview_screen.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
+import 'select_location_screen.dart';
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../models/cart_repository.dart';
@@ -514,6 +515,16 @@ class _CartScreenState extends State<CartScreen> {
         ],
       ),
     );
+  }
+
+  // Edit on the delivery address: pick another one, then re-price the cart
+  // (fee and delivery check depend on the address).
+  Future<void> _changeAddress() async {
+    final result = await Get.to(() => const SelectLocationScreen());
+    if (result == true && mounted) {
+      await _loadCheckoutSummary();
+      await _checkDelivery();
+    }
   }
 
   Future<void> _checkDelivery() async {
@@ -2167,7 +2178,7 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: _changeAddress,
                                   child: Text(
                                     'orders_edit'.tr,
                                     style: AppFonts.outfit(

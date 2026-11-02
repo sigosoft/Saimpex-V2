@@ -28,6 +28,7 @@ import 'notifications_screen.dart';
 import 'wallet_screen.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/toast_helper.dart';
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
 
@@ -1616,7 +1617,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () => showAppToast('svc_coming_soon'.tr),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
