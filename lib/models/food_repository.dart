@@ -6,6 +6,7 @@ import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
 import '../utils/store_labels.dart';
+import '../utils/order_status_label.dart';
 
 class RestaurantHomeResult {
   final List<Map<String, dynamic>> sliders;
@@ -255,6 +256,10 @@ class FoodRepository {
     return {
       'restaurantName': name,
       'statusText': statusText.isEmpty ? 'Order' : statusText,
+      'statusLabel': orderStatusLabel(
+        item['status'],
+        statusText.isEmpty ? 'Order' : statusText,
+      ),
       'isCancelled': lower.contains('cancel'),
       'isDelivered': lower.contains('deliver'),
       'isSelfPickup':

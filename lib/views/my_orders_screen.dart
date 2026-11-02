@@ -456,7 +456,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     return _buildOrderCard(
       restaurantName:
           '${order['restaurantName'] ?? 'search_vertical_grocery'.tr}',
-      statusText: statusText,
+      statusText: '${order['statusLabel'] ?? statusText}',
       statusColor: badge.$1,
       statusBgColor: badge.$2,
       detailsText: details,
@@ -562,7 +562,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
     return _buildOrderCard(
       restaurantName: '${order['restaurantName'] ?? 'orders_restaurant'.tr}',
-      statusText: statusText,
+      statusText: '${order['statusLabel'] ?? statusText}',
       statusColor: badge.$1,
       statusBgColor: badge.$2,
       detailsText: details,
@@ -914,7 +914,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         : (const Color(0xFFFF8A00), const Color(0xFFFFF4EC));
     return _buildOrderCard(
       restaurantName: '${order['vendorName']}',
-      statusText: statusText.toUpperCase(),
+      statusText: '${order['statusLabel'] ?? statusText}'.toUpperCase(),
       statusColor: statusColor,
       statusBgColor: statusBgColor,
       detailsText:

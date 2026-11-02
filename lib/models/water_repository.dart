@@ -6,6 +6,7 @@ import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
 import '../utils/store_labels.dart';
+import '../utils/order_status_label.dart';
 
 /// Water vertical: home sections, search, plans and subscriptions.
 class WaterRepository {
@@ -452,6 +453,7 @@ class WaterRepository {
           ? item['vendor_name'].toString().trim()
           : 'core_water_supplier'.tr,
       'statusText': status,
+      'statusLabel': orderStatusLabel(item['status'], status),
       'isCancelled': status.toLowerCase().contains('cancel'),
       'isDelivered': status.toLowerCase().contains('deliver'),
       'total': '${total.round()} MRU',
