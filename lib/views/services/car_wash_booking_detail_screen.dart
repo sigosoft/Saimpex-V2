@@ -7,6 +7,7 @@ import '../../models/service_booking_detail.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../../widgets/app_back_button.dart';
+import '../../widgets/help_sheet.dart';
 
 import '../../utils/app_fonts.dart';
 class CarWashBookingDetailScreen extends StatefulWidget {
@@ -232,7 +233,7 @@ class _CarWashBookingDetailScreenState
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () => HelpSheet.show(orderCode: _bookingId),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(

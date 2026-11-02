@@ -632,3 +632,13 @@ Found in the Arabic and French test passes on Android (2 Nov). Store and product
 ### My Orders: status chips in AR/FR (`fix/order-status-labels`, 2 Nov) ✅
 Found in the Arabic test pass on Android (2 Nov). Food, grocery and water order cards showed the API's English `status_text` ("Placed", "Ready", "PLACED") in every language, while courier cards already translated the status code. The order lists send the code too (`status` 1–10), so the cards now show `core_status_N` through `lib/utils/order_status_label.dart` and keep the API text for anything else. Badge colours still follow the API text. Prescription cards keep their own statuses (not order codes).
 - **Checked** (Android, dev, 2 Nov): Orders in Arabic shows the food, grocery and water chips in Arabic.
+
+### Dead buttons wired or marked Coming soon (`fix/coming-soon-and-dead-buttons`, 2 Nov) ✅
+Test-day sweep for buttons that did nothing (`onTap: () {}`) or showed a placeholder:
+- **Track order** (food and grocery cards in My Orders) opened a sheet that only said "tracking fetched". It now opens the existing `TrackOrderScreen` (map, driver, status, help), which nothing linked to before. The placeholder `_TrackingSheet` is removed.
+- **Help & Support:** Call now and Send mail open the phone and mail apps with the numbers from the API ("support contact not available" when empty).
+- **Car wash booking detail:** Help opens the Help sheet with the booking code, like gas.
+- **Cart:** Edit on the delivery address opens the location picker and re-prices the cart (summary and delivery check) after a change.
+- **Reorder** on the Home and Grocery recent-order cards says "Coming soon": there is no reorder API.
+Still open (not in this change): Gas has no entry point; paying the laundry balance after re-weighing waits on the backend (the button already says it isn't available yet).
+- **Checked** (Android, dev, 2 Nov): Track order on a food order opens the tracking screen; Reorder shows Coming soon; analyzer clean, 22 tests pass.

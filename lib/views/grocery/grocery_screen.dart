@@ -1188,7 +1188,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                     ),
                     const SizedBox(height: 6),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () => showAppToast('svc_coming_soon'.tr),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,

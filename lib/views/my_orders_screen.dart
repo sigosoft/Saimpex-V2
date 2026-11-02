@@ -7,6 +7,7 @@ import 'water/water_order_details_screen.dart';
 import 'courier/courier_order_detail_screen.dart';
 import 'courier/courier_track_order_screen.dart';
 import 'water/water_track_order_screen.dart';
+import 'track_order_screen.dart';
 import 'rate_order_screen.dart';
 import 'pharmacy/my_prescriptions_screen.dart';
 import 'pharmacy/widgets/pharmacy_order_cards.dart';
@@ -595,27 +596,18 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     return orderId is int && orderId > 0 ? orderId : null;
   }
 
-  Future<void> _trackRestaurantOrder(Map<String, dynamic> order) async {
+  void _trackRestaurantOrder(Map<String, dynamic> order) {
     final orderId = _restaurantOrderId(order);
     if (orderId == null) {
       showAppToast('orders_tracking_unavailable'.tr);
       return;
     }
-    try {
-      final tracking = await Get.find<OrderRepository>().trackOrder(
-        orderId: orderId,
-        language: apiLanguageCode(),
-      );
-      if (!mounted) return;
-      showModalBottomSheet<void>(
-        context: context,
-        backgroundColor: Colors.transparent,
-        builder: (_) => _TrackingSheet(detail: tracking),
-      );
-    } on ApiException catch (error) {
-      if (!mounted) return;
-      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
-    }
+    Get.to(
+      () => TrackOrderScreen(
+        orderId: '${order['orderId'] ?? ''}',
+        apiOrderId: orderId,
+      ),
+    );
   }
 
   Future<void> _cancelRestaurantOrder(Map<String, dynamic> order) async {
@@ -1237,60 +1229,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Shows a tracking response as key/value lines until a tracking design exists.
-class _TrackingSheet extends StatelessWidget {
-  final Map<String, dynamic> detail;
-
-  const _TrackingSheet({required this.detail});
-
-  @override
-  Widget build(BuildContext context) {
-    final data = detail['data'] is Map
-        ? Map<String, dynamic>.from(detail['data'] as Map)
-        : <String, dynamic>{};
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        20,
-        20,
-        20 + MediaQuery.viewPaddingOf(context).bottom,
-      ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'orders_tracking_title'.tr,
-            style: AppFonts.outfit(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (data.isEmpty)
-            Text(
-              '${detail['message'] ?? 'orders_no_details'.tr}',
-              style: AppFonts.outfit(fontSize: 13),
-            )
-          else
-            for (final entry in data.entries)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  '${entry.key}: ${entry.value}',
-                  style: AppFonts.outfit(fontSize: 13),
-                ),
-              ),
-        ],
       ),
     );
   }
