@@ -465,6 +465,10 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_placed': 'Order placed',
     'core_tracking_preparing': 'Preparing',
     'core_tracking_reviews': '(@count reviews)',
+    'core_unit_km': '@value Km',
+    'core_unit_min': '@value min',
+    'core_percent_off': '@value% OFF',
+    'core_points_available': '@value Points Available',
     'core_tracking_your_driver': 'Your Driver',
   },
   'fr': {
@@ -954,6 +958,10 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_placed': 'Commande passée',
     'core_tracking_preparing': 'En préparation',
     'core_tracking_reviews': '(@count avis)',
+    'core_unit_km': '@value km',
+    'core_unit_min': '@value min',
+    'core_percent_off': '-@value %',
+    'core_points_available': '@value points disponibles',
     'core_tracking_your_driver': 'Votre livreur',
   },
   'ar': {
@@ -1414,6 +1422,10 @@ const coreStrings = <String, Map<String, String>>{
     'core_tracking_placed': 'تم تقديم الطلب',
     'core_tracking_preparing': 'قيد التحضير',
     'core_tracking_reviews': '(@count تقييم)',
+    'core_unit_km': '@value كم',
+    'core_unit_min': '@value د',
+    'core_percent_off': 'خصم @value%',
+    'core_points_available': '@value نقطة متاحة',
     'core_tracking_your_driver': 'السائق',
   },
 };
