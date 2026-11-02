@@ -602,3 +602,7 @@ On start the app reads Admin → App versions (`GET customer/settings`: `play_st
 - **Release build fixed:** `android/app/proguard-rules.pro` (`-dontwarn com.google.firebase.iid.FirebaseInstanceId`): ML Kit references the excluded firebase-iid and R8 stopped `flutter build apk --release`.
 - Seen on the emulator: Arabic + Cairo + RTL on slides and Home; guest cart opens; Orders asks to log in. Not reached yet (needs a dev test number, `OTP_TEST_NUMBERS`): logged-in screens.
 
+
+### Water Subscribe opens the product's plans (`fix/water-subscribe-entry`, 2 Nov) ✅
+Every way into a water store opens `WaterSupplierDetailsScreen`, whose Subscribe went to the general `WaterSubscriptionScreen`; its "Find a supplier" led back to the same store, so the plans screen (`WaterProductSubscriptionScreen`, P0-5 / C11) could not be reached. Subscribe on a product now opens `WaterProductSubscriptionScreen(product, supplier)`, as `WaterSupplierScreen` does.
+- **Checked** (iOS simulator, dev, 2 Nov): Source Tevragh Zeina → 19 L Jug Refill and Aqua Ksar → 0.5 L pack: Subscribe opens the product's subscription screen and calls `water/plans?water_vendor_id=68` / `69` (200). Dev has **no plans** for either supplier (`data: []`), so the screen shows "This supplier has no subscription plans yet"; choosing a plan and paying could not be tried until dev has plans.

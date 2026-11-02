@@ -10,7 +10,7 @@ import '../chat_screen.dart';
 import '../cart_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
 import 'widgets/water_product_details_sheet.dart';
-import 'water_subscription_screen.dart';
+import 'water_product_subscription_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/auto_slide_network_images.dart';
 
@@ -948,7 +948,14 @@ class _WaterSupplierDetailsScreenState
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
-                            Get.to(() => const WaterSubscriptionScreen());
+                            Get.to(
+                              () => WaterProductSubscriptionScreen(
+                                product: Map<String, dynamic>.from(item),
+                                supplier: Map<String, dynamic>.from(
+                                  widget.supplier,
+                                ),
+                              ),
+                            );
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 5),
