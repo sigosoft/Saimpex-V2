@@ -649,3 +649,11 @@ Before the client build (2 Nov):
 - **Water cart bar (#32):** the bar showed the last added item's price (or a made-up "50 MRU"), not the cart. After each add it now reloads the server cart totals (`fetchCartTotals`) and shows the cart total.
 - **Laundry balance after re-weighing:** paying it isn't in the API yet; the Pay button now says "Coming soon" like the other unfinished features (was "not available yet").
 - **Checked** (Android, dev, 2 Nov): Water header shows the real balance; the water cart bar shows the cart total after adding two items.
+
+### Bottom bar: open tab, press motion and haptics (`feature/nav-bar-polish`, 2 Nov) ✅
+Kept to the Figma bar (white bar, notch, raised orange Services disc, same items). Before, no tab ever looked selected (every icon grey).
+- The open tab's icon and label turn orange (label bold) with a soft orange pill behind the icon; the Services dot shows only when Services is open.
+- Items and the Services disc press down on tap (`Pressable`, off when the phone reduces motion).
+- Haptics: light impact on a tab switch, medium on Services, a selection tick when re-tapping the open tab (Home still reloads).
+- Long labels shrink to fit their slot ("Réservations", "Commandes" no longer run together in French).
+- **Checked** (vivo V2239, Android 15, dev, 2 Nov): Home, Bookings, Orders, Services, Profile selected in Arabic and French; analyzer clean, 22 tests pass.

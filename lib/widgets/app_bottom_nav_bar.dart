@@ -6,12 +6,15 @@ import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';
 import 'bottom_chat_icon.dart';
+import 'motion.dart';
 
 import '../utils/app_fonts.dart';
 /// Shared bottom navigation used by [MainShellScreen] and standalone pages.
 ///
 /// A flat white bar with a notch cut around the raised Services disc. Every item
-/// is an icon with a label under it; the cart shows an orange count badge.
+/// is an icon with a label under it; the cart shows an orange count badge. The
+/// open tab is orange on a soft orange pill; items press down and tick (haptics)
+/// when tapped.
 class AppBottomNavBar extends StatelessWidget {
   static const double _barHeight = 66;
   static const double _iconSize = 22;
@@ -19,8 +22,10 @@ class AppBottomNavBar extends StatelessWidget {
   static const double _servicesDiscSize = 68;
   static const double _servicesBorder = 5;
   static const double _notchRadius = 44;
-  static const double _iconSlotTop = 12;
-  static const double _labelGap = 4;
+  static const double _iconSlotTop = 9;
+  static const double _labelGap = 2;
+  static const double _pillWidth = 46;
+  static const double _pillHeight = 28;
 
   static const Color _barColor = Colors.white;
   static const Color _orange = Color(0xFFFF5216);
@@ -45,13 +50,20 @@ class AppBottomNavBar extends StatelessWidget {
 
   void _handleTap(int index) {
     if (index == selectedIndex) {
+      // Re-tapping the open tab: a soft tick (Home also reloads).
+      HapticFeedback.selectionClick();
       if (index == HomeController.navHome &&
           Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().loadHome();
       }
       return;
     }
-    HapticFeedback.selectionClick();
+    // Light tap per tab; the raised Services button answers a little firmer.
+    if (index == HomeController.navServices) {
+      HapticFeedback.mediumImpact();
+    } else {
+      HapticFeedback.lightImpact();
+    }
     if (onTap != null) {
       onTap!(index);
       if (index == HomeController.navHome &&
@@ -150,44 +162,75 @@ class AppBottomNavBar extends StatelessWidget {
     'Profile': 'core_nav_profile',
   };
 
-  /// Icon above a label. Every item except Services has the same size and colour.
+  /// Icon above a label. Every item except Services has the same size; the open
+  /// tab's icon and label turn orange and a soft pill fades in behind the icon.
   Widget _navItem({
     required int index,
     required String label,
     required String? asset,
     bool observeCartBadge = false,
   }) {
+    final isSelected = index == selectedIndex;
     return Expanded(
-      child: GestureDetector(
+      child: Pressable(
         onTap: () => _handleTap(index),
-        behavior: HitTestBehavior.opaque,
+        scale: 0.88,
         child: Padding(
           padding: const EdgeInsets.only(top: _iconSlotTop),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
-                height: _iconSize,
-                child: observeCartBadge
-                    ? Obx(() {
-                        final controller = Get.isRegistered<HomeController>()
-                            ? Get.find<HomeController>()
-                            : Get.put(HomeController());
-                        return _iconWithBadge(
+              AnimatedContainer(
+                duration: Motion.normal,
+                curve: Motion.curve,
+                width: _pillWidth,
+                height: _pillHeight,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? _orange.withValues(alpha: 0.12)
+                      : _orange.withValues(alpha: 0),
+                  borderRadius: BorderRadius.circular(_pillHeight / 2),
+                ),
+                alignment: Alignment.center,
+                child: SizedBox(
+                  height: _iconSize,
+                  child: observeCartBadge
+                      ? Obx(() {
+                          final controller = Get.isRegistered<HomeController>()
+                              ? Get.find<HomeController>()
+                              : Get.put(HomeController());
+                          return _iconWithBadge(
+                            label: label,
+                            asset: asset,
+                            badgeCount: controller.cartItemCount.value,
+                            isSelected: isSelected,
+                          );
+                        })
+                      : _iconWithBadge(
                           label: label,
                           asset: asset,
-                          badgeCount: controller.cartItemCount.value,
-                        );
-                      })
-                    : _iconWithBadge(label: label, asset: asset, badgeCount: 0),
+                          badgeCount: 0,
+                          isSelected: isSelected,
+                        ),
+                ),
               ),
               const SizedBox(height: _labelGap),
-              Text(
-                _labelKeys[label]?.tr ?? label,
+              AnimatedDefaultTextStyle(
+                duration: Motion.fast,
+                curve: Motion.curve,
                 style: AppFonts.outfit(
-                  color: _inactive,
+                  color: isSelected ? _orange : _inactive,
                   fontSize: 11,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                ),
+                // Long labels ("Réservations") shrink to fit their slot, with a
+                // small gap so neighbours never run together.
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(_labelKeys[label]?.tr ?? label, maxLines: 1),
+                  ),
                 ),
               ),
             ],
@@ -199,6 +242,7 @@ class AppBottomNavBar extends StatelessWidget {
 
   /// The raised disc sits in the notch; its label sits on the bar like the others.
   Widget _servicesItem() {
+    final isSelected = selectedIndex == HomeController.navServices;
     return Expanded(
       child: GestureDetector(
         onTap: () => _handleTap(HomeController.navServices),
@@ -208,7 +252,7 @@ class AppBottomNavBar extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: _iconSize),
+              const SizedBox(height: _pillHeight),
               const SizedBox(height: _labelGap),
               Text(
                 'core_nav_services'.tr,
@@ -220,12 +264,17 @@ class AppBottomNavBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 3),
-              Container(
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: _orange,
-                  shape: BoxShape.circle,
+              // The dot marks Services as the open tab, like the pill elsewhere.
+              AnimatedOpacity(
+                opacity: isSelected ? 1 : 0,
+                duration: Motion.fast,
+                child: Container(
+                  width: 4,
+                  height: 4,
+                  decoration: const BoxDecoration(
+                    color: _orange,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             ],
@@ -236,8 +285,9 @@ class AppBottomNavBar extends StatelessWidget {
   }
 
   Widget _servicesDisc() {
-    return GestureDetector(
+    return Pressable(
       onTap: () => _handleTap(HomeController.navServices),
+      scale: 0.9,
       child: Container(
         width: _servicesDiscSize,
         height: _servicesDiscSize,
@@ -267,12 +317,13 @@ class AppBottomNavBar extends StatelessWidget {
     required String label,
     required String? asset,
     required int badgeCount,
+    required bool isSelected,
   }) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Center(
-          child: _buildIcon(label: label, asset: asset, isSelected: false),
+          child: _buildIcon(label: label, asset: asset, isSelected: isSelected),
         ),
         if (badgeCount > 0)
           PositionedDirectional(
@@ -306,7 +357,7 @@ class AppBottomNavBar extends StatelessWidget {
     required String? asset,
     required bool isSelected,
   }) {
-    final color = isSelected ? Colors.white : _inactive;
+    final color = isSelected ? _orange : _inactive;
 
     if (label == 'Chat') {
       return BottomChatIcon(
