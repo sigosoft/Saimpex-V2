@@ -5,6 +5,7 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/store_labels.dart';
 
 class GeneralRepository {
   GeneralRepository(this._client);
@@ -291,11 +292,11 @@ class GeneralRepository {
         'subtitle': cuisine.isNotEmpty ? cuisine : category,
         'rating': vendor['rating']?.toString() ?? '',
         'time': vendor['delivery_time_text']?.toString() ?? '',
-        'dist': distance == null ? '' : '$distance Km',
+        'dist': distance == null ? '' : kmLabel(distance),
         'discount': offerText.isNotEmpty
             ? offerText
-            : (offer > 0 ? '${_number(offer)}% OFF' : ''),
-        'points': points > 0 ? '${_number(points)} Points Available' : '',
+            : (offer > 0 ? offLabel(_number(offer)) : ''),
+        'points': points > 0 ? pointsLabel(_number(points)) : '',
         'isClosed': !isOpen,
         'isTemporarilyClosed': busyMode > 1,
         'isFavourite': isFav,

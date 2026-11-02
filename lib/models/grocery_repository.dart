@@ -4,6 +4,7 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/store_labels.dart';
 
 class GroceryHomeResult {
   final List<Map<String, dynamic>> sliders;
@@ -308,31 +309,31 @@ class GroceryRepository {
     final time = raw['delivery_time_text']?.toString().trim().isNotEmpty == true
         ? raw['delivery_time_text'].toString().trim()
         : (raw['delivery_time_min'] != null
-              ? '${raw['delivery_time_min']} min'
+              ? minLabel(raw['delivery_time_min'])
               : (raw['avg_preparation_minutes'] != null
-                    ? '${raw['avg_preparation_minutes']} min'
-                    : '30-35 min'));
+                    ? minLabel(raw['avg_preparation_minutes'])
+                    : ''));
 
     final dist = raw['distance']?.toString().trim().isNotEmpty == true
         ? raw['distance'].toString().trim()
-        : '${raw['distance_km'] ?? 0} Km';
+        : kmLabel(raw['distance_km'] ?? 0);
 
     final discount = raw['offer_text']?.toString().trim().isNotEmpty == true
         ? raw['offer_text'].toString().trim()
         : (raw['offer_percentage'] != null &&
                   _asInt(raw['offer_percentage']) > 0
-              ? '${raw['offer_percentage']}% OFF'
+              ? offLabel(raw['offer_percentage'])
               : (raw['max_offer_percentage'] != null &&
                         _asInt(raw['max_offer_percentage']) > 0
-                    ? '${raw['max_offer_percentage']}% OFF'
+                    ? offLabel(raw['max_offer_percentage'])
                     : ''));
 
     final points = raw['points_text']?.toString().trim().isNotEmpty == true
         ? raw['points_text'].toString().trim()
         : (raw['user_points_available'] != null &&
                   _asInt(raw['user_points_available']) > 0
-              ? '${raw['user_points_available']} Points Available'
-              : '200 Points Available');
+              ? pointsLabel(raw['user_points_available'])
+              : '');
 
     final isOpen = _asInt(raw['is_open'], fallback: 1);
     final openStatus = raw['open_status']?.toString().toUpperCase() ?? '';
@@ -912,7 +913,7 @@ class GroceryRepository {
         'price': _moneyText(selling),
         'sellingPrice': selling,
         'originalPrice': price > selling ? _moneyText(price) : '',
-        'discount': offer > 0 ? '$offer% OFF' : '',
+        'discount': offer > 0 ? offLabel(offer) : '',
         'inStock': inStock,
         'variants': variants,
         'raw': m,

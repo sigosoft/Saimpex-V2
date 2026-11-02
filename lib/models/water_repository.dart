@@ -5,6 +5,7 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/store_labels.dart';
 
 /// Water vertical: home sections, search, plans and subscriptions.
 class WaterRepository {
@@ -336,11 +337,11 @@ class WaterRepository {
       'subtitle': _localized(item, 'address', fallback: ''),
       'rating': _ratingText(item['rating']),
       'time': item['delivery_time_text']?.toString() ?? '',
-      'dist': distance == null ? '' : '${distance.toStringAsFixed(1)} Km',
+      'dist': distance == null ? '' : kmLabel(distance.toStringAsFixed(1)),
       'discount':
           item['offer_percentage'] != null &&
               '${item['offer_percentage']}' != '0'
-          ? '${item['offer_percentage']}% OFF'
+          ? offLabel(item['offer_percentage'])
           : '',
       'points': '',
       'image': ApiConstants.mediaUrl(item['image']?.toString()) ?? '',
@@ -410,7 +411,7 @@ class WaterRepository {
       'reviews': '${_asInt(item['rating_count'])} reviews',
       'price': selling > 0 ? '${selling.round()} MRU' : '— MRU',
       'originalPrice': original > selling ? '${original.round()} MRU' : '',
-      'discount': offer > 0 ? '$offer% OFF' : '',
+      'discount': offer > 0 ? offLabel(offer) : '',
       'description': _localized(item, 'description', fallback: ''),
     };
   }
