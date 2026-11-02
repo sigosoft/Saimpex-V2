@@ -72,6 +72,10 @@ class _CartScreenState extends State<CartScreen> {
   int? _summaryDelivery;
   int? _summaryTax;
   int? _summaryToPay;
+  // The store's minimum order and what the cart is short of it, from the
+  // checkout summary (0 shortfall = the order can be placed).
+  int _minOrderValue = 0;
+  int _minOrderShortfall = 0;
   // Store points from the checkout summary.
   bool _rewardEnabled = false;
   int _pointsAvailable = 0;
@@ -384,6 +388,8 @@ class _CartScreenState extends State<CartScreen> {
         _summaryDelivery = money(data['delivery_charge']);
         _summaryTax = money(data['tax']);
         _summaryToPay = money(data['grand_total']);
+        _minOrderValue = money(data['min_order_value']) ?? 0;
+        _minOrderShortfall = money(data['min_order_shortfall']) ?? 0;
         _needsPrescription = false;
         _hasPrescription = false;
         _prescriptionId = null;
@@ -398,6 +404,8 @@ class _CartScreenState extends State<CartScreen> {
       _summaryDelivery = money(data['delivery_fee']);
       _summaryTax = money(data['tax']);
       _summaryToPay = money(data['to_pay'] ?? data['payable']);
+      _minOrderValue = money(data['min_order_value']) ?? 0;
+      _minOrderShortfall = money(data['min_order_shortfall']) ?? 0;
       // Store points: what the customer has here and what they're worth.
       _rewardEnabled = flag(data['is_reward_enabled']);
       _pointsAvailable = money(data['redeem_points_available']) ?? 0;
@@ -3091,8 +3099,8 @@ class _CartScreenState extends State<CartScreen> {
                         // 9. Gradient Pay Button
                         GestureDetector(
                           onTap: () {
-                            if (itemTotal < 500) {
-                              _showMinimumOrderReminder(context, itemTotal);
+                            if (_minOrderShortfall > 0) {
+                              _showMinimumOrderReminder(context);
                               return;
                             }
                             _placeOrder(toPay);
@@ -3157,11 +3165,12 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  void _showMinimumOrderReminder(BuildContext context, int orderValue) {
-    const minimum = 500;
-    final current = orderValue < 0 ? 0 : orderValue;
-    final remaining = minimum - current;
-    final progress = (current / minimum).clamp(0.0, 1.0);
+  void _showMinimumOrderReminder(BuildContext context) {
+    final minimum = _minOrderValue;
+    final remaining = _minOrderShortfall;
+    final progress = minimum > 0
+        ? ((minimum - remaining) / minimum).clamp(0.0, 1.0)
+        : 0.0;
 
     showDialog<void>(
       context: context,
@@ -3239,7 +3248,7 @@ class _CartScreenState extends State<CartScreen> {
                         Expanded(
                           child: Text(
                             'orders_min_order'.trParams({
-                              'amount': 'mru'.trParams({'amount': '500'}),
+                              'amount': 'mru'.trParams({'amount': '$minimum'}),
                             }),
                             maxLines: 1,
                             softWrap: false,
