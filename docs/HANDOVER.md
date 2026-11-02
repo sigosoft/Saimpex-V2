@@ -602,3 +602,7 @@ On start the app reads Admin → App versions (`GET customer/settings`: `play_st
 - **Release build fixed:** `android/app/proguard-rules.pro` (`-dontwarn com.google.firebase.iid.FirebaseInstanceId`): ML Kit references the excluded firebase-iid and R8 stopped `flutter build apk --release`.
 - Seen on the emulator: Arabic + Cairo + RTL on slides and Home; guest cart opens; Orders asks to log in. Not reached yet (needs a dev test number, `OTP_TEST_NUMBERS`): logged-in screens.
 
+### Home cleaning ADD booked the previous service (`feature/home-cleaning-add-service`, 2 Nov) ✅
+Found in the full test pass on the iOS simulator against dev (2 Nov). On a home cleaning provider, **ADD** on a service opened the configure screen without `selectService`, so the booking draft kept whatever service was picked before. Seen: after a laundry booking, the cart listed cleaning rooms (400 + 150 MRU) but showed **Pay 120 MRU**, because `service/quote` was sent as vertical laundry, vendor 72, item 21, 1 kg × 120. Tapping the card itself did select the service (home_cleaning, vendor 78, 1500 MRU).
+- **Fix:** ADD and the card both call `_openService`, which runs `selectService(item)` and then opens the configure screen. Laundry, car wash and gas already selected the service on every tap.
+- **Checked** (iOS simulator, dev, 2 Nov): ADD on laundry Express Wash & Iron, then ADD on Clean Home Nouakchott → Regular Clean (Apartment) → tomorrow 2–4 PM → the cart shows Total and Pay **1500 MRU** (home cleaning), not 120 MRU laundry. Stopped at Pay.

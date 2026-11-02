@@ -331,17 +331,19 @@ class _HomeCleaningProviderDetailScreenState
     fallbackImage: 'lib/assets/images/regular_cleaning.jpg',
   );
 
+  void _openService(Map<String, String> item) {
+    selectService(item);
+    Get.to(
+      () => HomeCleaningServiceConfigureScreen(
+        service: item,
+        providerName: _name,
+      ),
+    );
+  }
+
   Widget _buildServiceItem(Map<String, String> item) {
     return GestureDetector(
-      onTap: () {
-        selectService(item);
-        Get.to(
-          () => HomeCleaningServiceConfigureScreen(
-            service: item,
-            providerName: _name,
-          ),
-        );
-      },
+      onTap: () => _openService(item),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
@@ -440,12 +442,7 @@ class _HomeCleaningProviderDetailScreenState
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => Get.to(
-                    () => HomeCleaningServiceConfigureScreen(
-                      service: item,
-                      providerName: _name,
-                    ),
-                  ),
+                  onTap: () => _openService(item),
                   child: _buildAddButton(),
                 ),
               ],
