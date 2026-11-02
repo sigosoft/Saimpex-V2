@@ -9,6 +9,7 @@ import '../widgets/cancel_order_bottom_sheet.dart';
 import 'widgets/scheduled_for_banner.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/api_language.dart';
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
 
@@ -409,7 +410,10 @@ class OrderDetailScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'orders_total_paid'.tr,
+                                // payment_status 2 = paid; a cash order is still "to pay".
+                                '${detail['payment_status']}' == '2'
+                                    ? 'orders_total_paid'.tr
+                                    : 'orders_to_pay'.tr,
                                 style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 15,
@@ -557,6 +561,12 @@ class OrderDetailScreen extends StatelessWidget {
   String _amount(String key, String fallback) =>
       detail.containsKey(key) ? _money(detail[key]) : fallback;
 
+  /// An item's or extra's name in the app language, English when that is empty.
+  static String _localName(Map row) {
+    final local = '${row['name_${apiLanguageCode()}'] ?? ''}'.trim();
+    return local.isNotEmpty ? local : '${row['name_en'] ?? ''}';
+  }
+
   static String _money(dynamic value) {
     final number = double.tryParse('${value ?? ''}') ?? 0;
     return 'mru'.trParams({'amount': '${number.round()}'});
@@ -614,7 +624,7 @@ class OrderDetailScreen extends StatelessWidget {
       final parts = [
         if (variant.isNotEmpty && variant != 'null') variant,
         for (final option in options) '${option['option_name']}',
-        for (final extra in extras) '${extra['name_en']}',
+        for (final extra in extras) _localName(extra),
       ];
       if (i > 0) {
         rows.add(
@@ -626,7 +636,7 @@ class OrderDetailScreen extends StatelessWidget {
       }
       rows.add(
         _buildSummaryItem(
-          title: '${item['name_en'] ?? ''}',
+          title: _localName(item),
           weight: parts.join(' • '),
           quantity: 'x${item['quantity'] ?? 1}',
           price: _money(item['total_price']),

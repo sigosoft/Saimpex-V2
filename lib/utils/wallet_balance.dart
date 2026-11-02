@@ -11,10 +11,15 @@ const paymentTypeWallet = '3';
 /// `can_use`. The driver collects nothing; the customer pays later.
 const paymentTypePayAfterDelivery = '4';
 
-/// "Balance: 1,250 MRU" under the SAIMPEX Wallet payment option, from the
-/// balance the home screen loads; "Balance: —" until it has loaded.
-String walletBalanceSubtitle() {
-  if (!Get.isRegistered<HomeController>()) return 'Balance: —';
+/// The wallet balance the home screen loads ("1,250 MRU"); "—" until loaded.
+String walletBalanceAmount() {
+  if (!Get.isRegistered<HomeController>()) return '—';
   final label = Get.find<HomeController>().walletLabel.trim();
-  return label.isEmpty ? 'Balance: —' : 'Balance: $label';
+  return label.isEmpty ? '—' : label;
 }
+
+/// "Balance: 1,250 MRU" under the SAIMPEX Wallet payment option, in the app
+/// language.
+String walletBalanceSubtitle() => 'core_account_wallet_balance'.trParams({
+  'amount': walletBalanceAmount(),
+});

@@ -111,7 +111,7 @@ class _PaymentFailedScreenState extends State<PaymentFailedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final balance = walletBalanceSubtitle().replaceFirst('Balance: ', '');
+    final balance = walletBalanceAmount();
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F1),
       appBar: AppBar(

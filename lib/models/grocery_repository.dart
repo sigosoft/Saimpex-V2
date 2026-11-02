@@ -755,7 +755,8 @@ class GroceryRepository {
     final envelope = await _send(
       () => _client.dio.get(
         _path(ApiConstants.groceryOrders),
-        queryParameters: {'limit': 20, 'page': page},
+        // language: the server sends vendor_name in it (EN when untranslated).
+        queryParameters: {'limit': 20, 'page': page, 'language': language},
       ),
       language,
     );

@@ -213,6 +213,8 @@ class TrackingSummary extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
+              // The server's "02 Nov 2026, 12:15 PM" reads left to right, also in Arabic.
+              textDirection: TextDirection.ltr,
             ),
           ],
         ],

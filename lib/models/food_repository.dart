@@ -214,7 +214,8 @@ class FoodRepository {
     final envelope = await _send(
       () => _client.dio.get(
         ApiConstants.restaurantOrders,
-        queryParameters: {'limit': 20, 'page': page},
+        // language: the server sends vendor_name in it (EN when untranslated).
+        queryParameters: {'limit': 20, 'page': page, 'language': language},
       ),
       language,
     );
@@ -236,7 +237,8 @@ class FoodRepository {
   }
 
   Map<String, dynamic> _restaurantOrderCard(Map<String, dynamic> item) {
-    final name = [item['restaurant_name'], item['vendor_name'], item['name']]
+    // vendor_name first: it is the one the server translates.
+    final name = [item['vendor_name'], item['restaurant_name'], item['name']]
         .map((v) => v?.toString().trim() ?? '')
         .firstWhere((v) => v.isNotEmpty, orElse: () => 'Restaurant');
     final statusText = (item['status_text'] ?? item['status'] ?? '')
@@ -357,9 +359,11 @@ class FoodRepository {
                 : (m['tag'] ?? m['category'] ?? _firstTagName(m, language))
                       .toString());
 
-      final rating = (m['rating'] ?? '').toString();
+      // The API sends "0.000000" for unrated items: hide it, else one decimal.
+      final ratingValue = double.tryParse((m['rating'] ?? '').toString()) ?? 0;
+      final rating = ratingValue > 0 ? ratingValue.toStringAsFixed(1) : '';
       final reviews = m['reviews_count'] != null
-          ? '${m['reviews_count']} reviews'
+          ? '${m['reviews_count']}'
           : (m['reviews']?.toString() ?? '');
 
       final isVeg =

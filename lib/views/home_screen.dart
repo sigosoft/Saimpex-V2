@@ -26,6 +26,7 @@ import 'widgets/home_search_box.dart';
 import 'select_location_screen.dart';
 import 'notifications_screen.dart';
 import 'wallet_screen.dart';
+import 'restaurant_details_screen.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/toast_helper.dart';
@@ -801,9 +802,15 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemBuilder: (context, index) {
                 final item = items[index];
-                return under30
-                    ? _buildUnder30MinCard(controller, item)
-                    : _buildRestaurantCard(controller, item);
+                // homeHub store sections are restaurants: open the store, like
+                // the Food screen's cards (closed ones too, to see the menu).
+                return GestureDetector(
+                  onTap: () =>
+                      Get.to(() => RestaurantDetailsScreen(restaurant: item)),
+                  child: under30
+                      ? _buildUnder30MinCard(controller, item)
+                      : _buildRestaurantCard(controller, item),
+                );
               },
             ),
           )

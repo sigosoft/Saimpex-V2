@@ -673,7 +673,8 @@ class PharmacyRepository {
     final envelope = await _send(
       () => _client.dio.get(
         ApiConstants.pharmacyOrders,
-        queryParameters: {'limit': limit, 'page': page},
+        // language: the server sends vendor_name in it (EN when untranslated).
+        queryParameters: {'limit': limit, 'page': page, 'language': language},
       ),
       language,
     );

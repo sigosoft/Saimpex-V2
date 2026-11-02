@@ -190,8 +190,9 @@ class _AccountScreenState extends State<AccountScreen> {
     final user = Get.find<SessionStore>().readUser();
     if (user == null || user.mobile.trim().isEmpty) return '';
     final code = user.countryCode?.trim() ?? '';
-    if (code.isEmpty) return user.mobile;
-    return '$code ${user.mobile}';
+    // Isolated left to right so Arabic shows "+222 95200003", not "95200003 222+".
+    if (code.isEmpty) return '\u2066${user.mobile}\u2069';
+    return '\u2066$code ${user.mobile}\u2069';
   }
 
   Widget _buildAccountAvatar() {
