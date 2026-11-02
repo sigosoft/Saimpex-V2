@@ -620,3 +620,7 @@ Every way into a water store opens `WaterSupplierDetailsScreen`, whose Subscribe
 ### Grocery home: fake "AI predictive" cards removed (`fix/hide-sample-ai-cards`, 2 Nov) ✅
 Found in the French test pass on Android (2 Nov). The grocery home showed every customer a "SAIMPEX AI • PREDICTIVE" card ("Your weekly eggs order is due tomorrow… you saved 18%") and an "AI Tip: your usual milk + bread" row. Both were fixed text (`st_ai_*` in `l10n/areas/stores.dart`) and their Add buttons did nothing, which breaks the no-sample-content rule (P0-7). There is no prediction API, so both cards are removed from `grocery_screen.dart` until one exists.
 - **Checked** (Android, dev, 2 Nov): Home → Grocery opens on the page title, search and categories with no AI cards.
+
+### Order success: Back to home works after a cart-tab order (`fix/success-back-buttons`, 2 Nov) ✅
+Found in the Arabic test pass on Android (2 Nov). An order placed from the bottom-bar Cart left the customer stuck on the success screen: the cart tab lives inside the shell, so `Get.off(OrderSuccessScreen)` replaced the shell, and "Back to home" popped to the first route, which was the success screen itself. "Back to home" and the top back button now call `BottomNavRouter.returnToShell(navHome)`, and "View order" opens the Orders tab the same way (it pushed a second My Orders screen above the stack), as the cancel and courier success screens already do.
+- **Checked** (Android, dev, 2 Nov): cart tab → Pay → success → Back to home opens Home; again → View order opens the Orders tab.
