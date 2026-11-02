@@ -16,6 +16,7 @@ import '../widgets/search_camera_button.dart';
 import '../select_location_screen.dart';
 
 import '../../utils/app_fonts.dart';
+import '../../utils/wallet_chip.dart';
 class ExpressScreen extends StatefulWidget {
   const ExpressScreen({super.key});
 
@@ -322,7 +323,7 @@ class _ExpressScreenState extends State<ExpressScreen> {
                 ),
                 const SizedBox(width: 3),
                 Text(
-                  'mru'.trParams({'amount': '300'}),
+                  walletChipText(),
                   style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 13,
