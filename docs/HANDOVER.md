@@ -642,3 +642,10 @@ Test-day sweep for buttons that did nothing (`onTap: () {}`) or showed a placeho
 - **Reorder** on the Home and Grocery recent-order cards says "Coming soon": there is no reorder API.
 Still open (not in this change): Gas has no entry point; paying the laundry balance after re-weighing waits on the backend (the button already says it isn't available yet).
 - **Checked** (Android, dev, 2 Nov): Track order on a food order opens the tracking screen; Reorder shows Coming soon; analyzer clean, 22 tests pass.
+
+### Client build polish: real wallet chips, water cart total, Coming soon for balance payment (`fix/client-build-polish`, 2 Nov) ✅
+Before the client build (2 Nov):
+- **Wallet chip (#31):** the Water, Express, Pharmacy and Local Store headers showed a fixed "300 MRU". They now show the customer's real SAIMPEX Wallet balance from `HomeController.walletLabel` (`lib/utils/wallet_chip.dart`), 0 MRU for guests, like the Grocery header.
+- **Water cart bar (#32):** the bar showed the last added item's price (or a made-up "50 MRU"), not the cart. After each add it now reloads the server cart totals (`fetchCartTotals`) and shows the cart total.
+- **Laundry balance after re-weighing:** paying it isn't in the API yet; the Pay button now says "Coming soon" like the other unfinished features (was "not available yet").
+- **Checked** (Android, dev, 2 Nov): Water header shows the real balance; the water cart bar shows the cart total after adding two items.

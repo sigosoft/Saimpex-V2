@@ -695,7 +695,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               const SizedBox(height: 14),
               GestureDetector(
                 // Balance payments aren't in the service API yet.
-                onTap: () => showAppToast('orders_balance_unavailable'.tr),
+                onTap: () => showAppToast('svc_coming_soon'.tr),
                 child: Container(
                   width: double.infinity,
                   height: 46,
