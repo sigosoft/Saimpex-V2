@@ -272,7 +272,7 @@ class GeneralRepository {
       final name = _localized(vendor, 'name', language);
       final cuisine = _localized(vendor, 'cuisine_label', language);
       final category = _localized(vendor, 'category_label', language);
-      final offerText = vendor['offer_text']?.toString().trim() ?? '';
+      final offerText = localizedStoreText(vendor['offer_text']);
       final offer = _asNum(
         vendor['offer_percentage'] ?? vendor['max_offer_percentage'],
       );
@@ -291,7 +291,7 @@ class GeneralRepository {
         'title': name,
         'subtitle': cuisine.isNotEmpty ? cuisine : category,
         'rating': vendor['rating']?.toString() ?? '',
-        'time': vendor['delivery_time_text']?.toString() ?? '',
+        'time': localizedStoreText(vendor['delivery_time_text']),
         'dist': distance == null ? '' : kmLabel(distance),
         'discount': offerText.isNotEmpty
             ? offerText

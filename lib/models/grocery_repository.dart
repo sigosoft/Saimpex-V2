@@ -307,7 +307,7 @@ class GroceryRepository {
     }
 
     final time = raw['delivery_time_text']?.toString().trim().isNotEmpty == true
-        ? raw['delivery_time_text'].toString().trim()
+        ? localizedStoreText(raw['delivery_time_text'])
         : (raw['delivery_time_min'] != null
               ? minLabel(raw['delivery_time_min'])
               : (raw['avg_preparation_minutes'] != null
@@ -315,11 +315,11 @@ class GroceryRepository {
                     : ''));
 
     final dist = raw['distance']?.toString().trim().isNotEmpty == true
-        ? raw['distance'].toString().trim()
+        ? localizedStoreText(raw['distance'])
         : kmLabel(raw['distance_km'] ?? 0);
 
     final discount = raw['offer_text']?.toString().trim().isNotEmpty == true
-        ? raw['offer_text'].toString().trim()
+        ? localizedStoreText(raw['offer_text'])
         : (raw['offer_percentage'] != null &&
                   _asInt(raw['offer_percentage']) > 0
               ? offLabel(raw['offer_percentage'])

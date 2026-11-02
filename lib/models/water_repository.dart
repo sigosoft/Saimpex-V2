@@ -336,7 +336,7 @@ class WaterRepository {
       'name': name,
       'subtitle': _localized(item, 'address', fallback: ''),
       'rating': _ratingText(item['rating']),
-      'time': item['delivery_time_text']?.toString() ?? '',
+      'time': localizedStoreText(item['delivery_time_text']),
       'dist': distance == null ? '' : kmLabel(distance.toStringAsFixed(1)),
       'discount':
           item['offer_percentage'] != null &&
