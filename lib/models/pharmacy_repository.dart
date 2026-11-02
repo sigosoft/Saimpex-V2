@@ -5,6 +5,7 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/store_labels.dart';
 
 class PharmacyRepository {
   PharmacyRepository(this._client);
@@ -966,12 +967,12 @@ class PharmacyRepository {
     if (number == null) {
       final text = '${value ?? ''}'.trim();
       if (text.isEmpty) return '';
-      return text.toLowerCase().contains('km') ? text : '$text Km';
+      return localizedStoreText(text);
     }
     final text = number == number.roundToDouble()
         ? number.toInt().toString()
         : number.toStringAsFixed(1);
-    return '$text Km';
+    return kmLabel(text);
   }
 
   String _offerText(dynamic value) {
@@ -980,7 +981,7 @@ class PharmacyRepository {
     final text = number == number.roundToDouble()
         ? number.toInt().toString()
         : number.toStringAsFixed(0);
-    return '$text% OFF';
+    return offLabel(text);
   }
 
   String _moneyText(dynamic value) {
@@ -1005,7 +1006,7 @@ class PharmacyRepository {
     final name = _localized(item, 'name', language);
     final status = _localized(item, 'status_label', language);
     final points = item['points_label']?.toString().trim() ?? '';
-    final offer = item['offer_text']?.toString().trim() ?? '';
+    final offer = localizedStoreText(item['offer_text']);
     final isOpen = item['is_open'] == 1 || item['is_open'] == true;
     final isOpenAllDay =
         item['is_open_24h'] == 1 || item['is_open_24h'] == true;
@@ -1015,7 +1016,7 @@ class PharmacyRepository {
       'title': name.isEmpty ? 'Pharmacy' : name,
       'subtitle': item['address']?.toString() ?? '',
       'rating': '${item['rating'] ?? 0}',
-      'time': '${item['delivery_time_text'] ?? item['estimated_time'] ?? ''}',
+      'time': localizedStoreText(item['delivery_time_text'] ?? item['estimated_time']),
       'dist': _distanceLabel(item),
       'discount': offer,
       'points': points,
@@ -1030,9 +1031,9 @@ class PharmacyRepository {
   }
 
   String _distanceLabel(Map<String, dynamic> item) {
-    final distance = item['distance']?.toString().trim() ?? '';
+    final distance = localizedStoreText(item['distance']);
     if (distance.isNotEmpty && distance != 'null') {
-      return distance.toLowerCase().contains('km') ? distance : '$distance Km';
+      return double.tryParse(distance) == null ? distance : kmLabel(distance);
     }
     return _distanceText(item['distance_km']);
   }

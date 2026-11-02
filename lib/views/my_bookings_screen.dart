@@ -1,7 +1,7 @@
+import '../widgets/motion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/app_back_button.dart';
 import '../widgets/home_background_blend.dart';
@@ -15,12 +15,14 @@ import 'rate_order_screen.dart';
 import 'services/car_wash_screen.dart';
 import 'services/home_cleaning_screen.dart';
 import 'services/laundry_services_screen.dart';
+import 'services/gas_booking_detail_screen.dart';
 import 'services/gas_screen.dart';
 import '../widgets/cancel_booking_bottom_sheet.dart';
 import 'services/car_wash_booking_detail_screen.dart';
 import 'services/home_cleaning_booking_detail_screen.dart';
 import 'services/laundry_booking_detail_screen.dart';
 
+import '../utils/app_fonts.dart';
 class MyBookingsScreen extends StatefulWidget {
   final bool showBottomNav;
 
@@ -244,7 +246,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       ? Center(
                           child: Text(
                             'orders_no_bookings'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF9A8E86),
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -263,7 +265,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           separatorBuilder: (_, _) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
-                            return _buildBookingCard(list[index]);
+                            return FadeSlideIn(child: _buildBookingCard(list[index]));
                           },
                         ),
                 ),
@@ -329,7 +331,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               ),
               child: Text(
                 _categoryLabel(_filters[index]),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: selected ? Colors.white : const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -388,7 +390,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   isCompleted
                       ? 'orders_status_completed'.tr
                       : statusText.toUpperCase(),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: _statusFg(statusText),
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -412,7 +414,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               const SizedBox(width: 5),
               Text(
                 _categoryLabel(category),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: categoryColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -444,7 +446,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       ),
                       child: Text(
                         'orders_reorder'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
@@ -474,7 +476,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       ),
                       child: Text(
                         'orders_rate'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
@@ -488,7 +490,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           ] else ...[
             Text(
               booking['service'] as String? ?? 'Regular Cleaning',
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w700,
@@ -508,7 +510,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   child: Text(
                     booking['datetime'] as String? ??
                         'Today, 15 Aug 2026, 2:00–4:00 PM',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF5A5048),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w500,
@@ -530,7 +532,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 Expanded(
                   child: Text(
                     booking['location'] as String? ?? '',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF5A5048),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w500,
@@ -573,7 +575,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           const SizedBox(width: 4),
                           Text(
                             'orders_balance_due_badge'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 9.5,
                               fontWeight: FontWeight.w800,
@@ -591,7 +593,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           'orders_estimated_weight'.trParams({
                             'weight': '${booking['estimatedWeight'] ?? ''}',
                           }),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -599,7 +601,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         ),
                         Text(
                           '${booking['estimatedPrice'] ?? ''}',
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -613,7 +615,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       children: [
                         RichText(
                           text: TextSpan(
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -623,7 +625,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                               TextSpan(
                                 text:
                                     '${booking['actualWeight'] ?? ''} ${'svc_kg'.tr}',
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5216),
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -633,7 +635,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         ),
                         Text(
                           '${booking['actualPrice'] ?? ''}',
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -662,7 +664,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       children: [
                         Text(
                           'orders_balance_due'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -671,7 +673,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         const SizedBox(height: 2),
                         Text(
                           'orders_balance_due_hint'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 10.5,
                             fontWeight: FontWeight.w500,
@@ -681,7 +683,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     ),
                     Text(
                       '${booking['balanceDue'] ?? ''}',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -715,7 +717,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     'orders_pay_amount'.trParams({
                       'amount': '${booking['balanceDue'] ?? ''}',
                     }),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -742,7 +744,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     ),
                     child: Text(
                       'cancel'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13.5,
                         fontWeight: FontWeight.w700,
@@ -755,9 +757,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 child: GestureDetector(
                   onTap: () {
                     final category = booking['category'] as String?;
-                    // Gas uses the home cleaning screen, which shows
-                    // cylinders instead of spaces for gas bookings.
                     final Widget Function() screen = switch (category) {
+                      'Gas' => () => GasBookingDetailScreen(booking: booking),
                       'Car Wash' => () => CarWashBookingDetailScreen(
                         booking: booking,
                       ),
@@ -778,7 +779,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     children: [
                       Text(
                         'orders_view_booking_details'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "362416472448",
+    "project_id": "saimpex-customer",
+    "storage_bucket": "saimpex-customer.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362416472448:android:ade03fc6d170c8c3a78165",
+        "android_client_info": {
+          "package_name": "app.saimpex"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXaw5a7XNkJM8LPYPFnSjw6kDDZzFJQfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

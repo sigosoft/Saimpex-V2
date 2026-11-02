@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
@@ -14,6 +13,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import 'help_support_screen.dart';
 
+import '../utils/app_fonts.dart';
 /// Grocery substitution: what the store proposed for each order line
 /// (customer/orders/{id}/substitutions), answered one by one before the
 /// countdown ends (no answer = accepted, except a pricier substitute, which
@@ -209,7 +209,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                           const SizedBox(height: 20),
                           Text(
                             'subs_changes'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
@@ -222,7 +222,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                               child: Text(
                                 'subs_none'.tr,
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF8C7D73),
                                   fontSize: 13,
                                 ),
@@ -260,7 +260,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
             'subs_order'.trParams({
               'code': code.isEmpty ? '#${widget.orderId}' : code,
             }),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 17,
               fontWeight: FontWeight.w800,
@@ -282,7 +282,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                 ),
                 child: Text(
                   'subs_help'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -324,7 +324,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                   children: [
                     Text(
                       'subs_updates'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -335,7 +335,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                       'subs_banner'.trParams({
                         'store': store.isEmpty ? 'subs_the_store'.tr : store,
                       }),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF6F655C),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -421,7 +421,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
             const SizedBox(height: 8),
             Text(
               note,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF6F655C),
                 fontSize: 11.5,
                 height: 1.4,
@@ -434,7 +434,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
               change > 0
                   ? 'subs_costs_more'.trParams({'amount': _money(change)})
                   : 'subs_costs_less'.trParams({'amount': _money(-change)}),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: change > 0
                     ? const Color(0xFFE03A3A)
                     : const Color(0xFF00B25C),
@@ -449,7 +449,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
               'subs_answer_within'.trParams({
                 'time': _countdown(_secondsLeft[id] ?? 0),
               }),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5216),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -504,7 +504,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
               children: [
                 Text(
                   name,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -513,7 +513,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'mru'.trParams({'amount': _money(price)}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -524,7 +524,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
           ),
           Text(
             'X${_money(quantity)}',
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -577,7 +577,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
         children: [
           Text(
             'subs_updated_order'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFFAE00),
               fontSize: 10,
               fontWeight: FontWeight.w800,
@@ -598,7 +598,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
             const SizedBox(height: 10),
             Text(
               'subs_due_hint'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: Colors.white.withValues(alpha: 0.75),
                 fontSize: 11.5,
                 height: 1.4,
@@ -638,7 +638,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: outlined ? const Color(0xFF2C2520) : Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -653,7 +653,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white.withValues(alpha: 0.85),
             fontSize: 12,
             fontWeight: FontWeight.w500,
@@ -662,7 +662,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -722,7 +722,7 @@ class _OrderUpdatedDetailScreenState extends State<OrderUpdatedDetailScreen> {
           ],
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: color,
               fontSize: 10,
               fontWeight: FontWeight.w700,

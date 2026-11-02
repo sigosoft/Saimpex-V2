@@ -31,11 +31,16 @@ class AuthRepository {
     required String otp,
     required String language,
     String? fcmToken,
+    String name = '',
   }) async {
     final envelope = await _post(ApiConstants.verifyOtp, {
+      // New accounts keep the name typed on the login screen (existing ones don't change).
+      if (name.trim().isNotEmpty) 'name': name.trim(),
       'country_code': countryCode,
       'mobile': mobile,
       'otp': otp,
+      // Guest cart moves into the account at login (V2_DECISIONS §19).
+      if (_client.session.guestToken != null) 'guest_token': _client.session.guestToken,
       if (fcmToken != null && fcmToken.trim().isNotEmpty)
         'fcm_token': fcmToken.trim(),
     }, language);
@@ -73,6 +78,12 @@ class AuthRepository {
     } catch (_) {
       return true;
     }
+  }
+
+  /// Links this device's push token to the account (API §6.45); an empty
+  /// token unlinks it.
+  Future<void> updateFcmToken(String token) async {
+    await _post(ApiConstants.updateFcmToken, {'fcm_token': token}, 'en');
   }
 
   Future<String> logout(String language) async {

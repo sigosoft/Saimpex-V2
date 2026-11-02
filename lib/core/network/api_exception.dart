@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Trans;
 
 import 'api_message.dart';
 
@@ -10,13 +11,17 @@ class ApiException implements Exception {
 
   factory ApiException.fromDio(DioException error, String language) {
     final statusCode = error.response?.statusCode;
+    // A guest's background load that needs an account: no message to show.
+    if (error.requestOptions.extra['guest_silent'] == true) {
+      return ApiException('', statusCode: statusCode);
+    }
     final body = asJsonMap(error.response?.data);
     if (body != null && body['message'] != null) {
       return ApiException(
         resolveApiMessage(
           body['message'],
           language,
-          fallback: 'Request failed. Please try again.',
+          fallback: 'ease_err_generic'.tr,
         ),
         statusCode: statusCode,
       );
@@ -26,14 +31,14 @@ class ApiException implements Exception {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+        return ApiException('ease_err_slow'.tr, statusCode: statusCode);
       case DioExceptionType.connectionError:
-        return ApiException(
-          'Unable to connect. Please check your internet and try again.',
-          statusCode: statusCode,
-        );
+        return ApiException('ease_err_network'.tr, statusCode: statusCode);
       default:
         return ApiException(
-          'Something went wrong. Please try again.',
+          statusCode != null && statusCode >= 500
+              ? 'ease_err_server'.tr
+              : 'ease_err_generic'.tr,
           statusCode: statusCode,
         );
     }

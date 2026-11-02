@@ -15,7 +15,8 @@ class AppLocale {
 
   static const _labels = {'en': 'English', 'fr': 'Français', 'ar': 'العربية'};
 
-  static String _code = 'en';
+  /// Arabic is the main language (V2_DECISIONS §17); first open preselects it.
+  static String _code = 'ar';
 
   /// The current language code: `en`, `fr` or `ar`.
   static String get code => _code;

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../controllers/home_controller.dart';
+import '../navigation/bottom_nav_router.dart';
 import '../widgets/app_back_button.dart';
-import 'my_orders_screen.dart';
 
+import '../utils/app_fonts.dart';
 class OrderSuccessScreen extends StatelessWidget {
   /// Store points this order will earn once delivered (0 hides the line).
   final int pointsToEarn;
 
   const OrderSuccessScreen({super.key, this.pointsToEarn = 0});
+
+  // The cart tab replaces the shell with this screen (Get.off), so popping to
+  // the first route would stay here; returnToShell rebuilds the shell then.
+  static void _backToHome() =>
+      BottomNavRouter.returnToShell(tabIndex: HomeController.navHome);
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +37,7 @@ class OrderSuccessScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 1. Top-Left custom Back Button
-                AppBackButton(onTap: () => Navigator.pop(context)),
+                AppBackButton(onTap: _backToHome),
 
                 const Spacer(),
 
@@ -62,7 +68,7 @@ class OrderSuccessScreen extends StatelessWidget {
                       const SizedBox(height: 24),
                       Text(
                         'orders_placed_title'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -76,7 +82,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           'orders_earn_points_on_delivery'.trParams({
                             'points': '$pointsToEarn',
                           }),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF8C7D73),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -95,12 +101,7 @@ class OrderSuccessScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () {
-                          // Pop all screens and return to HomeScreen
-                          Navigator.of(
-                            context,
-                          ).popUntil((route) => route.isFirst);
-                        },
+                        onTap: _backToHome,
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
@@ -114,7 +115,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             'orders_back_to_home'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -126,9 +127,9 @@ class OrderSuccessScreen extends StatelessWidget {
                     const SizedBox(width: 14),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () {
-                          Get.to(() => const MyOrdersScreen());
-                        },
+                        onTap: () => BottomNavRouter.returnToShell(
+                          tabIndex: HomeController.navOrders,
+                        ),
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
@@ -151,7 +152,7 @@ class OrderSuccessScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             'orders_view_order'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,

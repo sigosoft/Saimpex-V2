@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
@@ -17,6 +16,7 @@ import '../cart_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/auto_slide_network_images.dart';
 
+import '../../utils/app_fonts.dart';
 class GroceryDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
 
@@ -332,7 +332,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               ),
               child: Text(
                 label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: selected ? Colors.white : const Color(0xFF2C2520),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -376,7 +376,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
             const SizedBox(height: 10),
             Text(
               message,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -455,7 +455,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 onSubmitted: (_) => _loadGroceryItems(),
                 decoration: InputDecoration(
                   hintText: 'st_find_in_store'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12,
                   ),
@@ -715,7 +715,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       Expanded(
                                         child: Text(
                                           storeName,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -744,7 +744,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                             const SizedBox(width: 2),
                                             Text(
                                               storeRating,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.bold,
@@ -758,7 +758,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     storeCategory,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF7A6A60),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -775,7 +775,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       const SizedBox(width: 4),
                                       Text(
                                         storeTime,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF7A6A60),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
@@ -790,7 +790,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       const SizedBox(width: 4),
                                       Text(
                                         storeDist,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF7A6A60),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
@@ -811,7 +811,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                           ),
                                           child: Text(
                                             storeDiscount,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: Colors.white,
                                               fontSize: 9,
                                               fontWeight: FontWeight.bold,
@@ -847,7 +847,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               isTemporarilyClosed
                                                   ? 'st_temporarily_closed'.tr
                                                   : 'st_currently_closed'.tr,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: const Color(0xFFEF4444),
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.bold,
@@ -907,7 +907,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                 const SizedBox(width: 8),
                                                 Text(
                                                   'st_chat_with_store'.tr,
-                                                  style: GoogleFonts.outfit(
+                                                  style: AppFonts.outfit(
                                                     color: Colors.white,
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.bold,
@@ -1110,7 +1110,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                       maxLines: 1,
                                                       overflow:
                                                           TextOverflow.visible,
-                                                      style: GoogleFonts.outfit(
+                                                      style: AppFonts.outfit(
                                                         color: isSelected
                                                             ? const Color(
                                                                 0xFFFF5216,
@@ -1187,7 +1187,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         alignment: AlignmentDirectional.centerStart,
                         child: Text(
                           'st_smart_bundles'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1221,7 +1221,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         alignment: AlignmentDirectional.centerStart,
                         child: Text(
                           'st_all_store_items'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1353,7 +1353,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         alignment: Alignment.center,
                         child: Text(
                           '${controller.cartItemCount.value}',
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1373,7 +1373,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       'count':
                                           '${controller.cartItemCount.value}',
                                     }),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -1381,7 +1381,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             ),
                             Text(
                               'st_ready_in'.trParams({'time': '30-35'}),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w500,
@@ -1399,7 +1399,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 controller.cartAmount.value,
                               ),
                             }),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -1471,7 +1471,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1480,7 +1480,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 const SizedBox(height: 2),
                 Text(
                   itemsDesc,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
@@ -1491,7 +1491,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                   children: [
                     Text(
                       price,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -1501,7 +1501,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       const SizedBox(width: 6),
                       Text(
                         originalPrice,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 10,
                           decoration: TextDecoration.lineThrough,
@@ -1521,7 +1521,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       SnackBar(
                         content: Text(
                           'st_store_not_accepting'.tr,
-                          style: GoogleFonts.outfit(),
+                          style: AppFonts.outfit(),
                         ),
                         backgroundColor: const Color(0xFFEF4444),
                       ),
@@ -1589,7 +1589,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                   const SizedBox(width: 5),
                   Text(
                     isNotAccepting ? 'st_closed_caps'.tr : 'st_add_caps'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -1660,7 +1660,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 children: [
                   Text(
                     '${variant['label']}',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -1670,7 +1670,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                   const SizedBox(height: 2),
                   Text(
                     inStock ? '${variant['price']}' : 'st_out_of_stock'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: inStock
                           ? const Color(0xFFFF5216)
                           : const Color(0xFF7A6A60),
@@ -1733,7 +1733,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       ),
                       child: Text(
                         (food['discount'] ?? '').toString(),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 8,
                           fontWeight: FontWeight.bold,
@@ -1755,7 +1755,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       (food['title'] ?? '').toString(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -1772,7 +1772,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         const SizedBox(width: 2),
                         Text(
                           (food['rating'] ?? '4.5').toString(),
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -1784,7 +1784,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             '(${food['reviews'] ?? ''})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFA59A94),
                               fontSize: 9,
                             ),
@@ -1795,7 +1795,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     const SizedBox(height: 4),
                     Text(
                       (food['originalPrice'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFA59A94),
                         fontSize: 10,
                         decoration: TextDecoration.lineThrough,
@@ -1804,7 +1804,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                     ),
                     Text(
                       (food['price'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -1818,7 +1818,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 SnackBar(
                                   content: Text(
                                     'st_store_not_accepting'.tr,
-                                    style: GoogleFonts.outfit(),
+                                    style: AppFonts.outfit(),
                                   ),
                                   backgroundColor: const Color(0xFFEF4444),
                                 ),
@@ -1866,7 +1866,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   : (food['inStock'] == false
                                         ? 'st_sold_out_caps'.tr
                                         : 'st_add_caps'.tr),
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -1946,7 +1946,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                             children: [
                               Text(
                                 (food['title'] ?? '').toString(),
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -1965,7 +1965,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 ),
                                 child: Text(
                                   (food['tag'] ?? 'Grocery').toString(),
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
@@ -1980,7 +1980,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 children: [
                                   Text(
                                     (food['price'] ?? '').toString(),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFFF5216),
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -1989,7 +1989,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   const SizedBox(width: 8),
                                   Text(
                                     (food['originalPrice'] ?? '').toString(),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
                                       decoration: TextDecoration.lineThrough,
@@ -2011,7 +2011,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   const SizedBox(width: 4),
                                   Text(
                                     '${food['rating'] ?? '4.5'} (${food['reviews'] ?? ''})',
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500,
@@ -2023,7 +2023,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
 
                               Text(
                                 'st_product_description'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF7A6A60),
                                   fontSize: 12,
                                   height: 1.5,
@@ -2044,7 +2044,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                 SnackBar(
                                                   content: Text(
                                                     'st_store_not_accepting'.tr,
-                                                    style: GoogleFonts.outfit(),
+                                                    style: AppFonts.outfit(),
                                                   ),
                                                   backgroundColor: const Color(
                                                     0xFFEF4444,
@@ -2104,7 +2104,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                               isNotAccepting
                                                   ? 'st_closed_caps'.tr
                                                   : 'st_add_to_cart_caps'.tr,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.bold,
@@ -2279,7 +2279,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       const SizedBox(height: 16),
                       Text(
                         title,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -2301,7 +2301,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               // Quantity Section
                               Text(
                                 'st_quantity'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -2361,13 +2361,13 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                 ),
                                 alignment: AlignmentDirectional.centerStart,
                                 child: TextField(
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     fontSize: 12,
                                     color: const Color(0xFF2C2520),
                                   ),
                                   decoration: InputDecoration(
                                     hintText: 'st_customize_quantity'.tr,
-                                    hintStyle: GoogleFonts.outfit(
+                                    hintStyle: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 12,
                                     ),
@@ -2382,7 +2382,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               // Add Order Notes Section
                               Text(
                                 'st_add_order_notes'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -2412,7 +2412,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                         controller: notesController,
                                         maxLines: 2,
                                         minLines: 1,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           fontSize: 12,
                                           color: const Color(0xFF2C2520),
                                         ),
@@ -2428,7 +2428,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                                       '',
                                                     ),
                                               }),
-                                          hintStyle: GoogleFonts.outfit(
+                                          hintStyle: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 12,
                                           ),
@@ -2522,7 +2522,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   const SizedBox(width: 12),
                                   Text(
                                     quantity.toString(),
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
@@ -2631,7 +2631,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                         'st_added_to_cart'.trParams({
                                           'item': '${food['title']}',
                                         }),
-                                        style: GoogleFonts.outfit(),
+                                        style: AppFonts.outfit(),
                                       ),
                                       backgroundColor: const Color(0xFFFF5216),
                                       duration: const Duration(seconds: 2),
@@ -2671,7 +2671,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                       const SizedBox(width: 8),
                                       Text(
                                         'st_add_caps'.tr,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: Colors.white,
                                           fontSize: 13,
                                           fontWeight: FontWeight.bold,
@@ -2880,7 +2880,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
         ),
         child: Text(
           _chipKeys[label]?.tr ?? label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: isSelected
                 ? const Color(0xFFFF5216)
                 : const Color(0xFF2C2520),
@@ -2919,7 +2919,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                       const SizedBox(width: 60),
                       Text(
                         'st_filters'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -2929,7 +2929,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                         onTap: _clearAll,
                         child: Text(
                           'st_clear_all'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -2976,7 +2976,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                     children: [
                       Text(
                         'st_price_range'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -2987,7 +2987,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                           'min': '${priceRange.start.round()}',
                           'max': '${priceRange.end.round()}',
                         }),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -3028,7 +3028,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                     children: [
                       Text(
                         'mru'.trParams({'amount': '0'}),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -3036,7 +3036,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                       ),
                       Text(
                         'mru'.trParams({'amount': '3000'}),
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -3049,7 +3049,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                 Center(
                   child: Text(
                     'st_sort_by'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -3096,7 +3096,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                           ),
                           child: Text(
                             'st_clear_all'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -3130,7 +3130,7 @@ class _GroceryFilterBottomSheetState extends State<_GroceryFilterBottomSheet> {
                             ),
                             child: Text(
                               'st_apply'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,

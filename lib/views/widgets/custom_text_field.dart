@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../constants/colors.dart';
 
+import '../../utils/app_fonts.dart';
 class CustomTextField extends StatelessWidget {
   final String label;
   final String hintText;
@@ -25,7 +25,7 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: AppColors.labelMuted,
             fontSize: 11,
             fontWeight: FontWeight.bold,
@@ -49,14 +49,14 @@ class CustomTextField extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   keyboardType: keyboardType,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.black87,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
                     hintText: hintText,
-                    hintStyle: GoogleFonts.outfit(
+                    hintStyle: AppFonts.outfit(
                       color: AppColors.inputHint,
                       fontSize: 13,
                       fontWeight: FontWeight.normal,

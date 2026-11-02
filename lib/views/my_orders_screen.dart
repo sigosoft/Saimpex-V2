@@ -1,6 +1,6 @@
+import '../widgets/motion.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'order_detail_screen.dart';
 import 'order_updated_detail_screen.dart';
 import 'water/water_order_details_screen.dart';
@@ -27,6 +27,7 @@ import '../widgets/home_background_blend.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
+import '../utils/app_fonts.dart';
 class MyOrdersScreen extends StatefulWidget {
   final bool showBottomNav;
   final int initialCategoryIndex;
@@ -251,7 +252,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                               alignment: Alignment.center,
                               child: Text(
                                 categories[index].tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: isSelected
                                       ? Colors.white
                                       : const Color(0xFF8A7F77),
@@ -315,9 +316,38 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         _buildWaterOrders(),
         _buildCourierOrders(),
         _buildOtherCategoryOrders(),
+        if (_noOrdersAtAll)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 28),
+            child: Center(
+              child: Text(
+                'orders_no_orders'.tr,
+                style: AppFonts.outfit(
+                  color: const Color(0xFFA59A94),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
+
+  /// Every list loaded and empty: "All" shows a single "No orders".
+  bool get _noOrdersAtAll =>
+      !_restaurantOrdersLoading &&
+      !_groceryOrdersLoading &&
+      !_pharmacyOrdersLoading &&
+      !_waterOrdersLoading &&
+      !_courierOrdersLoading &&
+      !_localStoreOrdersLoading &&
+      _restaurantOrders.isEmpty &&
+      _groceryOrders.isEmpty &&
+      _pharmacyOrders.isEmpty &&
+      _waterOrders.isEmpty &&
+      _courierOrders.isEmpty &&
+      _localStoreOrders.isEmpty;
 
   Future<void> _loadGroceryOrders() async {
     if (!Get.isRegistered<GroceryRepository>()) return;
@@ -401,23 +431,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       );
     }
-    if (_groceryOrders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        child: Center(
-          child: Text(
-            'orders_no_orders'.tr,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
+    // On "All" an empty section shows nothing; one message covers them all.
+    if (_groceryOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
-      children: [for (final order in _groceryOrders) _groceryOrderCard(order)],
+      children: [for (final order in _groceryOrders) FadeSlideIn(child: _groceryOrderCard(order))],
     );
   }
 
@@ -439,7 +456,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     return _buildOrderCard(
       restaurantName:
           '${order['restaurantName'] ?? 'search_vertical_grocery'.tr}',
-      statusText: statusText,
+      statusText: '${order['statusLabel'] ?? statusText}',
       statusColor: badge.$1,
       statusBgColor: badge.$2,
       detailsText: details,
@@ -512,24 +529,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       );
     }
-    if (_restaurantOrders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        child: Center(
-          child: Text(
-            'orders_no_orders'.tr,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
+    // On "All" an empty section shows nothing; one message covers them all.
+    if (_restaurantOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [
-        for (final order in _restaurantOrders) _restaurantOrderCard(order),
+        for (final order in _restaurantOrders) FadeSlideIn(child: _restaurantOrderCard(order)),
       ],
     );
   }
@@ -558,7 +562,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
     return _buildOrderCard(
       restaurantName: '${order['restaurantName'] ?? 'orders_restaurant'.tr}',
-      statusText: statusText,
+      statusText: '${order['statusLabel'] ?? statusText}',
       statusColor: badge.$1,
       statusBgColor: badge.$2,
       detailsText: details,
@@ -740,7 +744,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
             child: Text(
               'orders_my_prescriptions'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5216),
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -763,24 +767,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       );
     }
-    if (_pharmacyOrders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        child: Center(
-          child: Text(
-            'orders_no_orders'.tr,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
+    // On "All" an empty section shows nothing; one message covers them all.
+    if (_pharmacyOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [
-        for (final order in _pharmacyOrders) _pharmacyOrderCard(order),
+        for (final order in _pharmacyOrders) FadeSlideIn(child: _pharmacyOrderCard(order)),
       ],
     );
   }
@@ -904,21 +895,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       );
     }
-    if (_waterOrders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        child: Center(
-          child: Text(
-            'orders_no_orders'.tr,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFFA59A94),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
+    // On "All" an empty section shows nothing; one message covers them all.
+    if (_waterOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [for (final order in _waterOrders) _waterOrderCard(order)],
     );
@@ -936,7 +914,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         : (const Color(0xFFFF8A00), const Color(0xFFFFF4EC));
     return _buildOrderCard(
       restaurantName: '${order['vendorName']}',
-      statusText: statusText.toUpperCase(),
+      statusText: '${order['statusLabel'] ?? statusText}'.toUpperCase(),
       statusColor: statusColor,
       statusBgColor: statusBgColor,
       detailsText:
@@ -1078,7 +1056,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       child: Center(
         child: Text(
           'orders_no_orders'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFFA59A94),
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -1121,7 +1099,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             children: [
               Text(
                 restaurantName,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -1138,7 +1116,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
                 child: Text(
                   statusText,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: statusColor,
                     fontSize: 8.5,
                     fontWeight: FontWeight.bold,
@@ -1153,7 +1131,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           // Details text
           Text(
             detailsText,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 10.5,
               fontWeight: FontWeight.w500,
@@ -1176,7 +1154,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   children: [
                     Text(
                       'orders_view_status_details'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 10.5,
                         fontWeight: FontWeight.bold,
@@ -1214,7 +1192,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           alignment: Alignment.center,
           child: Text(
             text,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -1252,7 +1230,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           alignment: Alignment.center,
           child: Text(
             text,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -1292,7 +1270,7 @@ class _TrackingSheet extends StatelessWidget {
         children: [
           Text(
             'orders_tracking_title'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               fontSize: 16,
               fontWeight: FontWeight.w800,
             ),
@@ -1301,7 +1279,7 @@ class _TrackingSheet extends StatelessWidget {
           if (data.isEmpty)
             Text(
               '${detail['message'] ?? 'orders_no_details'.tr}',
-              style: GoogleFonts.outfit(fontSize: 13),
+              style: AppFonts.outfit(fontSize: 13),
             )
           else
             for (final entry in data.entries)
@@ -1309,7 +1287,7 @@ class _TrackingSheet extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   '${entry.key}: ${entry.value}',
-                  style: GoogleFonts.outfit(fontSize: 13),
+                  style: AppFonts.outfit(fontSize: 13),
                 ),
               ),
         ],

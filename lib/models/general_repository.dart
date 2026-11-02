@@ -5,6 +5,7 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/store_labels.dart';
 
 class GeneralRepository {
   GeneralRepository(this._client);
@@ -271,7 +272,7 @@ class GeneralRepository {
       final name = _localized(vendor, 'name', language);
       final cuisine = _localized(vendor, 'cuisine_label', language);
       final category = _localized(vendor, 'category_label', language);
-      final offerText = vendor['offer_text']?.toString().trim() ?? '';
+      final offerText = localizedStoreText(vendor['offer_text']);
       final offer = _asNum(
         vendor['offer_percentage'] ?? vendor['max_offer_percentage'],
       );
@@ -290,12 +291,12 @@ class GeneralRepository {
         'title': name,
         'subtitle': cuisine.isNotEmpty ? cuisine : category,
         'rating': vendor['rating']?.toString() ?? '',
-        'time': vendor['delivery_time_text']?.toString() ?? '',
-        'dist': distance == null ? '' : '$distance Km',
+        'time': localizedStoreText(vendor['delivery_time_text']),
+        'dist': distance == null ? '' : kmLabel(distance),
         'discount': offerText.isNotEmpty
             ? offerText
-            : (offer > 0 ? '${_number(offer)}% OFF' : ''),
-        'points': points > 0 ? '${_number(points)} Points Available' : '',
+            : (offer > 0 ? offLabel(_number(offer)) : ''),
+        'points': points > 0 ? pointsLabel(_number(points)) : '',
         'isClosed': !isOpen,
         'isTemporarilyClosed': busyMode > 1,
         'isFavourite': isFav,
@@ -493,6 +494,24 @@ class GeneralRepository {
     return (
       title: title.isEmpty ? 'Terms & Conditions' : title,
       content: content,
+    );
+  }
+
+  /// Help contacts set in Admin → Branding (V2_DECISIONS §17): never hard-coded.
+  Future<({String whatsapp, String phone, String email})> fetchSupportContacts(
+    String language,
+  ) async {
+    final envelope = await _send(
+      () => _client.dio.get(ApiConstants.branding),
+      language,
+    );
+    final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+    final branding = asJsonMap(data['branding']) ?? data;
+    String read(String key) => branding[key]?.toString().trim() ?? '';
+    return (
+      whatsapp: read('support_whatsapp'),
+      phone: read('support_phone'),
+      email: read('support_email'),
     );
   }
 

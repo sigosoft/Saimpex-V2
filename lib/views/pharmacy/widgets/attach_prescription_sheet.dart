@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../models/cart_repository.dart';
@@ -11,6 +10,7 @@ import '../../../utils/api_language.dart';
 import '../../../utils/toast_helper.dart';
 import '../../home_scanner_screen.dart';
 
+import '../../../utils/app_fonts.dart';
 /// Shown after adding a pharmacy item that needs a prescription.
 /// Uploads the prescription to the cart via `cart/pharmacy/attachPrescription`.
 class AttachPrescriptionSheet extends StatefulWidget {
@@ -110,7 +110,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
           Text(
             'pw_prescription_required'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -120,7 +120,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
           Text(
             'pw_attach_prescription_hint'.tr,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -162,7 +162,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
                     _fileLabel!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -177,10 +177,10 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
             controller: _noteController,
             maxLines: 2,
             maxLength: 2000,
-            style: GoogleFonts.outfit(fontSize: 13),
+            style: AppFonts.outfit(fontSize: 13),
             decoration: InputDecoration(
               hintText: 'pw_note_for_pharmacist'.tr,
-              hintStyle: GoogleFonts.outfit(
+              hintStyle: AppFonts.outfit(
                 color: const Color(0xFFB0A59C),
                 fontSize: 13,
               ),
@@ -218,7 +218,7 @@ class _AttachPrescriptionSheetState extends State<AttachPrescriptionSheet> {
                       )
                     : Text(
                         'pw_attach_prescription'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -263,7 +263,7 @@ class _SourceButton extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,

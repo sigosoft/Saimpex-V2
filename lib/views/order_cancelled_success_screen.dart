@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
 import '../widgets/app_back_button.dart';
 import '../navigation/bottom_nav_router.dart';
 
+import '../utils/app_fonts.dart';
 /// Shown after a user confirms cancelling an order.
 class OrderCancelledSuccessScreen extends StatelessWidget {
   final String? orderId;
@@ -58,7 +58,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                       const SizedBox(height: 28),
                       Text(
                         'orders_cancelled_title'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
@@ -68,7 +68,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         'orders_cancelled_refunded'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF8C7D73),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -96,7 +96,7 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       'orders_back_to_home'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,

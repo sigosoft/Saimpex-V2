@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart' show Trans;
 
 import '../storage/session_store.dart';
 import 'api_constants.dart';
@@ -24,7 +25,8 @@ class DioClient {
           final path = options.path;
           final isOpenAuth =
               path == ApiConstants.sendOtp || path == ApiConstants.verifyOtp;
-          final token = session.token;
+          // Logged-in token first; otherwise the guest cart token (V2_DECISIONS §19).
+          final token = (session.token != null && session.token!.isNotEmpty) ? session.token : session.guestToken;
           if (!isOpenAuth && token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -35,9 +37,45 @@ class DioClient {
           logDioResponse(response);
           handler.next(response);
         },
-        onError: (error, handler) {
+        onError: (error, handler) async {
           logDioError(error);
+          // A guest's first cart request: start a guest session and retry once.
+          if (_needsGuestSession(error)) {
+            final retried = await _retryWithGuestSession(error.requestOptions);
+            if (retried != null) return handler.resolve(retried);
+          }
+          // A guest token the server no longer knows (e.g. merged at login on another phone): drop it.
+          if (error.response?.statusCode == 401 && !_serverSaysLoginRequired(error) &&
+              session.guestToken != null && error.requestOptions.headers['Authorization']?.toString() == 'Bearer ${session.guestToken}') {
+            await session.saveGuestToken(null);
+          }
           _checkSessionExpired(error);
+          // 503: the server is under maintenance; show "We'll be right back".
+          if (error.response?.statusCode == 503) onServerDown?.call();
+          if (_isGuestLoginRequired(error)) {
+            // Guest tried something that needs an account: friendly message, and
+            // the login sheet (V2_DECISIONS §17), not "Unauthenticated."
+            // Only for actions: screens load account data (wallet, notifications)
+            // in the background with GET, and those must not pop the sheet.
+            if (error.requestOptions.method.toUpperCase() != 'GET') {
+              onLoginRequired?.call();
+            } else {
+              // Background load for a guest: fail quietly (no toast).
+              error.requestOptions.extra['guest_silent'] = true;
+            }
+            handler.reject(
+              DioException(
+                requestOptions: error.requestOptions,
+                type: DioExceptionType.badResponse,
+                response: Response(
+                  requestOptions: error.requestOptions,
+                  statusCode: 401,
+                  data: {'status': false, 'message': 'ease_login_required'.tr},
+                ),
+              ),
+            );
+            return;
+          }
           handler.next(error);
         },
       ),
@@ -51,6 +89,47 @@ class DioClient {
   /// session (token expired or revoked). Set in main.dart: it clears the
   /// session and returns to Login. Not called again once the session is gone.
   void Function()? onSessionExpired;
+
+  /// Called when the server answers 503 (maintenance). Set in main.dart.
+  void Function()? onServerDown;
+
+  /// Called when a guest (no session) gets a 401: show the login sheet.
+  void Function()? onLoginRequired;
+
+  bool _isGuestLoginRequired(DioException error) {
+    if (error.response?.statusCode != 401) return false;
+    if (_serverSaysLoginRequired(error)) return true;
+    final token = session.token;
+    return token == null || token.isEmpty;
+  }
+
+  bool _serverSaysLoginRequired(DioException error) {
+    final data = error.response?.data;
+    return data is Map && data['login_required'] == true;
+  }
+
+  static final _cartPath = RegExp(r'^customer/(cart|catalog/cart)/|^customer/(catalog/)?checkoutSummary');
+
+  bool _needsGuestSession(DioException error) {
+    if (error.response?.statusCode != 401) return false;
+    final hasLogin = session.token != null && session.token!.isNotEmpty;
+    return !hasLogin && session.guestToken == null && _cartPath.hasMatch(error.requestOptions.path);
+  }
+
+  Future<Response<dynamic>?> _retryWithGuestSession(RequestOptions failed) async {
+    try {
+      final plain = Dio(BaseOptions(baseUrl: dio.options.baseUrl, headers: const {'Accept': 'application/json'}));
+      final res = await plain.post(ApiConstants.guestSession);
+      final data = res.data is Map ? res.data['data'] : null;
+      final guest = data is Map ? data['token']?.toString() : null;
+      if (guest == null || guest.isEmpty) return null;
+      await session.saveGuestToken(guest);
+      failed.headers['Authorization'] = 'Bearer $guest';
+      return await dio.fetch(failed);
+    } catch (_) {
+      return null;
+    }
+  }
 
   void _checkSessionExpired(DioException error) {
     if (error.response?.statusCode != 401) return;

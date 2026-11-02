@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../models/pharmacy_repository.dart';
@@ -8,6 +7,7 @@ import '../../../utils/api_language.dart';
 import '../../../utils/toast_helper.dart';
 import '../../widgets/auto_slide_network_images.dart';
 
+import '../../../utils/app_fonts.dart';
 void showPharmacyProductDetailsSheet(
   BuildContext context, {
   required Map<String, dynamic> food,
@@ -110,7 +110,7 @@ void showPharmacyProductDetailsSheet(
                                   children: [
                                     Text(
                                       food['title']!,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF2C2520),
                                         fontSize: 18,
                                         fontWeight: FontWeight.w800,
@@ -119,7 +119,7 @@ void showPharmacyProductDetailsSheet(
                                     const SizedBox(height: 4),
                                     Text(
                                       food['tag']!,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFFA59A94),
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -140,7 +140,7 @@ void showPharmacyProductDetailsSheet(
                                         ),
                                         child: Text(
                                           'pw_prescription_required'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: Colors.white,
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
@@ -156,7 +156,7 @@ void showPharmacyProductDetailsSheet(
                                       children: [
                                         Text(
                                           food['price']!,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFFF5216),
                                             fontSize: 20,
                                             fontWeight: FontWeight.w800,
@@ -165,7 +165,7 @@ void showPharmacyProductDetailsSheet(
                                         const SizedBox(width: 10),
                                         Text(
                                           food['originalPrice']!,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 13,
                                             decoration:
@@ -179,7 +179,7 @@ void showPharmacyProductDetailsSheet(
                                           const SizedBox(width: 10),
                                           Text(
                                             discount,
-                                            style: GoogleFonts.outfit(
+                                            style: AppFonts.outfit(
                                               color: const Color(0xFFFF5216),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w700,
@@ -199,7 +199,7 @@ void showPharmacyProductDetailsSheet(
                                         const SizedBox(width: 4),
                                         Text(
                                           '${food['rating']!} (${food['reviews']!})',
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFF2C2520),
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
@@ -211,7 +211,7 @@ void showPharmacyProductDetailsSheet(
                                     Text(
                                       description,
                                       textAlign: TextAlign.justify,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF7A6A60),
                                         fontSize: 12,
                                         height: 1.55,
@@ -224,7 +224,7 @@ void showPharmacyProductDetailsSheet(
                                         'pw_generic_name'.trParams({
                                           'name': genericName,
                                         }),
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: const Color(0xFF2C2520),
                                           fontSize: 13,
                                           fontWeight: FontWeight.w600,
@@ -263,7 +263,7 @@ void showPharmacyProductDetailsSheet(
                                                     'name':
                                                         '${generic['title'] ?? ''}',
                                                   }),
-                                                  style: GoogleFonts.outfit(
+                                                  style: AppFonts.outfit(
                                                     color: const Color(
                                                       0xFF008282,
                                                     ),
@@ -303,7 +303,7 @@ void showPharmacyProductDetailsSheet(
                                           SnackBar(
                                             content: Text(
                                               'pw_pharmacy_closed_msg'.tr,
-                                              style: GoogleFonts.outfit(),
+                                              style: AppFonts.outfit(),
                                             ),
                                             backgroundColor: const Color(
                                               0xFFEF4444,
@@ -367,7 +367,7 @@ void showPharmacyProductDetailsSheet(
                                         isNotAccepting
                                             ? 'pw_closed_caps'.tr
                                             : 'pw_add_caps'.tr,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: Colors.white,
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,

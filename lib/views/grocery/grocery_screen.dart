@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
@@ -16,6 +15,7 @@ import '../../widgets/see_all_button.dart';
 import '../widgets/search_camera_button.dart';
 import '../select_location_screen.dart';
 
+import '../../utils/app_fonts.dart';
 class GroceryScreen extends StatefulWidget {
   const GroceryScreen({super.key});
 
@@ -214,7 +214,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
             const SizedBox(height: 10),
             Text(
               message,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -278,15 +278,13 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       ),
                       child: Text(
                         'st_grocery'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
-                    _buildAIPredictiveCard(),
-                    _buildAITipRow(),
 
                     // Pins when scrolled: search + subcategories
                     KeyedSubtree(
@@ -377,7 +375,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       children: [
                         Text(
                           'st_deliver_to'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF7A6A60),
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
@@ -392,7 +390,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                   SelectLocationController.deliveryLabel.value,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -443,215 +441,13 @@ class _GroceryScreenState extends State<GroceryScreen> {
                 const SizedBox(width: 3),
                 Text(
                   _walletText,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // AI Predictive Card
-  Widget _buildAIPredictiveCard() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 4, 16, 10),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFF5216),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: const Icon(
-                  Icons.auto_awesome,
-                  color: Colors.white,
-                  size: 16,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                'st_ai_predictive'.tr,
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFFFF5216),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.6,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'st_ai_eggs_title'.tr,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 17,
-              fontWeight: FontWeight.w800,
-              height: 1.25,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'st_ai_eggs_body'.tr,
-            style: GoogleFonts.outfit(
-              color: const Color(0xFF6F655C),
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFF5216).withValues(alpha: 0.35),
-                    blurRadius: 12,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.shopping_cart_outlined,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'st_add_bundle'.tr,
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // AI Tip Row Banner
-  Widget _buildAITipRow() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF7F0),
-        borderRadius: BorderRadius.circular(40),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.auto_awesome, color: Color(0xFFFF5216), size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: GoogleFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 12,
-                  height: 1.3,
-                  fontWeight: FontWeight.w500,
-                ),
-                children: [
-                  TextSpan(
-                    text: 'st_ai_tip'.tr,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF0B7A4B),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12,
-                    ),
-                  ),
-                  TextSpan(text: 'st_ai_tip_text'.tr),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFF5216).withValues(alpha: 0.35),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.shopping_cart_outlined,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'st_add'.tr,
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
@@ -695,10 +491,10 @@ class _GroceryScreenState extends State<GroceryScreen> {
                     keyword: value.trim().isNotEmpty ? value.trim() : null,
                   );
                 },
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+                style: AppFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'st_search_hint'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 12.5,
                   ),
@@ -861,7 +657,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.visible,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: isSelected
                                   ? const Color(0xFFFF5216)
                                   : const Color(0xFF3A312C),
@@ -1022,7 +818,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               ),
                               child: Text(
                                 discountText,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
@@ -1061,7 +857,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 const SizedBox(width: 2),
                                 Text(
                                   ratingText,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 9,
                                     fontWeight: FontWeight.bold,
@@ -1135,7 +931,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                   const SizedBox(width: 4),
                                   Text(
                                     pointsText,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: Colors.white,
                                       fontSize: 8,
                                       fontWeight: FontWeight.bold,
@@ -1159,7 +955,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           nameText,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -1170,7 +966,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           categoryText,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 10,
                           ),
@@ -1187,7 +983,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 timeText,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF7A6A60),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
@@ -1204,7 +1000,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 distText,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF7A6A60),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
@@ -1322,7 +1118,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               nameText,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1337,7 +1133,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
                           Text(
                             ratingText,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF2C2520),
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -1350,7 +1146,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         itemsText,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 10,
                         ),
@@ -1366,7 +1162,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           const SizedBox(width: 4),
                           Text(
                             dateText,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFF7A6A60),
                               fontSize: 9,
                             ),
@@ -1385,7 +1181,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                   children: [
                     Text(
                       countText,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 9,
                       ),
@@ -1416,7 +1212,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                             const SizedBox(width: 2),
                             Text(
                               'st_reorder'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5216),
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
@@ -1556,7 +1352,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               ),
                               child: Text(
                                 discountText,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: Colors.white,
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
@@ -1595,7 +1391,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 const SizedBox(width: 2),
                                 Text(
                                   ratingText,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 9,
                                     fontWeight: FontWeight.bold,
@@ -1671,7 +1467,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                       const SizedBox(width: 4),
                                       Text(
                                         pointsText,
-                                        style: GoogleFonts.outfit(
+                                        style: AppFonts.outfit(
                                           color: Colors.white,
                                           fontSize: 8,
                                           fontWeight: FontWeight.bold,
@@ -1702,7 +1498,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                     const SizedBox(width: 4),
                                     Text(
                                       timeText,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 8,
                                         fontWeight: FontWeight.bold,
@@ -1728,7 +1524,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           nameText,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -1739,7 +1535,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           categoryText,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFA59A94),
                             fontSize: 10,
                           ),
@@ -1871,7 +1667,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               const SizedBox(width: 2),
                               Text(
                                 ratingText,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF2C2520),
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
@@ -1895,7 +1691,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         nameText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -1906,7 +1702,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                         storeText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 9,
                         ),
@@ -1920,7 +1716,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               priceText,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5216),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1947,7 +1743,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 const SizedBox(width: 3),
                                 Text(
                                   'st_add'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 9,
                                     fontWeight: FontWeight.bold,
@@ -1983,7 +1779,7 @@ Widget _buildSectionHeader(
       children: [
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 15,
             fontWeight: FontWeight.bold,
@@ -1997,7 +1793,7 @@ Widget _buildSectionHeader(
                   children: [
                     Text(
                       actionText.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFFFF5216),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,

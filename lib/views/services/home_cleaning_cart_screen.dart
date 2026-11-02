@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import 'home_cleaning_choose_slot_sheet.dart';
@@ -14,6 +13,7 @@ import '../../utils/payment_methods.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/no_payment_method_note.dart';
 
+import '../../utils/app_fonts.dart';
 /// Display text for a home-cleaning space, extra or pest label. The labels
 /// stay English in the booking data (they are matched against the catalog);
 /// only what is shown is translated.
@@ -441,7 +441,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           ),
           Text(
             'svc_cart'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF1A1A1A),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -458,7 +458,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         Expanded(
           child: Text(
             'svc_from_provider'.trParams({'provider': widget.providerName}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF9A8E86),
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -478,7 +478,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               const SizedBox(width: 4),
               Text(
                 'svc_clear_all'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -494,7 +494,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: AppFonts.outfit(
         color: const Color(0xFF1A1A1A),
         fontSize: 16,
         fontWeight: FontWeight.w800,
@@ -551,7 +551,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                     Expanded(
                       child: Text(
                         widget.serviceTitle,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -562,7 +562,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       onTap: () => Get.back(),
                       child: Text(
                         'svc_edit'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
@@ -576,7 +576,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   widget.serviceDescription,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 12.5,
                     height: 1.35,
@@ -681,7 +681,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 11.5,
                     fontWeight: FontWeight.w600,
@@ -708,7 +708,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               providerSelected
                   ? 'svc_plus_mru'.trParams({'amount': '${widget.productsFee}'})
                   : 'mru'.trParams({'amount': '0'}),
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF5216),
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -761,7 +761,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                           providerSelected
                               ? 'svc_provider_provides_products'.tr
                               : 'svc_self_provides_products'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -772,7 +772,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                           providerSelected
                               ? 'svc_provider_products_hint'.tr
                               : 'svc_self_products_hint'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF8A7E76),
                             fontSize: 12,
                             height: 1.35,
@@ -797,7 +797,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                       : 'svc_switch_to_provider'.trParams({
                           'amount': '${widget.productsFee}',
                         }),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -831,7 +831,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               children: [
                 Text(
                   homeCleaningLabelText(label),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14.5,
                     fontWeight: FontWeight.w700,
@@ -843,7 +843,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                     'rate': '$rate',
                     'qty': '$qty',
                   }),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF9A8E86),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
@@ -854,7 +854,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           ),
           Text(
             'mru'.trParams({'amount': '$total'}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 14.5,
               fontWeight: FontWeight.w800,
@@ -901,7 +901,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               children: [
                 Text(
                   SelectLocationController.selectedTitle,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -912,7 +912,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   SelectLocationController.selectedSubtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF8A7E76),
                     fontSize: 11.5,
                   ),
@@ -922,7 +922,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           ),
           Text(
             'svc_edit'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -965,7 +965,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 children: [
                   Text(
                     'svc_your_slot'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFFF5216),
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
@@ -974,7 +974,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   const SizedBox(height: 2),
                   Text(
                     _slotDisplay,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF6B6B6B),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w500,
@@ -1046,7 +1046,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -1054,7 +1054,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                   ),
                   Text(
                     subtitle,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 12,
                     ),
@@ -1105,7 +1105,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         children: [
           Text(
             'svc_payment_details'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
@@ -1124,7 +1124,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             const SizedBox(height: 10),
             Text(
               _quoteError!,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFFF8A80),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -1138,7 +1138,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
             children: [
               Text(
                 'svc_to_pay'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -1147,7 +1147,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               const Spacer(),
               Text(
                 'mru'.trParams({'amount': '$_toPay'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -1165,7 +1165,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
@@ -1174,7 +1174,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: valueColor ?? Colors.white,
             fontSize: 13.5,
             fontWeight: FontWeight.w600,
@@ -1204,7 +1204,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         children: [
           Text(
             'svc_total_upper'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF8A7E76),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -1214,7 +1214,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
           const SizedBox(height: 2),
           Text(
             'mru'.trParams({'amount': '$_toPay'}),
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -1246,7 +1246,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
                 _booking
                     ? 'svc_booking_in_progress'.tr
                     : 'svc_pay_amount'.trParams({'amount': '$_toPay'}),
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,

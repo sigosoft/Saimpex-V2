@@ -1,6 +1,6 @@
+import '../widgets/motion.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/network/api_exception.dart';
 import '../models/profile_repository.dart';
@@ -8,6 +8,7 @@ import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
+import '../utils/app_fonts.dart';
 /// The customer's notifications from the server, newest first.
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -57,7 +58,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   const SizedBox(width: 12),
                   Text(
                     'core_notifications_title'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -89,7 +90,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             Center(
               child: Text(
                 'core_notifications_empty'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF7A6A60),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -107,7 +108,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         itemCount: _notifications.length,
         separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) => _card(_notifications[index]),
+        itemBuilder: (context, index) => FadeSlideIn(child: _card(_notifications[index])),
       ),
     );
   }
@@ -132,7 +133,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         children: [
           Text(
             title,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -142,7 +143,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             const SizedBox(height: 6),
             Text(
               content,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF7A6A60),
                 fontSize: 12.5,
                 fontWeight: FontWeight.w500,
@@ -154,7 +155,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             const SizedBox(height: 8),
             Text(
               when,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFA59A94),
                 fontSize: 10.5,
                 fontWeight: FontWeight.w500,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/wallet_repository.dart';
@@ -16,6 +15,7 @@ import '../../widgets/app_back_button.dart';
 
 import 'water_subscription_success_screen.dart';
 
+import '../../utils/app_fonts.dart';
 /// Review and buy a water subscription (water/subscribe): plan price ×
 /// quantity, paid in cash on the first delivery, online (Masrvi) or from the
 /// wallet. Success shows only once an online payment is confirmed.
@@ -204,7 +204,7 @@ class _WaterSubscriptionCartScreenState
                   alignment: AlignmentDirectional.centerStart,
                   child: Text(
                     'pw_from_pharmacy'.trParams({'name': widget.storeName}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF8C7E75),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -275,7 +275,7 @@ class _WaterSubscriptionCartScreenState
                                 : 'water_sub_pay'.trParams({
                                     'amount': '$_total',
                                   }),
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
@@ -306,7 +306,7 @@ class _WaterSubscriptionCartScreenState
             child: Text(
               'pw_subscription'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -370,7 +370,7 @@ class _WaterSubscriptionCartScreenState
               children: [
                 Text(
                   widget.itemName,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -380,7 +380,7 @@ class _WaterSubscriptionCartScreenState
                   const SizedBox(height: 2),
                   Text(
                     widget.itemSize,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF7A6A60),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -394,7 +394,7 @@ class _WaterSubscriptionCartScreenState
                       'amount': '${widget.pricePerDelivery}',
                     }),
                   }),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -433,7 +433,7 @@ class _WaterSubscriptionCartScreenState
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     '$quantity',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -472,7 +472,7 @@ class _WaterSubscriptionCartScreenState
           children: [
             Text(
               'pw_subscription_details'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -483,7 +483,7 @@ class _WaterSubscriptionCartScreenState
               onTap: () => Get.back(),
               child: Text(
                 'pw_edit'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -567,7 +567,7 @@ class _WaterSubscriptionCartScreenState
         children: [
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFA59A94),
               fontSize: 11,
               fontWeight: FontWeight.w500,
@@ -576,7 +576,7 @@ class _WaterSubscriptionCartScreenState
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2C2520),
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -623,7 +623,7 @@ class _WaterSubscriptionCartScreenState
               children: [
                 Text(
                   'pw_deliver_to'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -634,7 +634,7 @@ class _WaterSubscriptionCartScreenState
                   _address,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -661,7 +661,7 @@ class _WaterSubscriptionCartScreenState
         children: [
           Text(
             'pw_payment_details_caps'.tr,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFFFF5216),
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -687,7 +687,7 @@ class _WaterSubscriptionCartScreenState
               paymentTypeWallet => 'water_sub_note_wallet'.tr,
               _ => 'water_sub_note_cash'.tr,
             },
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: Colors.white.withValues(alpha: 0.85),
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -736,7 +736,7 @@ class _WaterSubscriptionCartScreenState
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -745,7 +745,7 @@ class _WaterSubscriptionCartScreenState
                     if (subtitle.isNotEmpty)
                       Text(
                         subtitle,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 11,
                         ),
@@ -773,7 +773,7 @@ class _WaterSubscriptionCartScreenState
       children: [
         Text(
           'water_sub_payment'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 15,
             fontWeight: FontWeight.w800,
@@ -811,7 +811,7 @@ class _WaterSubscriptionCartScreenState
       children: [
         Text(
           label,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white.withValues(alpha: 0.85),
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -820,7 +820,7 @@ class _WaterSubscriptionCartScreenState
         const Spacer(),
         Text(
           value,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w700,

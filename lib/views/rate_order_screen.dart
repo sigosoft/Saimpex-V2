@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../core/network/api_exception.dart';
 import '../models/order_repository.dart';
 import '../models/service_booking_detail.dart' show cleanerPhotoUrl;
@@ -9,6 +8,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import 'rating_reviews_screen.dart';
 
+import '../utils/app_fonts.dart';
 class RateOrderScreen extends StatefulWidget {
   final ReviewTarget? reviewTarget;
 
@@ -146,7 +146,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
               ),
               Text(
                 'orders_rate_your_order'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -213,7 +213,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   const SizedBox(height: 20),
                   Text(
                     'orders_detailed_review'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -229,13 +229,13 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                     child: TextField(
                       controller: _reviewController,
                       maxLines: 5,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
                       ),
                       decoration: InputDecoration(
                         hintText: 'orders_review_hint'.tr,
-                        hintStyle: GoogleFonts.outfit(
+                        hintStyle: AppFonts.outfit(
                           color: const Color(0xFFC4B8B0),
                           fontSize: 13,
                         ),
@@ -276,7 +276,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   'orders_submit_rating'.tr,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -345,7 +345,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -394,7 +394,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   ),
                   child: Text(
                     tag.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,

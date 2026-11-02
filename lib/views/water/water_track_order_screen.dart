@@ -4,12 +4,12 @@ import '../../widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../models/order_tracking.dart';
 import '../widgets/tracking_widgets.dart';
 
+import '../../utils/app_fonts.dart';
 class WaterTrackOrderScreen extends StatefulWidget {
   final String orderId;
   final String merchantName;
@@ -269,7 +269,7 @@ class _WaterTrackOrderScreenState extends State<WaterTrackOrderScreen>
                 ),
                 Text(
                   'pw_track_order_id'.trParams({'id': _displayId}),
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

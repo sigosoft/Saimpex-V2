@@ -5,6 +5,8 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/store_labels.dart';
+import '../utils/order_status_label.dart';
 
 class RestaurantHomeResult {
   final List<Map<String, dynamic>> sliders;
@@ -102,33 +104,33 @@ class FoodRepository {
     }
 
     final time = raw['delivery_time_text']?.toString().trim().isNotEmpty == true
-        ? raw['delivery_time_text'].toString().trim()
+        ? localizedStoreText(raw['delivery_time_text'])
         : (raw['delivery_time_min'] != null
-              ? '${raw['delivery_time_min']} min'
+              ? minLabel(raw['delivery_time_min'])
               : (raw['avg_preparation_minutes'] != null
-                    ? '${raw['avg_preparation_minutes']} min'
+                    ? minLabel(raw['avg_preparation_minutes'])
                     : (raw['preparation_time'] != null
-                          ? '${raw['preparation_time']} min'
+                          ? minLabel(raw['preparation_time'])
                           : '')));
 
     final dist = raw['distance']?.toString().trim().isNotEmpty == true
-        ? raw['distance'].toString().trim()
+        ? localizedStoreText(raw['distance'])
         : (raw['distance_km'] != null
-              ? '${_kmText(raw['distance_km'])} Km'
+              ? kmLabel(_kmText(raw['distance_km']))
               : '');
 
     final discount = raw['offer_text']?.toString().trim().isNotEmpty == true
-        ? raw['offer_text'].toString().trim()
+        ? localizedStoreText(raw['offer_text'])
         : (raw['offer_percentage'] != null &&
                   _asInt(raw['offer_percentage']) > 0
-              ? '${raw['offer_percentage']}% OFF'
+              ? offLabel(raw['offer_percentage'])
               : '');
 
     final points = raw['points_text']?.toString().trim().isNotEmpty == true
         ? raw['points_text'].toString().trim()
         : (raw['user_points_available'] != null &&
                   _asInt(raw['user_points_available']) > 0
-              ? '${raw['user_points_available']} Points Available'
+              ? pointsLabel(raw['user_points_available'])
               : '');
 
     final rating = raw['rating'] != null ? raw['rating'].toString() : '';
@@ -254,6 +256,10 @@ class FoodRepository {
     return {
       'restaurantName': name,
       'statusText': statusText.isEmpty ? 'Order' : statusText,
+      'statusLabel': orderStatusLabel(
+        item['status'],
+        statusText.isEmpty ? 'Order' : statusText,
+      ),
       'isCancelled': lower.contains('cancel'),
       'isDelivered': lower.contains('deliver'),
       'isSelfPickup':
@@ -339,9 +345,9 @@ class FoodRepository {
       final discountStr =
           m['discount_text']?.toString() ??
           (discountVal != null && _asInt(discountVal) > 0
-              ? '${_asInt(discountVal)}% OFF'
+              ? offLabel(_asInt(discountVal))
               : (origPriceNum > priceNum && origPriceNum > 0
-                    ? '${(((origPriceNum - priceNum) / origPriceNum) * 100).round()}% OFF'
+                    ? offLabel((((origPriceNum - priceNum) / origPriceNum) * 100).round())
                     : ''));
 
       final tag = _localized(m, 'category_name', language).isNotEmpty
@@ -607,27 +613,27 @@ class FoodRepository {
     }
 
     final time = raw['delivery_time_text']?.toString().trim().isNotEmpty == true
-        ? raw['delivery_time_text'].toString().trim()
+        ? localizedStoreText(raw['delivery_time_text'])
         : (raw['delivery_time_min'] != null
-              ? '${raw['delivery_time_min']} min'
+              ? minLabel(raw['delivery_time_min'])
               : (raw['avg_preparation_minutes'] != null
-                    ? '${raw['avg_preparation_minutes']} min'
-                    : '30-35 min'));
+                    ? minLabel(raw['avg_preparation_minutes'])
+                    : ''));
 
     final dist = raw['distance']?.toString().trim().isNotEmpty == true
-        ? raw['distance'].toString().trim()
-        : '${_kmText(raw['distance_km'])} Km';
+        ? localizedStoreText(raw['distance'])
+        : kmLabel(_kmText(raw['distance_km']));
 
     final discount = raw['offer_text']?.toString().trim().isNotEmpty == true
-        ? raw['offer_text'].toString().trim()
+        ? localizedStoreText(raw['offer_text'])
         : (raw['offer_percentage'] != null &&
                   _asInt(raw['offer_percentage']) > 0
-              ? '${raw['offer_percentage']}% OFF'
+              ? offLabel(raw['offer_percentage'])
               : '');
 
     final points = raw['points_text']?.toString().trim().isNotEmpty == true
         ? raw['points_text'].toString().trim()
-        : '${raw['user_points_available'] ?? 0} Points Available';
+        : pointsLabel(raw['user_points_available'] ?? 0);
 
     final isOpen = _asInt(raw['is_open'], fallback: 1);
     final openStatus = raw['open_status']?.toString().toUpperCase() ?? '';

@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
@@ -15,6 +14,7 @@ import '../../models/service_repository.dart';
 import 'laundry_provider_detail_screen.dart';
 import 'service_provider_list.dart';
 
+import '../../utils/app_fonts.dart';
 class LaundryServicesScreen extends StatelessWidget {
   const LaundryServicesScreen({super.key});
 
@@ -165,7 +165,7 @@ class LaundryServicesScreen extends StatelessWidget {
                       children: [
                         Text(
                           'svc_current_location'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF9A8E86),
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -177,7 +177,7 @@ class LaundryServicesScreen extends StatelessWidget {
                           SelectLocationController.selectedTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF2C2520),
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -211,7 +211,7 @@ class LaundryServicesScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                 'svc_laundry_services'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1D2635),
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -226,7 +226,7 @@ class LaundryServicesScreen extends StatelessWidget {
         Text(
           'svc_laundry_subtitle'.tr,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF7A6A60),
             fontSize: 12.5,
             fontWeight: FontWeight.w500,
@@ -267,7 +267,7 @@ class LaundryServicesScreen extends StatelessWidget {
       children: [
         Text(
           'svc_quick_services'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 16,
             fontWeight: FontWeight.w800,
@@ -316,7 +316,7 @@ class LaundryServicesScreen extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF2C2520),
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -348,10 +348,10 @@ class LaundryServicesScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
-              style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+              style: AppFonts.outfit(color: Colors.black, fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'svc_search_short_hint'.tr,
-                hintStyle: GoogleFonts.outfit(
+                hintStyle: AppFonts.outfit(
                   color: const Color(0xFFA59A94),
                   fontSize: 12.5,
                 ),
@@ -395,7 +395,7 @@ class LaundryServicesScreen extends StatelessWidget {
             Expanded(
               child: Text(
                 'svc_laundry_near_you'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF122037),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -486,7 +486,7 @@ class LaundryServicesScreen extends StatelessWidget {
                             const SizedBox(width: 5),
                             Text(
                               item['points']!,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -508,7 +508,7 @@ class LaundryServicesScreen extends StatelessWidget {
                     item['name']!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF122037),
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -523,7 +523,7 @@ class LaundryServicesScreen extends StatelessWidget {
                 const SizedBox(width: 3),
                 Text(
                   item['rating'] ?? '',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF122037),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
@@ -542,7 +542,7 @@ class LaundryServicesScreen extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   item['distance']!,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF5C6779),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -560,7 +560,7 @@ class LaundryServicesScreen extends StatelessWidget {
                     item['ready']!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF5C6779),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -609,7 +609,7 @@ class LaundryServicesScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'svc_view_services'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -636,7 +636,7 @@ class LaundryServicesScreen extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF2D2D2D),
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -655,7 +655,7 @@ class LaundryServicesScreen extends StatelessWidget {
           ),
           Text(
             price,
-            style: GoogleFonts.outfit(
+            style: AppFonts.outfit(
               color: const Color(0xFF555555),
               fontSize: 12,
               fontWeight: FontWeight.w500,

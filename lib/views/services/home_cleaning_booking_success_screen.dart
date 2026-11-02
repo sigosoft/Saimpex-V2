@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/home_controller.dart';
 import '../main_shell_screen.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../utils/app_fonts.dart';
 class HomeCleaningBookingSuccessScreen extends StatelessWidget {
   const HomeCleaningBookingSuccessScreen({super.key});
 
@@ -70,7 +70,7 @@ class HomeCleaningBookingSuccessScreen extends StatelessWidget {
                 Text(
                   'svc_booking_confirmed'.tr,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -93,7 +93,7 @@ class HomeCleaningBookingSuccessScreen extends StatelessWidget {
                           ),
                           child: Text(
                             'svc_back_to_home'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: const Color(0xFFFF5216),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w700,
@@ -128,7 +128,7 @@ class HomeCleaningBookingSuccessScreen extends StatelessWidget {
                           ),
                           child: Text(
                             'svc_view_bookings'.tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 13.5,
                               fontWeight: FontWeight.w700,

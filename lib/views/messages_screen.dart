@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
 import 'chat_screen.dart';
@@ -16,6 +15,7 @@ import '../widgets/app_back_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/home_background_blend.dart';
 
+import '../utils/app_fonts.dart';
 class MessagesScreen extends StatefulWidget {
   final Map<String, dynamic>? restaurant;
   final bool showBottomNav;
@@ -287,7 +287,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             // only the label is translated.
                             'core_messages_chip_${chips[index].toLowerCase()}'
                                 .tr,
-                            style: GoogleFonts.outfit(
+                            style: AppFonts.outfit(
                               color: isSelected
                                   ? Colors.white
                                   : const Color(0xFF2C2520),
@@ -325,7 +325,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                       child: Center(
                                         child: Text(
                                           'core_messages_empty'.tr,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: const Color(0xFFA59A94),
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
@@ -506,7 +506,7 @@ class _MessageCard extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       '$unread',
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -522,7 +522,7 @@ class _MessageCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   chat['time'] as String,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,

@@ -8,8 +8,10 @@ class ApiConstants {
   static const String imageSearch = 'customer/image-recognition/analyze';
   static const String sendOtp = 'customer/sendOtp';
   static const String verifyOtp = 'customer/verifyOtp';
+  static const String guestSession = 'customer/guestSession';
   static const String customerCheck = 'customer/customerCheck';
   static const String logout = 'customer/logout';
+  static const String updateFcmToken = 'customer/updateFcmToken';
   static const String profile = 'customer/profile';
   static const String updateProfile = 'customer/updateProfile';
   static const String updateLanguage = 'customer/updateLanguage';
@@ -92,6 +94,7 @@ class ApiConstants {
   static String chatbotConversation(int id) =>
       'customer/chatbot/conversations/$id';
   static const String preorderWindow = 'customer/preorder/window';
+  static const String preorders = 'customer/preorders';
   static String orderSubstitutions(int orderId) =>
       'customer/orders/$orderId/substitutions';
   static String substitutionRespond(int id) =>
@@ -202,6 +205,12 @@ class ApiConstants {
   static const String getPrivacyPolicy = 'customer/getPrivacyPolicy';
   static const String getTermsAndConditions = 'customer/getTermsandConditions';
   static const String getContact = 'customer/getContact';
+  static const String branding = 'customer/branding';
+  // Admin → App versions: latest version, force update, store links.
+  static const String appSettings = 'customer/settings';
+  // Payment not completed: pay a pending online order by wallet or cash (§6.59).
+  static String switchPayment(int orderId) =>
+      'customer/orders/$orderId/switchPayment';
   static const String chatAllConversations = 'customer/chat/allConversations';
   // Messages from SAIMPEX support about an order (API §6.37).
   static const String supportMessages = 'customer/supportMessages';

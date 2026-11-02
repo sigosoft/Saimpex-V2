@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../utils/app_fonts.dart';
 class CarWashChooseSlotSheet extends StatefulWidget {
   const CarWashChooseSlotSheet({super.key});
 
@@ -153,7 +153,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                         const SizedBox(width: 12),
                         Text(
                           'svc_choose_your_slot'.tr,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFF1A1A1A),
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -174,7 +174,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                       const SizedBox(height: 22),
                       Text(
                         'svc_time_slot'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -204,7 +204,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
       children: [
         Text(
           'svc_select_date'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 15,
             fontWeight: FontWeight.w800,
@@ -261,7 +261,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
               const SizedBox(width: 5),
               Text(
                 'svc_calendar_view'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -309,7 +309,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                 children: [
                   Text(
                     _monthLabel(date),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: selected
                           ? const Color(0xFFFF5216)
                           : const Color(0xFFA39A93),
@@ -320,7 +320,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                   const SizedBox(height: 2),
                   Text(
                     '${date.day}',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -332,7 +332,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                     _dayLabel(date, index),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: selected
                           ? const Color(0xFFFF5216)
                           : const Color(0xFFA39A93),
@@ -403,7 +403,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
                 _slots[index],
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
@@ -437,7 +437,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
           Expanded(
             child: Text(
               _warningMessage!,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFE53935),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -485,7 +485,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
         ),
         child: Text(
           'svc_continue'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 15.5,
             fontWeight: FontWeight.w800,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
@@ -14,6 +13,7 @@ import 'home_cleaning_booking_success_screen.dart';
 import 'home_cleaning_choose_slot_sheet.dart';
 import 'service_booking_submit.dart';
 
+import '../../utils/app_fonts.dart';
 /// Orders gas from the supplier and product picked on [GasProviderScreen]
 /// (ServiceBookingDraft). Gas is booked through customer/service/book with
 /// vertical gas: `quantity` is the number of cylinders, and the customer must
@@ -568,5 +568,5 @@ class _GasOrderScreenState extends State<GasOrderScreen> {
   );
 
   TextStyle _style(double size, FontWeight weight, Color color) =>
-      GoogleFonts.outfit(fontSize: size, fontWeight: weight, color: color);
+      AppFonts.outfit(fontSize: size, fontWeight: weight, color: color);
 }

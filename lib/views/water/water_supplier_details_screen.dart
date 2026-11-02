@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/home_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/water_repository.dart';
@@ -11,10 +10,11 @@ import '../chat_screen.dart';
 import '../cart_screen.dart';
 import '../../widgets/bottom_chat_icon.dart';
 import 'widgets/water_product_details_sheet.dart';
-import 'water_subscription_screen.dart';
+import 'water_product_subscription_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/auto_slide_network_images.dart';
 
+import '../../utils/app_fonts.dart';
 class WaterSupplierDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> supplier;
 
@@ -128,10 +128,10 @@ class _WaterSupplierDetailsScreenState
             Expanded(
               child: TextField(
                 controller: _searchController,
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 13),
+                style: AppFonts.outfit(color: Colors.black, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'pw_find_from_supplier'.tr,
-                  hintStyle: GoogleFonts.outfit(
+                  hintStyle: AppFonts.outfit(
                     color: const Color(0xFFA59A94),
                     fontSize: 13,
                   ),
@@ -268,7 +268,7 @@ class _WaterSupplierDetailsScreenState
                                   Expanded(
                                     child: Text(
                                       supplierName,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: const Color(0xFF1A1A1A),
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -295,7 +295,7 @@ class _WaterSupplierDetailsScreenState
                                         const SizedBox(width: 3),
                                         Text(
                                           rating,
-                                          style: GoogleFonts.outfit(
+                                          style: AppFonts.outfit(
                                             color: Colors.white,
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
@@ -311,7 +311,7 @@ class _WaterSupplierDetailsScreenState
                               // Subtitle
                               Text(
                                 subtitle,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF7A6A60),
                                   fontSize: 12,
                                 ),
@@ -329,7 +329,7 @@ class _WaterSupplierDetailsScreenState
                                   const SizedBox(width: 4),
                                   Text(
                                     time,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -344,7 +344,7 @@ class _WaterSupplierDetailsScreenState
                                   const SizedBox(width: 4),
                                   Text(
                                     dist,
-                                    style: GoogleFonts.outfit(
+                                    style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -362,7 +362,7 @@ class _WaterSupplierDetailsScreenState
                                     ),
                                     child: Text(
                                       discount,
-                                      style: GoogleFonts.outfit(
+                                      style: AppFonts.outfit(
                                         color: Colors.white,
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
@@ -420,7 +420,7 @@ class _WaterSupplierDetailsScreenState
                                             const SizedBox(width: 8),
                                             Text(
                                               'pw_chat_with_supplier'.tr,
-                                              style: GoogleFonts.outfit(
+                                              style: AppFonts.outfit(
                                                 color: Colors.white,
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.bold,
@@ -485,7 +485,7 @@ class _WaterSupplierDetailsScreenState
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         'pw_products'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -508,7 +508,7 @@ class _WaterSupplierDetailsScreenState
                           ? Center(
                               child: Text(
                                 'pw_no_products_available'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFF6B6B6B),
                                 ),
                               ),
@@ -642,7 +642,7 @@ class _WaterSupplierDetailsScreenState
                 final displayCount = count > 0 ? count : 1;
                 return Text(
                   '$displayCount',
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -663,7 +663,7 @@ class _WaterSupplierDetailsScreenState
                     final displayCount = count > 0 ? count : 1;
                     return Text(
                       'pw_view_cart_items'.trParams({'count': '$displayCount'}),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -672,7 +672,7 @@ class _WaterSupplierDetailsScreenState
                   }),
                   Text(
                     'pw_ready_in'.trParams({'time': readyIn}),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -686,7 +686,7 @@ class _WaterSupplierDetailsScreenState
               children: [
                 Text(
                   price,
-                  style: GoogleFonts.outfit(
+                  style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -751,7 +751,7 @@ class _WaterSupplierDetailsScreenState
         SnackBar(
           content: Text(
             'pw_added_to_cart'.trParams({'name': '${item['title']}'}),
-            style: GoogleFonts.outfit(),
+            style: AppFonts.outfit(),
           ),
           backgroundColor: const Color(0xFFFF5216),
           duration: const Duration(seconds: 2),
@@ -812,7 +812,7 @@ class _WaterSupplierDetailsScreenState
                     ),
                     child: Text(
                       item['discount'] as String,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
@@ -839,7 +839,7 @@ class _WaterSupplierDetailsScreenState
                         ),
                         child: Text(
                           item['bottleTag'] as String,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -858,7 +858,7 @@ class _WaterSupplierDetailsScreenState
                         ),
                         child: Text(
                           item['sizeTag'] as String,
-                          style: GoogleFonts.outfit(
+                          style: AppFonts.outfit(
                             color: const Color(0xFFFF5216),
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -879,7 +879,7 @@ class _WaterSupplierDetailsScreenState
                 children: [
                   Text(
                     item['title'] as String,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -900,7 +900,7 @@ class _WaterSupplierDetailsScreenState
                       const SizedBox(width: 3),
                       Text(
                         item['rating'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -909,7 +909,7 @@ class _WaterSupplierDetailsScreenState
                       const SizedBox(width: 4),
                       Text(
                         item['reviews'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF7A6A60),
                           fontSize: 9,
                         ),
@@ -923,7 +923,7 @@ class _WaterSupplierDetailsScreenState
                     children: [
                       Text(
                         item['price'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -932,7 +932,7 @@ class _WaterSupplierDetailsScreenState
                       const SizedBox(width: 6),
                       Text(
                         item['originalPrice'] as String,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 10,
                           decoration: TextDecoration.lineThrough,
@@ -948,7 +948,14 @@ class _WaterSupplierDetailsScreenState
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
-                            Get.to(() => const WaterSubscriptionScreen());
+                            Get.to(
+                              () => WaterProductSubscriptionScreen(
+                                product: Map<String, dynamic>.from(item),
+                                supplier: Map<String, dynamic>.from(
+                                  widget.supplier,
+                                ),
+                              ),
+                            );
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 5),
@@ -963,7 +970,7 @@ class _WaterSupplierDetailsScreenState
                             child: Center(
                               child: Text(
                                 'pw_subscribe_caps'.tr,
-                                style: GoogleFonts.outfit(
+                                style: AppFonts.outfit(
                                   color: const Color(0xFFFF5216),
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
@@ -1007,7 +1014,7 @@ class _WaterSupplierDetailsScreenState
                                 const SizedBox(width: 3),
                                 Text(
                                   'pw_add_caps'.tr,
-                                  style: GoogleFonts.outfit(
+                                  style: AppFonts.outfit(
                                     color: Colors.white,
                                     fontSize: 9,
                                     fontWeight: FontWeight.bold,

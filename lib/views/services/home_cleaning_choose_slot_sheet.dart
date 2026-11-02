@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../utils/app_fonts.dart';
 class HomeCleaningChooseSlotSheet extends StatefulWidget {
   const HomeCleaningChooseSlotSheet({super.key});
 
@@ -149,7 +149,7 @@ class _HomeCleaningChooseSlotSheetState
                       const SizedBox(width: 12),
                       Text(
                         'svc_choose_your_slot'.tr,
-                        style: GoogleFonts.outfit(
+                        style: AppFonts.outfit(
                           color: const Color(0xFF1A1A1A),
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -170,7 +170,7 @@ class _HomeCleaningChooseSlotSheetState
                     const SizedBox(height: 24),
                     Text(
                       'svc_time_slot'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -199,7 +199,7 @@ class _HomeCleaningChooseSlotSheetState
       children: [
         Text(
           'svc_select_date'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: const Color(0xFF1A1A1A),
             fontSize: 15,
             fontWeight: FontWeight.w800,
@@ -256,7 +256,7 @@ class _HomeCleaningChooseSlotSheetState
               const SizedBox(width: 5),
               Text(
                 'svc_calendar_view'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFFFF5216),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -304,7 +304,7 @@ class _HomeCleaningChooseSlotSheetState
                 children: [
                   Text(
                     _monthLabel(date),
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: selected
                           ? const Color(0xFFFF5216)
                           : const Color(0xFF9A8E86),
@@ -315,7 +315,7 @@ class _HomeCleaningChooseSlotSheetState
                   const SizedBox(height: 2),
                   Text(
                     '${date.day}',
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: selected
                           ? const Color(0xFF1A1A1A)
                           : const Color(0xFF5A5048),
@@ -329,7 +329,7 @@ class _HomeCleaningChooseSlotSheetState
                     _dayLabel(date, index),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: selected
                           ? const Color(0xFFFF5216)
                           : const Color(0xFF9A8E86),
@@ -396,7 +396,7 @@ class _HomeCleaningChooseSlotSheetState
             const SizedBox(width: 6),
             Text(
               _slots[index],
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF1A1A1A),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -429,7 +429,7 @@ class _HomeCleaningChooseSlotSheetState
           Expanded(
             child: Text(
               _warningMessage!,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFE53935),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -477,7 +477,7 @@ class _HomeCleaningChooseSlotSheetState
         ),
         child: Text(
           'svc_continue'.tr,
-          style: GoogleFonts.outfit(
+          style: AppFonts.outfit(
             color: Colors.white,
             fontSize: 15.5,
             fontWeight: FontWeight.w800,

@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../core/network/api_constants.dart';
+import '../core/network/api_exception.dart';
+import '../models/order_repository.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
+import 'order_detail_screen.dart';
+import 'pharmacy/pharmacy_item_order_detail_screen.dart';
+import 'widgets/scheduled_for_banner.dart';
 
+import '../utils/app_fonts.dart';
+/// The customer's open pre-orders (GET customer/preorders), soonest first.
 class MySchedulesScreen extends StatefulWidget {
   const MySchedulesScreen({super.key});
 
@@ -15,27 +24,153 @@ class MySchedulesScreen extends StatefulWidget {
 class _MySchedulesScreenState extends State<MySchedulesScreen> {
   int _selectedFilter = 0;
 
-  final filters = const ['All', 'Food', 'Grocery', 'Pharmacy'];
-
-  // Translation keys for [filters], same order (the values above match data).
-  static const _filterLabels = [
-    'orders_filter_all',
-    'search_vertical_food',
-    'search_vertical_grocery',
-    'search_vertical_pharmacy',
+  // Filter chips: label key and the order types it shows (null = all).
+  static const _filters = <(String, Set<int>?)>[
+    ('orders_filter_all', null),
+    ('search_vertical_food', {1}),
+    ('search_vertical_grocery', {2, 11}),
+    ('search_vertical_pharmacy', {3}),
   ];
 
-  // Waiting for a customer endpoint that lists pre-orders (only
-  // vendorapp/preorders exists). Until then the list is empty rather than
-  // showing sample schedules.
-  final List<Map<String, dynamic>> _schedules = const [];
+  static const _typeIcons = <int, IconData>{
+    1: Icons.restaurant_rounded,
+    2: Icons.shopping_basket_rounded,
+    3: Icons.local_pharmacy_rounded,
+    4: Icons.water_drop_rounded,
+    11: Icons.storefront_rounded,
+  };
+
+  static const _typeLabels = <int, String>{
+    1: 'search_vertical_food',
+    2: 'search_vertical_grocery',
+    3: 'search_vertical_pharmacy',
+    4: 'search_vertical_water',
+    11: 'search_vertical_local_store',
+  };
+
+  List<Map<String, dynamic>> _schedules = const [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final rows = await Get.find<OrderRepository>().preorders(
+        apiLanguageCode(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _schedules = rows;
+        _loading = false;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = error.message;
+        _loading = false;
+      });
+    }
+  }
 
   List<Map<String, dynamic>> get _filtered {
-    if (_selectedFilter == 0) return _schedules;
-    final filter = filters[_selectedFilter];
-    return _schedules
-        .where((s) => (s['category'] as String) == filter)
-        .toList();
+    final types = _filters[_selectedFilter].$2;
+    if (types == null) return _schedules;
+    return _schedules.where((s) => types.contains(_orderType(s))).toList();
+  }
+
+  static int _orderType(Map<String, dynamic> item) =>
+      int.tryParse('${item['order_type'] ?? ''}') ?? 0;
+
+  static int _orderId(Map<String, dynamic> item) =>
+      int.tryParse('${item['order_id'] ?? ''}') ?? 0;
+
+  static Map<String, dynamic> _vendor(Map<String, dynamic> item) {
+    final value = item['vendor'];
+    return value is Map ? Map<String, dynamic>.from(value) : const {};
+  }
+
+  Future<void> _cancel(Map<String, dynamic> item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('orders_cancel_confirm'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text('orders_no'.tr),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text('orders_yes_cancel'.tr),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      final message = await Get.find<OrderRepository>().cancelOrder(
+        orderId: _orderId(item),
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      showAppToast(
+        message.isEmpty ? 'orders_cancelled_title'.tr : message,
+        backgroundColor: const Color(0xFFFF5216),
+      );
+      _load();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  Future<void> _openDetails(Map<String, dynamic> item) async {
+    final orderId = _orderId(item);
+    final code = '${item['order_code'] ?? ''}';
+    if (orderId < 1) {
+      showAppToast('orders_details_unavailable'.tr);
+      return;
+    }
+    // Food orders have their own detail call; every other type uses
+    // orderDetails through the shared item-order screen.
+    if (_orderType(item) != 1) {
+      await Get.to(
+        () => PharmacyItemOrderDetailScreen(
+          orderId: code,
+          apiOrderId: orderId,
+          isDelivery: '${item['is_self_pickup']}' != '1',
+          storeName: '${_vendor(item)['name'] ?? ''}',
+        ),
+      );
+      _load();
+      return;
+    }
+    try {
+      final detail = await Get.find<OrderRepository>().catalogOrderDetail(
+        orderId: orderId,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      await Get.to(
+        () => OrderDetailScreen(
+          orderId: '${detail['order_code'] ?? code}',
+          detail: detail,
+        ),
+      );
+      _load();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
   }
 
   @override
@@ -59,29 +194,57 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
             _buildFilters(),
             const SizedBox(height: 8),
             Expanded(
-              child: list.isEmpty
-                  ? Center(
-                      child: Text(
-                        'schedules_empty'.tr,
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFA59A94),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+              child: _loading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF5216),
                       ),
                     )
-                  : ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                      itemCount: list.length,
-                      itemBuilder: (context, index) {
-                        return _buildScheduleCard(list[index]);
-                      },
+                  : RefreshIndicator(
+                      color: const Color(0xFFFF5216),
+                      onRefresh: _load,
+                      child: list.isEmpty
+                          ? _buildEmpty()
+                          : ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics(),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                              itemCount: list.length,
+                              itemBuilder: (context, index) {
+                                return _buildScheduleCard(list[index]);
+                              },
+                            ),
                     ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEmpty() {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: 320,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                _error ?? 'schedules_empty'.tr,
+                textAlign: TextAlign.center,
+                style: AppFonts.outfit(
+                  color: const Color(0xFFA59A94),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -100,7 +263,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
             child: Text(
               'orders_my_schedules'.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -120,7 +283,7 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: filters.length,
+        itemCount: _filters.length,
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final selected = _selectedFilter == index;
@@ -137,8 +300,8 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     : Border.all(color: const Color(0xFFE8DFD6)),
               ),
               child: Text(
-                _filterLabels[index].tr,
-                style: GoogleFonts.outfit(
+                _filters[index].$1.tr,
+                style: AppFonts.outfit(
                   color: selected ? Colors.white : const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -152,6 +315,31 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
   }
 
   Widget _buildScheduleCard(Map<String, dynamic> item) {
+    final type = _orderType(item);
+    final vendor = _vendor(item);
+    final image = ApiConstants.mediaUrl('${vendor['image'] ?? ''}');
+    final icon = Icon(
+      _typeIcons[type] ?? Icons.event_rounded,
+      color: Colors.white,
+      size: 22,
+    );
+    final status = int.tryParse('${item['status'] ?? ''}') ?? 0;
+    final statusKey = 'core_status_$status';
+    final statusLabel = statusKey.tr == statusKey
+        ? 'orders_scheduled'.tr
+        : statusKey.tr;
+    final total = num.tryParse('${item['total'] ?? ''}');
+    final code = '${item['order_code'] ?? ''}'.trim();
+    final subtitle = [
+      if (code.isNotEmpty) '#$code',
+      if (total != null)
+        '${total % 1 == 0 ? total.toInt() : total.toStringAsFixed(2)} '
+            '${'orders_currency'.tr}',
+    ].join(' · ');
+    // Only an order the store hasn't started on can still be cancelled.
+    final canCancel = status <= 1;
+    final typeLabel = _typeLabels[type];
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
@@ -170,17 +358,19 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
         children: [
           Row(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 44,
+                  height: 44,
                   color: const Color(0xFFFF5216),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  item['icon'] as IconData,
-                  color: Colors.white,
-                  size: 22,
+                  child: image == null
+                      ? icon
+                      : Image.network(
+                          image,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => icon,
+                        ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -189,8 +379,10 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      (item['title'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      '${vendor['name'] ?? ''}'.trim(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -198,8 +390,8 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      (item['subtitle'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
+                      subtitle,
+                      style: AppFonts.outfit(
                         color: const Color(0xFF8A7E76),
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
@@ -230,8 +422,8 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      (item['status'] ?? 'orders_scheduled'.tr).toString(),
-                      style: GoogleFonts.outfit(
+                      statusLabel,
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1FAF5A),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -245,52 +437,59 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: item['frequencyBg'] as Color,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  (item['frequency'] ?? '').toString(),
-                  style: GoogleFonts.outfit(
-                    color: item['frequencyFg'] as Color,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+              if (typeLabel != null) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1ECFF),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    typeLabel.tr,
+                    style: AppFonts.outfit(
+                      color: const Color(0xFF6B4BD8),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF0E6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.access_time_rounded,
-                      color: Color(0xFFFF5216),
-                      size: 14,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      (item['time'] ?? '').toString(),
-                      style: GoogleFonts.outfit(
-                        color: const Color(0xFFFF5216),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF0E6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.access_time_rounded,
+                        color: Color(0xFFFF5216),
+                        size: 14,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          formatScheduledFor('${item['scheduled_for'] ?? ''}'),
+                          overflow: TextOverflow.ellipsis,
+                          style: AppFonts.outfit(
+                            color: const Color(0xFFFF5216),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -298,50 +497,60 @@ class _MySchedulesScreenState extends State<MySchedulesScreen> {
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(
-                child: Container(
-                  height: 44,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F1EC),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Text(
-                    'cancel'.tr,
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+              if (canCancel) ...[
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _cancel(item),
+                    child: Container(
+                      height: 44,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F1EC),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Text(
+                        'cancel'.tr,
+                        style: AppFonts.outfit(
+                          color: const Color(0xFF2C2520),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
+              ],
               Expanded(
-                child: Container(
-                  height: 44,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFF5216).withValues(alpha: 0.25),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
+                child: GestureDetector(
+                  onTap: () => _openDetails(item),
+                  child: Container(
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
+                        begin: AlignmentDirectional.centerStart,
+                        end: AlignmentDirectional.centerEnd,
                       ),
-                    ],
-                  ),
-                  child: Text(
-                    'orders_reschedule'.tr,
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFFFF5216,
+                          ).withValues(alpha: 0.25),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'orders_view_order'.tr,
+                      style: AppFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),

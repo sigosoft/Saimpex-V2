@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../controllers/select_location_controller.dart';
 import '../widgets/app_back_button.dart';
 
+import '../utils/app_fonts.dart';
 class SelectLocationScreen extends StatelessWidget {
   final bool isInitialSetup;
 
@@ -77,7 +77,7 @@ class SelectLocationScreen extends StatelessWidget {
               const SizedBox(width: 16),
               Text(
                 'core_location_title'.tr,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -183,7 +183,7 @@ class SelectLocationScreen extends StatelessWidget {
                     const SizedBox(width: 16),
                     Text(
                       'core_location_title'.tr,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -322,13 +322,13 @@ class SelectLocationScreen extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: controller.searchController,
-                  style: GoogleFonts.outfit(color: Colors.black, fontSize: 14),
+                  style: AppFonts.outfit(color: Colors.black, fontSize: 14),
                   textInputAction: TextInputAction.search,
                   onChanged: controller.onSearchQueryChanged,
                   onSubmitted: controller.searchAddress,
                   decoration: InputDecoration(
                     hintText: 'core_location_search_hint'.tr,
-                    hintStyle: GoogleFonts.outfit(
+                    hintStyle: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
                       fontSize: 13,
                     ),
@@ -417,7 +417,7 @@ class SelectLocationScreen extends StatelessWidget {
                       label,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -510,7 +510,7 @@ class SelectLocationScreen extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               'core_location_current_location'.tr,
-              style: GoogleFonts.outfit(
+              style: AppFonts.outfit(
                 color: const Color(0xFFE03A3A),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -566,7 +566,7 @@ class SelectLocationScreen extends StatelessWidget {
                       SelectLocationController.display(
                         controller.addressTitle.value,
                       ),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -579,7 +579,7 @@ class SelectLocationScreen extends StatelessWidget {
                       SelectLocationController.display(
                         controller.addressSubtitle.value,
                       ),
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF7A6A60),
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
@@ -621,7 +621,31 @@ class SelectLocationScreen extends StatelessWidget {
             ],
           );
         }),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
+
+        // Landmark: how drivers find homes in Nouakchott (V2_DECISIONS §17)
+        TextField(
+          controller: controller.landmarkController,
+          maxLength: 150,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            labelText: 'ease_landmark_label'.tr,
+            hintText: 'ease_landmark_hint'.tr,
+            prefixIcon: const Icon(Icons.place_outlined, color: Color(0xFFFF5216)),
+            counterText: '',
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
 
         // Continue button
         _buildBottomContinueBtn(controller),
@@ -664,7 +688,7 @@ class SelectLocationScreen extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: GoogleFonts.outfit(
+                style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -712,7 +736,7 @@ class SelectLocationScreen extends StatelessWidget {
                   )
                 : Text(
                     'core_location_continue'.tr,
-                    style: GoogleFonts.outfit(
+                    style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

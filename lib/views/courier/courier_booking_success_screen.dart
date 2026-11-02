@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../navigation/bottom_nav_router.dart';
 
+import '../../utils/app_fonts.dart';
 class CourierBookingSuccessScreen extends StatelessWidget {
   const CourierBookingSuccessScreen({super.key});
 
@@ -45,7 +45,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                     Text(
                       'st_courier_booked'.tr,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
+                      style: AppFonts.outfit(
                         color: const Color(0xFF1A1A1A),
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -82,7 +82,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'st_back_to_home'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: const Color(0xFFFF5216),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -121,7 +121,7 @@ class CourierBookingSuccessScreen extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'st_view_order'.tr,
-                              style: GoogleFonts.outfit(
+                              style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
