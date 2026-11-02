@@ -650,7 +650,7 @@ Before the client build (2 Nov):
 - **Laundry balance after re-weighing:** paying it isn't in the API yet; the Pay button now says "Coming soon" like the other unfinished features (was "not available yet").
 - **Checked** (Android, dev, 2 Nov): Water header shows the real balance; the water cart bar shows the cart total after adding two items.
 
-### Device test pass, Arabic first (`feature/device-test-fixes`, 2 Nov) 🟡 in progress
+### Device test pass, Arabic first (`feature/device-test-fixes`, [PR #36](https://github.com/sigosoft/Saimpex-V2/pull/36), 2 Nov) 🟡 in progress
 Phone: vivo V2239, Android 15, debug build against dev, demo customer +222 95200003. Analyzer clean, 22 tests pass.
 - **Fixed in this branch:**
   - Account: the phone number read "95200003 222+" in Arabic; it is now isolated left to right (+222 95200003), like the OTP screen.
