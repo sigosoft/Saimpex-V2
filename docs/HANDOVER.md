@@ -743,5 +743,7 @@ Journey E2E-15a (PDF "SAIMPEX V2 journeys, 3 Nov afternoon"): a vendor-rejected 
 - The customer's own cancel ("Order Cancelled") shows no note.
 - Also: cancelled water, courier and pharmacy order details said "To Pay"/"Total paid"; they now say "Total", like food (`3fadd97`).
 - Checked on the phone (English, 3 Nov): ORD-001461 food and ORD-001477 water show "Reason: The store didn't accept the order in time"; ORD-001484 (own cancel) shows no note.
+- Also: order step times ("03 Nov 2026 10:00 AM" from the server) were English in FR/AR and jumbled in Arabic; `OrderTracking.timeOf`/`placedAt` now go through `readableServerTime` (month in the app language), so every order detail and tracking screen shows "03 nov. 2026, 10:00 AM" / "03 نوفمبر 2026، …".
+- Checked on the phone in Arabic and French too: ORD-001461 and ORD-001480 (food, both auto-cancelled after 24 h) and ORD-001477 (water) show the reason note, "Total", and localized step dates.
 - Code: `lib/utils/cancel_reason.dart`, `OrderTracking.cancelReason`, `lib/widgets/cancel_reason_note.dart`; tests in `test/cancel_reason_test.dart`.
 **Open (backend + vendor app):** the vendor app sends no reason on reject (`cancelRestaurantOrder?order_id=` only), and the backend saves a fixed "Order Cancelled by Vendor", so "Out of Stock" can't reach the customer yet. Issue `[customer-app] Vendor reject reason is never saved…` for Praveen. It will show with no app change once the remark carries the reason. Service bookings (car wash, laundry) aren't covered, because their timeline has no documented `remark`.
