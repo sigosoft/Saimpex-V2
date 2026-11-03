@@ -410,8 +410,8 @@ class OrderDetailScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                // payment_status 2 = paid; a cash order is still "to pay".
-                                '${detail['payment_status']}' == '2'
+                                // A cash order is still "to pay" until paid.
+                                _paid == true
                                     ? 'orders_total_paid'.tr
                                     : 'orders_to_pay'.tr,
                                 style: AppFonts.outfit(
@@ -444,6 +444,7 @@ class OrderDetailScreen extends StatelessWidget {
                             context,
                             orderId: orderId,
                             apiOrderId: apiOrderId,
+                            paid: _paid,
                           );
                         },
                         child: Container(
@@ -474,6 +475,7 @@ class OrderDetailScreen extends StatelessWidget {
                                   context,
                                   orderId: orderId,
                                   apiOrderId: apiOrderId,
+                                  paid: _paid,
                                 );
                               },
                               child: Container(
@@ -558,6 +560,25 @@ class OrderDetailScreen extends StatelessWidget {
     return value.isEmpty || value == 'null' ? fallback : value;
   }
 
+  /// The server's raw "2026-11-03 03:19:18" as "03 Nov 2026, 03:19 AM" (the
+  /// tracking screen's form, month in the app language); other text as sent.
+  /// The time is shown as the server sends it: it carries no time zone.
+  static String _readableTime(String raw) {
+    final time = DateTime.tryParse(raw);
+    if (time == null) return raw;
+    final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
+    String two(int n) => n.toString().padLeft(2, '0');
+    final month = 'svc_month_${time.month}'.tr;
+    return '${two(time.day)} $month ${time.year}, '
+        '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
+  }
+
+  /// payment_status 2 = paid; null when the server didn't send it.
+  bool? get _paid {
+    final status = '${detail['payment_status'] ?? ''}'.trim();
+    return status.isEmpty ? null : status == '2';
+  }
+
   String _amount(String key, String fallback) =>
       detail.containsKey(key) ? _money(detail[key]) : fallback;
 
@@ -583,7 +604,7 @@ class OrderDetailScreen extends StatelessWidget {
 
   List<Widget> _stepperNodes(bool pickup) {
     final stage = _stage;
-    final placedAt = _apiText('placed_at', '');
+    final placedAt = _readableTime(_apiText('placed_at', ''));
     final titles = [
       'orders_step_placed'.tr,
       'orders_step_preparing'.tr,

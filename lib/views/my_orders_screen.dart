@@ -20,6 +20,7 @@ import '../models/order_repository.dart';
 import '../models/pharmacy_repository.dart';
 import '../models/water_repository.dart';
 import '../utils/api_language.dart';
+import '../utils/rated_orders.dart';
 import '../utils/toast_helper.dart';
 import '../controllers/home_controller.dart';
 import '../constants/text_styles.dart';
@@ -77,6 +78,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   void initState() {
     super.initState();
     _applyInitialCategory();
+    RatedOrders.load().then((_) {
+      if (mounted) setState(() {});
+    });
     _loadPharmacyOrders();
     _loadRestaurantOrders();
     _loadGroceryOrders();
@@ -481,15 +485,42 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             text: 'orders_track_order_btn'.tr,
             onTap: () => _trackRestaurantOrder(order),
           ),
-        ] else if (delivered)
+        ] else if (delivered && !RatedOrders.contains(_orderId(order)))
           _buildOrderButton(
             text: 'orders_rate'.tr,
-            onTap: () => Get.to(
-              () => RateOrderScreen(orderId: order['numericOrderId'] as int?),
-            ),
+            onTap: () => _rateOrder(_orderId(order)),
           ),
       ],
     );
+  }
+
+  static int? _orderId(Map<String, dynamic> order) =>
+      order['numericOrderId'] as int?;
+
+  /// Opens the rating form, unless the server already has this customer's
+  /// rating for the order (rated earlier or on another phone): then it says
+  /// so and the Rate button goes away.
+  Future<void> _rateOrder(int? orderId) async {
+    if (orderId != null && Get.isRegistered<OrderRepository>()) {
+      try {
+        final rating = await Get.find<OrderRepository>().rating(
+          orderId: orderId,
+          language: apiLanguageCode(),
+        );
+        if (rating['vendor_rating'] != null) {
+          await RatedOrders.add(orderId);
+          if (!mounted) return;
+          setState(() {});
+          showAppToast('orders_already_rated'.tr);
+          return;
+        }
+      } on ApiException catch (_) {
+        // The form handles its own errors; open it anyway.
+      }
+    }
+    if (!mounted) return;
+    await Get.to(() => RateOrderScreen(orderId: orderId));
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadRestaurantOrders() async {
@@ -569,13 +600,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       detailsText: details,
       onDetailsLink: () => _showRestaurantOrderDetail(order),
       buttons: [
-        if (delivered)
+        if (delivered && !RatedOrders.contains(_orderId(order)))
           _buildOrderButton(
             text: 'orders_rate'.tr,
-            onTap: () => Get.to(
-              () => RateOrderScreen(orderId: order['numericOrderId'] as int?),
-            ),
+            onTap: () => _rateOrder(_orderId(order)),
           )
+        else if (delivered)
+          const SizedBox.shrink()
         else if (!cancelled) ...[
           _buildOrderButton(
             text: 'cancel'.tr,

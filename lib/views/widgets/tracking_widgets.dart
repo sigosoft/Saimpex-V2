@@ -101,6 +101,12 @@ class TrackingSummary extends StatelessWidget {
         ],
         const SizedBox(height: 16),
         if (!data.isCancelled) _progress(data),
+        // The driver asks for this code at the door (their app says it is
+        // "under Track Order"); not needed once the order is finished.
+        if (data.deliveryPin.isNotEmpty && !data.isFinished) ...[
+          const SizedBox(height: 16),
+          _pinCard(data.deliveryPin),
+        ],
         const SizedBox(height: 20),
         Text(
           'core_tracking_your_driver'.tr,
@@ -217,6 +223,60 @@ class TrackingSummary extends StatelessWidget {
               textDirection: TextDirection.ltr,
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _pinCard(String pin) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF1EA),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFFFD2BE)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.lock_rounded, color: Color(0xFFFF5216), size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'core_tracking_pin_title'.tr,
+                  style: AppFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'core_tracking_pin_hint'.tr,
+                  style: AppFonts.outfit(
+                    color: const Color(0xFF8C7D73),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Digits read left to right in Arabic too.
+          Text(
+            pin,
+            textDirection: TextDirection.ltr,
+            style: AppFonts.outfit(
+              color: const Color(0xFFFF5216),
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 4,
+            ),
+          ),
         ],
       ),
     );
