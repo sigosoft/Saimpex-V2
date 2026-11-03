@@ -31,6 +31,10 @@ class OrderDetailScreen extends StatelessWidget {
     final isSelfPickup =
         '${detail['is_self_pickup']}' == '1' ||
         detail['is_self_pickup'] == true;
+    // Order status codes: 9 delivered, 10 cancelled.
+    final status = int.tryParse('${detail['status'] ?? ''}');
+    final isCancelled = status == 10;
+    final isFinished = status == 9 || isCancelled;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -153,6 +157,18 @@ class OrderDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 20),
 
+                          // A cancelled order says so instead of showing
+                          // its steps stuck at "placed".
+                          if (isCancelled)
+                            Text(
+                              'core_status_10'.tr,
+                              style: AppFonts.outfit(
+                                color: const Color(0xFFE03A3A),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            )
+                          else
                           // Custom Stepper Progress Row
                           Stack(
                             alignment: Alignment.topCenter,
@@ -436,8 +452,11 @@ class OrderDetailScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // 6. Action Buttons — Cancel only for self pickup; Cancel + Track for delivery
-                    if (isSelfPickup)
+                    // 6. Action Buttons — Cancel only for self pickup; Cancel + Track for delivery.
+                    // None once the order is delivered or cancelled.
+                    if (isFinished)
+                      const SizedBox.shrink()
+                    else if (isSelfPickup)
                       GestureDetector(
                         onTap: () {
                           showCancelOrderBottomSheet(
