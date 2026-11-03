@@ -579,6 +579,9 @@ class HomeScreen extends StatelessWidget {
     for (final vertical in controller.homeVerticals) {
       final slug = vertical['slug']?.toString() ?? '';
       if (vertical['parentId'] != null && slug != 'local_store') continue;
+      // Services opens from the bottom bar's Services button; the grid ends
+      // at Local Store.
+      if (slug == 'services') continue;
       final remote = vertical['icon']?.toString() ?? '';
       tiles.add({
         'label': (vertical['label']?.toString().isNotEmpty ?? false)

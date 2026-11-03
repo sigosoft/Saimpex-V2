@@ -19,7 +19,9 @@ import '../utils/app_fonts.dart';
 class AppBottomNavBar extends StatelessWidget {
   static const double _barHeight = 68;
   static const double _iconSize = 22;
-  static const double _iconStrokeFactor = 0.075;
+  // Drawn icons (Bookings, Chat) use the same line weight as the Orders,
+  // Cart, Profile and Home images (about 10 % of the icon size).
+  static const double _iconStrokeFactor = 0.102;
   static const double _servicesDiscSize = 52;
   static const double _servicesRing = 7;
 
