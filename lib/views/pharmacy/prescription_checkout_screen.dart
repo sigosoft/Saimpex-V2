@@ -234,7 +234,8 @@ class _PrescriptionCheckoutScreenState
           child: _deliveryTypeCard(
             selected: isDelivery,
             title: 'pw_delivery'.tr,
-            subtitle: 'pw_30_35_min'.tr,
+            // No fixed times: the server sends no delivery or pickup time.
+            subtitle: '',
             onTap: () => setState(() => isDelivery = true),
           ),
         ),
@@ -243,7 +244,7 @@ class _PrescriptionCheckoutScreenState
           child: _deliveryTypeCard(
             selected: !isDelivery,
             title: 'pw_self_pickup'.tr,
-            subtitle: 'pw_ready_in_15'.tr,
+            subtitle: '',
             onTap: () {
               setState(() {
                 isDelivery = false;
@@ -288,15 +289,17 @@ class _PrescriptionCheckoutScreenState
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppFonts.outfit(
-                    color: const Color(0xFFA59A94),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppFonts.outfit(
+                      color: const Color(0xFFA59A94),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ],

@@ -2004,15 +2004,8 @@ class _CartScreenState extends State<CartScreen> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            'orders_delivery_eta'.tr,
-                                            style: AppFonts.outfit(
-                                              color: const Color(0xFFA59A94),
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
+                                          // No fixed "30-35 min": the cart has
+                                          // no delivery time from the server.
                                         ],
                                       ),
                                     ],
@@ -2082,15 +2075,6 @@ class _CartScreenState extends State<CartScreen> {
                                               color: const Color(0xFF2C2520),
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            'orders_pickup_ready'.tr,
-                                            style: AppFonts.outfit(
-                                              color: const Color(0xFFA59A94),
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ],
@@ -3137,7 +3121,9 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              selectedPaymentIndex == 3
+                              // Nothing is paid now for cash on delivery or
+                              // Pay After Delivery: "Order now", not "Pay".
+                              selectedPaymentIndex >= 2
                                   ? 'orders_order_now'.tr
                                   : 'orders_pay_amount'.trParams({
                                       'amount': 'mru'.trParams({

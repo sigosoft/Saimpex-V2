@@ -356,10 +356,10 @@ class GroceryRepository {
             raw['id'] ??
             raw['vendor_id'],
       ),
-      'name': title.isEmpty ? 'Store' : title,
-      'title': title.isEmpty ? 'Store' : title,
-      'category': category.isEmpty ? 'Hypermarket' : category,
-      'rating': (raw['rating'] ?? '4.5').toString(),
+      'name': title,
+      'title': title,
+      'category': category,
+      'rating': _ratingText(raw['rating']),
       'time': time,
       'dist': dist,
       'discount': discount,
@@ -382,11 +382,11 @@ class GroceryRepository {
         'id': (m['id'] ?? '').toString(),
         'name': name.isNotEmpty
             ? name
-            : (m['vendor_name'] ?? m['title'] ?? 'Store').toString(),
-        'rating': (m['rating'] ?? '4.5').toString(),
+            : (m['vendor_name'] ?? m['title'] ?? '').toString(),
+        'rating': _ratingText(m['rating']),
         'items': (m['items'] ?? m['item_name'] ?? m['menu_name'] ?? '')
             .toString(),
-        'date': (m['date'] ?? m['ordered_at'] ?? 'Recently').toString(),
+        'date': (m['date'] ?? m['ordered_at'] ?? '').toString(),
         'count': m['items_count'] != null
             ? '${m['items_count']} Items'
             : (m['count'] ?? '1 Item').toString(),
@@ -410,12 +410,12 @@ class GroceryRepository {
           (m['price'] != null ? '${m['price']} MRU' : '');
       list.add({
         'id': (m['id'] ?? m['product_id'] ?? '').toString(),
-        'name': name.isNotEmpty ? name : (m['title'] ?? 'Product').toString(),
+        'name': name.isNotEmpty ? name : (m['title'] ?? '').toString(),
         'store': storeName.isNotEmpty
             ? storeName
-            : (m['store'] ?? m['vendor_name'] ?? 'Supermarket').toString(),
-        'rating': (m['rating'] ?? '4.5').toString(),
-        'price': price.isNotEmpty ? price : '— MRU',
+            : (m['store'] ?? m['vendor_name'] ?? '').toString(),
+        'rating': _ratingText(m['rating']),
+        'price': price,
         'image': ApiConstants.mediaUrl(m['image']?.toString()) ?? '',
         'raw': m,
       });
@@ -915,7 +915,8 @@ class GroceryRepository {
             ? tag
             : (category.isNotEmpty ? category : 'Grocery'),
         'rating': ratingValue.toStringAsFixed(1),
-        'reviews': '$reviewCount reviews',
+        // A plain count ("12"): the cards put it in brackets in any language.
+        'reviews': reviewCount > 0 ? '$reviewCount' : '',
         'price': _moneyText(selling),
         'sellingPrice': selling,
         'originalPrice': price > selling ? _moneyText(price) : '',
@@ -1011,12 +1012,19 @@ class GroceryRepository {
 
   double _amount(dynamic value) => double.tryParse('${value ?? ''}') ?? 0;
 
-  /// "20.00" becomes "20 MRU"; a missing or zero price shows "— MRU".
+  /// "20.00" becomes "20 MRU"; a missing or zero price is '' (screens hide it).
   String _moneyText(double value) {
-    if (value <= 0) return '— MRU';
+    if (value <= 0) return '';
     return value == value.roundToDouble()
         ? '${value.toInt()} MRU'
         : '${value.toStringAsFixed(2)} MRU';
+  }
+
+  /// The rating as the API sends it; missing or zero is '' (screens hide it).
+  String _ratingText(dynamic value) {
+    final text = '${value ?? ''}'.trim();
+    if (text.isEmpty || text == 'null') return '';
+    return double.tryParse(text) == 0 ? '' : text;
   }
 
   int _asInt(dynamic value, {int fallback = 0}) {

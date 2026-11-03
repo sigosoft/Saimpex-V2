@@ -125,6 +125,23 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
     );
   }
 
+  /// The cart bar shows the server cart's item count and total (it showed "1"
+  /// and the last added item's price), like the water cart bar.
+  Future<void> _refreshCartTotals() async {
+    if (!Get.isRegistered<HomeController>() ||
+        !Get.isRegistered<CartRepository>()) {
+      return;
+    }
+    try {
+      final totals = await Get.find<CartRepository>().fetchCartTotals(
+        apiLanguageCode(),
+      );
+      final home = Get.find<HomeController>();
+      home.cartItemCount.value = totals.count;
+      home.cartAmount.value = totals.amount;
+    } catch (_) {}
+  }
+
   Future<bool> _addPharmacyItem(
     Map<String, dynamic> item, {
     String? portion,
@@ -160,6 +177,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
         );
       }
       showAppToast(added.message, backgroundColor: const Color(0xFFFF5216));
+      unawaited(_refreshCartTotals());
       if (added.needsPrescription) {
         await _attachPrescription(pharmacyId);
       }
@@ -1104,8 +1122,16 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
               child: Obx(() {
                 final hasItems = controller.cartItemCount.value > 0;
                 if (!hasItems) return const SizedBox.shrink();
+                final cartAmount = controller.cartAmount.value;
                 return PharmacyCartBar(
-                  price: lastAddedItem?['price'] ?? '0 MRU',
+                  count: controller.cartItemCount.value,
+                  price: cartAmount > 0
+                      ? 'mru'.trParams({
+                          'amount': cartAmount == cartAmount.roundToDouble()
+                              ? cartAmount.toInt().toString()
+                              : cartAmount.toStringAsFixed(2),
+                        })
+                      : '${lastAddedItem?['price'] ?? ''}',
                   onTap: () {
                     Get.to(
                       () => CartScreen(

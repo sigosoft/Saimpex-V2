@@ -399,6 +399,11 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
     bool isNotAccepting,
     bool isTemporarilyClosed,
   ) {
+    final rating = _ratingText(widget.supplier['rating']);
+    final time = widget.supplier['time']?.toString() ?? '';
+    final dist = widget.supplier['dist']?.toString() ?? '';
+    final discount = widget.supplier['discount']?.toString() ?? '';
+
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
@@ -429,32 +434,36 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00B25C),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: Color(0xFFFFAE00),
-                      size: 12,
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      widget.supplier['rating']?.toString() ?? '4.6',
-                      style: AppFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
+              if (rating.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00B25C),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Color(0xFFFFAE00),
+                        size: 12,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 2),
+                      Text(
+                        rating,
+                        style: AppFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 2),
@@ -470,51 +479,61 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(
-                Icons.access_time_rounded,
-                color: Color(0xFFFF5216),
-                size: 12,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                widget.supplier['time']?.toString() ?? '30-35 min',
-                style: AppFonts.outfit(
-                  color: const Color(0xFF7A6A60),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
+              if (time.isNotEmpty) ...[
+                const Icon(
+                  Icons.access_time_rounded,
+                  color: Color(0xFFFF5216),
+                  size: 12,
                 ),
-              ),
-              const SizedBox(width: 10),
-              const Icon(
-                Icons.location_on_outlined,
-                color: Color(0xFFFF5216),
-                size: 12,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                widget.supplier['dist']?.toString() ?? '10 Km',
-                style: AppFonts.outfit(
-                  color: const Color(0xFF7A6A60),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF5216),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  widget.supplier['discount']?.toString() ?? '50% OFF',
+                const SizedBox(width: 4),
+                Text(
+                  time,
                   style: AppFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF7A6A60),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
+              ],
+              if (dist.isNotEmpty) ...[
+                if (time.isNotEmpty) const SizedBox(width: 10),
+                const Icon(
+                  Icons.location_on_outlined,
+                  color: Color(0xFFFF5216),
+                  size: 12,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  dist,
+                  style: AppFonts.outfit(
+                    color: const Color(0xFF7A6A60),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+              if (discount.isNotEmpty) ...[
+                if (time.isNotEmpty || dist.isNotEmpty)
+                  const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF5216),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    discount,
+                    style: AppFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           if (isNotAccepting) ...[
@@ -642,8 +661,8 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
   }
 
   Widget _buildCartBar() {
-    final readyIn = widget.supplier['time']?.toString() ?? '30-35 min';
-    final price = lastAddedItem?['price']?.toString() ?? '50 MRU';
+    final readyIn = widget.supplier['time']?.toString() ?? '';
+    final price = lastAddedItem?['price']?.toString() ?? '';
 
     return GestureDetector(
       onTap: () {
@@ -705,14 +724,15 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  Text(
-                    'pw_ready_in'.trParams({'time': readyIn}),
-                    style: AppFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
+                  if (readyIn.isNotEmpty)
+                    Text(
+                      'pw_ready_in'.trParams({'time': readyIn}),
+                      style: AppFonts.outfit(
+                        color: const Color(0xFFA59A94),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -740,4 +760,11 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
       ),
     );
   }
+}
+
+/// The rating to show; missing, "0" or "0.0" is '' so the star chip is hidden.
+String _ratingText(dynamic value) {
+  final text = '${value ?? ''}'.trim();
+  if (text.isEmpty || text == 'null') return '';
+  return double.tryParse(text) == 0 ? '' : text;
 }

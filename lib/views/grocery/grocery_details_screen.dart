@@ -612,17 +612,17 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
         ? currentStore['image'].toString()
         : (widget.store['image']?.toString() ??
               'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop');
-    final storeRating = (currentStore['rating'] ?? widget.store['rating'] ?? '')
-        .toString();
+    final storeRating = _ratingText(
+      currentStore['rating'] ?? widget.store['rating'],
+    );
     final storeCategory =
         (currentStore['category'] ??
                 widget.store['category'] ??
                 'st_grocery'.tr)
             .toString();
-    final storeTime =
-        (currentStore['time'] ?? widget.store['time'] ?? '30-35 min')
-            .toString();
-    final storeDist = (currentStore['dist'] ?? widget.store['dist'] ?? '10 Km')
+    final storeTime = (currentStore['time'] ?? widget.store['time'] ?? '')
+        .toString();
+    final storeDist = (currentStore['dist'] ?? widget.store['dist'] ?? '')
         .toString();
     final storeDiscount =
         (currentStore['discount'] ?? widget.store['discount'] ?? '').toString();
@@ -722,37 +722,38 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                           ),
                                         ),
                                       ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF00B25C),
-                                          borderRadius: BorderRadius.circular(
-                                            10,
+                                      if (storeRating.isNotEmpty)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF00B25C),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.star_rounded,
+                                                color: Colors.white,
+                                                size: 12,
+                                              ),
+                                              const SizedBox(width: 2),
+                                              Text(
+                                                storeRating,
+                                                style: AppFonts.outfit(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(
-                                              Icons.star_rounded,
-                                              color: Colors.white,
-                                              size: 12,
-                                            ),
-                                            const SizedBox(width: 2),
-                                            Text(
-                                              storeRating,
-                                              style: AppFonts.outfit(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
@@ -767,37 +768,44 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   const SizedBox(height: 12),
                                   Row(
                                     children: [
-                                      const Icon(
-                                        Icons.access_time_rounded,
-                                        color: Color(0xFFFF5216),
-                                        size: 13,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        storeTime,
-                                        style: AppFonts.outfit(
-                                          color: const Color(0xFF7A6A60),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
+                                      if (storeTime.isNotEmpty) ...[
+                                        const Icon(
+                                          Icons.access_time_rounded,
+                                          color: Color(0xFFFF5216),
+                                          size: 13,
                                         ),
-                                      ),
-                                      const SizedBox(width: 14),
-                                      const Icon(
-                                        Icons.location_on_outlined,
-                                        color: Color(0xFFFF5216),
-                                        size: 13,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        storeDist,
-                                        style: AppFonts.outfit(
-                                          color: const Color(0xFF7A6A60),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          storeTime,
+                                          style: AppFonts.outfit(
+                                            color: const Color(0xFF7A6A60),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                      ),
+                                      ],
+                                      if (storeDist.isNotEmpty) ...[
+                                        if (storeTime.isNotEmpty)
+                                          const SizedBox(width: 14),
+                                        const Icon(
+                                          Icons.location_on_outlined,
+                                          color: Color(0xFFFF5216),
+                                          size: 13,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          storeDist,
+                                          style: AppFonts.outfit(
+                                            color: const Color(0xFF7A6A60),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                       if (storeDiscount.isNotEmpty) ...[
-                                        const SizedBox(width: 14),
+                                        if (storeTime.isNotEmpty ||
+                                            storeDist.isNotEmpty)
+                                          const SizedBox(width: 14),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,
@@ -1431,7 +1439,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   ) {
     final title = (bundle['title'] ?? 'Special Bundle').toString();
     final itemsDesc = (bundle['items'] ?? 'Bundle').toString();
-    final price = (bundle['price'] ?? '— MRU').toString();
+    final price = (bundle['price'] ?? '').toString();
     final originalPrice = (bundle['originalPrice'] ?? '').toString();
     final bundlePrice = parsePrice(price);
 
@@ -1489,14 +1497,15 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text(
-                      price,
-                      style: AppFonts.outfit(
-                        color: const Color(0xFFFF5216),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
+                    if (price.isNotEmpty)
+                      Text(
+                        price,
+                        style: AppFonts.outfit(
+                          color: const Color(0xFFFF5216),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
                     if (originalPrice.isNotEmpty) ...[
                       const SizedBox(width: 6),
                       Text(
@@ -1719,28 +1728,29 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       images: foodGalleryImages(food),
                     ),
                   ),
-                  PositionedDirectional(
-                    top: 8,
-                    start: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF5216),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        (food['discount'] ?? '').toString(),
-                        style: AppFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
+                  if ((food['discount'] ?? '').toString().isNotEmpty)
+                    PositionedDirectional(
+                      top: 8,
+                      start: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5216),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          (food['discount'] ?? '').toString(),
+                          style: AppFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -1761,37 +1771,41 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          color: Color(0xFFFFAE00),
-                          size: 12,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          (food['rating'] ?? '4.5').toString(),
-                          style: AppFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
+                    if (_ratingText(food['rating']).isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFFFAE00),
+                            size: 12,
                           ),
-                        ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: Text(
-                            '(${food['reviews'] ?? ''})',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          const SizedBox(width: 2),
+                          Text(
+                            _ratingText(food['rating']),
                             style: AppFonts.outfit(
-                              color: const Color(0xFFA59A94),
-                              fontSize: 9,
+                              color: const Color(0xFF2C2520),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 2),
+                          Expanded(
+                            child: Text(
+                              '${food['reviews'] ?? ''}'.isEmpty
+                                  ? ''
+                                  : '(${food['reviews']})',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppFonts.outfit(
+                                color: const Color(0xFFA59A94),
+                                fontSize: 9,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 4),
                     Text(
                       (food['originalPrice'] ?? '').toString(),
@@ -2002,7 +2016,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               const SizedBox(height: 10),
 
                               // Only a rating the API sent; no stand-in value.
-                              if ((food['rating'] ?? '').toString().isNotEmpty)
+                              if (_ratingText(food['rating']).isNotEmpty)
                               Row(
                                 children: [
                                   const Icon(
@@ -3222,4 +3236,11 @@ class _GroceryRangeThumbShape extends RangeSliderThumbShape {
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(center, enabledThumbRadius - 1.25, borderPaint);
   }
+}
+
+/// The rating to show; missing, "0" or "0.0" is '' so the star chip is hidden.
+String _ratingText(dynamic value) {
+  final text = '${value ?? ''}'.trim();
+  if (text.isEmpty || text == 'null') return '';
+  return double.tryParse(text) == 0 ? '' : text;
 }

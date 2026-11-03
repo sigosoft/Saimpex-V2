@@ -63,6 +63,7 @@ class WaterProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if ('${product['discount'] ?? ''}'.trim().isNotEmpty)
                   PositionedDirectional(
                     top: 8,
                     start: 8,
@@ -76,7 +77,7 @@ class WaterProductCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        (product['discount'] ?? '50% OFF').toString(),
+                        '${product['discount']}',
                         style: AppFonts.outfit(
                           color: Colors.white,
                           fontSize: 8,

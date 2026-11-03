@@ -197,10 +197,10 @@ class _WaterSupplierDetailsScreenState
         widget.supplier['name'] ?? widget.supplier['title'] ?? '';
     final subtitle =
         widget.supplier['subtitle'] ?? 'pw_premium_purified_water'.tr;
-    final rating = widget.supplier['rating'] ?? '4.6';
-    final time = widget.supplier['time'] ?? '30-35 min';
-    final dist = widget.supplier['dist'] ?? '10 Km';
-    final discount = widget.supplier['discount'] ?? '50% OFF';
+    final rating = _ratingText(widget.supplier['rating']);
+    final time = (widget.supplier['time'] ?? '').toString();
+    final dist = (widget.supplier['dist'] ?? '').toString();
+    final discount = (widget.supplier['discount'] ?? '').toString();
     final topInset = MediaQuery.paddingOf(context).top;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
 
@@ -295,35 +295,36 @@ class _WaterSupplierDetailsScreenState
                                       ),
                                     ),
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF0A8A00),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(
-                                          Icons.star_rounded,
-                                          color: Colors.white,
-                                          size: 13,
-                                        ),
-                                        const SizedBox(width: 3),
-                                        Text(
-                                          rating,
-                                          style: AppFonts.outfit(
+                                  if (rating.isNotEmpty)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF0A8A00),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.star_rounded,
                                             color: Colors.white,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
+                                            size: 13,
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            rating,
+                                            style: AppFonts.outfit(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                               const SizedBox(height: 4),
@@ -341,54 +342,62 @@ class _WaterSupplierDetailsScreenState
                               // Info Tags Row
                               Row(
                                 children: [
-                                  const Icon(
-                                    Icons.access_time_rounded,
-                                    color: Color(0xFFFF5216),
-                                    size: 15,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    time,
-                                    style: AppFonts.outfit(
-                                      color: const Color(0xFF2C2520),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                  if (time.isNotEmpty) ...[
+                                    const Icon(
+                                      Icons.access_time_rounded,
+                                      color: Color(0xFFFF5216),
+                                      size: 15,
                                     ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  const Icon(
-                                    Icons.location_on_outlined,
-                                    color: Color(0xFFFF5216),
-                                    size: 15,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    dist,
-                                    style: AppFonts.outfit(
-                                      color: const Color(0xFF2C2520),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFF5216),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      discount,
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      time,
                                       style: AppFonts.outfit(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF2C2520),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  ),
+                                  ],
+                                  if (dist.isNotEmpty) ...[
+                                    if (time.isNotEmpty)
+                                      const SizedBox(width: 14),
+                                    const Icon(
+                                      Icons.location_on_outlined,
+                                      color: Color(0xFFFF5216),
+                                      size: 15,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      dist,
+                                      style: AppFonts.outfit(
+                                        color: const Color(0xFF2C2520),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                  if (discount.isNotEmpty) ...[
+                                    if (time.isNotEmpty || dist.isNotEmpty)
+                                      const SizedBox(width: 14),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFF5216),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        discount,
+                                        style: AppFonts.outfit(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                               const SizedBox(height: 16),
@@ -598,7 +607,7 @@ class _WaterSupplierDetailsScreenState
   }
 
   Widget _buildCartBar() {
-    final readyIn = widget.supplier['time']?.toString() ?? '30-35 min';
+    final readyIn = widget.supplier['time']?.toString() ?? '';
     final lastItem =
         lastAddedItem ??
         (Get.isRegistered<HomeController>()
@@ -700,14 +709,15 @@ class _WaterSupplierDetailsScreenState
                       ),
                     );
                   }),
-                  Text(
-                    'pw_ready_in'.trParams({'time': readyIn}),
-                    style: AppFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
+                  if (readyIn.isNotEmpty)
+                    Text(
+                      'pw_ready_in'.trParams({'time': readyIn}),
+                      style: AppFonts.outfit(
+                        color: const Color(0xFFA59A94),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -1066,4 +1076,11 @@ class _WaterSupplierDetailsScreenState
       ),
     );
   }
+}
+
+/// The rating to show; missing, "0" or "0.0" is '' so the star chip is hidden.
+String _ratingText(dynamic value) {
+  final text = '${value ?? ''}'.trim();
+  if (text.isEmpty || text == 'null') return '';
+  return double.tryParse(text) == 0 ? '' : text;
 }
