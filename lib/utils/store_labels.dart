@@ -39,8 +39,9 @@ String localizedStoreText(Object? text) {
 /// "1 items" / "1 articles").
 String itemsCountLabel(Object count) {
   final n = int.tryParse('$count');
-  return (n == 1 ? 'orders_items_count_one' : 'orders_items_count')
-      .trParams({'count': '$count'});
+  return (n == 1 ? 'orders_items_count_one' : 'orders_items_count').trParams({
+    'count': '$count',
+  });
 }
 
 /// A rating as the cards show it: "4.7", "5"; the API sometimes sends
@@ -63,6 +64,44 @@ String readableDateTime(Object? raw) {
   final month = 'svc_month_${time.month}'.tr;
   return '${two(time.day)} $month ${time.year}, '
       '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
+}
+
+const _englishMonths = [
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec',
+];
+
+/// Order timeline times come as "03 Nov 2026 10:00 AM" (or with a comma
+/// after the year); shown like [readableDateTime], with the month in the app
+/// language. Anything else is returned as it is.
+String readableServerTime(Object? raw) {
+  final text = '${raw ?? ''}'.trim();
+  final match = RegExp(
+    r'^(\d{1,2}) ([A-Za-z]{3}) (\d{4}),? (\d{1,2}):(\d{2}) ?([AaPp][Mm])$',
+  ).firstMatch(text);
+  if (match == null) return text;
+  final month = _englishMonths.indexOf(match.group(2)!.toLowerCase()) + 1;
+  if (month == 0) return text;
+  var hour = int.parse(match.group(4)!) % 12;
+  if (match.group(6)!.toUpperCase() == 'PM') hour += 12;
+  final time = DateTime(
+    int.parse(match.group(3)!),
+    month,
+    int.parse(match.group(1)!),
+    hour,
+    int.parse(match.group(5)!),
+  );
+  return readableDateTime(time.toIso8601String());
 }
 
 /// A server row's `name_<language>`, English when that is empty.

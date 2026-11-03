@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../widgets/cancel_reason_note.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../core/network/api_constants.dart';
@@ -227,6 +228,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                     const SizedBox(height: 10),
                     if (detail != null) ScheduledForBanner(detail: detail!),
                     _buildOrderStatusCard(),
+                    CancelReasonNote(reason: order?.cancelReason ?? ''),
                     if (!isDelivery ||
                         _deliveryAddress.isNotEmpty ||
                         _hasDriver) ...[
@@ -886,7 +888,11 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
           Row(
             children: [
               Text(
-                isDelivery ? 'pw_total_paid'.tr : 'pw_to_pay'.tr,
+                order?.isCancelled == true
+                    ? 'pw_total'.tr
+                    : isDelivery
+                    ? 'pw_total_paid'.tr
+                    : 'pw_to_pay'.tr,
                 style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,

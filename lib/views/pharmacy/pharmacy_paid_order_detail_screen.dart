@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../widgets/cancel_reason_note.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../models/order_tracking.dart';
@@ -173,6 +174,7 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                       const SizedBox(height: 14),
                     ],
                     _buildOrderStatusCard(),
+                    CancelReasonNote(reason: order?.cancelReason ?? ''),
                     if (medicines.isNotEmpty) ...[
                       const SizedBox(height: 18),
                       Text(
