@@ -18,6 +18,7 @@ import '../widgets/search_camera_button.dart';
 
 import '../../utils/app_fonts.dart';
 import '../../utils/wallet_chip.dart';
+import '../../utils/store_labels.dart';
 class LocalStoreScreen extends StatefulWidget {
   const LocalStoreScreen({super.key});
 
@@ -890,7 +891,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              store['rating'],
+                              ratingLabel(store['rating']),
                               style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 9,
@@ -1203,7 +1204,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              store['rating'],
+                              ratingLabel(store['rating']),
                               style: AppFonts.outfit(
                                 color: const Color(0xFF2C2520),
                                 fontSize: 10,

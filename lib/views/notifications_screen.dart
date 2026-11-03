@@ -9,6 +9,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/store_labels.dart';
 /// The customer's notifications from the server, newest first.
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -116,10 +117,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _card(Map<String, dynamic> item) {
     final title = '${item['title']}';
     final content = '${item['content']}';
-    final when = [item['date'], item['time']]
-        .map((v) => '$v'.trim())
-        .where((v) => v.isNotEmpty && v != 'null')
-        .join(' • ');
+    // The API sends date and time apart ("2026-11-03", "06:12:32").
+    final when = readableDateTime(
+      [item['date'], item['time']]
+          .map((v) => '$v'.trim())
+          .where((v) => v.isNotEmpty && v != 'null')
+          .join(' '),
+    );
 
     return Container(
       padding: const EdgeInsets.all(16),
