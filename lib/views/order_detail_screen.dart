@@ -426,8 +426,11 @@ class OrderDetailScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                // A cash order is still "to pay" until paid.
-                                _paid == true
+                                // A cash order is still "to pay" until paid;
+                                // a cancelled one shows a plain "Total".
+                                isCancelled
+                                    ? 'svc_total'.tr
+                                    : _paid == true
                                     ? 'orders_total_paid'.tr
                                     : 'orders_to_pay'.tr,
                                 style: AppFonts.outfit(

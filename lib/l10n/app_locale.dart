@@ -43,11 +43,14 @@ class AppLocale {
     await prefs.setString(_prefsKey, next);
   }
 
-  /// Accepts a code (`fr`, `FR`) or a picker label (`Français`).
+  /// Accepts a code (`fr`, `FR`) or a picker label (`Français`). Anything else
+  /// keeps the current language: it used to become English, so an unexpected
+  /// value quietly switched the app to English.
   static String codeFor(String value) {
     final text = value.trim().toLowerCase();
+    if (text == 'en' || text == 'english') return 'en';
     if (text == 'fr' || text == 'français' || text == 'francais') return 'fr';
     if (text == 'ar' || text == 'العربية') return 'ar';
-    return 'en';
+    return _code;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../constants/colors.dart';
+import '../../l10n/app_locale.dart';
 import '../../controllers/onboarding_controller.dart';
 import '../../core/storage/session_store.dart';
 import '../../models/profile_repository.dart';
@@ -107,8 +108,10 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
   @override
   void initState() {
     super.initState();
+    // Start on the app's own language (by code): a label that didn't match
+    // used to start on English, so Continue switched the app to English.
     final index = appLanguages.indexWhere(
-      (lang) => lang.label == widget.currentLanguage,
+      (lang) => lang.code.toLowerCase() == AppLocale.code,
     );
     _selectedIndex = index < 0 ? 0 : index;
   }
