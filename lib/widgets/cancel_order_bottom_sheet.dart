@@ -17,6 +17,8 @@ void showCancelOrderBottomSheet(
   String? orderId,
   int? apiOrderId,
   VoidCallback? onCancelled,
+  // Passed to the success screen: whether a refund is due (null = unknown).
+  bool? paid,
 }) {
   int selectedReasonIndex = -1;
   var cancelling = false;
@@ -278,6 +280,7 @@ void showCancelOrderBottomSheet(
                                           Get.to(
                                             () => OrderCancelledSuccessScreen(
                                               orderId: orderId,
+                                              paid: paid,
                                             ),
                                           );
                                         },

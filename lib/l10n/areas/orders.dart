@@ -27,6 +27,10 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_cancelled_title': 'Order Cancelled',
     'orders_cancelled_refunded':
         'Your order has been cancelled\nsuccessfully.\nThe paid amount has been refunded to\nyour SAIMPEX Wallet.',
+    'orders_cancelled_unpaid':
+        'Your order has been cancelled.\nNothing was charged.',
+    'orders_cancelled_unknown':
+        'Your order has been cancelled.\nAny amount you paid goes back to\nyour SAIMPEX Wallet.',
     'orders_filter_all': 'All',
     'orders_my_schedules': 'My Schedules',
     'orders_scheduled': 'Scheduled',
@@ -42,6 +46,7 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_cannot_rate': 'This order cannot be rated right now',
     'orders_rate_store_first': 'Please rate the store before submitting',
     'orders_rating_submitted': 'Rating submitted successfully!',
+    'orders_already_rated': 'You have already rated this order.',
     'orders_rate_your_order': 'Rate Your Order',
     'orders_rate_restaurant': 'Rate Restaurant Review',
     'orders_rate_delivery': 'Rate Your Delivery Experience',
@@ -231,6 +236,10 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_cancelled_title': 'Commande annulée',
     'orders_cancelled_refunded':
         'Votre commande a bien été annulée.\nLe montant payé a été remboursé sur\nvotre portefeuille SAIMPEX.',
+    'orders_cancelled_unpaid':
+        'Votre commande a été annulée.\nAucun montant n\'a été débité.',
+    'orders_cancelled_unknown':
+        'Votre commande a été annulée.\nTout montant payé revient sur\nvotre portefeuille SAIMPEX.',
     'orders_filter_all': 'Tous',
     'orders_my_schedules': 'Mes commandes programmées',
     'orders_scheduled': 'Programmée',
@@ -247,6 +256,7 @@ const ordersStrings = <String, Map<String, String>>{
         'Cette commande ne peut pas être notée pour le moment',
     'orders_rate_store_first': 'Veuillez noter le magasin avant d\'envoyer',
     'orders_rating_submitted': 'Votre note a bien été envoyée !',
+    'orders_already_rated': 'Vous avez déjà noté cette commande.',
     'orders_rate_your_order': 'Notez votre commande',
     'orders_rate_restaurant': 'Notez le restaurant',
     'orders_rate_delivery': 'Notez votre livraison',
@@ -435,6 +445,9 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_cancelled_title': 'تم إلغاء الطلب',
     'orders_cancelled_refunded':
         'تم إلغاء طلبك بنجاح.\nتمت إعادة المبلغ المدفوع إلى\nمحفظة SAIMPEX الخاصة بك.',
+    'orders_cancelled_unpaid': 'تم إلغاء طلبك.\nلم يتم خصم أي مبلغ.',
+    'orders_cancelled_unknown':
+        'تم إلغاء طلبك.\nأي مبلغ دفعته يعود إلى\nمحفظة SAIMPEX الخاصة بك.',
     'orders_filter_all': 'الكل',
     'orders_my_schedules': 'طلباتي المجدولة',
     'orders_scheduled': 'مجدول',
@@ -450,6 +463,7 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_cannot_rate': 'لا يمكن تقييم هذا الطلب حاليًا',
     'orders_rate_store_first': 'يرجى تقييم المتجر قبل الإرسال',
     'orders_rating_submitted': 'تم إرسال تقييمك بنجاح!',
+    'orders_already_rated': 'لقد قيّمت هذا الطلب من قبل.',
     'orders_rate_your_order': 'قيّم طلبك',
     'orders_rate_restaurant': 'قيّم المطعم',
     'orders_rate_delivery': 'قيّم تجربة التوصيل',

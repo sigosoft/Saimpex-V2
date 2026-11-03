@@ -9,12 +9,17 @@ class OtpInputBox extends StatelessWidget {
   final FocusNode? nextFocusNode;
   final FocusNode? prevFocusNode;
 
+  /// Called when this box receives more than one digit (fast typing, a pasted
+  /// or auto-filled code) so the row can spread them over the next boxes.
+  final ValueChanged<String>? onSeveralDigits;
+
   const OtpInputBox({
     super.key,
     required this.controller,
     required this.focusNode,
     this.nextFocusNode,
     this.prevFocusNode,
+    this.onSeveralDigits,
   });
 
   @override
@@ -55,10 +60,10 @@ class OtpInputBox extends StatelessWidget {
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(1),
-            FilteringTextInputFormatter.digitsOnly,
-          ],
+          // No one-digit limit here: a second digit typed before the focus
+          // moves (or a whole pasted code) goes to onSeveralDigits instead
+          // of being dropped.
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: const InputDecoration(
             border: InputBorder.none,
             contentPadding: EdgeInsets.zero,
@@ -73,6 +78,13 @@ class OtpInputBox extends StatelessWidget {
             }
           },
           onChanged: (value) {
+            if (value.length > 1 && onSeveralDigits != null) {
+              onSeveralDigits!(value);
+              return;
+            }
+            if (value.length > 1) {
+              controller.text = value.substring(value.length - 1);
+            }
             if (value.isNotEmpty) {
               if (nextFocusNode != null) {
                 nextFocusNode!.requestFocus();

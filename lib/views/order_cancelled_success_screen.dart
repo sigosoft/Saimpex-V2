@@ -11,7 +11,12 @@ import '../utils/app_fonts.dart';
 class OrderCancelledSuccessScreen extends StatelessWidget {
   final String? orderId;
 
-  const OrderCancelledSuccessScreen({super.key, this.orderId});
+  /// Whether the order had been paid: true says the amount was refunded to
+  /// the wallet, false that nothing was charged (cash, Pay After Delivery),
+  /// null (not known on that screen) words it carefully.
+  final bool? paid;
+
+  const OrderCancelledSuccessScreen({super.key, this.orderId, this.paid});
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +72,11 @@ class OrderCancelledSuccessScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'orders_cancelled_refunded'.tr,
+                        switch (paid) {
+                          true => 'orders_cancelled_refunded'.tr,
+                          false => 'orders_cancelled_unpaid'.tr,
+                          null => 'orders_cancelled_unknown'.tr,
+                        },
                         style: AppFonts.outfit(
                           color: const Color(0xFF8C7D73),
                           fontSize: 14,

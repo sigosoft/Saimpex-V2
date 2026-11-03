@@ -56,4 +56,48 @@ void main() {
       expect(focusNodes[1].hasFocus, isTrue);
     });
   }
+
+  // Retest 3 Nov (C-B20): typing fast only filled the first box.
+  Future<(List<TextEditingController>, List<FocusNode>)> pumpRow(
+    WidgetTester tester,
+  ) async {
+    final controllers = List.generate(6, (_) => TextEditingController());
+    final focusNodes = List.generate(6, (_) => FocusNode());
+    addTearDown(() {
+      for (final c in controllers) {
+        c.dispose();
+      }
+      for (final f in focusNodes) {
+        f.dispose();
+      }
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: OtpCodeRow(controllers: controllers, focusNodes: focusNodes),
+        ),
+      ),
+    );
+    return (controllers, focusNodes);
+  }
+
+  testWidgets('a pasted code fills every box', (tester) async {
+    final (controllers, _) = await pumpRow(tester);
+    await tester.tap(find.byKey(const ValueKey('otp_box_0')));
+    await tester.enterText(find.byType(TextField).first, '123456');
+    await tester.pump();
+    expect(controllers.map((c) => c.text).join(), '123456');
+  });
+
+  testWidgets('two digits typed into one box go to the next box too', (
+    tester,
+  ) async {
+    final (controllers, focusNodes) = await pumpRow(tester);
+    await tester.tap(find.byKey(const ValueKey('otp_box_0')));
+    await tester.enterText(find.byType(TextField).first, '12');
+    await tester.pump();
+    expect(controllers[0].text, '1');
+    expect(controllers[1].text, '2');
+    expect(focusNodes[2].hasFocus, isTrue);
+  });
 }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../core/network/api_exception.dart';
 import '../models/order_repository.dart';
 import '../models/service_booking_detail.dart' show cleanerPhotoUrl;
+import '../utils/rated_orders.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
@@ -104,6 +105,8 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
         cleanerComment: comment(selectedCleanerTags, ''),
         language: apiLanguageCode(),
       );
+      // My Orders hides the Rate button for this order from now on.
+      await RatedOrders.add(orderId);
       if (!mounted) return;
       showAppToast(
         message.isEmpty ? 'orders_rating_submitted'.tr : message,

@@ -41,6 +41,10 @@ class OrderTracking {
 
   String get orderCode => '${_data['order_code'] ?? ''}'.trim();
 
+  /// The 4-digit code the customer gives the driver at the door; empty when
+  /// the order has none.
+  String get deliveryPin => '${_data['delivery_pin'] ?? ''}'.trim();
+
   Map<String, dynamic> _map(String key) {
     final value = _data[key];
     return value is Map ? Map<String, dynamic>.from(value) : const {};

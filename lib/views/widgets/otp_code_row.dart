@@ -31,9 +31,29 @@ class OtpCodeRow extends StatelessWidget {
             focusNode: focusNodes[index],
             nextFocusNode: index < count - 1 ? focusNodes[index + 1] : null,
             prevFocusNode: index > 0 ? focusNodes[index - 1] : null,
+            onSeveralDigits: (digits) => _spread(index, digits),
           ),
         ),
       ),
     );
+  }
+
+  /// Puts several digits received in box [from] into that box and the ones
+  /// after it, then moves to the next empty box (or closes the keyboard when
+  /// the code is complete). A whole 6-digit code fills every box from the first.
+  void _spread(int from, String digits) {
+    final count = controllers.length;
+    final start = digits.length >= count ? 0 : from;
+    var index = start;
+    for (final digit in digits.split('')) {
+      if (index >= count) break;
+      controllers[index].text = digit;
+      index++;
+    }
+    if (index < count) {
+      focusNodes[index].requestFocus();
+    } else {
+      focusNodes[count - 1].unfocus();
+    }
   }
 }
