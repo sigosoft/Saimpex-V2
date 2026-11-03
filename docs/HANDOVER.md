@@ -677,3 +677,12 @@ Phone: vivo V2239, Android 15, debug build against dev, demo customer +222 95200
   - Tracking draws the rider icon on the store when no driver is assigned yet.
   - Seen once: a red debug error (`_dependents.isEmpty`) after tapping Orders → Track a few seconds after a relaunch; not reproduced with slower taps, no stack trace in logcat.
 - **Not tested yet:** online payment (Masrvi), services, courier, pharmacy, water flows; French and English pass.
+
+### Bottom bar: wave design, names under every item (`feature/nav-bar-polish`, [PR #38](https://github.com/sigosoft/Saimpex-V2/pull/38), merged 3 Nov) 🟡 needs Praveen's OK
+**Not the Figma bar:** built from a reference picture chosen on 3 Nov (it replaced an earlier floating version, commit `7ea418f`). CLAUDE.md says Figma is the design, so Praveen should approve it, or ask for the Figma bar back (commit `255ee9f`: Figma shape with the same open-tab state and haptics).
+- A full-width white bar on the bottom edge with a smooth dip around the raised Services button: solid orange disc in a pale orange ring (stronger when Services is open). Brand orange #FF5216 instead of the reference's red. Same total height as before, so screens' bottom spacing is unchanged.
+- Each tab is an icon with its name under it, Services too (its name sits under the dip; English/French label now "Services", was "SERVICES"). The open tab's icon and name turn orange, the name bold. Before, no tab ever looked selected. Long names shrink to fit ("Réservations").
+- Items press down on tap (`Pressable`, off with reduced motion). Haptics: light impact on a tab switch, medium on Services, a selection tick when re-tapping the open tab (Home still reloads). Names stay for screen readers (`Semantics`).
+- **Checked** (vivo V2239, Android 15, dev, 3 Nov, English): Home, Orders and Services as the open tab, tab switching, the dip around the button; no error in a `flutter run` session; analyzer clean, 22 tests pass. Cart badge not seen (cart empty).
+- **Seen three times, not from this change:** a red debug error (`_dependents.isEmpty`) on the first launch after installing an update (also on 2 Nov, before this change), once even after a force-stop; the next launch is fine. It did not happen under `flutter run`. No stack trace in logcat; needs `flutter run` to catch it.
+- **To check, not from this change:** after installing this build the app came back in English although French was chosen before (language should persist, P1-1).
