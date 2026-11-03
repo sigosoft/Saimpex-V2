@@ -650,10 +650,11 @@ Before the client build (2 Nov):
 - **Laundry balance after re-weighing:** paying it isn't in the API yet; the Pay button now says "Coming soon" like the other unfinished features (was "not available yet").
 - **Checked** (Android, dev, 2 Nov): Water header shows the real balance; the water cart bar shows the cart total after adding two items.
 
-### Bottom bar: open tab, press motion and haptics (`feature/nav-bar-polish`, 2 Nov) ✅
-Kept to the Figma bar (white bar, notch, raised orange Services disc, same items). Before, no tab ever looked selected (every icon grey).
-- The open tab's icon and label turn orange (label bold) with a soft orange pill behind the icon; the Services dot shows only when Services is open.
-- Items and the Services disc press down on tap (`Pressable`, off when the phone reduces motion).
-- Haptics: light impact on a tab switch, medium on Services, a selection tick when re-tapping the open tab (Home still reloads).
-- Long labels shrink to fit their slot ("Réservations", "Commandes" no longer run together in French).
-- **Checked** (vivo V2239, Android 15, dev, 2 Nov): Home, Bookings, Orders, Services, Profile selected in Arabic and French; analyzer clean, 22 tests pass.
+### Bottom bar: floating notched design, open tab, haptics (`feature/nav-bar-polish`, 3 Nov) 🟡 needs Praveen's OK
+**Not the Figma bar:** built from a reference picture Sharvin's replacement chose (3 Nov). CLAUDE.md says Figma is the design, so Praveen should approve it (or ask for the Figma bar back: commit `255ee9f` has the Figma-shaped version with the same open-tab state and haptics).
+- A light rounded bar floating 16 px from the sides and 10 px above the bottom, with a smooth dip around a raised round Services button (orange gradient, soft glow). Brand orange #FF5216, not the reference's blue. Same total height as before, so screens' bottom spacing is unchanged.
+- Icons only, no labels (as in the reference); names stay for screen readers (`Semantics`). Goes against "easy for first-time users" (V2_DECISIONS §17): labels can come back under the icons if Praveen wants them.
+- The open tab's icon turns orange with a soft bubble and two sparkle dots that pop in. Before, no tab ever looked selected.
+- Items press down on tap (`Pressable`, off with reduced motion). Haptics: light impact on a tab switch, medium on Services, a selection tick when re-tapping the open tab (Home still reloads).
+- **Checked** (vivo V2239, Android 15, dev, 3 Nov, French): Home and Orders as the open tab, tab switching, the dip around the button; analyzer clean, 22 tests pass. Cart badge not seen (cart empty).
+- **Seen twice, not from this change:** a red debug error (`_dependents.isEmpty`) on the first launch right after installing an update (also on 2 Nov, before this change); the next launch is fine. No stack trace in logcat; needs `flutter run` to catch it.

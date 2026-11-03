@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,25 +9,28 @@ import 'motion.dart';
 import '../utils/app_fonts.dart';
 /// Shared bottom navigation used by [MainShellScreen] and standalone pages.
 ///
-/// A flat white bar with a notch cut around the raised Services disc. Every item
-/// is an icon with a label under it; the cart shows an orange count badge. The
-/// open tab is orange on a soft orange pill; items press down and tick (haptics)
-/// when tapped.
+/// A floating rounded bar, inset from the screen edges, with a smooth dip
+/// around the raised Services button. Items are icons only (their names stay
+/// for screen readers); the open tab's icon turns orange with a soft bubble and
+/// two small sparkle dots. Items press down and give haptics when tapped; the
+/// cart shows an orange count badge.
 class AppBottomNavBar extends StatelessWidget {
-  static const double _barHeight = 66;
-  static const double _iconSize = 22;
+  static const double _barHeight = 60;
+  static const double _barRadius = 24;
+  static const double _sideMargin = 16;
+  static const double _bottomGap = 10;
+  static const double _iconSize = 24;
   static const double _iconStrokeFactor = 0.075;
-  static const double _servicesDiscSize = 68;
-  static const double _servicesBorder = 5;
-  static const double _notchRadius = 44;
-  static const double _iconSlotTop = 9;
-  static const double _labelGap = 2;
-  static const double _pillWidth = 46;
-  static const double _pillHeight = 28;
+  static const double _servicesDiscSize = 56;
 
-  static const Color _barColor = Colors.white;
+  /// Half the width of the dip, measured along the bar's top edge.
+  static const double _notchHalfWidth = 58;
+  static const double _notchDepth = 38;
+
+  static const Color _barColor = Color(0xFFF8F8F8);
   static const Color _orange = Color(0xFFFF5216);
-  static const Color _inactive = Color(0xFF7B7B7B);
+  static const Color _orangeLight = Color(0xFFFF8A3D);
+  static const Color _inactive = Color(0xFF6E6A73);
 
   final int selectedIndex;
 
@@ -45,8 +46,8 @@ class AppBottomNavBar extends StatelessWidget {
     this.isServicesOption = false,
   });
 
-  /// The disc sits above the bar top, so the widget reserves this much extra height.
-  static const double _discOverhang = _servicesDiscSize / 2;
+  /// The disc rises this far above the bar's top edge.
+  static const double _discOverhang = 30;
 
   void _handleTap(int index) {
     if (index == selectedIndex) {
@@ -81,66 +82,65 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
-    final barHeight = _barHeight + bottomInset;
+    final bottom = _bottomGap + bottomInset;
 
     return SizedBox(
-      height: barHeight + _discOverhang,
+      height: _discOverhang + _barHeight + bottom,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: barHeight,
+            left: _sideMargin,
+            right: _sideMargin,
+            bottom: bottom,
+            height: _barHeight,
             child: CustomPaint(
-              painter: _NavBarPainter(
+              painter: const _NavBarPainter(
                 color: _barColor,
-                notchRadius: _notchRadius,
-                bottomInset: bottomInset,
+                radius: _barRadius,
+                notchHalfWidth: _notchHalfWidth,
+                notchDepth: _notchDepth,
+                shadowColor: _orange,
               ),
-              child: Padding(
-                padding: EdgeInsets.only(bottom: bottomInset),
-                child: Row(
-                  children: [
-                    _navItem(
-                      index: HomeController.navHome,
-                      label: 'Home',
-                      asset: 'lib/assets/images/Bottom Home.png',
-                    ),
-                    _navItem(
-                      index: HomeController.navBookings,
-                      label: 'Bookings',
-                      asset: null,
-                    ),
-                    _navItem(
-                      index: HomeController.navOrders,
-                      label: 'Orders',
-                      asset: 'lib/assets/images/Bottom Order.png',
-                    ),
-                    _servicesItem(),
-                    _navItem(
-                      index: HomeController.navCart,
-                      label: 'Cart',
-                      asset: 'lib/assets/images/Bottom Cart.png',
-                      observeCartBadge: true,
-                    ),
-                    _navItem(
-                      index: HomeController.navChat,
-                      label: 'Chat',
-                      asset: null,
-                    ),
-                    _navItem(
-                      index: HomeController.navProfile,
-                      label: 'Profile',
-                      asset: 'lib/assets/images/Bottom Profile.png',
-                    ),
-                  ],
-                ),
+              child: Row(
+                children: [
+                  _navItem(
+                    index: HomeController.navHome,
+                    label: 'Home',
+                    asset: 'lib/assets/images/Bottom Home.png',
+                  ),
+                  _navItem(
+                    index: HomeController.navBookings,
+                    label: 'Bookings',
+                    asset: null,
+                  ),
+                  _navItem(
+                    index: HomeController.navOrders,
+                    label: 'Orders',
+                    asset: 'lib/assets/images/Bottom Order.png',
+                  ),
+                  // The dip: the Services disc above covers it.
+                  const SizedBox(width: _notchHalfWidth * 2),
+                  _navItem(
+                    index: HomeController.navCart,
+                    label: 'Cart',
+                    asset: 'lib/assets/images/Bottom Cart.png',
+                    observeCartBadge: true,
+                  ),
+                  _navItem(
+                    index: HomeController.navChat,
+                    label: 'Chat',
+                    asset: null,
+                  ),
+                  _navItem(
+                    index: HomeController.navProfile,
+                    label: 'Profile',
+                    asset: 'lib/assets/images/Bottom Profile.png',
+                  ),
+                ],
               ),
             ),
           ),
-          // Centre of the bar's top edge is the centre of the disc
           Positioned(
             top: 0,
             left: 0,
@@ -152,7 +152,7 @@ class AppBottomNavBar extends StatelessWidget {
     );
   }
 
-  /// Labels stay English for the icon checks below; these keys are shown.
+  /// Item names, read out by screen readers (the bar shows icons only).
   static const _labelKeys = {
     'Home': 'core_nav_home',
     'Bookings': 'core_nav_bookings',
@@ -162,8 +162,8 @@ class AppBottomNavBar extends StatelessWidget {
     'Profile': 'core_nav_profile',
   };
 
-  /// Icon above a label. Every item except Services has the same size; the open
-  /// tab's icon and label turn orange and a soft pill fades in behind the icon.
+  /// An icon in the middle of its slot. The open tab's icon turns orange over a
+  /// soft orange bubble, with two sparkle dots beside it.
   Widget _navItem({
     required int index,
     required String label,
@@ -171,143 +171,120 @@ class AppBottomNavBar extends StatelessWidget {
     bool observeCartBadge = false,
   }) {
     final isSelected = index == selectedIndex;
+    Widget icon(int badgeCount) => _iconWithBadge(
+      label: label,
+      asset: asset,
+      badgeCount: badgeCount,
+      isSelected: isSelected,
+    );
+
     return Expanded(
-      child: Pressable(
-        onTap: () => _handleTap(index),
-        scale: 0.88,
-        child: Padding(
-          padding: const EdgeInsets.only(top: _iconSlotTop),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedContainer(
-                duration: Motion.normal,
-                curve: Motion.curve,
-                width: _pillWidth,
-                height: _pillHeight,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? _orange.withValues(alpha: 0.12)
-                      : _orange.withValues(alpha: 0),
-                  borderRadius: BorderRadius.circular(_pillHeight / 2),
-                ),
-                alignment: Alignment.center,
-                child: SizedBox(
-                  height: _iconSize,
-                  child: observeCartBadge
-                      ? Obx(() {
-                          final controller = Get.isRegistered<HomeController>()
-                              ? Get.find<HomeController>()
-                              : Get.put(HomeController());
-                          return _iconWithBadge(
-                            label: label,
-                            asset: asset,
-                            badgeCount: controller.cartItemCount.value,
-                            isSelected: isSelected,
-                          );
-                        })
-                      : _iconWithBadge(
-                          label: label,
-                          asset: asset,
-                          badgeCount: 0,
-                          isSelected: isSelected,
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: _labelKeys[label]?.tr ?? label,
+        excludeSemantics: true,
+        child: Pressable(
+          onTap: () => _handleTap(index),
+          scale: 0.86,
+          child: SizedBox(
+            height: _barHeight,
+            child: Center(
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    // Bubble, a little below and after the icon's centre.
+                    PositionedDirectional(
+                      top: 14,
+                      start: 15,
+                      child: _Pop(
+                        visible: isSelected,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: _orange.withValues(alpha: 0.28),
+                            shape: BoxShape.circle,
+                          ),
                         ),
+                      ),
+                    ),
+                    PositionedDirectional(
+                      top: 9,
+                      start: 0,
+                      child: _Pop(visible: isSelected, child: _dot(5)),
+                    ),
+                    PositionedDirectional(
+                      top: 20,
+                      end: 0,
+                      child: _Pop(visible: isSelected, child: _dot(3)),
+                    ),
+                    SizedBox(
+                      height: _iconSize,
+                      child: observeCartBadge
+                          ? Obx(() {
+                              final controller =
+                                  Get.isRegistered<HomeController>()
+                                  ? Get.find<HomeController>()
+                                  : Get.put(HomeController());
+                              return icon(controller.cartItemCount.value);
+                            })
+                          : icon(0),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: _labelGap),
-              AnimatedDefaultTextStyle(
-                duration: Motion.fast,
-                curve: Motion.curve,
-                style: AppFonts.outfit(
-                  color: isSelected ? _orange : _inactive,
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                ),
-                // Long labels ("Réservations") shrink to fit their slot, with a
-                // small gap so neighbours never run together.
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(_labelKeys[label]?.tr ?? label, maxLines: 1),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// The raised disc sits in the notch; its label sits on the bar like the others.
-  Widget _servicesItem() {
-    final isSelected = selectedIndex == HomeController.navServices;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _handleTap(HomeController.navServices),
-        behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: const EdgeInsets.only(top: _iconSlotTop),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: _pillHeight),
-              const SizedBox(height: _labelGap),
-              Text(
-                'core_nav_services'.tr,
-                style: AppFonts.outfit(
-                  color: _orange,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.4,
-                ),
-              ),
-              const SizedBox(height: 3),
-              // The dot marks Services as the open tab, like the pill elsewhere.
-              AnimatedOpacity(
-                opacity: isSelected ? 1 : 0,
-                duration: Motion.fast,
-                child: Container(
-                  width: 4,
-                  height: 4,
-                  decoration: const BoxDecoration(
-                    color: _orange,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  static Widget _dot(double size) => Container(
+    width: size,
+    height: size,
+    decoration: const BoxDecoration(color: _orange, shape: BoxShape.circle),
+  );
 
   Widget _servicesDisc() {
-    return Pressable(
-      onTap: () => _handleTap(HomeController.navServices),
-      scale: 0.9,
-      child: Container(
-        width: _servicesDiscSize,
-        height: _servicesDiscSize,
-        decoration: BoxDecoration(
-          color: _orange,
-          shape: BoxShape.circle,
-          border: Border.all(color: _barColor, width: _servicesBorder),
-          boxShadow: [
-            BoxShadow(
-              color: _orange.withValues(alpha: 0.35),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+    final isSelected = selectedIndex == HomeController.navServices;
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: 'core_nav_services'.tr,
+      excludeSemantics: true,
+      child: Pressable(
+        onTap: () => _handleTap(HomeController.navServices),
+        scale: 0.9,
+        child: Container(
+          width: _servicesDiscSize,
+          height: _servicesDiscSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [_orange, _orangeLight],
             ),
-          ],
-        ),
-        alignment: Alignment.center,
-        child: const _ServicesGridIcon(
-          color: Colors.white,
-          size: 24,
-          outlined: true,
+            boxShadow: [
+              BoxShadow(
+                color: _orange.withValues(alpha: isSelected ? 0.5 : 0.35),
+                blurRadius: 22,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: const _ServicesGridIcon(
+            color: Colors.white,
+            size: 24,
+            outlined: true,
+          ),
         ),
       ),
     );
@@ -387,72 +364,79 @@ class AppBottomNavBar extends StatelessWidget {
   }
 }
 
-/// White bar with a circular notch at the top centre, drawn with a soft shadow.
+/// Scales and fades the active tab's bubble and dots in and out.
+class _Pop extends StatelessWidget {
+  const _Pop({required this.visible, required this.child});
+
+  final bool visible;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: visible ? 1 : 0,
+      duration: Motion.normal,
+      curve: visible ? Curves.easeOutBack : Motion.curve,
+      child: AnimatedOpacity(
+        opacity: visible ? 1 : 0,
+        duration: Motion.fast,
+        child: child,
+      ),
+    );
+  }
+}
+
+/// Rounded bar with a smooth dip at the top centre for the Services disc,
+/// drawn with a soft orange-tinted shadow.
 class _NavBarPainter extends CustomPainter {
   final Color color;
-  final double notchRadius;
-  final double bottomInset;
+  final double radius;
+  final double notchHalfWidth;
+  final double notchDepth;
+  final Color shadowColor;
 
   const _NavBarPainter({
     required this.color,
-    required this.notchRadius,
-    required this.bottomInset,
+    required this.radius,
+    required this.notchHalfWidth,
+    required this.notchDepth,
+    required this.shadowColor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final cx = size.width / 2;
-    final r = notchRadius;
-    // The notch arc spans from angle pi - a to a; the shoulders run from the flat
-    // bar edge into those two points, so the joins have no corners.
-    const a = 0.7;
-    const shoulder = 16.0;
-    const handle = 12.0;
-    final sinA = math.sin(a);
-    final cosA = math.cos(a);
-    final leftX = cx - r * cosA;
-    final rightX = cx + r * cosA;
-    final armY = r * sinA;
+    final w = notchHalfWidth;
+    final d = notchDepth;
+    final r = radius;
 
+    // Each half of the dip is one S-shaped curve: flat where it leaves the top
+    // edge, flat again at the bottom, so there are no corners.
     final path = Path()
-      ..moveTo(0, 0)
-      ..lineTo(cx - r - shoulder, 0)
-      ..cubicTo(
-        cx - r - shoulder / 2,
-        0,
-        leftX - handle * sinA,
-        armY - handle * cosA,
-        leftX,
-        armY,
-      )
-      ..arcTo(
-        Rect.fromCircle(center: Offset(cx, 0), radius: r),
-        math.pi - a,
-        -(math.pi - 2 * a),
-        false,
-      )
-      ..cubicTo(
-        rightX + handle * sinA,
-        armY - handle * cosA,
-        cx + r + shoulder / 2,
-        0,
-        cx + r + shoulder,
-        0,
-      )
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
+      ..moveTo(0, r)
+      ..quadraticBezierTo(0, 0, r, 0)
+      ..lineTo(cx - w, 0)
+      ..cubicTo(cx - w * 0.5, 0, cx - w * 0.6, d, cx, d)
+      ..cubicTo(cx + w * 0.6, d, cx + w * 0.5, 0, cx + w, 0)
+      ..lineTo(size.width - r, 0)
+      ..quadraticBezierTo(size.width, 0, size.width, r)
+      ..lineTo(size.width, size.height - r)
+      ..quadraticBezierTo(size.width, size.height, size.width - r, size.height)
+      ..lineTo(r, size.height)
+      ..quadraticBezierTo(0, size.height, 0, size.height - r)
       ..close();
 
-    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.25), 6, false);
+    canvas.drawShadow(path, shadowColor.withValues(alpha: 0.35), 10, false);
     canvas.drawPath(path, Paint()..color = color);
   }
 
   @override
   bool shouldRepaint(_NavBarPainter oldDelegate) =>
       oldDelegate.color != color ||
-      oldDelegate.notchRadius != notchRadius ||
-      oldDelegate.bottomInset != bottomInset;
+      oldDelegate.radius != radius ||
+      oldDelegate.notchHalfWidth != notchHalfWidth ||
+      oldDelegate.notchDepth != notchDepth ||
+      oldDelegate.shadowColor != shadowColor;
 }
 
 class _BookingsCalendarIcon extends StatelessWidget {
