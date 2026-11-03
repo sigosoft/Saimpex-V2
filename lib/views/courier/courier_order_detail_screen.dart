@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../../widgets/cancel_reason_note.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../core/network/api_exception.dart';
@@ -166,6 +167,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                             _sectionTitle('st_order_status'.tr),
                             const SizedBox(height: 10),
                             _buildOrderStatusCard(),
+                            CancelReasonNote(reason: _detail?.cancelReason ?? ''),
                             const SizedBox(height: 18),
                             _sectionTitle('st_delivery_details'.tr),
                             const SizedBox(height: 10),
@@ -726,7 +728,10 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
     final tax = double.tryParse('${payment['tax'] ?? ''}') ?? 0;
     final discount = double.tryParse('${payment['discount'] ?? ''}') ?? 0;
     final isCash = '${payment['payment_type'] ?? ''}'.toLowerCase() == 'cash';
-    final totalLabel = isCash && !_detail!.isDelivered
+    // A cancelled order shows a plain "Total".
+    final totalLabel = _detail!.isCancelled
+        ? 'svc_total'.tr
+        : isCash && !_detail!.isDelivered
         ? 'st_to_pay'.tr
         : 'st_total_paid'.tr;
     return Container(

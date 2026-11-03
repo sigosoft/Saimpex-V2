@@ -48,9 +48,8 @@ class _CourierScreenState extends State<CourierScreen> {
 
   String _priceText(bool isExpress) {
     final fee = _fees[isExpress];
-    return fee == null
-        ? 'mru'.trParams({'amount': '—'})
-        : 'mru'.trParams({'amount': '${fee.round()}'});
+    // No price until pickup and drop-off are set ("— MRU" read as broken).
+    return fee == null ? '' : 'mru'.trParams({'amount': '${fee.round()}'});
   }
 
   String get _timeText => _distanceKm == null

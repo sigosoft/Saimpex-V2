@@ -7,7 +7,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../utils/api_language.dart';
+import '../utils/cancel_reason.dart';
 import '../utils/order_status_label.dart';
+import '../utils/store_labels.dart';
 import 'order_repository.dart';
 
 /// customer/trackOrder or customer/orderDetails, parsed for the tracking and
@@ -24,6 +26,7 @@ class OrderTracking {
   // Order status codes: 1 placed … 7 picked up, 8 on the way, 9 delivered,
   // 10 cancelled.
   int get status => int.tryParse('${_data['status'] ?? ''}') ?? 0;
+
   /// In the app language for codes 1–10; the server's English text otherwise.
   String get statusText =>
       orderStatusLabel(_data['status'], '${_data['status_text'] ?? ''}'.trim());
@@ -113,7 +116,22 @@ class OrderTracking {
     if (timeline is! List) return '';
     for (final entry in timeline) {
       if (entry is Map && int.tryParse('${entry['status']}') == status) {
-        return '${entry['updated_at'] ?? ''}';
+        return readableServerTime(entry['updated_at']);
+      }
+    }
+    return '';
+  }
+
+  /// Why a cancelled order was cancelled (the latest "Cancelled" timeline
+  /// remark), in the app language where the server text is fixed; empty when
+  /// there is none.
+  String get cancelReason {
+    if (!isCancelled) return '';
+    final timeline = _data['timeline'];
+    if (timeline is! List) return '';
+    for (final entry in timeline.reversed) {
+      if (entry is Map && int.tryParse('${entry['status']}') == 10) {
+        return cancelReasonLabel('${entry['remark'] ?? ''}');
       }
     }
     return '';
@@ -121,7 +139,7 @@ class OrderTracking {
 
   String get placedAt {
     final time = timeOf(1);
-    return time.isNotEmpty ? time : '${_data['ordered_at'] ?? ''}';
+    return time.isNotEmpty ? time : readableServerTime(_data['ordered_at']);
   }
 
   static LatLng? _point(dynamic lat, dynamic lng) {

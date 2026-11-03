@@ -30,6 +30,7 @@ import '../widgets/app_bottom_nav_bar.dart';
 import '../navigation/bottom_nav_router.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/store_labels.dart';
 class MyOrdersScreen extends StatefulWidget {
   final bool showBottomNav;
   final int initialCategoryIndex;
@@ -454,7 +455,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       order['isSelfPickup'] == true ? 'orders_pickup'.tr : 'orders_delivery'.tr,
       if ('${order['totalText'] ?? ''}'.isNotEmpty) '${order['totalText']}',
       if ((order['itemsCount'] is int) && (order['itemsCount'] as int) > 0)
-        'orders_items_count'.trParams({'count': '${order['itemsCount']}'}),
+        itemsCountLabel(order['itemsCount']),
       if ('${order['orderId'] ?? ''}'.isNotEmpty) '${order['orderId']}',
     ].join(' • ');
 
@@ -588,7 +589,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       order['isSelfPickup'] == true ? 'orders_pickup'.tr : 'orders_delivery'.tr,
       if ('${order['totalText'] ?? ''}'.isNotEmpty) '${order['totalText']}',
       if ((order['itemsCount'] is int) && (order['itemsCount'] as int) > 0)
-        'orders_items_count'.trParams({'count': '${order['itemsCount']}'}),
+        itemsCountLabel(order['itemsCount']),
       if (orderId.isNotEmpty) orderId,
     ].join(' • ');
 
@@ -864,7 +865,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           : 'orders_delivery'.tr,
       if (total.isNotEmpty) total,
       if (items is int && items > 0)
-        'orders_items_count'.trParams({'count': '$items'}),
+        itemsCountLabel(items),
       if (orderId.isNotEmpty) orderId,
     ].join(' • ');
   }
@@ -942,7 +943,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       statusBgColor: statusBgColor,
       detailsText:
           '${'search_vertical_water'.tr} • ${order['total']} • '
-          '${'orders_items_count'.trParams({'count': '${order['itemsCount']}'})} • #$orderId',
+          '${itemsCountLabel(order['itemsCount'])} • #$orderId',
       buttons: [
         if (!cancelled)
           _buildGradientButton(

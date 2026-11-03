@@ -7,6 +7,7 @@ import 'bottom_chat_icon.dart';
 import 'motion.dart';
 
 import '../utils/app_fonts.dart';
+
 /// Shared bottom navigation used by [MainShellScreen] and standalone pages.
 ///
 /// A full-width white bar with a smooth dip around the raised Services button,
@@ -18,7 +19,9 @@ import '../utils/app_fonts.dart';
 class AppBottomNavBar extends StatelessWidget {
   static const double _barHeight = 68;
   static const double _iconSize = 22;
-  static const double _iconStrokeFactor = 0.075;
+  // Drawn icons (Bookings, Chat) use the same line weight as the Orders,
+  // Cart, Profile and Home images (about 10 % of the icon size).
+  static const double _iconStrokeFactor = 0.102;
   static const double _servicesDiscSize = 52;
   static const double _servicesRing = 7;
 
@@ -28,6 +31,8 @@ class AppBottomNavBar extends StatelessWidget {
 
   /// Tall enough for Cairo (Arabic), whose line is taller than Outfit's.
   static const double _labelHeight = 18;
+  // Below this a slot doesn't grow for its name (English names all fit).
+  static const double _minSlotWidth = 52;
 
   static const Color _barColor = Colors.white;
   static const Color _orange = Color(0xFFFF5216);
@@ -163,6 +168,25 @@ class AppBottomNavBar extends StatelessWidget {
     'Profile': 'core_nav_profile',
   };
 
+  static String _nameOf(String label) => _labelKeys[label]?.tr ?? label;
+
+  /// Equal slots while every name fits one; a longer name ("Réservations",
+  /// "Commandes") takes a wider slot instead of shrinking to an unreadable
+  /// size. Names are measured bold, as on the open tab.
+  static int _flexOf(String name) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: name,
+        style: AppFonts.outfit(fontSize: 11, fontWeight: FontWeight.w700),
+      ),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final width = painter.width + 4; // the name's side padding
+    painter.dispose();
+    return width < _minSlotWidth ? _minSlotWidth.round() : width.round();
+  }
+
   /// Icon above its name; both turn orange on the open tab.
   Widget _navItem({
     required int index,
@@ -171,7 +195,7 @@ class AppBottomNavBar extends StatelessWidget {
     bool observeCartBadge = false,
   }) {
     final isSelected = index == selectedIndex;
-    final name = _labelKeys[label]?.tr ?? label;
+    final name = _nameOf(label);
     Widget icon(int badgeCount) => _iconWithBadge(
       label: label,
       asset: asset,
@@ -180,6 +204,7 @@ class AppBottomNavBar extends StatelessWidget {
     );
 
     return Expanded(
+      flex: _flexOf(name),
       child: Semantics(
         button: true,
         selected: isSelected,

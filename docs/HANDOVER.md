@@ -716,3 +716,44 @@ From `SAIMPEX-V2-retest-3nov.pdf` (retest of b662e01). Checked on vivo V2239, An
 - **Found while checking:** order details of a cancelled order still showed the steps at "placed" with Cancel and Track buttons (the list said Cancelled). It now says "Cancelled" and shows no buttons; delivered orders show no buttons either.
 - **Cancelled order total:** says "Total" (was "To pay"). Not seen on the phone (it locked).
 - **Language reset (3 Nov):** the phone had `app_language = en` saved while the login stayed, so the app wrote English itself. Could not reproduce: installing release over debug and over itself kept Arabic (screenshots at launch). Two paths could quietly set English and are closed: the language sheet started on English when the stored label didn't match (Continue then switched to English); now it starts on the current language by code. `AppLocale.codeFor` turned any unknown value into English; now it keeps the current language (`test/app_locale_test.dart`). Confirmed: Arabic kept after updating, the sheet opens on العربية. Watch for it in the next test round.
+
+### Language pass AR/FR/EN on 24f42d1 (`fix/language-pass-3nov`, 3 Nov) ✅
+All main screens checked in Arabic, French and English on the release build of 24f42d1 (vivo V2239, Android 15, dev): Home, Food list and store, Grocery, Pharmacy, Water, Courier, Express, Local Store, Services, Laundry, Orders, Bookings, Cart, Chat, Account, Settings, Wallet, Notifications. Fixed here:
+- **Home / Grocery recent orders:** "1 Items" in English in every language and a raw date ("2026-11-02 12:22:12"); now the translated item count and "02 Nov 2026, 12:22 PM" with the month in the app language.
+- **Item counts:** "1 items" / "1 articles"; a singular key (`orders_items_count_one`) now gives "1 item" / "1 article".
+- **Notifications:** raw "2026-11-03 • 06:12:32"; now the same readable date.
+- **Local Store cards:** rating "4.666667"; now "4.7" (`ratingLabel`).
+- **Courier vehicles:** "— MRU" before pickup and drop-off are set; now empty until the fee is known.
+- **Express stores:** the category chip used `name_en` ("Pharmacy" in Arabic/French); now `name_<language>`.
+Helpers in `lib/utils/store_labels.dart` (`itemsCountLabel`, `ratingLabel`, `readableDateTime`, `localizedName`); test `test/store_labels_test.dart`.
+**Open (not app code):** wallet history descriptions are English ("Order payment", "Service booking payment", "Admin adjustment: …") from the server; the French/Arabic notification for order #1440 says "a new order has been assigned to you" (the driver's text) while English says "assigned to delivery boy"; booking slot text ("03 Nov 2026, 8:00 AM – 10:00 AM") comes from the server in English; Home tile "Courrier" (French name from Admin, the courier screen says "Coursier"); water category names "Botttled" etc. from Admin; banner images contain English text. **Layout (P2):** pharmacy quick-category names overlap their images ("Vitamines et compléments", "Médicaments sur ordonnance"); French bottom bar shrinks "Réservations"/"Commandes" to a very small size.
+
+### C-B19 app ID: decision needed from Praveen (3 Nov) 🟡
+Facts checked 3 Nov:
+- **Live V1 customer app:** Android `app.saimpex` on Google Play ("Saimpex", developer Sigosoft, 100+ installs, updated 11 Jun 2026, version 1.0.10 / versionCode 11 seen on a phone); iOS `app.saimpex` on the App Store ("Saimpex", seller Praveen S., version 1.1.0).
+- **V2 today:** Android `applicationId = app.saimpex` (since C17, `0be0258`; Firebase `google-services.json` is registered for it), versionCode 100 (> 11), but signed with the **debug key**. iOS bundle is still the template `com.example.saimpexV2`, no `GoogleService-Info.plist`. Launcher name `saimpex_v2` (`AndroidManifest.xml`). The Kotlin package/namespace `com.example.saimpex_v2` is internal and can stay.
+- `com.saimpex.customer` is taken on Google Play by another company (Apporio, "In time services"); the local `saimpex_customer` folder (`com.example.saimpex_customer`) is not the live app.
+**Recommendation:** keep `app.saimpex` on both stores, so V2 ships as an update of V1 (same listing, installs, reviews; customers update instead of installing a second app). Needs: the V1 Android upload key (or a Play App Signing upload-key reset from Play Console), iOS bundle `app.saimpex` with V1's Apple account/certificates and a version above 1.1.0, `GoogleService-Info.plist` for `app.saimpex`. Alternative (new ID, e.g. `app.saimpex.customer`): new listings, V1 users must install again, new Firebase apps; only if V1's keys are lost.
+**After the decision (app side, small):** iOS bundle ID, launcher name "Saimpex", release signing from `key.properties` outside git (C19). Testers with a debug V2 build must uninstall it before a release-signed build.
+
+### C-B23: cancelled orders show why (`feature/cancel-reason`, 3 Nov) 🟡 backend part open
+Journey E2E-15a (PDF "SAIMPEX V2 journeys, 3 Nov afternoon"): a vendor-rejected order showed only "Cancelled". Cancelled food, grocery, pharmacy, water and courier order details now show "Reason: …" under the status. The reason comes from the remark of the `status: 10` entry in `customer/orderDetails` `timeline[]` (documented). The food detail, whose `catalog/orderDetail` has no timeline, loads it with one extra call, and only for cancelled orders.
+- A reason Admin typed is shown as written (ORD-001493 "Customer unreachable").
+- Fixed server remarks are shown in EN/FR/AR: "Order Cancelled by Vendor/pharmacy/water vendor" → "Cancelled by the store"; "Not accepted by vendor within 24 hours" → "The store didn't accept the order in time".
+- The customer's own cancel ("Order Cancelled") shows no note.
+- Also: cancelled water, courier and pharmacy order details said "To Pay"/"Total paid"; they now say "Total", like food (`3fadd97`).
+- Checked on the phone (English, 3 Nov): ORD-001461 food and ORD-001477 water show "Reason: The store didn't accept the order in time"; ORD-001484 (own cancel) shows no note.
+- Also: order step times ("03 Nov 2026 10:00 AM" from the server) were English in FR/AR and jumbled in Arabic; `OrderTracking.timeOf`/`placedAt` now go through `readableServerTime` (month in the app language), so every order detail and tracking screen shows "03 nov. 2026, 10:00 AM" / "03 نوفمبر 2026، …".
+- Checked on the phone in Arabic and French too: ORD-001461 and ORD-001480 (food, both auto-cancelled after 24 h) and ORD-001477 (water) show the reason note, "Total", and localized step dates.
+- Code: `lib/utils/cancel_reason.dart`, `OrderTracking.cancelReason`, `lib/widgets/cancel_reason_note.dart`; tests in `test/cancel_reason_test.dart`.
+**Open (backend + vendor app):** the vendor app sends no reason on reject (`cancelRestaurantOrder?order_id=` only), and the backend saves a fixed "Order Cancelled by Vendor", so "Out of Stock" can't reach the customer yet. Issue `[customer-app] Vendor reject reason is never saved…` for Praveen. It will show with no app change once the remark carries the reason. Service bookings (car wash, laundry) aren't covered, because their timeline has no documented `remark`.
+
+### P2 layout: pharmacy category names, French bottom bar (`fix/p2-layout`, 3 Nov) ✅
+- **Pharmacy quick categories:** names ran into the pictures (Cairo, the Arabic font, is taller than the 22 px left under the picture; long names wrapped). The name is now one line at a fixed height (ellipsis if too long), the picture stops 26 px above the tile bottom, and Admin's photos get rounded corners. The pop-out tile style (as on home) is kept.
+- **Bottom bar in French:** every side item had an equal slot (~46 dp on a 412 dp phone), so "Réservations" and "Commandes" shrank to ~7 px. Each slot now takes the width its name needs, but never less than 52 dp, so English and Arabic keep equal slots; in French "Réservations", "Commandes" and "Discussion" now render at about 9 px (was about 7 px), the rest at full size. Services slot unchanged.
+- Checked on the phone 3 Nov: pharmacy categories in Arabic (names clear of the pictures), bottom bar in AR, FR and EN.
+
+### Home grid without Services, one icon weight in the bottom bar (`fix/home-grid-nav-weight`, 3 Nov) ✅
+- **Home banner above the search bar:** comes only from Admin sliders of type **0 "Home"** (`SliderTypes::HOME`, active). Dev has none, so `homeHub` returns `sliders: []` and the carousel hides itself; vertical screens show their own slider types. No app change: Admin needs to add a Home slider (Admin → Sliders).
+- **Home categories:** the Services tile is gone (the grid ends at Local Store); Services opens from the bottom bar's Services button.
+- **Bottom-bar icon weight:** Orders, Cart and Profile are drawn at about 10 % of the icon size, Home was 6.6 %, Bookings and Chat 7.5 %. `Bottom Home.png` was thickened to Orders' weight (9 px dilation at 512 px, same shape) and the drawn icons use 10.2 %. Measured on the phone: every icon about 6 px.
