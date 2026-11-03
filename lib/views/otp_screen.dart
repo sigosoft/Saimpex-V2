@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../constants/colors.dart';
 import '../../controllers/otp_controller.dart';
 import '../widgets/app_back_button.dart';
-import 'widgets/otp_input_box.dart';
+import 'widgets/otp_code_row.dart';
 
 import '../utils/app_fonts.dart';
 class OtpScreen extends StatelessWidget {
@@ -216,17 +216,9 @@ class OtpScreen extends StatelessWidget {
   }
 
   Widget _buildOtpInputs(OtpController controller) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(
-        6,
-        (index) => OtpInputBox(
-          controller: controller.codeControllers[index],
-          focusNode: controller.focusNodes[index],
-          nextFocusNode: index < 5 ? controller.focusNodes[index + 1] : null,
-          prevFocusNode: index > 0 ? controller.focusNodes[index - 1] : null,
-        ),
-      ),
+    return OtpCodeRow(
+      controllers: controller.codeControllers,
+      focusNodes: controller.focusNodes,
     );
   }
 
