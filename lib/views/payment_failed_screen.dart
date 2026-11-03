@@ -191,7 +191,7 @@ class _PaymentFailedScreenState extends State<PaymentFailedScreen> {
                     _row(
                       'orders_pf_status'.tr,
                       'orders_pf_pending'.tr,
-                      color: const Color(0xFFF97316),
+                      color: const Color(0xFFFF5216),
                     ),
                   ],
                 ),
