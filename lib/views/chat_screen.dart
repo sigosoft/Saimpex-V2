@@ -529,7 +529,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             height: 40,
                             color: const Color(0xFFF3EFEA),
                             child: const Icon(
-                              Icons.local_pharmacy_rounded,
+                              Icons.storefront_rounded,
                               color: Color(0xFFFF5216),
                               size: 22,
                             ),
@@ -544,7 +544,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               height: 40,
                               color: const Color(0xFFF3EFEA),
                               child: const Icon(
-                                Icons.local_pharmacy_rounded,
+                                Icons.storefront_rounded,
                                 color: Color(0xFFFF5216),
                                 size: 22,
                               ),

@@ -254,6 +254,9 @@ class _ChatBotHeadState extends State<ChatBotHead>
               top: top,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
+                // A plain tap never reaches the pan callbacks (a pan only
+                // starts after the touch slop), so it needs its own handler.
+                onTap: _onTap,
                 onPanStart: (details) {
                   _didDrag = false;
                   _panStartGlobal = details.globalPosition;

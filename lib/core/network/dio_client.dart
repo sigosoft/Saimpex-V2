@@ -26,7 +26,9 @@ class DioClient {
           final isOpenAuth =
               path == ApiConstants.sendOtp || path == ApiConstants.verifyOtp;
           // Logged-in token first; otherwise the guest cart token (V2_DECISIONS §19).
-          final token = (session.token != null && session.token!.isNotEmpty) ? session.token : session.guestToken;
+          final token = (session.token != null && session.token!.isNotEmpty)
+              ? session.token
+              : session.guestToken;
           if (!isOpenAuth && token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -45,13 +47,22 @@ class DioClient {
             if (retried != null) return handler.resolve(retried);
           }
           // A guest token the server no longer knows (e.g. merged at login on another phone): drop it.
-          if (error.response?.statusCode == 401 && !_serverSaysLoginRequired(error) &&
-              session.guestToken != null && error.requestOptions.headers['Authorization']?.toString() == 'Bearer ${session.guestToken}') {
+          if (error.response?.statusCode == 401 &&
+              !_serverSaysLoginRequired(error) &&
+              session.guestToken != null &&
+              error.requestOptions.headers['Authorization']?.toString() ==
+                  'Bearer ${session.guestToken}') {
             await session.saveGuestToken(null);
           }
           _checkSessionExpired(error);
           // 503: the server is under maintenance; show "We'll be right back".
-          if (error.response?.statusCode == 503) onServerDown?.call();
+          // A request that uses 503 for its own "not available" answer (the
+          // assistant before Admin sets it up) shows that message instead.
+          if (error.response?.statusCode == 503 &&
+              error.requestOptions.extra[DioClient.ownServiceUnavailable] !=
+                  true) {
+            onServerDown?.call();
+          }
           if (_isGuestLoginRequired(error)) {
             // Guest tried something that needs an account: friendly message, and
             // the login sheet (V2_DECISIONS §17), not "Unauthenticated."
@@ -90,6 +101,10 @@ class DioClient {
   /// session and returns to Login. Not called again once the session is gone.
   void Function()? onSessionExpired;
 
+  /// Request `extra` key: true when the caller shows a 503's own message
+  /// (no "We'll be right back" screen).
+  static const ownServiceUnavailable = 'own_service_unavailable';
+
   /// Called when the server answers 503 (maintenance). Set in main.dart.
   void Function()? onServerDown;
 
@@ -108,17 +123,28 @@ class DioClient {
     return data is Map && data['login_required'] == true;
   }
 
-  static final _cartPath = RegExp(r'^customer/(cart|catalog/cart)/|^customer/(catalog/)?checkoutSummary');
+  static final _cartPath = RegExp(
+    r'^customer/(cart|catalog/cart)/|^customer/(catalog/)?checkoutSummary',
+  );
 
   bool _needsGuestSession(DioException error) {
     if (error.response?.statusCode != 401) return false;
     final hasLogin = session.token != null && session.token!.isNotEmpty;
-    return !hasLogin && session.guestToken == null && _cartPath.hasMatch(error.requestOptions.path);
+    return !hasLogin &&
+        session.guestToken == null &&
+        _cartPath.hasMatch(error.requestOptions.path);
   }
 
-  Future<Response<dynamic>?> _retryWithGuestSession(RequestOptions failed) async {
+  Future<Response<dynamic>?> _retryWithGuestSession(
+    RequestOptions failed,
+  ) async {
     try {
-      final plain = Dio(BaseOptions(baseUrl: dio.options.baseUrl, headers: const {'Accept': 'application/json'}));
+      final plain = Dio(
+        BaseOptions(
+          baseUrl: dio.options.baseUrl,
+          headers: const {'Accept': 'application/json'},
+        ),
+      );
       final res = await plain.post(ApiConstants.guestSession);
       final data = res.data is Map ? res.data['data'] : null;
       final guest = data is Map ? data['token']?.toString() : null;
