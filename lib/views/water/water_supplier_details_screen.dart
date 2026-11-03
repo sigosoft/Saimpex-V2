@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/home_controller.dart';
 import '../../core/network/api_exception.dart';
+import '../../models/cart_repository.dart';
 import '../../models/water_repository.dart';
 import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
@@ -75,6 +78,23 @@ class _WaterSupplierDetailsScreenState
     super.initState();
     _scrollController.addListener(_handleScroll);
     _loadProducts();
+  }
+
+  /// The cart bar shows the server cart's item count and total (it showed the
+  /// last added item's price).
+  Future<void> _refreshCartTotals() async {
+    if (!Get.isRegistered<HomeController>() ||
+        !Get.isRegistered<CartRepository>()) {
+      return;
+    }
+    try {
+      final totals = await Get.find<CartRepository>().fetchCartTotals(
+        apiLanguageCode(),
+      );
+      final home = Get.find<HomeController>();
+      home.cartItemCount.value = totals.count;
+      home.cartAmount.value = totals.amount;
+    } catch (_) {}
   }
 
   @override
@@ -584,7 +604,17 @@ class _WaterSupplierDetailsScreenState
         (Get.isRegistered<HomeController>()
             ? Get.find<HomeController>().lastCartItem
             : null);
-    final price = lastItem?['price']?.toString() ?? '50 MRU';
+    final price = lastItem?['price']?.toString() ?? '';
+    final cartAmount = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>().cartAmount.value
+        : 0.0;
+    final totalText = cartAmount > 0
+        ? 'mru'.trParams({
+            'amount': cartAmount == cartAmount.roundToDouble()
+                ? cartAmount.toInt().toString()
+                : cartAmount.toStringAsFixed(2),
+          })
+        : price;
     final title =
         lastItem?['title']?.toString() ??
         lastItem?['itemName']?.toString() ??
@@ -685,7 +715,7 @@ class _WaterSupplierDetailsScreenState
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  price,
+                  totalText,
                   style: AppFonts.outfit(
                     color: const Color(0xFFFF5216),
                     fontSize: 13,
@@ -735,6 +765,7 @@ class _WaterSupplierDetailsScreenState
         showCartBar = true;
         lastAddedItem = item;
       });
+      unawaited(_refreshCartTotals());
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().setCartItem(
           storeName: widget.supplier['name'] ?? widget.supplier['title'] ?? '',

@@ -1142,7 +1142,7 @@ class _LaundryBookingDetailScreenState
           if (balance > 0) ...[
             Expanded(
               child: GestureDetector(
-                onTap: () => showAppToast('orders_balance_unavailable'.tr),
+                onTap: () => showAppToast('svc_coming_soon'.tr),
                 child: Container(
                   height: 48,
                   alignment: Alignment.center,

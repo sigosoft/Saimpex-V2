@@ -633,3 +633,29 @@ Found in the Arabic and French test passes on Android (2 Nov). Store and product
 ### My Orders: status chips in AR/FR (`fix/order-status-labels`, 2 Nov) ✅
 Found in the Arabic test pass on Android (2 Nov). Food, grocery and water order cards showed the API's English `status_text` ("Placed", "Ready", "PLACED") in every language, while courier cards already translated the status code. The order lists send the code too (`status` 1–10), so the cards now show `core_status_N` through `lib/utils/order_status_label.dart` and keep the API text for anything else. Badge colours still follow the API text. Prescription cards keep their own statuses (not order codes).
 - **Checked** (Android, dev, 2 Nov): Orders in Arabic shows the food, grocery and water chips in Arabic.
+
+### Dead buttons wired or marked Coming soon (`fix/coming-soon-and-dead-buttons`, 2 Nov) ✅
+Test-day sweep for buttons that did nothing (`onTap: () {}`) or showed a placeholder:
+- **Track order** (food and grocery cards in My Orders) opened a sheet that only said "tracking fetched". It now opens the existing `TrackOrderScreen` (map, driver, status, help), which nothing linked to before. The placeholder `_TrackingSheet` is removed.
+- **Help & Support:** Call now and Send mail open the phone and mail apps with the numbers from the API ("support contact not available" when empty).
+- **Car wash booking detail:** Help opens the Help sheet with the booking code, like gas.
+- **Cart:** Edit on the delivery address opens the location picker and re-prices the cart (summary and delivery check) after a change.
+- **Reorder** on the Home and Grocery recent-order cards says "Coming soon": there is no reorder API.
+Still open (not in this change): Gas has no entry point; paying the laundry balance after re-weighing waits on the backend (the button already says it isn't available yet).
+- **Checked** (Android, dev, 2 Nov): Track order on a food order opens the tracking screen; Reorder shows Coming soon; analyzer clean, 22 tests pass.
+
+### Client build polish: real wallet chips, water cart total, Coming soon for balance payment (`fix/client-build-polish`, 2 Nov) ✅
+Before the client build (2 Nov):
+- **Wallet chip (#31):** the Water, Express, Pharmacy and Local Store headers showed a fixed "300 MRU". They now show the customer's real SAIMPEX Wallet balance from `HomeController.walletLabel` (`lib/utils/wallet_chip.dart`), 0 MRU for guests, like the Grocery header.
+- **Water cart bar (#32):** the bar showed the last added item's price (or a made-up "50 MRU"), not the cart. After each add it now reloads the server cart totals (`fetchCartTotals`) and shows the cart total.
+- **Laundry balance after re-weighing:** paying it isn't in the API yet; the Pay button now says "Coming soon" like the other unfinished features (was "not available yet").
+- **Checked** (Android, dev, 2 Nov): Water header shows the real balance; the water cart bar shows the cart total after adding two items.
+
+### Bottom bar: wave design, names under every item (`feature/nav-bar-polish`, 3 Nov) 🟡 needs Praveen's OK
+**Not the Figma bar:** built from a reference picture chosen on 3 Nov (it replaced an earlier floating version, commit `7ea418f`). CLAUDE.md says Figma is the design, so Praveen should approve it, or ask for the Figma bar back (commit `255ee9f`: Figma shape with the same open-tab state and haptics).
+- A full-width white bar on the bottom edge with a smooth dip around the raised Services button: solid orange disc in a pale orange ring (stronger when Services is open). Brand orange #FF5216 instead of the reference's red. Same total height as before, so screens' bottom spacing is unchanged.
+- Each tab is an icon with its name under it, Services too (its name sits under the dip; English/French label now "Services", was "SERVICES"). The open tab's icon and name turn orange, the name bold. Before, no tab ever looked selected. Long names shrink to fit ("Réservations").
+- Items press down on tap (`Pressable`, off with reduced motion). Haptics: light impact on a tab switch, medium on Services, a selection tick when re-tapping the open tab (Home still reloads). Names stay for screen readers (`Semantics`).
+- **Checked** (vivo V2239, Android 15, dev, 3 Nov, English): Home, Orders and Services as the open tab, tab switching, the dip around the button; no error in a `flutter run` session; analyzer clean, 22 tests pass. Cart badge not seen (cart empty).
+- **Seen three times, not from this change:** a red debug error (`_dependents.isEmpty`) on the first launch after installing an update (also on 2 Nov, before this change), once even after a force-stop; the next launch is fine. It did not happen under `flutter run`. No stack trace in logcat; needs `flutter run` to catch it.
+- **To check, not from this change:** after installing this build the app came back in English although French was chosen before (language should persist, P1-1).

@@ -23,6 +23,7 @@ import '../widgets/search_camera_button.dart';
 import '../select_location_screen.dart';
 
 import '../../utils/app_fonts.dart';
+import '../../utils/wallet_chip.dart';
 class PharmacyScreen extends StatefulWidget {
   const PharmacyScreen({super.key});
 
@@ -387,7 +388,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                   ),
                   const SizedBox(width: 3),
                   Text(
-                    'mru'.trParams({'amount': '300'}),
+                    walletChipText(),
                     style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,

@@ -17,6 +17,7 @@ import '../../widgets/see_all_button.dart';
 import '../widgets/search_camera_button.dart';
 
 import '../../utils/app_fonts.dart';
+import '../../utils/wallet_chip.dart';
 class LocalStoreScreen extends StatefulWidget {
   const LocalStoreScreen({super.key});
 
@@ -392,7 +393,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                         ),
                                         const SizedBox(width: 3),
                                         Text(
-                                          'mru'.trParams({'amount': '300'}),
+                                          walletChipText(),
                                           style: AppFonts.outfit(
                                             color: Colors.white,
                                             fontSize: 13,

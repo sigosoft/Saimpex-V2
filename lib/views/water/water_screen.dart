@@ -19,6 +19,7 @@ import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
 
 import '../../utils/app_fonts.dart';
+import '../../utils/wallet_chip.dart';
 class WaterScreen extends StatefulWidget {
   const WaterScreen({super.key});
 
@@ -295,7 +296,7 @@ class _WaterScreenState extends State<WaterScreen> {
                   ),
                   const SizedBox(width: 3),
                   Text(
-                    'mru'.trParams({'amount': '300'}),
+                    walletChipText(),
                     style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
