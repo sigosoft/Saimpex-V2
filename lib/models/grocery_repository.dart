@@ -386,10 +386,10 @@ class GroceryRepository {
         'rating': _ratingText(m['rating']),
         'items': (m['items'] ?? m['item_name'] ?? m['menu_name'] ?? '')
             .toString(),
-        'date': (m['date'] ?? m['ordered_at'] ?? '').toString(),
+        'date': readableDateTime(m['date'] ?? m['ordered_at']),
         'count': m['items_count'] != null
-            ? '${m['items_count']} Items'
-            : (m['count'] ?? '1 Item').toString(),
+            ? itemsCountLabel(m['items_count'])
+            : '${m['count'] ?? ''}',
         'image': ApiConstants.mediaUrl(m['image']?.toString()) ?? '',
         'raw': m,
       });

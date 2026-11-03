@@ -13,6 +13,7 @@ import '../grocery/grocery_details_screen.dart';
 import '../pharmacy/pharmacy_items_screen.dart';
 import '../restaurant_details_screen.dart';
 import '../water/water_supplier_details_screen.dart';
+import '../../utils/store_labels.dart';
 
 /// Express-enabled vendors from customer/expressHome. Express is a delivery
 /// option on existing restaurants, groceries, pharmacies and water
@@ -50,7 +51,7 @@ class ExpressStores {
       for (final category in (data['categories'] as List? ?? const [])) {
         final group = asJsonMap(category);
         if (group == null) continue;
-        final label = '${group['name_en'] ?? ''}';
+        final label = localizedName(group);
         for (final vendor in (group['vendors'] as List? ?? const [])) {
           final row = asJsonMap(vendor);
           if (row != null && _verticalEnabled(row['vendor_type'])) {

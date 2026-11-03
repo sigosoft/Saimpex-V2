@@ -322,10 +322,10 @@ class GeneralRepository {
             .toString(),
         'qty': order['quantity'] == null ? '' : 'x${order['quantity']}',
         'itemSuffix': '',
-        'date': (order['ordered_at'] ?? order['date'] ?? '').toString(),
+        'date': readableDateTime(order['ordered_at'] ?? order['date']),
         'itemsCount': order['items_count'] == null
             ? ''
-            : '${order['items_count']} Items',
+            : itemsCountLabel(order['items_count']),
         'image': ApiConstants.mediaUrl(order['image']?.toString()) ?? '',
       });
     }
