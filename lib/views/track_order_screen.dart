@@ -35,15 +35,19 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
   void onTrackingUpdated(OrderTracking tracking) {
     final store = tracking.storeLocation ?? restaurantLoc;
     final home = tracking.deliveryLocation ?? homeLoc;
-    // Without a driver location the rider pin waits at the store.
+    // Without a driver location the rider pin is hidden (the store pin shows);
+    // the route still starts at the store.
     final rider = tracking.driverLocation ?? store;
     setState(() {
       restaurantLoc = store;
       homeLoc = home;
       riderLoc = rider;
+      _hasDriverLocation = tracking.driverLocation != null;
     });
     _initMapData();
   }
+
+  bool _hasDriverLocation = false;
 
   Set<Polyline> _polylines = {};
   Offset? _storeScreen;
@@ -313,11 +317,12 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
 
           _routePin(screen: _storeScreen, icon: Icons.restaurant, size: 34),
           _routePin(screen: _homeScreen, icon: Icons.home_rounded, size: 34),
-          _routePin(
-            screen: _riderScreen,
-            icon: Icons.delivery_dining_rounded,
-            size: 48,
-          ),
+          if (_hasDriverLocation)
+            _routePin(
+              screen: _riderScreen,
+              icon: Icons.delivery_dining_rounded,
+              size: 48,
+            ),
 
           // 2. Sliding bottom panel card overlay
           Align(

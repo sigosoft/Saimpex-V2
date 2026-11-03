@@ -251,11 +251,11 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
     final subtitle =
         item['subtitle'] ?? item['supplier'] ?? 'pw_premium_drinking_water'.tr;
     final image = item['image'] ?? 'lib/assets/images/Water.png';
-    final rating = item['rating'] ?? '4.6';
-    final time = item['time'] ?? '30-35 min';
-    final dist = item['dist'] ?? '10 Km';
-    final discount = item['discount'] ?? '50% OFF';
-    final points = item['points'] ?? '200 Points Available';
+    final rating = _ratingText(item['rating']);
+    final time = (item['time'] ?? '').toString();
+    final dist = (item['dist'] ?? '').toString();
+    final discount = (item['discount'] ?? '').toString();
+    final points = item['points'] ?? '';
     bool isFav = item['isFavorite'] ?? false;
 
     return StatefulBuilder(
@@ -318,53 +318,56 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                       start: 12,
                       child: Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF5216),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              discount,
-                              style: AppFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                          if (discount.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF5216),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                discount,
+                                style: AppFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.star_rounded,
-                                  color: Color(0xFFFFB800),
-                                  size: 13,
-                                ),
-                                const SizedBox(width: 3),
-                                Text(
-                                  rating,
-                                  style: AppFonts.outfit(
-                                    color: const Color(0xFF1A1A1A),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                          if (discount.isNotEmpty && rating.isNotEmpty)
+                            const SizedBox(width: 8),
+                          if (rating.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    color: Color(0xFFFFB800),
+                                    size: 13,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    rating,
+                                    style: AppFonts.outfit(
+                                      color: const Color(0xFF1A1A1A),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -408,6 +411,7 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                     ),
 
                     // Bottom Left Points Overlay Badge
+                    if ('$points'.isNotEmpty)
                     PositionedDirectional(
                       bottom: 12,
                       start: 12,
@@ -475,35 +479,39 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                       // Delivery Details Metrics Row
                       Row(
                         children: [
-                          const Icon(
-                            Icons.local_fire_department_rounded,
-                            color: Color(0xFFFF5216),
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            time,
-                            style: AppFonts.outfit(
-                              color: const Color(0xFF1A1A1A),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                          if (time.isNotEmpty) ...[
+                            const Icon(
+                              Icons.local_fire_department_rounded,
+                              color: Color(0xFFFF5216),
+                              size: 16,
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          const Icon(
-                            Icons.location_on_rounded,
-                            color: Color(0xFFFF5216),
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            dist,
-                            style: AppFonts.outfit(
-                              color: const Color(0xFF1A1A1A),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                            const SizedBox(width: 4),
+                            Text(
+                              time,
+                              style: AppFonts.outfit(
+                                color: const Color(0xFF1A1A1A),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
+                          ],
+                          if (dist.isNotEmpty) ...[
+                            if (time.isNotEmpty) const SizedBox(width: 16),
+                            const Icon(
+                              Icons.location_on_rounded,
+                              color: Color(0xFFFF5216),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              dist,
+                              style: AppFonts.outfit(
+                                color: const Color(0xFF1A1A1A),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
@@ -516,4 +524,11 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
       },
     );
   }
+}
+
+/// The rating to show; missing, "0" or "0.0" is '' so the star chip is hidden.
+String _ratingText(dynamic value) {
+  final text = '${value ?? ''}'.trim();
+  if (text.isEmpty || text == 'null') return '';
+  return double.tryParse(text) == 0 ? '' : text;
 }

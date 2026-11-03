@@ -4,9 +4,17 @@ import 'package:get/get.dart';
 import '../../../utils/app_fonts.dart';
 class PharmacyCartBar extends StatelessWidget {
   final String price;
+
+  /// Items in the server cart.
+  final int count;
   final VoidCallback onTap;
 
-  const PharmacyCartBar({super.key, required this.price, required this.onTap});
+  const PharmacyCartBar({
+    super.key,
+    required this.price,
+    required this.count,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +45,7 @@ class PharmacyCartBar extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                '1',
+                '$count',
                 style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 14,
@@ -52,19 +60,11 @@ class PharmacyCartBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'pw_view_cart_items'.trParams({'count': '1'}),
+                    'pw_view_cart_items'.trParams({'count': '$count'}),
                     style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'pw_ready_in_15_20'.tr,
-                    style: AppFonts.outfit(
-                      color: const Color(0xFFA59A94),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],

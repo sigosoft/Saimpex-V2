@@ -729,7 +729,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
           final discountText = (store['discount'] ?? '').toString();
           final hasDiscount = discountText.isNotEmpty;
-          final ratingText = (store['rating'] ?? '4.5').toString();
+          final ratingText = _ratingText(store['rating']);
           final pointsText = (store['points'] ?? '').toString();
           final hasPoints = pointsText.isNotEmpty;
           final nameText = (store['name'] ?? store['title'] ?? '').toString();
@@ -828,45 +828,46 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
 
                         // Rating badge
-                        PositionedDirectional(
-                          top: 10,
-                          start: hasDiscount ? 62 : 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 4,
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.star_rounded,
-                                  color: Color(0xFFFFB300),
-                                  size: 12,
-                                ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  ratingText,
-                                  style: AppFonts.outfit(
-                                    color: const Color(0xFF2C2520),
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
+                        if (ratingText.isNotEmpty)
+                          PositionedDirectional(
+                            top: 10,
+                            start: hasDiscount ? 62 : 10,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 4,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    color: Color(0xFFFFB300),
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    ratingText,
+                                    style: AppFonts.outfit(
+                                      color: const Color(0xFF2C2520),
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
                         // Favorite button
                         PositionedDirectional(
@@ -1049,7 +1050,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
           final order = recentOrders[index];
           final imageUrl = (order['image'] ?? '').toString();
           final nameText = (order['name'] ?? '').toString();
-          final ratingText = (order['rating'] ?? '4.5').toString();
+          final ratingText = _ratingText(order['rating']);
           final itemsText = (order['items'] ?? '').toString();
           final dateText = (order['date'] ?? '').toString();
           final countText = (order['count'] ?? '').toString();
@@ -1125,20 +1126,22 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.star_rounded,
-                            color: Color(0xFFFFB300),
-                            size: 10,
-                          ),
-                          Text(
-                            ratingText,
-                            style: AppFonts.outfit(
-                              color: const Color(0xFF2C2520),
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
+                          if (ratingText.isNotEmpty) ...[
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.star_rounded,
+                              color: Color(0xFFFFB300),
+                              size: 10,
                             ),
-                          ),
+                            Text(
+                              ratingText,
+                              style: AppFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 2),
@@ -1151,24 +1154,26 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           fontSize: 10,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_today_outlined,
-                            color: Color(0xFFFF5216),
-                            size: 9,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            dateText,
-                            style: AppFonts.outfit(
-                              color: const Color(0xFF7A6A60),
-                              fontSize: 9,
+                      if (dateText.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              color: Color(0xFFFF5216),
+                              size: 9,
                             ),
-                          ),
-                        ],
-                      ),
+                            const SizedBox(width: 4),
+                            Text(
+                              dateText,
+                              style: AppFonts.outfit(
+                                color: const Color(0xFF7A6A60),
+                                fontSize: 9,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -1264,10 +1269,10 @@ class _GroceryScreenState extends State<GroceryScreen> {
 
           final discountText = (store['discount'] ?? '').toString();
           final hasDiscount = discountText.isNotEmpty;
-          final ratingText = (store['rating'] ?? '4.5').toString();
+          final ratingText = _ratingText(store['rating']);
           final pointsText = (store['points'] ?? '').toString();
           final hasPoints = pointsText.isNotEmpty;
-          final timeText = (store['time'] ?? '15m').toString();
+          final timeText = (store['time'] ?? '').toString();
           final nameText = (store['name'] ?? store['title'] ?? '').toString();
           final categoryText = (store['category'] ?? '').toString();
           final imageUrl = (store['image'] ?? '').toString();
@@ -1362,45 +1367,46 @@ class _GroceryScreenState extends State<GroceryScreen> {
                           ),
 
                         // Rating badge
-                        PositionedDirectional(
-                          top: 10,
-                          start: hasDiscount ? 62 : 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 4,
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.star_rounded,
-                                  color: Color(0xFFFFB300),
-                                  size: 12,
-                                ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  ratingText,
-                                  style: AppFonts.outfit(
-                                    color: const Color(0xFF2C2520),
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
+                        if (ratingText.isNotEmpty)
+                          PositionedDirectional(
+                            top: 10,
+                            start: hasDiscount ? 62 : 10,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 4,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    color: Color(0xFFFFB300),
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    ratingText,
+                                    style: AppFonts.outfit(
+                                      color: const Color(0xFF2C2520),
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
                         // Favorite button
                         PositionedDirectional(
@@ -1478,35 +1484,36 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 ),
                                 const SizedBox(width: 6),
                               ],
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.6),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.access_time_rounded,
-                                      color: Colors.white,
-                                      size: 10,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      timeText,
-                                      style: AppFonts.outfit(
+                              if (timeText.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.6),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.access_time_rounded,
                                         color: Colors.white,
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.bold,
+                                        size: 10,
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        timeText,
+                                        style: AppFonts.outfit(
+                                          color: Colors.white,
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
@@ -1579,7 +1586,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
         itemBuilder: (context, index) {
           final prod = frequentlyBought[index];
           final imageUrl = (prod['image'] ?? '').toString();
-          final ratingText = (prod['rating'] ?? '4.5').toString();
+          final ratingText = _ratingText(prod['rating']);
           final nameText = (prod['name'] ?? '').toString();
           final storeText = (prod['store'] ?? '').toString();
           final priceText = (prod['price'] ?? '').toString();
@@ -1644,39 +1651,40 @@ class _GroceryScreenState extends State<GroceryScreen> {
                       ),
 
                       // Rating badge
-                      PositionedDirectional(
-                        top: 8,
-                        start: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.star_rounded,
-                                color: Color(0xFFFFB300),
-                                size: 10,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                ratingText,
-                                style: AppFonts.outfit(
-                                  color: const Color(0xFF2C2520),
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
+                      if (ratingText.isNotEmpty)
+                        PositionedDirectional(
+                          top: 8,
+                          start: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.star_rounded,
+                                  color: Color(0xFFFFB300),
+                                  size: 10,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 2),
+                                Text(
+                                  ratingText,
+                                  style: AppFonts.outfit(
+                                    color: const Color(0xFF2C2520),
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -1811,4 +1819,11 @@ Widget _buildSectionHeader(
       ],
     ),
   );
+}
+
+/// The rating to show; missing, "0" or "0.0" is '' so the star chip is hidden.
+String _ratingText(dynamic value) {
+  final text = '${value ?? ''}'.trim();
+  if (text.isEmpty || text == 'null') return '';
+  return double.tryParse(text) == 0 ? '' : text;
 }

@@ -148,6 +148,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           : text(row['service_name_en']),
       // 9 is delivered/completed in the order status codes.
       'status': status == 9 ? 'Completed' : text(row['status_label']),
+      // Shown on the badge: completed and cancelled in the app language; other
+      // labels depend on the service type, so the server's text stays.
+      'statusLabel': switch (status) {
+        9 => 'orders_status_completed'.tr,
+        10 => 'core_status_10'.tr,
+        _ => text(row['status_label']),
+      },
       'datetime': slot,
       'slot': text(row['slot_window']).isEmpty
           ? slot
@@ -389,7 +396,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 child: Text(
                   isCompleted
                       ? 'orders_status_completed'.tr
-                      : statusText.toUpperCase(),
+                      : '${booking['statusLabel'] ?? statusText}',
                   style: AppFonts.outfit(
                     color: _statusFg(statusText),
                     fontSize: 11,

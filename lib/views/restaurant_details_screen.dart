@@ -1419,8 +1419,11 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            // The store's own delivery time; nothing when the
+                            // server sends none.
+                            if (_restaurantTime.isNotEmpty)
                             Text(
-                              'core_restaurant_ready_in'.tr,
+                              'pw_ready_in'.trParams({'time': _restaurantTime}),
                               style: AppFonts.outfit(
                                 color: const Color(0xFFA59A94),
                                 fontSize: 11,

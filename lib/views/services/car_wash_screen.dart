@@ -15,6 +15,7 @@ import 'car_wash_provider_detail_screen.dart';
 import 'service_provider_list.dart';
 
 import '../../utils/app_fonts.dart';
+
 class CarWashScreen extends StatelessWidget {
   const CarWashScreen({super.key});
 
@@ -494,35 +495,38 @@ class CarWashScreen extends StatelessWidget {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'svc_starting_from'.tr,
-                              style: AppFonts.outfit(
-                                color: const Color(0xFF9A8E86),
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            RichText(
-                              text: TextSpan(
-                                style: AppFonts.outfit(
-                                  color: const Color(0xFFFF5216),
-                                  fontWeight: FontWeight.w800,
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text: item['price'],
-                                    style: const TextStyle(fontSize: 20),
+                          // No price from the server: no "Starting from" line.
+                          children: (item['price'] ?? '').trim().isEmpty
+                              ? const []
+                              : [
+                                  Text(
+                                    'svc_starting_from'.tr,
+                                    style: AppFonts.outfit(
+                                      color: const Color(0xFF9A8E86),
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                  TextSpan(
-                                    text: 'svc_mru_suffix'.tr,
-                                    style: const TextStyle(fontSize: 13),
+                                  const SizedBox(height: 2),
+                                  RichText(
+                                    text: TextSpan(
+                                      style: AppFonts.outfit(
+                                        color: const Color(0xFFFF5216),
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: item['price'],
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                        TextSpan(
+                                          text: 'svc_mru_suffix'.tr,
+                                          style: const TextStyle(fontSize: 13),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                       GestureDetector(
