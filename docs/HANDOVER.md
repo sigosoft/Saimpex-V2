@@ -757,3 +757,15 @@ Journey E2E-15a (PDF "SAIMPEX V2 journeys, 3 Nov afternoon"): a vendor-rejected 
 - **Home banner above the search bar:** comes only from Admin sliders of type **0 "Home"** (`SliderTypes::HOME`, active). Dev has none, so `homeHub` returns `sliders: []` and the carousel hides itself; vertical screens show their own slider types. No app change: Admin needs to add a Home slider (Admin → Sliders).
 - **Home categories:** the Services tile is gone (the grid ends at Local Store); Services opens from the bottom bar's Services button.
 - **Bottom-bar icon weight:** Orders, Cart and Profile are drawn at about 10 % of the icon size, Home was 6.6 %, Bookings and Chat 7.5 %. `Bottom Home.png` was thickened to Orders' weight (9 px dilation at 512 px, same shape) and the drawn icons use 10.2 %. Measured on the phone: every icon about 6 px.
+
+### Delivery location from Home, Gas entry, courier offers (`fix/courier-offers-gas-entry`, 3 Nov) ✅
+Checked on the phone (dev, English).
+- **Change location from Home:** tapping "Deliver To ⌄" opens the picker. Fixed four problems there:
+  - The picker re-created its controller on every rebuild, so after the keyboard opened, a picked place changed only the label; the map and pin stayed put. The controller now lives for the screen's whole life.
+  - Continue saved the location but only closed the "Location updated" snackbar (`Get.back()` closes a snackbar first), so the picker stayed open. It now leaves first, then shows the toast.
+  - "Current Location" covered the search suggestions. It now shows only at the bottom of the map and is hidden while suggestions are open. The keyboard no longer squeezes the map.
+  - Search is limited to Mauritania (`components=country:mr`).
+  - Result: picking "Las Palmas, Nouakchott" → Continue → Home shows "Las Palmas, Nou…" and reloads stores for that place.
+- **Gas:** new tile in Services → All Service Categories (cylinder icon until there's artwork) → gas suppliers list from the API. Hidden when Admin switches gas off.
+- **Courier offers:** the two sample "30% OFF" banners are hidden (the quote never applied a discount). They come back when the API sends courier sliders: [praveensigo/saimpex-backend-new#164](https://github.com/praveensigo/saimpex-backend-new/issues/164).
+- **C-B23 backend is live on dev:** `orderDetails` returns `cancel_reason`, `cancelled_by`, `cancel_message`.
