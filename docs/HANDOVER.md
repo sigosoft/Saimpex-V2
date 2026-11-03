@@ -741,5 +741,7 @@ Journey E2E-15a (PDF "SAIMPEX V2 journeys, 3 Nov afternoon"): a vendor-rejected 
 - A reason Admin typed is shown as written (ORD-001493 "Customer unreachable").
 - Fixed server remarks are shown in EN/FR/AR: "Order Cancelled by Vendor/pharmacy/water vendor" → "Cancelled by the store"; "Not accepted by vendor within 24 hours" → "The store didn't accept the order in time".
 - The customer's own cancel ("Order Cancelled") shows no note.
+- Also: cancelled water, courier and pharmacy order details said "To Pay"/"Total paid"; they now say "Total", like food (`3fadd97`).
+- Checked on the phone (English, 3 Nov): ORD-001461 food and ORD-001477 water show "Reason: The store didn't accept the order in time"; ORD-001484 (own cancel) shows no note.
 - Code: `lib/utils/cancel_reason.dart`, `OrderTracking.cancelReason`, `lib/widgets/cancel_reason_note.dart`; tests in `test/cancel_reason_test.dart`.
 **Open (backend + vendor app):** the vendor app sends no reason on reject (`cancelRestaurantOrder?order_id=` only), and the backend saves a fixed "Order Cancelled by Vendor", so "Out of Stock" can't reach the customer yet. Issue `[customer-app] Vendor reject reason is never saved…` for Praveen. It will show with no app change once the remark carries the reason. Service bookings (car wash, laundry) aren't covered, because their timeline has no documented `remark`.
