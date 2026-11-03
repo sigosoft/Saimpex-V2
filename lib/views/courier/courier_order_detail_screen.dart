@@ -728,7 +728,10 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
     final tax = double.tryParse('${payment['tax'] ?? ''}') ?? 0;
     final discount = double.tryParse('${payment['discount'] ?? ''}') ?? 0;
     final isCash = '${payment['payment_type'] ?? ''}'.toLowerCase() == 'cash';
-    final totalLabel = isCash && !_detail!.isDelivered
+    // A cancelled order shows a plain "Total".
+    final totalLabel = _detail!.isCancelled
+        ? 'svc_total'.tr
+        : isCash && !_detail!.isDelivered
         ? 'st_to_pay'.tr
         : 'st_total_paid'.tr;
     return Container(

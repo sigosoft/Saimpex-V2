@@ -888,7 +888,11 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
           Row(
             children: [
               Text(
-                isDelivery ? 'pw_total_paid'.tr : 'pw_to_pay'.tr,
+                order?.isCancelled == true
+                    ? 'pw_total'.tr
+                    : isDelivery
+                    ? 'pw_total_paid'.tr
+                    : 'pw_to_pay'.tr,
                 style: AppFonts.outfit(
                   color: Colors.white,
                   fontSize: 15,
