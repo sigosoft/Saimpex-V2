@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../controllers/home_controller.dart';
 import '../../constants/text_styles.dart';
 import 'car_wash_screen.dart';
+import 'gas_screen.dart';
 import 'home_cleaning_screen.dart';
 import 'laundry_services_screen.dart';
 import '../../utils/toast_helper.dart';
@@ -25,6 +26,7 @@ class ServicesScreen extends StatelessWidget {
     'Car\nWash': 'svc_cat_car_wash',
     'Plumbing': 'svc_cat_plumbing',
     'Laundry': 'svc_cat_laundry',
+    'Gas': 'svc_cat_gas',
     'Carpentry': 'svc_cat_carpentry',
     'Electrical': 'svc_cat_electrical',
     'Home\nMaintenance': 'svc_cat_home_maintenance',
@@ -138,6 +140,8 @@ class ServicesScreen extends StatelessWidget {
     ),
     _CategoryData('Computer\nRepair', 'lib/assets/images/computer.png'),
     _CategoryData('Car\nWash', 'lib/assets/images/car_wash (2).png'),
+    // No gas artwork in the app or from the API yet: a cylinder icon.
+    _CategoryData('Gas', '', icon: Icons.propane_tank_rounded, imageSize: 34),
     _CategoryData('Plumbing', 'lib/assets/images/plumbng.png', imageSize: 42),
   ];
 
@@ -303,6 +307,7 @@ class ServicesScreen extends StatelessWidget {
     if (key.contains('cleaning')) return 'home_cleaning';
     if (key.contains('car wash')) return 'car_wash';
     if (key.contains('laundry')) return 'laundry';
+    if (key == 'gas') return 'gas';
     return null;
   }
 
@@ -321,6 +326,7 @@ class ServicesScreen extends StatelessWidget {
     'home_cleaning' => () => Get.to(() => const HomeCleaningScreen()),
     'car_wash' => () => Get.to(() => const CarWashScreen()),
     'laundry' => () => Get.to(() => const LaundryServicesScreen()),
+    'gas' => () => Get.to(() => const GasScreen()),
     _ => () => showAppToast('svc_coming_soon_message'.tr),
   };
 
@@ -425,13 +431,19 @@ class ServicesScreen extends StatelessWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: _CategoryImage(
-                    asset: item.image,
-                    size: item.imageSize,
-                    clipBottomFraction: item.clipBottomFraction,
-                    alignment: item.imageAlignment,
-                    scale: item.imageScale,
-                  ),
+                  child: item.icon != null
+                      ? Icon(
+                          item.icon,
+                          size: item.imageSize,
+                          color: const Color(0xFFFF5216),
+                        )
+                      : _CategoryImage(
+                          asset: item.image,
+                          size: item.imageSize,
+                          clipBottomFraction: item.clipBottomFraction,
+                          alignment: item.imageAlignment,
+                          scale: item.imageScale,
+                        ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -803,7 +815,10 @@ class _CategoryData {
   final Alignment imageAlignment;
   final double imageScale;
 
-  const _CategoryData(this.label, this.image, {this.imageSize = 44})
+  /// Drawn instead of [image] when the tile has no artwork.
+  final IconData? icon;
+
+  const _CategoryData(this.label, this.image, {this.imageSize = 44, this.icon})
     : imageScale = 1,
       imageAlignment = Alignment.center,
       clipBottomFraction = 0;
