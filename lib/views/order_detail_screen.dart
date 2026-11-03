@@ -6,6 +6,7 @@ import '../core/network/api_constants.dart';
 import 'track_order_screen.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/cancel_order_bottom_sheet.dart';
+import '../widgets/cancel_reason_note.dart';
 import 'widgets/scheduled_for_banner.dart';
 
 import '../utils/app_fonts.dart';
@@ -160,13 +161,19 @@ class OrderDetailScreen extends StatelessWidget {
                           // A cancelled order says so instead of showing
                           // its steps stuck at "placed".
                           if (isCancelled)
-                            Text(
-                              'core_status_10'.tr,
-                              style: AppFonts.outfit(
-                                color: const Color(0xFFE03A3A),
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'core_status_10'.tr,
+                                  style: AppFonts.outfit(
+                                    color: const Color(0xFFE03A3A),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                CancelReasonLoader(orderId: apiOrderId),
+                              ],
                             )
                           else
                           // Custom Stepper Progress Row

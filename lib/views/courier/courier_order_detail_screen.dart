@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../../widgets/cancel_reason_note.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../core/network/api_exception.dart';
@@ -166,6 +167,7 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                             _sectionTitle('st_order_status'.tr),
                             const SizedBox(height: 10),
                             _buildOrderStatusCard(),
+                            CancelReasonNote(reason: _detail?.cancelReason ?? ''),
                             const SizedBox(height: 18),
                             _sectionTitle('st_delivery_details'.tr),
                             const SizedBox(height: 10),

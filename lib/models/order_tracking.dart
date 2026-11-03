@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../utils/api_language.dart';
+import '../utils/cancel_reason.dart';
 import '../utils/order_status_label.dart';
 import 'order_repository.dart';
 
@@ -114,6 +115,21 @@ class OrderTracking {
     for (final entry in timeline) {
       if (entry is Map && int.tryParse('${entry['status']}') == status) {
         return '${entry['updated_at'] ?? ''}';
+      }
+    }
+    return '';
+  }
+
+  /// Why a cancelled order was cancelled (the latest "Cancelled" timeline
+  /// remark), in the app language where the server text is fixed; empty when
+  /// there is none.
+  String get cancelReason {
+    if (!isCancelled) return '';
+    final timeline = _data['timeline'];
+    if (timeline is! List) return '';
+    for (final entry in timeline.reversed) {
+      if (entry is Map && int.tryParse('${entry['status']}') == 10) {
+        return cancelReasonLabel('${entry['remark'] ?? ''}');
       }
     }
     return '';

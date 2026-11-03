@@ -8,6 +8,7 @@ import '../../core/network/api_exception.dart';
 import '../../models/order_tracking.dart';
 import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
+import '../../widgets/cancel_reason_note.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
@@ -124,6 +125,7 @@ class _WaterOrderDetailsScreenState extends State<WaterOrderDetailsScreen> {
                           children: [
                             // 2. Order Status Timeline Card
                             _buildOrderStatusCard(),
+                            CancelReasonNote(reason: _detail!.cancelReason),
                             const SizedBox(height: 18),
 
                             // 3. Location / Driver Section
