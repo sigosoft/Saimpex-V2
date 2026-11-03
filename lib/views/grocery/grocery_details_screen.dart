@@ -2001,6 +2001,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                               ),
                               const SizedBox(height: 10),
 
+                              // Only a rating the API sent; no stand-in value.
+                              if ((food['rating'] ?? '').toString().isNotEmpty)
                               Row(
                                 children: [
                                   const Icon(
@@ -2010,7 +2012,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '${food['rating'] ?? '4.5'} (${food['reviews'] ?? ''})',
+                                    (food['reviews'] ?? '').toString().isEmpty
+                                        ? '${food['rating']}'
+                                        : '${food['rating']} (${food['reviews']})',
                                     style: AppFonts.outfit(
                                       color: const Color(0xFFA59A94),
                                       fontSize: 11,

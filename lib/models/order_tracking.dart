@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../utils/api_language.dart';
+import '../utils/order_status_label.dart';
 import 'order_repository.dart';
 
 /// customer/trackOrder or customer/orderDetails, parsed for the tracking and
@@ -23,7 +24,9 @@ class OrderTracking {
   // Order status codes: 1 placed … 7 picked up, 8 on the way, 9 delivered,
   // 10 cancelled.
   int get status => int.tryParse('${_data['status'] ?? ''}') ?? 0;
-  String get statusText => '${_data['status_text'] ?? ''}'.trim();
+  /// In the app language for codes 1–10; the server's English text otherwise.
+  String get statusText =>
+      orderStatusLabel(_data['status'], '${_data['status_text'] ?? ''}'.trim());
   bool get isDelivered => status == 9;
   bool get isCancelled => status == 10;
   bool get isFinished => isDelivered || isCancelled;

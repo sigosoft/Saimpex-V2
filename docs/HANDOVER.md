@@ -650,7 +650,35 @@ Before the client build (2 Nov):
 - **Laundry balance after re-weighing:** paying it isn't in the API yet; the Pay button now says "Coming soon" like the other unfinished features (was "not available yet").
 - **Checked** (Android, dev, 2 Nov): Water header shows the real balance; the water cart bar shows the cart total after adding two items.
 
-### Bottom bar: wave design, names under every item (`feature/nav-bar-polish`, 3 Nov) 🟡 needs Praveen's OK
+### Device test pass, Arabic first (`feature/device-test-fixes`, [PR #36](https://github.com/sigosoft/Saimpex-V2/pull/36), 2 Nov) 🟡 in progress
+Phone: vivo V2239, Android 15, debug build against dev, demo customer +222 95200003. Analyzer clean, 22 tests pass.
+- **Fixed in this branch:**
+  - Account: the phone number read "95200003 222+" in Arabic; it is now isolated left to right (+222 95200003), like the OTP screen.
+  - Food menu: item ratings showed the API's raw "0.000000"; unrated items now show no rating, rated ones one decimal. The review count is a plain number (was English "12 reviews").
+  - Food item sheets (`food_customize_sheet.dart`, `food_item_sheets.dart`): every item showed the same hard-coded "Slow-cooked Moroccan tagine…" description and a made-up 4.6 rating / "10k + reviews" when the API sent none. Now the item's own (translated) description and rating, hidden when empty.
+  - Water product sheet and grocery product sheet: removed the made-up rating (4.6 / 4.5), "10k +" reviews, 50 / 100 MRU prices and default title/description.
+  - Cart: "Balance: 1140 MRU" under SAIMPEX Wallet was English in FR/AR; new key `core_account_wallet_balance` (EN/FR/AR).
+  - My Orders: store names were English in Arabic. The order lists (restaurant, grocery, local store, pharmacy, water) now send `language`, which the server needs to translate `vendor_name` (API change 2 Nov), and the restaurant card reads `vendor_name` first.
+  - Home: the Trending and Under 30 minutes store cards did nothing when tapped; they now open the store (both sections are restaurants from `homeHub`), like the Food screen.
+  - Order details: item and extra names were always English (`name_en`); now `name_<language>`, English when empty. The total said "Total paid" on unpaid cash orders; it now says "To pay" unless `payment_status` is 2 (paid).
+  - Tracking: status chip and title were the server's English ("PLACED"); now the app's status texts (codes 1-10). The step time ("02 Nov 2026, 12:15 PM") was scrambled in Arabic ("Nov 2026, 12:15 02 PM"); it is now shown left to right.
+- **Works (Arabic, RTL):** home, Food list, store menu, add to cart, cart totals from the server (260 + 50 delivery), Pay After Delivery blocked with "pay your previous order first", My Orders with Arabic statuses, language switch.
+- **Open, not fixed:**
+  - Currency: prices show "MRU" in most screens (built in about 20 places in the models) but "أوقية" in the cart totals, variants and Account card. Needs one decision (Praveen): MRU everywhere or the translated name everywhere.
+  - More made-up fallbacks in grocery and water lists: rating 4.5 / 4.6, "Store", "Supermarket", "Hypermarket", "Recently", "15m", "30-35 min", "10 Km", "50% OFF" (`grocery_repository.dart`, `grocery_screen.dart`, `water_see_all_screen.dart`, `water_supplier_details_screen.dart`).
+  - Fixed time texts not from the server: cart "Delivery 30-35 min", "Pickup ready in 15 min", cart bar "Ready in 15-20 min" (`core_restaurant_ready_in`), while the store says 14 min.
+  - Dev server: `/storage/...` still answers 403 (`php artisan storage:link` not run); food item descriptions on dev are English only.
+- **Orders placed on dev (2 Nov, demo customer +222 95200003):** ORD-001483 Pizzeria Atlantique, wallet, 310 MRU (wallet 1140 → 830, cart emptied, shows as paid); ORD-001484 same store, cash on delivery, 350 MRU (shows "to pay"). Both appear first in My Orders with details and tracking ("driver will be assigned soon"). Left open on dev; cancel them from the app if they get in the way.
+- **Open, found while ordering:**
+  - Order details and tracking show the store name in English: `catalog/orderDetail` (`CatalogOrderService::detail`, `v.name`) and `trackOrder` (`trackingVendor`, `vendor->name`) don't use `VendorName::of`. Backend issue to open (`[customer-app] order details and tracking: store name not translated`).
+  - Backend `orderDetails` sends `payment_type` text "Online Payment" for every non-cash order, also wallet (3) and Pay After Delivery (4). The app doesn't show it today.
+  - The success screen's "View order" opens My Orders, not that order.
+  - The Pay button says "Pay 350 MRU" also for cash on delivery.
+  - Tracking draws the rider icon on the store when no driver is assigned yet.
+  - Seen once: a red debug error (`_dependents.isEmpty`) after tapping Orders → Track a few seconds after a relaunch; not reproduced with slower taps, no stack trace in logcat.
+- **Not tested yet:** online payment (Masrvi), services, courier, pharmacy, water flows; French and English pass.
+
+### Bottom bar: wave design, names under every item (`feature/nav-bar-polish`, [PR #38](https://github.com/sigosoft/Saimpex-V2/pull/38), merged 3 Nov) 🟡 needs Praveen's OK
 **Not the Figma bar:** built from a reference picture chosen on 3 Nov (it replaced an earlier floating version, commit `7ea418f`). CLAUDE.md says Figma is the design, so Praveen should approve it, or ask for the Figma bar back (commit `255ee9f`: Figma shape with the same open-tab state and haptics).
 - A full-width white bar on the bottom edge with a smooth dip around the raised Services button: solid orange disc in a pale orange ring (stronger when Services is open). Brand orange #FF5216 instead of the reference's red. Same total height as before, so screens' bottom spacing is unchanged.
 - Each tab is an icon with its name under it, Services too (its name sits under the dip; English/French label now "Services", was "SERVICES"). The open tab's icon and name turn orange, the name bold. Before, no tab ever looked selected. Long names shrink to fit ("Réservations").

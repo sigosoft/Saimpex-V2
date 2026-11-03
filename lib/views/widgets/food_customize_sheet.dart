@@ -10,8 +10,8 @@ import '../../utils/app_fonts.dart';
 /// Group id for the item's extras; the API gives extras no option_group_id.
 const int _extrasGroupId = -1;
 
-const String _kFoodDescription =
-    'Slow-cooked traditional Moroccan tagine with tender chicken, preserved lemons, olives, and aromatic spices. Served with a side of fluffy couscous.';
+/// Trimmed text of an item field; empty when the API sent nothing.
+String _text(Object? value) => (value ?? '').toString().trim();
 
 /// Full customize popup (opened from a card's ADD or the detail sheet).
 /// Portions come from the item's `items` and option groups from `option_groups`.
@@ -814,39 +814,49 @@ class _FoodItemCustomizeSheetState extends State<_FoodItemCustomizeSheet> {
                                               ),
                                             ),
                                           ),
-                                          const Icon(
-                                            Icons.star_rounded,
-                                            color: Color(0xFFFFAE00),
-                                            size: 15,
-                                          ),
-                                          const SizedBox(width: 3),
-                                          Text(
-                                            food['rating']?.toString() ?? '4.6',
-                                            style: AppFonts.outfit(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w700,
+                                          if (_text(food['rating'])
+                                              .isNotEmpty) ...[
+                                            const Icon(
+                                              Icons.star_rounded,
+                                              color: Color(0xFFFFAE00),
+                                              size: 15,
                                             ),
-                                          ),
-                                          Text(
-                                            ' (${food['reviews'] ?? '10k + reviews'})',
-                                            style: AppFonts.outfit(
-                                              color: const Color(0xFF7A6A60),
-                                              fontSize: 11,
+                                            const SizedBox(width: 3),
+                                            Text(
+                                              _text(food['rating']),
+                                              style: AppFonts.outfit(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
-                                          ),
+                                            if (_text(food['reviews'])
+                                                .isNotEmpty)
+                                              Text(
+                                                ' (${_text(food['reviews'])})',
+                                                style: AppFonts.outfit(
+                                                  color: const Color(
+                                                    0xFF7A6A60,
+                                                  ),
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                          ],
                                         ],
                                       ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        _kFoodDescription,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: AppFonts.outfit(
-                                          color: const Color(0xFF7A6A60),
-                                          fontSize: 11.5,
-                                          height: 1.35,
+                                      if (_text(food['description'])
+                                          .isNotEmpty) ...[
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          _text(food['description']),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppFonts.outfit(
+                                            color: const Color(0xFF7A6A60),
+                                            fontSize: 11.5,
+                                            height: 1.35,
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ],
                                   ),
                                 ),

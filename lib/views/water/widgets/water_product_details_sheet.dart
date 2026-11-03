@@ -10,14 +10,14 @@ void showWaterProductDetailsSheet(
   VoidCallback? onAdd,
 }) {
   final bottomSafe = MediaQuery.of(context).padding.bottom;
-  final title = product['title'] ?? 'pw_drinking_water_19l'.tr;
-  final rating = product['rating'] ?? '4.6';
-  final reviews =
-      product['reviews'] ?? 'pw_reviews_count'.trParams({'count': '10k +'});
-  final price = product['price'] ?? '50 MRU';
-  final originalPrice = product['originalPrice'] ?? '100 MRU';
-  final description =
-      product['description'] ?? 'pw_water_default_description'.tr;
+  // Only what the API sent: no stand-in rating, reviews, prices or text.
+  String field(String key) => (product[key] ?? '').toString().trim();
+  final title = field('title');
+  final rating = field('rating');
+  final reviews = field('reviews');
+  final price = field('price');
+  final originalPrice = field('originalPrice');
+  final description = field('description');
 
   showModalBottomSheet(
     context: context,
@@ -80,6 +80,7 @@ void showWaterProductDetailsSheet(
                               const SizedBox(height: 6),
 
                               // 3. Rating & Reviews
+                              if (rating.isNotEmpty)
                               Row(
                                 children: [
                                   const Icon(
@@ -120,6 +121,7 @@ void showWaterProductDetailsSheet(
                                     ),
                                   ),
                                   const SizedBox(width: 8),
+                                  if (originalPrice.isNotEmpty)
                                   Text(
                                     originalPrice,
                                     style: AppFonts.outfit(
@@ -133,6 +135,7 @@ void showWaterProductDetailsSheet(
                               const SizedBox(height: 14),
 
                               // 5. Description Paragraph
+                              if (description.isNotEmpty)
                               Text(
                                 description,
                                 style: AppFonts.outfit(

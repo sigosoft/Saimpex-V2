@@ -6,8 +6,8 @@ import 'auto_slide_network_images.dart';
 import '../../utils/app_fonts.dart';
 export 'food_customize_sheet.dart';
 
-const String _kFoodDescription =
-    'Slow-cooked traditional Moroccan tagine with tender chicken, preserved lemons, olives, and aromatic spices. Served with a side of fluffy couscous.';
+/// Trimmed text of an item field; empty when the API sent nothing.
+String _text(Object? value) => (value ?? '').toString().trim();
 
 /// Simple item detail popup (tap on a food card).
 Future<void> showFoodItemDetailSheet({
@@ -197,35 +197,41 @@ class _FoodItemDetailSheetState extends State<_FoodItemDetailSheet> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.star_rounded,
-                                        color: Color(0xFFFFAE00),
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${food['rating'] ?? '4.6'} (${food['reviews'] ?? '10k + reviews'})',
-                                        style: AppFonts.outfit(
-                                          color: const Color(0xFF7A6A60),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
+                                  if (_text(food['rating']).isNotEmpty) ...[
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.star_rounded,
+                                          color: Color(0xFFFFAE00),
+                                          size: 16,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 14),
-                                  Text(
-                                    _kFoodDescription,
-                                    style: AppFonts.outfit(
-                                      color: const Color(0xFF7A6A60),
-                                      fontSize: 13,
-                                      height: 1.5,
-                                      fontWeight: FontWeight.w400,
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _text(food['reviews']).isEmpty
+                                              ? _text(food['rating'])
+                                              : '${_text(food['rating'])} (${_text(food['reviews'])})',
+                                          style: AppFonts.outfit(
+                                            color: const Color(0xFF7A6A60),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
+                                  ],
+                                  if (_text(food['description']).isNotEmpty) ...[
+                                    const SizedBox(height: 14),
+                                    Text(
+                                      _text(food['description']),
+                                      style: AppFonts.outfit(
+                                        color: const Color(0xFF7A6A60),
+                                        fontSize: 13,
+                                        height: 1.5,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
                                   const SizedBox(height: 8),
                                   Center(
                                     child: Text(
