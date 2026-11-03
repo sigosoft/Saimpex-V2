@@ -687,3 +687,17 @@ Phone: vivo V2239, Android 15, debug build against dev, demo customer +222 95200
 - **Checked** (vivo V2239, Android 15, dev, 3 Nov, English): Home, Orders and Services as the open tab, tab switching, the dip around the button; no error in a `flutter run` session; analyzer clean, 22 tests pass. Cart badge not seen (cart empty).
 - **Seen three times, not from this change:** a red debug error (`_dependents.isEmpty`) on the first launch after installing an update (also on 2 Nov, before this change), once even after a force-stop; the next launch is fine. It did not happen under `flutter run`. No stack trace in logcat; needs `flutter run` to catch it.
 - **To check, not from this change:** after installing this build the app came back in English although French was chosen before (language should persist, P1-1).
+
+### Client build 3 Nov (`feature/client-build-3nov`) ✅
+Release APK `2.0.0+100`, dev server, debug-signed (V1 keystore still missing, C19). Built from everything merged so far (PR #36 device test fixes, PR #38 bottom bar, PR #26 code boxes, PR #27 home titles) plus:
+- **No invented values:** grocery, water, pharmacy and service screens no longer show made-up ratings (4.5/4.6), names ("Store", "Supermarket", "Hypermarket"), times ("15m", "30-35 min", "Ready in 15-20 min"), distances ("10 Km"), offers ("50% OFF"), points ("200 Points"), prices ("50 MRU", "— MRU", a lone "MRU") or "0 reviews"; the chip or line is hidden when the server sends nothing. The store cart bar shows the store's own delivery time.
+- **Pharmacy cart bar:** showed "1" and the last item's price; now the server cart's count and total.
+- **Cart button:** "Order now" for cash and Pay After Delivery (was "Pay 350 MRU").
+- **My Bookings:** Completed and Cancelled in the app language (was the server's "CANCELLED").
+- **Service providers:** "Open"/"Closed"/"Temporarily not accepting orders" and "1.4 km away" in the app language (server sends English).
+- **Tracking:** no rider pin until the driver has a location; the store pin shows.
+- **Bottom bar:** Arabic names at full size (label row taller for Cairo).
+- **Payment failed:** Pending status in brand orange (last off-brand orange in `lib/`).
+- **Coming soon** (unchanged, already in place): Reorder, laundry balance payment after re-weighing, call driver (masked calls), services without a vertical (plumbing, carpentry, electrical, …).
+- **Checked** (vivo V2239, Android 15, release build, dev, 3 Nov): launch, Home, Bookings, Profile, language switch to Arabic and kept after reinstall, Home cleaning providers; analyzer clean, 27 tests pass. The red debug error does not occur in release builds (it is a debug-only assertion). Not checked in this build: online payment, courier, pharmacy order, water order.
+- **Language reset (2 Nov note):** not reproduced; Arabic stayed after reinstalling.

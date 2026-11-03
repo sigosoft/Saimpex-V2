@@ -177,14 +177,30 @@ class ServiceRepository {
     final rating = double.tryParse(text(row['rating'])) ?? 0;
     final rate = text(row['starting_rate']);
     final unit = text(row['rate_unit']);
-    final availability = text(row['availability']);
+    // The server sends these two in English only ("Open", "1.4 km away"):
+    // rebuilt from the app's own texts so they follow the app language.
+    final availability = switch (text(row['availability'])) {
+      'Open' || '' => 'core_open'.tr,
+      'Currently closed' => 'core_home_closed'.tr,
+      'Temporarily not accepting orders' =>
+        '${'core_home_temp_closed_line1'.tr} ${'core_home_temp_closed_line2'.tr}',
+      final other => other,
+    };
+    final km = double.tryParse(text(row['distance_km']));
+    final distance = km == null
+        ? text(row['distance_label'])
+        : 'svc_km_away'.trParams({
+            'km': km == km.roundToDouble()
+                ? km.toInt().toString()
+                : km.toStringAsFixed(1),
+          });
     return {
       'id': text(row['id']),
       'name': text(row['name']).isEmpty ? 'Provider' : text(row['name']),
       'rating': rating > 0 ? rating.toStringAsFixed(1) : 'core_new'.tr,
-      'distance': text(row['distance_label']),
+      'distance': distance,
       'price': rate.replaceAll(' MRU', ''),
-      'points': availability.isEmpty ? 'core_open'.tr : availability,
+      'points': availability,
       'image': ApiConstants.mediaUrl(text(row['image'])) ?? '',
       'isOpen': row['is_open'] == true ? '1' : '0',
       'ready': text(row['hours_label']).isEmpty

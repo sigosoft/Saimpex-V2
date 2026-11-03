@@ -26,7 +26,8 @@ class AppBottomNavBar extends StatelessWidget {
   static const double _notchHalfWidth = 60;
   static const double _notchDepth = 36;
 
-  static const double _labelHeight = 14;
+  /// Tall enough for Cairo (Arabic), whose line is taller than Outfit's.
+  static const double _labelHeight = 18;
 
   static const Color _barColor = Colors.white;
   static const Color _orange = Color(0xFFFF5216);
