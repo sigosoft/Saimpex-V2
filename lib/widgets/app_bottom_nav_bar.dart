@@ -11,7 +11,8 @@ import '../utils/app_fonts.dart';
 ///
 /// A full-width white bar with a smooth dip around the raised Services button,
 /// which sits in a pale orange ring. Each item is an icon with its name under
-/// it; the open tab shows its icon in orange with a dot where the name was.
+/// it (Services' name sits under the dip); the open tab's icon and name turn
+/// orange.
 /// Items press down and give haptics when tapped; the cart shows an orange
 /// count badge.
 class AppBottomNavBar extends StatelessWidget {
@@ -118,8 +119,7 @@ class AppBottomNavBar extends StatelessWidget {
                       label: 'Orders',
                       asset: 'lib/assets/images/Bottom Order.png',
                     ),
-                    // The dip: the Services disc above covers it.
-                    const SizedBox(width: _notchHalfWidth * 2 - 16),
+                    _servicesItem(),
                     _navItem(
                       index: HomeController.navCart,
                       label: 'Cart',
@@ -162,8 +162,7 @@ class AppBottomNavBar extends StatelessWidget {
     'Profile': 'core_nav_profile',
   };
 
-  /// Icon above its name. On the open tab the icon turns orange and the name
-  /// gives way to an orange dot.
+  /// Icon above its name; both turn orange on the open tab.
   Widget _navItem({
     required int index,
     required String label,
@@ -203,36 +202,7 @@ class AppBottomNavBar extends StatelessWidget {
                     : icon(0),
               ),
               const SizedBox(height: 5),
-              SizedBox(
-                height: _labelHeight,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    AnimatedOpacity(
-                      opacity: isSelected ? 0 : 1,
-                      duration: Motion.fast,
-                      // Long names ("Réservations") shrink to fit their slot,
-                      // with a small gap so neighbours never run together.
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            name,
-                            maxLines: 1,
-                            style: AppFonts.outfit(
-                              color: _inactive,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    _Pop(visible: isSelected, child: _dot(6)),
-                  ],
-                ),
-              ),
+              _name(name, isSelected),
             ],
           ),
         ),
@@ -240,11 +210,52 @@ class AppBottomNavBar extends StatelessWidget {
     );
   }
 
-  static Widget _dot(double size) => Container(
-    width: size,
-    height: size,
-    decoration: const BoxDecoration(color: _orange, shape: BoxShape.circle),
-  );
+  /// An item's name under its icon: orange and bold on the open tab. Long
+  /// names ("Réservations") shrink to fit their slot, with a small gap so
+  /// neighbours never run together.
+  static Widget _name(String name, bool isSelected) {
+    return SizedBox(
+      height: _labelHeight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: AnimatedDefaultTextStyle(
+          duration: Motion.fast,
+          curve: Motion.curve,
+          style: AppFonts.outfit(
+            color: isSelected ? _orange : _inactive,
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(name, maxLines: 1),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The slot under the dip: the Services name, level with the other names
+  /// (the disc above stands in for its icon).
+  Widget _servicesItem() {
+    final isSelected = selectedIndex == HomeController.navServices;
+    return SizedBox(
+      width: _notchHalfWidth * 2 - 16,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _handleTap(HomeController.navServices),
+        child: ExcludeSemantics(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: _iconSize + 5),
+              _name('core_nav_services'.tr, isSelected),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   /// Solid orange disc in a pale orange ring, sitting in the dip.
   Widget _servicesDisc() {
@@ -363,28 +374,6 @@ class AppBottomNavBar extends StatelessWidget {
       fit: BoxFit.contain,
       color: color,
       filterQuality: FilterQuality.high,
-    );
-  }
-}
-
-/// Scales and fades the open tab's dot in and out.
-class _Pop extends StatelessWidget {
-  const _Pop({required this.visible, required this.child});
-
-  final bool visible;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: visible ? 1 : 0,
-      duration: Motion.normal,
-      curve: visible ? Curves.easeOutBack : Motion.curve,
-      child: AnimatedOpacity(
-        opacity: visible ? 1 : 0,
-        duration: Motion.fast,
-        child: child,
-      ),
     );
   }
 }
