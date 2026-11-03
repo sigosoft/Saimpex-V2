@@ -6,13 +6,14 @@ import '../../controllers/select_location_controller.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
-class SelectLocationScreen extends StatelessWidget {
+
+/// Owns the map controller for the screen's whole life. It used to be
+/// deleted and re-created in build(), so any rebuild (the keyboard opening)
+/// left a controller with no map: a picked place changed the label but the
+/// map and pin never moved.
+class SelectLocationScreen extends StatefulWidget {
   final bool isInitialSetup;
-
-  /// Save the picked spot to the address book (from Saved Addresses).
   final bool saveToAddressBook;
-
-  /// Saved address being edited, and its label to preselect.
   final int? editAddressId;
   final String? initialLabel;
 
@@ -25,15 +26,67 @@ class SelectLocationScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  State<SelectLocationScreen> createState() => _SelectLocationScreenState();
+}
+
+class _SelectLocationScreenState extends State<SelectLocationScreen> {
+  late final SelectLocationController controller;
+
+  @override
+  void initState() {
+    super.initState();
     if (Get.isRegistered<SelectLocationController>()) {
       Get.delete<SelectLocationController>(force: true);
     }
-    final controller = Get.put(SelectLocationController());
-    controller.isInitialSetup = isInitialSetup;
-    controller.saveToAddressBook = saveToAddressBook;
-    controller.editAddressId = editAddressId;
-    if (initialLabel != null) controller.selectAddressType(initialLabel!);
+    controller = Get.put(SelectLocationController());
+    controller.isInitialSetup = widget.isInitialSetup;
+    controller.saveToAddressBook = widget.saveToAddressBook;
+    controller.editAddressId = widget.editAddressId;
+    if (widget.initialLabel != null) {
+      controller.selectAddressType(widget.initialLabel!);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (Get.isRegistered<SelectLocationController>() &&
+        identical(Get.find<SelectLocationController>(), controller)) {
+      Get.delete<SelectLocationController>(force: true);
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => _SelectLocationView(
+    controller: controller,
+    isInitialSetup: widget.isInitialSetup,
+    saveToAddressBook: widget.saveToAddressBook,
+    editAddressId: widget.editAddressId,
+    initialLabel: widget.initialLabel,
+  );
+}
+
+class _SelectLocationView extends StatelessWidget {
+  final SelectLocationController controller;
+  final bool isInitialSetup;
+
+  /// Save the picked spot to the address book (from Saved Addresses).
+  final bool saveToAddressBook;
+
+  /// Saved address being edited, and its label to preselect.
+  final int? editAddressId;
+  final String? initialLabel;
+
+  const _SelectLocationView({
+    required this.controller,
+    this.isInitialSetup = false,
+    this.saveToAddressBook = false,
+    this.editAddressId,
+    this.initialLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -47,6 +100,9 @@ class SelectLocationScreen extends StatelessWidget {
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFFFAF6F0),
+        // The keyboard covers the bottom card while typing instead of
+        // squeezing the map to a strip too short for the suggestions.
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
           bottom: false,
           child: orientation == Orientation.portrait
@@ -134,20 +190,25 @@ class SelectLocationScreen extends StatelessWidget {
                 ),
               ),
 
-              // Search Bar Overlay
+              // Current Location: at the bottom of the map only, hidden
+              // while search suggestions are open so it never covers them.
+              Positioned(
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: Obx(
+                  () => controller.showSearchResults.value
+                      ? const SizedBox.shrink()
+                      : Center(child: _buildCurrentLocationButton(controller)),
+                ),
+              ),
+
+              // Search Bar Overlay (last, so its suggestions sit on top)
               Positioned(
                 top: 12,
                 left: 16,
                 right: 16,
                 child: _buildSearchBox(controller),
-              ),
-
-              // Current Location Overlay
-              Positioned(
-                bottom: 20,
-                left: 0,
-                right: 0,
-                child: Center(child: _buildCurrentLocationButton(controller)),
               ),
             ],
           ),
@@ -244,22 +305,27 @@ class SelectLocationScreen extends StatelessWidget {
                       ),
                     ),
 
-                    // Search Bar Overlay
+                    // Current Location: map bottom only, hidden while search
+                    // suggestions are open.
+                    Positioned(
+                      bottom: 12,
+                      left: 0,
+                      right: 0,
+                      child: Obx(
+                        () => controller.showSearchResults.value
+                            ? const SizedBox.shrink()
+                            : Center(
+                                child: _buildCurrentLocationButton(controller),
+                              ),
+                      ),
+                    ),
+
+                    // Search Bar Overlay (last, so its suggestions sit on top)
                     Positioned(
                       top: 8,
                       left: 16,
                       right: 16,
                       child: _buildSearchBox(controller),
-                    ),
-
-                    // Current Location Overlay
-                    Positioned(
-                      bottom: 12,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: _buildCurrentLocationButton(controller),
-                      ),
                     ),
                   ],
                 ),
@@ -631,7 +697,10 @@ class SelectLocationScreen extends StatelessWidget {
           decoration: InputDecoration(
             labelText: 'ease_landmark_label'.tr,
             hintText: 'ease_landmark_hint'.tr,
-            prefixIcon: const Icon(Icons.place_outlined, color: Color(0xFFFF5216)),
+            prefixIcon: const Icon(
+              Icons.place_outlined,
+              color: Color(0xFFFF5216),
+            ),
             counterText: '',
             filled: true,
             fillColor: const Color(0xFFF9FAFB),
