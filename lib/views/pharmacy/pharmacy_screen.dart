@@ -24,6 +24,7 @@ import '../select_location_screen.dart';
 
 import '../../utils/app_fonts.dart';
 import '../../utils/wallet_chip.dart';
+
 class PharmacyScreen extends StatefulWidget {
   const PharmacyScreen({super.key});
 
@@ -627,10 +628,16 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
   Widget _quickCategoryArt(Map<String, dynamic> category, bool isAll) {
     final image = category['image']?.toString() ?? '';
     if (!image.startsWith('http')) return const SizedBox.shrink();
-    return Image.network(
-      image,
-      fit: BoxFit.contain,
-      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+    // Admin uploads photos, not cut-outs: round them so they sit cleanly.
+    return Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.network(
+          image,
+          fit: BoxFit.contain,
+          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        ),
+      ),
     );
   }
 
@@ -704,14 +711,20 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
                     alignment: Alignment.bottomCenter,
+                    // One line at a fixed height, so the name stays below
+                    // the picture in every language (Cairo is taller).
                     child: Text(
                       cat['label']?.toString() ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                       style: AppFonts.outfit(
                         color: isAll ? Colors.white : const Color(0xFF2C2520),
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
+                        height: 1.2,
                       ),
                     ),
                   ),
@@ -721,7 +734,7 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                   top: isAll ? 12 : 0,
                   left: isAll ? 0 : 24,
                   right: isAll ? 0 : 24,
-                  bottom: 22,
+                  bottom: 26,
                   child: _quickCategoryArt(cat, isAll),
                 ),
               ],
