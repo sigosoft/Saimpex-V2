@@ -794,7 +794,11 @@ From `SAIMPEX-V2-full-report-4nov.pdf` (gas excluded). Analyzer clean, 38 tests 
   - C-B13: no toast on the cancelled screen. C-B12: Back to Home went straight to Home.
   - C-B14: Home cards show "2.1 Km", "3.1 Km".
   - C-B3: the wallet had 490 MRU, so the empty-wallet default couldn't be shown; Wallet was the default as expected.
-- **C-B16 found broken on the phone and fixed:** rating ORD-001514 saved ("Rating submitted successfully" in the log), but the form stayed open, because the success toast opened first and `Get.back()` then only closed the toast; a second tap said "You already submitted rating". The form now leaves first, then shows the toast. **Not yet rechecked on the phone** (the phone was unplugged); ORD-001512 is still unrated for that check.
-- **Cart bar "1 items":** "View Cart • 1 items" on restaurant, pharmacy and water cart bars now uses the singular/plural helper ("1 item", "1 article").
-- **Seen, not fixed:** Home → Recent Orders cards show a blank picture and no store name.
+- **C-B16 found broken on the phone and fixed:** rating ORD-001514 saved ("Rating submitted successfully" in the log), but the form stayed open, because the success toast opened first and `Get.back()` then only closed the toast; a second tap said "You already submitted rating". The form now leaves first, then shows the toast. **Rechecked on the phone (b0c0acd):** one Submit on ORD-001505 saved the rating, returned to My Orders with "Rating submitted successfully", and the Rate button is gone.
+- **Cart bar "1 items":** "View Cart • 1 items" on restaurant, pharmacy and water cart bars now uses the singular/plural helper ("1 item", "1 article"). **Phone:** Pizzeria Atlantique shows "View Cart • 1 item".
+- **Seen, not fixed (new):**
+  - Home → Recent Orders cards show a blank picture and no store name.
+  - Home → "Top Rated Suppliers" (water) opens the restaurant screen ("Chat with Restaurant", "No items available") instead of the water supplier screen (Source Tevragh Zeina).
+  - The rating form for a self-pickup order (ORD-001505) still asks to rate the delivery.
+- **Test data left on dev:** ORD-001520 (cash, cancelled); 5-star ratings on ORD-001514 and ORD-001505.
 - **Still to retest:** C-B10, C-B23 (fix pushed earlier).
