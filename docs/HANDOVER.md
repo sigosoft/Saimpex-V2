@@ -786,4 +786,5 @@ From `SAIMPEX-V2-full-report-4nov.pdf` (gas excluded). Analyzer clean, 38 tests 
 - **C-B21 Rate on rated orders:** app part done 3 Nov; backend flag asked for in [praveensigo/saimpex-backend-new#165](https://github.com/praveensigo/saimpex-backend-new/issues/165) (`is_rated` on order lists and `orderDetails`).
 - **C-B24 laundry balance payment:** still waits on [praveensigo/saimpex-backend-new#163](https://github.com/praveensigo/saimpex-backend-new/issues/163); the button stays "Coming soon".
 - **C-B19 app ID:** decision with Praveen (section above).
+- **Phone:** C-B8 seen on ORD-001505 ("Payment method: SAIMPEX Wallet"). **Not seen on the phone:** C-B3, C-B5/C-B6 (needs a placed order), C-B12/C-B13 (needs a cancel), C-B14, C-B16.
 - **Still to retest:** C-B10, C-B23 (fix pushed earlier).
