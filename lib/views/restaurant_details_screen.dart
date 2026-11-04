@@ -9,6 +9,7 @@ import '../core/storage/session_store.dart';
 import '../models/cart_repository.dart';
 import '../models/food_repository.dart';
 import '../utils/api_language.dart';
+import '../utils/store_labels.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/filter_chip_style.dart';
@@ -19,6 +20,7 @@ import 'chat_screen.dart';
 import 'cart_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 class RestaurantDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> restaurant;
 
@@ -1411,7 +1413,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           children: [
                             Text(
                               'core_restaurant_view_cart'.trParams({
-                                'count': '${controller.cartItemCount.value}',
+                                'items': itemsCountLabel(
+                                  controller.cartItemCount.value,
+                                ),
                               }),
                               style: AppFonts.outfit(
                                 color: Colors.white,
@@ -1422,14 +1426,16 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                             // The store's own delivery time; nothing when the
                             // server sends none.
                             if (_restaurantTime.isNotEmpty)
-                            Text(
-                              'pw_ready_in'.trParams({'time': _restaurantTime}),
-                              style: AppFonts.outfit(
-                                color: const Color(0xFFA59A94),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
+                              Text(
+                                'pw_ready_in'.trParams({
+                                  'time': _restaurantTime,
+                                }),
+                                style: AppFonts.outfit(
+                                  color: const Color(0xFFA59A94),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),

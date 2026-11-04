@@ -109,18 +109,20 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
       // My Orders hides the Rate button for this order from now on.
       await RatedOrders.add(orderId);
       if (!mounted) return;
+      // Without a store to show reviews for, the reviews screen only said
+      // "Reviews are not available here" (C-B16): go back to the list.
+      // Leave before the toast: with a snackbar open, Get.back() only
+      // closes the snackbar and the form stayed on screen.
+      final target = widget.reviewTarget;
+      if (target == null) {
+        Navigator.of(context).pop(true);
+      } else {
+        Get.off(() => RatingReviewsScreen(target: target));
+      }
       showAppToast(
         message.isEmpty ? 'orders_rating_submitted'.tr : message,
         backgroundColor: const Color(0xFF00B25C),
       );
-      // Without a store to show reviews for, the reviews screen only said
-      // "Reviews are not available here" (C-B16): go back to the list.
-      final target = widget.reviewTarget;
-      if (target == null) {
-        Get.back(result: true);
-      } else {
-        Get.off(() => RatingReviewsScreen(target: target));
-      }
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));

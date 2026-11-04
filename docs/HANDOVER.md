@@ -786,5 +786,15 @@ From `SAIMPEX-V2-full-report-4nov.pdf` (gas excluded). Analyzer clean, 38 tests 
 - **C-B21 Rate on rated orders:** app part done 3 Nov; backend flag asked for in [praveensigo/saimpex-backend-new#165](https://github.com/praveensigo/saimpex-backend-new/issues/165) (`is_rated` on order lists and `orderDetails`).
 - **C-B24 laundry balance payment:** still waits on [praveensigo/saimpex-backend-new#163](https://github.com/praveensigo/saimpex-backend-new/issues/163); the button stays "Coming soon".
 - **C-B19 app ID:** decision with Praveen (section above).
-- **Phone:** C-B8 seen on ORD-001505 ("Payment method: SAIMPEX Wallet"). **Not seen on the phone:** C-B3, C-B5/C-B6 (needs a placed order), C-B12/C-B13 (needs a cancel), C-B14, C-B16.
+- **Phone (4 Nov afternoon, test cash order ORD-001520 at Pizzeria Atlantique, then cancelled):**
+  - C-B4: Cash shows "Order Now".
+  - C-B5: success screen reads "Order ORD-001520 · 230 MRU".
+  - C-B6: View Order opened ORD-001520's details.
+  - C-B8: "Payment method: Cash on Delivery" (and "SAIMPEX Wallet" on ORD-001505).
+  - C-B13: no toast on the cancelled screen. C-B12: Back to Home went straight to Home.
+  - C-B14: Home cards show "2.1 Km", "3.1 Km".
+  - C-B3: the wallet had 490 MRU, so the empty-wallet default couldn't be shown; Wallet was the default as expected.
+- **C-B16 found broken on the phone and fixed:** rating ORD-001514 saved ("Rating submitted successfully" in the log), but the form stayed open, because the success toast opened first and `Get.back()` then only closed the toast; a second tap said "You already submitted rating". The form now leaves first, then shows the toast. **Not yet rechecked on the phone** (the phone was unplugged); ORD-001512 is still unrated for that check.
+- **Cart bar "1 items":** "View Cart • 1 items" on restaurant, pharmacy and water cart bars now uses the singular/plural helper ("1 item", "1 article").
+- **Seen, not fixed:** Home → Recent Orders cards show a blank picture and no store name.
 - **Still to retest:** C-B10, C-B23 (fix pushed earlier).
