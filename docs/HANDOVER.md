@@ -758,10 +758,14 @@ Journey E2E-15a (PDF "SAIMPEX V2 journeys, 3 Nov afternoon"): a vendor-rejected 
 - **Home categories:** the Services tile is gone (the grid ends at Local Store); Services opens from the bottom bar's Services button.
 - **Bottom-bar icon weight:** Orders, Cart and Profile are drawn at about 10 % of the icon size, Home was 6.6 %, Bookings and Chat 7.5 %. `Bottom Home.png` was thickened to Orders' weight (9 px dilation at 512 px, same shape) and the drawn icons use 10.2 %. Measured on the phone: every icon about 6 px.
 
-### End-to-end test: search, store chat, courier booking, AI assistant (`fix/e2e-chat-search`, 3 Nov) ✅ / 🟡
-Phone against dev, customer 95200003, English.
-- **Search ✅:** "pizza" → 5 products with store and price → tapping one opens the restaurant. Server note: "meals" (Majlis, `distance_km` 0) also matches "pizza"; that's the server's matching, not the app.
-- **Store chat ✅:** "Chat with Restaurant" → message sent, double ticks, saved on the server (`chat/allConversations`). The vendor's reply is not tested (needs a vendor login). Fixed: the fallback avatar was a pharmacy icon for every store, now a store icon.
-- **Courier booking ✅:** pickup and drop-off pickers, Google place search, quote (Standard 3.5 km 375 MRU / Express 563 MRU), recipient check, Review, cash booking → success → My Orders `#CRYRJKZSVL` → tracking with map and the real PIN. Fixed: the Review screen showed a hard-coded code "345678" ("6-digit") and "10 km"; it now says the PIN appears on the tracking screen after booking (EN/FR/AR), and the fake km is gone. Test order `#CRYRJKZSVL` (cash, 375 MRU) is still open on dev.
-- **AI assistant 🟡:** fixed two app bugs: a plain tap never opened it (only pan callbacks; now `onTap`), and the server's 503 "The assistant is not configured yet" opened the full "We'll be right back" screen (the chatbot request now opts out via `DioClient.ownServiceUnavailable`, so the message shows in the chat). **Real replies need Admin → Integrations (Claude API key) on dev.**
-- Seen once, not reproduced: the assistant button was missing on Home after Courier → View Order → Track → Back → Home tab; it shows after a restart and after switching tabs.
+### Delivery location from Home, Gas entry, courier offers (`fix/courier-offers-gas-entry`, 3 Nov) ✅
+Checked on the phone (dev, English).
+- **Change location from Home:** tapping "Deliver To ⌄" opens the picker. Fixed four problems there:
+  - The picker re-created its controller on every rebuild, so after the keyboard opened, a picked place changed only the label; the map and pin stayed put. The controller now lives for the screen's whole life.
+  - Continue saved the location but only closed the "Location updated" snackbar (`Get.back()` closes a snackbar first), so the picker stayed open. It now leaves first, then shows the toast.
+  - "Current Location" covered the search suggestions. It now shows only at the bottom of the map and is hidden while suggestions are open. The keyboard no longer squeezes the map.
+  - Search is limited to Mauritania (`components=country:mr`).
+  - Result: picking "Las Palmas, Nouakchott" → Continue → Home shows "Las Palmas, Nou…" and reloads stores for that place.
+- **Gas:** new tile in Services → All Service Categories (cylinder icon until there's artwork) → gas suppliers list from the API. Hidden when Admin switches gas off.
+- **Courier offers:** the two sample "30% OFF" banners are hidden (the quote never applied a discount). They come back when the API sends courier sliders: [praveensigo/saimpex-backend-new#164](https://github.com/praveensigo/saimpex-backend-new/issues/164).
+- **C-B23 backend is live on dev:** `orderDetails` returns `cancel_reason`, `cancelled_by`, `cancel_message`.

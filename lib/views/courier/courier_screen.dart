@@ -11,6 +11,7 @@ import 'courier_select_recipient_location_screen.dart';
 import 'courier_delivery_details_screen.dart';
 
 import '../../utils/app_fonts.dart';
+
 class CourierScreen extends StatefulWidget {
   const CourierScreen({super.key});
 
@@ -110,10 +111,10 @@ class _CourierScreenState extends State<CourierScreen> {
     }
   }
 
-  final offers = [
-    'lib/assets/images/courier_banner1.png',
-    'lib/assets/images/courier_banner2.png',
-  ];
+  // Offer banners. The bundled samples ("30% OFF") promised discounts the
+  // quote never applies, so none show until the API sends courier offers
+  // (backend issue: courier sliders).
+  final offers = <String>[];
 
   @override
   Widget build(BuildContext context) {
@@ -173,17 +174,19 @@ class _CourierScreenState extends State<CourierScreen> {
                             ),
                             const SizedBox(height: 12),
                             _buildVehicleCards(),
-                            const SizedBox(height: 22),
-                            Text(
-                              'st_exclusive_offers'.tr,
-                              style: AppFonts.outfit(
-                                color: const Color(0xFF2C2520),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
+                            if (offers.isNotEmpty) ...[
+                              const SizedBox(height: 22),
+                              Text(
+                                'st_exclusive_offers'.tr,
+                                style: AppFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                            _buildOffersList(),
+                              const SizedBox(height: 12),
+                              _buildOffersList(),
+                            ],
                           ],
                         ),
                       ),

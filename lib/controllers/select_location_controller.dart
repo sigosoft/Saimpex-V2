@@ -133,7 +133,9 @@ class SelectLocationController extends GetxController {
         message = await profile.saveAddress(
           addressId: editAddressId,
           label: selectedAddressType.value,
-          address: _landmark.isEmpty ? selectedTitle : selectedTitle.replaceAll(' · $_landmark', ''),
+          address: _landmark.isEmpty
+              ? selectedTitle
+              : selectedTitle.replaceAll(' · $_landmark', ''),
           landmark: _landmark,
           latitude: selectedLatitude,
           longitude: selectedLongitude,
@@ -141,12 +143,14 @@ class SelectLocationController extends GetxController {
         );
       }
       if (_isDisposed) return;
-      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
+      // Leave first: with a snackbar open, Get.back() only closes the
+      // snackbar and the picker stayed on screen.
       if (isInitialSetup || Get.key.currentState?.canPop() != true) {
         Get.offAll(() => const MainShellScreen());
       } else {
         Get.back(result: true);
       }
+      showAppToast(message, backgroundColor: const Color(0xFFFF5216));
     } on ApiException catch (error) {
       if (!_isDisposed) showAppToast(error.message);
     } finally {
@@ -411,6 +415,8 @@ class SelectLocationController extends GetxController {
           'location':
               '${selectedLatitude.toString()},${selectedLongitude.toString()}',
           'radius': '50000',
+          // SAIMPEX delivers in Mauritania only ("Las Palmas" found Spain).
+          'components': 'country:mr',
         },
       );
       final body = asJsonMap(response.data);
