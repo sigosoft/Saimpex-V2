@@ -75,6 +75,8 @@ const storesStrings = <String, Map<String, String>>{
     'st_order_id': 'Order @id',
     'st_order_status': 'Order Status',
     'st_otp_copied': 'OTP copied',
+    'st_pin_after_booking':
+        'After you book, your delivery PIN appears on the tracking screen. Share it with the recipient: the driver asks for it at drop-off.',
     'st_otp_share_hint':
         'Share this 6-digit code with the recipient via call or message to ensure a secure handoff.',
     'st_otp_verification': 'OTP Verification',
@@ -283,6 +285,8 @@ const storesStrings = <String, Map<String, String>>{
     'st_order_id': 'Commande @id',
     'st_order_status': 'Statut de la commande',
     'st_otp_copied': 'Code copié',
+    'st_pin_after_booking':
+        "Après la réservation, votre code de livraison s'affiche sur l'écran de suivi. Communiquez-le au destinataire : le livreur le demande à la remise.",
     'st_otp_share_hint':
         'Partagez ce code à 6 chiffres avec le destinataire par appel ou message pour une remise sécurisée.',
     'st_otp_verification': 'Vérification du code',
@@ -488,6 +492,8 @@ const storesStrings = <String, Map<String, String>>{
     'st_order_id': 'الطلب @id',
     'st_order_status': 'حالة الطلب',
     'st_otp_copied': 'تم نسخ الرمز',
+    'st_pin_after_booking':
+        'بعد الحجز، يظهر رمز التسليم في شاشة التتبع. شاركه مع المستلم: سيطلبه السائق عند التسليم.',
     'st_otp_share_hint':
         'شارك هذا الرمز المكوّن من 6 أرقام مع المستلم عبر مكالمة أو رسالة لضمان تسليم آمن.',
     'st_otp_verification': 'رمز التحقق',

@@ -41,7 +41,11 @@ class ChatbotRepository {
           'latitude': ?latitude,
           'longitude': ?longitude,
         },
-        options: Options(contentType: Headers.jsonContentType),
+        // 503 here means "the assistant is not set up", shown in the chat.
+        options: Options(
+          contentType: Headers.jsonContentType,
+          extra: {DioClient.ownServiceUnavailable: true},
+        ),
       ),
       language,
     );
