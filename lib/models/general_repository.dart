@@ -317,21 +317,31 @@ class GeneralRepository {
     for (final item in raw) {
       final order = asJsonMap(item);
       if (order == null) continue;
-      final name = _localized(order, 'name', language);
+      // homeHub sends vendor_name_<lang>, vendor_image and
+      // items_summary_<lang>; reading name/image/item_name left the cards
+      // blank.
+      final vendorName = _localized(order, 'vendor_name', language);
+      final name = vendorName.isNotEmpty
+          ? vendorName
+          : _localized(order, 'name', language);
+      final summary = _localized(order, 'items_summary', language);
       orders.add({
-        'title': name.isNotEmpty
-            ? name
-            : (order['vendor_name'] ?? order['title'] ?? '').toString(),
+        'title': name.isNotEmpty ? name : (order['title'] ?? '').toString(),
         'rating': order['rating']?.toString() ?? '',
-        'itemPrefix': (order['item_name'] ?? order['menu_name'] ?? '')
-            .toString(),
+        'itemPrefix': summary.isNotEmpty
+            ? summary
+            : (order['item_name'] ?? order['menu_name'] ?? '').toString(),
         'qty': order['quantity'] == null ? '' : 'x${order['quantity']}',
         'itemSuffix': '',
         'date': readableDateTime(order['ordered_at'] ?? order['date']),
         'itemsCount': order['items_count'] == null
             ? ''
             : itemsCountLabel(order['items_count']),
-        'image': ApiConstants.mediaUrl(order['image']?.toString()) ?? '',
+        'image':
+            ApiConstants.mediaUrl(
+              (order['vendor_image'] ?? order['image'])?.toString(),
+            ) ??
+            '',
       });
     }
     return orders;
