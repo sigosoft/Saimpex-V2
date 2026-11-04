@@ -10,6 +10,7 @@ import '../widgets/app_back_button.dart';
 import 'rating_reviews_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 class RateOrderScreen extends StatefulWidget {
   final ReviewTarget? reviewTarget;
 
@@ -112,7 +113,14 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
         message.isEmpty ? 'orders_rating_submitted'.tr : message,
         backgroundColor: const Color(0xFF00B25C),
       );
-      Get.off(() => RatingReviewsScreen(target: widget.reviewTarget));
+      // Without a store to show reviews for, the reviews screen only said
+      // "Reviews are not available here" (C-B16): go back to the list.
+      final target = widget.reviewTarget;
+      if (target == null) {
+        Get.back(result: true);
+      } else {
+        Get.off(() => RatingReviewsScreen(target: target));
+      }
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));

@@ -292,7 +292,12 @@ class GeneralRepository {
         'subtitle': cuisine.isNotEmpty ? cuisine : category,
         'rating': vendor['rating']?.toString() ?? '',
         'time': localizedStoreText(vendor['delivery_time_text']),
-        'dist': distance == null ? '' : kmLabel(distance),
+        // One decimal, like the store lists ("3.88" here vs "3.9" there, C-B14).
+        'dist': distance == null
+            ? ''
+            : kmLabel(
+                double.tryParse('$distance')?.toStringAsFixed(1) ?? distance,
+              ),
         'discount': offerText.isNotEmpty
             ? offerText
             : (offer > 0 ? offLabel(_number(offer)) : ''),
