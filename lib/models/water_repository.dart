@@ -454,7 +454,13 @@ class WaterRepository {
           ? item['vendor_name'].toString().trim()
           : 'core_water_supplier'.tr,
       'statusText': status,
-      'statusLabel': orderStatusLabel(item['status'], status),
+      'statusLabel': orderStatusLabel(
+        item['status'],
+        status,
+        selfPickup:
+            '${item['is_self_pickup']}' == '1' ||
+            item['is_self_pickup'] == true,
+      ),
       'isCancelled': status.toLowerCase().contains('cancel'),
       'isDelivered': status.toLowerCase().contains('deliver'),
       'total': '${total.round()} MRU',

@@ -28,8 +28,11 @@ class OrderTracking {
   int get status => int.tryParse('${_data['status'] ?? ''}') ?? 0;
 
   /// In the app language for codes 1–10; the server's English text otherwise.
-  String get statusText =>
-      orderStatusLabel(_data['status'], '${_data['status_text'] ?? ''}'.trim());
+  String get statusText => orderStatusLabel(
+    _data['status'],
+    '${_data['status_text'] ?? ''}'.trim(),
+    selfPickup: isSelfPickup,
+  );
   bool get isDelivered => status == 9;
   bool get isCancelled => status == 10;
   bool get isFinished => isDelivered || isCancelled;

@@ -102,6 +102,13 @@ class SelectLocationController extends GetxController {
 
   Future<void> onContinuePressed() async {
     if (isUpdatingLocation.value) return;
+    if (!isInServiceCountry(selectedLatitude, selectedLongitude)) {
+      showAppToast(
+        'core_location_outside_service'.tr,
+        backgroundColor: Colors.redAccent,
+      );
+      return;
+    }
     _commitDeliveryAddress();
 
     if (Get.isRegistered<HomeController>()) {
@@ -339,6 +346,17 @@ class SelectLocationController extends GetxController {
 
       if (_pickedLabel != null || _isDisposed) return;
 
+      // A phone outside Mauritania (a tester abroad) must not become the
+      // delivery address: Continue after login saved India (C-B22).
+      if (!isInServiceCountry(position.latitude, position.longitude)) {
+        showAppToast(
+          'core_location_outside_service'.tr,
+          backgroundColor: Colors.redAccent,
+        );
+        _useSavedOrDefault();
+        return;
+      }
+
       final latLng = LatLng(position.latitude, position.longitude);
 
       // Update UI with address lookup
@@ -365,6 +383,26 @@ class SelectLocationController extends GetxController {
       unawaited(_animateMapTo(defaultCenter, 16));
     }
   }
+
+  /// The saved delivery spot when it is in Mauritania, else Nouakchott.
+  void _useSavedOrDefault() {
+    if (!isInServiceCountry(selectedLatitude, selectedLongitude)) {
+      _useDefaultFallback();
+      return;
+    }
+    final saved = LatLng(selectedLatitude, selectedLongitude);
+    updateAddressFromCoordinates(saved.latitude, saved.longitude);
+    if (!_isDisposed && mapController != null) {
+      unawaited(_animateMapTo(saved, 16));
+    }
+  }
+
+  /// SAIMPEX delivers in Mauritania only (rough bounding box of the country).
+  static bool isInServiceCountry(double latitude, double longitude) =>
+      latitude >= 14.6 &&
+      latitude <= 27.4 &&
+      longitude >= -17.2 &&
+      longitude <= -4.7;
 
   // Center camera back to current location
   void centerOnDefaultLocation() {

@@ -638,7 +638,7 @@ class OrderDetailScreen extends StatelessWidget {
       'orders_step_placed'.tr,
       'orders_step_preparing'.tr,
       pickup ? 'orders_step_ready'.tr : 'orders_step_on_the_way'.tr,
-      'orders_step_delivered'.tr,
+      pickup ? 'core_status_9_pickup'.tr : 'orders_step_delivered'.tr,
     ];
     final assets = [
       null,
