@@ -27,9 +27,13 @@ import 'select_location_screen.dart';
 import 'notifications_screen.dart';
 import 'wallet_screen.dart';
 import 'restaurant_details_screen.dart';
+import 'grocery/grocery_details_screen.dart';
+import 'pharmacy/pharmacy_items_screen.dart';
+import 'water/water_supplier_details_screen.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/toast_helper.dart';
+
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
 
@@ -775,6 +779,26 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// homeHub cards carry the vendor id as `id` for every section; the
+  /// grocery, pharmacy and water screens read `name`, and water `vendorId`.
+  void _openStore(String sectionKey, Map<String, dynamic> item) {
+    final store = {...item, 'name': item['title']};
+    switch (sectionKey) {
+      case 'top_grocery':
+        Get.to(() => GroceryDetailsScreen(store: store));
+      case 'trusted_pharmacies':
+        Get.to(() => PharmacyItemsScreen(store: store));
+      case 'top_rated_suppliers':
+        Get.to(
+          () => WaterSupplierDetailsScreen(
+            supplier: {...store, 'vendorId': int.tryParse('${item['id']}')},
+          ),
+        );
+      default:
+        Get.to(() => RestaurantDetailsScreen(restaurant: item));
+    }
+  }
+
   Widget _vendorSection(
     HomeController controller, {
     required String sectionKey,
@@ -805,11 +829,10 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemBuilder: (context, index) {
                 final item = items[index];
-                // homeHub store sections are restaurants: open the store, like
-                // the Food screen's cards (closed ones too, to see the menu).
+                // Open the store in its own screen (closed ones too, to see
+                // the menu); a water supplier opened the restaurant screen.
                 return GestureDetector(
-                  onTap: () =>
-                      Get.to(() => RestaurantDetailsScreen(restaurant: item)),
+                  onTap: () => _openStore(sectionKey, item),
                   child: under30
                       ? _buildUnder30MinCard(controller, item)
                       : _buildRestaurantCard(controller, item),
@@ -1467,7 +1490,9 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: orders.length,
                 itemBuilder: (context, index) {
-                  return FadeSlideIn(child: _buildRecentOrderCard(orders[index]));
+                  return FadeSlideIn(
+                    child: _buildRecentOrderCard(orders[index]),
+                  );
                 },
               ),
             )
