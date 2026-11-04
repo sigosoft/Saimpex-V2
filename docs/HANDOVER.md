@@ -800,6 +800,10 @@ From `SAIMPEX-V2-full-report-4nov.pdf` (gas excluded). Analyzer clean, 38 tests 
 - **C-B14, server part (seen on the phone):** Home cards and store screens show different distances for the same store: Alimentation Tevragh Zeina "3.4 Km" on Home vs "3.09 Km" in the store, Pharmacie Nour "2.2 Km" vs "1.2 Km". Home shows `homeHub`'s `distance_km`; the store screens use their own endpoints. Needs the backend to use one point for both. The grocery store screen now shows one decimal from `distance_km` too.
 - **Home → Recent Orders cards were blank (no picture, no store name):** `homeHub` sends `vendor_name_<lang>`, `vendor_image` and `items_summary_<lang>`; the app read `name_<lang>`, `image` and `item_name`. The cards now show the store name, logo and items.
 - **Rating a self-pickup order asked to rate the delivery:** Rate now asks `orderDetails` for `is_self_pickup` (the order lists don't send it yet, backend #166) and hides the delivery card for self-pickup orders, so no driver rating is sent.
-- These three fixes: analyzer clean, 38 tests pass; **not yet checked on the phone** (it was in use).
+- These three fixes: analyzer clean, 38 tests pass. **Phone (88c1ada):**
+  - Recent Orders shows "Eau Pure Arafat" with its logo, "19 L Jug Refill + Mineral Water…", 3 items, and "Pizzeria Atlantique, Caesar…".
+  - Alimentation Tevragh Zeina shows "3.1 Km" (was "3.09 Km").
+  - Rate on delivery order ORD-001512 calls `orderDetails` and still shows the delivery card (closed without submitting).
+  - The self-pickup case couldn't be shown: the only delivered self-pickup order on 95200021 (ORD-001505) is already rated.
 - **Test data left on dev:** ORD-001520 (cash, cancelled); 5-star ratings on ORD-001514 and ORD-001505.
 - **Still to retest:** C-B10, C-B23 (fix pushed earlier).
