@@ -807,3 +807,11 @@ From `SAIMPEX-V2-full-report-4nov.pdf` (gas excluded). Analyzer clean, 38 tests 
   - The self-pickup case couldn't be shown: the only delivered self-pickup order on 95200021 (ORD-001505) is already rated.
 - **Test data left on dev:** ORD-001520 (cash, cancelled); 5-star ratings on ORD-001514 and ORD-001505.
 - **Still to retest:** C-B10, C-B23 (fix pushed earlier).
+
+### AI assistant: consent before the first message (`feature/ai-assistant-consent`) 🟡 not checked on a phone yet
+Store release checklist: before the first message, say who processes it (Anthropic Claude) and ask for consent (Apple requires disclosure and consent before personal data goes to a third-party AI). No Figma screen, so it's built in the chat screen's own style.
+- Until the customer agrees, the chat screen shows "Before you chat" instead of the chat: the assistant is an AI answered by Claude (Anthropic) through SAIMPEX; it uses their messages and voice transcripts, delivery location, and SAIMPEX orders, wallet and points; don't share passwords, card numbers, codes or health details; AI answers can be wrong. "Read the privacy policy" opens the Admin privacy page. "I agree, start chatting" shows the chat; "Not now" closes the screen.
+- Nothing is sent before consent: the input bar, voice input, quick actions and history button are hidden or disabled, and `_sendMessage` refuses.
+- Texts follow the chat language picked on the welcome sheet (EN/FR/AR, `core_chatbot_consent_*`).
+- Consent is kept on the phone (`lib/utils/ai_assistant_consent.dart`, `ai_assistant_consent_v1`): the API has no consent field, so a new phone or a reinstall asks again. If the backend should record consent (date, version), that needs a new field.
+- Analyzer clean, 39 tests pass (`test/ai_assistant_consent_test.dart`).

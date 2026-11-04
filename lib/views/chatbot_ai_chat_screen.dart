@@ -10,10 +10,13 @@ import '../constants/colors.dart';
 import '../controllers/select_location_controller.dart';
 import '../core/network/api_exception.dart';
 import '../models/chatbot_repository.dart';
+import '../utils/ai_assistant_consent.dart';
 import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
+import 'terms_conditions_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 /// The SAIMPEX assistant (Claude, via the backend; API §6.19). The customer
 /// types or speaks; the server answers about SAIMPEX and their own orders,
 /// wallet and points. It is read-only: it never changes a cart or places an
@@ -51,6 +54,9 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     _LangOption(code: 'AR', label: 'العربية', speechLocale: 'ar_SA'),
   ];
 
+  /// Null while loading; nothing is sent until the customer agreed.
+  bool? _consented;
+
   bool get _hasChat => _messages.isNotEmpty || _sending;
 
   @override
@@ -58,6 +64,15 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     super.initState();
     _languageCode = widget.languageCode;
     _resetIdleTimer();
+    AiAssistantConsent.load().then((given) {
+      if (mounted) setState(() => _consented = given);
+    });
+  }
+
+  Future<void> _agree() async {
+    _resetIdleTimer();
+    await AiAssistantConsent.give();
+    if (mounted) setState(() => _consented = true);
   }
 
   _LangOption get _language => _languages.firstWhere(
@@ -89,7 +104,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     bool viaVoice = false,
   }) async {
     final text = (preset ?? _messageController.text).trim();
-    if (text.isEmpty || _sending) return;
+    if (text.isEmpty || _sending || _consented != true) return;
     if (!Get.isRegistered<ChatbotRepository>()) return;
 
     _resetIdleTimer();
@@ -221,9 +236,9 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
   }
 
   void _showSnack(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message, style: AppFonts.outfit())),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message, style: AppFonts.outfit())));
   }
 
   void _scrollToBottom() {
@@ -475,12 +490,19 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                             ),
                           ),
                         ),
-                      _hasChat ? _buildChatList() : _buildEmptyState(),
+                      if (_consented == null)
+                        const SizedBox.shrink()
+                      else if (_consented == false)
+                        _buildConsent()
+                      else
+                        _hasChat ? _buildChatList() : _buildEmptyState(),
                     ],
                   ),
                 ),
-                _buildQuickActions(),
-                _buildInputBar(),
+                if (_consented == true) ...[
+                  _buildQuickActions(),
+                  _buildInputBar(),
+                ],
               ],
             ),
           ),
@@ -522,7 +544,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                 AppBackButton(onTap: () => Navigator.of(context).pop()),
                 const Spacer(),
                 GestureDetector(
-                  onTap: _sending ? null : _showHistory,
+                  onTap: _sending || _consented != true ? null : _showHistory,
                   child: Container(
                     width: 36,
                     height: 36,
@@ -623,6 +645,153 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
               fontSize: 14.5,
               fontWeight: FontWeight.w400,
               height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Shown instead of the chat until the customer agrees: who answers
+  /// (Claude by Anthropic, through SAIMPEX), what is sent, and what not to
+  /// share.
+  Widget _buildConsent() {
+    Widget point(IconData icon, String key) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.primaryOrange.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppColors.primaryOrange, size: 17),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _inChatLanguage(key),
+              style: AppFonts.outfit(
+                color: const Color(0xFF3A3A3A),
+                fontSize: 13.5,
+                height: 1.45,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: Column(
+        children: [
+          Image.asset(
+            'lib/assets/images/chatbot_screen.png',
+            width: 110,
+            height: 110,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _inChatLanguage('core_chatbot_consent_title'),
+            textAlign: TextAlign.center,
+            style: AppFonts.outfit(
+              color: const Color(0xFF111111),
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                point(Icons.smart_toy_outlined, 'core_chatbot_consent_who'),
+                point(Icons.receipt_long_outlined, 'core_chatbot_consent_data'),
+                point(Icons.lock_outline_rounded, 'core_chatbot_consent_avoid'),
+                point(Icons.info_outline_rounded, 'core_chatbot_consent_check'),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () => Get.to(
+              () => TermsConditionsScreen(
+                title: 'core_account_privacy'.tr,
+                isPrivacyPolicy: true,
+              ),
+            ),
+            child: Text(
+              _inChatLanguage('core_chatbot_consent_privacy'),
+              style: AppFonts.outfit(
+                color: AppColors.primaryOrange,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.primaryOrange,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: _agree,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Text(
+                _inChatLanguage('core_chatbot_consent_agree'),
+                style: AppFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: const Color(0xFFEAD8C9)),
+              ),
+              child: Text(
+                _inChatLanguage('core_chatbot_consent_not_now'),
+                style: AppFonts.outfit(
+                  color: AppColors.primaryOrange,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
         ],
