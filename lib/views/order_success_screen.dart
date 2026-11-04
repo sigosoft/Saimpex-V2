@@ -2,20 +2,75 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import '../core/network/api_exception.dart';
+import '../models/order_repository.dart';
 import '../navigation/bottom_nav_router.dart';
+import '../utils/api_language.dart';
+import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
+import 'order_detail_screen.dart';
+import 'pharmacy/pharmacy_item_order_detail_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 class OrderSuccessScreen extends StatelessWidget {
   /// Store points this order will earn once delivered (0 hides the line).
   final int pointsToEarn;
 
-  const OrderSuccessScreen({super.key, this.pointsToEarn = 0});
+  /// The placed order, shown under the title and opened by View order
+  /// (C-B5, C-B6). Without an id, View order opens My Orders.
+  final int? orderId;
+  final String orderCode;
+
+  /// "350 MRU", or '' to hide the line.
+  final String amount;
+
+  /// Food orders (catalog checkout) open the food order detail; other carts
+  /// open the shared order detail, as in My Orders.
+  final bool catalog;
+  final bool selfPickup;
+
+  const OrderSuccessScreen({
+    super.key,
+    this.pointsToEarn = 0,
+    this.orderId,
+    this.orderCode = '',
+    this.amount = '',
+    this.catalog = false,
+    this.selfPickup = false,
+  });
 
   // The cart tab replaces the shell with this screen (Get.off), so popping to
   // the first route would stay here; returnToShell rebuilds the shell then.
   static void _backToHome() =>
       BottomNavRouter.returnToShell(tabIndex: HomeController.navHome);
+
+  Future<void> _viewOrder() async {
+    BottomNavRouter.returnToShell(tabIndex: HomeController.navOrders);
+    final id = orderId;
+    if (id == null) return;
+    final code = orderCode.isEmpty ? '$id' : orderCode;
+    if (!catalog) {
+      Get.to(
+        () => PharmacyItemOrderDetailScreen(
+          orderId: code,
+          apiOrderId: id,
+          isDelivery: !selfPickup,
+        ),
+      );
+      return;
+    }
+    if (!Get.isRegistered<OrderRepository>()) return;
+    try {
+      final detail = await Get.find<OrderRepository>().catalogOrderDetail(
+        orderId: id,
+        language: apiLanguageCode(),
+      );
+      Get.to(() => OrderDetailScreen(orderId: code, detail: detail));
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +130,22 @@ class OrderSuccessScreen extends StatelessWidget {
                         ),
                         textAlign: TextAlign.center,
                       ),
+                      if (orderCode.isNotEmpty || amount.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          [
+                            if (orderCode.isNotEmpty)
+                              'orders_order_code'.trParams({'code': orderCode}),
+                            if (amount.isNotEmpty) amount,
+                          ].join(' · '),
+                          style: AppFonts.outfit(
+                            color: const Color(0xFF2C2520),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                       if (pointsToEarn > 0) ...[
                         const SizedBox(height: 8),
                         // Points are credited only after delivery (scope §4).
@@ -127,9 +198,7 @@ class OrderSuccessScreen extends StatelessWidget {
                     const SizedBox(width: 14),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => BottomNavRouter.returnToShell(
-                          tabIndex: HomeController.navOrders,
-                        ),
+                        onTap: _viewOrder,
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(

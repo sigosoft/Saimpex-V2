@@ -23,6 +23,7 @@ import 'services/home_cleaning_booking_detail_screen.dart';
 import 'services/laundry_booking_detail_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 class MyBookingsScreen extends StatefulWidget {
   final bool showBottomNav;
 
@@ -124,9 +125,17 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     final estimateKg = number(row['estimate_kg']);
     final actualKg = number(row['actual_kg']);
     final balance = number(row['additional_payment']) ?? 0;
+    // additional_payment stays after a cash booking is paid in full (C-B25);
+    // the server's pending flag says whether anything is still owed.
+    final pending = text(row['additional_payment_pending']);
+    final owed = pending != 'false' && pending != '0';
     return {
       'hasBalanceDue':
-          balance > 0 && status != 10 && estimateKg != null && actualKg != null,
+          owed &&
+          balance > 0 &&
+          status != 10 &&
+          estimateKg != null &&
+          actualKg != null,
       if (estimateKg != null) ...{
         'estimatedWeight': kg(estimateKg),
         'estimatedPrice': mru(estimateKg * rate),
@@ -272,7 +281,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           separatorBuilder: (_, _) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
-                            return FadeSlideIn(child: _buildBookingCard(list[index]));
+                            return FadeSlideIn(
+                              child: _buildBookingCard(list[index]),
+                            );
                           },
                         ),
                 ),

@@ -134,6 +134,10 @@ class _LaundryBookingDetailScreenState
 
   double get _balanceDue {
     if (_detail?.isCancelled ?? true) return 0;
+    // additional_payment stays after a cash booking is paid in full (C-B25);
+    // the server's pending flag says whether anything is still owed.
+    final pending = _raw('additional_payment_pending');
+    if (pending == 'false' || pending == '0') return 0;
     return _number('additional_payment') ?? 0;
   }
 

@@ -238,6 +238,8 @@ const coreStrings = <String, Map<String, String>>{
     'core_location_fetching_gps': 'Fetching GPS coordinates...',
     'core_location_loading_current': 'Loading current location...',
     'core_location_permission_denied': 'Location permission denied.',
+    'core_location_outside_service':
+        'SAIMPEX delivers in Mauritania only. Pick your address on the map.',
     'core_location_permission_forever':
         'Location permissions are permanently denied. Please enable them in settings.',
     'core_location_search_hint': 'Search for area, street name.....',
@@ -358,7 +360,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_restaurant_sold_out': 'SOLD OUT',
     'core_restaurant_unable_to_add': 'Unable to add this item',
     'core_restaurant_veg': 'Veg',
-    'core_restaurant_view_cart': 'View Cart • @count items',
+    'core_restaurant_view_cart': 'View Cart • @items',
     'core_rewards_apply': 'Apply',
     'core_rewards_basket_value': '@amount MRU basket',
     'core_rewards_claim': 'Claim @reward',
@@ -459,6 +461,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_status_7': 'Picked up',
     'core_status_8': 'On the way',
     'core_status_9': 'Delivered',
+    'core_status_9_pickup': 'Picked up',
     'core_status_10': 'Cancelled',
     'core_cancel_reason': 'Reason: @reason',
     'core_cancel_by_store': 'Cancelled by the store',
@@ -725,6 +728,8 @@ const coreStrings = <String, Map<String, String>>{
     'core_location_fetching_gps': 'Récupération des coordonnées GPS...',
     'core_location_loading_current': 'Chargement de votre position...',
     'core_location_permission_denied': 'Autorisation de localisation refusée.',
+    'core_location_outside_service':
+        'SAIMPEX livre uniquement en Mauritanie. Choisissez votre adresse sur la carte.',
     'core_location_permission_forever':
         'Les autorisations de localisation sont définitivement refusées. Veuillez les activer dans les paramètres.',
     'core_location_search_hint': 'Rechercher un quartier, une rue...',
@@ -850,7 +855,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_restaurant_sold_out': 'ÉPUISÉ',
     'core_restaurant_unable_to_add': 'Impossible d\'ajouter cet article',
     'core_restaurant_veg': 'Végétarien',
-    'core_restaurant_view_cart': 'Voir le panier • @count articles',
+    'core_restaurant_view_cart': 'Voir le panier • @items',
     'core_rewards_apply': 'Appliquer',
     'core_rewards_basket_value': 'Panier de @amount MRU',
     'core_rewards_claim': 'Obtenir @reward',
@@ -958,6 +963,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_status_7': 'Récupérée',
     'core_status_8': 'En route',
     'core_status_9': 'Livrée',
+    'core_status_9_pickup': 'Retirée',
     'core_status_10': 'Annulée',
     'core_cancel_reason': 'Motif : @reason',
     'core_cancel_by_store': 'Annulée par le magasin',
@@ -1207,6 +1213,8 @@ const coreStrings = <String, Map<String, String>>{
     'core_location_fetching_gps': 'جارٍ جلب إحداثيات GPS...',
     'core_location_loading_current': 'جارٍ تحميل موقعك الحالي...',
     'core_location_permission_denied': 'تم رفض إذن الموقع.',
+    'core_location_outside_service':
+        'تقدّم SAIMPEX خدماتها في موريتانيا فقط. اختر عنوانك على الخريطة.',
     'core_location_permission_forever':
         'تم رفض أذونات الموقع نهائيًا. يرجى تفعيلها من الإعدادات.',
     'core_location_search_hint': 'ابحث عن حي أو اسم شارع...',
@@ -1325,7 +1333,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_restaurant_sold_out': 'نفدت الكمية',
     'core_restaurant_unable_to_add': 'تعذّرت إضافة هذا الصنف',
     'core_restaurant_veg': 'نباتي',
-    'core_restaurant_view_cart': 'عرض السلة • الأصناف: @count',
+    'core_restaurant_view_cart': 'عرض السلة • @items',
     'core_rewards_apply': 'تطبيق',
     'core_rewards_basket_value': 'سلة بقيمة @amount أوقية',
     'core_rewards_claim': 'احصل على @reward',
@@ -1428,6 +1436,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_status_7': 'تم الاستلام',
     'core_status_8': 'في الطريق',
     'core_status_9': 'تم التوصيل',
+    'core_status_9_pickup': 'تم الاستلام',
     'core_status_10': 'ملغى',
     'core_cancel_reason': 'السبب: @reason',
     'core_cancel_by_store': 'ألغى المتجر الطلب',

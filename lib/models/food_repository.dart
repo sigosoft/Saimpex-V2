@@ -261,6 +261,8 @@ class FoodRepository {
       'statusLabel': orderStatusLabel(
         item['status'],
         statusText.isEmpty ? 'Order' : statusText,
+        selfPickup:
+            item['is_self_pickup'] == 1 || item['is_self_pickup'] == true,
       ),
       'isCancelled': lower.contains('cancel'),
       'isDelivered': lower.contains('deliver'),

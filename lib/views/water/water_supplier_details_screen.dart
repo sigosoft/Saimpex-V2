@@ -8,6 +8,7 @@ import '../../core/network/api_exception.dart';
 import '../../models/cart_repository.dart';
 import '../../models/water_repository.dart';
 import '../../utils/api_language.dart';
+import '../../utils/store_labels.dart';
 import '../../utils/toast_helper.dart';
 import '../chat_screen.dart';
 import '../cart_screen.dart';
@@ -18,6 +19,7 @@ import '../../widgets/app_back_button.dart';
 import '../widgets/auto_slide_network_images.dart';
 
 import '../../utils/app_fonts.dart';
+
 class WaterSupplierDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> supplier;
 
@@ -701,7 +703,9 @@ class _WaterSupplierDetailsScreenState
                         : 1;
                     final displayCount = count > 0 ? count : 1;
                     return Text(
-                      'pw_view_cart_items'.trParams({'count': '$displayCount'}),
+                      'pw_view_cart_items'.trParams({
+                        'items': itemsCountLabel(displayCount),
+                      }),
                       style: AppFonts.outfit(
                         color: Colors.white,
                         fontSize: 13,

@@ -315,9 +315,14 @@ class GroceryRepository {
                     ? minLabel(raw['avg_preparation_minutes'])
                     : ''));
 
-    final dist = raw['distance']?.toString().trim().isNotEmpty == true
+    // One decimal from distance_km, like the other store screens ("3.09 Km"
+    // here, C-B14); the server's text only when there is no number.
+    final km = double.tryParse('${raw['distance_km'] ?? ''}');
+    final dist = km != null
+        ? kmLabel(km.toStringAsFixed(1))
+        : raw['distance']?.toString().trim().isNotEmpty == true
         ? localizedStoreText(raw['distance'])
-        : kmLabel(raw['distance_km'] ?? 0);
+        : kmLabel(0);
 
     final discount = raw['offer_text']?.toString().trim().isNotEmpty == true
         ? localizedStoreText(raw['offer_text'])
@@ -808,6 +813,8 @@ class GroceryRepository {
       'statusLabel': orderStatusLabel(
         item['status'],
         statusText.isEmpty ? 'Order' : statusText,
+        selfPickup:
+            item['is_self_pickup'] == 1 || item['is_self_pickup'] == true,
       ),
       'isCancelled': lower.contains('cancel'),
       'isDelivered': lower.contains('deliver'),

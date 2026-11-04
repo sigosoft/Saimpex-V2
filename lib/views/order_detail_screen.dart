@@ -11,6 +11,8 @@ import 'widgets/scheduled_for_banner.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/api_language.dart';
+import '../utils/wallet_balance.dart';
+
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
 
@@ -176,47 +178,47 @@ class OrderDetailScreen extends StatelessWidget {
                               ],
                             )
                           else
-                          // Custom Stepper Progress Row
-                          Stack(
-                            alignment: Alignment.topCenter,
-                            children: [
-                              // Connector Lines
-                              Positioned(
-                                top: 18,
-                                left: 30,
-                                right: 30,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        height: 2,
-                                        color: const Color(0xFFFF5216),
+                            // Custom Stepper Progress Row
+                            Stack(
+                              alignment: Alignment.topCenter,
+                              children: [
+                                // Connector Lines
+                                Positioned(
+                                  top: 18,
+                                  left: 30,
+                                  right: 30,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          height: 2,
+                                          color: const Color(0xFFFF5216),
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        height: 2,
-                                        color: const Color(0xFFFF5216),
+                                      Expanded(
+                                        child: Container(
+                                          height: 2,
+                                          color: const Color(0xFFFF5216),
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        height: 2,
-                                        color: const Color(0xFFEAD8C9),
+                                      Expanded(
+                                        child: Container(
+                                          height: 2,
+                                          color: const Color(0xFFEAD8C9),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              // Nodes
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: _stepperNodes(isSelfPickup),
-                              ),
-                            ],
-                          ),
+                                // Nodes
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: _stepperNodes(isSelfPickup),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     ),
@@ -413,6 +415,13 @@ class OrderDetailScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 14),
+                          if (_paymentMethod.isNotEmpty) ...[
+                            _buildPaymentRow(
+                              'orders_payment_method'.tr,
+                              _paymentMethod,
+                            ),
+                            const SizedBox(height: 8),
+                          ],
                           _buildPaymentRow(
                             'orders_item_total'.tr,
                             _amount('sub_total', ''),
@@ -602,6 +611,17 @@ class OrderDetailScreen extends StatelessWidget {
         '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
   }
 
+  /// How the order is paid, from the numeric payment_type (C-B8); '' when
+  /// the server sent none.
+  String get _paymentMethod =>
+      switch ('${detail['payment_type'] ?? ''}'.trim()) {
+        paymentTypeCash => 'orders_cash_on_delivery'.tr,
+        paymentTypeOnline => 'svc_online_payment'.tr,
+        paymentTypeWallet => 'wallet_title'.tr,
+        paymentTypePayAfterDelivery => 'pad_option'.tr,
+        _ => '',
+      };
+
   /// payment_status 2 = paid; null when the server didn't send it.
   bool? get _paid {
     final status = '${detail['payment_status'] ?? ''}'.trim();
@@ -638,7 +658,7 @@ class OrderDetailScreen extends StatelessWidget {
       'orders_step_placed'.tr,
       'orders_step_preparing'.tr,
       pickup ? 'orders_step_ready'.tr : 'orders_step_on_the_way'.tr,
-      'orders_step_delivered'.tr,
+      pickup ? 'core_status_9_pickup'.tr : 'orders_step_delivered'.tr,
     ];
     final assets = [
       null,
@@ -870,10 +890,7 @@ class OrderDetailScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppFonts.outfit(
-            color: const Color(0xFFA59A94),
-            fontSize: 12,
-          ),
+          style: AppFonts.outfit(color: const Color(0xFFA59A94), fontSize: 12),
         ),
         Text(
           value,

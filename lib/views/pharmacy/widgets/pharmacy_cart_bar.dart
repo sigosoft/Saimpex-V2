@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../utils/app_fonts.dart';
+import '../../../utils/store_labels.dart';
+
 class PharmacyCartBar extends StatelessWidget {
   final String price;
 
@@ -60,7 +62,9 @@ class PharmacyCartBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'pw_view_cart_items'.trParams({'count': '$count'}),
+                    'pw_view_cart_items'.trParams({
+                      'items': itemsCountLabel(count),
+                    }),
                     style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,

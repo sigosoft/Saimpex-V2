@@ -6,6 +6,7 @@ import '../../controllers/home_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/water_repository.dart';
 import '../../utils/api_language.dart';
+import '../../utils/store_labels.dart';
 import '../../utils/toast_helper.dart';
 import '../cart_screen.dart';
 import '../chat_screen.dart';
@@ -14,6 +15,7 @@ import 'widgets/water_product_card.dart';
 import 'widgets/water_product_details_sheet.dart';
 
 import '../../utils/app_fonts.dart';
+
 class WaterSupplierScreen extends StatefulWidget {
   final Map<String, dynamic> supplier;
 
@@ -717,7 +719,9 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'pw_view_cart_items'.trParams({'count': '1'}),
+                    'pw_view_cart_items'.trParams({
+                      'items': itemsCountLabel(1),
+                    }),
                     style: AppFonts.outfit(
                       color: Colors.white,
                       fontSize: 13,
