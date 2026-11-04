@@ -15,6 +15,7 @@ import '../../utils/payment_methods.dart';
 import '../../widgets/no_payment_method_note.dart';
 
 import '../../utils/app_fonts.dart';
+
 class CourierReviewBookingScreen extends StatefulWidget {
   final String pickupAddress;
   final String dropOffAddress;
@@ -575,7 +576,7 @@ class _CourierReviewBookingScreenState
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'st_otp_share_hint'.tr,
+                  'st_pin_after_booking'.tr,
                   style: AppFonts.outfit(
                     color: const Color(0xFF7A6A60),
                     fontSize: 11,
@@ -585,39 +586,6 @@ class _CourierReviewBookingScreenState
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: CustomPaint(
-              painter: _DashedBorderPainter(
-                color: const Color(0xFFD9D0C8),
-                borderRadius: 24,
-              ),
-              child: Container(
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(6, (index) {
-                    const digits = ['3', '4', '5', '6', '7', '8'];
-                    return Padding(
-                      padding: EdgeInsetsDirectional.only(
-                        end: index == 5 ? 0 : 10,
-                      ),
-                      child: Text(
-                        digits[index],
-                        style: AppFonts.outfit(
-                          color: const Color(0xFFFF5216),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-            ),
           ),
         ],
       ),
@@ -681,24 +649,6 @@ class _CourierReviewBookingScreenState
                 ),
               ],
             ),
-          ),
-          Column(
-            children: [
-              const Icon(
-                Icons.location_on_rounded,
-                color: Color(0xFFE03A3A),
-                size: 18,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'st_km'.trParams({'km': '10'}),
-                style: AppFonts.outfit(
-                  color: const Color(0xFF7A6A60),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -1048,10 +998,7 @@ class _CourierReviewBookingScreenState
                 children: [
                   Text(
                     'st_points_discount'.tr,
-                    style: AppFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
+                    style: AppFonts.outfit(color: Colors.white, fontSize: 12),
                   ),
                   Text(
                     '-${'mru'.trParams({'amount': '50'})}',
@@ -1178,46 +1125,5 @@ class _VerticalDashedLinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _VerticalDashedLinePainter oldDelegate) {
     return oldDelegate.color != color;
-  }
-}
-
-class _DashedBorderPainter extends CustomPainter {
-  final Color color;
-  final double borderRadius;
-
-  _DashedBorderPainter({required this.color, this.borderRadius = 24});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
-
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Radius.circular(borderRadius),
-    );
-
-    final path = Path()..addRRect(rrect);
-    const dashLength = 4.0;
-    const gap = 3.0;
-
-    for (final metric in path.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        canvas.drawPath(
-          metric.extractPath(distance, distance + dashLength),
-          paint,
-        );
-        distance += dashLength + gap;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedBorderPainter oldDelegate) {
-    return oldDelegate.color != color ||
-        oldDelegate.borderRadius != borderRadius;
   }
 }
