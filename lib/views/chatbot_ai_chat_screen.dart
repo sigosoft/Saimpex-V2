@@ -516,96 +516,102 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: SizedBox(
         height: 44,
-        child: Stack(
-          alignment: Alignment.center,
+        // One row: the title was centred on a layer of its own, so the
+        // history and language buttons covered "Saimpex Ai".
+        child: Row(
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'lib/assets/images/chatbot.png',
-                  width: 28,
-                  height: 28,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Saimpex Ai',
-                  style: AppFonts.outfit(
-                    color: const Color(0xFF1A1A1A),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+            AppBackButton(onTap: () => Navigator.of(context).pop()),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'lib/assets/images/chatbot.png',
+                    width: 28,
+                    height: 28,
+                    fit: BoxFit.contain,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'Saimpex Ai',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppFonts.outfit(
+                        color: const Color(0xFF1A1A1A),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Row(
-              children: [
-                AppBackButton(onTap: () => Navigator.of(context).pop()),
-                const Spacer(),
-                GestureDetector(
-                  onTap: _sending || _consented != true ? null : _showHistory,
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    margin: const EdgeInsetsDirectional.only(end: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.primaryOrange.withValues(alpha: 0.45),
-                        width: 1.1,
-                      ),
+            const SizedBox(width: 8),
+            // Past chats come from the server: hidden until consent.
+            if (_consented == true)
+              GestureDetector(
+                onTap: _sending ? null : _showHistory,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  margin: const EdgeInsetsDirectional.only(end: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.primaryOrange.withValues(alpha: 0.45),
+                      width: 1.1,
                     ),
-                    child: const Icon(
-                      Icons.history_rounded,
+                  ),
+                  child: const Icon(
+                    Icons.history_rounded,
+                    color: AppColors.primaryOrange,
+                    size: 18,
+                  ),
+                ),
+              ),
+            GestureDetector(
+              onTap: _showLanguagePicker,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppColors.primaryOrange.withValues(alpha: 0.45),
+                    width: 1.1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.translate_rounded,
                       color: AppColors.primaryOrange,
-                      size: 18,
+                      size: 15,
                     ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: _showLanguagePicker,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.primaryOrange.withValues(alpha: 0.45),
-                        width: 1.1,
+                    const SizedBox(width: 4),
+                    Text(
+                      _language.label,
+                      style: AppFonts.outfit(
+                        color: AppColors.primaryOrange,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.translate_rounded,
-                          color: AppColors.primaryOrange,
-                          size: 15,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _language.label,
-                          style: AppFonts.outfit(
-                            color: AppColors.primaryOrange,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.primaryOrange,
-                          size: 16,
-                        ),
-                      ],
+                    const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: AppColors.primaryOrange,
+                      size: 16,
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -685,6 +691,17 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
       ),
     );
 
+    // The notice is in the chat language, which can differ from the app's:
+    // Arabic must read right to left even when the app is in English.
+    return Directionality(
+      textDirection: _languageCode == 'AR'
+          ? TextDirection.rtl
+          : TextDirection.ltr,
+      child: _consentBody(point),
+    );
+  }
+
+  Widget _consentBody(Widget Function(IconData, String) point) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),

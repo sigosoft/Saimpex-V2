@@ -815,3 +815,12 @@ Store release checklist: before the first message, say who processes it (Anthrop
 - Texts follow the chat language picked on the welcome sheet (EN/FR/AR, `core_chatbot_consent_*`).
 - Consent is kept on the phone (`lib/utils/ai_assistant_consent.dart`, `ai_assistant_consent_v1`): the API has no consent field, so a new phone or a reinstall asks again. If the backend should record consent (date, version), that needs a new field.
 - Analyzer clean, 39 tests pass (`test/ai_assistant_consent_test.dart`).
+- **Phone (vivo V2239, dev, first build):** the notice shows in English and Arabic; "Read the privacy policy" opens the privacy page; no input bar before consent.
+- **Fixed after the phone check:**
+  - Arabic was laid out left to right when the app itself is in English, and lines starting with "SAIMPEX" came out in the wrong order. The notice now follows the chat language's direction.
+  - The history button showed (disabled) before consent; it's hidden now.
+  - **Header title "Saimpex Ai" was covered** by the history and language buttons on every chat screen (it was centred on a layer of its own). The header is now one row: back, title centred in the space left (shortened with "…" if needed), history, language.
+  - These three not yet seen on the phone (it was in use).
+- **Noticed, not changed:**
+  - The Admin privacy policy text doesn't mention the AI assistant or Anthropic; the store checklist asks for that (Admin → CMS).
+  - When the floating assistant head is resting (5 s after Home opens), the first tap only wakes it and a second tap opens it; customers may think the first tap did nothing.
