@@ -8,6 +8,7 @@ import '../utils/toast_helper.dart';
 import '../views/order_cancelled_success_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 /// [orderId] is the order code shown to the customer; [apiOrderId] is the
 /// numeric id the cancel API needs. Without [onConfirm] the sheet cancels
 /// [apiOrderId] itself. The success screen only opens once the cancel succeeds.
@@ -341,13 +342,11 @@ Future<bool> _cancelOrderById(int? orderId) async {
     return false;
   }
   try {
-    final message = await Get.find<OrderRepository>().cancelOrder(
+    // No success toast: the cancelled screen that opens next says so, and
+    // the toast covered its Back to Home button (C-B12, C-B13).
+    await Get.find<OrderRepository>().cancelOrder(
       orderId: orderId,
       language: apiLanguageCode(),
-    );
-    showAppToast(
-      message.isEmpty ? 'core_cancel_order_done'.tr : message,
-      backgroundColor: const Color(0xFFFF5216),
     );
     return true;
   } on ApiException catch (error) {

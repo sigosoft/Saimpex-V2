@@ -769,3 +769,41 @@ Checked on the phone (dev, English).
 - **Gas:** new tile in Services → All Service Categories (cylinder icon until there's artwork) → gas suppliers list from the API. Hidden when Admin switches gas off.
 - **Courier offers:** the two sample "30% OFF" banners are hidden (the quote never applied a discount). They come back when the API sends courier sliders: [praveensigo/saimpex-backend-new#164](https://github.com/praveensigo/saimpex-backend-new/issues/164).
 - **C-B23 backend is live on dev:** `orderDetails` returns `cancel_reason`, `cancelled_by`, `cancel_message`.
+
+### Test report 4 Nov: Sharvin's open items (`fix/test-report-4nov`, [PR #44](https://github.com/sigosoft/Saimpex-V2/pull/44)) ✅
+From `SAIMPEX-V2-full-report-4nov.pdf` (gas excluded). Analyzer clean, 38 tests pass (`test/test_report_4nov_test.dart`). Checked on vivo V2239, Android 15, debug build, dev, English, as test customer 95200021.
+- **C-B25 delivered laundry still "Pay 120 MRU":** dev returns ORD-001499 as `status 9` "Delivered" (the "Waiting for Pickup" was the server's status at test time) with `additional_payment: 120` but `additional_payment_pending: false` (backend B-12). The app showed the balance from `additional_payment` alone. My Bookings and the laundry booking detail now hide the balance and Pay when the server says nothing is pending. **Phone:** LNX5TVFV shows Completed, 300 MRU, no Pay button.
+- **C-B26 self-pickup shows "Delivered":** a finished self-pickup order now says "Picked up" / "Retirée" / "تم الاستلام" (`core_status_9_pickup`) in the order detail stepper, tracking, and the food, grocery and water order lists. **Phone:** ORD-001505 details show "Self Pickup … Picked up". The My Orders card still says "Delivery · Delivered", because `orders/restaurant`, `groceryOrdersList` and `waterOrdersList` don't send `is_self_pickup`; the app already reads it. **Pickup code:** the backend has none (`delivery_pin` is null for self-pickup by design), and the scope doesn't define one, so this needs a product decision. Both are in [praveensigo/saimpex-backend-new#166](https://github.com/praveensigo/saimpex-backend-new/issues/166).
+- **C-B22 delivery address switched to the phone's GPS (India):** after every login the location picker opens in first-setup mode and moves to the phone's GPS; Continue then saved India to the profile. A GPS position outside Mauritania is now ignored ("SAIMPEX delivers in Mauritania only…", EN/FR/AR) and the picker stays on the saved spot (or Nouakchott); Continue refuses a spot outside Mauritania. **Phone (in India, location allowed):** after login the picker stayed on La Capitale, Nouakchott; Current Location showed the message and didn't move. 95200021's profile address is Nouakchott again on dev.
+- **C-B3 wallet chosen at 0 MRU:** with an empty wallet the cart starts on Cash (Online when cash isn't offered); an empty wallet is the last fallback.
+- **C-B4 "Pay 600 MRU" for cash:** already fixed in the 3 Nov client build ("Order now" for cash and Pay After Delivery).
+- **C-B5 / C-B6 confirmation:** the success screen shows "Order ORD-… · 350 MRU", and View order opens that order's details (food: food detail; other carts: the shared detail) on top of My Orders.
+- **C-B8 payment method in order details:** the food order detail shows a "Payment method" row (Cash on Delivery, Online payment, SAIMPEX Wallet, Pay After Delivery) from the numeric `payment_type`.
+- **C-B12 / C-B13 after cancelling:** the "order cancelled" toast is gone (the cancelled screen says it), so it no longer covers Back to Home; errors still show a toast.
+- **C-B14 distance:** Home showed the raw `distance_km` ("3.88 km") while lists round to one decimal; Home rounds now too. A 3.0 vs 3.7 gap can only come from the server (different coordinates per endpoint), not checked.
+- **C-B16 "Reviews are not available here" after rating:** without a store to show, rating now goes back to the list instead of opening an empty reviews screen.
+- **C-B17 rating tags in the comment:** needs an API field first: [praveensigo/saimpex-backend-new#167](https://github.com/praveensigo/saimpex-backend-new/issues/167).
+- **C-B21 Rate on rated orders:** app part done 3 Nov; backend flag asked for in [praveensigo/saimpex-backend-new#165](https://github.com/praveensigo/saimpex-backend-new/issues/165) (`is_rated` on order lists and `orderDetails`).
+- **C-B24 laundry balance payment:** still waits on [praveensigo/saimpex-backend-new#163](https://github.com/praveensigo/saimpex-backend-new/issues/163); the button stays "Coming soon".
+- **C-B19 app ID:** decision with Praveen (section above).
+- **Phone (4 Nov afternoon, test cash order ORD-001520 at Pizzeria Atlantique, then cancelled):**
+  - C-B4: Cash shows "Order Now".
+  - C-B5: success screen reads "Order ORD-001520 · 230 MRU".
+  - C-B6: View Order opened ORD-001520's details.
+  - C-B8: "Payment method: Cash on Delivery" (and "SAIMPEX Wallet" on ORD-001505).
+  - C-B13: no toast on the cancelled screen. C-B12: Back to Home went straight to Home.
+  - C-B14: Home cards show "2.1 Km", "3.1 Km".
+  - C-B3: the wallet had 490 MRU, so the empty-wallet default couldn't be shown; Wallet was the default as expected.
+- **C-B16 found broken on the phone and fixed:** rating ORD-001514 saved ("Rating submitted successfully" in the log), but the form stayed open, because the success toast opened first and `Get.back()` then only closed the toast; a second tap said "You already submitted rating". The form now leaves first, then shows the toast. **Rechecked on the phone (b0c0acd):** one Submit on ORD-001505 saved the rating, returned to My Orders with "Rating submitted successfully", and the Rate button is gone.
+- **Cart bar "1 items":** "View Cart • 1 items" on restaurant, pharmacy and water cart bars now uses the singular/plural helper ("1 item", "1 article"). **Phone:** Pizzeria Atlantique shows "View Cart • 1 item".
+- **Home store cards opened the restaurant screen for every section:** "Top Rated Suppliers" (water) showed "Chat with Restaurant" and "No items available" (Source Tevragh Zeina). Home now opens grocery cards in the grocery store screen, pharmacy cards in the pharmacy screen and water cards in the water supplier screen (`homeHub` sends the vendor id as `id` for every section). Analyzer clean, 38 tests pass. **Phone (0e59560):** Source Tevragh Zeina opens the water supplier screen with its products, Pharmacie Nour the pharmacy screen, Alimentation Tevragh Zeina the grocery store screen.
+- **C-B14, server part (seen on the phone):** Home cards and store screens show different distances for the same store: Alimentation Tevragh Zeina "3.4 Km" on Home vs "3.09 Km" in the store, Pharmacie Nour "2.2 Km" vs "1.2 Km". Home shows `homeHub`'s `distance_km`; the store screens use their own endpoints. Needs the backend to use one point for both. The grocery store screen now shows one decimal from `distance_km` too.
+- **Home → Recent Orders cards were blank (no picture, no store name):** `homeHub` sends `vendor_name_<lang>`, `vendor_image` and `items_summary_<lang>`; the app read `name_<lang>`, `image` and `item_name`. The cards now show the store name, logo and items.
+- **Rating a self-pickup order asked to rate the delivery:** Rate now asks `orderDetails` for `is_self_pickup` (the order lists don't send it yet, backend #166) and hides the delivery card for self-pickup orders, so no driver rating is sent.
+- These three fixes: analyzer clean, 38 tests pass. **Phone (88c1ada):**
+  - Recent Orders shows "Eau Pure Arafat" with its logo, "19 L Jug Refill + Mineral Water…", 3 items, and "Pizzeria Atlantique, Caesar…".
+  - Alimentation Tevragh Zeina shows "3.1 Km" (was "3.09 Km").
+  - Rate on delivery order ORD-001512 calls `orderDetails` and still shows the delivery card (closed without submitting).
+  - The self-pickup case couldn't be shown: the only delivered self-pickup order on 95200021 (ORD-001505) is already rated.
+- **Test data left on dev:** ORD-001520 (cash, cancelled); 5-star ratings on ORD-001514 and ORD-001505.
+- **Still to retest:** C-B10, C-B23 (fix pushed earlier).

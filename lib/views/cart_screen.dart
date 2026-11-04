@@ -114,7 +114,13 @@ class _CartScreenState extends State<CartScreen> {
     if (offered.contains(current) && PaymentMethods.isOn(current)) {
       type = current;
     } else {
-      for (final option in offered) {
+      // An empty wallet is the last resort, after cash and online (C-B3).
+      final fallbacks = [
+        for (final option in offered)
+          if (option != paymentTypeWallet || !_walletEmpty) option,
+        if (_walletEmpty) paymentTypeWallet,
+      ];
+      for (final option in fallbacks) {
         if (option != paymentTypePayAfterDelivery &&
             PaymentMethods.isOn(option)) {
           type = option;
@@ -158,6 +164,12 @@ class _CartScreenState extends State<CartScreen> {
     return num.tryParse(raw.replaceAll(RegExp(r'[^0-9.]'), ''));
   }
 
+  /// True once the wallet is known to hold 0 MRU.
+  bool get _walletEmpty {
+    final balance = _walletBalance;
+    return balance != null && balance <= 0;
+  }
+
   /// True when Wallet is chosen but can't cover [payable]: the wallet pays
   /// what it has and Masrvi charges the rest (split payment).
   bool _walletShort(int payable) {
@@ -197,8 +209,11 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-    // Wallet by default; Pay After Delivery is never the default.
-    selectedPaymentIndex = 0;
+    // Wallet by default, cash when the wallet is empty (C-B3); Pay After
+    // Delivery is never the default.
+    selectedPaymentIndex = _walletEmpty
+        ? _indexTypes.indexOf(paymentTypeCash)
+        : 0;
     _loadPayAfterDelivery();
     _applyPaymentMethods();
     PaymentMethods.refresh().then((changed) {
@@ -796,7 +811,19 @@ class _CartScreenState extends State<CartScreen> {
     _syncHomeCartBadgeCount(0);
     // Replaces this cart screen, so the placed items don't stay visible behind the success screen.
     final points = int.tryParse('${placed['reward_points_earned'] ?? ''}') ?? 0;
-    Get.off(() => OrderSuccessScreen(pointsToEarn: points));
+    final amount = placed['payable'] ?? placed['to_pay'] ?? payable;
+    Get.off(
+      () => OrderSuccessScreen(
+        pointsToEarn: points,
+        orderId: orderId,
+        orderCode: '${placed['order_code'] ?? ''}'.trim(),
+        amount: 'mru'.trParams({
+          'amount': '${(num.tryParse('$amount') ?? payable).round()}',
+        }),
+        catalog: _isCatalogCart,
+        selfPickup: !isDelivery,
+      ),
+    );
   }
 
   Future<String?> _startMasrviPayment(

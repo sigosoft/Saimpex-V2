@@ -31,6 +31,7 @@ import '../navigation/bottom_nav_router.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/store_labels.dart';
+
 class MyOrdersScreen extends StatefulWidget {
   final bool showBottomNav;
   final int initialCategoryIndex;
@@ -440,7 +441,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     // On "All" an empty section shows nothing; one message covers them all.
     if (_groceryOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
-      children: [for (final order in _groceryOrders) FadeSlideIn(child: _groceryOrderCard(order))],
+      children: [
+        for (final order in _groceryOrders)
+          FadeSlideIn(child: _groceryOrderCard(order)),
+      ],
     );
   }
 
@@ -519,8 +523,27 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         // The form handles its own errors; open it anyway.
       }
     }
+    // A self-pickup order had no driver, so it has no delivery to rate. The
+    // order lists don't send is_self_pickup yet (backend #166); the details
+    // do.
+    var selfPickup = false;
+    if (orderId != null && Get.isRegistered<OrderRepository>()) {
+      try {
+        final detail = await Get.find<OrderRepository>().orderDetails(
+          orderId: orderId,
+          language: apiLanguageCode(),
+        );
+        selfPickup =
+            '${detail['is_self_pickup']}' == '1' ||
+            detail['is_self_pickup'] == true;
+      } on ApiException catch (_) {
+        // Unknown: keep the delivery card, as before.
+      }
+    }
     if (!mounted) return;
-    await Get.to(() => RateOrderScreen(orderId: orderId));
+    await Get.to(
+      () => RateOrderScreen(orderId: orderId, hasDelivery: !selfPickup),
+    );
     if (mounted) setState(() {});
   }
 
@@ -566,7 +589,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     if (_restaurantOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [
-        for (final order in _restaurantOrders) FadeSlideIn(child: _restaurantOrderCard(order)),
+        for (final order in _restaurantOrders)
+          FadeSlideIn(child: _restaurantOrderCard(order)),
       ],
     );
   }
@@ -795,7 +819,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     if (_pharmacyOrders.isEmpty) return _buildUnloadedOrders();
     return Column(
       children: [
-        for (final order in _pharmacyOrders) FadeSlideIn(child: _pharmacyOrderCard(order)),
+        for (final order in _pharmacyOrders)
+          FadeSlideIn(child: _pharmacyOrderCard(order)),
       ],
     );
   }
@@ -864,8 +889,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           ? 'orders_self_pickup'.tr
           : 'orders_delivery'.tr,
       if (total.isNotEmpty) total,
-      if (items is int && items > 0)
-        itemsCountLabel(items),
+      if (items is int && items > 0) itemsCountLabel(items),
       if (orderId.isNotEmpty) orderId,
     ].join(' • ');
   }
