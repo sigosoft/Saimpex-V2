@@ -122,6 +122,18 @@ const coreStrings = <String, Map<String, String>>{
     'core_chatbot_cancel_order': 'Cancel order',
     'core_chatbot_choose_language': 'Let\'s chat in your language',
     'core_chatbot_continue': 'Continue',
+    'core_chatbot_consent_title': 'Before you chat',
+    'core_chatbot_consent_who':
+        'The SAIMPEX assistant is an AI. Your messages are answered by Claude, a service of Anthropic, through SAIMPEX.',
+    'core_chatbot_consent_data':
+        'To answer, it uses your messages and voice transcripts, your delivery location, and your SAIMPEX orders, wallet and points.',
+    'core_chatbot_consent_avoid':
+        'Don\'t share passwords, card numbers, codes or health details in the chat.',
+    'core_chatbot_consent_check':
+        'AI answers can be wrong. Check order details and prices in the app.',
+    'core_chatbot_consent_privacy': 'Read the privacy policy',
+    'core_chatbot_consent_agree': 'I agree, start chatting',
+    'core_chatbot_consent_not_now': 'Not now',
     'core_chatbot_greeting': 'Hey there! 👋',
     'core_chatbot_help_bubble': 'How can I help you?',
     'core_chatbot_intro': 'I\'m Saimpex. How can I help you today?',
@@ -606,6 +618,18 @@ const coreStrings = <String, Map<String, String>>{
     'core_chatbot_cancel_order': 'Annuler la commande',
     'core_chatbot_choose_language': 'Discutons dans votre langue',
     'core_chatbot_continue': 'Continuer',
+    'core_chatbot_consent_title': 'Avant de discuter',
+    'core_chatbot_consent_who':
+        'L\'assistant SAIMPEX est une IA. Vos messages reçoivent une réponse de Claude, un service d\'Anthropic, via SAIMPEX.',
+    'core_chatbot_consent_data':
+        'Pour répondre, il utilise vos messages et transcriptions vocales, votre adresse de livraison, ainsi que vos commandes, votre portefeuille et vos points SAIMPEX.',
+    'core_chatbot_consent_avoid':
+        'Ne partagez pas de mots de passe, numéros de carte, codes ou informations de santé dans la discussion.',
+    'core_chatbot_consent_check':
+        'Les réponses de l\'IA peuvent être inexactes. Vérifiez les détails des commandes et les prix dans l\'application.',
+    'core_chatbot_consent_privacy': 'Lire la politique de confidentialité',
+    'core_chatbot_consent_agree': 'J\'accepte, commencer',
+    'core_chatbot_consent_not_now': 'Plus tard',
     'core_chatbot_greeting': 'Salut ! 👋',
     'core_chatbot_help_bubble': 'Comment puis-je vous aider ?',
     'core_chatbot_intro':
@@ -1099,6 +1123,18 @@ const coreStrings = <String, Map<String, String>>{
     'core_chatbot_cancel_order': 'إلغاء الطلب',
     'core_chatbot_choose_language': 'لنتحدث بلغتك',
     'core_chatbot_continue': 'متابعة',
+    'core_chatbot_consent_title': 'قبل أن تبدأ المحادثة',
+    'core_chatbot_consent_who':
+        'مساعد SAIMPEX هو ذكاء اصطناعي. يجيب على رسائلك Claude، وهو خدمة من شركة Anthropic، عبر SAIMPEX.',
+    'core_chatbot_consent_data':
+        'للإجابة، يستخدم رسائلك والنصوص المحوّلة من صوتك، وعنوان التوصيل، وطلباتك ومحفظتك ونقاطك في SAIMPEX.',
+    'core_chatbot_consent_avoid':
+        'لا تشارك كلمات المرور أو أرقام البطاقات أو الرموز أو المعلومات الصحية في المحادثة.',
+    'core_chatbot_consent_check':
+        'قد تكون إجابات الذكاء الاصطناعي غير دقيقة. تحقّق من تفاصيل الطلبات والأسعار في التطبيق.',
+    'core_chatbot_consent_privacy': 'اقرأ سياسة الخصوصية',
+    'core_chatbot_consent_agree': 'أوافق، ابدأ المحادثة',
+    'core_chatbot_consent_not_now': 'ليس الآن',
     'core_chatbot_greeting': 'مرحباً! 👋',
     'core_chatbot_help_bubble': 'كيف يمكنني مساعدتك؟',
     'core_chatbot_intro': 'أنا SAIMPEX. كيف يمكنني مساعدتك اليوم؟',

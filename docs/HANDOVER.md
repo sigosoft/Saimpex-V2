@@ -807,3 +807,27 @@ From `SAIMPEX-V2-full-report-4nov.pdf` (gas excluded). Analyzer clean, 38 tests 
   - The self-pickup case couldn't be shown: the only delivered self-pickup order on 95200021 (ORD-001505) is already rated.
 - **Test data left on dev:** ORD-001520 (cash, cancelled); 5-star ratings on ORD-001514 and ORD-001505.
 - **Still to retest:** C-B10, C-B23 (fix pushed earlier).
+
+### AI assistant: consent before the first message (`feature/ai-assistant-consent`, [PR #46](https://github.com/sigosoft/Saimpex-V2/pull/46)) ✅
+Store release checklist: before the first message, say who processes it (Anthropic Claude) and ask for consent (Apple requires disclosure and consent before personal data goes to a third-party AI). No Figma screen, so it's built in the chat screen's own style.
+- Until the customer agrees, the chat screen shows "Before you chat" instead of the chat: the assistant is an AI answered by Claude (Anthropic) through SAIMPEX; it uses their messages and voice transcripts, delivery location, and SAIMPEX orders, wallet and points; don't share passwords, card numbers, codes or health details; AI answers can be wrong. "Read the privacy policy" opens the Admin privacy page. "I agree, start chatting" shows the chat; "Not now" closes the screen.
+- Nothing is sent before consent: the input bar, voice input, quick actions and history button are hidden or disabled, and `_sendMessage` refuses.
+- Texts follow the chat language picked on the welcome sheet (EN/FR/AR, `core_chatbot_consent_*`).
+- Consent is kept on the phone (`lib/utils/ai_assistant_consent.dart`, `ai_assistant_consent_v1`): the API has no consent field, so a new phone or a reinstall asks again. If the backend should record consent (date, version), that needs a new field.
+- Analyzer clean, 39 tests pass (`test/ai_assistant_consent_test.dart`).
+- **Phone (vivo V2239, dev, first build):** the notice shows in English and Arabic; "Read the privacy policy" opens the privacy page; no input bar before consent.
+- **Fixed after the phone check:**
+  - Arabic was laid out left to right when the app itself is in English, and lines starting with "SAIMPEX" came out in the wrong order. The notice now follows the chat language's direction.
+  - The history button showed (disabled) before consent; it's hidden now.
+  - **Header title "Saimpex Ai" was covered** by the history and language buttons on every chat screen (it was centred on a layer of its own). The header is now one row: back, title centred in the space left (shortened with "…" if needed), history, language.
+  - **Phone (bc3a3aa):**
+    - Arabic notice reads right to left, and lines starting with "SAIMPEX" are in order.
+    - The header shows the full "Saimpex Ai" title clear of the buttons, before and after consent.
+    - No history button before consent.
+    - "Not now" returns to Home with no `chatbot/message` request.
+    - "I agree" opens the chat; "Hello" was sent.
+    - After a full app restart the assistant opens straight on the chat (consent remembered).
+- **Dev has no assistant configured:** `chatbot/message` returns 503 "The assistant is not configured yet" (no Anthropic API key in Admin → Integrations; waiting on Praveen). The app shows that message in the chat. A real reply hasn't been seen yet.
+- **Noticed, not changed:**
+  - The Admin privacy policy text doesn't mention the AI assistant or Anthropic; the store checklist asks for that (Admin → CMS).
+  - When the floating assistant head is resting (5 s after Home opens), the first tap only wakes it and a second tap opens it; customers may think the first tap did nothing.
