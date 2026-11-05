@@ -1403,10 +1403,15 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap:
-                          cartItemId < 1 ||
-                              (maxQuantity != null && count >= maxQuantity)
+                      // At the limit + says so; it stopped silently (W-08).
+                      onTap: cartItemId < 1
                           ? null
+                          : maxQuantity != null && count >= maxQuantity
+                          ? () => showAppToast(
+                              'cart_max_quantity'.trParams({
+                                'count': '$maxQuantity',
+                              }),
+                            )
                           : () => _applyApiQuantity(cartItemId, count + 1),
                       child: Container(
                         width: 22,

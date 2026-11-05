@@ -39,6 +39,7 @@ const _en = {
   'cart_free_delivery': 'Free Delivery',
   'cart_tax': 'Tax',
   'cart_redeemed_points': 'Redeemed points',
+  'cart_max_quantity': 'You can order up to @count of this item.',
   'cart_use_points': 'Use @points points',
   'cart_points_off': '= @amount MRU off',
   'under30_empty': 'No restaurants deliver in under 30 minutes right now',
@@ -185,6 +186,7 @@ const _fr = {
   'cart_free_delivery': 'Livraison gratuite',
   'cart_tax': 'Taxe',
   'cart_redeemed_points': 'Points utilisés',
+  'cart_max_quantity': 'Vous pouvez commander jusqu’à @count de cet article.',
   'cart_use_points': 'Utiliser @points points',
   'cart_points_off': '= @amount MRU de réduction',
   'under30_empty':
@@ -335,6 +337,7 @@ const _ar = {
   'cart_free_delivery': 'توصيل مجاني',
   'cart_tax': 'الضريبة',
   'cart_redeemed_points': 'النقاط المستخدمة',
+  'cart_max_quantity': 'يمكنك طلب @count من هذا المنتج كحد أقصى.',
   'cart_use_points': 'استخدم @points نقطة',
   'cart_points_off': '= خصم @amount أوقية',
   'under30_empty': 'لا توجد مطاعم توصّل في أقل من 30 دقيقة حاليًا',

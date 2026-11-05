@@ -13,6 +13,7 @@ import 'widgets/pharmacy_order_detail_loader.dart';
 import '../widgets/scheduled_for_banner.dart';
 
 import '../../utils/app_fonts.dart';
+
 /// Loads the order from the API, then shows it.
 class PharmacyItemOrderDetailScreen extends StatelessWidget {
   final String orderId;
@@ -866,12 +867,17 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           _payRow('pw_item_total'.tr, orderMoneyText(_payment['item_total'])),
-          const SizedBox(height: 10),
-          _payRow(
-            'cart_redeemed_points'.tr,
-            orderMoneyText(_payment['redeemed_points'], negative: true),
-            valueColor: const Color(0xFFFF5216),
-          ),
+          // Only when points were used ("Redeemed points – MRU" showed
+          // with none, W-09).
+          if ((double.tryParse('${_payment['redeemed_points'] ?? ''}') ?? 0) >
+              0) ...[
+            const SizedBox(height: 10),
+            _payRow(
+              'cart_redeemed_points'.tr,
+              orderMoneyText(_payment['redeemed_points'], negative: true),
+              valueColor: const Color(0xFFFF5216),
+            ),
+          ],
           if (isDelivery) ...[
             const SizedBox(height: 10),
             _payRow(
@@ -888,8 +894,14 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
           Row(
             children: [
               Text(
+                // Cash is still "To pay" until delivered; it said "Total
+                // Paid" for every delivery order (W-09).
                 order?.isCancelled == true
                     ? 'pw_total'.tr
+                    : '${_payment['payment_type'] ?? ''}'.toLowerCase() ==
+                              'cash' &&
+                          order?.isDelivered != true
+                    ? 'pw_to_pay'.tr
                     : isDelivery
                     ? 'pw_total_paid'.tr
                     : 'pw_to_pay'.tr,

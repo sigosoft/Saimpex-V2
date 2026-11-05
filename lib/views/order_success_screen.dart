@@ -10,6 +10,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import 'order_detail_screen.dart';
 import 'pharmacy/pharmacy_item_order_detail_screen.dart';
+import 'water/water_order_details_screen.dart';
 
 import '../utils/app_fonts.dart';
 
@@ -51,6 +52,29 @@ class OrderSuccessScreen extends StatelessWidget {
     if (id == null) return;
     final code = orderCode.isEmpty ? '$id' : orderCode;
     if (!catalog) {
+      // The same cart places water orders, whose own screen knows cash is
+      // still "To pay" (W-09: the shared one said "Total Paid"). The checkout
+      // response has no order type, so ask the order.
+      if (Get.isRegistered<OrderRepository>()) {
+        try {
+          final detail = await Get.find<OrderRepository>().orderDetails(
+            orderId: id,
+            language: apiLanguageCode(),
+          );
+          if ('${detail['order_type']}' == '4') {
+            Get.to(
+              () => WaterOrderDetailsScreen(
+                orderId: code,
+                apiOrderId: id,
+                isSelfPickup: selfPickup,
+              ),
+            );
+            return;
+          }
+        } on ApiException {
+          // Fall back to the shared order detail below.
+        }
+      }
       Get.to(
         () => PharmacyItemOrderDetailScreen(
           orderId: code,
