@@ -847,3 +847,7 @@ From `SAIMPEX-V2-water-test-report.pdf` (customer main 703f82e). Analyzer clean,
   - Searching "Arafat" lists Eau Pure Arafat, then its products, with photos.
   - On Eau Pure Arafat only Mineral Water 0.5 L shows SUBSCRIBE; the other four show a full-width ADD.
   - **Not seen on the phone:** W-09 (needs a new water order) and the W-08 limit message (needs the cart at its limit).
+- **W-09 on the phone:** test cash order ORD-001532 at Eau Pure Arafat (Water 5 L + 19 L Jug Refill, 125 + 50 = 175 MRU). View Order opened the water order detail: "Payment: Cash", "To Pay 175 MRU", no empty points row. The order was cancelled afterwards.
+- **Found while testing (not fixed here):**
+  - **Water minimum order not shown before checkout:** Eau Pure Arafat has a 50 MRU minimum. A 45 MRU cart was refused at checkout with "Minimum order for this store is 50 MRU. Add 5 MRU more…", but the water cart summary (`checkoutSummaryV2`) has no `min_order_value` / `min_order_shortfall` (other carts do), so the app can't warn earlier (backend, Praveen).
+  - **Order success screen for a water order shows "175 MRU" without the order code:** `checkoutV2` doesn't return `order_code` for this order; the app shows the code only when it gets one.
