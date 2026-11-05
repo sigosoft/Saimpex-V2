@@ -831,3 +831,23 @@ Store release checklist: before the first message, say who processes it (Anthrop
 - **Noticed, not changed:**
   - The Admin privacy policy text doesn't mention the AI assistant or Anthropic; the store checklist asks for that (Admin → CMS).
   - When the floating assistant head is resting (5 s after Home opens), the first tap only wakes it and a second tap opens it; customers may think the first tap did nothing.
+
+### Water test report 5 Nov: Sharvin's items (`fix/water-test-report`, [PR #47](https://github.com/sigosoft/Saimpex-V2/pull/47)) 🟡 partly checked on the phone
+From `SAIMPEX-V2-water-test-report.pdf` (customer main 703f82e). Analyzer clean, 39 tests pass.
+- **W-05 subscriptions a dead end:** SUBSCRIBE now shows only on products whose supplier has an active plan for that product (`WaterRepository.planProductIds`, cached per supplier), on both supplier screens. The top banner ("Set Up Plan") opens the subscription page like the mid-page banner; "Explore Plans" → "Find supplier" was already there. "Late night" was already shown translated (the English value is only what's sent to the server). **Data:** Eau Pure Arafat now has plans #1 (weekly) and #2 (every 30 days) for Mineral Water 0.5 L (added 5 Nov); the Admin plan form has no Product field, so plans made there don't attach to a product (Kiran).
+- **W-06 water search did nothing:** Enter in the water home search runs `waterSearchV2` and lists the matching suppliers, then products; "No results" otherwise.
+- **W-09 "Total Paid" on an unpaid cash water order:** "View Order" on the success screen opened the shared grocery/pharmacy detail for every non-food order (from C-B6). It now asks `orderDetails` for `order_type` and opens the water order detail (which already says "To pay") for water. The shared detail also said "Total Paid" for every delivery order and showed "Redeemed points –" with none: cash is "To pay" until delivered, and the points row shows only when points were used (grocery too).
+- **W-08 quantity limit:** at the limit, + now says "You can order up to N of this item." (EN/FR/AR) instead of doing nothing. **Backend:** `cart/water/add` allows 10, `cart/update` 5, item detail says 10; one limit is needed (Praveen).
+- **W-10 unfinished cards:** the empty orange offer pill and the bare coin badge are hidden when there's no offer or points (the rating moves to the corner); "See All" suppliers showed the blue water-drop placeholder because the photo URL was loaded as an asset, now loaded from the network. **Not changed:** "0.0 · 0 reviews", stock photos and the "Water Jugs" picture are dev data; long names cut to one line ("Mineral Water 0.5 L (P…") is the fixed-height card from Figma.
+- **W-11 Popular Products from one supplier:** server side: `waterHome` `popular_products` returns only Source Tevragh Zeina (68) and Test Water (43) items; the app shows what it gets (Praveen).
+- **W-12 step times:** waits on the order-time decision (V-B9 / D-B10); no app change.
+- **Phone (vivo V2239, dev, 2beee42):**
+  - Water home supplier cards show only the rating (no empty pill or coin).
+  - The "Set Up Plan" banner opens the Subscription page.
+  - Searching "Arafat" lists Eau Pure Arafat, then its products, with photos.
+  - On Eau Pure Arafat only Mineral Water 0.5 L shows SUBSCRIBE; the other four show a full-width ADD.
+  - **Not seen on the phone:** W-09 (needs a new water order) and the W-08 limit message (needs the cart at its limit).
+- **W-09 on the phone:** test cash order ORD-001532 at Eau Pure Arafat (Water 5 L + 19 L Jug Refill, 125 + 50 = 175 MRU). View Order opened the water order detail: "Payment: Cash", "To Pay 175 MRU", no empty points row. The order was cancelled afterwards.
+- **Found while testing (not fixed here):**
+  - **Water minimum order not shown before checkout:** Eau Pure Arafat has a 50 MRU minimum. A 45 MRU cart was refused at checkout with "Minimum order for this store is 50 MRU. Add 5 MRU more…", but the water cart summary (`checkoutSummaryV2`) has no `min_order_value` / `min_order_shortfall` (other carts do), so the app can't warn earlier (backend, Praveen).
+  - **Order success screen for a water order shows "175 MRU" without the order code:** `checkoutV2` doesn't return `order_code` for this order; the app shows the code only when it gets one.

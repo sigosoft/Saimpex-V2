@@ -20,6 +20,7 @@ import '../../utils/toast_helper.dart';
 
 import '../../utils/app_fonts.dart';
 import '../../utils/wallet_chip.dart';
+
 class WaterScreen extends StatefulWidget {
   const WaterScreen({super.key});
 
@@ -75,6 +76,32 @@ class _WaterScreenState extends State<WaterScreen> {
         popularProducts = home.popularProducts;
         nearbySuppliers = home.nearbySuppliers;
       });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
+
+  /// Searches suppliers and products (waterSearchV2) and lists them,
+  /// suppliers first. The search box did nothing on Enter (W-06).
+  Future<void> _search(String keyword) async {
+    final text = keyword.trim();
+    if (text.isEmpty || !Get.isRegistered<WaterRepository>()) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    try {
+      final result = await Get.find<WaterRepository>().search(
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: apiLanguageCode(),
+        keyword: text,
+      );
+      if (!mounted) return;
+      final items = [...result.suppliers, ...result.products];
+      if (items.isEmpty) {
+        showAppToast('pw_no_results'.tr);
+        return;
+      }
+      Get.to(() => WaterSeeAllScreen(title: text, items: items));
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -342,99 +369,104 @@ class _WaterScreenState extends State<WaterScreen> {
               });
             },
             itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    'lib/assets/images/Water slider.png',
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF007BFF), Color(0xFF00C6FF)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+              // The banner reads "Set Up Plan": open the subscription page,
+              // like the mid-page banner (W-05; it did nothing).
+              return GestureDetector(
+                onTap: () => Get.to(() => const WaterSubscriptionScreen()),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'lib/assets/images/Water slider.png',
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF007BFF), Color(0xFF00C6FF)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.all(20),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'pw_subscribe_save_20'.tr,
-                                    style: AppFonts.outfit(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.85,
-                                      ),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'pw_fresh_water_on_schedule'.tr,
-                                    style: AppFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'pw_delivery_plans_line'.tr,
-                                    style: AppFonts.outfit(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.85,
-                                      ),
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Text(
-                                      'pw_set_up_plan'.tr,
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'pw_subscribe_save_20'.tr,
                                       style: AppFonts.outfit(
-                                        color: const Color(0xFF007BFF),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.85,
+                                        ),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'pw_fresh_water_on_schedule'.tr,
+                                      style: AppFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'pw_delivery_plans_line'.tr,
+                                      style: AppFonts.outfit(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.85,
+                                        ),
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Text(
+                                        'pw_set_up_plan'.tr,
+                                        style: AppFonts.outfit(
+                                          color: const Color(0xFF007BFF),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Image.asset(
-                              'lib/assets/images/19L water.png',
-                              width: 90,
-                              height: 90,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, _, _) => const Icon(
-                                Icons.water_drop,
-                                size: 60,
-                                color: Colors.white,
+                              Image.asset(
+                                'lib/assets/images/19L water.png',
+                                width: 90,
+                                height: 90,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, _, _) => const Icon(
+                                  Icons.water_drop,
+                                  size: 60,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               );
@@ -495,6 +527,8 @@ class _WaterScreenState extends State<WaterScreen> {
             Expanded(
               child: TextField(
                 controller: _searchController,
+                textInputAction: TextInputAction.search,
+                onSubmitted: _search,
                 style: AppFonts.outfit(
                   color: const Color(0xFF2C2520),
                   fontSize: 13,
@@ -835,34 +869,36 @@ class _WaterScreenState extends State<WaterScreen> {
                       ),
                     ),
 
-                  // Discount Tag (Top-left)
-                  PositionedDirectional(
-                    top: 8,
-                    start: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF5216),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        item['discount'] as String,
-                        style: AppFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                  // Discount Tag (Top-left); hidden without an offer (an
+                  // empty orange pill showed, W-10).
+                  if ('${item['discount'] ?? ''}'.trim().isNotEmpty)
+                    PositionedDirectional(
+                      top: 8,
+                      start: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5216),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          item['discount'] as String,
+                          style: AppFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // Rating Tag
+                  // Rating Tag; takes the corner when there is no offer.
                   PositionedDirectional(
                     top: 8,
-                    start: 72,
+                    start: '${item['discount'] ?? ''}'.trim().isEmpty ? 8 : 72,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 6,
@@ -912,45 +948,47 @@ class _WaterScreenState extends State<WaterScreen> {
                     ),
                   ),
 
-                  // Points Available Pill (Bottom-left overlay on image)
-                  PositionedDirectional(
-                    bottom: 8,
-                    start: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.55),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            'lib/assets/images/Coin.png',
-                            width: 12,
-                            height: 12,
-                            errorBuilder: (_, _, _) => const Icon(
-                              Icons.monetization_on,
-                              color: Color(0xFFFFAE00),
-                              size: 12,
+                  // Points Available Pill (Bottom-left overlay on image);
+                  // hidden without points (a bare coin showed, W-10).
+                  if ('${item['points'] ?? ''}'.trim().isNotEmpty)
+                    PositionedDirectional(
+                      bottom: 8,
+                      start: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.55),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'lib/assets/images/Coin.png',
+                              width: 12,
+                              height: 12,
+                              errorBuilder: (_, _, _) => const Icon(
+                                Icons.monetization_on,
+                                color: Color(0xFFFFAE00),
+                                size: 12,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            item['points'] as String,
-                            style: AppFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w600,
+                            const SizedBox(width: 4),
+                            Text(
+                              item['points'] as String,
+                              style: AppFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
                   if (isClosed)
                     Positioned.fill(child: _buildClosedOverlay(opensAt)),

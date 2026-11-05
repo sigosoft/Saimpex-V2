@@ -4,11 +4,14 @@ import 'package:get/get.dart';
 import '../../widgets/auto_slide_network_images.dart';
 
 import '../../../utils/app_fonts.dart';
+
 class WaterProductCard extends StatelessWidget {
   final Map<String, dynamic> product;
   final bool isNotAccepting;
   final VoidCallback? onTap;
-  final VoidCallback onSubscribe;
+
+  /// Null hides Subscribe: the supplier has no plan for this product (W-05).
+  final VoidCallback? onSubscribe;
   final VoidCallback onAdd;
 
   const WaterProductCard({
@@ -16,7 +19,7 @@ class WaterProductCard extends StatelessWidget {
     required this.product,
     required this.isNotAccepting,
     this.onTap,
-    required this.onSubscribe,
+    this.onSubscribe,
     required this.onAdd,
   });
 
@@ -64,28 +67,28 @@ class WaterProductCard extends StatelessWidget {
                     ),
                   ),
                   if ('${product['discount'] ?? ''}'.trim().isNotEmpty)
-                  PositionedDirectional(
-                    top: 8,
-                    start: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF5216),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${product['discount']}',
-                        style: AppFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.w800,
+                    PositionedDirectional(
+                      top: 8,
+                      start: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5216),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${product['discount']}',
+                          style: AppFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   PositionedDirectional(
                     start: 8,
                     bottom: 8,
@@ -200,36 +203,38 @@ class WaterProductCard extends StatelessWidget {
                     const Spacer(),
                     Row(
                       children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: isNotAccepting ? null : onSubscribe,
-                            child: Container(
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isNotAccepting
-                                      ? const Color(0xFFD9D1C9)
-                                      : const Color(0xFFFF5216),
-                                  width: 1.2,
+                        if (onSubscribe != null) ...[
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: isNotAccepting ? null : onSubscribe,
+                              child: Container(
+                                height: 30,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isNotAccepting
+                                        ? const Color(0xFFD9D1C9)
+                                        : const Color(0xFFFF5216),
+                                    width: 1.2,
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                'pw_subscribe_caps'.tr,
-                                style: AppFonts.outfit(
-                                  color: isNotAccepting
-                                      ? const Color(0xFFA59A94)
-                                      : const Color(0xFFFF5216),
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800,
+                                child: Text(
+                                  'pw_subscribe_caps'.tr,
+                                  style: AppFonts.outfit(
+                                    color: isNotAccepting
+                                        ? const Color(0xFFA59A94)
+                                        : const Color(0xFFFF5216),
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 6),
+                          const SizedBox(width: 6),
+                        ],
                         Expanded(
                           child: GestureDetector(
                             onTap: isNotAccepting ? null : onAdd,

@@ -33,10 +33,51 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
   List<Map<String, dynamic>> products = const [];
   bool _productsLoading = true;
 
+  /// Products with a subscription plan; Subscribe shows only on those.
+  Set<int> _planProductIds = const {};
+
   @override
   void initState() {
     super.initState();
     _loadProducts();
+  }
+
+  Future<void> _addToCart(Map<String, dynamic> product) async {
+    if (!Get.isRegistered<WaterRepository>()) return;
+    if ((int.tryParse('${product['productId']}') ?? 0) == 0) {
+      // Sample items on this screen have no server id, so they can't be ordered yet
+      showAppToast(
+        'pw_product_not_orderable'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
+      return;
+    }
+    try {
+      // Save the item on the server first; only then update the cart bar
+      await Get.find<WaterRepository>().addToCart(
+        waterVendorId: (widget.supplier['vendorId'] as int?) ?? 0,
+        productId: int.tryParse('${product['productId']}') ?? 0,
+        language: apiLanguageCode(),
+      );
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      return;
+    }
+    if (!mounted) return;
+    setState(() {
+      showCartBar = true;
+      lastAddedItem = product;
+    });
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().setCartItem(
+        storeName: widget.supplier['title']?.toString() ?? '',
+        itemName: product['title']?.toString(),
+        itemPortion: product['size']?.toString(),
+        basePrice: parsePrice(product['price']?.toString() ?? '50'),
+        itemImage: product['image']?.toString(),
+      );
+    }
   }
 
   /// Loads this supplier's products from the API (water/categories, then water/items).
@@ -47,13 +88,19 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
       return;
     }
     try {
-      final result = await Get.find<WaterRepository>().fetchSupplierProducts(
+      final repository = Get.find<WaterRepository>();
+      final result = await repository.fetchSupplierProducts(
+        waterVendorId: vendorId,
+        language: apiLanguageCode(),
+      );
+      final planProducts = await repository.planProductIds(
         waterVendorId: vendorId,
         language: apiLanguageCode(),
       );
       if (!mounted) return;
       setState(() {
         products = result;
+        _planProductIds = planProducts;
         _productsLoading = false;
       });
     } on ApiException catch (error) {
@@ -142,64 +189,29 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                       return WaterProductCard(
                         product: product,
                         isNotAccepting: isNotAccepting,
-                        onTap: () =>
-                            showWaterProductDetailsSheet(context, product),
-                        onSubscribe: () {
-                          Get.to(
-                            () => WaterProductSubscriptionScreen(
-                              product: Map<String, dynamic>.from(product),
-                              supplier: Map<String, dynamic>.from(
-                                widget.supplier,
-                              ),
-                            ),
-                          );
-                        },
-                        onAdd: () async {
-                          if (!Get.isRegistered<WaterRepository>()) return;
-                          if ((int.tryParse('${product['productId']}') ?? 0) ==
-                              0) {
-                            // Sample items on this screen have no server id, so they can't be ordered yet
-                            showAppToast(
-                              'pw_product_not_orderable'.tr,
-                              backgroundColor: const Color(0xFFEF4444),
-                            );
-                            return;
-                          }
-                          try {
-                            // Save the item on the server first; only then update the cart bar
-                            await Get.find<WaterRepository>().addToCart(
-                              waterVendorId:
-                                  (widget.supplier['vendorId'] as int?) ?? 0,
-                              productId:
-                                  int.tryParse('${product['productId']}') ?? 0,
-                              language: apiLanguageCode(),
-                            );
-                          } on ApiException catch (error) {
-                            if (!mounted) return;
-                            showAppToast(
-                              error.message,
-                              backgroundColor: const Color(0xFFEF4444),
-                            );
-                            return;
-                          }
-                          if (!mounted) return;
-                          setState(() {
-                            showCartBar = true;
-                            lastAddedItem = product;
-                          });
-                          if (Get.isRegistered<HomeController>()) {
-                            Get.find<HomeController>().setCartItem(
-                              storeName:
-                                  widget.supplier['title']?.toString() ?? '',
-                              itemName: product['title']?.toString(),
-                              itemPortion: product['size']?.toString(),
-                              basePrice: parsePrice(
-                                product['price']?.toString() ?? '50',
-                              ),
-                              itemImage: product['image']?.toString(),
-                            );
-                          }
-                        },
+                        // The sheet's ADD adds to the cart; without onAdd it
+                        // opened the Subscribe form instead.
+                        onTap: () => showWaterProductDetailsSheet(
+                          context,
+                          product,
+                          onAdd: () => _addToCart(product),
+                        ),
+                        onSubscribe:
+                            !_planProductIds.contains(
+                              int.tryParse('${product['productId']}'),
+                            )
+                            ? null
+                            : () {
+                                Get.to(
+                                  () => WaterProductSubscriptionScreen(
+                                    product: Map<String, dynamic>.from(product),
+                                    supplier: Map<String, dynamic>.from(
+                                      widget.supplier,
+                                    ),
+                                  ),
+                                );
+                              },
+                        onAdd: () => _addToCart(product),
                       );
                     }, childCount: products.length),
                   ),

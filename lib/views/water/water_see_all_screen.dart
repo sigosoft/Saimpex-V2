@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'water_screen.dart' show waterImage;
 import 'water_supplier_details_screen.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/search_camera_button.dart';
 
 import '../../utils/app_fonts.dart';
+
 class WaterSeeAllScreen extends StatefulWidget {
   final String title;
   final List<Map<String, dynamic>> items;
@@ -297,11 +299,12 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
                             end: Alignment.bottomCenter,
                           ),
                         ),
-                        child: Center(
-                          child: Image.asset(
-                            image,
-                            height: 140,
-                            fit: BoxFit.contain,
+                        // The supplier photo is a URL from the API; as an asset
+                        // it always fell back to the water drop (W-10).
+                        child: SizedBox.expand(
+                          child: waterImage(
+                            '$image',
+                            fit: BoxFit.cover,
                             errorBuilder: (_, _, _) => const Icon(
                               Icons.water_drop,
                               size: 80,
@@ -412,43 +415,43 @@ class _WaterSeeAllScreenState extends State<WaterSeeAllScreen> {
 
                     // Bottom Left Points Overlay Badge
                     if ('$points'.isNotEmpty)
-                    PositionedDirectional(
-                      bottom: 12,
-                      start: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'lib/assets/images/Coin.png',
-                              width: 14,
-                              height: 14,
-                              errorBuilder: (_, _, _) => const Icon(
-                                Icons.monetization_on_rounded,
-                                color: Color(0xFFFFB800),
-                                size: 14,
+                      PositionedDirectional(
+                        bottom: 12,
+                        start: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.4),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                'lib/assets/images/Coin.png',
+                                width: 14,
+                                height: 14,
+                                errorBuilder: (_, _, _) => const Icon(
+                                  Icons.monetization_on_rounded,
+                                  color: Color(0xFFFFB800),
+                                  size: 14,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              points,
-                              style: AppFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                              const SizedBox(width: 4),
+                              Text(
+                                points,
+                                style: AppFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
 

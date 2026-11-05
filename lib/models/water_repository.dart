@@ -114,6 +114,32 @@ class WaterRepository {
     return _list(envelope.data).map(_plan).toList();
   }
 
+  final Map<int, Set<int>> _planProductIds = {};
+
+  /// Products of [waterVendorId] that have an active subscription plan, so
+  /// Subscribe shows only where a plan exists (W-05: it opened a form that
+  /// could never be submitted). Cached per supplier for the app session;
+  /// empty when the plans can't be loaded.
+  Future<Set<int>> planProductIds({
+    required int waterVendorId,
+    required String language,
+  }) async {
+    final cached = _planProductIds[waterVendorId];
+    if (cached != null) return cached;
+    try {
+      final plans = await fetchPlans(
+        waterVendorId: waterVendorId,
+        language: language,
+      );
+      return _planProductIds[waterVendorId] = {
+        for (final plan in plans)
+          if ((plan['productId'] as int? ?? 0) > 0) plan['productId'] as int,
+      };
+    } on ApiException {
+      return const {};
+    }
+  }
+
   /// Every product a supplier sells: its categories (water/categories), then
   /// the items of each category (water/items). Shaped for the supplier screens.
   Future<List<Map<String, dynamic>>> fetchSupplierProducts({

@@ -51,6 +51,9 @@ class _WaterSupplierDetailsScreenState
   List<Map<String, dynamic>> products = const [];
   bool _productsLoading = true;
 
+  /// Products with a subscription plan; Subscribe shows only on those.
+  Set<int> _planProductIds = const {};
+
   /// Loads this supplier's products from the API (water/categories, then water/items).
   Future<void> _loadProducts() async {
     final vendorId = (widget.supplier['vendorId'] as int?) ?? 0;
@@ -59,13 +62,19 @@ class _WaterSupplierDetailsScreenState
       return;
     }
     try {
-      final result = await Get.find<WaterRepository>().fetchSupplierProducts(
+      final repository = Get.find<WaterRepository>();
+      final result = await repository.fetchSupplierProducts(
+        waterVendorId: vendorId,
+        language: apiLanguageCode(),
+      );
+      final planProducts = await repository.planProductIds(
         waterVendorId: vendorId,
         language: apiLanguageCode(),
       );
       if (!mounted) return;
       setState(() {
         products = result;
+        _planProductIds = planProducts;
         _productsLoading = false;
       });
     } on ApiException catch (error) {
@@ -987,45 +996,50 @@ class _WaterSupplierDetailsScreenState
                   ),
                   const SizedBox(height: 8),
 
-                  // Action Buttons (SUBSCRIBE & ADD)
+                  // Action Buttons (SUBSCRIBE & ADD); Subscribe only when
+                  // the supplier has a plan for this product (W-05).
                   Row(
                     children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.to(
-                              () => WaterProductSubscriptionScreen(
-                                product: Map<String, dynamic>.from(item),
-                                supplier: Map<String, dynamic>.from(
-                                  widget.supplier,
+                      if (_planProductIds.contains(
+                        int.tryParse('${item['productId']}'),
+                      )) ...[
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.to(
+                                () => WaterProductSubscriptionScreen(
+                                  product: Map<String, dynamic>.from(item),
+                                  supplier: Map<String, dynamic>.from(
+                                    widget.supplier,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: const Color(0xFFFF5216),
+                                  width: 1.0,
                                 ),
                               ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: const Color(0xFFFF5216),
-                                width: 1.0,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'pw_subscribe_caps'.tr,
-                                style: AppFonts.outfit(
-                                  color: const Color(0xFFFF5216),
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
+                              child: Center(
+                                child: Text(
+                                  'pw_subscribe_caps'.tr,
+                                  style: AppFonts.outfit(
+                                    color: const Color(0xFFFF5216),
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
+                        const SizedBox(width: 6),
+                      ],
                       Expanded(
                         child: GestureDetector(
                           onTap: handleAdd,
