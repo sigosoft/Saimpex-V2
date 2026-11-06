@@ -230,7 +230,10 @@ class GroceryRepository {
     final recentOrdersRaw = data['recent_orders'] ?? data['orders'];
     final recentOrders = _parseOrderList(recentOrdersRaw, language);
 
+    // groceryHomeV2 sends delivery_15_minutes; the section stayed empty
+    // (CA-27).
     final fastStoresRaw =
+        data['delivery_15_minutes'] ??
         data['fast_delivery_stores'] ??
         data['fast_delivery'] ??
         data['under_15_minutes'] ??

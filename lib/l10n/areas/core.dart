@@ -414,6 +414,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_scan_not_identified': 'Could not identify that image.',
     'core_scanner_allow_camera': 'Allow camera access to scan items.',
     'core_scanner_capture_failed': 'Could not capture that photo.',
+    'core_scanner_hint': 'Fit the item or prescription inside the frame',
     'core_scanner_upload_gallery': 'Upload\nGallery',
     'core_see_all': 'See All',
     'core_store_map_button': 'Store Map',
@@ -925,6 +926,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_scanner_allow_camera':
         'Autorisez l\'accès à la caméra pour scanner des articles.',
     'core_scanner_capture_failed': 'Impossible de prendre cette photo.',
+    'core_scanner_hint': 'Placez l’article ou l’ordonnance dans le cadre',
     'core_scanner_upload_gallery': 'Importer\nde la galerie',
     'core_see_all': 'Voir tout',
     'core_store_map_button': 'Carte des magasins',
@@ -1413,6 +1415,7 @@ const coreStrings = <String, Map<String, String>>{
     'core_scan_not_identified': 'تعذّر التعرّف على هذه الصورة.',
     'core_scanner_allow_camera': 'اسمح بالوصول إلى الكاميرا لمسح المنتجات.',
     'core_scanner_capture_failed': 'تعذر التقاط هذه الصورة.',
+    'core_scanner_hint': 'ضع المنتج أو الوصفة داخل الإطار',
     'core_scanner_upload_gallery': 'رفع\nمن المعرض',
     'core_see_all': 'عرض الكل',
     'core_store_map_button': 'خريطة المتاجر',

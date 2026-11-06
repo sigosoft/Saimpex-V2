@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../utils/toast_helper.dart';
 
 import '../utils/app_fonts.dart';
+
 class HomeScannerScreen extends StatefulWidget {
   const HomeScannerScreen({super.key});
 
@@ -59,8 +60,17 @@ class _HomeScannerScreenState extends State<HomeScannerScreen> {
 
   Future<void> _capture() async {
     final controller = _controller;
-    if (_taking || controller == null || !controller.value.isInitialized) {
-      showAppToast('core_scanner_allow_camera'.tr);
+    if (_taking) return;
+    if (controller == null || !controller.value.isInitialized) {
+      // The in-app preview didn't start on some phones (black, CA-35): use
+      // the phone's own camera app instead.
+      final photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+      );
+      if (photo == null || !mounted) return;
+      setState(() => _lastPath = photo.path);
+      Get.back(result: photo.path);
       return;
     }
     setState(() => _taking = true);
@@ -114,6 +124,32 @@ class _HomeScannerScreenState extends State<HomeScannerScreen> {
             if (ready) _CameraFill(controller: controller),
             const _EdgeFade(),
             const _ScanFrame(),
+            // A way out and a hint; the screen had neither (CA-15).
+            PositionedDirectional(
+              top: MediaQuery.viewPaddingOf(context).top + 8,
+              start: 12,
+              end: 12,
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Get.back(),
+                    icon: const Icon(Icons.close_rounded, color: Colors.white),
+                    tooltip: 'cancel'.tr,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      'core_scanner_hint'.tr,
+                      style: AppFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Positioned(
               left: 24,
               right: 24,
