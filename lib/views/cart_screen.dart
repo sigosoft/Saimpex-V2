@@ -190,8 +190,12 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
+  bool _padLoading = false;
+
   Future<void> _loadPayAfterDelivery() async {
     if (!Get.isRegistered<OrderRepository>()) return;
+    // First load only (called from initState, so no setState here).
+    if (_padStatus == null) _padLoading = true;
     try {
       final status = await Get.find<OrderRepository>().payAfterDeliveryStatus(
         apiLanguageCode(),
@@ -203,6 +207,8 @@ class _CartScreenState extends State<CartScreen> {
       });
     } on ApiException {
       // Guests and failed loads just don't see the option.
+    } finally {
+      if (mounted) setState(() => _padLoading = false);
     }
   }
 
@@ -2680,7 +2686,14 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                             ),
                           ),
-                        ],
+                        ] else if (_padLoading &&
+                            _cashAllowed &&
+                            PaymentMethods.isOn(paymentTypePayAfterDelivery))
+                          // Holds the Pay After Delivery card's place while
+                          // its status loads: the card appeared above Wallet
+                          // later, moved the list, and a tap meant for Wallet
+                          // picked Pay After Delivery (CA-16).
+                          const SizedBox(height: 92),
 
                         // Card 1: SAIMPEX Wallet
                         if (PaymentMethods.isOn(paymentTypeWallet))

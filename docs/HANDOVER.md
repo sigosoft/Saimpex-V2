@@ -898,3 +898,9 @@ From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (l
   - Not seen on the phone: CA-02, 03, 05, 06, 07, 08, 20, 22, 23, 26, 27, 28, 29, 40, 41, 43. CA-16 not reproduced (needs a cart and a valid coupon; someone was placing orders on 95200021 at the time).
 - **Debug-only red screen** (`_dependents.isEmpty`) seen twice: right after installing over a running app, and once on returning to the app. Same as the earlier notes above; restart clears it, and it hasn't been seen in release builds.
 - **Test data left on dev:** prescription #20 (cancelled), at Test Pharmacy.
+- **Follow-up (6 Nov evening):**
+  - **CA-16 payment switching to Pay After Delivery:** no code path selects it on its own. The Pay After Delivery card is added above Wallet when its status loads, which pushed every card down; a tap meant for Wallet then picked Pay After Delivery. The card's place is now reserved while it loads, so nothing moves. Not reproduced on the phone: dev has no coupons for 95200021 (`customer/coupons` is empty) and the phone was in use.
+  - **CA-44 chat bubbles on one side:** not a bug. The Eau Pure Arafat conversation (id 100) has 3 messages, all `sender_type: customer`; the store never replied, so every bubble is the customer's.
+  - **CA-17 "Specify quantity here":** it is in the original design conversion of the cart (first commit, "Customize your quantity here"), so it comes from Figma. Left for a design decision.
+  - **CA-45 French bottom bar:** needs shorter French labels from the design team ("Réservations", "Commandes"); not changed here.
+  - Backend #177 / #178 not done yet (checked 6 Nov), so CA-10, 14, 21, 22 (AR/FR name), 25, 27 (recent orders) still wait.
