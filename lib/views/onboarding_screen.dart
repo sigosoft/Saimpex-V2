@@ -359,7 +359,8 @@ class _OnboardingImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallback = 'lib/assets/images/Onboard${(index % 3) + 1}.png';
+    final pages = OnboardingController.localPages;
+    final fallback = pages[index % pages.length].imagePath;
     if (path.startsWith('http://') || path.startsWith('https://')) {
       // The bundled picture shows until the server's has loaded; the top
       // half stayed black meanwhile (CA-03).
