@@ -641,6 +641,11 @@ class _SelectLocationView extends StatelessWidget {
                   }),
                   const SizedBox(height: 4),
                   Obx(() {
+                    // The same Plus Code showed twice (CA-07).
+                    if (controller.addressSubtitle.value.trim() ==
+                        controller.addressTitle.value.trim()) {
+                      return const SizedBox.shrink();
+                    }
                     return Text(
                       SelectLocationController.display(
                         controller.addressSubtitle.value,

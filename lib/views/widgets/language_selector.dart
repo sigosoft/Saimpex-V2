@@ -8,6 +8,7 @@ import '../../models/profile_repository.dart';
 import '../../utils/toast_helper.dart';
 
 import '../../utils/app_fonts.dart';
+
 class AppLanguage {
   final String code;
   final String label;
@@ -186,7 +187,13 @@ class _LanguageSelectionSheetState extends State<LanguageSelectionSheet> {
               _LanguageOptionCard(
                 language: appLanguages[i],
                 selected: _selectedIndex == i,
-                onTap: () => setState(() => _selectedIndex = i),
+                // Choosing a language applies it; it also needed Continue
+                // (CA-47). Continue stays for the design.
+                onTap: () {
+                  if (_isSaving) return;
+                  setState(() => _selectedIndex = i);
+                  _handleContinue();
+                },
               ),
               if (i < appLanguages.length - 1) const SizedBox(height: 12),
             ],

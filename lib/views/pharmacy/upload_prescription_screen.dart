@@ -5,6 +5,7 @@ import '../widgets/country_code_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../core/storage/session_store.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/pharmacy_repository.dart';
@@ -52,6 +53,13 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
     super.initState();
     selectedPharmacy = widget.initialPharmacy;
     selectedPharmacyId = widget.initialPharmacyId;
+    // The customer's own number to start with; they had to type it (CA-34).
+    final user = Get.isRegistered<SessionStore>()
+        ? Get.find<SessionStore>().readUser()
+        : null;
+    if (user != null && user.mobile.trim().isNotEmpty) {
+      contactController.text = user.mobile.trim();
+    }
     _loadPharmacies();
   }
 

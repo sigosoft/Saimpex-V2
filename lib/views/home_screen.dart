@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../utils/guest_gate.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/select_location_controller.dart';
 import '../core/network/api_constants.dart';
@@ -321,7 +322,12 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(width: 8),
           // Wallet pill badge: opens the wallet (balance, history, top-up)
           GestureDetector(
-            onTap: () => Get.to(() => const WalletScreen()),
+            // A guest is asked to log in first; they could open the top-up
+            // form and were asked only after typing an amount (CA-05).
+            onTap: () {
+              if (!GuestGate.ensureLoggedIn()) return;
+              Get.to(() => const WalletScreen());
+            },
             child: Container(
               height: 36,
               padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 6, 4),

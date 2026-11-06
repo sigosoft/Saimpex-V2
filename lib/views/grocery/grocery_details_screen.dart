@@ -17,6 +17,7 @@ import '../../widgets/app_back_button.dart';
 import '../widgets/auto_slide_network_images.dart';
 
 import '../../utils/app_fonts.dart';
+
 class GroceryDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
 
@@ -1188,40 +1189,42 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                           : _buildSearchFiltersSection(),
                     ),
 
-                    // Products: Smart Bundles + All Items
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Text(
-                          'st_smart_bundles'.tr,
-                          style: AppFonts.outfit(
-                            color: const Color(0xFF2C2520),
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                    // Products: Smart Bundles + All Items. Without a bundle
+                    // the section is left out; its empty state took half
+                    // the page (CA-28).
+                    if (smartBundle != null || _isLoading) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            'st_smart_bundles'.tr,
+                            style: AppFonts.outfit(
+                              color: const Color(0xFF2C2520),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    if (smartBundle != null)
-                      _buildSmartBundleCard(
-                        context,
-                        isNotAccepting,
-                        smartBundle!,
-                      )
-                    else if (!_isLoading)
-                      _buildNoDataPlaceholder('Smart Bundles')
-                    else
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFFFF5216),
+                      const SizedBox(height: 12),
+                      if (smartBundle != null)
+                        _buildSmartBundleCard(
+                          context,
+                          isNotAccepting,
+                          smartBundle!,
+                        )
+                      else
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFFFF5216),
+                            ),
                           ),
                         ),
-                      ),
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
+                    ],
 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -2017,26 +2020,26 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
 
                               // Only a rating the API sent; no stand-in value.
                               if (_ratingText(food['rating']).isNotEmpty)
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: Color(0xFFFFAE00),
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    (food['reviews'] ?? '').toString().isEmpty
-                                        ? '${food['rating']}'
-                                        : '${food['rating']} (${food['reviews']})',
-                                    style: AppFonts.outfit(
-                                      color: const Color(0xFFA59A94),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star_rounded,
+                                      color: Color(0xFFFFAE00),
+                                      size: 16,
                                     ),
-                                  ),
-                                ],
-                              ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      (food['reviews'] ?? '').toString().isEmpty
+                                          ? '${food['rating']}'
+                                          : '${food['rating']} (${food['reviews']})',
+                                      style: AppFonts.outfit(
+                                        color: const Color(0xFFA59A94),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               const SizedBox(height: 14),
 
                               Text(

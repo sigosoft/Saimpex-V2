@@ -4,7 +4,8 @@ const ordersStrings = <String, Map<String, String>>{
   'en': {
     'orders_pf_title': "Payment",
     'orders_pf_heading': "Payment not completed",
-    'orders_pf_body': "Masrvi did not confirm the payment for order #@code. You have not been charged.",
+    'orders_pf_body':
+        "Masrvi did not confirm the payment for order #@code. You have not been charged.",
     'orders_pf_order': "Order",
     'orders_pf_amount': "Amount",
     'orders_pf_status': "Status",
@@ -12,7 +13,8 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_pf_try_again': "Try again",
     'orders_pf_cash': "Pay with cash instead",
     'orders_pf_wallet': "Pay with Wallet (@balance)",
-    'orders_pf_note': "The order waits a short time for payment, then it is cancelled.",
+    'orders_pf_note':
+        "The order waits a short time for payment, then it is cancelled.",
     'orders_support_messages_title': 'Messages from SAIMPEX',
     'orders_support_messages_empty': 'No messages from SAIMPEX support yet.',
     'orders_support_order_label': 'Order @code',
@@ -209,12 +211,13 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_2_4': '2-4 PM',
     'orders_slot_4_6': '4-6 PM',
     'orders_slot_6_8': '6-8 PM',
-    'orders_slot_late': 'Late night',
+    'orders_slot_late': 'Late night (10 PM-12 AM)',
   },
   'fr': {
     'orders_pf_title': "Paiement",
     'orders_pf_heading': "Paiement non effectué",
-    'orders_pf_body': "Masrvi n'a pas confirmé le paiement de la commande #@code. Vous n'avez pas été débité.",
+    'orders_pf_body':
+        "Masrvi n'a pas confirmé le paiement de la commande #@code. Vous n'avez pas été débité.",
     'orders_pf_order': "Commande",
     'orders_pf_amount': "Montant",
     'orders_pf_status': "Statut",
@@ -222,7 +225,8 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_pf_try_again': "Réessayer",
     'orders_pf_cash': "Payer en espèces",
     'orders_pf_wallet': "Payer avec le portefeuille (@balance)",
-    'orders_pf_note': "La commande attend le paiement peu de temps, puis elle est annulée.",
+    'orders_pf_note':
+        "La commande attend le paiement peu de temps, puis elle est annulée.",
     'orders_support_messages_title': 'Messages de SAIMPEX',
     'orders_support_messages_empty':
         'Aucun message du support SAIMPEX pour le moment.',
@@ -422,12 +426,13 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_2_4': '14h-16h',
     'orders_slot_4_6': '16h-18h',
     'orders_slot_6_8': '18h-20h',
-    'orders_slot_late': 'Tard le soir',
+    'orders_slot_late': 'Tard le soir (22h-00h)',
   },
   'ar': {
     'orders_pf_title': "الدفع",
     'orders_pf_heading': "لم يكتمل الدفع",
-    'orders_pf_body': "لم يؤكد مصرفي الدفع للطلب #@code. لم يتم خصم أي مبلغ منك.",
+    'orders_pf_body':
+        "لم يؤكد مصرفي الدفع للطلب #@code. لم يتم خصم أي مبلغ منك.",
     'orders_pf_order': "الطلب",
     'orders_pf_amount': "المبلغ",
     'orders_pf_status': "الحالة",
@@ -628,6 +633,6 @@ const ordersStrings = <String, Map<String, String>>{
     'orders_slot_2_4': '2-4 مساءً',
     'orders_slot_4_6': '4-6 مساءً',
     'orders_slot_6_8': '6-8 مساءً',
-    'orders_slot_late': 'آخر الليل',
+    'orders_slot_late': 'آخر الليل (10-12 مساءً)',
   },
 };

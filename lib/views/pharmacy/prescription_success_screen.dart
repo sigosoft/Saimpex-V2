@@ -470,9 +470,11 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                       top: (40 - 3) / 2,
                       child: Row(
                         children: [
+                          // Only "Sent" is reached here; the half-orange
+                          // line read as "Under review" (CA-36).
                           _ProgressConnector(
                             width: segment,
-                            style: _ConnectorStyle.halfActive,
+                            style: _ConnectorStyle.inactive,
                           ),
                           _ProgressConnector(
                             width: segment,

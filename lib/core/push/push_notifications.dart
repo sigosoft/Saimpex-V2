@@ -68,10 +68,8 @@ class PushNotifications {
           AndroidFlutterLocalNotificationsPlugin
         >();
     await android?.createNotificationChannel(_channel);
-    await android?.requestNotificationsPermission();
 
     final messaging = FirebaseMessaging.instance;
-    await messaging.requestPermission();
     // iOS shows pushes itself while the app is open; Android needs _show.
     await messaging.setForegroundNotificationPresentationOptions(
       alert: true,
@@ -85,11 +83,18 @@ class PushNotifications {
     // ignore: deprecated_member_use
     messaging.onTokenRefresh.listen(_sendToken);
 
+    // Asked once signed in, when there are orders to hear about; it popped up
+    // on the very first screen, before onboarding (CA-02).
     final session = Get.find<SessionStore>();
     ever<bool>(session.isLoggedIn, (loggedIn) {
-      if (loggedIn) unawaited(syncToken());
+      if (!loggedIn) return;
+      unawaited(_requestPermission());
+      unawaited(syncToken());
     });
-    if (session.isLoggedIn.value) unawaited(syncToken());
+    if (session.isLoggedIn.value) {
+      unawaited(_requestPermission());
+      unawaited(syncToken());
+    }
 
     // The app was opened by tapping a push while it was closed.
     final initial = await messaging.getInitialMessage();
@@ -100,6 +105,20 @@ class PushNotifications {
   }
 
   /// Sends the current token to the server for the signed-in customer.
+  static bool _permissionAsked = false;
+
+  /// The system notification prompt (Android 13+, iOS), once per app run.
+  static Future<void> _requestPermission() async {
+    if (_permissionAsked) return;
+    _permissionAsked = true;
+    await _local
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestNotificationsPermission();
+    await FirebaseMessaging.instance.requestPermission();
+  }
+
   static Future<void> syncToken() async {
     if (!_ready) return;
     try {

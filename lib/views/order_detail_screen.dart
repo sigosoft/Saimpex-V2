@@ -190,26 +190,19 @@ class OrderDetailScreen extends StatelessWidget {
                                   top: 18,
                                   left: 30,
                                   right: 30,
+                                  // Orange only up to the reached step; it
+                                  // was fixed at "On the way" (CA-18).
                                   child: Row(
                                     children: [
-                                      Expanded(
-                                        child: Container(
-                                          height: 2,
-                                          color: const Color(0xFFFF5216),
+                                      for (var i = 1; i <= 3; i++)
+                                        Expanded(
+                                          child: Container(
+                                            height: 2,
+                                            color: _stage >= i
+                                                ? const Color(0xFFFF5216)
+                                                : const Color(0xFFEAD8C9),
+                                          ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          height: 2,
-                                          color: const Color(0xFFFF5216),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          height: 2,
-                                          color: const Color(0xFFEAD8C9),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),

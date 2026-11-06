@@ -48,7 +48,13 @@ class CourierReviewBookingScreen extends StatefulWidget {
     required this.dropOffLatitude,
     required this.dropOffLongitude,
     required this.isExpress,
+    this.packageSize = 'small',
+    this.packageDescription = '',
   });
+
+  /// small | medium | large, priced into [deliveryFee] (CA-39).
+  final String packageSize;
+  final String packageDescription;
 
   @override
   State<CourierReviewBookingScreen> createState() =>
@@ -165,6 +171,8 @@ class _CourierReviewBookingScreenState
         isExpress: widget.isExpress,
         paymentType: paymentType,
         language: apiLanguageCode(),
+        packageSize: widget.packageSize,
+        packageDescription: widget.packageDescription,
       );
       if (!mounted) return;
       showAppToast(result.message, backgroundColor: const Color(0xFFFF5216));
@@ -177,6 +185,13 @@ class _CourierReviewBookingScreenState
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } catch (_) {
+      // Any other failure said nothing at all (CA-38).
+      if (!mounted) return;
+      showAppToast(
+        'ease_err_generic'.tr,
+        backgroundColor: const Color(0xFFEF4444),
+      );
     } finally {
       if (mounted) setState(() => _placingBooking = false);
     }
