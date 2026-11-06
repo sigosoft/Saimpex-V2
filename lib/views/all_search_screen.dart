@@ -190,7 +190,8 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
         products.add({
           'title': _localName(product, 'name'),
           'image': ApiConstants.mediaUrl('${product['image'] ?? ''}') ?? '',
-          'rating': '${store['name'] ?? ''}',
+          // In the app language once the API sends name_ar/name_fr (CA-14).
+          'rating': _localName(store, 'name'),
           'dist': price == null
               ? ''
               : 'mru'.trParams({'amount': price.round().toString()}),

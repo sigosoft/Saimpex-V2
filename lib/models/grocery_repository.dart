@@ -230,7 +230,10 @@ class GroceryRepository {
     final recentOrdersRaw = data['recent_orders'] ?? data['orders'];
     final recentOrders = _parseOrderList(recentOrdersRaw, language);
 
+    // groceryHomeV2 sends delivery_15_minutes; the section stayed empty
+    // (CA-27).
     final fastStoresRaw =
+        data['delivery_15_minutes'] ??
         data['fast_delivery_stores'] ??
         data['fast_delivery'] ??
         data['under_15_minutes'] ??
@@ -959,7 +962,9 @@ class GroceryRepository {
       final selling = discount > 0 && discount < price ? discount : price;
       final stock = _asInt(m['stock']);
 
-      var label = _localized(m, 'attribute_name', language);
+      // "Size: 1 kg" from the server; the name alone said just "Size" (CA-26).
+      var label = _localized(m, 'variant_label', language);
+      if (label.isEmpty) label = _localized(m, 'attribute_name', language);
       if (label.isEmpty) label = _localized(m, 'variant_name', language);
       if (label.isEmpty) label = m['attribute_value']?.toString() ?? '';
 

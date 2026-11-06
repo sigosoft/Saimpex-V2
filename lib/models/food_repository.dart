@@ -336,13 +336,15 @@ class FoodRepository {
                   m['strike_price'],
             );
 
-      final priceStr =
-          m['price_text']?.toString() ??
-          (priceNum > 0 ? '$priceNum MRU' : '— MRU');
+      // In the app language, like the cart bar; the server's "MRU 260" next
+      // to "260 أوقية" mixed two formats on one page (CA-08).
+      final priceStr = 'mru'.trParams({
+        'amount': priceNum > 0 ? '$priceNum' : '—',
+      });
 
-      final origPriceStr =
-          m['original_price_text']?.toString() ??
-          (origPriceNum > priceNum ? '$origPriceNum MRU' : '');
+      final origPriceStr = origPriceNum > priceNum
+          ? 'mru'.trParams({'amount': '$origPriceNum'})
+          : '';
 
       final discountVal =
           m['discount'] ?? m['offer_percentage'] ?? m['discount_percentage'];
@@ -351,7 +353,10 @@ class FoodRepository {
           (discountVal != null && _asInt(discountVal) > 0
               ? offLabel(_asInt(discountVal))
               : (origPriceNum > priceNum && origPriceNum > 0
-                    ? offLabel((((origPriceNum - priceNum) / origPriceNum) * 100).round())
+                    ? offLabel(
+                        (((origPriceNum - priceNum) / origPriceNum) * 100)
+                            .round(),
+                      )
                     : ''));
 
       final tag = _localized(m, 'category_name', language).isNotEmpty

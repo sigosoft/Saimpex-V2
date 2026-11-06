@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/general_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
+import '../views/support_messages_screen.dart';
 
 /// "Need help?" with WhatsApp and call buttons. The numbers come from Admin →
 /// Branding, so the client can change them any time (V2_DECISIONS §17).
@@ -13,7 +14,9 @@ class HelpSheet {
 
   static ({String whatsapp, String phone, String email})? _cached;
 
-  static Future<void> show({String? orderCode}) async {
+  /// With [orderId], the sheet also offers a message to SAIMPEX support
+  /// about that order, so Help works when Admin has set no numbers (CA-19).
+  static Future<void> show({String? orderCode, int? orderId}) async {
     var contacts = _cached;
     if (contacts == null && Get.isRegistered<GeneralRepository>()) {
       try {
@@ -23,12 +26,18 @@ class HelpSheet {
         _cached = contacts;
       } catch (_) {}
     }
-    if (contacts == null || (contacts.whatsapp.isEmpty && contacts.phone.isEmpty)) {
+    contacts ??= (whatsapp: '', phone: '', email: '');
+    final hasOrder = orderId != null && orderId > 0;
+    if (!hasOrder && contacts.whatsapp.isEmpty && contacts.phone.isEmpty) {
       showAppToast('ease_help_unavailable'.tr);
       return;
     }
     await Get.bottomSheet(
-      _HelpSheetBody(contacts: contacts, orderCode: orderCode),
+      _HelpSheetBody(
+        contacts: contacts,
+        orderCode: orderCode,
+        orderId: hasOrder ? orderId : null,
+      ),
       backgroundColor: Colors.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -37,14 +46,16 @@ class HelpSheet {
     );
   }
 
-  static String _digits(String value) => value.replaceAll(RegExp(r'[^0-9]'), '');
+  static String _digits(String value) =>
+      value.replaceAll(RegExp(r'[^0-9]'), '');
 }
 
 class _HelpSheetBody extends StatelessWidget {
-  const _HelpSheetBody({required this.contacts, this.orderCode});
+  const _HelpSheetBody({required this.contacts, this.orderCode, this.orderId});
 
   final ({String whatsapp, String phone, String email}) contacts;
   final String? orderCode;
+  final int? orderId;
 
   Future<void> _open(Uri uri) async {
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -69,7 +80,11 @@ class _HelpSheetBody extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Icon(Icons.support_agent_rounded, color: Color(0xFFFF5216), size: 44),
+            const Icon(
+              Icons.support_agent_rounded,
+              color: Color(0xFFFF5216),
+              size: 44,
+            ),
             const SizedBox(height: 12),
             Text(
               'ease_help_title'.tr,
@@ -88,9 +103,11 @@ class _HelpSheetBody extends StatelessWidget {
                 label: 'ease_help_whatsapp'.tr,
                 color: const Color(0xFF25D366),
                 onTap: () => _open(
-                  Uri.https('wa.me', '/${HelpSheet._digits(contacts.whatsapp)}', {
-                    if (text.isNotEmpty) 'text': text,
-                  }),
+                  Uri.https(
+                    'wa.me',
+                    '/${HelpSheet._digits(contacts.whatsapp)}',
+                    {if (text.isNotEmpty) 'text': text},
+                  ),
                 ),
               ),
             if (contacts.whatsapp.isNotEmpty && contacts.phone.isNotEmpty)
@@ -100,8 +117,31 @@ class _HelpSheetBody extends StatelessWidget {
                 icon: Icons.call_rounded,
                 label: 'ease_help_call'.tr,
                 color: const Color(0xFFFF5216),
-                onTap: () => _open(Uri(scheme: 'tel', path: '+${HelpSheet._digits(contacts.phone)}')),
+                onTap: () => _open(
+                  Uri(
+                    scheme: 'tel',
+                    path: '+${HelpSheet._digits(contacts.phone)}',
+                  ),
+                ),
               ),
+            if (orderId != null) ...[
+              if (contacts.whatsapp.isNotEmpty || contacts.phone.isNotEmpty)
+                const SizedBox(height: 10),
+              _HelpButton(
+                icon: Icons.forum_rounded,
+                label: 'ease_help_message'.tr,
+                color: const Color(0xFF2C2520),
+                onTap: () {
+                  Get.back();
+                  Get.to(
+                    () => SupportThreadScreen(
+                      orderId: orderId!,
+                      orderCode: orderCode ?? '',
+                    ),
+                  );
+                },
+              ),
+            ],
           ],
         ),
       ),
@@ -131,11 +171,16 @@ class _HelpButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
         onPressed: onTap,
         icon: Icon(icon),
-        label: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        label: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }

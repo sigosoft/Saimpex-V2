@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../utils/store_labels.dart';
 import '../widgets/app_back_button.dart';
 import '../controllers/home_controller.dart';
 import 'restaurant_details_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 class MyFavouritesScreen extends StatelessWidget {
   const MyFavouritesScreen({super.key});
 
@@ -272,7 +274,7 @@ class MyFavouritesScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    (item['subtitle'] ?? '').toString(),
+                    _text(item, 'subtitle'),
                     style: AppFonts.outfit(
                       color: const Color(0xFF8A7E76),
                       fontSize: 13,
@@ -330,8 +332,24 @@ class MyFavouritesScreen extends StatelessWidget {
   }
 
   /// A card field as text; empty when the card doesn't have it.
-  static String _text(Map<String, dynamic> item, String key) =>
-      '${item[key] ?? ''}'.trim();
+  /// The card texts were saved in English when hearted ("25 min", "1.2 Km",
+  /// "9% OFF", "Restaurant"); shown in the app language (CA-41).
+  static String _text(Map<String, dynamic> item, String key) {
+    final value = '${item[key] ?? ''}'.trim();
+    if (key == 'subtitle') {
+      final type = _typeKeys[value.toLowerCase()];
+      if (type != null) return type.tr;
+    }
+    return localizedStoreText(value);
+  }
+
+  static const _typeKeys = {
+    'restaurant': 'search_vertical_food',
+    'grocery': 'search_vertical_grocery',
+    'local store': 'search_vertical_local_store',
+    'pharmacy': 'search_vertical_pharmacy',
+    'water': 'search_vertical_water',
+  };
 
   Widget _buildImage(String image) {
     if (image.startsWith('http')) {

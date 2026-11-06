@@ -529,6 +529,8 @@ class OrderRepository {
     required String language,
     String vendorComment = '',
     String driverComment = '',
+    List<String> vendorTags = const [],
+    List<String> driverTags = const [],
     // Home cleaning with an assigned cleaner: rated apart from the business.
     int cleanerRating = 0,
     String cleanerComment = '',
@@ -540,9 +542,12 @@ class OrderRepository {
           'order_id': '$orderId',
           'vendor_rating': '$vendorRating',
           'vendor_comment': vendorComment,
+          if (vendorTags.isNotEmpty) 'vendor_tags': vendorTags,
           // The API accepts 1-5 only, so an unrated driver is left out.
           if (driverRating > 0) 'driver_rating': '$driverRating',
           if (driverRating > 0) 'driver_comment': driverComment,
+          if (driverRating > 0 && driverTags.isNotEmpty)
+            'driver_tags': driverTags,
           if (cleanerRating > 0) 'cleaner_rating': '$cleanerRating',
           if (cleanerRating > 0) 'cleaner_comment': cleanerComment,
           'products': '',

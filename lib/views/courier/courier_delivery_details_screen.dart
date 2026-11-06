@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../../core/network/api_exception.dart';
+import '../../models/courier_repository.dart';
+import '../../utils/api_language.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 import '../widgets/country_code_picker.dart';
@@ -8,6 +11,7 @@ import '../widgets/country_code_picker.dart';
 import 'courier_review_booking_screen.dart';
 
 import '../../utils/app_fonts.dart';
+
 class CourierDeliveryDetailsScreen extends StatefulWidget {
   final String pickupAddress;
   final String dropOffAddress;
@@ -47,14 +51,171 @@ class _CourierDeliveryDetailsScreenState
     extends State<CourierDeliveryDetailsScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _descriptionController = TextEditingController();
   String countryCode = '+222';
   String countryFlag = '🇲🇷';
+
+  /// Package size and what's inside (courier API `package_size`,
+  /// `package_description`; there was no field for either, CA-39). A bigger
+  /// size costs more, so it is re-quoted.
+  String _packageSize = 'small';
+  late int _deliveryFee = widget.deliveryFee;
+  bool _quoting = false;
+
+  static const _packageSizes = {
+    'small': 'st_package_small',
+    'medium': 'st_package_medium',
+    'large': 'st_package_large',
+  };
+
+  Future<void> _selectSize(String size) async {
+    if (size == _packageSize || _quoting) return;
+    setState(() {
+      _packageSize = size;
+      _quoting = true;
+    });
+    try {
+      final quote = await Get.find<CourierRepository>().quote(
+        pickup: CourierStop(
+          address: widget.pickupAddress,
+          latitude: widget.pickupLatitude,
+          longitude: widget.pickupLongitude,
+        ),
+        dropoff: CourierStop(
+          address: widget.dropOffAddress,
+          latitude: widget.dropOffLatitude,
+          longitude: widget.dropOffLongitude,
+        ),
+        isExpress: widget.isExpress,
+        packageSize: size,
+        language: apiLanguageCode(),
+      );
+      if (mounted) setState(() => _deliveryFee = quote.deliveryFee.round());
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _quoting = false);
+    }
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _descriptionController.dispose();
     super.dispose();
+  }
+
+  Widget _buildPackageCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'st_package'.tr,
+                  style: AppFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Text(
+                _quoting ? '…' : 'mru'.trParams({'amount': '$_deliveryFee'}),
+                style: AppFonts.outfit(
+                  color: const Color(0xFFFF5216),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              for (final entry in _packageSizes.entries) ...[
+                if (entry.key != 'small') const SizedBox(width: 8),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _selectSize(entry.key),
+                    child: Container(
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: _packageSize == entry.key
+                            ? const Color(0xFFFF5216)
+                            : const Color(0xFFFAF6F0),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _packageSize == entry.key
+                              ? const Color(0xFFFF5216)
+                              : const Color(0xFFEAD8C9),
+                        ),
+                      ),
+                      child: Text(
+                        entry.value.tr,
+                        style: AppFonts.outfit(
+                          color: _packageSize == entry.key
+                              ? Colors.white
+                              : const Color(0xFF2C2520),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 14),
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAF6F0),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: TextField(
+              controller: _descriptionController,
+              maxLines: 2,
+              maxLength: 300,
+              style: AppFonts.outfit(
+                color: const Color(0xFF2C2520),
+                fontSize: 13,
+              ),
+              decoration: InputDecoration(
+                hintText: 'st_package_description_hint'.tr,
+                hintStyle: AppFonts.outfit(
+                  color: const Color(0xFFA59A94),
+                  fontSize: 12,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                counterText: '',
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String get _displayDropOff {
@@ -107,6 +268,8 @@ class _CourierDeliveryDetailsScreenState
                         _buildRouteCard(),
                         const SizedBox(height: 14),
                         _buildRecipientCard(),
+                        const SizedBox(height: 14),
+                        _buildPackageCard(),
                         const SizedBox(height: 20),
                         _buildConfirmButton(),
                         const SizedBox(height: 24),
@@ -398,6 +561,11 @@ class _CourierDeliveryDetailsScreenState
                   child: TextField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
+                    // Digits only; "Test95200022" was accepted (CA-38).
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(15),
+                    ],
                     style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,
@@ -426,11 +594,24 @@ class _CourierDeliveryDetailsScreenState
   Widget _buildConfirmButton() {
     return GestureDetector(
       onTap: () {
+        if (_quoting) return;
         final name = _nameController.text.trim();
         final phone = _phoneController.text.trim();
         if (name.isEmpty || phone.isEmpty) {
           showAppToast(
             'st_recipient_required'.tr,
+            backgroundColor: const Color(0xFFEF4444),
+          );
+          return;
+        }
+        // Mauritanian numbers have 8 digits; others at least 6.
+        final digits = phone.replaceAll(RegExp(r'\D'), '');
+        final validLength = countryCode == '+222'
+            ? digits.length == 8
+            : digits.length >= 6;
+        if (digits != phone || !validLength) {
+          showAppToast(
+            'st_recipient_phone_invalid'.tr,
             backgroundColor: const Color(0xFFEF4444),
           );
           return;
@@ -443,14 +624,16 @@ class _CourierDeliveryDetailsScreenState
             recipientPhone: '$countryCode $phone',
             vehicleLabel: widget.vehicleLabel,
             vehicleTime: widget.vehicleTime,
-            vehiclePrice: widget.vehiclePrice,
+            vehiclePrice: 'mru'.trParams({'amount': '$_deliveryFee'}),
             vehicleImage: widget.vehicleImage,
-            deliveryFee: widget.deliveryFee,
+            deliveryFee: _deliveryFee,
             pickupLatitude: widget.pickupLatitude,
             pickupLongitude: widget.pickupLongitude,
             dropOffLatitude: widget.dropOffLatitude,
             dropOffLongitude: widget.dropOffLongitude,
             isExpress: widget.isExpress,
+            packageSize: _packageSize,
+            packageDescription: _descriptionController.text.trim(),
           ),
         );
       },

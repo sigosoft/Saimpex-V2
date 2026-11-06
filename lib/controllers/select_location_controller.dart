@@ -136,7 +136,11 @@ class SelectLocationController extends GetxController {
         address: selectedTitle,
         language: apiLanguageCode(),
       );
-      if (saveToAddressBook) {
+      // After login the chosen spot also goes to Saved addresses unless it is
+      // already there; it was used for delivery but never listed (CA-43).
+      final saveFirstAddress =
+          isInitialSetup && !saveToAddressBook && !await _alreadySaved(profile);
+      if (saveToAddressBook || saveFirstAddress) {
         message = await profile.saveAddress(
           addressId: editAddressId,
           label: selectedAddressType.value,
@@ -162,6 +166,24 @@ class SelectLocationController extends GetxController {
       if (!_isDisposed) showAppToast(error.message);
     } finally {
       if (!_isDisposed) isUpdatingLocation.value = false;
+    }
+  }
+
+  /// True when a saved address is within about 50 m of the chosen spot (or
+  /// the list can't be loaded, so nothing is added blindly).
+  Future<bool> _alreadySaved(ProfileRepository profile) async {
+    try {
+      final saved = await profile.savedAddresses(apiLanguageCode());
+      return saved.any((address) {
+        final lat = double.tryParse('${address['latitude'] ?? ''}');
+        final lng = double.tryParse('${address['longitude'] ?? ''}');
+        return lat != null &&
+            lng != null &&
+            (lat - selectedLatitude).abs() < 0.0005 &&
+            (lng - selectedLongitude).abs() < 0.0005;
+      });
+    } on ApiException {
+      return true;
     }
   }
 

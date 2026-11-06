@@ -7,6 +7,7 @@ import 'widgets/next_button.dart';
 import 'widgets/page_indicator.dart';
 
 import '../utils/app_fonts.dart';
+
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
@@ -360,9 +361,15 @@ class _OnboardingImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final fallback = 'lib/assets/images/Onboard${(index % 3) + 1}.png';
     if (path.startsWith('http://') || path.startsWith('https://')) {
+      // The bundled picture shows until the server's has loaded; the top
+      // half stayed black meanwhile (CA-03).
       return Image.network(
         path,
         fit: BoxFit.cover,
+        frameBuilder: (_, child, frame, wasSynchronouslyLoaded) =>
+            frame == null && !wasSynchronouslyLoaded
+            ? Image.asset(fallback, fit: BoxFit.cover)
+            : child,
         errorBuilder: (_, _, _) => Image.asset(fallback, fit: BoxFit.cover),
       );
     }

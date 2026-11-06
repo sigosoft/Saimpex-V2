@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../models/order_repository.dart';
 import '../models/service_booking_detail.dart' show cleanerPhotoUrl;
@@ -44,6 +45,47 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
   int restaurantRating = 0;
   int deliveryRating = 0;
   int cleanerRating = 0;
+
+  /// Who is being rated, from GET customer/rating; the form only said
+  /// "Rate the restaurant" / "your delivery" (CA-22).
+  String _vendorName = '';
+  String _vendorImage = '';
+  String _driverName = '';
+  String _driverImage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNames();
+  }
+
+  Future<void> _loadNames() async {
+    final orderId = widget.orderId;
+    if (orderId == null || !Get.isRegistered<OrderRepository>()) return;
+    try {
+      final data = await Get.find<OrderRepository>().rating(
+        orderId: orderId,
+        language: apiLanguageCode(),
+      );
+      if (!mounted) return;
+      String text(Object? value) {
+        final result = '${value ?? ''}'.trim();
+        return result == 'null' ? '' : result;
+      }
+
+      final vendor = data['vendor'] is Map ? data['vendor'] as Map : const {};
+      final driver = data['driver'] is Map ? data['driver'] as Map : const {};
+      final localName = text(vendor['name_${apiLanguageCode()}']);
+      setState(() {
+        _vendorName = localName.isNotEmpty ? localName : text(vendor['name']);
+        _vendorImage = ApiConstants.mediaUrl(text(vendor['image'])) ?? '';
+        _driverName = text(driver['name']);
+        _driverImage = ApiConstants.mediaUrl(text(driver['image'])) ?? '';
+      });
+    } on ApiException {
+      // The generic titles stay.
+    }
+  }
 
   final Set<String> selectedRestaurantTags = {};
   final Set<String> selectedDeliveryTags = {};
@@ -91,17 +133,20 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
     }
     String comment(Set<String> tags, String text) =>
         [...tags.map((tag) => tag.tr), if (text.isNotEmpty) text].join(', ');
+    // Store and driver tags go in their own fields, in English so they can be
+    // counted (CA-23 / C-B17: they were saved inside the comment).
+    List<String> tagValues(Set<String> tags) => [
+      for (final tag in tags) Get.translations['en']?[tag] ?? tag,
+    ];
     setState(() => _submitting = true);
     try {
       final message = await Get.find<OrderRepository>().submitRating(
         orderId: orderId,
         vendorRating: restaurantRating,
         driverRating: deliveryRating,
-        vendorComment: comment(
-          selectedRestaurantTags,
-          _reviewController.text.trim(),
-        ),
-        driverComment: comment(selectedDeliveryTags, ''),
+        vendorComment: _reviewController.text.trim(),
+        vendorTags: tagValues(selectedRestaurantTags),
+        driverTags: tagValues(selectedDeliveryTags),
         cleanerRating: widget.cleaner == null ? 0 : cleanerRating,
         cleanerComment: comment(selectedCleanerTags, ''),
         language: apiLanguageCode(),
@@ -179,11 +224,12 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildExperienceCard(
-                    imageUrl: '',
+                    imageUrl: _vendorImage,
                     fallbackAsset: 'lib/assets/images/Food.png',
                     title: widget.isService
                         ? 'svc_rate_provider'.tr
                         : 'orders_rate_restaurant'.tr,
+                    name: _vendorName,
                     rating: restaurantRating,
                     onRatingChanged: (value) {
                       setState(() => restaurantRating = value);
@@ -210,9 +256,10 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                   if (widget.hasDelivery) ...[
                     const SizedBox(height: 14),
                     _buildExperienceCard(
-                      imageUrl: '',
+                      imageUrl: _driverImage,
                       fallbackAsset: 'lib/assets/images/delivery_icon.png',
                       title: 'orders_rate_delivery'.tr,
+                      name: _driverName,
                       rating: deliveryRating,
                       onRatingChanged: (value) {
                         setState(() => deliveryRating = value);
@@ -307,6 +354,7 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
     required String imageUrl,
     String? fallbackAsset,
     required String title,
+    String name = '',
     required int rating,
     required ValueChanged<int> onRatingChanged,
     required List<String> tags,
@@ -364,6 +412,19 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                    if (name.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.outfit(
+                          color: const Color(0xFF7A6A60),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     _buildStarSelector(
                       rating: rating,

@@ -7,6 +7,7 @@ import '../../core/network/api_constants.dart';
 import '../../models/order_tracking.dart';
 import '../../utils/api_language.dart';
 import '../../widgets/cancel_order_bottom_sheet.dart';
+import '../../widgets/help_sheet.dart';
 import 'pharmacy_track_order_screen.dart';
 import 'widgets/pharmacy_background.dart';
 import 'widgets/pharmacy_order_detail_loader.dart';
@@ -154,17 +155,11 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
                   Align(
                     alignment: AlignmentDirectional.centerEnd,
                     child: GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'pw_help_center_opened'.tr,
-                              style: AppFonts.outfit(),
-                            ),
-                            backgroundColor: const Color(0xFFFF5216),
-                          ),
-                        );
-                      },
+                      // It only said "Help center opened" (CA-19).
+                      onTap: () => HelpSheet.show(
+                        orderCode: orderId,
+                        orderId: apiOrderId,
+                      ),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,

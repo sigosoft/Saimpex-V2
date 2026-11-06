@@ -376,7 +376,26 @@ class PharmacyRepository {
     return _pharmacyCards(data['pharmacies'], language);
   }
 
-  Future<String> uploadPrescription({
+  /// Withdraws a request before it is paid (POST prescription/{id}/cancel,
+  /// CA-30); 400 once it can no longer be cancelled.
+  Future<String> cancelPrescription({
+    required int prescriptionId,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.post(
+        ApiConstants.prescriptionCancel(prescriptionId),
+        data: <String, dynamic>{},
+        options: Options(contentType: Headers.jsonContentType),
+      ),
+      language,
+    );
+    return envelope.message;
+  }
+
+  /// Sends the prescription; returns the server message and the new
+  /// request's id (null when the response has none).
+  Future<({String message, int? prescriptionId})> uploadPrescription({
     required int pharmacyId,
     required String contactNumber,
     required bool callBeforeAlternative,
@@ -405,7 +424,8 @@ class PharmacyRepository {
       ),
       language,
     );
-    return envelope.message;
+    final id = _asInt(asJsonMap(envelope.data)?['prescription_id']);
+    return (message: envelope.message, prescriptionId: id > 0 ? id : null);
   }
 
   Future<
@@ -1017,7 +1037,9 @@ class PharmacyRepository {
       'title': name.isEmpty ? 'Pharmacy' : name,
       'subtitle': item['address']?.toString() ?? '',
       'rating': '${item['rating'] ?? 0}',
-      'time': localizedStoreText(item['delivery_time_text'] ?? item['estimated_time']),
+      'time': localizedStoreText(
+        item['delivery_time_text'] ?? item['estimated_time'],
+      ),
       'dist': _distanceLabel(item),
       'discount': offer,
       'points': points,

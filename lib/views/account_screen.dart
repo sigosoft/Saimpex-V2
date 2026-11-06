@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../constants/colors.dart';
 import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
@@ -34,6 +35,7 @@ import '../widgets/animated_coin.dart';
 import '../navigation/bottom_nav_router.dart';
 
 import '../utils/app_fonts.dart';
+
 class AccountScreen extends StatefulWidget {
   final bool showBottomNav;
 
@@ -259,11 +261,18 @@ class _AccountScreenState extends State<AccountScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  'V2.8.2',
-                                  style: AppFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 12,
+                                // The installed version; it said a fixed
+                                // "V2.8.2" (CA-46).
+                                FutureBuilder<PackageInfo>(
+                                  future: PackageInfo.fromPlatform(),
+                                  builder: (context, snapshot) => Text(
+                                    snapshot.hasData
+                                        ? 'V${snapshot.data!.version}'
+                                        : '',
+                                    style: AppFonts.outfit(
+                                      color: const Color(0xFFA59A94),
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),

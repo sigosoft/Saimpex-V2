@@ -62,10 +62,8 @@ class ServicesScreen extends StatelessWidget {
       imageBottom: 8,
       imageAlignment: Alignment(0.1, 1.0),
       clipBottomFraction: 0.22,
-      ghostSize: 88,
-      ghostTop: 40,
-      ghostRight: 6,
-      ghostClipBottomFraction: 0.22,
+      // The faded copy behind the car read as a duplicate car (CA-29).
+      showGhost: false,
     ),
   ];
 
@@ -672,7 +670,7 @@ class _PopularServiceCard extends StatelessWidget {
                             height: data.ghostSize,
                             fit: data.imageFit,
                             alignment: data.imageAlignment,
-                            clipBottomFraction: data.ghostClipBottomFraction,
+                            clipBottomFraction: 0,
                           ),
                         ),
                       ),
@@ -785,7 +783,6 @@ class _PopularCardData {
   final double ghostSize;
   final double ghostTop;
   final double ghostRight;
-  final double ghostClipBottomFraction;
   final bool showGhost;
   final double imageScale;
 
@@ -801,7 +798,6 @@ class _PopularCardData {
     this.ghostSize = 0,
     this.ghostTop = 0,
     this.ghostRight = 0,
-    this.ghostClipBottomFraction = 0,
     this.showGhost = true,
     this.imageScale = 1,
   }) : imageFit = BoxFit.contain;

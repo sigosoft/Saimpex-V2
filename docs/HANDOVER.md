@@ -851,3 +851,56 @@ From `SAIMPEX-V2-water-test-report.pdf` (customer main 703f82e). Analyzer clean,
 - **Found while testing (not fixed here):**
   - **Water minimum order not shown before checkout:** Eau Pure Arafat has a 50 MRU minimum. A 45 MRU cart was refused at checkout with "Minimum order for this store is 50 MRU. Add 5 MRU more…", but the water cart summary (`checkoutSummaryV2`) has no `min_order_value` / `min_order_shortfall` (other carts do), so the app can't warn earlier (backend, Praveen).
   - **Order success screen for a water order shows "175 MRU" without the order code:** `checkoutV2` doesn't return `order_code` for this order; the app shows the code only when it gets one.
+
+### Customer app test report 5 Nov: Sharvin's items (`fix/customer-test-report-5nov`, [PR #48](https://github.com/sigosoft/Saimpex-V2/pull/48)) ✅ checked on the phone (main items)
+From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (live on dev) added prescription cancel, rating tags, store AR/FR names on the rating, variant labels and wallet titles. Analyzer clean, 39 tests pass.
+
+**P1**
+- **CA-19 Help on an order:** with no support numbers in Admin it only toasted; pharmacy/grocery Help showed a fake "Help center opened". The Help sheet now always offers **Message SAIMPEX support** for that order (`replySupportMessage`, opens the support thread), plus WhatsApp/Call when Admin → Branding has them. Admin should still fill `support_phone` / `support_whatsapp` (Kiran/Sajin).
+- **CA-30 prescription Cancel:** the success screen's Cancel reopened the filled form. It now confirms and calls `POST prescription/{id}/cancel`; the upload screen is replaced by the success screen so Back doesn't reopen the form.
+
+**P2 fixed in the app**
+- CA-01 Android label "Saimpex" (permission prompts). CA-02 notification permission asked after login, not on the first screen. CA-03 onboarding shows the bundled image until the server's loads (no black half). CA-05 a guest is asked to log in before the wallet. CA-06 OTP boxes cleared after a wrong code. CA-07 the location subtitle is hidden when it repeats the title.
+- CA-08 food item prices use the app's MRU format. CA-18 order progress line follows the real step. CA-20 "Late night" slot shows 10 PM–12 AM (EN/FR/AR).
+- CA-22 rating form names the store and the driver. CA-23 tags go in `vendor_tags` / `driver_tags` (English text). CA-26 variants and cart lines show `variant_label` ("Size: 1 kg"). CA-40 wallet history shows the translated title that names the order.
+- CA-27 grocery "Delivery in 15 minutes" reads `delivery_15_minutes`. CA-28 no empty Smart Bundles block. CA-29 no faded duplicate car on the Car Wash card.
+- CA-34 prescription contact prefilled with the customer's number. CA-36 prescription progress line not half-filled. CA-15/CA-35 the scanner has a close button and a hint; if the in-app camera can't start, the shutter opens the phone's camera app (the black preview wasn't reproduced in code).
+- CA-37 courier vehicles say "Set both addresses" before a price exists. CA-38 recipient phone digits only, 8 digits for +222, message on errors. CA-39 courier package size (Small/Medium/Large, re-quoted price) and description, sent to `courier/create`; no Figma screen, built in the screen's card style.
+- CA-41 favourites card labels in the app language. CA-43 the address chosen at login is added to Saved addresses (once, if not already there). CA-46 Account shows the installed version. CA-47 tapping a language applies it.
+- CA-14 search product rows use the store's AR/FR name once the API sends it.
+
+**Waiting on the backend** ([praveensigo/saimpex-backend-new#177](https://github.com/praveensigo/saimpex-backend-new/issues/177), [#178](https://github.com/praveensigo/saimpex-backend-new/issues/178))
+- CA-21 cancel reason: `cancelOrder` has no reason field (#177); the sheet's reason and an "Other" text box follow once documented.
+- CA-10 tapping a notification: the list has no `order_id` / `type` (#178). CA-14 store AR/FR names in search (#178). CA-25 minimum order before checkout: `checkoutSummaryV2` has no `min_order_*` (#178; the cart already shows the reminder when it does). CA-27 grocery recent orders (#178). CA-22 store AR/FR name on the rating (#178).
+
+**Not changed, and why**
+- CA-04 onboarding page 3 "PREMIUM50" coupon and CA-32 English pharmacy/courier banners are text inside the Figma images: needs per-language artwork (designer) or Admin sliders, or create the PREMIUM50 coupon in Admin.
+- CA-17 "Specify quantity here" box under the cart stepper has been there since the first build from the design; left until checked against Figma.
+- CA-16 payment switching to Pay After Delivery after a coupon: no code path selects it on its own. Likely cause: the Pay After Delivery card appears above the others when its status loads, so a tap lands on it. Needs a repro on the phone.
+- CA-44 chat bubbles on one side: the code decides "mine" from `is_mine` / `sender_type`; needs the tested conversation's response to find the cause.
+- CA-45 French bottom bar: still tight with "Réservations" / "Commandes" (improved 3 Nov); needs shorter French labels from the design.
+- Dev data / Admin: CA-09, CA-31, CA-33 test stores, duplicate categories (Sajin); CA-42 privacy policy text (Kiran/Praveen).
+- **Phone (vivo V2239, dev, debug build of 795f022, 6 Nov):**
+  - CA-19: Help on ORD-001542 opens "Need help?" with "Message SAIMPEX support"; the thread opens with a reply box (nothing sent). WhatsApp/Call stay hidden because dev has no numbers.
+  - CA-18: the line stops at the order's step.
+  - CA-46: Profile shows "V2.0.0".
+  - CA-47: one tap on Français switched the app (switched back to English).
+  - CA-37/38/39:
+    - Courier vehicles say "Set both addresses", then 227 / 341 MRU.
+    - The Package card shows; Large re-quoted to 427 MRU.
+    - "Test9520" in the recipient phone kept only 9520, and Confirm said "Enter a valid phone number for the recipient (8 digits)" (nothing booked).
+  - CA-34: prescription contact prefilled 95200021.
+  - CA-01: the Android camera prompt says "Allow Saimpex…".
+  - CA-15: the scanner shows the close button and the hint.
+  - CA-35: the preview works once camera permission is granted (black before the prompt), so the report's black camera was likely the missing permission.
+  - CA-36: only "Prescription Sent" is orange.
+  - CA-30: prescription #20 sent to Test Pharmacy, then Cancel → "Cancel request" → server `status: cancelled`, back on Pharmacy (not the form).
+  - Not seen on the phone: CA-02, 03, 05, 06, 07, 08, 20, 22, 23, 26, 27, 28, 29, 40, 41, 43. CA-16 not reproduced (needs a cart and a valid coupon; someone was placing orders on 95200021 at the time).
+- **Debug-only red screen** (`_dependents.isEmpty`) seen twice: right after installing over a running app, and once on returning to the app. Same as the earlier notes above; restart clears it, and it hasn't been seen in release builds.
+- **Test data left on dev:** prescription #20 (cancelled), at Test Pharmacy.
+- **Follow-up (6 Nov evening):**
+  - **CA-16 payment switching to Pay After Delivery:** no code path selects it on its own. The Pay After Delivery card is added above Wallet when its status loads, which pushed every card down; a tap meant for Wallet then picked Pay After Delivery. The card's place is now reserved while it loads, so nothing moves. Not reproduced on the phone: dev has no coupons for 95200021 (`customer/coupons` is empty) and the phone was in use.
+  - **CA-44 chat bubbles on one side:** not a bug. The Eau Pure Arafat conversation (id 100) has 3 messages, all `sender_type: customer`; the store never replied, so every bubble is the customer's.
+  - **CA-17 "Specify quantity here":** it is in the original design conversion of the cart (first commit, "Customize your quantity here"), so it comes from Figma. Left for a design decision.
+  - **CA-45 French bottom bar:** needs shorter French labels from the design team ("Réservations", "Commandes"); not changed here.
+  - Backend #177 / #178 not done yet (checked 6 Nov), so CA-10, 14, 21, 22 (AR/FR name), 25, 27 (recent orders) still wait.
