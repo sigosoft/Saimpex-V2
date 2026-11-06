@@ -13,6 +13,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
+
 /// SAIMPEX Wallet: balance, transaction history (GET wallet) and top-up
 /// (POST wallet/topup, paid on the Masrvi page). Built without a Figma screen,
 /// in the app's style.
@@ -427,7 +428,18 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget _buildTransaction(Map<String, dynamic> row) {
     final credit = row['type'] == 'credit';
     final amount = num.tryParse('${row['amount'] ?? ''}') ?? 0;
-    final description = '${row['description'] ?? ''}'.trim();
+    // The server's title in the app language names the order ("Payment for
+    // ORD-001533"); description is English only (CA-40).
+    String text(String key) {
+      final value = '${row[key] ?? ''}'.trim();
+      return value == 'null' ? '' : value;
+    }
+
+    final description = [
+      text('title_${apiLanguageCode()}'),
+      text('title'),
+      text('description'),
+    ].firstWhere((value) => value.isNotEmpty, orElse: () => '');
     final date = DateTime.tryParse('${row['created_at'] ?? ''}')?.toLocal();
     return Container(
       padding: const EdgeInsets.all(14),

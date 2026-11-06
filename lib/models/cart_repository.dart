@@ -457,6 +457,9 @@ class CartRepository {
   String _itemPortion(Map<String, dynamic> item, String language) {
     final direct = item['portion']?.toString().trim() ?? '';
     if (direct.isNotEmpty && direct != 'null') return direct;
+    // "Size: 1 kg" from the server; the name alone said just "Size" (CA-26).
+    final label = _localizedField(item, 'variant_label', language);
+    if (label.isNotEmpty) return label;
     final variant = _localizedField(item, 'variant_name', language);
     if (variant.isNotEmpty) return variant;
     final parts = [item['form'], item['dosage'], item['stock_unit']]

@@ -91,17 +91,20 @@ class _RateOrderScreenState extends State<RateOrderScreen> {
     }
     String comment(Set<String> tags, String text) =>
         [...tags.map((tag) => tag.tr), if (text.isNotEmpty) text].join(', ');
+    // Store and driver tags go in their own fields, in English so they can be
+    // counted (CA-23 / C-B17: they were saved inside the comment).
+    List<String> tagValues(Set<String> tags) => [
+      for (final tag in tags) Get.translations['en']?[tag] ?? tag,
+    ];
     setState(() => _submitting = true);
     try {
       final message = await Get.find<OrderRepository>().submitRating(
         orderId: orderId,
         vendorRating: restaurantRating,
         driverRating: deliveryRating,
-        vendorComment: comment(
-          selectedRestaurantTags,
-          _reviewController.text.trim(),
-        ),
-        driverComment: comment(selectedDeliveryTags, ''),
+        vendorComment: _reviewController.text.trim(),
+        vendorTags: tagValues(selectedRestaurantTags),
+        driverTags: tagValues(selectedDeliveryTags),
         cleanerRating: widget.cleaner == null ? 0 : cleanerRating,
         cleanerComment: comment(selectedCleanerTags, ''),
         language: apiLanguageCode(),

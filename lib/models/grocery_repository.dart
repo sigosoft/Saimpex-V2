@@ -959,7 +959,9 @@ class GroceryRepository {
       final selling = discount > 0 && discount < price ? discount : price;
       final stock = _asInt(m['stock']);
 
-      var label = _localized(m, 'attribute_name', language);
+      // "Size: 1 kg" from the server; the name alone said just "Size" (CA-26).
+      var label = _localized(m, 'variant_label', language);
+      if (label.isEmpty) label = _localized(m, 'attribute_name', language);
       if (label.isEmpty) label = _localized(m, 'variant_name', language);
       if (label.isEmpty) label = m['attribute_value']?.toString() ?? '';
 
