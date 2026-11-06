@@ -72,7 +72,10 @@ class OrderDetailScreen extends StatelessWidget {
                   Align(
                     alignment: AlignmentDirectional.centerEnd,
                     child: GestureDetector(
-                      onTap: () => HelpSheet.show(orderCode: orderId),
+                      onTap: () => HelpSheet.show(
+                        orderCode: orderId,
+                        orderId: apiOrderId,
+                      ),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,

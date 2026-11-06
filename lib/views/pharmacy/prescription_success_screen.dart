@@ -4,21 +4,70 @@ import '../../widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/network/api_exception.dart';
+import '../../models/pharmacy_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/toast_helper.dart';
 import '../my_orders_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
 import '../../utils/app_fonts.dart';
+
 class PrescriptionSuccessScreen extends StatelessWidget {
   final String fileName;
   final String? filePath;
   final bool isImage;
+
+  /// The sent request; Cancel withdraws it (CA-30).
+  final int? prescriptionId;
 
   const PrescriptionSuccessScreen({
     super.key,
     required this.fileName,
     this.filePath,
     this.isImage = false,
+    this.prescriptionId,
   });
+
+  /// Withdraws the request after a confirmation. Cancel only reopened the
+  /// filled form and the request stayed "uploaded" (CA-30).
+  Future<void> _cancelRequest(BuildContext context) async {
+    final id = prescriptionId;
+    if (id == null || !Get.isRegistered<PharmacyRepository>()) {
+      Navigator.pop(context);
+      return;
+    }
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('pw_cancel_request_title'.tr),
+        content: Text('pw_cancel_request_body'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('core_cancel_no'.tr),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text('pw_cancel_request_yes'.tr),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      final message = await Get.find<PharmacyRepository>().cancelPrescription(
+        prescriptionId: id,
+        language: apiLanguageCode(),
+      );
+      Get.back();
+      showAppToast(
+        message.isEmpty ? 'pw_cancel_request_done'.tr : message,
+        backgroundColor: const Color(0xFFFF5216),
+      );
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   String _formatSubmittedAt(DateTime date) {
     const months = [
@@ -88,7 +137,7 @@ class PrescriptionSuccessScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () => _cancelRequest(context),
                             child: Container(
                               height: 50,
                               alignment: Alignment.center,

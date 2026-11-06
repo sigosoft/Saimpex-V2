@@ -52,6 +52,8 @@ class ApiConstants {
   static const String prescriptions = 'customer/prescriptions';
   static String prescriptionById(int id) => 'customer/prescription/$id';
   static String prescriptionPay(int id) => 'customer/prescription/$id/pay';
+  static String prescriptionCancel(int id) =>
+      'customer/prescription/$id/cancel';
   static String prescriptionAccept(int id) =>
       'customer/prescription/$id/accept';
   static String prescriptionDecline(int id) =>

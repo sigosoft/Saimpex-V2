@@ -10,6 +10,7 @@ import '../widgets/app_back_button.dart';
 import 'widgets/tracking_widgets.dart';
 
 import '../utils/app_fonts.dart';
+
 class TrackOrderScreen extends StatefulWidget {
   final String orderId;
 
@@ -256,8 +257,14 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
                 alignment: AlignmentDirectional.centerEnd,
                 child: IconButton(
                   tooltip: 'ease_help_title'.tr,
-                  icon: const Icon(Icons.support_agent_rounded, color: Color(0xFFFF5216)),
-                  onPressed: () => HelpSheet.show(orderCode: widget.orderId),
+                  icon: const Icon(
+                    Icons.support_agent_rounded,
+                    color: Color(0xFFFF5216),
+                  ),
+                  onPressed: () => HelpSheet.show(
+                    orderCode: widget.orderId,
+                    orderId: widget.apiOrderId,
+                  ),
                 ),
               ),
             ],
