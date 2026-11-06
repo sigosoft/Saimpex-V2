@@ -29,7 +29,11 @@ class OnboardingController extends GetxController {
     OnboardingModel(
       title: 'core_onboarding_title_3',
       description: 'core_onboarding_desc_3',
-      imagePath: 'lib/assets/images/Onboard3.png',
+      // The design's page 3 picture had a "PREMIUM50" coupon and "Flat 20%
+      // OFF" printed on it, offers that don't exist (CA-04). The rider and
+      // parcel picture fits "track your order" until new artwork arrives;
+      // Admin's splash images replace it when they load.
+      imagePath: 'lib/assets/images/Onboard2.png',
     ),
   ];
 
