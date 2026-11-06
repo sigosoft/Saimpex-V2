@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../models/order_repository.dart';
+import '../../../models/pharmacy_repository.dart';
 import '../../../utils/api_language.dart';
 import '../../../utils/toast_helper.dart';
 
@@ -333,7 +334,11 @@ class _PharmacyQuotationReadyCardState
 
 class PharmacyActiveOrderCard extends StatelessWidget {
   final String pharmacyName;
+  /// The server's English status (drives colours and pickup checks).
   final String statusText;
+
+  /// The status shown on the badge, in the app's language.
+  final String? statusLabel;
   final Color statusColor;
   final Color statusBgColor;
   final String detailsText;
@@ -341,13 +346,19 @@ class PharmacyActiveOrderCard extends StatelessWidget {
   final int? apiOrderId;
   final bool showPrescription;
   final bool showTrack;
-  final String? prescriptionName;
+  final bool canCancel;
+  final bool delivered;
+
+  /// Set on a prescription request card: Cancel withdraws the request.
+  final int? prescriptionId;
   final int? vendorId;
+  final VoidCallback? onChanged;
 
   const PharmacyActiveOrderCard({
     super.key,
     this.pharmacyName = '',
     required this.statusText,
+    this.statusLabel,
     required this.statusColor,
     required this.statusBgColor,
     required this.detailsText,
@@ -356,8 +367,60 @@ class PharmacyActiveOrderCard extends StatelessWidget {
     this.apiOrderId,
     this.showPrescription = false,
     this.showTrack = true,
-    this.prescriptionName,
+    this.canCancel = true,
+    this.delivered = false,
+    this.prescriptionId,
+    this.onChanged,
   });
+
+  void _cancel(BuildContext context) {
+    final id = prescriptionId;
+    if (showPrescription && apiOrderId == null && id != null) {
+      _cancelRequest(id);
+      return;
+    }
+    showCancelOrderBottomSheet(
+      context,
+      orderId: orderId,
+      apiOrderId: apiOrderId,
+      onCancelled: onChanged,
+    );
+  }
+
+  /// Withdraws a prescription request that has no order yet (CA-30 API).
+  Future<void> _cancelRequest(int id) async {
+    if (!Get.isRegistered<PharmacyRepository>()) return;
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('pw_cancel_request_title'.tr),
+        content: Text('pw_cancel_request_body'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('core_cancel_no'.tr),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text('pw_cancel_request_yes'.tr),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      final message = await Get.find<PharmacyRepository>().cancelPrescription(
+        prescriptionId: id,
+        language: apiLanguageCode(),
+      );
+      showAppToast(
+        message.isEmpty ? 'pw_cancel_request_done'.tr : message,
+        backgroundColor: const Color(0xFFFF5216),
+      );
+      onChanged?.call();
+    } on ApiException catch (error) {
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    }
+  }
 
   void _openOrderDetails() {
     final id = apiOrderId;
@@ -538,7 +601,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                   ),
                 ),
                 _StatusBadge(
-                  text: statusText,
+                  text: statusLabel ?? statusText,
                   color: statusColor,
                   bgColor: statusBgColor,
                 ),
@@ -583,7 +646,8 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            prescriptionName ?? 'Prescription.jpg',
+                            // The stored file name is random; name it instead.
+                            'pw_prescription'.tr,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppFonts.outfit(
@@ -618,23 +682,18 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 12),
+            if (canCancel || showTrack) const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(
-                  child: _SoftButton(
-                    label: 'cancel'.tr,
-                    onTap: () {
-                      showCancelOrderBottomSheet(
-                        context,
-                        orderId: orderId,
-                        apiOrderId: apiOrderId,
-                      );
-                    },
+                if (canCancel)
+                  Expanded(
+                    child: _SoftButton(
+                      label: 'cancel'.tr,
+                      onTap: () => _cancel(context),
+                    ),
                   ),
-                ),
                 if (showTrack) ...[
-                  const SizedBox(width: 10),
+                  if (canCancel) const SizedBox(width: 10),
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -679,7 +738,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
                 ],
               ],
             ),
-            if (statusText.toUpperCase().contains('DELIVER')) ...[
+            if (delivered || statusText.toUpperCase().contains('DELIVER')) ...[
               const SizedBox(height: 10),
               GestureDetector(
                 onTap: () => _rateOrder(context),

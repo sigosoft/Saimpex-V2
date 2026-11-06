@@ -854,6 +854,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     return PharmacyActiveOrderCard(
       pharmacyName: pharmacyName,
       statusText: statusText,
+      statusLabel: '${order['statusLabel'] ?? statusText}',
+      canCancel: order['canCancel'] == true,
+      delivered: order['isDelivered'] == true,
+      prescriptionId:
+          order['prescriptionId'] is int && (order['prescriptionId'] as int) > 0
+          ? order['prescriptionId'] as int
+          : null,
+      onChanged: _loadPharmacyOrders,
       statusColor: badge.$1,
       statusBgColor: badge.$2,
       detailsText: _pharmacyDetails(order),
@@ -868,7 +876,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       showPrescription:
           order['isPrescription'] == true &&
           '${order['fileName'] ?? ''}'.isNotEmpty,
-      prescriptionName: '${order['fileName'] ?? ''}',
       showTrack:
           order['isCancelled'] != true && order['isPrescription'] != true,
     );
@@ -951,7 +958,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Widget _waterOrderCard(Map<String, dynamic> order) {
-    final orderId = '${order['orderId']}';
+    // "ORD-001521" already reads as an order number; only a bare id gets "#".
+    final rawId = '${order['orderId']}';
+    final orderId = rawId.toUpperCase().startsWith('ORD') ? rawId : '#$rawId';
     final statusText = '${order['statusText']}';
     final cancelled = order['isCancelled'] == true;
     final delivered = order['isDelivered'] == true;
@@ -967,14 +976,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       statusBgColor: statusBgColor,
       detailsText:
           '${'search_vertical_water'.tr} • ${order['total']} • '
-          '${itemsCountLabel(order['itemsCount'])} • #$orderId',
+          '${itemsCountLabel(order['itemsCount'])} • $orderId',
       buttons: [
-        if (!cancelled)
+        if (!cancelled && !delivered)
           _buildGradientButton(
             text: 'orders_track_order_btn'.tr,
             onTap: () => Get.to(
               () => WaterTrackOrderScreen(
-                orderId: '#$orderId',
+                orderId: orderId,
                 apiOrderId: order['numericOrderId'] as int?,
               ),
             ),
@@ -982,7 +991,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       ],
       onDetailsLink: () => Get.to(
         () => WaterOrderDetailsScreen(
-          orderId: '#$orderId',
+          orderId: orderId,
           apiOrderId: order['numericOrderId'] as int?,
         ),
       ),
