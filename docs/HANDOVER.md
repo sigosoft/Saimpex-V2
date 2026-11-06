@@ -852,7 +852,7 @@ From `SAIMPEX-V2-water-test-report.pdf` (customer main 703f82e). Analyzer clean,
   - **Water minimum order not shown before checkout:** Eau Pure Arafat has a 50 MRU minimum. A 45 MRU cart was refused at checkout with "Minimum order for this store is 50 MRU. Add 5 MRU more…", but the water cart summary (`checkoutSummaryV2`) has no `min_order_value` / `min_order_shortfall` (other carts do), so the app can't warn earlier (backend, Praveen).
   - **Order success screen for a water order shows "175 MRU" without the order code:** `checkoutV2` doesn't return `order_code` for this order; the app shows the code only when it gets one.
 
-### Customer app test report 5 Nov: Sharvin's items (`fix/customer-test-report-5nov`) 🟡 not checked on a phone yet
+### Customer app test report 5 Nov: Sharvin's items (`fix/customer-test-report-5nov`, [PR #48](https://github.com/sigosoft/Saimpex-V2/pull/48)) ✅ checked on the phone (main items)
 From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (live on dev) added prescription cancel, rating tags, store AR/FR names on the rating, variant labels and wallet titles. Analyzer clean, 39 tests pass.
 
 **P1**
@@ -880,3 +880,21 @@ From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (l
 - CA-44 chat bubbles on one side: the code decides "mine" from `is_mine` / `sender_type`; needs the tested conversation's response to find the cause.
 - CA-45 French bottom bar: still tight with "Réservations" / "Commandes" (improved 3 Nov); needs shorter French labels from the design.
 - Dev data / Admin: CA-09, CA-31, CA-33 test stores, duplicate categories (Sajin); CA-42 privacy policy text (Kiran/Praveen).
+- **Phone (vivo V2239, dev, debug build of 795f022, 6 Nov):**
+  - CA-19: Help on ORD-001542 opens "Need help?" with "Message SAIMPEX support"; the thread opens with a reply box (nothing sent). WhatsApp/Call stay hidden because dev has no numbers.
+  - CA-18: the line stops at the order's step.
+  - CA-46: Profile shows "V2.0.0".
+  - CA-47: one tap on Français switched the app (switched back to English).
+  - CA-37/38/39:
+    - Courier vehicles say "Set both addresses", then 227 / 341 MRU.
+    - The Package card shows; Large re-quoted to 427 MRU.
+    - "Test9520" in the recipient phone kept only 9520, and Confirm said "Enter a valid phone number for the recipient (8 digits)" (nothing booked).
+  - CA-34: prescription contact prefilled 95200021.
+  - CA-01: the Android camera prompt says "Allow Saimpex…".
+  - CA-15: the scanner shows the close button and the hint.
+  - CA-35: the preview works once camera permission is granted (black before the prompt), so the report's black camera was likely the missing permission.
+  - CA-36: only "Prescription Sent" is orange.
+  - CA-30: prescription #20 sent to Test Pharmacy, then Cancel → "Cancel request" → server `status: cancelled`, back on Pharmacy (not the form).
+  - Not seen on the phone: CA-02, 03, 05, 06, 07, 08, 20, 22, 23, 26, 27, 28, 29, 40, 41, 43. CA-16 not reproduced (needs a cart and a valid coupon; someone was placing orders on 95200021 at the time).
+- **Debug-only red screen** (`_dependents.isEmpty`) seen twice: right after installing over a running app, and once on returning to the app. Same as the earlier notes above; restart clears it, and it hasn't been seen in release builds.
+- **Test data left on dev:** prescription #20 (cancelled), at Test Pharmacy.
