@@ -941,4 +941,4 @@ Backend #182 fixed by the owner. Checked on vivo V2239 (Android 15, debug build 
 - **Arabic:** "تتبّع طلبي" → the order ORD-001176, status, total "360 أوقية", reads right to left.
 - **French:** "Quels sont mes points de fidélité ?" → tier Bronze, 0 points, 500 for Silver, free delivery from Gold.
 - The header language switch works on the phone (it didn't respond on the emulator), and History lists earlier conversations with "New chat".
-- **Small, not fixed:** History's "New chat" / "No history" follow the app language, not the chat language.
+- **History in the chat language (fixed same day):** "New chat", "No history", "Untitled" and the mic messages used the app language; they now follow the chat language, and the History sheet reads right to left for an Arabic chat. The conversation date was scrambled in Arabic ("AM 11:33 11/11/2026"); it now reads "11/11/2026 11:33 AM". Checked on the phone: app in English, chat in French → "Nouvelle conversation"; chat in Arabic → "محادثة جديدة", right to left.

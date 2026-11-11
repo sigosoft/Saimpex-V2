@@ -210,7 +210,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     }
     if (!mounted) return;
     if (!_speechReady) {
-      _showSnack('core_home_search_allow_mic'.tr);
+      _showSnack(_inChatLanguage('core_home_search_allow_mic'));
       return;
     }
     setState(() => _listening = true);
@@ -239,7 +239,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _listening = false);
-      _showSnack('core_home_search_voice_unavailable'.tr);
+      _showSnack(_inChatLanguage('core_home_search_voice_unavailable'));
     }
   }
 
@@ -311,88 +311,92 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => _SheetFrame(
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(
-              Icons.add_comment_outlined,
-              color: AppColors.primaryOrange,
-            ),
-            title: Text(
-              'core_chatbot_new_chat'.tr,
-              style: AppFonts.outfit(
-                fontWeight: FontWeight.w700,
+      builder: (context) => Directionality(
+        // The sheet follows the chat language (French chat in an English app).
+        textDirection: _chatDirection,
+        child: _SheetFrame(
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(
+                Icons.add_comment_outlined,
                 color: AppColors.primaryOrange,
               ),
+              title: Text(
+                _inChatLanguage('core_chatbot_new_chat'),
+                style: AppFonts.outfit(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryOrange,
+                ),
+              ),
+              onTap: () => Navigator.pop(context, 0),
             ),
-            onTap: () => Navigator.pop(context, 0),
-          ),
-          const Divider(height: 1, color: Color(0xFFF0E6DE)),
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: repository.conversations(language),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryOrange,
+            const Divider(height: 1, color: Color(0xFFF0E6DE)),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: repository.conversations(language),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryOrange,
+                    ),
+                  );
+                }
+                final rows = snapshot.data ?? const [];
+                if (snapshot.hasError || rows.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      snapshot.error is ApiException
+                          ? (snapshot.error as ApiException).message
+                          : _inChatLanguage('core_chatbot_no_history'),
+                      textAlign: TextAlign.center,
+                      style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
+                    ),
+                  );
+                }
+                return ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.5,
                   ),
-                );
-              }
-              final rows = snapshot.data ?? const [];
-              if (snapshot.hasError || rows.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Text(
-                    snapshot.error is ApiException
-                        ? (snapshot.error as ApiException).message
-                        : 'core_chatbot_no_history'.tr,
-                    textAlign: TextAlign.center,
-                    style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
-                  ),
-                );
-              }
-              return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-                ),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    for (final row in rows)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          '${row['title'] ?? ''}'.trim().isEmpty
-                              ? 'core_chatbot_untitled'.tr
-                              : '${row['title']}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppFonts.outfit(
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A1A),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (final row in rows)
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            '${row['title'] ?? ''}'.trim().isEmpty
+                                ? _inChatLanguage('core_chatbot_untitled')
+                                : '${row['title']}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.outfit(
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1A1A1A),
+                            ),
+                          ),
+                          subtitle: Text(
+                            _dateLabel(row['updated_at'] ?? row['created_at']),
+                            style: AppFonts.outfit(
+                              fontSize: 12,
+                              color: const Color(0xFF9A9088),
+                            ),
+                          ),
+                          selected: '${row['id']}' == '$_conversationId',
+                          onTap: () => Navigator.pop(
+                            context,
+                            int.tryParse('${row['id']}'),
                           ),
                         ),
-                        subtitle: Text(
-                          _dateLabel(row['updated_at'] ?? row['created_at']),
-                          style: AppFonts.outfit(
-                            fontSize: 12,
-                            color: const Color(0xFF9A9088),
-                          ),
-                        ),
-                        selected: '${row['id']}' == '$_conversationId',
-                        onTap: () => Navigator.pop(
-                          context,
-                          int.tryParse('${row['id']}'),
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
     if (!mounted || picked == null) return;
@@ -443,8 +447,10 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     final time = _parseTime(value);
     if (time == null) return '';
     String two(int n) => n.toString().padLeft(2, '0');
-    return '${two(time.day)}/${two(time.month)}/${time.year} '
-        '${_formatTime(time)}';
+    // Left-to-right isolate: in Arabic the date read "AM 11:33 11/11/2026".
+    return '${String.fromCharCode(0x2066)}'
+        '${two(time.day)}/${two(time.month)}/${time.year} '
+        '${_formatTime(time)}${String.fromCharCode(0x2069)}';
   }
 
   @override
