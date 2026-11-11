@@ -11,7 +11,6 @@ import '../controllers/select_location_controller.dart';
 import '../core/network/api_exception.dart';
 import '../models/chatbot_repository.dart';
 import '../utils/ai_assistant_consent.dart';
-import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
 import 'terms_conditions_screen.dart';
 
@@ -84,6 +83,15 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
   String _inChatLanguage(String key) =>
       Get.translations[_languageCode.toLowerCase()]?[key] ?? key.tr;
 
+  /// The chat language for the API (`en`/`fr`/`ar`). The server answers in
+  /// it; the app language was sent before, so an English chat in an Arabic
+  /// app got Arabic replies and errors.
+  String get _apiLanguage => _languageCode.toLowerCase();
+
+  /// Reading direction of the chat language (the app's can differ).
+  TextDirection get _chatDirection =>
+      _languageCode == 'AR' ? TextDirection.rtl : TextDirection.ltr;
+
   void _resetIdleTimer() {
     _idleTimer?.cancel();
     _idleTimer = Timer(_idleTimeout, () {
@@ -130,11 +138,11 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
         conversationId: _conversationId,
         latitude: SelectLocationController.selectedLatitude,
         longitude: SelectLocationController.selectedLongitude,
-        language: apiLanguageCode(),
+        language: _apiLanguage,
       );
       if (!mounted) return;
       final reply = answer.reply.isEmpty
-          ? 'core_chatbot_error'.tr
+          ? _inChatLanguage('core_chatbot_error')
           : answer.reply;
       setState(() {
         _conversationId = answer.conversationId ?? _conversationId;
@@ -298,7 +306,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     _resetIdleTimer();
     if (!Get.isRegistered<ChatbotRepository>()) return;
     final repository = Get.find<ChatbotRepository>();
-    final language = apiLanguageCode();
+    final language = _apiLanguage;
     final picked = await showModalBottomSheet<int>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -403,7 +411,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     try {
       final rows = await Get.find<ChatbotRepository>().transcript(
         conversationId: id,
-        language: apiLanguageCode(),
+        language: _apiLanguage,
       );
       if (!mounted) return;
       setState(() {
@@ -636,6 +644,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           Text(
             _inChatLanguage('core_chatbot_greeting'),
             textAlign: TextAlign.center,
+            textDirection: _chatDirection,
             style: AppFonts.outfit(
               color: const Color(0xFF111111),
               fontSize: 24,
@@ -646,6 +655,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           Text(
             _inChatLanguage('core_chatbot_intro'),
             textAlign: TextAlign.center,
+            textDirection: _chatDirection,
             style: AppFonts.outfit(
               color: const Color(0xFF3A3A3A),
               fontSize: 14.5,
@@ -916,6 +926,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                       controller: _messageController,
                       enabled: !_listening,
                       maxLength: 2000,
+                      textDirection: _chatDirection,
                       onChanged: (_) => _resetIdleTimer(),
                       onSubmitted: (_) => _sendMessage(),
                       style: AppFonts.outfit(
@@ -923,9 +934,10 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                         color: const Color(0xFF1A1A1A),
                       ),
                       decoration: InputDecoration(
+                        hintTextDirection: _chatDirection,
                         hintText: _listening
-                            ? 'core_chatbot_listening'.tr
-                            : 'core_chatbot_type_message'.tr,
+                            ? _inChatLanguage('core_chatbot_listening')
+                            : _inChatLanguage('core_chatbot_type_message'),
                         hintStyle: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
@@ -1106,6 +1118,14 @@ class _QuickActionChip extends StatelessWidget {
   }
 }
 
+/// Right to left when the text's first letter is Arabic, else left to right.
+TextDirection _textDirectionOf(String text) {
+  final letter = RegExp(r'[A-Za-z\u00C0-\u00FF\u0600-\u06FF]').firstMatch(text);
+  final isArabic =
+      letter != null && RegExp(r'[\u0600-\u06FF]').hasMatch(letter.group(0)!);
+  return isArabic ? TextDirection.rtl : TextDirection.ltr;
+}
+
 class _MessageBubble extends StatelessWidget {
   final _ChatItem message;
   final String timeLabel;
@@ -1182,6 +1202,9 @@ class _MessageBubble extends StatelessWidget {
                   Flexible(
                     child: SelectableText(
                       message.text,
+                      // Each message reads in its own script's direction:
+                      // English in an Arabic app came out as ".Please try again".
+                      textDirection: _textDirectionOf(message.text),
                       style: AppFonts.outfit(
                         color: isUser
                             ? const Color(0xFFE85A1A)
