@@ -7,6 +7,7 @@ import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
 import '../utils/order_status_label.dart';
 import '../utils/store_labels.dart';
+import '../utils/currency.dart';
 
 class PharmacyRepository {
   PharmacyRepository(this._client);
@@ -1063,12 +1064,12 @@ class PharmacyRepository {
     if (number == null) {
       final text = '${value ?? ''}'.trim();
       if (text.isEmpty) return '';
-      return text.toUpperCase().contains('MRU') ? text : '$text MRU';
+      return text.toUpperCase().contains('MRU') ? localizeMru(text) : mruAmount(text);
     }
     final text = number == number.roundToDouble()
         ? number.toInt().toString()
         : number.toStringAsFixed(2);
-    return '$text MRU';
+    return mruAmount(text);
   }
 
   int _asInt(dynamic value, {int fallback = 0}) {

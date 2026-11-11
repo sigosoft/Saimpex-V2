@@ -473,15 +473,18 @@ class OrderRepository {
       final shown = value == value.roundToDouble()
           ? '${value.toInt()}'
           : '$value';
-      final discount = '${coupon['type']}' == '2'
-          ? '$shown% off'
-          : '$shown MRU off';
+      final isPercent = '${coupon['type']}' == '2';
+      final discount = isPercent
+          ? 'core_percent_off'.trParams({'value': shown})
+          : 'core_coupon_mru_off'.trParams({'amount': shown});
       final validUpto = '${coupon['valid_upto'] ?? ''}'.split(' ').first;
       coupons.add({
         'code': code,
         'title': name.isEmpty ? code : name,
         'subtitle': validUpto.isEmpty ? '' : 'Valid until $validUpto',
         'discount': value > 0 ? discount : '',
+        'discountValue': value > 0 ? shown : '',
+        'isPercent': isPercent,
       });
     }
     return coupons;

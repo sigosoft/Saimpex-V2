@@ -5,6 +5,7 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/currency.dart';
 
 /// Courier vertical: delivery quote and booking.
 class CourierRepository {
@@ -114,7 +115,7 @@ class CourierRepository {
       'isCancelled': status == 10,
       'isDelivered': status == 9,
       'isExpress': item['is_express'] == true || item['is_express'] == 1,
-      'total': '${_asDouble(item['total']).round()} MRU',
+      'total': mruAmount(_asDouble(item['total']).round()),
       'pickupAddress': item['pickup_address']?.toString() ?? '',
       'dropoffAddress': item['dropoff_address']?.toString() ?? '',
     };
