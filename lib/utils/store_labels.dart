@@ -66,6 +66,33 @@ String readableDateTime(Object? raw) {
       '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
 }
 
+/// An ISO 8601 time with an offset ("2026-11-03T10:00:00+00:00") in the
+/// phone's time zone, shown like [readableDateTime]; '' when it isn't a time.
+String readableIsoTime(Object? raw) {
+  final time = DateTime.tryParse('${raw ?? ''}'.trim());
+  if (time == null) return '';
+  return readableDateTime(time.toLocal().toIso8601String());
+}
+
+/// A booking window from the API (`{start_iso, end_iso, …}`, #169) in the
+/// phone's time zone: "12 Nov 2026, 08:00 AM – 10:00 AM" (the end date is
+/// repeated only when it's another day). '' when there is no window.
+String readableWindow(Object? window) {
+  if (window is! Map) return '';
+  final start = DateTime.tryParse('${window['start_iso'] ?? ''}'.trim());
+  if (start == null) return '';
+  final from = readableIsoTime(window['start_iso']);
+  final end = DateTime.tryParse('${window['end_iso'] ?? ''}'.trim());
+  if (end == null) return from;
+  final localStart = start.toLocal();
+  final localEnd = end.toLocal();
+  final sameDay = localStart.year == localEnd.year &&
+      localStart.month == localEnd.month &&
+      localStart.day == localEnd.day;
+  final to = readableIsoTime(window['end_iso']);
+  return '$from – ${sameDay ? to.split(', ').last : to}';
+}
+
 const _englishMonths = [
   'jan',
   'feb',

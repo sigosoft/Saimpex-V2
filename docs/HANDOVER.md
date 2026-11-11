@@ -913,3 +913,9 @@ From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (l
   - **Water orders:** delivered orders no longer offer "Track order" (same as food and grocery); the list shows "ORD-001521", not "#ORD-001521".
   - Not checked on the phone yet (built and installed; the phone was taken before the Orders tab opened).
 - **Noticed, not changed:** the same store shows different distances on Home (2.1 Km), Favourites (1.2 km) and the store page (1.7 km), and "Km" vs "km". The distances come from different endpoints; worth one backend rule. Food orders in "Ready" still show Cancel (existing rule, not checked against the scope).
+
+### Phone-time order steps and laundry windows (11 Nov) ✅ in code
+Uses two backend fields from the 7 Nov changelog.
+- **Order step times (C-B9, W-12):** `trackOrder` `timeline[]` now sends `updated_at_iso` (ISO 8601 with offset). `OrderTracking.timeOf` shows it in the phone's time zone, month in the app language (`readableIsoTime` in `lib/utils/store_labels.dart`); it falls back to the old `updated_at` text when the field is missing. Covers every order detail and tracking screen that reads the timeline. Service booking timelines are unchanged (no ISO field there).
+- **Laundry pickup and delivery windows (#169):** the laundry booking detail shows `pickup_window` / `delivery_window` (`start_iso`, `end_iso`) in the phone's time zone: "12 Nov 2026, 08:00 AM – 10:00 AM" (`readableWindow`); falls back to the server's English `pickup_slot` / `delivery_turnaround` text. My Bookings cards still use the list's `slot` text (the list has no window field).
+- Analyzer clean, 43 tests pass (`test/iso_time_test.dart`). **Not checked on the phone or against dev data yet** (dev has no laundry bookings).
