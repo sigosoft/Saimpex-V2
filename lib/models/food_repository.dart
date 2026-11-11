@@ -7,6 +7,7 @@ import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
 import '../utils/store_labels.dart';
 import '../utils/order_status_label.dart';
+import '../utils/currency.dart';
 
 class RestaurantHomeResult {
   final List<Map<String, dynamic>> sliders;
@@ -270,7 +271,7 @@ class FoodRepository {
           item['is_self_pickup'] == 1 || item['is_self_pickup'] == true,
       'orderId': orderId,
       'numericOrderId': _asInt(item['order_id'] ?? item['id']),
-      'totalText': totalValue <= 0 ? '' : '${totalValue.round()} MRU',
+      'totalText': totalValue <= 0 ? '' : mruAmount(totalValue.round()),
       'itemsCount': item['items_count'] != null
           ? _asInt(item['items_count'])
           : (items is List ? items.length : 0),

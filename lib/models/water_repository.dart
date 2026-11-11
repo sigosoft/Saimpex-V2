@@ -7,6 +7,7 @@ import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
 import '../utils/store_labels.dart';
 import '../utils/order_status_label.dart';
+import '../utils/currency.dart';
 
 /// Water vertical: home sections, search, plans and subscriptions.
 class WaterRepository {
@@ -393,7 +394,7 @@ class WaterRepository {
           ? _localized(item, 'vendor_name', fallback: '')
           : _localized(item, 'pharmacy_name', fallback: ''),
       'rating': _ratingText(item['rating']),
-      'price': selling > 0 ? '${selling.round()} MRU' : '— MRU',
+      'price': selling > 0 ? mruAmount(selling.round()) : mruAmount('—'),
       'image': ApiConstants.mediaUrl(item['image']?.toString()) ?? '',
     };
   }
@@ -437,8 +438,8 @@ class WaterRepository {
       'quantity': package,
       'rating': _ratingText(item['rating']),
       'reviews': '${_asInt(item['rating_count'])} reviews',
-      'price': selling > 0 ? '${selling.round()} MRU' : '— MRU',
-      'originalPrice': original > selling ? '${original.round()} MRU' : '',
+      'price': selling > 0 ? mruAmount(selling.round()) : mruAmount('—'),
+      'originalPrice': original > selling ? mruAmount(original.round()) : '',
       'discount': offer > 0 ? offLabel(offer) : '',
       'description': _localized(item, 'description', fallback: ''),
     };
@@ -457,8 +458,8 @@ class WaterRepository {
       'id': _asInt(item['id'] ?? item['plan_id']),
       'title': _localized(item, 'name', fallback: 'Plan'),
       'price': _amount(item['price']) > 0
-          ? '${_amount(item['price']).round()} MRU'
-          : '— MRU',
+          ? mruAmount(_amount(item['price']).round())
+          : mruAmount('—'),
       'priceValue': _amount(item['price']),
       'productId': _asInt(item['product_id']),
       'frequencyKey': '${item['frequency_key'] ?? ''}',
@@ -489,7 +490,7 @@ class WaterRepository {
       ),
       'isCancelled': status.toLowerCase().contains('cancel'),
       'isDelivered': status.toLowerCase().contains('deliver'),
-      'total': '${total.round()} MRU',
+      'total': mruAmount(total.round()),
       'itemsCount': _asInt(item['items_count']),
     };
   }

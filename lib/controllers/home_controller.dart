@@ -11,6 +11,7 @@ import '../models/general_repository.dart';
 import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
+import '../utils/currency.dart';
 
 class HomeController extends GetxController {
   static const int navHome = 0;
@@ -284,7 +285,10 @@ class HomeController extends GetxController {
     final amount = walletBalance.value.trim();
     final currency = walletCurrency.value.trim();
     if (amount.isEmpty) return currency;
-    if (currency.isEmpty) return amount;
+    // The server sends "MRU"; show it in the app language (أوقية in Arabic).
+    if (currency.isEmpty || currency.toUpperCase() == 'MRU') {
+      return mruAmount(amount);
+    }
     return '$amount $currency';
   }
 
