@@ -913,3 +913,16 @@ From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (l
   - **Water orders:** delivered orders no longer offer "Track order" (same as food and grocery); the list shows "ORD-001521", not "#ORD-001521".
   - Not checked on the phone yet (built and installed; the phone was taken before the Orders tab opened).
 - **Noticed, not changed:** the same store shows different distances on Home (2.1 Km), Favourites (1.2 km) and the store page (1.7 km), and "Km" vs "km". The distances come from different endpoints; worth one backend rule. Food orders in "Ready" still show Cancel (existing rule, not checked against the scope).
+
+### Phone-time order steps and laundry windows (11 Nov) ✅ in code
+Uses two backend fields from the 7 Nov changelog.
+- **Order step times (C-B9, W-12):** `trackOrder` `timeline[]` now sends `updated_at_iso` (ISO 8601 with offset). `OrderTracking.timeOf` shows it in the phone's time zone, month in the app language (`readableIsoTime` in `lib/utils/store_labels.dart`); it falls back to the old `updated_at` text when the field is missing. Covers every order detail and tracking screen that reads the timeline. Service booking timelines are unchanged (no ISO field there).
+- **Laundry pickup and delivery windows (#169):** the laundry booking detail shows `pickup_window` / `delivery_window` (`start_iso`, `end_iso`) in the phone's time zone: "12 Nov 2026, 08:00 AM – 10:00 AM" (`readableWindow`); falls back to the server's English `pickup_slot` / `delivery_turnaround` text. My Bookings cards still use the list's `slot` text (the list has no window field).
+- **Arabic order:** in Arabic the month name pulled the year and time after it into right-to-left order ("06 11:23 ,2026 نوفمبر AM", also on tracking before this change). `readableDateTime` now puts a left-to-right mark after the month, and laundry windows are wrapped in a left-to-right isolate.
+- Analyzer clean, 43 tests pass (`test/iso_time_test.dart`).
+- **Emulator check (11 Nov, `saimpex_test` Android emulator, debug build, dev, Arabic, test customer 95200021):**
+  - Tracking ORD-001541: steps read "06 نوفمبر 2026, 11:23 AM" with the emulator on India time and "05:53 AM" after switching it to Africa/Nouakchott, so the ISO time is used and follows the phone's zone.
+  - Laundry booking LNWZMTGJ: pickup "09 نوفمبر 2026, 02:00 PM – 04:00 PM", estimated delivery "10 نوفمبر 2026, 04:00 PM – 06:00 PM", in order.
+  - Currency (PR #53): Home wallet pill "0 أوقية", My Orders "700 أوقية", laundry price "120 أوقية".
+  - **Red debug screen (`_dependents.isEmpty`) found and fixed:** it came from the Services screen's category tiles, sized `(screen width − 62) / 4`, which is −15.5 on the first frame (width still 0); the negative width broke the widget tree. The width is now clamped (`services_screen.dart`). It reproduced on every launch before the fix and not after. Release builds were not affected (assertions are off).
+  - **Not app bugs, seen while checking:** the tracking map draws a line to India because the test driver's last location on dev is there (11.30, 75.88). Service booking timeline times ("7 Nov 2026, 9:47 AM") and the "CANCELLED" chip on the laundry detail are still the server's English (no ISO field for service timelines).

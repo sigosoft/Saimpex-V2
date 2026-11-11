@@ -14,15 +14,15 @@ void main() {
   test('order timeline times use the app month', () {
     expect(
       readableServerTime('03 Nov 2026 10:00 AM'),
-      '03 svc_month_11 2026, 10:00 AM',
+      '03 svc_month_11\u200E 2026, 10:00 AM',
     );
     expect(
       readableServerTime('02 Nov 2026, 09:22 PM'),
-      '02 svc_month_11 2026, 09:22 PM',
+      '02 svc_month_11\u200E 2026, 09:22 PM',
     );
     expect(
       readableServerTime('01 Jan 2026 12:05 AM'),
-      '01 svc_month_1 2026, 12:05 AM',
+      '01 svc_month_1\u200E 2026, 12:05 AM',
     );
     expect(readableServerTime('yesterday'), 'yesterday');
     expect(readableServerTime(null), '');
