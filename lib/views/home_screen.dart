@@ -395,16 +395,31 @@ class HomeScreen extends StatelessWidget {
                       color: Color(0xFF2C2520),
                       size: 24,
                     ),
+                    // Count of notifications not opened yet, like the cart
+                    // badge; nothing once Notifications has been opened.
                     if (loaded && count > 0)
                       PositionedDirectional(
-                        top: -2,
-                        end: -2,
+                        top: -7,
+                        end: -9,
                         child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFF5216),
-                            shape: BoxShape.circle,
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF5216),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            count > 99 ? '99+' : '$count',
+                            style: AppFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),
