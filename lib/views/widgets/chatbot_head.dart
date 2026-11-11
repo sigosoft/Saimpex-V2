@@ -38,6 +38,9 @@ class _ChatBotHeadState extends State<ChatBotHead>
   bool _hasPosition = false;
   bool _didDrag = false;
 
+  /// A tap is opening the welcome sheet or the chat; further taps wait.
+  bool _opening = false;
+
   /// Screen position of the avatar circle center — stays fixed on shrink/expand.
   Offset _center = Offset.zero;
   Offset _panStartGlobal = Offset.zero;
@@ -167,13 +170,24 @@ class _ChatBotHeadState extends State<ChatBotHead>
   }
 
   Future<void> _onTap() async {
-    HapticFeedback.lightImpact();
-    _idleTimer?.cancel();
-
-    if (_isShrunk) {
-      _restore();
-      return;
+    // One tap opens the assistant in either state. The head shrinks after a
+    // few idle seconds, and a first tap that only grew it back read as "the
+    // button does nothing" on the phone.
+    if (_opening) return;
+    _opening = true;
+    try {
+      await _openAssistant();
+    } finally {
+      _opening = false;
     }
+  }
+
+  Future<void> _openAssistant() async {
+    HapticFeedback.lightImpact();
+
+    if (_isShrunk) _restore();
+    // No shrinking while the welcome sheet or the chat is open.
+    _idleTimer?.cancel();
 
     if (!mounted) return;
 

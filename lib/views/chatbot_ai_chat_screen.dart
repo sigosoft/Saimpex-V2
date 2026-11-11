@@ -11,7 +11,6 @@ import '../controllers/select_location_controller.dart';
 import '../core/network/api_exception.dart';
 import '../models/chatbot_repository.dart';
 import '../utils/ai_assistant_consent.dart';
-import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
 import 'terms_conditions_screen.dart';
 
@@ -84,6 +83,15 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
   String _inChatLanguage(String key) =>
       Get.translations[_languageCode.toLowerCase()]?[key] ?? key.tr;
 
+  /// Server messages (errors such as "not configured" or the daily limit)
+  /// are picked in the chat language, like the rest of the chat.
+  String get _apiLanguage => _languageCode.toLowerCase();
+
+  /// The chat reads right to left in Arabic even when the app is in English
+  /// or French (and left to right in English/French inside an Arabic app).
+  TextDirection get _chatDirection =>
+      _languageCode == 'AR' ? TextDirection.rtl : TextDirection.ltr;
+
   void _resetIdleTimer() {
     _idleTimer?.cancel();
     _idleTimer = Timer(_idleTimeout, () {
@@ -130,11 +138,11 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
         conversationId: _conversationId,
         latitude: SelectLocationController.selectedLatitude,
         longitude: SelectLocationController.selectedLongitude,
-        language: apiLanguageCode(),
+        language: _apiLanguage,
       );
       if (!mounted) return;
       final reply = answer.reply.isEmpty
-          ? 'core_chatbot_error'.tr
+          ? _inChatLanguage('core_chatbot_error')
           : answer.reply;
       setState(() {
         _conversationId = answer.conversationId ?? _conversationId;
@@ -202,7 +210,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     }
     if (!mounted) return;
     if (!_speechReady) {
-      _showSnack('core_home_search_allow_mic'.tr);
+      _showSnack(_inChatLanguage('core_home_search_allow_mic'));
       return;
     }
     setState(() => _listening = true);
@@ -231,7 +239,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _listening = false);
-      _showSnack('core_home_search_voice_unavailable'.tr);
+      _showSnack(_inChatLanguage('core_home_search_voice_unavailable'));
     }
   }
 
@@ -298,7 +306,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     _resetIdleTimer();
     if (!Get.isRegistered<ChatbotRepository>()) return;
     final repository = Get.find<ChatbotRepository>();
-    final language = apiLanguageCode();
+    final language = _apiLanguage;
     final picked = await showModalBottomSheet<int>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -312,7 +320,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
               color: AppColors.primaryOrange,
             ),
             title: Text(
-              'core_chatbot_new_chat'.tr,
+              _inChatLanguage('core_chatbot_new_chat'),
               style: AppFonts.outfit(
                 fontWeight: FontWeight.w700,
                 color: AppColors.primaryOrange,
@@ -339,7 +347,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                   child: Text(
                     snapshot.error is ApiException
                         ? (snapshot.error as ApiException).message
-                        : 'core_chatbot_no_history'.tr,
+                        : _inChatLanguage('core_chatbot_no_history'),
                     textAlign: TextAlign.center,
                     style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
                   ),
@@ -357,7 +365,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                         contentPadding: EdgeInsets.zero,
                         title: Text(
                           '${row['title'] ?? ''}'.trim().isEmpty
-                              ? 'core_chatbot_untitled'.tr
+                              ? _inChatLanguage('core_chatbot_untitled')
                               : '${row['title']}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -403,7 +411,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     try {
       final rows = await Get.find<ChatbotRepository>().transcript(
         conversationId: id,
-        language: apiLanguageCode(),
+        language: _apiLanguage,
       );
       if (!mounted) return;
       setState(() {
@@ -472,37 +480,44 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
               children: [
                 _buildHeader(),
                 Expanded(
-                  child: Stack(
-                    children: [
-                      // Faint robot watermark behind chat
-                      if (_hasChat)
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            child: Center(
-                              child: Opacity(
-                                opacity: 0.07,
-                                child: Image.asset(
-                                  'lib/assets/images/chatbot_screen.png',
-                                  width: 260,
-                                  fit: BoxFit.contain,
+                  child: Directionality(
+                    textDirection: _chatDirection,
+                    child: Stack(
+                      children: [
+                        // Faint robot watermark behind chat
+                        if (_hasChat)
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: Center(
+                                child: Opacity(
+                                  opacity: 0.07,
+                                  child: Image.asset(
+                                    'lib/assets/images/chatbot_screen.png',
+                                    width: 260,
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      if (_consented == null)
-                        const SizedBox.shrink()
-                      else if (_consented == false)
-                        _buildConsent()
-                      else
-                        _hasChat ? _buildChatList() : _buildEmptyState(),
-                    ],
+                        if (_consented == null)
+                          const SizedBox.shrink()
+                        else if (_consented == false)
+                          _buildConsent()
+                        else
+                          _hasChat ? _buildChatList() : _buildEmptyState(),
+                      ],
+                    ),
                   ),
                 ),
-                if (_consented == true) ...[
-                  _buildQuickActions(),
-                  _buildInputBar(),
-                ],
+                if (_consented == true)
+                  Directionality(
+                    textDirection: _chatDirection,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [_buildQuickActions(), _buildInputBar()],
+                    ),
+                  ),
               ],
             ),
           ),
@@ -924,8 +939,8 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                       ),
                       decoration: InputDecoration(
                         hintText: _listening
-                            ? 'core_chatbot_listening'.tr
-                            : 'core_chatbot_type_message'.tr,
+                            ? _inChatLanguage('core_chatbot_listening')
+                            : _inChatLanguage('core_chatbot_type_message'),
                         hintStyle: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
@@ -1208,6 +1223,8 @@ class _MessageBubble extends StatelessWidget {
                   children: [
                     Text(
                       timeLabel,
+                      // "10:45 AM" keeps its order in a right-to-left chat.
+                      textDirection: TextDirection.ltr,
                       style: AppFonts.outfit(
                         color: const Color(0xFF9A9088),
                         fontSize: 11,

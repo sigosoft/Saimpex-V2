@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -396,7 +398,12 @@ class ServicesScreen extends StatelessWidget {
   }
 
   Widget _buildCategoryGrid(BuildContext context) {
-    final itemWidth = (MediaQuery.sizeOf(context).width - 32 - 30) / 4;
+    // The first frame after launch can report a screen width of 0; a
+    // negative width broke the whole widget tree in debug builds (red screen).
+    final itemWidth = math.max(
+      0.0,
+      (MediaQuery.sizeOf(context).width - 32 - 30) / 4,
+    );
 
     return Wrap(
       spacing: 10,

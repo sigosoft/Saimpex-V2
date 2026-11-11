@@ -905,3 +905,16 @@ From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (l
   - **CA-17 "Specify quantity here":** it is in the original design conversion of the cart (first commit, "Customize your quantity here"), so it comes from Figma. Left for a design decision.
   - **CA-45 French bottom bar:** needs shorter French labels from the design team ("Réservations", "Commandes"); not changed here.
   - Backend #177 / #178 not done yet (checked 6 Nov), so CA-10, 14, 21, 22 (AR/FR name), 25, 27 (recent orders) still wait.
+
+### Image search and AI assistant: phone test fixes (`feature/image-search-chatbot-ux`, 11 Nov) ✅ app side; 🔴 backend side open
+Phone: Samsung Galaxy M11 (SM-M115F, Android 12, 360 dp wide), release and debug builds, dev, test customer 95200021.
+
+- **Both features are blocked by the server on dev, not by the app:**
+  - Image search: `POST customer/image-recognition/analyze` → 500 "Image analysis failed". The server calls **OpenAI** vision (`provider: openai`) and that account has no credits (`insufficient_quota`). The decision above says **Google Vision**; Praveen to confirm which. The 500 body also carries the raw provider error text.
+  - AI assistant: `POST customer/chatbot/message` → 503 "The assistant is not configured yet." (no Anthropic key / `chatbot_enabled` off in Admin → Integrations on dev). `GET chatbot/conversations` → 200.
+- **Fixed in the app:**
+  - Assistant head: one tap opens the assistant. It shrinks after 5 s idle, and a tap on the shrunk head used to only grow it back, so the first tap looked dead. Taps while it is opening are ignored.
+  - Assistant chat follows the chat language picked on the welcome sheet, not only the app language: input hint, "Listening…", history sheet, mic messages and server errors (the API message is picked in the chat language). The chat body, chips and input are right to left for Arabic even in an English/French app (the greeting's "!" and "SAIMPEX." were on the wrong side).
+  - Photo search: no keyboard over the results; the searched photo is shown at the top with a camera button; when the photo can't be read (or nothing matches) the screen says so with the server's reason and a "Try another photo" button, instead of a 2-second toast and "Type what you are looking for". New strings `search_photo_*` in EN/FR/AR. Typing a search replaces the photo search.
+  - Services: the category grid width was negative on the first frame after launch (screen width 0), which gave the debug red screen (`BoxConstraints has a negative minimum width`, then `_dependents.isEmpty`). Clamped to ≥ 0. This is likely the "debug-only red screen" noted on 6 Nov.
+- Analyzer clean, 39 tests pass.
