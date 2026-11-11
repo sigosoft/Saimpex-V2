@@ -2,6 +2,7 @@ import '../widgets/motion.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controllers/home_controller.dart';
 import '../core/network/api_exception.dart';
 import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
@@ -26,6 +27,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void initState() {
     super.initState();
     _load();
+    // Opening Notifications counts them as seen: the Home bell badge clears.
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().markNotificationsSeen();
+    }
   }
 
   Future<void> _load() async {

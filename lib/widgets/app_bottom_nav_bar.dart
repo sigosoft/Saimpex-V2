@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -336,36 +336,38 @@ class AppBottomNavBar extends StatelessWidget {
     required int badgeCount,
     required bool isSelected,
   }) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Center(
-          child: _buildIcon(label: label, asset: asset, isSelected: isSelected),
-        ),
-        if (badgeCount > 0)
-          PositionedDirectional(
-            top: -4,
-            end: -8,
-            child: Container(
-              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: _orange,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: _barColor, width: 1.5),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                '$badgeCount',
-                style: AppFonts.outfit(
-                  color: Colors.white,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
+    // The badge is anchored to the icon, not the whole slot: placed against
+    // the slot's edge it sat far from the cart on wide slots.
+    return Center(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          _buildIcon(label: label, asset: asset, isSelected: isSelected),
+          if (badgeCount > 0)
+            PositionedDirectional(
+              top: -6,
+              end: -9,
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: _orange,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _barColor, width: 1.5),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '$badgeCount',
+                  style: AppFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
