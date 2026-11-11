@@ -913,3 +913,11 @@ From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (l
   - **Water orders:** delivered orders no longer offer "Track order" (same as food and grocery); the list shows "ORD-001521", not "#ORD-001521".
   - Not checked on the phone yet (built and installed; the phone was taken before the Orders tab opened).
 - **Noticed, not changed:** the same store shows different distances on Home (2.1 Km), Favourites (1.2 km) and the store page (1.7 km), and "Km" vs "km". The distances come from different endpoints; worth one backend rule. Food orders in "Ready" still show Cancel (existing rule, not checked against the scope).
+
+### Figma pass: module home screens (`feature/figma-module-polish`, 11 Nov) ✅
+Compared the first screen of every module with Figma (`ZCYkkdqmKm6Hn5Hcm12Mxg`) on a Samsung M11 (dev, release build). Fixed:
+- **Express "Shop by category"** was eight made-up product categories (Fruits & Veg, Snacks…, two Unsplash pictures) that did nothing on tap. It is now the Figma row: "All" first, then the store types from `customer/expressHome` `categories` (names in EN/FR/AR from the API, switched-off verticals left out). A tile filters 15-Min Delivery, Trending and Nearby; a type with no express stores shows "No fast delivery stores available". The dead "See All" next to it is gone (not in Figma).
+- **Empty band above embedded grids:** a `GridView` with no padding adds the status-bar height above itself. It showed as a gap under Home's categories, Account "Quick Actions", Pharmacy/Local Store categories, grocery and pharmacy store items, water supplier items, home-cleaning options and water subscriptions. Those nine grids now have `padding: EdgeInsets.zero` (`top: 10` for the pharmacy items).
+- **Pharmacy store header** lost the delivery time and discount the list card had: the store response sends them empty for some pharmacies and overwrote the card. Empty API fields no longer replace card values.
+- Checked, no change: grocery item ratings show only when the API has one (dev items have 0), as decided earlier.
+- Open, needs a decision: Grocery "SAIMPEX AI · Predictive" cards (Figma, no API); Local Store search has QR + filter where Figma has camera + mic; bottom bar 7 vs 5 items (PR #38).

@@ -556,6 +556,8 @@ class _WaterSupplierDetailsScreenState
                           : GridView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
+                              // No status-bar inset above an embedded grid.
+                              padding: EdgeInsets.zero,
                               itemCount: products.length,
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(

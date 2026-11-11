@@ -664,6 +664,8 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
         itemCount: _quickCategories.length,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
+        // No status-bar inset above an embedded grid.
+        padding: EdgeInsets.zero,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           crossAxisSpacing: 12,

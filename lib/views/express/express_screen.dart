@@ -17,6 +17,7 @@ import '../select_location_screen.dart';
 
 import '../../utils/app_fonts.dart';
 import '../../utils/wallet_chip.dart';
+
 class ExpressScreen extends StatefulWidget {
   const ExpressScreen({super.key});
 
@@ -34,57 +35,24 @@ class _ExpressScreenState extends State<ExpressScreen> {
   /// search bar (46) + padding (14 top, 8 bottom)
   static const double _stickyExtent = 68;
 
-  final categories = [
-    {
-      'label': 'st_cat_fruits_veg',
-      'image': 'lib/assets/images/Fruits & Veg.png',
-      'isAsset': true,
-    },
-    {
-      'label': 'st_cat_snacks',
-      'image': 'lib/assets/images/Snacks.png',
-      'isAsset': true,
-    },
-    {
-      'label': 'st_cat_beverages',
-      'image':
-          'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=120&auto=format&fit=crop',
-    },
-    {
-      'label': 'st_cat_dairy_eggs',
-      'image':
-          'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=120&auto=format&fit=crop',
-    },
-    {
-      'label': 'st_cat_bakery',
-      'image': 'lib/assets/images/Bakery.png',
-      'isAsset': true,
-    },
-    {
-      'label': 'st_cat_household',
-      'image': 'lib/assets/images/household.png',
-      'isAsset': true,
-    },
-    {
-      'label': 'st_cat_personal_care',
-      'image': 'lib/assets/images/PersonalCare.png',
-      'isAsset': true,
-    },
-    {
-      'label': 'st_cat_baby_care',
-      'image': 'lib/assets/images/BabyCare.png',
-      'isAsset': true,
-    },
-  ];
-
   List<Map<String, String>> _stores = ExpressStores.stores;
+  List<Map<String, String>> _categories = ExpressStores.categories;
+
+  /// The picked store type (`vendorType`); null shows every store ("All").
+  String? _selectedType;
+
+  /// The stores of the picked type, nearest first.
+  List<Map<String, String>> get _shownStores => _selectedType == null
+      ? _stores
+      : _stores.where((s) => s['vendorType'] == _selectedType).toList();
 
   // Nearest first from the API; the fast list is the closest few and
   // trending is the best rated.
-  List<Map<String, String>> get fastDeliveryStores => _stores.take(6).toList();
+  List<Map<String, String>> get fastDeliveryStores =>
+      _shownStores.take(6).toList();
 
   List<Map<String, String>> get trendingStores {
-    final sorted = [..._stores]
+    final sorted = [..._shownStores]
       ..sort(
         (a, b) => (double.tryParse(b['rating']!) ?? 0).compareTo(
           double.tryParse(a['rating']!) ?? 0,
@@ -93,13 +61,20 @@ class _ExpressScreenState extends State<ExpressScreen> {
     return sorted.take(6).toList();
   }
 
-  List<Map<String, String>> get nearbyStores => _stores;
+  List<Map<String, String>> get nearbyStores => _shownStores;
 
   Future<void> _loadStores() async {
     try {
       final stores = await ExpressStores.load();
       if (!mounted) return;
-      setState(() => _stores = stores);
+      setState(() {
+        _stores = stores;
+        _categories = ExpressStores.categories;
+        // The picked type may be gone after a reload.
+        if (!_categories.any((c) => c['vendorType'] == _selectedType)) {
+          _selectedType = null;
+        }
+      });
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -182,34 +157,39 @@ class _ExpressScreenState extends State<ExpressScreen> {
                           : _buildSearchBar(),
                     ),
                     _buildShopByCategory(),
-                    _buildSectionHeader(
-                      'st_15_min_delivery'.tr,
-                      'See All',
-                      () =>
-                          Get.to(() => const ExpressFifteenMinDeliveryScreen()),
-                    ),
-                    _buildFastDeliveryList(),
-                    _buildSectionHeader(
-                      'st_trending_express'.tr,
-                      'See All',
-                      () => Get.to(() => const ExpressTrendingScreen()),
-                    ),
-                    _buildTrendingList(controller),
-                    _buildSectionHeader(
-                      'st_nearby_stores'.tr,
-                      'Store Map',
-                      () => Get.to(
-                        () => StoreMapScreen(
-                          stores: [
-                            for (final store in nearbyStores)
-                              Map<String, dynamic>.from(store),
-                          ],
-                          onOpen: ExpressStores.open,
+                    // A picked type with no express stores shows only the
+                    // message under the row, not three empty sections.
+                    if (_selectedType == null || _shownStores.isNotEmpty) ...[
+                      _buildSectionHeader(
+                        'st_15_min_delivery'.tr,
+                        'See All',
+                        () => Get.to(
+                          () => const ExpressFifteenMinDeliveryScreen(),
                         ),
                       ),
-                      showMapIcon: true,
-                    ),
-                    _buildNearbyStoresList(controller),
+                      _buildFastDeliveryList(),
+                      _buildSectionHeader(
+                        'st_trending_express'.tr,
+                        'See All',
+                        () => Get.to(() => const ExpressTrendingScreen()),
+                      ),
+                      _buildTrendingList(controller),
+                      _buildSectionHeader(
+                        'st_nearby_stores'.tr,
+                        'Store Map',
+                        () => Get.to(
+                          () => StoreMapScreen(
+                            stores: [
+                              for (final store in nearbyStores)
+                                Map<String, dynamic>.from(store),
+                            ],
+                            onOpen: ExpressStores.open,
+                          ),
+                        ),
+                        showMapIcon: true,
+                      ),
+                      _buildNearbyStoresList(controller),
+                    ],
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -479,88 +459,140 @@ class _ExpressScreenState extends State<ExpressScreen> {
     );
   }
 
+  /// Figma "Shop by category": one scrolling row, "All" first, then the
+  /// store types express serves (from customer/expressHome). A tile filters
+  /// the lists below. The row used to be eight made-up product categories
+  /// (Fruits & Veg, Snacks…) that did nothing when tapped.
   Widget _buildShopByCategory() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'st_shop_by_category'.tr,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'st_shop_by_category'.tr,
+              style: AppFonts.outfit(
+                color: const Color(0xFF2C2520),
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 92,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                _categoryTile(
+                  label: 'st_all'.tr,
+                  selected: _selectedType == null,
+                  onTap: () => setState(() => _selectedType = null),
+                ),
+                for (final category in _categories)
+                  _categoryTile(
+                    label: category['label'] ?? '',
+                    image: ExpressStores.categoryImage(
+                      category['vendorType'] ?? '',
+                    ),
+                    selected: _selectedType == category['vendorType'],
+                    onTap: () =>
+                        setState(() => _selectedType = category['vendorType']),
+                  ),
+              ],
+            ),
+          ),
+          if (_selectedType != null && _shownStores.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                'st_no_fast_delivery'.tr,
                 style: AppFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF8C7D73),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SeeAllButton(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// A Figma category tile: rounded square with the picture, name below;
+  /// the picked one is orange ("All" has the four-dot mark).
+  Widget _categoryTile({
+    required String label,
+    String? image,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 10),
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: 64,
+          child: Column(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                padding: EdgeInsets.all(image == null ? 0 : 6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: selected
+                      ? const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFFFF5216), Color(0xFFFF9A3D)],
+                        )
+                      : null,
+                  color: selected ? null : Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: image == null
+                    ? Icon(
+                        Icons.grid_view_rounded,
+                        color: selected
+                            ? Colors.white
+                            : const Color(0xFFFF5216),
+                        size: 28,
+                      )
+                    : Image.asset(
+                        image,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => _categoryFallback(),
+                      ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.outfit(
+                  color: selected
+                      ? const Color(0xFFFF5216)
+                      : const Color(0xFF2C2520),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 14),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: categories.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 14,
-              childAspectRatio: 0.88,
-            ),
-            itemBuilder: (context, index) {
-              final cat = categories[index];
-              final isAsset = cat['isAsset'] == true;
-              return Column(
-                children: [
-                  Container(
-                    width: 58,
-                    height: 58,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: isAsset
-                          ? Image.asset(
-                              cat['image'] as String,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, _, _) => _categoryFallback(),
-                            )
-                          : Image.network(
-                              cat['image'] as String,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => _categoryFallback(),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    (cat['label'] as String).tr,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppFonts.outfit(
-                      color: const Color(0xFF2C2520),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      height: 1.1,
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

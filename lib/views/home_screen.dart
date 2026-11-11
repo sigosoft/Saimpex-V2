@@ -443,6 +443,8 @@ class HomeScreen extends StatelessWidget {
         itemCount: categories.length,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
+        // No status-bar inset above an embedded grid.
+        padding: EdgeInsets.zero,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
           crossAxisSpacing: 12,

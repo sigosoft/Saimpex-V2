@@ -25,6 +25,21 @@ class ExpressStores {
   /// The last loaded vendors, shaped for the express store cards.
   static List<Map<String, String>> stores = const [];
 
+  /// The store types from the same response, in the API's order
+  /// (`vendorType`, localized `label`): the "Shop by category" row (Figma:
+  /// All, Food, Grocery, Pharmacy, Water). Switched-off verticals are left out.
+  static List<Map<String, String>> categories = const [];
+
+  /// Home tile picture for a store type.
+  static String categoryImage(String vendorType) =>
+      switch (int.tryParse(vendorType)) {
+        _restaurant => 'lib/assets/images/Food.png',
+        _grocery => 'lib/assets/images/Grocery.png',
+        _pharmacy => 'lib/assets/images/Pharmacy.png',
+        _water => 'lib/assets/images/Water.png',
+        _ => 'lib/assets/images/Express.png',
+      };
+
   static const _restaurant = 1;
   static const _grocery = 2;
   static const _pharmacy = 3;
@@ -48,10 +63,15 @@ class ExpressStores {
       );
       final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
       final loaded = <Map<String, String>>[];
+      final types = <Map<String, String>>[];
       for (final category in (data['categories'] as List? ?? const [])) {
         final group = asJsonMap(category);
         if (group == null) continue;
         final label = localizedName(group);
+        final type = '${group['vendor_type'] ?? ''}'.trim();
+        if (type.isNotEmpty && label.isNotEmpty && _verticalEnabled(type)) {
+          types.add({'vendorType': type, 'label': label});
+        }
         for (final vendor in (group['vendors'] as List? ?? const [])) {
           final row = asJsonMap(vendor);
           if (row != null && _verticalEnabled(row['vendor_type'])) {
@@ -65,6 +85,7 @@ class ExpressStores {
         ),
       );
       stores = loaded;
+      categories = types;
     } on DioException catch (error) {
       throw ApiException.fromDio(error, language);
     }

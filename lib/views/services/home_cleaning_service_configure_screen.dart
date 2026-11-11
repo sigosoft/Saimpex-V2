@@ -699,6 +699,8 @@ class _HomeCleaningServiceConfigureScreenState
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
+          // No status-bar inset above an embedded grid.
+          padding: EdgeInsets.zero,
           itemCount: _pestIssues.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
