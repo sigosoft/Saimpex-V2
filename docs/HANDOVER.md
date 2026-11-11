@@ -933,3 +933,12 @@ Uses two backend fields from the 7 Nov changelog.
 - **Fixed in the app:** the floating assistant head never appeared on Home when the first frame had no screen size yet (it was placed off-screen and never moved). It now waits for the real size (`chatbot_head.dart`).
 - **Chat language fixes (emulator, app in Arabic, chat set to English):** the chat sent the *app* language to `chatbot/message`, `chatbot/conversations` and the transcript, so an English chat in an Arabic app would get Arabic replies, and the error showed in Arabic. It now sends the language picked on the welcome sheet (`_apiLanguage`). The input hint, the "couldn't reply" text and the greeting follow the chat language and its direction (they read "!Hey there", "...Type a message", ".Please try again" before); each message bubble follows the direction of its own text. English retest at 15:00: request sent with `language=en`, error shown in English, still 502 from the server (#182).
 - **Not fixed:** the header language switch in the chat didn't respond to taps on the emulator (the welcome sheet works); the resting head often needs two quick taps to open, and a slow second tap puts it back to sleep.
+
+### AI assistant working on the phone (11 Nov, 17:00) ✅
+Backend #182 fixed by the owner. Checked on vivo V2239 (Android 15, debug build of d054be7, dev, test account "Sharvin"); every `chatbot/message` returned **200**:
+- **English:** "What is my wallet balance?" → "Your SAIMPEX Wallet balance is 0 MRU… You can add 100 to 50,000 MRU at a time…". "Track my order" → the active order and two cancelled ones by code and store.
+- **Medicine question** ("Which medicine should I take for a headache?") → "I can't recommend a medicine, but a pharmacist or doctor can tell you what's safe for you", then the nearest pharmacy and when to see a doctor. No medicine was named.
+- **Arabic:** "تتبّع طلبي" → the order ORD-001176, status, total "360 أوقية", reads right to left.
+- **French:** "Quels sont mes points de fidélité ?" → tier Bronze, 0 points, 500 for Silver, free delivery from Gold.
+- The header language switch works on the phone (it didn't respond on the emulator), and History lists earlier conversations with "New chat".
+- **Small, not fixed:** History's "New chat" / "No history" follow the app language, not the chat language.
