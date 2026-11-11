@@ -86,6 +86,10 @@ class GeneralRepository {
           'longitude': '$longitude',
           'limit': '$limit',
         }),
+        // 503 here means "image search is unavailable right now" (no vision
+        // key / provider down), shown on the search screen; it must not
+        // switch the whole app to "We'll be right back".
+        options: Options(extra: {DioClient.ownServiceUnavailable: true}),
       ),
       language,
     );
