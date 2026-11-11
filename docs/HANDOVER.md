@@ -942,3 +942,6 @@ Backend #182 fixed by the owner. Checked on vivo V2239 (Android 15, debug build 
 - **French:** "Quels sont mes points de fidélité ?" → tier Bronze, 0 points, 500 for Silver, free delivery from Gold.
 - The header language switch works on the phone (it didn't respond on the emulator), and History lists earlier conversations with "New chat".
 - **History in the chat language (fixed same day):** "New chat", "No history", "Untitled" and the mic messages used the app language; they now follow the chat language, and the History sheet reads right to left for an Arabic chat. The conversation date was scrambled in Arabic ("AM 11:33 11/11/2026"); it now reads "11/11/2026 11:33 AM". Checked on the phone: app in English, chat in French → "Nouvelle conversation"; chat in Arabic → "محادثة جديدة", right to left.
+
+### Bottom bar: cart count next to the cart (11 Nov) ✅
+The cart count badge was positioned against the edge of the whole tab slot, so it sat far from the cart icon on wide slots. It is now anchored to the icon's top corner (`_iconWithBadge` in `lib/widgets/app_bottom_nav_bar.dart`). Checked on the phone (vivo V2239) in English (top right of the cart) and Arabic (top left, mirrored).
