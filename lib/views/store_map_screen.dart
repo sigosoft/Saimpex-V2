@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../controllers/select_location_controller.dart';
+import '../utils/map_style.dart';
 import '../widgets/app_back_button.dart';
+import 'widgets/store_map_pin.dart';
 
 import '../utils/app_fonts.dart';
+
 /// Real stores on Google Maps: a pin per store, a card per store underneath
 /// (swiping the cards follows the pins and tapping a pin shows its card), and
 /// a search box that filters by name. [stores] are the cards the calling
@@ -51,6 +54,54 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
       for (final store in _mappable)
         if (_titleOf(store).toLowerCase().contains(query)) store,
     ];
+  }
+
+  final StoreMapPins _pins = StoreMapPins();
+
+  static String _pinKey(Map<String, dynamic> store) =>
+      '${store['id'] ?? ''}_${_titleOf(store)}';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPins();
+  }
+
+  /// Draws every store's photo pin (normal and selected); Google's default
+  /// pin shows until a store's pin is ready.
+  Future<void> _loadPins() async {
+    for (final store in _mappable) {
+      for (final selected in const [false, true]) {
+        await _pins.pin(
+          key: _pinKey(store),
+          imageUrl: '${store['image'] ?? ''}',
+          title: _titleOf(store),
+          selected: selected,
+        );
+      }
+      if (mounted) setState(() {});
+    }
+  }
+
+  Marker _marker(Map<String, dynamic> store, int index, bool selected) {
+    final pin = _pins.cached(_pinKey(store), selected);
+    return Marker(
+      markerId: MarkerId('${store['id']}_$index'),
+      position: _pointOf(store)!,
+      icon:
+          pin ??
+          BitmapDescriptor.defaultMarkerWithHue(
+            selected ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueRed,
+          ),
+      anchor: pin == null ? const Offset(0.5, 1) : StoreMapPins.anchor,
+      // The name is on the pin itself (Figma); the default pin keeps the
+      // bubble.
+      infoWindow: pin == null
+          ? InfoWindow(title: _titleOf(store))
+          : InfoWindow.noText,
+      zIndexInt: selected ? 1 : 0,
+      onTap: () => _selectStore(index),
+    );
   }
 
   @override
@@ -142,20 +193,11 @@ class _StoreMapScreenState extends State<StoreMapScreen> {
                     : _pointOf(stores.first)!,
                 zoom: 13,
               ),
+              // The light Figma map, without shop / hospital / bus icons.
+              style: lightMapStyle,
               markers: {
                 for (var index = 0; index < stores.length; index++)
-                  Marker(
-                    markerId: MarkerId('${stores[index]['id']}_$index'),
-                    position: _pointOf(stores[index])!,
-                    infoWindow: InfoWindow(title: _titleOf(stores[index])),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                      index == selected
-                          ? BitmapDescriptor.hueOrange
-                          : BitmapDescriptor.hueRed,
-                    ),
-                    zIndexInt: index == selected ? 1 : 0,
-                    onTap: () => _selectStore(index),
-                  ),
+                  _marker(stores[index], index, index == selected),
               },
               padding: EdgeInsets.only(
                 top: topInset + 60,

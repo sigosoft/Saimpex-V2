@@ -786,6 +786,7 @@ class PharmacyRepository {
           : _asInt(item['quote_expires_in_seconds']),
       'itemsCount': _asInt(item['items_count']),
       'fileName': file?['name']?.toString().trim() ?? '',
+      'fileUrl': file?['url']?.toString().trim() ?? '',
     };
   }
 

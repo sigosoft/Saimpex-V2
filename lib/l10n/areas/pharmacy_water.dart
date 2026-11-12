@@ -115,6 +115,7 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_quote_expires_in': 'Quote Expires in:',
     'pw_quote_expired': 'This quote has expired',
     'pw_quote_expired_hint': 'Ask the pharmacy for a new quote in the chat.',
+    'pw_prescription_unavailable': "The prescription file can't be opened.",
     'pw_quotation_summary': 'Quotation Summary',
     'pw_item_total': 'Item total',
     'pw_decline_quotation': 'Decline Quotation',
@@ -410,6 +411,7 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_quote_expired': 'Ce devis a expiré',
     'pw_quote_expired_hint':
         'Demandez un nouveau devis à la pharmacie dans la discussion.',
+    'pw_prescription_unavailable': "Impossible d'ouvrir l'ordonnance.",
     'pw_quotation_summary': 'Récapitulatif du devis',
     'pw_item_total': 'Total des articles',
     'pw_decline_quotation': 'Refuser le devis',
@@ -708,6 +710,7 @@ const pharmacyWaterStrings = <String, Map<String, String>>{
     'pw_quote_expires_in': 'ينتهي عرض السعر خلال:',
     'pw_quote_expired': 'انتهت صلاحية عرض السعر',
     'pw_quote_expired_hint': 'اطلب عرض سعر جديدًا من الصيدلية في المحادثة.',
+    'pw_prescription_unavailable': 'تعذّر فتح ملف الوصفة.',
     'pw_quotation_summary': 'ملخص عرض السعر',
     'pw_item_total': 'إجمالي المنتجات',
     'pw_decline_quotation': 'رفض عرض السعر',

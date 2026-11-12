@@ -970,9 +970,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       vendorId: order['vendorId'] is int && (order['vendorId'] as int) > 0
           ? order['vendorId'] as int
           : null,
-      showPrescription:
-          order['isPrescription'] == true &&
-          '${order['fileName'] ?? ''}'.isNotEmpty,
+      // Paid prescription orders carry the file too (Figma shows it on the
+      // card); they opened the plain item-order screen without it.
+      showPrescription: '${order['fileName'] ?? ''}'.isNotEmpty,
+      prescriptionUrl: '${order['fileUrl'] ?? ''}',
       showTrack:
           order['isCancelled'] != true && order['isPrescription'] != true,
     );

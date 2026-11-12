@@ -10,6 +10,8 @@ import 'quotation_detail_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
 import '../../utils/app_fonts.dart';
+import '../../utils/store_labels.dart';
+
 class MyPrescriptionsScreen extends StatefulWidget {
   const MyPrescriptionsScreen({super.key});
 
@@ -75,7 +77,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
   }
 
   Future<void> _openItem(Map<String, dynamic> item) async {
-    if (item['status'] != 'quoted') return;
+    if (!const {'quoted', 'accepted'}.contains(item['status'])) return;
     final id = item['prescriptionId'] as int;
     final declined = await Get.to<bool>(
       () => QuotationDetailScreen(
@@ -195,8 +197,21 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
     );
   }
 
+  /// "2026-11-06 11:27:48" (UTC, as the list sends it) → "06 Nov 2026,
+  /// 12:27 PM" in the phone's time zone; it showed the raw server text.
+  static String _date(Object? raw) {
+    final text = '${raw ?? ''}'.trim();
+    final utc = RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$').hasMatch(text)
+        ? '${text.replaceFirst(' ', 'T')}Z'
+        : text;
+    final readable = readableIsoTime(utc);
+    return readable.isEmpty ? text : readable;
+  }
+
   Widget _buildCard(Map<String, dynamic> item) {
-    final quoted = item['status'] == 'quoted';
+    // "accepted" is a quote the customer accepted but hasn't paid yet
+    // ("Quotation Ready"); it opens too, so it can be paid or declined.
+    final quoted = const {'quoted', 'accepted'}.contains(item['status']);
     final amount = '${item['quoteAmountText']}';
     final pharmacy = '${item['pharmacyName']}'.trim();
 
@@ -233,7 +248,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
                   Text(
                     'pw_prescription_no_date'.trParams({
                       'id': '${item['prescriptionId']}',
-                      'date': '${item['createdAt']}',
+                      'date': _date(item['createdAt']),
                     }),
                     style: AppFonts.outfit(
                       color: const Color(0xFFA59A94),
