@@ -35,6 +35,8 @@ class _HomeSearchBoxState extends State<HomeSearchBox> {
     final text = (keyword ?? _controller.text).trim();
     if (text.isEmpty) return;
     FocusManager.instance.primaryFocus?.unfocus();
+    // The results screen has its own box; Home's is empty again on return.
+    _controller.clear();
     Get.to(() => AllSearchScreen(initialKeyword: text));
   }
 

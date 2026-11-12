@@ -415,6 +415,8 @@ class HomeScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             count > 99 ? '99+' : '$count',
+                            // "99+" read "+99" in Arabic.
+                            textDirection: TextDirection.ltr,
                             style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 9,
