@@ -14,6 +14,23 @@ String offLabel(Object value) =>
 String pointsLabel(Object value) =>
     'core_points_available'.trParams({'value': '$value'});
 
+/// A store's minimum order from the API ("150", "150.00", 150) as the amount
+/// to show: "150", "99.5"; '' when there is none (missing, 0 or not a number).
+String minOrderValue(Object? raw) {
+  final n = double.tryParse('${raw ?? ''}'.trim());
+  if (n == null || n <= 0) return '';
+  return n == n.roundToDouble() ? n.toInt().toString() : n.toStringAsFixed(2);
+}
+
+/// "Minimum order: 150 MRU" (currency per app language); '' when none.
+String minOrderLabel(Object? raw) {
+  final amount = minOrderValue(raw);
+  if (amount.isEmpty) return '';
+  return 'orders_min_order'.trParams({
+    'amount': 'mru'.trParams({'amount': amount}),
+  });
+}
+
 final _minText = RegExp(
   r'^(\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?)\s*min$',
   caseSensitive: false,
