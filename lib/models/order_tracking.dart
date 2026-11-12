@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -37,10 +38,19 @@ class OrderTracking {
   bool get isCancelled => status == 10;
   bool get isFinished => isDelivered || isCancelled;
 
-  /// 0 placed, 1 preparing, 2 on the way, 3 delivered.
-  int get stage {
+  /// 0 placed, 1 preparing, 2 on the way (ready, for pickup), 3 delivered.
+  int get stage => stageFor(status, selfPickup: isSelfPickup);
+
+  /// The four-step progress for an order status code, shared by Order
+  /// details and tracking so both screens show the same step (they
+  /// disagreed for "Ready": details said On the way, tracking Preparing).
+  /// 1 placed, 2 accepted, 3 preparing, 4 ready, 5 assigned, 6 arrived,
+  /// 7 picked up, 8 on the way, 9 delivered.
+  static int stageFor(int status, {bool selfPickup = false}) {
     if (status >= 9) return 3;
-    if (status >= 7) return 2;
+    // A pickup order is "ready" once the store has it ready; a delivery is
+    // "on the way" only once the driver has picked it up.
+    if (status >= (selfPickup ? 4 : 7)) return 2;
     if (status >= 2) return 1;
     return 0;
   }
@@ -103,8 +113,41 @@ class OrderTracking {
       '${_map('delivery_location')['address'] ?? ''}'.trim();
 
   bool get hasDriver => _data['driver'] is Map;
-  LatLng? get driverLocation =>
-      _point(_map('driver')['lat'], _map('driver')['lng']);
+
+  /// The driver's last position, or null when it is unknown or clearly
+  /// stale: more than [_maxDriverKm] from every stop of the order. A test
+  /// driver on dev reported a position in India, so the route and camera
+  /// spanned half the world.
+  LatLng? get driverLocation {
+    final driver = _point(_map('driver')['lat'], _map('driver')['lng']);
+    if (driver == null) return null;
+    final stops = [
+      storeLocation,
+      deliveryLocation,
+      if (isCourier) ...[pickup.location, dropoff.location],
+    ].whereType<LatLng>();
+    if (stops.isEmpty) return driver;
+    final near = stops.any((stop) => distanceKm(driver, stop) <= _maxDriverKm);
+    return near ? driver : null;
+  }
+
+  static const double _maxDriverKm = 100;
+
+  /// Great-circle distance in kilometres.
+  @visibleForTesting
+  static double distanceKm(LatLng a, LatLng b) {
+    const r = 6371.0;
+    double rad(double d) => d * math.pi / 180;
+    final dLat = rad(b.latitude - a.latitude);
+    final dLng = rad(b.longitude - a.longitude);
+    final h =
+        math.pow(math.sin(dLat / 2), 2) +
+        math.cos(rad(a.latitude)) *
+            math.cos(rad(b.latitude)) *
+            math.pow(math.sin(dLng / 2), 2);
+    return 2 * r * math.asin(math.sqrt(h));
+  }
+
   String get driverName => '${_map('driver')['name'] ?? ''}'.trim();
   String get driverImage =>
       ApiConstants.mediaUrl('${_map('driver')['image'] ?? ''}') ?? '';

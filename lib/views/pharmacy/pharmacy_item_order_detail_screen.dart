@@ -46,6 +46,12 @@ class PharmacyItemOrderDetailScreen extends StatelessWidget {
           storeName: storeName,
           detail: detail,
           order: order,
+          // Placeholder for an item without a photo: a medicine only for
+          // pharmacy orders (order_type 3); grocery and other stores showed
+          // a medicine too.
+          itemIcon: '${detail?['order_type'] ?? '3'}' == '3'
+              ? Icons.medication_outlined
+              : Icons.shopping_basket_outlined,
         );
       },
     );
@@ -75,6 +81,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
   final bool isDelivery;
   final String? storeName;
   final Map<String, dynamic>? detail;
+  final IconData itemIcon;
 
   /// [detail] parsed; null until the order loads.
   final OrderTracking? order;
@@ -86,6 +93,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
     this.storeName,
     this.detail,
     this.order,
+    this.itemIcon = Icons.medication_outlined,
   });
 
   bool get _hasDriver => order?.hasDriver == true;
@@ -269,7 +277,15 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               top: false,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                child: isDelivery
+                // No Cancel on a delivered or cancelled order (a delivered
+                // grocery order offered it); nothing to track once cancelled.
+                child: order?.isCancelled == true
+                    ? const SizedBox.shrink()
+                    : order?.isDelivered == true
+                    ? (isDelivery
+                          ? _buildTrackButton()
+                          : const SizedBox.shrink())
+                    : isDelivery
                     ? Row(
                         children: [
                           Expanded(child: _buildCancelButton(context)),
@@ -787,10 +803,7 @@ class _PharmacyItemOrderDetailBody extends StatelessWidget {
               width: 54,
               height: 54,
               color: const Color(0xFFF3EFEA),
-              child: const Icon(
-                Icons.medication_outlined,
-                color: Color(0xFFFF5216),
-              ),
+              child: Icon(itemIcon, color: const Color(0xFFFF5216)),
             ),
           ),
         ),

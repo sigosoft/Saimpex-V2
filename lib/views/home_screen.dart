@@ -2146,19 +2146,25 @@ class _HomeAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final home = Get.find<HomeController>();
-    return Obx(() {
-      final imageUrl = ApiConstants.mediaUrl(home.profileImage.value);
-      if (imageUrl == null) return const _HomePersonIcon();
-      return ClipOval(
-        child: Image.network(
-          imageUrl,
-          width: 36,
-          height: 36,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => const _HomePersonIcon(),
-        ),
-      );
-    });
+    // Opens the Profile tab (a guest gets the log-in sheet); the picture
+    // used to do nothing when tapped.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => home.selectNavigation(HomeController.navProfile),
+      child: Obx(() {
+        final imageUrl = ApiConstants.mediaUrl(home.profileImage.value);
+        if (imageUrl == null) return const _HomePersonIcon();
+        return ClipOval(
+          child: Image.network(
+            imageUrl,
+            width: 36,
+            height: 36,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const _HomePersonIcon(),
+          ),
+        );
+      }),
+    );
   }
 }
 

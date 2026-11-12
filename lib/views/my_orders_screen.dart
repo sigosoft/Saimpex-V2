@@ -839,6 +839,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ? 'mru'.trParams({'amount': '0'})
             : '${order['amount']}',
         expiresIn: Duration(seconds: seconds is int ? seconds : 0),
+        hasExpiry: seconds is int,
         prescriptionId:
             order['prescriptionId'] is int &&
                 (order['prescriptionId'] as int) > 0

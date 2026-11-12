@@ -780,7 +780,10 @@ class PharmacyRepository {
       'prescriptionId': _asInt(prescriptionId),
       'amount': _moneyText(item['quote_amount'] ?? item['total']),
       'totalText': _moneyText(item['total']),
-      'expiresInSeconds': _asInt(item['quote_expires_in_seconds']),
+      // Null when the quote has no expiry (no timer shown); 0 when expired.
+      'expiresInSeconds': item['quote_expires_in_seconds'] == null
+          ? null
+          : _asInt(item['quote_expires_in_seconds']),
       'itemsCount': _asInt(item['items_count']),
       'fileName': file?['name']?.toString().trim() ?? '',
     };
@@ -1064,7 +1067,9 @@ class PharmacyRepository {
     if (number == null) {
       final text = '${value ?? ''}'.trim();
       if (text.isEmpty) return '';
-      return text.toUpperCase().contains('MRU') ? localizeMru(text) : mruAmount(text);
+      return text.toUpperCase().contains('MRU')
+          ? localizeMru(text)
+          : mruAmount(text);
     }
     final text = number == number.roundToDouble()
         ? number.toInt().toString()

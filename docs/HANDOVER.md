@@ -948,3 +948,14 @@ The cart count badge was positioned against the edge of the whole tab slot, so i
 
 ### Home bell: unread count instead of a dot (11 Nov) ✅ (phone-side workaround)
 The bell showed an orange dot whenever `homeHub.unread_notifications` > 0. That field is really the customer's **total** notifications (the server has no read flag), so the dot never went away. The bell now shows a count badge like the cart (`99+` above 99) of notifications not opened yet, and nothing once Notifications has been opened: the app keeps the total seen at the last opening per account on the phone (`lib/utils/seen_notifications.dart`, `HomeController.markNotificationsSeen`, called when Notifications opens). Test: `test/seen_notifications_test.dart`. Checked on the phone (vivo V2239, test account Sharvin): bell showed 15, Notifications opened, after returning and restarting the app no badge. **Limit:** a new phone or reinstall counts all old notifications again. Backend issue for a real read flag: [praveensigo/saimpex-backend-new#183](https://github.com/praveensigo/saimpex-backend-new/issues/183).
+
+### Figma pass bugs (`fix/figma-pass-bugs`, 12 Nov) ✅
+From the full Figma comparison (`test-reports/figma-comparison-full-2026-11-12.md`), checked on a Samsung M11 (release, dev):
+- **Order steps:** Order details decided the step from the status *text* ("Ready" → On the way) while tracking used the code (Preparing). Both now use `OrderTracking.stageFor` (delivery: 7+ on the way; self pickup: 4+ ready). ORD-001541 shows Preparing on both.
+- **Expired pharmacy quote:** at 00:00:00 the card still offered Review & Pay. It now says "This quote has expired" with "Ask the pharmacy for a new quote in the chat" and no pay bar. A quote with no expiry from the server shows no timer (it showed 00:00:00).
+- **Chat date chips:** a chip before each day's first message ("Today", "Yesterday", "05 Nov 2026"); it always said "Today".
+- **Grocery / local store order details** (shared screen): basket placeholder instead of a medicine for non-pharmacy orders (`order_type` ≠ 3); no Cancel on delivered or cancelled orders, no Track on cancelled.
+- **Tracking map:** a driver position more than 100 km from every stop is treated as unknown (dev driver 311 reports India), so the route stays in Nouakchott.
+- **Home profile picture** opens the Profile tab (log-in sheet for guests); it did nothing.
+- New strings EN/FR/AR: `core_chat_yesterday`, `pw_quote_expired`, `pw_quote_expired_hint`. Tests: `test/figma_pass_fixes_test.dart`. Analyzer clean, 50 tests pass.
+- Not checked on the phone: grocery order details after the change (code path only).
