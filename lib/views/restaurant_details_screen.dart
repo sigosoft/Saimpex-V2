@@ -602,7 +602,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     BuildContext context,
     Map<String, dynamic> food, {
     bool fromBottomSheet = false,
-    String portion = 'Full portion',
+    String portion = '',
     int? price,
     int quantity = 1,
     int? variantId,
@@ -1375,6 +1375,15 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             child: Obx(() {
               final hasItems = controller.cartItemCount.value > 0;
               if (!hasItems) return const SizedBox.shrink();
+              // Only this restaurant's cart: on another store's page the bar
+              // showed that cart with this store's name and ready time.
+              final cartStore =
+                  controller.lastCartItem?['storeName']?.toString().trim() ??
+                  '';
+              if (cartStore.isNotEmpty &&
+                  _isDifferentRestaurant(cartStore, _currentRestaurantName())) {
+                return const SizedBox.shrink();
+              }
               return GestureDetector(
                 onTap: () {
                   Get.to(
@@ -1391,7 +1400,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                           '',
                       itemPortion:
                           controller.lastCartItem?['itemPortion']?.toString() ??
-                          'Full portion',
+                          '',
                       basePrice: () {
                         final saved = controller.lastCartItem?['basePrice'];
                         if (saved is num) return saved.toInt();

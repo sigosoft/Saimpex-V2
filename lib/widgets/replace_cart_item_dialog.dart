@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../utils/app_fonts.dart';
+
 /// Centered dialog shown when adding an item from a different restaurant
 /// than the one already in the cart.
 class ReplaceCartItemDialog extends StatelessWidget {
@@ -30,11 +31,10 @@ class ReplaceCartItemDialog extends StatelessWidget {
     );
   }
 
-  String _displayName(String name) {
-    final trimmed = name.trim();
-    if (trimmed.toLowerCase().endsWith('restaurant')) return trimmed;
-    return 'core_replace_cart_restaurant_name'.trParams({'name': trimmed});
-  }
+  /// The store's own name. It used to get "Restaurant" added (from the
+  /// Figma sample "Al Fantasia Restaurant"), which also hit grocery stores
+  /// ("Alimentation Tevragh Zeina Restaurant").
+  String _displayName(String name) => name.trim();
 
   @override
   Widget build(BuildContext context) {

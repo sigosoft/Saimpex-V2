@@ -2219,25 +2219,32 @@ class _CartScreenState extends State<CartScreen> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        SelectLocationController
-                                                .selectedSubtitle
-                                                .trim()
-                                                .isEmpty
-                                            ? SelectLocationController
+                                      // Second line only when it adds
+                                      // something (it repeated the title).
+                                      if (SelectLocationController
+                                              .selectedSubtitle
+                                              .trim()
+                                              .isNotEmpty &&
+                                          SelectLocationController
+                                                  .selectedSubtitle
+                                                  .trim() !=
+                                              SelectLocationController
                                                   .deliveryLabel
                                                   .value
-                                            : SelectLocationController
-                                                  .selectedSubtitle,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: AppFonts.outfit(
-                                          color: const Color(0xFFA59A94),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
+                                                  .trim()) ...[
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          SelectLocationController
+                                              .selectedSubtitle,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ],
                                   ),
                                 ),
