@@ -1028,7 +1028,7 @@ Sweep of the whole app for fixed data customers can see. Each item now comes fro
   - Laundry and car wash slot sheets (same code as home cleaning).
 
 ## Status at end of day, 12 Nov 2026 (customer app)
-- **Open PRs, in merge order:** #58 → #59 → #60 → #61 → #62 → `fix/static-content` (this entry); plus #52, #54, #55 on their own. Each stacked PR targets the one before it; retarget to `main` after each merge. Never merge without Praveen's go-ahead.
+- **Open PRs, in merge order:** #58 → #59 → #60 → #61 → #62 → #63 (static content); plus #52, #54, #55 on their own. Each stacked PR targets the one before it; retarget to `main` after each merge. Never merge without Praveen's go-ahead.
 - **Backend items still open:** see `test-reports/message-to-backend-2026-11-12.md` (ready to send): #163, #164, #165, #166, #167 (probably done, confirm), #177, #178, #183, #184, #185, push data. New from this pass:
   - support hours for Help, e.g. `support_hours_en/fr/ar` in Branding;
   - `name_ar` / `name_fr` on home cleaning `spaces` / `addons` and car wash `vehicles`;
