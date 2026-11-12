@@ -1,6 +1,23 @@
+import 'dart:ui' show TextDirection;
+
 import 'package:get/get.dart';
 
 import 'api_language.dart';
+
+final _rtlChar = RegExp(r'[֐-ࣿיִ-﷿ﹰ-﻿]');
+final _ltrChar = RegExp(r'[A-Za-z0-9À-ɏ]');
+
+/// The direction of a text from its first strong letter: Arabic → right to
+/// left, Latin or a digit → left to right. Used for server texts (addresses)
+/// that may be in either script whatever the app language.
+TextDirection textDirectionOf(String text) {
+  for (final rune in text.runes) {
+    final char = String.fromCharCode(rune);
+    if (_rtlChar.hasMatch(char)) return TextDirection.rtl;
+    if (_ltrChar.hasMatch(char)) return TextDirection.ltr;
+  }
+  return TextDirection.ltr;
+}
 
 /// Store and product card labels (distance, time, offer, points) in the app's
 /// language; the numbers come from the API.

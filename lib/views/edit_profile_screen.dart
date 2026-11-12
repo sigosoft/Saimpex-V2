@@ -274,8 +274,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         style: const TextStyle(fontSize: 18),
                       ),
                       const SizedBox(width: 8),
+                      // Left to right so Arabic shows "+222", not "222+".
                       Text(
                         controller.countryCode.value,
+                        textDirection: TextDirection.ltr,
                         style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 15,
@@ -489,6 +491,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         trailing: Text(
                           country.code,
+                          textDirection: TextDirection.ltr,
                           style: AppFonts.outfit(
                             color: Colors.black54,
                             fontWeight: FontWeight.bold,

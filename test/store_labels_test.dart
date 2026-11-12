@@ -1,3 +1,5 @@
+import 'dart:ui' show TextDirection;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saimpex_v2/utils/store_labels.dart';
 
@@ -26,6 +28,13 @@ void main() {
     );
     expect(readableServerTime('yesterday'), 'yesterday');
     expect(readableServerTime(null), '');
+  });
+
+  test('text direction follows the first letter', () {
+    expect(textDirectionOf('32PC+9MV, La Capitale'), TextDirection.ltr);
+    expect(textDirectionOf('نواكشوط، تفرغ زينة'), TextDirection.rtl);
+    expect(textDirectionOf('  , حي 5'), TextDirection.rtl);
+    expect(textDirectionOf(''), TextDirection.ltr);
   });
 
   test('store minimum order: amount only when above zero', () {

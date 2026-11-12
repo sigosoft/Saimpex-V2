@@ -34,6 +34,7 @@ import 'water/water_supplier_details_screen.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/toast_helper.dart';
+import '../utils/store_labels.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -294,6 +295,14 @@ class HomeScreen extends StatelessWidget {
                               child: Obx(
                                 () => Text(
                                   SelectLocationController.deliveryLabel.value,
+                                  // A Latin address in the Arabic app was cut
+                                  // at its start ("…32PC+9MV, La Capi"): it
+                                  // now runs in its own direction.
+                                  textDirection: textDirectionOf(
+                                    SelectLocationController
+                                        .deliveryLabel
+                                        .value,
+                                  ),
                                   maxLines: 1,
                                   softWrap: false,
                                   overflow: TextOverflow.ellipsis,
@@ -415,6 +424,8 @@ class HomeScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             count > 99 ? '99+' : '$count',
+                            // Arabic showed "+99".
+                            textDirection: TextDirection.ltr,
                             style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 9,
