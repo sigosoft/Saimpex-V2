@@ -11,6 +11,7 @@ import '../widgets/country_code_picker.dart';
 import 'courier_review_booking_screen.dart';
 
 import '../../utils/app_fonts.dart';
+import '../terms_conditions_screen.dart';
 
 class CourierDeliveryDetailsScreen extends StatefulWidget {
   final String pickupAddress;
@@ -780,23 +781,32 @@ class _CourierDeliveryDetailsScreenState
             ),
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Text(
-                'st_view_policy'.tr,
-                style: AppFonts.outfit(
-                  color: const Color(0xFFFF5216),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+          // It did nothing. There's no courier-only policy in the API, so it
+          // opens Admin's Terms & Conditions, which cover courier orders.
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => Get.to(
+              () => const TermsConditionsScreen(isTermsAndConditions: true),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'st_view_policy'.tr,
+                  style: AppFonts.outfit(
+                    color: const Color(0xFFFF5216),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFFFF5216),
-                size: 18,
-              ),
-            ],
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFFFF5216),
+                  size: 18,
+                ),
+              ],
+            ),
           ),
         ],
       ),

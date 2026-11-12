@@ -670,7 +670,18 @@ class _CourierReviewBookingScreenState
     );
   }
 
+  /// Figma's "Schedule for Later". It did nothing on tap; `courier/create`
+  /// takes no pickup time yet (backend issue), so it says "Coming soon" like
+  /// the app's other unfinished features.
   Widget _buildScheduleCard() {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => showAppToast('svc_coming_soon_message'.tr),
+      child: _scheduleCardBody(),
+    );
+  }
+
+  Widget _scheduleCardBody() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -708,7 +719,7 @@ class _CourierReviewBookingScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'st_select_pickup_time'.tr,
+                  'svc_coming_soon'.tr,
                   style: AppFonts.outfit(
                     color: const Color(0xFF3BA162),
                     fontSize: 10,
