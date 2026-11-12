@@ -13,6 +13,7 @@ import '../select_location_screen.dart';
 import '../../models/service_repository.dart';
 import 'car_wash_provider_detail_screen.dart';
 import 'service_provider_list.dart';
+import 'service_banner_image.dart';
 
 import '../../utils/app_fonts.dart';
 import '../../widgets/status_dot.dart';
@@ -85,13 +86,9 @@ class CarWashScreen extends StatelessWidget {
           child: Align(
             alignment: Alignment.topCenter,
             heightFactor: 0.72,
-            child: Image.asset(
-              'lib/assets/images/carwash_banner.png',
-              width: double.infinity,
-              fit: BoxFit.cover,
-              alignment: Alignment.topCenter,
-              errorBuilder: (_, _, _) =>
-                  Container(height: 240, color: const Color(0xFFFF5216)),
+            child: const ServiceBannerImage(
+              vertical: ServiceRepository.carWash,
+              asset: 'lib/assets/images/carwash_banner.png',
             ),
           ),
         ),
