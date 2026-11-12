@@ -219,9 +219,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             Positioned.fill(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(
-                  bottom: 110,
-                ), // extra padding for bottom nav bar
+                // Clear of the bar, the raised Services button and the phone's
+                // navigation area (the last card's link sat under the button).
+                padding: EdgeInsets.only(
+                  bottom: 140 + MediaQuery.of(context).padding.bottom,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1164,7 +1166,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       detailsText: [
         order['isExpress'] == true ? 'orders_express'.tr : 'orders_standard'.tr,
         '${order['total']}',
-        '#$orderId',
+        // Isolated left to right: Arabic showed "CRBR1LK9XE#".
+        '\u2066#$orderId\u2069',
       ].join(' • '),
       buttons: [
         if (!cancelled && !delivered)
