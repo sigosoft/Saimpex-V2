@@ -119,7 +119,10 @@ class OrderTracking {
     if (timeline is! List) return '';
     for (final entry in timeline) {
       if (entry is Map && int.tryParse('${entry['status']}') == status) {
-        return readableServerTime(entry['updated_at']);
+        // updated_at_iso has the offset, so the step shows in the phone's
+        // time zone (C-B9); older servers only send the text.
+        final iso = readableIsoTime(entry['updated_at_iso']);
+        return iso.isNotEmpty ? iso : readableServerTime(entry['updated_at']);
       }
     }
     return '';

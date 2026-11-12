@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../core/network/api_exception.dart';
 import '../../models/service_booking_detail.dart';
+import '../../utils/store_labels.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../help_support_screen.dart';
@@ -109,6 +110,8 @@ class _LaundryBookingDetailScreenState
 
   String get _slot {
     for (final value in [
+      // #169: the window as data, in the phone's time zone and language.
+      readableWindow(_detail?['pickup_window']),
       _raw('pickup_slot'),
       _detail?.slot ?? '',
       _bookingText('slot'),
@@ -130,7 +133,10 @@ class _LaundryBookingDetailScreenState
     return _raw('processing_label');
   }
 
-  String get _estimatedDelivery => _raw('delivery_turnaround');
+  String get _estimatedDelivery {
+    final window = readableWindow(_detail?['delivery_window']);
+    return window.isNotEmpty ? window : _raw('delivery_turnaround');
+  }
 
   double get _balanceDue {
     if (_detail?.isCancelled ?? true) return 0;

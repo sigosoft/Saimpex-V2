@@ -11,7 +11,6 @@ import '../controllers/select_location_controller.dart';
 import '../core/network/api_exception.dart';
 import '../models/chatbot_repository.dart';
 import '../utils/ai_assistant_consent.dart';
-import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
 import 'terms_conditions_screen.dart';
 
@@ -84,6 +83,15 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
   String _inChatLanguage(String key) =>
       Get.translations[_languageCode.toLowerCase()]?[key] ?? key.tr;
 
+  /// The chat language for the API (`en`/`fr`/`ar`). The server answers in
+  /// it; the app language was sent before, so an English chat in an Arabic
+  /// app got Arabic replies and errors.
+  String get _apiLanguage => _languageCode.toLowerCase();
+
+  /// Reading direction of the chat language (the app's can differ).
+  TextDirection get _chatDirection =>
+      _languageCode == 'AR' ? TextDirection.rtl : TextDirection.ltr;
+
   void _resetIdleTimer() {
     _idleTimer?.cancel();
     _idleTimer = Timer(_idleTimeout, () {
@@ -130,11 +138,11 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
         conversationId: _conversationId,
         latitude: SelectLocationController.selectedLatitude,
         longitude: SelectLocationController.selectedLongitude,
-        language: apiLanguageCode(),
+        language: _apiLanguage,
       );
       if (!mounted) return;
       final reply = answer.reply.isEmpty
-          ? 'core_chatbot_error'.tr
+          ? _inChatLanguage('core_chatbot_error')
           : answer.reply;
       setState(() {
         _conversationId = answer.conversationId ?? _conversationId;
@@ -202,7 +210,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     }
     if (!mounted) return;
     if (!_speechReady) {
-      _showSnack('core_home_search_allow_mic'.tr);
+      _showSnack(_inChatLanguage('core_home_search_allow_mic'));
       return;
     }
     setState(() => _listening = true);
@@ -231,7 +239,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _listening = false);
-      _showSnack('core_home_search_voice_unavailable'.tr);
+      _showSnack(_inChatLanguage('core_home_search_voice_unavailable'));
     }
   }
 
@@ -298,93 +306,97 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     _resetIdleTimer();
     if (!Get.isRegistered<ChatbotRepository>()) return;
     final repository = Get.find<ChatbotRepository>();
-    final language = apiLanguageCode();
+    final language = _apiLanguage;
     final picked = await showModalBottomSheet<int>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => _SheetFrame(
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(
-              Icons.add_comment_outlined,
-              color: AppColors.primaryOrange,
-            ),
-            title: Text(
-              'core_chatbot_new_chat'.tr,
-              style: AppFonts.outfit(
-                fontWeight: FontWeight.w700,
+      builder: (context) => Directionality(
+        // The sheet follows the chat language (French chat in an English app).
+        textDirection: _chatDirection,
+        child: _SheetFrame(
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(
+                Icons.add_comment_outlined,
                 color: AppColors.primaryOrange,
               ),
+              title: Text(
+                _inChatLanguage('core_chatbot_new_chat'),
+                style: AppFonts.outfit(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryOrange,
+                ),
+              ),
+              onTap: () => Navigator.pop(context, 0),
             ),
-            onTap: () => Navigator.pop(context, 0),
-          ),
-          const Divider(height: 1, color: Color(0xFFF0E6DE)),
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: repository.conversations(language),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryOrange,
+            const Divider(height: 1, color: Color(0xFFF0E6DE)),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: repository.conversations(language),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryOrange,
+                    ),
+                  );
+                }
+                final rows = snapshot.data ?? const [];
+                if (snapshot.hasError || rows.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      snapshot.error is ApiException
+                          ? (snapshot.error as ApiException).message
+                          : _inChatLanguage('core_chatbot_no_history'),
+                      textAlign: TextAlign.center,
+                      style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
+                    ),
+                  );
+                }
+                return ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.5,
                   ),
-                );
-              }
-              final rows = snapshot.data ?? const [];
-              if (snapshot.hasError || rows.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Text(
-                    snapshot.error is ApiException
-                        ? (snapshot.error as ApiException).message
-                        : 'core_chatbot_no_history'.tr,
-                    textAlign: TextAlign.center,
-                    style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
-                  ),
-                );
-              }
-              return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-                ),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    for (final row in rows)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          '${row['title'] ?? ''}'.trim().isEmpty
-                              ? 'core_chatbot_untitled'.tr
-                              : '${row['title']}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppFonts.outfit(
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A1A),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (final row in rows)
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            '${row['title'] ?? ''}'.trim().isEmpty
+                                ? _inChatLanguage('core_chatbot_untitled')
+                                : '${row['title']}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.outfit(
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1A1A1A),
+                            ),
+                          ),
+                          subtitle: Text(
+                            _dateLabel(row['updated_at'] ?? row['created_at']),
+                            style: AppFonts.outfit(
+                              fontSize: 12,
+                              color: const Color(0xFF9A9088),
+                            ),
+                          ),
+                          selected: '${row['id']}' == '$_conversationId',
+                          onTap: () => Navigator.pop(
+                            context,
+                            int.tryParse('${row['id']}'),
                           ),
                         ),
-                        subtitle: Text(
-                          _dateLabel(row['updated_at'] ?? row['created_at']),
-                          style: AppFonts.outfit(
-                            fontSize: 12,
-                            color: const Color(0xFF9A9088),
-                          ),
-                        ),
-                        selected: '${row['id']}' == '$_conversationId',
-                        onTap: () => Navigator.pop(
-                          context,
-                          int.tryParse('${row['id']}'),
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
     if (!mounted || picked == null) return;
@@ -403,7 +415,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     try {
       final rows = await Get.find<ChatbotRepository>().transcript(
         conversationId: id,
-        language: apiLanguageCode(),
+        language: _apiLanguage,
       );
       if (!mounted) return;
       setState(() {
@@ -435,8 +447,10 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     final time = _parseTime(value);
     if (time == null) return '';
     String two(int n) => n.toString().padLeft(2, '0');
-    return '${two(time.day)}/${two(time.month)}/${time.year} '
-        '${_formatTime(time)}';
+    // Left-to-right isolate: in Arabic the date read "AM 11:33 11/11/2026".
+    return '${String.fromCharCode(0x2066)}'
+        '${two(time.day)}/${two(time.month)}/${time.year} '
+        '${_formatTime(time)}${String.fromCharCode(0x2069)}';
   }
 
   @override
@@ -636,6 +650,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           Text(
             _inChatLanguage('core_chatbot_greeting'),
             textAlign: TextAlign.center,
+            textDirection: _chatDirection,
             style: AppFonts.outfit(
               color: const Color(0xFF111111),
               fontSize: 24,
@@ -646,6 +661,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           Text(
             _inChatLanguage('core_chatbot_intro'),
             textAlign: TextAlign.center,
+            textDirection: _chatDirection,
             style: AppFonts.outfit(
               color: const Color(0xFF3A3A3A),
               fontSize: 14.5,
@@ -916,6 +932,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                       controller: _messageController,
                       enabled: !_listening,
                       maxLength: 2000,
+                      textDirection: _chatDirection,
                       onChanged: (_) => _resetIdleTimer(),
                       onSubmitted: (_) => _sendMessage(),
                       style: AppFonts.outfit(
@@ -923,9 +940,10 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                         color: const Color(0xFF1A1A1A),
                       ),
                       decoration: InputDecoration(
+                        hintTextDirection: _chatDirection,
                         hintText: _listening
-                            ? 'core_chatbot_listening'.tr
-                            : 'core_chatbot_type_message'.tr,
+                            ? _inChatLanguage('core_chatbot_listening')
+                            : _inChatLanguage('core_chatbot_type_message'),
                         hintStyle: AppFonts.outfit(
                           color: const Color(0xFFA59A94),
                           fontSize: 14,
@@ -1106,6 +1124,14 @@ class _QuickActionChip extends StatelessWidget {
   }
 }
 
+/// Right to left when the text's first letter is Arabic, else left to right.
+TextDirection _textDirectionOf(String text) {
+  final letter = RegExp(r'[A-Za-z\u00C0-\u00FF\u0600-\u06FF]').firstMatch(text);
+  final isArabic =
+      letter != null && RegExp(r'[\u0600-\u06FF]').hasMatch(letter.group(0)!);
+  return isArabic ? TextDirection.rtl : TextDirection.ltr;
+}
+
 class _MessageBubble extends StatelessWidget {
   final _ChatItem message;
   final String timeLabel;
@@ -1182,6 +1208,9 @@ class _MessageBubble extends StatelessWidget {
                   Flexible(
                     child: SelectableText(
                       message.text,
+                      // Each message reads in its own script's direction:
+                      // English in an Arabic app came out as ".Please try again".
+                      textDirection: _textDirectionOf(message.text),
                       style: AppFonts.outfit(
                         color: isUser
                             ? const Color(0xFFE85A1A)

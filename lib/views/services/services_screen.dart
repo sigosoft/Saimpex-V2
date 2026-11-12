@@ -396,7 +396,10 @@ class ServicesScreen extends StatelessWidget {
   }
 
   Widget _buildCategoryGrid(BuildContext context) {
-    final itemWidth = (MediaQuery.sizeOf(context).width - 32 - 30) / 4;
+    // The first frame can have a 0 width; a negative tile width then broke
+    // the whole tree in debug builds (red `_dependents.isEmpty` screen).
+    final itemWidth =
+        ((MediaQuery.sizeOf(context).width - 32 - 30) / 4).clamp(0.0, 200.0);
 
     return Wrap(
       spacing: 10,
