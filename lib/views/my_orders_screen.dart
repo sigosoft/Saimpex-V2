@@ -31,6 +31,7 @@ import '../navigation/bottom_nav_router.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/store_labels.dart';
+import '../utils/order_flags.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   final bool showBottomNav;
@@ -145,6 +146,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       }
       if (!mounted) return;
       setState(() => _localStoreOrders = orders);
+      _checkOrderFlags(orders);
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -377,6 +379,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       }
       if (!mounted) return;
       setState(() => _groceryOrders = orders);
+      _checkOrderFlags(orders);
       _loadGroceryChanges(orders);
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -506,6 +509,87 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   static int? _orderId(Map<String, dynamic> order) =>
       order['numericOrderId'] as int?;
 
+  /// How many orders of one list are checked per load: the newest ones,
+  /// which are on screen first. Older orders are checked on later loads only
+  /// if they come into this window.
+  static const _flagCheckLimit = 20;
+
+  /// The order lists don't send is_self_pickup (backend #166) or whether the
+  /// customer already rated (backend #165). Until they do, ask once per order
+  /// (`orderDetails`, `rating`), remember the answer on the phone
+  /// ([OrderFlags], [RatedOrders]) and update the cards: "Pickup" and
+  /// "Picked up" for self-pickup orders, no Rate button on rated ones.
+  Future<void> _checkOrderFlags(List<Map<String, dynamic>> orders) async {
+    if (!Get.isRegistered<OrderRepository>()) return;
+    await Future.wait([RatedOrders.load(), OrderFlags.load()]);
+    if (!mounted) return;
+    setState(() => _applyOrderFlags(orders));
+
+    final repository = Get.find<OrderRepository>();
+    final language = apiLanguageCode();
+    final tasks = <Future<void> Function()>[];
+    for (final order in orders.take(_flagCheckLimit)) {
+      final id = _orderId(order);
+      if (id == null) continue;
+      if (order['isSelfPickup'] != true &&
+          OrderFlags.isSelfPickup(id) == null) {
+        tasks.add(() async {
+          final detail = await repository.orderDetails(
+            orderId: id,
+            language: language,
+          );
+          final pickup =
+              detail['is_self_pickup'] == 1 ||
+              detail['is_self_pickup'] == true ||
+              '${detail['is_self_pickup']}' == '1';
+          await OrderFlags.setSelfPickup(id, pickup);
+        });
+      }
+      if (order['isDelivered'] == true &&
+          !RatedOrders.contains(id) &&
+          !OrderFlags.checkedNotRated(id)) {
+        tasks.add(() async {
+          final rating = await repository.rating(
+            orderId: id,
+            language: language,
+          );
+          if (rating['vendor_rating'] != null) {
+            await RatedOrders.add(id);
+          } else {
+            OrderFlags.markNotRated(id);
+          }
+        });
+      }
+    }
+    if (tasks.isEmpty) return;
+    // Three at a time, so a long list doesn't flood the server.
+    for (var i = 0; i < tasks.length; i += 3) {
+      await Future.wait(
+        tasks.skip(i).take(3).map((task) async {
+          try {
+            await task();
+          } catch (_) {
+            // Unknown stays unknown: the card keeps the list's values and
+            // Rate still checks on tap.
+          }
+        }),
+      );
+    }
+    if (!mounted) return;
+    setState(() => _applyOrderFlags(orders));
+  }
+
+  /// Puts what [OrderFlags] knows into the cards' data.
+  static void _applyOrderFlags(List<Map<String, dynamic>> orders) {
+    for (final order in orders) {
+      if (OrderFlags.isSelfPickup(_orderId(order)) != true) continue;
+      order['isSelfPickup'] = true;
+      if (order['isDelivered'] == true) {
+        order['statusLabel'] = 'core_status_9_pickup'.tr;
+      }
+    }
+  }
+
   /// Opens the rating form, unless the server already has this customer's
   /// rating for the order (rated earlier or on another phone): then it says
   /// so and the Rate button goes away.
@@ -572,6 +656,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       }
       if (!mounted) return;
       setState(() => _restaurantOrders = orders);
+      _checkOrderFlags(orders);
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
@@ -951,6 +1036,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       }
       if (!mounted) return;
       setState(() => _waterOrders = orders);
+      _checkOrderFlags(orders);
     } on ApiException catch (error) {
       if (!mounted) return;
       showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
