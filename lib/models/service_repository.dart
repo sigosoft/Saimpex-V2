@@ -5,6 +5,7 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/currency.dart';
 
 /// Service verticals (car wash, home cleaning, laundry): providers,
 /// slots, quotes and bookings.
@@ -207,11 +208,7 @@ class ServiceRepository {
           ? availability
           : text(row['hours_label']),
       'tag1': 'svc_starting_from'.tr,
-      'price1': rate.isEmpty
-          ? '—'
-          : unit.isEmpty
-          ? rate
-          : '$rate/$unit',
+      'price1': rate.isEmpty ? '—' : startingRateLabel(rate, unit),
       'tag2': 'core_rating'.tr,
       'price2': rating > 0 ? '${rating.toStringAsFixed(1)} ★' : 'core_new'.tr,
     };
@@ -243,4 +240,27 @@ class ServiceRepository {
       throw ApiException.fromDio(error, language);
     }
   }
+}
+
+/// A provider's starting rate in the app language. The server sends English
+/// text ("40 MRU", "40 MRU/kg") plus a unit ("item", "kg", "metre"), which
+/// showed as "40 MRU/item" in Arabic.
+String startingRateLabel(String rate, String unit) {
+  final amount = RegExp(r'\d+(?:[.,]\d+)?').firstMatch(rate)?.group(0);
+  if (amount == null) return localizeMru(rate);
+  final slash = rate.indexOf('/');
+  final u = (unit.isNotEmpty
+          ? unit
+          : slash >= 0
+          ? rate.substring(slash + 1)
+          : '')
+      .trim()
+      .toLowerCase();
+  return switch (u) {
+    '' => mruAmount(amount),
+    'item' || 'piece' => 'svc_price_per_item'.trParams({'amount': amount}),
+    'kg' => 'svc_price_per_kg'.trParams({'amount': amount}),
+    'm' || 'metre' || 'meter' => 'svc_price_per_m'.trParams({'amount': amount}),
+    _ => '${mruAmount(amount)}/$u',
+  };
 }

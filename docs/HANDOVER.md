@@ -948,3 +948,12 @@ The cart count badge was positioned against the edge of the whole tab slot, so i
 
 ### Home bell: unread count instead of a dot (11 Nov) ✅ (phone-side workaround)
 The bell showed an orange dot whenever `homeHub.unread_notifications` > 0. That field is really the customer's **total** notifications (the server has no read flag), so the dot never went away. The bell now shows a count badge like the cart (`99+` above 99) of notifications not opened yet, and nothing once Notifications has been opened: the app keeps the total seen at the last opening per account on the phone (`lib/utils/seen_notifications.dart`, `HomeController.markNotificationsSeen`, called when Notifications opens). Test: `test/seen_notifications_test.dart`. Checked on the phone (vivo V2239, test account Sharvin): bell showed 15, Notifications opened, after returning and restarting the app no badge. **Limit:** a new phone or reinstall counts all old notifications again. Backend issue for a real read flag: [praveensigo/saimpex-backend-new#183](https://github.com/praveensigo/saimpex-backend-new/issues/183).
+
+### Overall test 12 Nov: fixes (`docs/ca04-phone-check`)
+Overall test of `main` 8d644e6 on the emulator (release build, Arabic and French), fixes checked on the phone (vivo V2239):
+- **Home bell:** the count read "+99" in Arabic; now "99+" (kept left to right).
+- **Laundry provider card:** "Starting from 40 MRU/item" was the server's English text; now built in the app language: "40 أوقية / قطعة", "40 MRU / item", per kg / per m too (`startingRateLabel` in `service_repository.dart`, keys `svc_price_per_kg` / `svc_price_per_m`). Test: `test/starting_rate_test.dart`.
+- **Home search box:** kept the last search ("pizza") after coming back from results; it is cleared when the results screen opens.
+- **Not bugs (checked):** the cancel sheet subtitle is complete ("…التحسّن"; it only looked cut in a reduced screenshot), and the assistant's quick-action chips don't move (the test tap landed on another chip).
+- **Server / Admin, from the same test:** store names in English in search and Grocery recent orders empty (#178); two different distances for one store (C-B14); laundry booking slot is the server's English date and reads jumbled in Arabic (to open); English names for water categories/suppliers and laundry services, an Express test store named "test", no cover for Pizzeria Atlantique (Admin data).
+- **Test data left on dev:** ORD-001567 (cash, cancelled).
