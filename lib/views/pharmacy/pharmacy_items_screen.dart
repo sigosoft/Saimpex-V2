@@ -565,12 +565,12 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
-    final storeId = _storeText('id', 'p1');
+    final storeId = _storeText('id', '');
     final storeTitle = _storeText('title', '');
     final storeImage = _storeText('image', '');
-    final storeTime = _storeText('time', '30-35 min');
-    final storeDistance = _storeText('dist', '10 Km');
-    final storeDiscount = _storeText('discount', '50% OFF');
+    final storeTime = _storeText('time', '');
+    final storeDistance = _storeText('dist', '');
+    final storeDiscount = _storeText('discount', '');
     final isClosed = widget.store['isClosed'] == true;
     final isTemporarilyClosed = widget.store['isTemporarilyClosed'] == true;
     final isNotAccepting = isClosed || isTemporarilyClosed;
@@ -706,7 +706,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      _storeText('subtitle', 'Trusted'),
+                                      _storeText('subtitle', ''),
                                       style: AppFonts.outfit(
                                         color: const Color(0xFF7A6A60),
                                         fontSize: 11,
