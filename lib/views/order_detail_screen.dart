@@ -12,6 +12,7 @@ import 'widgets/scheduled_for_banner.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/api_language.dart';
+import '../utils/store_labels.dart';
 import '../utils/wallet_balance.dart';
 
 class OrderDetailScreen extends StatelessWidget {
@@ -594,24 +595,9 @@ class OrderDetailScreen extends StatelessWidget {
   /// The server's raw "2026-11-03 03:19:18" as "03 Nov 2026, 03:19 AM" (the
   /// tracking screen's form, month in the app language); other text as sent.
   /// The time is shown as the server sends it: it carries no time zone.
-  static String _readableTime(String raw) {
-    // placed_at is UTC without a zone ("2026-11-12 10:26:04"); it showed
-    // 10:26 AM for an order placed at 3:56 PM on a phone in India.
-    final utc = RegExp(
-      r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}$',
-    ).hasMatch(raw.trim());
-    final parsed = DateTime.tryParse(
-      utc ? '${raw.trim().replaceFirst(' ', 'T')}Z' : raw,
-    );
-    if (parsed == null) return raw;
-    final time = parsed.toLocal();
-    final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
-    String two(int n) => n.toString().padLeft(2, '0');
-    // Left-to-right mark keeps the date in order next to an Arabic month.
-    final month = 'svc_month_${time.month}'.tr + String.fromCharCode(0x200E);
-    return '${two(time.day)} $month ${time.year}, '
-        '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
-  }
+  // placed_at is UTC without a zone ("2026-11-12 10:26:04"); the shared
+  // formatter converts it to the phone's time and lays it out for Arabic.
+  static String _readableTime(String raw) => readableDateTime(raw);
 
   /// How the order is paid, from the numeric payment_type (C-B8); '' when
   /// the server sent none.

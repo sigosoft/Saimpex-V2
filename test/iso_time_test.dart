@@ -12,13 +12,13 @@ void main() {
     String two(int n) => n.toString().padLeft(2, '0');
     final hour = t.hour % 12 == 0 ? 12 : t.hour % 12;
     return '${two(t.day)} svc_month_${t.month}\u200E ${t.year}, '
-        '${two(hour)}:${two(t.minute)} ${t.hour < 12 ? 'AM' : 'PM'}';
+        '${two(hour)}:${two(t.minute)} ${t.hour < 12 ? 'pw_am' : 'pw_pm'}';
   }
 
   test('ISO step times follow the phone time zone', () {
     expect(
       readableIsoTime('2026-11-03T10:00:00+05:30'),
-      local('2026-11-03T10:00:00+05:30'),
+      '$_lri${local('2026-11-03T10:00:00+05:30')}$_pdi',
     );
     expect(readableIsoTime(null), '');
     expect(readableIsoTime('03 Nov 2026 10:00 AM'), '');
@@ -30,7 +30,8 @@ void main() {
     final from = local(start);
     final to = local(end);
     final sameDay =
-        DateTime.parse(start).toLocal().day == DateTime.parse(end).toLocal().day;
+        DateTime.parse(start).toLocal().day ==
+        DateTime.parse(end).toLocal().day;
     expect(
       readableWindow({'start_iso': start, 'end_iso': end}),
       '$_lri$from – ${sameDay ? to.split(', ').last : to}$_pdi',

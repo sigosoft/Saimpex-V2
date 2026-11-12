@@ -200,12 +200,7 @@ class _MyPrescriptionsScreenState extends State<MyPrescriptionsScreen> {
   /// "2026-11-06 11:27:48" (UTC, as the list sends it) → "06 Nov 2026,
   /// 12:27 PM" in the phone's time zone; it showed the raw server text.
   static String _date(Object? raw) {
-    final text = '${raw ?? ''}'.trim();
-    final utc = RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$').hasMatch(text)
-        ? '${text.replaceFirst(' ', 'T')}Z'
-        : text;
-    final readable = readableIsoTime(utc);
-    return readable.isEmpty ? text : readable;
+    return readableDateTime(raw);
   }
 
   Widget _buildCard(Map<String, dynamic> item) {
