@@ -19,6 +19,7 @@ import '../widgets/search_camera_button.dart';
 import '../../utils/app_fonts.dart';
 import '../../utils/wallet_chip.dart';
 import '../../utils/store_labels.dart';
+
 class LocalStoreScreen extends StatefulWidget {
   const LocalStoreScreen({super.key});
 
@@ -758,7 +759,7 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
   // Horizontal Store Card
   Widget _buildHorizontalStoreCard(Map<String, dynamic> store) {
     final isClosed = store['isClosed'] == true;
-    final opensAt = (store['opensAt'] ?? '10 AM').toString();
+    final opensAt = (store['opensAt'] ?? '').toString();
 
     return GestureDetector(
       onTap: () {
@@ -1072,29 +1073,30 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 4,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
+                if (opensAt.trim().isNotEmpty) const SizedBox(height: 2),
+                if (opensAt.trim().isNotEmpty)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 4,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'st_opens_at'.trParams({'time': opensAt}),
-                      style: AppFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(width: 4),
+                      Text(
+                        'st_opens_at'.trParams({'time': opensAt}),
+                        style: AppFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ],
             ),
           ),

@@ -1224,7 +1224,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   Positioned.fill(
                     child: _buildClosedOverlay(
-                      (item['opensAt'] ?? '10 AM').toString(),
+                      (item['opensAt'] ?? '').toString(),
                     ),
                   ),
                 ] else if (isTemporarilyClosed) ...[
@@ -1339,29 +1339,30 @@ class HomeScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 4,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
+                if (opensAt.trim().isNotEmpty) const SizedBox(height: 2),
+                if (opensAt.trim().isNotEmpty)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 4,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'core_home_opens_at'.trParams({'time': opensAt}),
-                      style: AppFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(width: 4),
+                      Text(
+                        'core_home_opens_at'.trParams({'time': opensAt}),
+                        style: AppFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -1921,7 +1922,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   Positioned.fill(
                     child: _buildClosedOverlay(
-                      (item['opensAt'] ?? '10 AM').toString(),
+                      (item['opensAt'] ?? '').toString(),
                     ),
                   ),
                 ] else if (isTemporarilyClosed) ...[

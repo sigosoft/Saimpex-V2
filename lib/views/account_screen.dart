@@ -7,6 +7,7 @@ import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
 import '../core/network/api_exception.dart';
 import '../core/push/push_notifications.dart';
+import '../core/update/app_update.dart';
 import '../core/storage/session_store.dart';
 import '../models/auth_repository.dart';
 import '../models/profile_repository.dart';
@@ -216,6 +217,23 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
+  bool _checkingUpdate = false;
+
+  /// Account → "Check for update": opens the Update screen when Admin lists a
+  /// newer version, else says the app is up to date.
+  Future<void> _checkForUpdate() async {
+    if (_checkingUpdate) return;
+    _checkingUpdate = true;
+    try {
+      final opened = await AppUpdate.check(manual: true);
+      if (!opened && mounted) {
+        showAppToast('core_account_up_to_date'.tr);
+      }
+    } finally {
+      _checkingUpdate = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -238,7 +256,14 @@ class _AccountScreenState extends State<AccountScreen> {
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
+                      // The bar and the raised Services button sit over the
+                      // list, above the phone's own navigation area.
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        24,
+                        16,
+                        140 + MediaQuery.of(context).padding.bottom,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -257,8 +282,9 @@ class _AccountScreenState extends State<AccountScreen> {
                           const SizedBox(height: 28),
                           _buildSocialRow(),
                           const SizedBox(height: 16),
+                          // Figma: version, then "Check for update" under it.
                           Center(
-                            child: Row(
+                            child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 // The installed version; it said a fixed
@@ -275,13 +301,24 @@ class _AccountScreenState extends State<AccountScreen> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'core_account_check_update'.tr,
-                                  style: AppFonts.outfit(
-                                    color: const Color(0xFFA59A94),
-                                    fontSize: 12,
-                                    decoration: TextDecoration.underline,
+                                const SizedBox(height: 4),
+                                // It was plain text that did nothing.
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: _checkForUpdate,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 4,
+                                    ),
+                                    child: Text(
+                                      'core_account_check_update'.tr,
+                                      style: AppFonts.outfit(
+                                        color: const Color(0xFFA59A94),
+                                        fontSize: 12,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],

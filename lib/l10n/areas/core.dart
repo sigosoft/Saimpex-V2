@@ -4,16 +4,20 @@ const coreStrings = <String, Map<String, String>>{
   'en': {
     'core_account_guest_name': 'Your name',
     'core_down_title': "We'll be right back",
-    'core_down_body': "SAIMPEX is under maintenance. Your orders are safe. Please try again in a few minutes.",
+    'core_down_body':
+        "SAIMPEX is under maintenance. Your orders are safe. Please try again in a few minutes.",
     'core_down_retry': "Retry",
     'core_update_title': 'Update SAIMPEX',
-    'core_update_body': 'A new version is required to keep ordering. It takes less than a minute.',
-    'core_update_body_optional': 'A new version is available. It takes less than a minute.',
+    'core_update_body':
+        'A new version is required to keep ordering. It takes less than a minute.',
+    'core_update_body_optional':
+        'A new version is available. It takes less than a minute.',
     'core_update_now': 'Update now',
     'core_update_later': 'Later',
     'core_account_about_us': 'About Us',
     'core_account_app_preferences': 'App Preferences',
     'core_account_check_update': 'Check for update',
+    'core_account_up_to_date': 'You have the latest version.',
     'core_account_delete_account': 'Delete Account',
     'core_account_delete_confirm':
         'Are you sure you want to delete your account?',
@@ -498,16 +502,20 @@ const coreStrings = <String, Map<String, String>>{
   'fr': {
     'core_account_guest_name': 'Votre nom',
     'core_down_title': "Nous revenons vite",
-    'core_down_body': "SAIMPEX est en maintenance. Vos commandes sont en sécurité. Réessayez dans quelques minutes.",
+    'core_down_body':
+        "SAIMPEX est en maintenance. Vos commandes sont en sécurité. Réessayez dans quelques minutes.",
     'core_down_retry': "Réessayer",
     'core_update_title': 'Mettre à jour SAIMPEX',
-    'core_update_body': 'Une nouvelle version est nécessaire pour continuer à commander. Cela prend moins d’une minute.',
-    'core_update_body_optional': 'Une nouvelle version est disponible. Cela prend moins d’une minute.',
+    'core_update_body':
+        'Une nouvelle version est nécessaire pour continuer à commander. Cela prend moins d’une minute.',
+    'core_update_body_optional':
+        'Une nouvelle version est disponible. Cela prend moins d’une minute.',
     'core_update_now': 'Mettre à jour',
     'core_update_later': 'Plus tard',
     'core_account_about_us': 'À propos',
     'core_account_app_preferences': 'Préférences de l\'application',
     'core_account_check_update': 'Rechercher une mise à jour',
+    'core_account_up_to_date': 'Vous avez la dernière version.',
     'core_account_delete_account': 'Supprimer le compte',
     'core_account_delete_confirm':
         'Voulez-vous vraiment supprimer votre compte ?',
@@ -996,7 +1004,8 @@ const coreStrings = <String, Map<String, String>>{
     'core_status_10': 'Annulée',
     'core_cancel_reason': 'Motif : @reason',
     'core_cancel_by_store': 'Annulée par le magasin',
-    'core_cancel_not_accepted': "Le magasin n'a pas accepté la commande à temps",
+    'core_cancel_not_accepted':
+        "Le magasin n'a pas accepté la commande à temps",
     'core_tracking_no_driver': 'Aucun livreur pour cette commande',
     'core_tracking_on_the_way': 'En route',
     'core_tracking_order': 'Commande @code',
@@ -1015,16 +1024,19 @@ const coreStrings = <String, Map<String, String>>{
   'ar': {
     'core_account_guest_name': 'اسمك',
     'core_down_title': "سنعود قريبًا",
-    'core_down_body': "SAIMPEX قيد الصيانة. طلباتك في أمان. يرجى المحاولة بعد بضع دقائق.",
+    'core_down_body':
+        "SAIMPEX قيد الصيانة. طلباتك في أمان. يرجى المحاولة بعد بضع دقائق.",
     'core_down_retry': "إعادة المحاولة",
     'core_update_title': 'حدّث SAIMPEX',
-    'core_update_body': 'يلزم إصدار جديد لمتابعة الطلب. يستغرق ذلك أقل من دقيقة.',
+    'core_update_body':
+        'يلزم إصدار جديد لمتابعة الطلب. يستغرق ذلك أقل من دقيقة.',
     'core_update_body_optional': 'يتوفر إصدار جديد. يستغرق ذلك أقل من دقيقة.',
     'core_update_now': 'حدّث الآن',
     'core_update_later': 'لاحقًا',
     'core_account_about_us': 'من نحن',
     'core_account_app_preferences': 'تفضيلات التطبيق',
     'core_account_check_update': 'البحث عن تحديث',
+    'core_account_up_to_date': 'لديك أحدث إصدار.',
     'core_account_delete_account': 'حذف الحساب',
     'core_account_delete_confirm': 'هل أنت متأكد أنك تريد حذف حسابك؟',
     'core_account_help_support': 'المساعدة والدعم',

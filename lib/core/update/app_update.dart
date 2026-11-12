@@ -53,21 +53,26 @@ class AppUpdate {
     });
   }
 
-  static Future<void> check() async {
-    if (_shown || kIsWeb || !Get.isRegistered<DioClient>()) return;
+  /// Opens the Update screen when Admin lists a newer version. [manual] is
+  /// Account → "Check for update": it checks again even after the screen was
+  /// shown once. True when the Update (or Server Down) screen opened.
+  static Future<bool> check({bool manual = false}) async {
+    if ((_shown && !manual) || kIsWeb || !Get.isRegistered<DioClient>()) {
+      return false;
+    }
     try {
       final settings = await _settings();
-      if (settings == null) return;
+      if (settings == null) return false;
       if ('${settings['maintenance_$_platform'] ?? 0}' == '1') {
         showServerDown('${settings['maintenance_reason_$_platform'] ?? ''}');
-        return;
+        return true;
       }
       final prefix = Platform.isIOS ? 'app_store' : 'play_store';
       final latest = '${settings['${prefix}_version'] ?? ''}'.trim();
       final force = '${settings['${prefix}_update'] ?? 0}' == '1';
       final link = '${settings['${prefix}_link'] ?? ''}'.trim();
       final current = (await PackageInfo.fromPlatform()).version;
-      if (latest.isEmpty || !isNewer(latest, current)) return;
+      if (latest.isEmpty || !isNewer(latest, current)) return false;
       _shown = true;
       final screen = UpdateRequiredScreen(force: force, storeLink: link);
       if (force) {
@@ -75,8 +80,10 @@ class AppUpdate {
       } else {
         Get.to(() => screen);
       }
+      return true;
     } catch (error) {
       debugPrint('Update check skipped: $error');
+      return false;
     }
   }
 

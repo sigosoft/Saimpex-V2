@@ -670,7 +670,7 @@ class FoodRepository {
       'points': points,
       'isClosed': isClosed,
       'isTemporarilyClosed': isTemporarilyClosed,
-      'opensAt': raw['opens_at']?.toString() ?? '10 AM',
+      'opensAt': raw['opens_at']?.toString() ?? '',
       'isFavourite': _asInt(raw['is_favorite']) == 1,
       'address': raw['address']?.toString() ?? '',
       'latitude': raw['latitude']?.toString() ?? '',
