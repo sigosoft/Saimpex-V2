@@ -69,6 +69,23 @@ String readableDateTime(Object? raw) {
       '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
 }
 
+/// A date without the time, as Figma shows subscription dates: "Today",
+/// "Tomorrow", else "06 Nov 2026" with the month in the app language.
+/// '2026-11-06' and '2026-11-06 08:00:00' both work; any other text is
+/// returned unchanged. [now] is for tests.
+String readableDay(Object? raw, {DateTime? now}) {
+  final text = '${raw ?? ''}'.trim();
+  final time = DateTime.tryParse(text);
+  if (time == null) return text;
+  final today = now ?? DateTime.now();
+  final day = DateTime(time.year, time.month, time.day);
+  final diff = day.difference(DateTime(today.year, today.month, today.day));
+  if (diff.inDays == 0) return 'svc_today'.tr;
+  if (diff.inDays == 1) return 'svc_tomorrow'.tr;
+  final month = 'svc_month_${time.month}'.tr + String.fromCharCode(0x200E);
+  return '${time.day.toString().padLeft(2, '0')} $month ${time.year}';
+}
+
 /// An ISO 8601 time with an offset ("2026-11-03T10:00:00+00:00") in the
 /// phone's time zone, shown like [readableDateTime]; '' when it isn't a time.
 String readableIsoTime(Object? raw) {
@@ -93,7 +110,8 @@ String readableWindow(Object? window) {
   if (end == null) return '$_lri$from$_pdi';
   final localStart = start.toLocal();
   final localEnd = end.toLocal();
-  final sameDay = localStart.year == localEnd.year &&
+  final sameDay =
+      localStart.year == localEnd.year &&
       localStart.month == localEnd.month &&
       localStart.day == localEnd.day;
   final to = readableIsoTime(window['end_iso']);

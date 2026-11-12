@@ -15,6 +15,8 @@ import 'laundry_provider_detail_screen.dart';
 import 'service_provider_list.dart';
 
 import '../../utils/app_fonts.dart';
+import '../../widgets/status_dot.dart';
+
 class LaundryServicesScreen extends StatelessWidget {
   const LaundryServicesScreen({super.key});
 
@@ -473,15 +475,9 @@ class LaundryServicesScreen extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Image.asset(
-                              'lib/assets/images/Coin.png',
-                              width: 14,
-                              height: 14,
-                              errorBuilder: (_, _, _) => const Icon(
-                                Icons.monetization_on,
-                                color: Color(0xFFFFAE00),
-                                size: 14,
-                              ),
+                            StatusDot(
+                              open: item['points'] == 'core_open'.tr,
+                              size: 8,
                             ),
                             const SizedBox(width: 5),
                             Text(

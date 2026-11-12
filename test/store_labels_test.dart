@@ -27,4 +27,16 @@ void main() {
     expect(readableServerTime('yesterday'), 'yesterday');
     expect(readableServerTime(null), '');
   });
+
+  test('subscription dates: today, tomorrow, else the day', () {
+    final now = DateTime(2026, 11, 12, 18, 30);
+    expect(readableDay('2026-11-12 08:00:00', now: now), 'svc_today');
+    expect(readableDay('2026-11-13', now: now), 'svc_tomorrow');
+    expect(
+      readableDay('2026-11-06 08:00:00', now: now),
+      '06 svc_month_11‎ 2026',
+    );
+    expect(readableDay('', now: now), '');
+    expect(readableDay('soon', now: now), 'soon');
+  });
 }

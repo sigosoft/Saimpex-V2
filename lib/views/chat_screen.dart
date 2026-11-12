@@ -607,14 +607,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        Text(
-                          'core_chat_online'.tr,
-                          style: AppFonts.outfit(
-                            color: const Color(0xFFA59A94),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        // No "Online" line: the API has no presence data, so
+                        // it was always shown (Figma pass, 12 Nov).
                       ],
                     ),
                   ),
