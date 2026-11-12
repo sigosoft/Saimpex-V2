@@ -27,6 +27,7 @@ import 'widgets/coupons_sheet.dart';
 import 'pay_later_screen.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/currency.dart';
 
 class CartScreen extends StatefulWidget {
   final String? storeName;
@@ -3091,7 +3092,7 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '-${'mru'.trParams({'amount': '$pointsOff'})}',
+                                      signedMru('-', pointsOff),
                                       style: AppFonts.outfit(
                                         color: const Color(0xFFFF5216),
                                         fontSize: 12,

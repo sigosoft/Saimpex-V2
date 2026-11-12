@@ -20,11 +20,15 @@ void main() {
 
   test('Arabic shows أوقية, also for server texts', () {
     Get.locale = const Locale('ar');
-    expect(mruAmount(260), '260 أوقية');
-    expect(mruAmount('—'), '— أوقية');
+    // The amount (with any sign) is kept left to right inside the line.
+    String ar(String amount) =>
+        '${String.fromCharCode(0x2066)}$amount${String.fromCharCode(0x2069)} أوقية';
+    expect(mruAmount(260), ar('260'));
+    expect(mruAmount('—'), ar('—'));
+    expect(signedMru('+', 100), ar('+100'));
     expect(mruUnit(), 'أوقية');
-    expect(localizeMru('260 MRU'), '260 أوقية');
-    expect(localizeMru('MRU 260.50'), '260.50 أوقية');
+    expect(localizeMru('260 MRU'), ar('260'));
+    expect(localizeMru('MRU 260.50'), ar('260.50'));
     expect(localizeMru('Starts at 50 MRU'), 'Starts at 50 أوقية');
     expect(localizeMru('Free'), 'Free');
   });

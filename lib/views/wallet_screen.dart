@@ -13,6 +13,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/currency.dart';
 
 /// SAIMPEX Wallet: balance, transaction history (GET wallet) and top-up
 /// (POST wallet/topup, paid on the Masrvi page). Built without a Figma screen,
@@ -491,7 +492,7 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
           ),
           Text(
-            '${credit ? '+' : '-'}${'mru'.trParams({'amount': _money(amount)})}',
+            signedMru(credit ? '+' : '-', _money(amount)),
             style: AppFonts.outfit(
               color: credit ? const Color(0xFF16A34A) : const Color(0xFFEF4444),
               fontSize: 14,

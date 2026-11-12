@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../core/network/api_constants.dart';
 import '../utils/api_language.dart';
+import '../utils/store_labels.dart';
 import 'service_repository.dart';
 
 /// customer/service/booking: one service booking (car wash, home cleaning,
@@ -128,35 +129,21 @@ class ServiceBookingLine {
 
 /// '2026-10-31 14:05:00' → '31 Oct 2026,\n2:05 PM'; other text unchanged.
 String formatServiceTime(String value) {
-  final time = DateTime.tryParse(value);
-  if (time == null) return value;
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  final local = time.isUtc ? time.toLocal() : time;
-  final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
-  final minute = local.minute.toString().padLeft(2, '0');
-  final period = local.hour < 12 ? 'AM' : 'PM';
-  return '${local.day} ${months[local.month - 1]} ${local.year},\n'
-      '$hour:$minute $period';
+  // Month and AM/PM in the app language and server UTC times in the phone's
+  // time zone (it had English months and AM/PM in every language).
+  final readable = readableDateTime(value);
+  return readable == value ? value : readable.replaceFirst(', ', ',\n');
 }
 
 /// Whole MRU amounts as the cards show them ("550 MRU").
-String serviceMru(double amount) => 'mru'.trParams({
-  'amount': amount == amount.roundToDouble()
-      ? '${amount.round()}'
-      : amount.toStringAsFixed(2),
+/// [sign] ("+") goes next to the number, not before the whole text (it
+/// moved to the far side in Arabic).
+String serviceMru(double amount, {String sign = ''}) => 'mru'.trParams({
+  'amount':
+      sign +
+      (amount == amount.roundToDouble()
+          ? '${amount.round()}'
+          : amount.toStringAsFixed(2)),
 });
 
 /// Loads customer/service/booking for a detail screen. Returns null when

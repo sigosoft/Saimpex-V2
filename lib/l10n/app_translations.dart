@@ -452,7 +452,7 @@ const _ar = {
   'retry': 'إعادة المحاولة',
   'close': 'إغلاق',
   'loading': 'جارٍ التحميل…',
-  'mru': '@amount أوقية',
+  'mru': '\u2066@amount\u2069 أوقية',
   'payment_page_failed': 'تعذّر فتح صفحة الدفع. يُرجى المحاولة مرة أخرى.',
   'payment_not_completed': 'لم تكتمل عملية الدفع.',
   'pad_title': 'الدفع لاحقًا',

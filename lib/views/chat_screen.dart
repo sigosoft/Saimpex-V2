@@ -172,7 +172,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final dt = DateTime.parse(raw.toString()).toLocal();
       final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
       final minute = dt.minute.toString().padLeft(2, '0');
-      final period = dt.hour >= 12 ? 'PM' : 'AM';
+      final period = dt.hour >= 12 ? 'pw_pm'.tr : 'pw_am'.tr;
       return '$hour:$minute $period';
     } catch (_) {
       return raw.toString();
@@ -322,7 +322,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final now = TimeOfDay.now();
     final hour = now.hourOfPeriod == 0 ? 12 : now.hourOfPeriod;
     final minute = now.minute.toString().padLeft(2, '0');
-    final period = now.period == DayPeriod.am ? 'AM' : 'PM';
+    final period = now.period == DayPeriod.am ? 'pw_am'.tr : 'pw_pm'.tr;
     return '$hour:$minute $period';
   }
 
