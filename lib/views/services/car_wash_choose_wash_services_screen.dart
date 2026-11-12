@@ -10,6 +10,7 @@ import 'car_wash_choose_slot_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+import 'service_booking_submit.dart';
 
 class _VehicleWashConfig {
   int selectedService = 0;
@@ -153,31 +154,9 @@ class _CarWashChooseWashServicesScreenState
   int get _totalDuration =>
       _configs.fold<int>(0, (sum, c) => sum + _vehicleDuration(c));
 
-  String _slotRangeFromLabel(String label) {
-    // Already formatted as "8:00-10:00 AM" from Choose Your Slot.
-    final full = RegExp(
-      r'(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (full != null) {
-      final startH = full.group(1)!;
-      final startM = full.group(2)!;
-      final endH = full.group(3)!;
-      final endM = full.group(4)!;
-      final period = full.group(5)!.toUpperCase();
-      return '$startH:$startM $period - $endH:$endM $period';
-    }
-
-    final short = RegExp(
-      r'(\d+)\s*[–-]\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (short == null) return label;
-    final start = short.group(1)!;
-    final end = short.group(2)!;
-    final period = short.group(3)!.toUpperCase();
-    return '$start:00 $period - $end:00 $period';
-  }
+  // "10-12 PM" is 10 AM – 12 PM; the local copy made it 10 PM – 12 PM, and
+  // that night-time slot was booked. The shared helper gets it right.
+  String _slotRangeFromLabel(String label) => formatServiceSlotLabel(label);
 
   Future<void> _continueToSelectSlot() async {
     final result = await CarWashChooseSlotSheet.show(context);

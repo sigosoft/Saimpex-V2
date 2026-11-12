@@ -126,6 +126,9 @@ const servicesStrings = <String, Map<String, String>>{
     // Vehicles
     'svc_add_vehicles': 'Add Vehicles',
     'svc_vehicle_type': 'Vehicle Type',
+    'svc_slots_load_failed': "Couldn't load the time slots. Please try again.",
+    'svc_slots_closed_day': 'The provider is closed on this day. Please choose another day.',
+    'svc_slots_none_left': 'No time slots left on this day. Please choose another day.',
     'svc_vehicle_sedan': 'Sedan',
     'svc_vehicle_suv': 'SUV/4x4',
     'svc_vehicle_pickup': 'Pickup',
@@ -474,6 +477,9 @@ const servicesStrings = <String, Map<String, String>>{
     // Vehicles
     'svc_add_vehicles': 'Ajouter des véhicules',
     'svc_vehicle_type': 'Type de véhicule',
+    'svc_slots_load_failed': 'Impossible de charger les créneaux. Veuillez réessayer.',
+    'svc_slots_closed_day': 'Le prestataire est fermé ce jour-là. Choisissez un autre jour.',
+    'svc_slots_none_left': 'Plus de créneau disponible ce jour-là. Choisissez un autre jour.',
     'svc_vehicle_sedan': 'Berline',
     'svc_vehicle_suv': 'SUV/4x4',
     'svc_vehicle_pickup': 'Pick-up',
@@ -820,6 +826,9 @@ const servicesStrings = <String, Map<String, String>>{
     // Vehicles
     'svc_add_vehicles': 'إضافة مركبات',
     'svc_vehicle_type': 'نوع المركبة',
+    'svc_slots_load_failed': 'تعذّر تحميل المواعيد. حاول مرة أخرى.',
+    'svc_slots_closed_day': 'مقدّم الخدمة مغلق في هذا اليوم. اختر يومًا آخر.',
+    'svc_slots_none_left': 'لا توجد مواعيد متاحة في هذا اليوم. اختر يومًا آخر.',
     'svc_vehicle_sedan': 'سيدان',
     'svc_vehicle_suv': 'دفع رباعي',
     'svc_vehicle_pickup': 'بيك أب',

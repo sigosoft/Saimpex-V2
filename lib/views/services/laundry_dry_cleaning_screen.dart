@@ -9,6 +9,8 @@ import '../../core/network/api_constants.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+import 'service_booking_submit.dart';
+
 class LaundryDryCleaningScreen extends StatefulWidget {
   final Map<String, String> service;
   final String providerName;
@@ -67,17 +69,9 @@ class _LaundryDryCleaningScreenState extends State<LaundryDryCleaningScreen> {
 
   int get _totalItems => _qty.values.fold<int>(0, (sum, value) => sum + value);
 
-  String _slotRangeFromLabel(String label) {
-    final match = RegExp(
-      r'(\d+)\s*[–-]\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (match == null) return label;
-    final start = match.group(1)!;
-    final end = match.group(2)!;
-    final period = match.group(3)!.toUpperCase();
-    return '$start:00 $period – $end:00 $period';
-  }
+  // "10-12 PM" is 10 AM – 12 PM; the local copy made it 10 PM – 12 PM, and
+  // that night-time slot was booked. The shared helper gets it right.
+  String _slotRangeFromLabel(String label) => formatServiceSlotLabel(label);
 
   Future<void> _openPickupAndCart() async {
     if (_totalItems == 0) return;

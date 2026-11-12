@@ -9,6 +9,7 @@ import '../../widgets/app_back_button.dart';
 import '../../controllers/service_booking_draft.dart';
 import '../../utils/api_language.dart';
 import '../../utils/app_fonts.dart';
+import 'service_booking_submit.dart';
 
 class HomeCleaningServiceConfigureScreen extends StatefulWidget {
   final Map<String, String> service;
@@ -192,17 +193,9 @@ class _HomeCleaningServiceConfigureScreenState
     return hours * 60 + mins;
   }
 
-  String _slotRangeFromLabel(String label) {
-    final match = RegExp(
-      r'(\d+)\s*-\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (match == null) return label;
-    final start = match.group(1)!;
-    final end = match.group(2)!;
-    final period = match.group(3)!.toUpperCase();
-    return '$start:00 $period - $end:00 $period';
-  }
+  // "10-12 PM" is 10 AM – 12 PM; the local copy made it 10 PM – 12 PM, and
+  // that night-time slot was booked. The shared helper gets it right.
+  String _slotRangeFromLabel(String label) => formatServiceSlotLabel(label);
 
   Future<void> _openSlotAndGoToCart() async {
     final result = await HomeCleaningChooseSlotSheet.show(context);
