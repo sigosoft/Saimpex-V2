@@ -10,6 +10,7 @@ import 'car_wash_choose_slot_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+
 class _VehicleWashConfig {
   int selectedService = 0;
   final Set<int> selectedAddons = {};
@@ -208,7 +209,7 @@ class _CarWashChooseWashServicesScreenState
       for (final ai in c.selectedAddons) {
         final a = _addons[ai];
         extraAddons.add({
-          'title': '${a['title']} (${v.label})',
+          'title': '${a['title']} (${v.displayLabel})',
           'description': a['description'],
           'price': a['price'],
           'image': a['image'],
@@ -408,7 +409,7 @@ class _CarWashChooseWashServicesScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                vehicle.label,
+                vehicle.displayLabel,
                 style: AppFonts.outfit(
                   color: const Color(0xFF1A1A1A),
                   fontSize: 16,

@@ -7,6 +7,7 @@ import 'car_wash_choose_wash_services_screen.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+
 class CarWashSelectVehiclesScreen extends StatefulWidget {
   final Map<String, String> service;
   final String providerName;
@@ -303,7 +304,7 @@ class _CarWashSelectVehiclesScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    vehicle.label,
+                    vehicle.displayLabel,
                     style: AppFonts.outfit(
                       color: const Color(0xFF1A1F36),
                       fontSize: 15,
