@@ -18,11 +18,16 @@ import '../pharmacy_paid_order_detail_screen.dart';
 import '../pharmacy_item_order_detail_screen.dart';
 
 import '../../../utils/app_fonts.dart';
+
 class PharmacyQuotationReadyCard extends StatefulWidget {
   final String pharmacyName;
   final String orderId;
   final String amount;
   final Duration expiresIn;
+
+  /// False when the server sent no expiry: no countdown, and the quote
+  /// stays payable. With an expiry, the card turns "expired" at zero.
+  final bool hasExpiry;
   final int? prescriptionId;
   // Called after the quotation is declined, so the list can reload.
   final VoidCallback? onChanged;
@@ -33,6 +38,7 @@ class PharmacyQuotationReadyCard extends StatefulWidget {
     required this.orderId,
     required this.amount,
     required this.expiresIn,
+    this.hasExpiry = true,
     this.prescriptionId,
     this.onChanged,
   });
@@ -66,6 +72,9 @@ class _PharmacyQuotationReadyCardState
     _timer?.cancel();
     super.dispose();
   }
+
+  /// The quote ran out: it showed 00:00:00 and still offered Review & Pay.
+  bool get _expired => widget.hasExpiry && _remaining.inSeconds <= 0;
 
   String get _timerText {
     final h = _remaining.inHours.toString().padLeft(2, '0');
@@ -126,53 +135,64 @@ class _PharmacyQuotationReadyCardState
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
+                if (widget.hasExpiry) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B2430),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: _expired
+                                ? const Color(0xFFEF4444)
+                                : const Color(0xFFFF5216),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Icon(
+                            _expired
+                                ? Icons.timer_off_outlined
+                                : Icons.alarm_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _expired
+                                ? 'pw_quote_expired'.tr
+                                : 'pw_quote_expires_in'.tr,
+                            style: AppFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (!_expired)
+                          Text(
+                            _timerText,
+                            textDirection: TextDirection.ltr,
+                            style: AppFonts.outfit(
+                              color: const Color(0xFFFF5216),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1B2430),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF5216),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: const Icon(
-                          Icons.alarm_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'pw_quote_expires_in'.tr,
-                        style: AppFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        _timerText,
-                        style: AppFonts.outfit(
-                          color: const Color(0xFFFF5216),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                ],
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
@@ -279,53 +299,67 @@ class _PharmacyQuotationReadyCardState
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () async {
-              final declined = await Get.to<bool>(
-                () => QuotationDetailScreen(
-                  orderId: widget.orderId,
-                  pharmacyName: widget.pharmacyName,
-                  expiresIn: _remaining,
-                  prescriptionId: widget.prescriptionId,
-                  amount: widget.amount,
-                ),
-              );
-              if (declined == true) widget.onChanged?.call();
-            },
-            child: Container(
-              width: double.infinity,
-              height: 52,
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
+          // An expired quote can't be paid: say what to do instead.
+          if (_expired)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Text(
+                'pw_quote_expired_hint'.tr,
+                style: AppFonts.outfit(
+                  color: const Color(0xFF8A7F77),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              child: Row(
-                children: [
-                  Text(
-                    'pw_review_and_pay'.tr,
-                    style: AppFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
+            )
+          else
+            GestureDetector(
+              onTap: () async {
+                final declined = await Get.to<bool>(
+                  () => QuotationDetailScreen(
+                    orderId: widget.orderId,
+                    pharmacyName: widget.pharmacyName,
+                    expiresIn: _remaining,
+                    prescriptionId: widget.prescriptionId,
+                    amount: widget.amount,
                   ),
-                  const Spacer(),
-                  Text(
-                    widget.amount,
-                    style: AppFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
+                );
+                if (declined == true) widget.onChanged?.call();
+              },
+              child: Container(
+                width: double.infinity,
+                height: 52,
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
                   ),
-                ],
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'pw_review_and_pay'.tr,
+                      style: AppFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      widget.amount,
+                      style: AppFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -334,6 +368,7 @@ class _PharmacyQuotationReadyCardState
 
 class PharmacyActiveOrderCard extends StatelessWidget {
   final String pharmacyName;
+
   /// The server's English status (drives colours and pickup checks).
   final String statusText;
 

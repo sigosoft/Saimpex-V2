@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../core/network/api_constants.dart';
+import '../models/order_tracking.dart';
 import 'track_order_screen.dart';
 import '../widgets/app_back_button.dart';
 import '../widgets/cancel_order_bottom_sheet.dart';
@@ -640,6 +641,14 @@ class OrderDetailScreen extends StatelessWidget {
 
   /// 0 placed, 1 preparing, 2 on the way (or ready for pickup), 3 delivered.
   int get _stage {
+    // Same rule as tracking, from the status code.
+    final status = int.tryParse('${detail['status'] ?? ''}');
+    if (status != null && status > 0 && status != 10) {
+      final pickup =
+          '${detail['is_self_pickup']}' == '1' ||
+          detail['is_self_pickup'] == true;
+      return OrderTracking.stageFor(status, selfPickup: pickup);
+    }
     final label = _apiText('status_label', '').toLowerCase();
     if (label.contains('deliver') || label.contains('complete')) return 3;
     if (label.contains('way') || label.contains('ready')) return 2;

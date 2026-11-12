@@ -17,6 +17,7 @@ import '../utils/api_language.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
+
 enum _ChatMessageType { text, voice }
 
 class _ChatMessage {
@@ -27,10 +28,14 @@ class _ChatMessage {
   final String time;
   final bool isMine;
 
+  /// When it was sent (local time); null for a message just sent here.
+  final DateTime? at;
+
   const _ChatMessage.text({
     required this.text,
     required this.time,
     this.isMine = false,
+    this.at,
   }) : type = _ChatMessageType.text,
        audioPath = null,
        duration = null;
@@ -40,8 +45,31 @@ class _ChatMessage {
     required this.duration,
     required this.time,
     this.isMine = true,
+    this.at,
   }) : type = _ChatMessageType.voice,
        text = null;
+
+  DateTime get day {
+    final t = at ?? DateTime.now();
+    return DateTime(t.year, t.month, t.day);
+  }
+}
+
+/// "Today", "Yesterday" or "05 Nov 2026" (month in the app language).
+String _dayLabel(DateTime day) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final diff = today.difference(day).inDays;
+  if (diff == 0) return 'core_chat_today'.tr;
+  if (diff == 1) return 'core_chat_yesterday'.tr;
+  // A left-to-right mark keeps "05 نوفمبر 2026" in order in Arabic.
+  final month = 'svc_month_${day.month}'.tr + String.fromCharCode(0x200E);
+  return '${day.day.toString().padLeft(2, '0')} $month ${day.year}';
+}
+
+DateTime? _parseTime(dynamic raw) {
+  if (raw == null) return null;
+  return DateTime.tryParse(raw.toString())?.toLocal();
 }
 
 class ChatScreen extends StatefulWidget {
@@ -200,6 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 duration: Duration(seconds: durSec),
                 time: timeStr,
                 isMine: isMine,
+                at: _parseTime(m['created_at']),
               ),
             );
           } else {
@@ -208,6 +237,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 text: m['message']?.toString() ?? '',
                 time: timeStr,
                 isMine: isMine,
+                at: _parseTime(m['created_at']),
               ),
             );
           }
@@ -272,6 +302,22 @@ class _ChatScreenState extends State<ChatScreen> {
     return '$m:$s';
   }
 
+  /// Messages with a day chip (a [DateTime]) before the first message of
+  /// each day.
+  List<Object> get _entries {
+    final entries = <Object>[];
+    DateTime? lastDay;
+    for (final message in _messages) {
+      final day = message.day;
+      if (day != lastDay) {
+        entries.add(day);
+        lastDay = day;
+      }
+      entries.add(message);
+    }
+    return entries;
+  }
+
   String _nowLabel() {
     final now = TimeOfDay.now();
     final hour = now.hourOfPeriod == 0 ? 12 : now.hourOfPeriod;
@@ -327,10 +373,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'core_chat_record_failed'.tr,
-            style: AppFonts.outfit(),
-          ),
+          content: Text('core_chat_record_failed'.tr, style: AppFonts.outfit()),
           backgroundColor: const Color(0xFFFF3E3E),
         ),
       );
@@ -371,10 +414,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'core_chat_hold_longer'.tr,
-            style: AppFonts.outfit(),
-          ),
+          content: Text('core_chat_hold_longer'.tr, style: AppFonts.outfit()),
           backgroundColor: const Color(0xFFFF5216),
         ),
       );
@@ -597,9 +637,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: _scrollController,
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      itemCount: _messages.length + 1,
+                      itemCount: _entries.length,
                       itemBuilder: (context, index) {
-                        if (index == 0) {
+                        final entry = _entries[index];
+                        if (entry is DateTime) {
                           return Center(
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 20),
@@ -612,7 +653,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                'core_chat_today'.tr,
+                                // The real day; it always said "Today".
+                                _dayLabel(entry),
                                 style: AppFonts.outfit(
                                   color: const Color(0xFF8A7F77),
                                   fontSize: 11,
@@ -623,7 +665,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           );
                         }
 
-                        final message = _messages[index - 1];
+                        final message = entry as _ChatMessage;
                         if (message.type == _ChatMessageType.voice) {
                           return _VoiceOutgoingBubble(
                             time: message.time,
