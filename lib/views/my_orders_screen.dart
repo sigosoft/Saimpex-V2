@@ -454,7 +454,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final statusText = '${order['statusText'] ?? ''}';
     final cancelled = order['isCancelled'] == true;
     final delivered = order['isDelivered'] == true;
-    final badge = _pharmacyStatusColors(statusText, cancelled);
+    final badge = _pharmacyStatusColors(
+      statusText,
+      cancelled,
+      delivered: delivered,
+    );
     final details = [
       order['isSelfPickup'] == true ? 'orders_pickup'.tr : 'orders_delivery'.tr,
       if ('${order['totalText'] ?? ''}'.isNotEmpty) '${order['totalText']}',
@@ -608,7 +612,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final cancelled = order['isCancelled'] == true;
     final delivered = order['isDelivered'] == true;
     final orderId = '${order['orderId'] ?? ''}';
-    final badge = _pharmacyStatusColors(statusText, cancelled);
+    final badge = _pharmacyStatusColors(
+      statusText,
+      cancelled,
+      delivered: delivered,
+    );
     final details = [
       order['isSelfPickup'] == true ? 'orders_pickup'.tr : 'orders_delivery'.tr,
       if ('${order['totalText'] ?? ''}'.isNotEmpty) '${order['totalText']}',
@@ -851,6 +859,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final badge = _pharmacyStatusColors(
       statusText,
       order['isCancelled'] == true,
+      delivered: order['isDelivered'] == true,
     );
     return PharmacyActiveOrderCard(
       pharmacyName: pharmacyName,
@@ -902,10 +911,18 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     ].join(' • ');
   }
 
-  (Color, Color) _pharmacyStatusColors(String status, bool cancelled) {
+  (Color, Color) _pharmacyStatusColors(
+    String status,
+    bool cancelled, {
+    bool delivered = false,
+  }) {
     final value = status.toLowerCase();
     if (cancelled || value.contains('cancel')) {
       return (const Color(0xFFE03A3A), const Color(0xFFFFECEC));
+    }
+    // Figma: delivered orders have a green chip (was orange like the rest).
+    if (delivered) {
+      return (const Color(0xFF00B25C), const Color(0xFFE8F8EE));
     }
     if (value.contains('pickup')) {
       return (const Color(0xFF007DFE), const Color(0xFFECF5FF));
@@ -1196,10 +1213,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ),
 
-          const SizedBox(height: 14),
-
-          // Action Buttons
-          Row(children: buttons),
+          // Action Buttons; a card without any (cancelled, rated) no longer
+          // keeps an empty band above the details link.
+          if (buttons.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Row(children: buttons),
+          ],
 
           if (onDetailsLink != null) ...[
             const SizedBox(height: 12),

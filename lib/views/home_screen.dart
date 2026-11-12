@@ -34,6 +34,7 @@ import 'water/water_supplier_details_screen.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/toast_helper.dart';
+import '../utils/store_labels.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showBottomNav;
@@ -294,6 +295,14 @@ class HomeScreen extends StatelessWidget {
                               child: Obx(
                                 () => Text(
                                   SelectLocationController.deliveryLabel.value,
+                                  // A Latin address in the Arabic app was cut
+                                  // at its start ("…32PC+9MV, La Capi"): it
+                                  // now runs in its own direction.
+                                  textDirection: textDirectionOf(
+                                    SelectLocationController
+                                        .deliveryLabel
+                                        .value,
+                                  ),
                                   maxLines: 1,
                                   softWrap: false,
                                   overflow: TextOverflow.ellipsis,
@@ -415,6 +424,8 @@ class HomeScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             count > 99 ? '99+' : '$count',
+                            // Arabic showed "+99".
+                            textDirection: TextDirection.ltr,
                             style: AppFonts.outfit(
                               color: Colors.white,
                               fontSize: 9,
@@ -1224,7 +1235,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   Positioned.fill(
                     child: _buildClosedOverlay(
-                      (item['opensAt'] ?? '10 AM').toString(),
+                      (item['opensAt'] ?? '').toString(),
                     ),
                   ),
                 ] else if (isTemporarilyClosed) ...[
@@ -1339,29 +1350,30 @@ class HomeScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 4,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
+                if (opensAt.trim().isNotEmpty) const SizedBox(height: 2),
+                if (opensAt.trim().isNotEmpty)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 4,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'core_home_opens_at'.trParams({'time': opensAt}),
-                      style: AppFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(width: 4),
+                      Text(
+                        'core_home_opens_at'.trParams({'time': opensAt}),
+                        style: AppFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -1921,7 +1933,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   Positioned.fill(
                     child: _buildClosedOverlay(
-                      (item['opensAt'] ?? '10 AM').toString(),
+                      (item['opensAt'] ?? '').toString(),
                     ),
                   ),
                 ] else if (isTemporarilyClosed) ...[

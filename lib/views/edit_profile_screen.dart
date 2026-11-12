@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../constants/colors.dart';
 import '../constants/country_codes.dart';
 import '../controllers/edit_profile_controller.dart';
 import '../core/network/api_constants.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
+
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -30,28 +32,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
+      // White status bar icons on the orange header (Figma).
       value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFFFAF6F0),
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: Color(0xFFFAF6F0),
         systemNavigationBarIconBrightness: Brightness.dark,
         systemNavigationBarContrastEnforced: false,
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFFFAF6F0),
-        body: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+        body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 32),
+          child: Column(
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 32),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    const SizedBox(height: 12),
-                    _buildAvatar(),
-                    const SizedBox(height: 40),
                     _buildNameField(),
                     const SizedBox(height: 22),
                     _buildWhatsAppField(),
@@ -60,36 +62,66 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  /// Figma "Edit Profile": orange→yellow header with rounded bottom corners,
+  /// white title, and the photo overlapping its bottom edge.
   Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        MediaQuery.of(context).padding.top + 8,
-        16,
-        12,
-      ),
-      child: Row(
+    final top = MediaQuery.of(context).padding.top;
+    final headerHeight = top + 150;
+    const avatarHalf = 59.0;
+    return SizedBox(
+      height: headerHeight + avatarHalf,
+      child: Stack(
         children: [
-          AppBackButton(onTap: () => Get.back()),
-          Expanded(
-            child: Text(
-              'core_profile_title'.tr,
-              textAlign: TextAlign.center,
-              style: AppFonts.outfit(
-                color: const Color(0xFF2C2520),
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: headerHeight,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.primaryOrange, AppColors.gradientYellow],
+                  begin: AlignmentDirectional.topStart,
+                  end: AlignmentDirectional.bottomEnd,
+                ),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(32),
+                ),
+              ),
+              padding: EdgeInsets.fromLTRB(16, top + 8, 16, 0),
+              alignment: Alignment.topCenter,
+              child: Row(
+                children: [
+                  AppBackButton(onTap: () => Get.back()),
+                  Expanded(
+                    child: Text(
+                      'core_profile_title'.tr,
+                      textAlign: TextAlign.center,
+                      style: AppFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 38),
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 38),
+          Positioned(
+            top: headerHeight - avatarHalf,
+            left: 0,
+            right: 0,
+            child: Center(child: _buildAvatar()),
+          ),
         ],
       ),
     );
@@ -107,8 +139,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             height: 118,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE0D5CC), width: 1.2),
+              // White ring against the orange header (Figma).
+              border: Border.all(color: Colors.white, width: 4),
               color: const Color(0xFFF0EBE6),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             clipBehavior: Clip.antiAlias,
             child: Obx(() => _buildAvatarImage(controller)),
@@ -234,8 +274,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         style: const TextStyle(fontSize: 18),
                       ),
                       const SizedBox(width: 8),
+                      // Left to right so Arabic shows "+222", not "222+".
                       Text(
                         controller.countryCode.value,
+                        textDirection: TextDirection.ltr,
                         style: AppFonts.outfit(
                           color: const Color(0xFF2C2520),
                           fontSize: 15,
@@ -449,6 +491,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         trailing: Text(
                           country.code,
+                          textDirection: TextDirection.ltr,
                           style: AppFonts.outfit(
                             color: Colors.black54,
                             fontWeight: FontWeight.bold,

@@ -8,6 +8,7 @@ import '../../controllers/select_location_controller.dart';
 import '../../utils/toast_helper.dart';
 
 import '../../utils/app_fonts.dart';
+
 class CourierSelectRecipientLocationScreen extends StatefulWidget {
   const CourierSelectRecipientLocationScreen({
     super.key,
@@ -331,15 +332,21 @@ class _CourierSelectRecipientLocationScreenState
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        controller.addressSubtitle.value,
-                        style: AppFonts.outfit(
-                          color: const Color(0xFF7A6A60),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      // Hidden when it only repeats the title, as on the
+                      // delivery location screen (CA-07).
+                      if (controller.addressSubtitle.value.trim().isNotEmpty &&
+                          controller.addressSubtitle.value.trim() !=
+                              controller.addressTitle.value.trim()) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          controller.addressSubtitle.value,
+                          style: AppFonts.outfit(
+                            color: const Color(0xFF7A6A60),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),

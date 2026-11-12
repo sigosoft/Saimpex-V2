@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../utils/app_fonts.dart';
+
 /// Countries offered for phone numbers, the same list the login screen uses.
 const List<Map<String, String>> kCountryCodeOptions = [
   {'name': 'Mauritania', 'code': '+222', 'flag': '🇲🇷'},
@@ -72,6 +73,7 @@ void showCountryCodePicker({
                       ),
                       trailing: Text(
                         country['code']!,
+                        textDirection: TextDirection.ltr,
                         style: AppFonts.outfit(
                           color: Colors.black54,
                           fontWeight: FontWeight.bold,
