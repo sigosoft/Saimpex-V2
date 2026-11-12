@@ -146,7 +146,9 @@ class GeneralRepository {
       'profileImage': _profileImage(data['profile']),
       'walletBalance': data['wallet_balance']?.toString() ?? '',
       'walletCurrency': data['wallet_currency']?.toString() ?? '',
+      // The server's total, not an unread count (see SeenNotifications).
       'unreadNotifications': _asInt(data['unread_notifications']),
+      'profileUserId': '${asJsonMap(data['profile'])?['user_id'] ?? ''}',
       'verticals': _verticals(data['verticals'], language),
       'sliders': _images(data['sliders']),
       'promos': _images(data['promos']),

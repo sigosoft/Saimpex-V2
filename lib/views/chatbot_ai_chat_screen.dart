@@ -83,12 +83,12 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
   String _inChatLanguage(String key) =>
       Get.translations[_languageCode.toLowerCase()]?[key] ?? key.tr;
 
-  /// Server messages (errors such as "not configured" or the daily limit)
-  /// are picked in the chat language, like the rest of the chat.
+  /// The chat language for the API (`en`/`fr`/`ar`). The server answers in
+  /// it; the app language was sent before, so an English chat in an Arabic
+  /// app got Arabic replies and errors.
   String get _apiLanguage => _languageCode.toLowerCase();
 
-  /// The chat reads right to left in Arabic even when the app is in English
-  /// or French (and left to right in English/French inside an Arabic app).
+  /// Reading direction of the chat language (the app's can differ).
   TextDirection get _chatDirection =>
       _languageCode == 'AR' ? TextDirection.rtl : TextDirection.ltr;
 
@@ -311,88 +311,92 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => _SheetFrame(
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(
-              Icons.add_comment_outlined,
-              color: AppColors.primaryOrange,
-            ),
-            title: Text(
-              _inChatLanguage('core_chatbot_new_chat'),
-              style: AppFonts.outfit(
-                fontWeight: FontWeight.w700,
+      builder: (context) => Directionality(
+        // The sheet follows the chat language (French chat in an English app).
+        textDirection: _chatDirection,
+        child: _SheetFrame(
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(
+                Icons.add_comment_outlined,
                 color: AppColors.primaryOrange,
               ),
+              title: Text(
+                _inChatLanguage('core_chatbot_new_chat'),
+                style: AppFonts.outfit(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryOrange,
+                ),
+              ),
+              onTap: () => Navigator.pop(context, 0),
             ),
-            onTap: () => Navigator.pop(context, 0),
-          ),
-          const Divider(height: 1, color: Color(0xFFF0E6DE)),
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: repository.conversations(language),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryOrange,
+            const Divider(height: 1, color: Color(0xFFF0E6DE)),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: repository.conversations(language),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryOrange,
+                    ),
+                  );
+                }
+                final rows = snapshot.data ?? const [];
+                if (snapshot.hasError || rows.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      snapshot.error is ApiException
+                          ? (snapshot.error as ApiException).message
+                          : _inChatLanguage('core_chatbot_no_history'),
+                      textAlign: TextAlign.center,
+                      style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
+                    ),
+                  );
+                }
+                return ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.5,
                   ),
-                );
-              }
-              final rows = snapshot.data ?? const [];
-              if (snapshot.hasError || rows.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Text(
-                    snapshot.error is ApiException
-                        ? (snapshot.error as ApiException).message
-                        : _inChatLanguage('core_chatbot_no_history'),
-                    textAlign: TextAlign.center,
-                    style: AppFonts.outfit(color: const Color(0xFF7A6A60)),
-                  ),
-                );
-              }
-              return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-                ),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    for (final row in rows)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          '${row['title'] ?? ''}'.trim().isEmpty
-                              ? _inChatLanguage('core_chatbot_untitled')
-                              : '${row['title']}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppFonts.outfit(
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A1A),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (final row in rows)
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            '${row['title'] ?? ''}'.trim().isEmpty
+                                ? _inChatLanguage('core_chatbot_untitled')
+                                : '${row['title']}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.outfit(
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1A1A1A),
+                            ),
+                          ),
+                          subtitle: Text(
+                            _dateLabel(row['updated_at'] ?? row['created_at']),
+                            style: AppFonts.outfit(
+                              fontSize: 12,
+                              color: const Color(0xFF9A9088),
+                            ),
+                          ),
+                          selected: '${row['id']}' == '$_conversationId',
+                          onTap: () => Navigator.pop(
+                            context,
+                            int.tryParse('${row['id']}'),
                           ),
                         ),
-                        subtitle: Text(
-                          _dateLabel(row['updated_at'] ?? row['created_at']),
-                          style: AppFonts.outfit(
-                            fontSize: 12,
-                            color: const Color(0xFF9A9088),
-                          ),
-                        ),
-                        selected: '${row['id']}' == '$_conversationId',
-                        onTap: () => Navigator.pop(
-                          context,
-                          int.tryParse('${row['id']}'),
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
     if (!mounted || picked == null) return;
@@ -443,8 +447,10 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
     final time = _parseTime(value);
     if (time == null) return '';
     String two(int n) => n.toString().padLeft(2, '0');
-    return '${two(time.day)}/${two(time.month)}/${time.year} '
-        '${_formatTime(time)}';
+    // Left-to-right isolate: in Arabic the date read "AM 11:33 11/11/2026".
+    return '${String.fromCharCode(0x2066)}'
+        '${two(time.day)}/${two(time.month)}/${time.year} '
+        '${_formatTime(time)}${String.fromCharCode(0x2069)}';
   }
 
   @override
@@ -480,44 +486,37 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
               children: [
                 _buildHeader(),
                 Expanded(
-                  child: Directionality(
-                    textDirection: _chatDirection,
-                    child: Stack(
-                      children: [
-                        // Faint robot watermark behind chat
-                        if (_hasChat)
-                          Positioned.fill(
-                            child: IgnorePointer(
-                              child: Center(
-                                child: Opacity(
-                                  opacity: 0.07,
-                                  child: Image.asset(
-                                    'lib/assets/images/chatbot_screen.png',
-                                    width: 260,
-                                    fit: BoxFit.contain,
-                                  ),
+                  child: Stack(
+                    children: [
+                      // Faint robot watermark behind chat
+                      if (_hasChat)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Center(
+                              child: Opacity(
+                                opacity: 0.07,
+                                child: Image.asset(
+                                  'lib/assets/images/chatbot_screen.png',
+                                  width: 260,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
                             ),
                           ),
-                        if (_consented == null)
-                          const SizedBox.shrink()
-                        else if (_consented == false)
-                          _buildConsent()
-                        else
-                          _hasChat ? _buildChatList() : _buildEmptyState(),
-                      ],
-                    ),
+                        ),
+                      if (_consented == null)
+                        const SizedBox.shrink()
+                      else if (_consented == false)
+                        _buildConsent()
+                      else
+                        _hasChat ? _buildChatList() : _buildEmptyState(),
+                    ],
                   ),
                 ),
-                if (_consented == true)
-                  Directionality(
-                    textDirection: _chatDirection,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [_buildQuickActions(), _buildInputBar()],
-                    ),
-                  ),
+                if (_consented == true) ...[
+                  _buildQuickActions(),
+                  _buildInputBar(),
+                ],
               ],
             ),
           ),
@@ -651,6 +650,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           Text(
             _inChatLanguage('core_chatbot_greeting'),
             textAlign: TextAlign.center,
+            textDirection: _chatDirection,
             style: AppFonts.outfit(
               color: const Color(0xFF111111),
               fontSize: 24,
@@ -661,6 +661,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
           Text(
             _inChatLanguage('core_chatbot_intro'),
             textAlign: TextAlign.center,
+            textDirection: _chatDirection,
             style: AppFonts.outfit(
               color: const Color(0xFF3A3A3A),
               fontSize: 14.5,
@@ -931,6 +932,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                       controller: _messageController,
                       enabled: !_listening,
                       maxLength: 2000,
+                      textDirection: _chatDirection,
                       onChanged: (_) => _resetIdleTimer(),
                       onSubmitted: (_) => _sendMessage(),
                       style: AppFonts.outfit(
@@ -938,6 +940,7 @@ class _ChatBotAiChatScreenState extends State<ChatBotAiChatScreen> {
                         color: const Color(0xFF1A1A1A),
                       ),
                       decoration: InputDecoration(
+                        hintTextDirection: _chatDirection,
                         hintText: _listening
                             ? _inChatLanguage('core_chatbot_listening')
                             : _inChatLanguage('core_chatbot_type_message'),
@@ -1121,6 +1124,14 @@ class _QuickActionChip extends StatelessWidget {
   }
 }
 
+/// Right to left when the text's first letter is Arabic, else left to right.
+TextDirection _textDirectionOf(String text) {
+  final letter = RegExp(r'[A-Za-z\u00C0-\u00FF\u0600-\u06FF]').firstMatch(text);
+  final isArabic =
+      letter != null && RegExp(r'[\u0600-\u06FF]').hasMatch(letter.group(0)!);
+  return isArabic ? TextDirection.rtl : TextDirection.ltr;
+}
+
 class _MessageBubble extends StatelessWidget {
   final _ChatItem message;
   final String timeLabel;
@@ -1197,6 +1208,9 @@ class _MessageBubble extends StatelessWidget {
                   Flexible(
                     child: SelectableText(
                       message.text,
+                      // Each message reads in its own script's direction:
+                      // English in an Arabic app came out as ".Please try again".
+                      textDirection: _textDirectionOf(message.text),
                       style: AppFonts.outfit(
                         color: isUser
                             ? const Color(0xFFE85A1A)

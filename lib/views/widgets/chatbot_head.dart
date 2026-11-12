@@ -102,8 +102,11 @@ class _ChatBotHeadState extends State<ChatBotHead>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_hasPosition) {
-      final screen = MediaQuery.sizeOf(context);
+    final screen = MediaQuery.sizeOf(context);
+    // The first frame can report a 0 size; placing the head then put it
+    // off-screen for good. Wait for the real size (this runs again when the
+    // size arrives, because sizeOf registered the dependency).
+    if (!_hasPosition && !screen.isEmpty) {
       final padding = MediaQuery.paddingOf(context);
       // Bottom-right, fully above bottom nav + help bubble.
       // Extra left inset so the wide bubble isn't clipped on the right.

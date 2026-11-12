@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../utils/app_fonts.dart';
+import '../../../utils/currency.dart';
 void showPharmacyCustomizeSheet(
   BuildContext context, {
   required Map<String, dynamic> food,
@@ -34,7 +35,7 @@ void showPharmacyCustomizeSheet(
   // Extra pack sizes need pack-size data from the backend first.
   final portion = '${food['portion'] ?? ''}'.trim();
   final String qtyText1 = portion.isEmpty ? '1 Pack' : portion;
-  final String qtyPrice1 = '${food['price'] ?? '0 MRU'}';
+  final String qtyPrice1 = '${food['price'] ?? mruAmount(0)}';
 
   showModalBottomSheet(
     context: context,

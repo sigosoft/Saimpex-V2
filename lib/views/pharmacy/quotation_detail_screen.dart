@@ -17,6 +17,7 @@ import 'prescription_checkout_screen.dart';
 import 'widgets/pharmacy_background.dart';
 
 import '../../utils/app_fonts.dart';
+import '../../utils/currency.dart';
 /// Asks the customer to confirm, then declines the quotation on the server.
 /// Returns true once it is declined.
 Future<bool> declineQuotation(BuildContext context, int prescriptionId) async {
@@ -387,7 +388,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       final text = '$value'.trim();
       if (text.isEmpty || text == 'null') return widget.amount;
       return text.toUpperCase().contains('MRU')
-          ? text
+          ? localizeMru(text)
           : 'mru'.trParams({'amount': text});
     }
     final text = number == number.roundToDouble()

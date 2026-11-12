@@ -6,6 +6,7 @@ import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
 import '../utils/store_labels.dart';
 import '../utils/order_status_label.dart';
+import '../utils/currency.dart';
 
 class GroceryHomeResult {
   final List<Map<String, dynamic>> sliders;
@@ -414,8 +415,9 @@ class GroceryRepository {
       final name = _localized(m, 'name', language);
       final storeName = _localized(m, 'store_name', language);
       final price =
-          m['price_text']?.toString() ??
-          (m['price'] != null ? '${m['price']} MRU' : '');
+          m['price_text'] != null
+              ? localizeMru('${m['price_text']}')
+              : (m['price'] != null ? mruAmount(m['price']) : '');
       list.add({
         'id': (m['id'] ?? m['product_id'] ?? '').toString(),
         'name': name.isNotEmpty ? name : (m['title'] ?? '').toString(),
@@ -825,7 +827,7 @@ class GroceryRepository {
           item['is_self_pickup'] == 1 || item['is_self_pickup'] == true,
       'orderId': orderId,
       'numericOrderId': _asInt(item['order_id'] ?? item['id']),
-      'totalText': total == null ? '' : '$total MRU',
+      'totalText': total == null ? '' : mruAmount(total),
       'itemsCount': item['items_count'] != null
           ? _asInt(item['items_count'])
           : products.length,
@@ -844,10 +846,10 @@ class GroceryRepository {
       'name': product['name']?.toString().trim() ?? '',
       'image': ApiConstants.mediaUrl(product['image']?.toString()) ?? '',
       'quantity': quantity,
-      'unitText': '${selling.round()} MRU',
-      'lineText': '${(selling * quantity).round()} MRU',
+      'unitText': mruAmount(selling.round()),
+      'lineText': mruAmount((selling * quantity).round()),
       'originalText': discount > 0 && price > discount
-          ? '${price.round()} MRU'
+          ? mruAmount(price.round())
           : '',
     };
   }
@@ -1028,8 +1030,8 @@ class GroceryRepository {
   String _moneyText(double value) {
     if (value <= 0) return '';
     return value == value.roundToDouble()
-        ? '${value.toInt()} MRU'
-        : '${value.toStringAsFixed(2)} MRU';
+        ? mruAmount(value.toInt())
+        : mruAmount(value.toStringAsFixed(2));
   }
 
   /// The rating as the API sends it; missing or zero is '' (screens hide it).

@@ -9,6 +9,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/currency.dart';
 class CouponsScreen extends StatefulWidget {
   const CouponsScreen({super.key});
 
@@ -159,7 +160,7 @@ class _CouponsScreenState extends State<CouponsScreen> {
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             Text(
-                              coupon['discount'].toString().replaceAll('%', ''),
+                              '${coupon['discountValue'] ?? ''}',
                               style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 32,
@@ -168,7 +169,10 @@ class _CouponsScreenState extends State<CouponsScreen> {
                               ),
                             ),
                             Text(
-                              '%',
+                              // A flat coupon is an amount, not a percentage.
+                              coupon['isPercent'] == false
+                                  ? ' ${mruUnit()}'
+                                  : '%',
                               style: AppFonts.outfit(
                                 color: Colors.white,
                                 fontSize: 16,

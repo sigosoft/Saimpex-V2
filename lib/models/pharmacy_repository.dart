@@ -5,7 +5,9 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/order_status_label.dart';
 import '../utils/store_labels.dart';
+import '../utils/currency.dart';
 
 class PharmacyRepository {
   PharmacyRepository(this._client);
@@ -733,16 +735,45 @@ class PharmacyRepository {
     final orderId = code.isNotEmpty
         ? code
         : (prescriptionId == null ? '' : '#$prescriptionId');
+    // status_text is English only: the badge is built from the codes
+    // (order `status` 1–10, or `prescription_status` on a request card).
+    final statusCode = _asInt(item['status']);
+    final rxStatus = item['prescription_status']?.toString().trim() ?? '';
+    final cancelled =
+        (isPrescription
+            ? const {'cancelled', 'rejected'}.contains(rxStatus)
+            : statusCode == 10) ||
+        statusText.toLowerCase().contains('cancel');
+    final delivered = !isPrescription && statusCode == 9;
     return {
       'pharmacyName':
           (item['vendor_name']?.toString().trim().isNotEmpty ?? false)
           ? item['vendor_name'].toString().trim()
           : 'Pharmacy',
       'statusText': statusText.isEmpty ? 'Order' : statusText,
+      'statusLabel': isPrescription
+          ? _prescriptionStatusLabel(rxStatus, statusText)
+          : orderStatusLabel(
+              item['status'],
+              statusText,
+              selfPickup: selfPickup,
+            ),
       'isQuotation': quoted,
       'isPrescription': isPrescription,
       'isSelfPickup': selfPickup,
-      'isCancelled': statusText.toLowerCase().contains('cancel'),
+      'isCancelled': cancelled,
+      'isDelivered': delivered,
+      // A request can be withdrawn until it is paid (POST
+      // prescription/{id}/cancel accepts these states); an order until it is
+      // delivered or cancelled.
+      'canCancel': isPrescription
+          ? const {
+              'uploaded',
+              'under_review',
+              'reviewed',
+              'quoted',
+            }.contains(rxStatus)
+          : !cancelled && !delivered,
       'orderId': orderId,
       'numericOrderId': _asInt(item['order_id'] ?? item['id']),
       'vendorId': _asInt(item['vendor_id']),
@@ -753,6 +784,29 @@ class PharmacyRepository {
       'itemsCount': _asInt(item['items_count']),
       'fileName': file?['name']?.toString().trim() ?? '',
     };
+  }
+
+  /// A prescription request's state in the app's language; unknown states
+  /// keep the server's text.
+  static String _prescriptionStatusLabel(String status, String fallback) {
+    switch (status) {
+      case 'uploaded':
+        return 'pw_step_prescription_sent'.tr;
+      case 'under_review':
+      case 'reviewed':
+        return 'pw_step_under_review'.tr;
+      case 'quoted':
+      case 'accepted':
+        return 'pw_step_quotation_ready'.tr;
+      case 'ordered':
+        return 'pw_filter_ordered'.tr;
+      case 'rejected':
+        return 'pw_filter_rejected'.tr;
+      case 'cancelled':
+        return 'pw_cancelled'.tr;
+      default:
+        return fallback;
+    }
   }
 
   Future<Map<String, dynamic>> _postHome({
@@ -1010,12 +1064,12 @@ class PharmacyRepository {
     if (number == null) {
       final text = '${value ?? ''}'.trim();
       if (text.isEmpty) return '';
-      return text.toUpperCase().contains('MRU') ? text : '$text MRU';
+      return text.toUpperCase().contains('MRU') ? localizeMru(text) : mruAmount(text);
     }
     final text = number == number.roundToDouble()
         ? number.toInt().toString()
         : number.toStringAsFixed(2);
-    return '$text MRU';
+    return mruAmount(text);
   }
 
   int _asInt(dynamic value, {int fallback = 0}) {
