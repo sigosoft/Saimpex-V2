@@ -22,9 +22,15 @@ Customer app status, 12 Nov: every app-side item is done in code. These are the 
 9. **#166 Self-pickup on order lists.** Add `is_self_pickup` to `orders/restaurant`, grocery, local store and water lists. App meanwhile: calls `orderDetails` once per order (newest 20) to learn it, and shows "Pickup · Picked up". Pickup code for self-pickup: needs a product decision (none is defined today).
 10. **#183 Notifications read flag.** `unread_notifications` is the total. Needed: a read flag per notification and a mark-read call (or `last_seen_at`). App meanwhile: counts what's new since Notifications was last opened on this phone (resets on a new phone or reinstall).
 
+**Found in the static-content sweep (12 Nov afternoon)**
+
+12. **Support hours.** Help showed a fixed "Available 9 AM – 10 PM"; no endpoint has support hours, so the row is hidden. Needed: `support_hours_en/fr/ar` in Admin → Branding (sent with the support contacts).
+13. **Service catalog names in AR/FR.** Home cleaning `spaces` / `addons` and car wash `vehicles` on `customer/serviceProvider` have only `name`. Needed: `name_ar` / `name_fr` like laundry garments (#170), so Arabic and French customers read them translated.
+14. **Dev data:** an active slider per service vertical (Admin → Sliders, types 7 laundry, 8 car wash, 9 home cleaning) so the service home banners show Admin images; car wash services on dev list no `vehicles`.
+
 **Please confirm and close**
 
-11. **#167 Rating tags.** `vendor_tags` / `driver_tags` shipped in c8f8e30 (5 Nov) and the app sends them. If nothing else is missing, the issue can be closed.
+15. **#167 Rating tags.** `vendor_tags` / `driver_tags` shipped in c8f8e30 (5 Nov) and the app sends them. If nothing else is missing, the issue can be closed.
 
 **Not code, for Praveen**
 

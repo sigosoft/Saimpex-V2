@@ -994,3 +994,56 @@ App-side workaround for backend #165 and #166 (the order lists send neither `is_
 - Checked on the phone (Samsung M11, release, dev, 95200021): ORD-001505 reads "Pickup · 300 MRU" with "Picked up"; rated orders 001505, 001467 and 001512 have no Rate; 001334 and 001326 keep Rate. Analyzer clean, 55 tests pass (`test/order_flags_test.dart`).
 - Not possible in the app: the closed-store opening time (#185) — no customer endpoint sends store hours (only the vendor apps get them, `VendorScreenData::todayHours`).
 - Message for the backend with every open item: `test-reports/message-to-backend-2026-11-12.md`.
+
+### Static content replaced with API data (`fix/static-content`, 12 Nov) ✅
+Sweep of the whole app for fixed data customers can see. Each item now comes from the API, or shows nothing when the API has nothing.
+- **Home cleaning configure screen and cart:** rooms, extras, property types, pest issues and the products fee were a fixed list (Bedrooms 100, Kitchens 150, Bathrooms 80, Balconies 60, Fridge 100, Dish 150 MRU, products +120, 4 bedrooms preselected, Apartment/Villa only), and the cart dropped any room not on that list. They now come from the service item in `customer/serviceProvider` (`spaces`, `addons`, `property_types`, `issues`, `supply_fee`). Each section shows only what the provider lists, and nothing is preselected. Picked pest issues are now sent as `issues` with quote and booking. Checked on the phone: Clean Home Nouakchott → Disinfection shows Apartment/Villa, Cockroaches/Ants, "Kitchen · 500 MRU / Room"; 2 kitchens → cart and server quote 1000 MRU.
+- **Car wash "Add vehicle":** uses the service's `vehicles` (name, price) when listed, else Sedan / SUV / Pickup / Mini bus without the made-up 350/500/550/750 MRU. Names are translated.
+- **Slots (car wash, home cleaning, laundry pickup):** four fixed windows every day, also past ones and on closed days. They now come from `customer/serviceSlots` (provider + day): full or past windows are greyed out, with a message when the provider is closed or nothing is left (`lib/views/services/service_slots_mixin.dart`).
+- **Slot time bug:** six screens had their own copy of the label conversion and read "10-12 PM" as 10 PM – 12 PM, so the booking was made for the night. They now use `formatServiceSlotLabel` (`test/service_slot_label_test.dart`).
+- **Service home banners (car wash, laundry, home cleaning):** show Admin's slider for the vertical (`customer/serviceHome` → `sliders`, types 7/8/9). The bundled artwork stays only when Admin has none; the home cleaning artwork prints "from 450 MRU", so Admin should add a slider (or the designer should supply artwork without a price).
+- **Home cleaning "Explore Categories":** Admin's service types in the app language (`serviceHome` → `service_types`) instead of a fixed Deep/Kitchen/Bedroom/Sofa list. The dead "See All" is gone.
+- **Sample fallbacks removed:**
+  - Stock photos (Unsplash) for a store, chat partner or reward without an image.
+  - Sample names and texts: "Salam Supermarket" and its address, "Al Fantasia", "Premium Food Basket", "5,000 pts", "Grocery Store", "Special Bundle", "Regular Cleaning", "Drinking water 19 L", "10 Tablets", "19L".
+  - Made-up values: 50 / 65 / 150 MRU, rating 4.6, "1 Day", and the pharmacy header's "30-35 min", "10 Km", "50% OFF", "Trusted".
+- **Help:** the fixed "Available 9 AM – 10 PM" row is gone (no support hours in the API).
+- **Account social icons:** did nothing and always included YouTube. They now show only the Instagram / Facebook / WhatsApp links Admin set (`customer/profile` → `*_url`) and open them.
+- **Not changed:**
+  - Express "Shop by category" stock photos: PR #54 replaces that list with API categories.
+  - Banners with English text inside the artwork (pharmacy, courier: CA-32).
+  - Design icons and illustrations.
+- Analyzer clean, 57 tests pass on the branch.
+- **Checked on the phone** (Samsung M11, release, dev, 95200021, 12 Nov 13:15–13:27):
+  - Home cleaning "Explore Categories" lists Admin's "Deep clean, Disinfection, Regular clean". The banner is still the artwork: dev has no home cleaning slider.
+  - Disinfection at Clean Home Nouakchott: Apartment/Villa, Cockroaches/Ants, "Kitchen · 500 MRU / Room"; 2 kitchens → cart and server quote 1000 MRU.
+  - Slot sheet at 13:26: today's 8–10 AM and 10–12 greyed out.
+  - Tomorrow 10–12 → cart "13 Nov 2026, 10:00 AM – 12:00 PM" (was 10:00 PM before the fix).
+  - Account shows Instagram, Facebook and WhatsApp from Admin, with no YouTube.
+  - Nothing was booked or paid.
+- **Not seen on the phone:**
+  - Car wash vehicle types: dev services list no `vehicles`, so the four translated types show.
+  - Tapping a social icon.
+  - Help without the hours row.
+  - Laundry and car wash slot sheets (same code as home cleaning).
+
+## Status at end of day, 12 Nov 2026 (customer app)
+- **Open PRs, in merge order:** #58 → #59 → #60 → #61 → #62 → `fix/static-content` (this entry); plus #52, #54, #55 on their own. Each stacked PR targets the one before it; retarget to `main` after each merge. Never merge without Praveen's go-ahead.
+- **Backend items still open:** see `test-reports/message-to-backend-2026-11-12.md` (ready to send): #163, #164, #165, #166, #167 (probably done, confirm), #177, #178, #183, #184, #185, push data. New from this pass:
+  - support hours for Help, e.g. `support_hours_en/fr/ar` in Branding;
+  - `name_ar` / `name_fr` on home cleaning `spaces` / `addons` and car wash `vehicles`;
+  - an Admin slider per service vertical on dev (types 7, 8, 9).
+- **Decisions for Praveen:**
+  - app ID and release signing (C-B19, C19);
+  - bottom bar, 7 items vs Figma's 5 (PR #38);
+  - Local Store search icons;
+  - grocery AI cards;
+  - CA-17 "Specify quantity" box;
+  - French bottom-bar labels;
+  - service banner artwork without a printed price.
+- **Not covered by the Figma passes:**
+  - Store Map, Redeem detail, Scan, Replace item, Cart Pay Later, Subscription Cart;
+  - prescription cart / quotation / success;
+  - FR/AR checkout;
+  - success screens after a real payment.
+- **Local only (not pushed):** branch `test/figma-pass-rest`, which merges every open PR for phone builds; emulator `saimpex_figma` (doesn't start on this machine).
