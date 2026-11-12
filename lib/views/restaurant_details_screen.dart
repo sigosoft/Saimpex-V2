@@ -138,6 +138,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         : '';
   }
 
+  /// "Minimum order: 150 MRU" from `restaurant/details`; '' when none.
+  String get _restaurantMinOrder =>
+      minOrderLabel(_restaurantDetails?['min_order_value']);
+
   String get _restaurantDiscount {
     final d = _restaurantDetails?['discount'] ?? widget.restaurant['discount'];
     return (d != null && d.toString().trim().isNotEmpty)
@@ -943,6 +947,31 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                                               ),
                                             ),
                                           ),
+                                      ],
+                                    ),
+                                  ],
+                                  // Store's minimum order (API §6.22); no
+                                  // Figma element, shown like the row above.
+                                  if (_restaurantMinOrder.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.shopping_bag_outlined,
+                                          color: Color(0xFFFF5216),
+                                          size: 13,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            _restaurantMinOrder,
+                                            style: AppFonts.outfit(
+                                              color: const Color(0xFF7A6A60),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ],

@@ -154,6 +154,8 @@ class FoodRepository {
       'dist': dist,
       'discount': discount,
       'points': points,
+      // API §6.22: the store's minimum item subtotal (0 = none).
+      'min_order_value': minOrderValue(raw['min_order_value']),
       'latitude': raw['latitude']?.toString() ?? '',
       'longitude': raw['longitude']?.toString() ?? '',
       'delivery_radius_km': raw['delivery_radius_km'],

@@ -28,6 +28,16 @@ void main() {
     expect(readableServerTime(null), '');
   });
 
+  test('store minimum order: amount only when above zero', () {
+    expect(minOrderValue('150.00'), '150');
+    expect(minOrderValue(99.5), '99.50');
+    expect(minOrderValue(0), '');
+    expect(minOrderValue(null), '');
+    expect(minOrderValue('none'), '');
+    expect(minOrderLabel(0), '');
+    expect(minOrderLabel(150), isNotEmpty);
+  });
+
   test('subscription dates: today, tomorrow, else the day', () {
     final now = DateTime(2026, 11, 12, 18, 30);
     expect(readableDay('2026-11-12 08:00:00', now: now), 'svc_today');
