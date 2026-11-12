@@ -12,6 +12,7 @@ import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../utils/currency.dart';
+import '../utils/seen_notifications.dart';
 
 class HomeController extends GetxController {
   static const int navHome = 0;
@@ -256,7 +257,17 @@ class HomeController extends GetxController {
   final homeLoading = false.obs;
   final walletBalance = ''.obs;
   final walletCurrency = ''.obs;
+  /// Notifications not opened yet on this phone (Home bell badge).
   final unreadNotifications = 0.obs;
+  int _notificationsTotal = 0;
+  String _notificationsUserId = '';
+
+  /// Called when Notifications opens: everything there counts as seen, so
+  /// the bell badge clears.
+  Future<void> markNotificationsSeen() async {
+    unreadNotifications.value = 0;
+    await SeenNotifications.save(_notificationsUserId, _notificationsTotal);
+  }
   final profileImage = ''.obs;
   final homeVerticals = <Map<String, dynamic>>[].obs;
   final homeSliders = <Map<String, dynamic>>[].obs;
@@ -376,7 +387,14 @@ class HomeController extends GetxController {
       _applyHomeLocation(home);
       walletBalance.value = home['walletBalance']?.toString() ?? '';
       walletCurrency.value = home['walletCurrency']?.toString() ?? '';
-      unreadNotifications.value = home['unreadNotifications'] as int? ?? 0;
+      _notificationsTotal = home['unreadNotifications'] as int? ?? 0;
+      _notificationsUserId = '${home['profileUserId'] ?? ''}';
+      final seen = await SeenNotifications.load(_notificationsUserId);
+      if (request != _homeRequest) return;
+      unreadNotifications.value = SeenNotifications.unread(
+        _notificationsTotal,
+        seen,
+      );
       profileImage.value = home['profileImage']?.toString() ?? '';
       homeVerticals.assignAll(_maps(home['verticals']));
       homeSliders.assignAll(_maps(home['sliders']));

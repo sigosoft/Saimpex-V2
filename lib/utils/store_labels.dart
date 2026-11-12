@@ -61,9 +61,45 @@ String readableDateTime(Object? raw) {
   if (time == null) return text;
   String two(int n) => n.toString().padLeft(2, '0');
   final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
-  final month = 'svc_month_${time.month}'.tr;
+  // A left-to-right mark after the month: an Arabic month name otherwise
+  // pulled the year and time after it into right-to-left order
+  // ("06 11:23 ,2026 نوفمبر AM").
+  final month = 'svc_month_${time.month}'.tr + String.fromCharCode(0x200E);
   return '${two(time.day)} $month ${time.year}, '
       '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
+}
+
+/// An ISO 8601 time with an offset ("2026-11-03T10:00:00+00:00") in the
+/// phone's time zone, shown like [readableDateTime]; '' when it isn't a time.
+String readableIsoTime(Object? raw) {
+  final time = DateTime.tryParse('${raw ?? ''}'.trim());
+  if (time == null) return '';
+  return readableDateTime(time.toLocal().toIso8601String());
+}
+
+// Left-to-right isolate around a time range (U+2066 … U+2069).
+final _lri = String.fromCharCode(0x2066);
+final _pdi = String.fromCharCode(0x2069);
+
+/// A booking window from the API (`{start_iso, end_iso, …}`, #169) in the
+/// phone's time zone: "12 Nov 2026, 08:00 AM – 10:00 AM" (the end date is
+/// repeated only when it's another day). '' when there is no window.
+String readableWindow(Object? window) {
+  if (window is! Map) return '';
+  final start = DateTime.tryParse('${window['start_iso'] ?? ''}'.trim());
+  if (start == null) return '';
+  final from = readableIsoTime(window['start_iso']);
+  final end = DateTime.tryParse('${window['end_iso'] ?? ''}'.trim());
+  if (end == null) return '$_lri$from$_pdi';
+  final localStart = start.toLocal();
+  final localEnd = end.toLocal();
+  final sameDay = localStart.year == localEnd.year &&
+      localStart.month == localEnd.month &&
+      localStart.day == localEnd.day;
+  final to = readableIsoTime(window['end_iso']);
+  // Kept left to right (Unicode isolate): in Arabic the times and "–" were
+  // reordered ("PM – 04:00 PM 02:00").
+  return '$_lri$from – ${sameDay ? to.split(', ').last : to}$_pdi';
 }
 
 const _englishMonths = [
