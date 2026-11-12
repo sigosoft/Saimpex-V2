@@ -638,12 +638,12 @@ class _WaterSupplierDetailsScreenState
     final title =
         lastItem?['title']?.toString() ??
         lastItem?['itemName']?.toString() ??
-        'pw_drinking_water_19l'.tr;
+        '';
     final portion =
         lastItem?['bottleTag']?.toString() ??
         lastItem?['sizeTag']?.toString() ??
         lastItem?['itemPortion']?.toString() ??
-        '19L';
+        '';
     final image =
         lastItem?['image']?.toString() ?? lastItem?['itemImage']?.toString();
 
@@ -796,8 +796,8 @@ class _WaterSupplierDetailsScreenState
           itemPortion:
               item['bottleTag']?.toString() ??
               item['sizeTag']?.toString() ??
-              '19L',
-          basePrice: parsePrice(item['price']?.toString() ?? '50'),
+              '',
+          basePrice: parsePrice(item['price']?.toString() ?? ''),
           itemImage: item['image']?.toString(),
         );
       }

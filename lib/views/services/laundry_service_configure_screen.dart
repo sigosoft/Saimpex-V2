@@ -7,6 +7,7 @@ import 'laundry_choose_pickup_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+
 class LaundryServiceConfigureScreen extends StatefulWidget {
   final Map<String, String> service;
   final String providerName;
@@ -32,12 +33,12 @@ class _LaundryServiceConfigureScreenState
       widget.service['image'] ?? 'lib/assets/images/wash&fold_detail.png';
 
   int get _pricePerKg {
-    final raw = widget.service['price'] ?? '150';
-    return int.tryParse(raw.replaceAll(RegExp(r'[^0-9]'), '')) ?? 150;
+    final raw = widget.service['price'] ?? '';
+    return int.tryParse(raw.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
   }
 
   String get _durationLabel {
-    final raw = widget.service['duration'] ?? '1 Day';
+    final raw = widget.service['duration'] ?? '';
     if (raw.toLowerCase().contains('day')) return '24 hours';
     return raw;
   }

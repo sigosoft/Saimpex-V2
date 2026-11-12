@@ -10,6 +10,7 @@ import '../../widgets/app_back_button.dart';
 import 'water_subscription_cart_screen.dart';
 
 import '../../utils/app_fonts.dart';
+
 class WaterProductSubscriptionScreen extends StatefulWidget {
   final Map<String, dynamic> product;
   final Map<String, dynamic>? supplier;
@@ -302,8 +303,7 @@ class _WaterProductSubscriptionScreenState
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      (product['title'] ?? 'pw_drinking_water_19l'.tr)
-                          .toString(),
+                      (product['title'] ?? '').toString(),
                       style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 18,

@@ -21,6 +21,7 @@ import 'widgets/pharmacy_subcategory_icon.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+
 class PharmacyItemsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
   final int initialSubcategoryIndex;
@@ -170,8 +171,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
         Get.find<HomeController>().setCartItem(
           storeName: _storeText('title', ''),
           itemName: item['title']?.toString(),
-          itemPortion: portion ?? item['tag']?.toString() ?? '10 Tablets',
-          basePrice: parsePrice(item['price']?.toString() ?? '50'),
+          itemPortion: portion ?? item['tag']?.toString() ?? '',
+          basePrice: parsePrice(item['price']?.toString() ?? ''),
           itemImage: item['image']?.toString(),
           quantity: quantity,
         );
@@ -691,7 +692,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                               ),
                                               const SizedBox(width: 2),
                                               Text(
-                                                _storeText('rating', '4.6'),
+                                                _storeText('rating', ''),
                                                 style: AppFonts.outfit(
                                                   color: Colors.white,
                                                   fontSize: 10,
@@ -1139,7 +1140,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                         storeName: storeTitle,
                         itemName: lastAddedItem?['title'],
                         itemPortion: lastAddedItemPortion,
-                        basePrice: parsePrice(lastAddedItem?['price'] ?? '50'),
+                        basePrice: parsePrice(lastAddedItem?['price'] ?? ''),
                         itemImage: lastAddedItem?['image'],
                       ),
                     );

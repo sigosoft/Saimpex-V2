@@ -124,7 +124,7 @@ class WaterProductCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        (product['size'] ?? '19L').toString(),
+                        (product['size'] ?? '').toString(),
                         style: AppFonts.outfit(
                           color: const Color(0xFFFF5216),
                           fontSize: 8,

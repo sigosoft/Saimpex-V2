@@ -9,6 +9,7 @@ import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
+
 class HelpSupportScreen extends StatefulWidget {
   const HelpSupportScreen({super.key});
 
@@ -25,6 +26,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
       showAppToast('ease_help_unavailable'.tr);
     }
   }
+
   bool _isLoading = true;
 
   @override
@@ -87,7 +89,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                             label: 'core_help_call_us'.tr,
                             value: _phone,
                             buttonLabel: 'core_help_call_now'.tr,
-                            onTap: () => _open(Uri(scheme: 'tel', path: _phone)),
+                            onTap: () =>
+                                _open(Uri(scheme: 'tel', path: _phone)),
                           ),
                           const SizedBox(height: 14),
                           _buildContactCard(
@@ -95,7 +98,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                             label: 'core_help_email_us'.tr,
                             value: _email,
                             buttonLabel: 'core_help_send_mail'.tr,
-                            onTap: () => _open(Uri(scheme: 'mailto', path: _email)),
+                            onTap: () =>
+                                _open(Uri(scheme: 'mailto', path: _email)),
                           ),
                           const SizedBox(height: 14),
                           _buildSupportInfoCard(),
@@ -245,12 +249,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 18),
-          _buildInfoRow(
-            icon: Icons.access_time_rounded,
-            title: 'core_help_business_hours'.tr,
-            subtitle: 'core_help_hours_value'.tr,
-          ),
+          // No "Business hours" row: it said a fixed "Available 9 AM – 10 PM"
+          // and the API has no support hours (asked of the backend).
           const SizedBox(height: 18),
           _buildInfoRow(
             icon: Icons.phone_in_talk_rounded,

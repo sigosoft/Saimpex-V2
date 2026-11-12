@@ -23,8 +23,18 @@ class ProfileRepository {
     }
     final userMap =
         asJsonMap(data['user']) ?? asJsonMap(data['profile']) ?? data;
+    socialLinks = {
+      for (final network in const ['instagram', 'facebook', 'whatsapp'])
+        if ('${userMap['${network}_url'] ?? ''}'.trim().isNotEmpty)
+          network: '${userMap['${network}_url']}'.trim(),
+    };
     return AuthUser.fromJson(userMap);
   }
+
+  /// Admin → Settings social links from the last `customer/profile`
+  /// (`instagram_url`, `facebook_url`, `whatsapp_url`); only the ones set.
+  /// Account shows these instead of fixed icons that did nothing.
+  Map<String, String> socialLinks = const {};
 
   Future<({AuthUser user, String message})> updateProfile({
     required String name,

@@ -16,6 +16,7 @@ import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/home_background_blend.dart';
 
 import '../utils/app_fonts.dart';
+
 class MessagesScreen extends StatefulWidget {
   final Map<String, dynamic>? restaurant;
   final bool showBottomNav;
@@ -130,7 +131,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             vendor['banner']?.toString();
         final imgUrl = (rawImg != null && rawImg.isNotEmpty)
             ? (ApiConstants.mediaUrl(rawImg) ?? rawImg)
-            : 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150&auto=format&fit=crop';
+            : '';
 
         final lastMsg = (conv['last_message'] is Map)
             ? Map<String, dynamic>.from(conv['last_message'] as Map)

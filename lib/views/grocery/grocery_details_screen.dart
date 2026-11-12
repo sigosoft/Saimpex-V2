@@ -84,10 +84,9 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
   /// On yes, the server cart is cleared and the local cart bar is reset.
   Future<bool> _confirmReplaceCartIfNeeded(BuildContext context) async {
     final controller = Get.find<HomeController>();
-    final storeName =
-        (_storeDetails?['name'] ?? widget.store['name'] ?? 'Grocery Store')
-            .toString()
-            .trim();
+    final storeName = (_storeDetails?['name'] ?? widget.store['name'] ?? '')
+        .toString()
+        .trim();
 
     // Ask the server which restaurant holds items; the local count can be stale.
     String existingStore = '';
@@ -611,8 +610,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
         (currentStore['image'] != null &&
             currentStore['image'].toString().isNotEmpty)
         ? currentStore['image'].toString()
-        : (widget.store['image']?.toString() ??
-              'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop');
+        : (widget.store['image']?.toString() ?? '');
     final storeRating = _ratingText(
       currentStore['rating'] ?? widget.store['rating'],
     );
@@ -1333,7 +1331,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                       storeName: widget.store['name'],
                       itemName: lastAddedItem?['title'],
                       itemPortion: lastAddedItemPortion,
-                      basePrice: parsePrice(lastAddedItem?['price'] ?? '65'),
+                      basePrice: parsePrice(lastAddedItem?['price'] ?? ''),
                       itemImage: lastAddedItem?['image'],
                     ),
                   );
@@ -1440,8 +1438,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
     bool isNotAccepting,
     Map<String, dynamic> bundle,
   ) {
-    final title = (bundle['title'] ?? 'Special Bundle').toString();
-    final itemsDesc = (bundle['items'] ?? 'Bundle').toString();
+    final title = (bundle['title'] ?? '').toString();
+    final itemsDesc = (bundle['items'] ?? '').toString();
     final price = (bundle['price'] ?? '').toString();
     final originalPrice = (bundle['originalPrice'] ?? '').toString();
     final bundlePrice = parsePrice(price);
@@ -1555,7 +1553,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         storeName:
                             (_storeDetails?['name'] ?? widget.store['name'])
                                 ?.toString() ??
-                            'Grocery Store',
+                            '',
                         itemName: title,
                         itemPortion: 'Bundle',
                         basePrice: bundlePrice > 0 ? bundlePrice : 750,
@@ -2633,7 +2631,7 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                                     Get.find<HomeController>().setCartItem(
                                       storeName:
                                           widget.store['name']?.toString() ??
-                                          'Grocery Store',
+                                          '',
                                       itemName: lastAddedItem?['title']
                                           ?.toString(),
                                       itemPortion: lastAddedItemPortion,
