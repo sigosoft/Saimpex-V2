@@ -14,6 +14,7 @@ import '../../utils/toast_helper.dart';
 import '../../widgets/no_payment_method_note.dart';
 
 import '../../utils/app_fonts.dart';
+
 /// Display text for a home-cleaning space, extra or pest label. The labels
 /// stay English in the booking data (they are matched against the catalog);
 /// only what is shown is translated.
@@ -44,10 +45,6 @@ class HomeCleaningCartScreen extends StatefulWidget {
   final String serviceTitle;
   final String serviceImage;
   final String serviceDescription;
-  final int bedrooms;
-  final int bathrooms;
-  final int kitchens;
-  final int balconies;
   final List<Map<String, dynamic>> spaces;
   final List<Map<String, dynamic>> extras;
   final List<Map<String, dynamic>> selectedPests;
@@ -69,18 +66,14 @@ class HomeCleaningCartScreen extends StatefulWidget {
     this.serviceTitle = '',
     this.serviceImage = 'lib/assets/images/regular_cleaning.jpg',
     this.serviceDescription = '',
-    this.bedrooms = 2,
-    this.bathrooms = 2,
-    this.kitchens = 0,
-    this.balconies = 0,
     this.spaces = const [],
     this.extras = const [],
     this.selectedPests = const [],
     this.productsProvider = 'self',
     this.propertyType = '',
     this.notes = '',
-    this.productsFee = 120,
-    this.basePrice = 750,
+    this.productsFee = 0,
+    this.basePrice = 0,
     this.baseDurationMin = 90,
     required this.slotDate,
     required this.slotLabel,
@@ -97,22 +90,6 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   late String _productsProvider;
   int _paymentIndex = 0; // mandatory — Wallet selected by default
   bool _noPaymentMethod = false;
-
-  static const _roomLabels = {
-    'Bedrooms',
-    'Kitchens',
-    'Bathrooms / WC',
-    'Balconies',
-  };
-
-  static const _defaultRates = {
-    'Bedrooms': 100,
-    'Kitchens': 150,
-    'Bathrooms / WC': 80,
-    'Balconies': 60,
-    'Fridge Cleaning': 100,
-    'Dish Washing': 150,
-  };
 
   /// Keeps the choice on a method Admin has switched on (wallet or online).
   void _applyPaymentMethods() {
@@ -148,6 +125,13 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   String get _productSupply =>
       _productsProvider == 'provider' ? 'vendor' : 'customer';
 
+  /// The pest issues picked on the configure screen, as the provider named
+  /// them; sent with the quote and the booking (they weren't before).
+  List<String> get _issues => [
+    for (final pest in widget.selectedPests)
+      if ('${pest['label'] ?? ''}'.trim().isNotEmpty) '${pest['label']}'.trim(),
+  ];
+
   /// The server's price for this booking (customer/service/quote):
   /// `subtotal`, `tax`, `total`. Null while loading or when it failed.
   Map<String, dynamic>? _quote;
@@ -167,6 +151,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
         addons: _bookingRows(_extraRows),
         productSupply: _productSupply,
         propertyType: widget.propertyType,
+        issues: _issues,
       );
       if (!mounted) return;
       setState(() {
@@ -207,6 +192,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
       addons: _bookingRows(_extraRows),
       productSupply: _productSupply,
       propertyType: widget.propertyType,
+      issues: _issues,
       notes: widget.notes,
     );
     if (!mounted) return;
@@ -215,54 +201,29 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
     Get.off(() => const HomeCleaningBookingSuccessScreen());
   }
 
-  List<Map<String, dynamic>> get _allSourceRows {
-    if (widget.spaces.isNotEmpty || widget.extras.isNotEmpty) {
-      return [...widget.spaces, ...widget.extras];
-    }
-    final rows = <Map<String, dynamic>>[];
-    if (widget.bedrooms > 0) {
-      rows.add({'label': 'Bedrooms', 'rate': 100, 'qty': widget.bedrooms});
-    }
-    if (widget.kitchens > 0) {
-      rows.add({'label': 'Kitchens', 'rate': 150, 'qty': widget.kitchens});
-    }
-    if (widget.bathrooms > 0) {
-      rows.add({
-        'label': 'Bathrooms / WC',
-        'rate': 80,
-        'qty': widget.bathrooms,
-      });
-    }
-    if (widget.balconies > 0) {
-      rows.add({'label': 'Balconies', 'rate': 60, 'qty': widget.balconies});
-    }
-    return rows;
-  }
+  // The rows come from the service's catalog (configure screen): spaces and
+  // add-ons with the provider's names and prices. The cart used to keep its
+  // own fixed names and rates (Bedrooms 100, Kitchens 150, …) and dropped any
+  // space not in that list.
+  List<Map<String, dynamic>> get _spaceRows =>
+      widget.spaces.where((s) => ((s['qty'] as int?) ?? 0) > 0).toList();
 
-  List<Map<String, dynamic>> get _spaceRows => _allSourceRows.where((s) {
-    final label = s['label'] as String? ?? '';
-    final qty = (s['qty'] as int?) ?? 0;
-    return qty > 0 && _roomLabels.contains(label);
-  }).toList();
-
-  List<Map<String, dynamic>> get _extraRows {
-    if (widget.extras.isNotEmpty) {
-      return widget.extras.where((s) => ((s['qty'] as int?) ?? 0) > 0).toList();
-    }
-    return _allSourceRows.where((s) {
-      final label = s['label'] as String? ?? '';
-      final qty = (s['qty'] as int?) ?? 0;
-      return qty > 0 &&
-          !_roomLabels.contains(label) &&
-          label != 'Cleaning Products';
-    }).toList();
-  }
+  List<Map<String, dynamic>> get _extraRows =>
+      widget.extras.where((s) => ((s['qty'] as int?) ?? 0) > 0).toList();
 
   int _rowTotal(Map<String, dynamic> s) {
-    final label = s['label'] as String? ?? '';
-    final rate = (s['rate'] as int?) ?? (_defaultRates[label] ?? 0);
+    final rate = (s['rate'] as int?) ?? 0;
     final qty = (s['qty'] as int?) ?? 0;
     return rate * qty;
+  }
+
+  /// What the customer reads for a row: the catalog's name in the app
+  /// language when given, else the provider's name.
+  static String _rowText(Map<String, dynamic> row) {
+    final display = '${row['display'] ?? ''}'.trim();
+    return display.isNotEmpty
+        ? display
+        : homeCleaningLabelText('${row['label'] ?? ''}');
   }
 
   int get _spacesTotal =>
@@ -303,17 +264,9 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
     return '${d.day} ${_months[d.month - 1].tr} ${d.year}, $_slotLabel';
   }
 
-  String _slotRangeFromLabel(String label) {
-    final match = RegExp(
-      r'(\d+)\s*-\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (match == null) return label;
-    final start = match.group(1)!;
-    final end = match.group(2)!;
-    final period = match.group(3)!.toUpperCase();
-    return '$start:00 $period - $end:00 $period';
-  }
+  // "10-12 PM" is 10 AM – 12 PM; the local copy made it 10 PM – 12 PM, and
+  // that night-time slot was booked. The shared helper gets it right.
+  String _slotRangeFromLabel(String label) => formatServiceSlotLabel(label);
 
   Future<void> _changeSlot() async {
     final result = await HomeCleaningChooseSlotSheet.show(context);
@@ -812,8 +765,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
   }
 
   Widget _spaceRow(Map<String, dynamic> space) {
-    final label = space['label'] as String? ?? '';
-    final rate = (space['rate'] as int?) ?? (_defaultRates[label] ?? 0);
+    final rate = (space['rate'] as int?) ?? 0;
     final qty = (space['qty'] as int?) ?? 0;
     final total = rate * qty;
 
@@ -830,7 +782,7 @@ class _HomeCleaningCartScreenState extends State<HomeCleaningCartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  homeCleaningLabelText(label),
+                  _rowText(space),
                   style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14.5,

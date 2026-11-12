@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/colors.dart';
 import '../constants/text_styles.dart';
 import '../controllers/home_controller.dart';
@@ -1040,13 +1041,43 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
+  /// Opens a social link from Admin; a bare WhatsApp number becomes wa.me
+  /// and a link without a scheme gets https.
+  Future<void> _openSocial(String network, String value) async {
+    var link = value.trim();
+    if (network == 'whatsapp' && !link.contains('/')) {
+      link = 'https://wa.me/${link.replaceAll(RegExp(r'[^0-9]'), '')}';
+    } else if (!link.startsWith('http')) {
+      link = 'https://$link';
+    }
+    final uri = Uri.tryParse(link);
+    if (uri == null ||
+        !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      showAppToast('core_request_failed'.tr);
+    }
+  }
+
   Widget _buildSocialRow() {
+    // Only the networks Admin has a link for (customer/profile). They were
+    // fixed icons, YouTube included, that did nothing on tap.
+    final links = Get.isRegistered<ProfileRepository>()
+        ? Get.find<ProfileRepository>().socialLinks
+        : const <String, String>{};
     final socials = [
-      {'label': 'Instagram', 'asset': 'lib/assets/images/Instagram.png'},
-      {'label': 'Facebook', 'asset': 'lib/assets/images/facebook.png'},
-      {'label': 'WhatsApp', 'asset': 'lib/assets/images/whatsapp.png'},
-      {'label': 'YouTube', 'asset': 'lib/assets/images/youtube.png'},
+      for (final (network, label, asset) in const [
+        ('instagram', 'Instagram', 'lib/assets/images/Instagram.png'),
+        ('facebook', 'Facebook', 'lib/assets/images/facebook.png'),
+        ('whatsapp', 'WhatsApp', 'lib/assets/images/whatsapp.png'),
+      ])
+        if (links[network] != null)
+          {
+            'network': network,
+            'label': label,
+            'asset': asset,
+            'url': links[network]!,
+          },
     ];
+    if (socials.isEmpty) return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,
@@ -1065,29 +1096,37 @@ class _AccountScreenState extends State<AccountScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: socials.map((social) {
-          return Column(
-            children: [
-              ClipOval(
-                child: Image.asset(
-                  social['asset'] as String,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                social['label'] as String,
-                style: AppFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _openSocial(social['network']!, social['url']!),
+            child: _socialItem(social),
           );
         }).toList(),
       ),
+    );
+  }
+
+  Widget _socialItem(Map<String, String> social) {
+    return Column(
+      children: [
+        ClipOval(
+          child: Image.asset(
+            social['asset']!,
+            width: 40,
+            height: 40,
+            fit: BoxFit.cover,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          social['label']!,
+          style: AppFonts.outfit(
+            color: const Color(0xFF2C2520),
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

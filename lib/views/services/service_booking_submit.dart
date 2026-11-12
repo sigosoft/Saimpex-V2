@@ -12,6 +12,7 @@ import '../../utils/toast_helper.dart';
 import '../../utils/wallet_balance.dart';
 
 import '../../utils/app_fonts.dart';
+
 /// Places the booking for the service picked on the provider screen
 /// ([ServiceBookingDraft]) through customer/service/book. Returns the created
 /// booking, or null after showing why it failed.
@@ -36,6 +37,8 @@ Future<Map<String, dynamic>?> placeServiceBooking({
   List<Map<String, dynamic>> vehicles = const [],
   String? productSupply,
   String propertyType = '',
+  // Home cleaning (pest control): the provider's issues the customer picked.
+  List<String> issues = const [],
   num? quantity,
   // Gas: the customer confirms one empty cylinder back per refill.
   bool returnEmptyCylinder = false,
@@ -59,6 +62,7 @@ Future<Map<String, dynamic>?> placeServiceBooking({
     vehicles: vehicles,
     productSupply: productSupply,
     propertyType: propertyType,
+    issues: issues,
     returnEmptyCylinder: returnEmptyCylinder,
     quantity: quantity,
     place: place,
@@ -148,6 +152,8 @@ Future<Map<String, dynamic>?> quoteServiceBooking({
   List<Map<String, dynamic>> vehicles = const [],
   String? productSupply,
   String propertyType = '',
+  // Home cleaning (pest control): the provider's issues the customer picked.
+  List<String> issues = const [],
   num? quantity,
   // Gas: the customer confirms one empty cylinder back per refill.
   bool returnEmptyCylinder = false,
@@ -166,6 +172,7 @@ Future<Map<String, dynamic>?> quoteServiceBooking({
     vehicles: vehicles,
     productSupply: productSupply,
     propertyType: propertyType,
+    issues: issues,
     returnEmptyCylinder: returnEmptyCylinder,
     quantity: quantity,
     place: place,
@@ -192,6 +199,8 @@ Map<String, dynamic>? _bookingRequest({
   List<Map<String, dynamic>> vehicles = const [],
   String? productSupply,
   String propertyType = '',
+  // Home cleaning (pest control): the provider's issues the customer picked.
+  List<String> issues = const [],
   num? quantity,
   // Gas: the customer confirms one empty cylinder back per refill.
   bool returnEmptyCylinder = false,
@@ -234,6 +243,7 @@ Map<String, dynamic>? _bookingRequest({
     'quantity': ?quantity,
     'product_supply': ?productSupply,
     if (propertyType.trim().isNotEmpty) 'property_type': propertyType.trim(),
+    if (issues.isNotEmpty) 'issues': issues,
     if (returnEmptyCylinder) 'return_empty_cylinder': true,
     if (deliveryAddress != null && deliveryAddress.trim().isNotEmpty)
       'delivery_address': deliveryAddress.trim(),

@@ -507,7 +507,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             ),
           ] else ...[
             Text(
-              booking['service'] as String? ?? 'Regular Cleaning',
+              booking['service'] as String? ?? '',
               style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
                 fontSize: 13.5,

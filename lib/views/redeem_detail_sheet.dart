@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../utils/app_fonts.dart';
+
 class RedeemDetailSheet extends StatelessWidget {
   final Map<String, dynamic> reward;
 
@@ -31,21 +32,18 @@ class RedeemDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final store = (reward['store'] ?? 'Al Fantasia').toString();
-    final title = (reward['title'] ?? 'Premium Food Basket').toString();
-    final subtitle =
-        (reward['subtitle'] ?? 'Reach 5000 points to redeem your basket reward')
-            .toString();
-    final points = (reward['points'] ?? '5,000 pts').toString();
+    // Only the reward's own data (rewardList): no sample store, title or
+    // points when a field is missing.
+    final store = (reward['store'] ?? '').toString();
+    final title = (reward['title'] ?? '').toString();
+    final subtitle = (reward['subtitle'] ?? '').toString();
+    final points = (reward['points'] ?? '').toString();
     final progress = ((reward['progress'] as num?)?.toDouble() ?? 0).clamp(
       0.0,
       1.0,
     );
     final redeemable = reward['redeemable'] == true;
-    final imageUrl =
-        (reward['image'] ??
-                'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop')
-            .toString();
+    final imageUrl = (reward['image'] ?? '').toString();
 
     final insides =
         (reward['insides'] as List<dynamic>?)

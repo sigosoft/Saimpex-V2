@@ -270,10 +270,9 @@ class OrderDetailScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _apiText(
-                                      'vendor_name',
-                                      'Salam Supermarket',
-                                    ),
+                                    // No sample store when the field is
+                                    // missing.
+                                    _apiText('vendor_name', ''),
                                     style: AppFonts.outfit(
                                       color: const Color(0xFF2C2520),
                                       fontSize: 13,
@@ -282,10 +281,7 @@ class OrderDetailScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    _apiText(
-                                      'location',
-                                      'Salam Supermarket, Near Nouakchott, Mauritania',
-                                    ),
+                                    _apiText('location', ''),
                                     style: AppFonts.outfit(
                                       color: const Color(0xFF8C7D73),
                                       fontSize: 11,

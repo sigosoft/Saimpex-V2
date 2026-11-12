@@ -7,6 +7,8 @@ import 'laundry_choose_pickup_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+import 'service_booking_submit.dart';
+
 class LaundryServiceConfigureScreen extends StatefulWidget {
   final Map<String, String> service;
   final String providerName;
@@ -32,29 +34,21 @@ class _LaundryServiceConfigureScreenState
       widget.service['image'] ?? 'lib/assets/images/wash&fold_detail.png';
 
   int get _pricePerKg {
-    final raw = widget.service['price'] ?? '150';
-    return int.tryParse(raw.replaceAll(RegExp(r'[^0-9]'), '')) ?? 150;
+    final raw = widget.service['price'] ?? '';
+    return int.tryParse(raw.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
   }
 
   String get _durationLabel {
-    final raw = widget.service['duration'] ?? '1 Day';
+    final raw = widget.service['duration'] ?? '';
     if (raw.toLowerCase().contains('day')) return '24 hours';
     return raw;
   }
 
   int get _estimatedPrice => _kg * _pricePerKg;
 
-  String _slotRangeFromLabel(String label) {
-    final match = RegExp(
-      r'(\d+)\s*[–-]\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (match == null) return label;
-    final start = match.group(1)!;
-    final end = match.group(2)!;
-    final period = match.group(3)!.toUpperCase();
-    return '$start:00 $period – $end:00 $period';
-  }
+  // "10-12 PM" is 10 AM – 12 PM; the local copy made it 10 PM – 12 PM, and
+  // that night-time slot was booked. The shared helper gets it right.
+  String _slotRangeFromLabel(String label) => formatServiceSlotLabel(label);
 
   Future<void> _openPickupAndCart() async {
     final result = await LaundryChoosePickupSheet.show(context);

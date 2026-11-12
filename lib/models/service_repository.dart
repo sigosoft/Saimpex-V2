@@ -18,6 +18,53 @@ class ServiceRepository {
   static const laundry = 'laundry';
   static const gas = 'gas';
 
+  final Map<String, Future<ServiceHome>> _homeCache = {};
+
+  /// A service vertical's home data (`POST customer/serviceHome`): Admin's
+  /// banner images for it (Sliders → Laundry / Car wash / Home cleaning) and
+  /// the active service types with their names in [language]. Loaded once
+  /// per vertical and language; a failed load is retried next time.
+  Future<ServiceHome> fetchServiceHome({
+    required String vertical,
+    required String language,
+  }) {
+    final key = '$vertical/$language';
+    return _homeCache[key] ??= () async {
+      try {
+        final envelope = await _send(
+          () => _client.dio.post(
+            ApiConstants.serviceHome,
+            data: {'vertical': vertical},
+          ),
+          language,
+        );
+        final data = asJsonMap(envelope.data) ?? <String, dynamic>{};
+        String text(dynamic value) => '${value ?? ''}'.trim();
+        return ServiceHome(
+          sliderImages: [
+            for (final row in _maps(data['sliders']))
+              if (ApiConstants.mediaUrl(text(row['image'])) case final url?)
+                if (url.isNotEmpty) url,
+          ],
+          types: [
+            for (final row in _maps(data['service_types']))
+              if (text(row['name_en']).isNotEmpty)
+                (
+                  id: int.tryParse(text(row['id'])) ?? 0,
+                  nameEn: text(row['name_en']),
+                  name: text(row['name_$language']).isNotEmpty
+                      ? text(row['name_$language'])
+                      : text(row['name_en']),
+                ),
+          ],
+        );
+      } catch (_) {
+        _homeCache.remove(key);
+        rethrow;
+      }
+    }();
+  }
+
   /// Providers near the given point, shaped for the provider cards.
   Future<List<Map<String, String>>> fetchProviders({
     required String vertical,
@@ -243,4 +290,15 @@ class ServiceRepository {
       throw ApiException.fromDio(error, language);
     }
   }
+}
+
+/// What `customer/serviceHome` gives a service vertical's home screen.
+class ServiceHome {
+  const ServiceHome({required this.sliderImages, required this.types});
+
+  /// Full image URLs of Admin's active sliders for the vertical.
+  final List<String> sliderImages;
+
+  /// Active service types; [name] is in the requested language.
+  final List<({int id, String nameEn, String name})> types;
 }

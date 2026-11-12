@@ -74,7 +74,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
         storeName: widget.supplier['title']?.toString() ?? '',
         itemName: product['title']?.toString(),
         itemPortion: product['size']?.toString(),
-        basePrice: parsePrice(product['price']?.toString() ?? '50'),
+        basePrice: parsePrice(product['price']?.toString() ?? ''),
         itemImage: product['image']?.toString(),
       );
     }
@@ -671,7 +671,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
                 widget.supplier['image'])
             ?.toString();
     if (image != null && image.startsWith('http')) return image;
-    return 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=150&auto=format&fit=crop';
+    return '';
   }
 
   Widget _buildCartBar() {
@@ -686,7 +686,7 @@ class _WaterSupplierScreenState extends State<WaterSupplierScreen> {
             storeName: widget.supplier['title']?.toString(),
             itemName: lastAddedItem?['title']?.toString(),
             itemPortion: lastAddedItem?['size']?.toString(),
-            basePrice: parsePrice(lastAddedItem?['price']?.toString() ?? '50'),
+            basePrice: parsePrice(lastAddedItem?['price']?.toString() ?? ''),
             itemImage: lastAddedItem?['image']?.toString(),
           ),
         );

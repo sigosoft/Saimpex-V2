@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../utils/app_fonts.dart';
+import 'service_slots_mixin.dart';
+
 class HomeCleaningChooseSlotSheet extends StatefulWidget {
   const HomeCleaningChooseSlotSheet({super.key});
 
@@ -21,13 +23,12 @@ class HomeCleaningChooseSlotSheet extends StatefulWidget {
 }
 
 class _HomeCleaningChooseSlotSheetState
-    extends State<HomeCleaningChooseSlotSheet> {
+    extends State<HomeCleaningChooseSlotSheet>
+    with ServiceSlotsMixin<HomeCleaningChooseSlotSheet> {
   late final List<DateTime> _dates;
   int _selectedDateIndex = 0;
   int? _selectedSlotIndex;
   String? _warningMessage;
-
-  static const _slots = ['8-10 AM', '10-12 PM', '2-4 PM', '4-6 PM'];
 
   // Translation keys; shown upper-case.
   static const _months = [
@@ -347,34 +348,20 @@ class _HomeCleaningChooseSlotSheetState
   }
 
   Widget _buildTimeSlots() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(child: _timeChip(0)),
-            const SizedBox(width: 10),
-            Expanded(child: _timeChip(1)),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(child: _timeChip(2)),
-            const SizedBox(width: 10),
-            Expanded(child: _timeChip(3)),
-          ],
-        ),
-      ],
-    );
+    ensureSlotsFor(_dates[_selectedDateIndex]);
+    return buildSlotGrid(_timeChip);
   }
 
   Widget _timeChip(int index) {
+    final available = slots[index].available;
     final selected = _selectedSlotIndex == index;
     return GestureDetector(
-      onTap: () => setState(() {
-        _selectedSlotIndex = index;
-        _warningMessage = null;
-      }),
+      onTap: !available
+          ? null
+          : () => setState(() {
+              _selectedSlotIndex = index;
+              _warningMessage = null;
+            }),
       child: Container(
         height: 46,
         decoration: BoxDecoration(
@@ -395,9 +382,11 @@ class _HomeCleaningChooseSlotSheetState
             ),
             const SizedBox(width: 6),
             Text(
-              _slots[index],
+              slots[index].label,
               style: AppFonts.outfit(
-                color: const Color(0xFF1A1A1A),
+                color: available
+                    ? const Color(0xFF1A1A1A)
+                    : const Color(0xFFB8AEA6),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
@@ -453,7 +442,7 @@ class _HomeCleaningChooseSlotSheetState
         }
         Navigator.of(context).pop({
           'date': _dates[_selectedDateIndex],
-          'slot': _slots[_selectedSlotIndex!],
+          'slot': slots[_selectedSlotIndex!].label,
         });
       },
       child: Container(

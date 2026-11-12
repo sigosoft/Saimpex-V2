@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../utils/app_fonts.dart';
+import 'service_slots_mixin.dart';
+
 class CarWashChooseSlotSheet extends StatefulWidget {
   const CarWashChooseSlotSheet({super.key});
 
@@ -19,18 +21,12 @@ class CarWashChooseSlotSheet extends StatefulWidget {
   State<CarWashChooseSlotSheet> createState() => _CarWashChooseSlotSheetState();
 }
 
-class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
+class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet>
+    with ServiceSlotsMixin<CarWashChooseSlotSheet> {
   late final List<DateTime> _dates;
   int _selectedDateIndex = 0;
   int? _selectedSlotIndex;
   String? _warningMessage;
-
-  static const _slots = [
-    '8:00-10:00 AM',
-    '10:00-12:00 PM',
-    '2:00-4:00 PM',
-    '4:00-6:00 PM',
-  ];
 
   // Translation keys; shown upper-case.
   static const _months = [
@@ -350,34 +346,20 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
   }
 
   Widget _buildTimeSlots() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(child: _timeChip(0)),
-            const SizedBox(width: 10),
-            Expanded(child: _timeChip(1)),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(child: _timeChip(2)),
-            const SizedBox(width: 10),
-            Expanded(child: _timeChip(3)),
-          ],
-        ),
-      ],
-    );
+    ensureSlotsFor(_dates[_selectedDateIndex]);
+    return buildSlotGrid(_timeChip);
   }
 
   Widget _timeChip(int index) {
+    final available = slots[index].available;
     final selected = _selectedSlotIndex == index;
     return GestureDetector(
-      onTap: () => setState(() {
-        _selectedSlotIndex = index;
-        _warningMessage = null;
-      }),
+      onTap: !available
+          ? null
+          : () => setState(() {
+              _selectedSlotIndex = index;
+              _warningMessage = null;
+            }),
       child: Container(
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -400,11 +382,13 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
             const SizedBox(width: 6),
             Flexible(
               child: Text(
-                _slots[index],
+                slots[index].label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppFonts.outfit(
-                  color: const Color(0xFF1A1A1A),
+                  color: available
+                      ? const Color(0xFF1A1A1A)
+                      : const Color(0xFFB8AEA6),
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                 ),
@@ -461,7 +445,7 @@ class _CarWashChooseSlotSheetState extends State<CarWashChooseSlotSheet> {
         }
         Navigator.of(context).pop({
           'date': _dates[_selectedDateIndex],
-          'slot': _slots[_selectedSlotIndex!],
+          'slot': slots[_selectedSlotIndex!].label,
         });
       },
       child: Container(

@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../controllers/service_booking_draft.dart';
+import '../../utils/api_language.dart';
 import '../../utils/app_fonts.dart';
+
 class CarWashAddedVehicle {
   final String label;
+
+  /// The type as the customer reads it (translated or the store's own
+  /// name); [label] is what is sent and matched.
+  final String displayLabel;
   final String image;
   final int price;
   final String plateNumber;
 
   const CarWashAddedVehicle({
     required this.label,
+    String? displayLabel,
     required this.image,
     required this.price,
     required this.plateNumber,
-  });
+  }) : displayLabel = displayLabel ?? label;
 }
 
 Future<CarWashAddedVehicle?> showCarWashAddVehiclesSheet(BuildContext context) {
@@ -41,16 +49,59 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
   static const _closeSize = 44.0;
   static const _closeGap = 12.0;
 
-  static const _types = [
-    {'label': 'Sedan', 'price': 350, 'image': 'lib/assets/images/Sedan.png'},
-    {'label': 'SUV/4x4', 'price': 500, 'image': 'lib/assets/images/SUV.png'},
-    {'label': 'Pickup', 'price': 550, 'image': 'lib/assets/images/Pickup.png'},
-    {
-      'label': 'Mini bus',
-      'price': 750,
-      'image': 'lib/assets/images/MiniBus.png',
-    },
-  ];
+  /// Vehicle types the picked service prices (its `vehicles` catalog from
+  /// `customer/serviceProvider`). When the provider lists none, the four
+  /// usual types, with no price: the service's own price applies. It used to
+  /// be a fixed list with made-up prices (350 / 500 / 550 / 750 MRU).
+  /// `label` is the English name sent and matched against the catalog;
+  /// `display` is what the customer reads.
+  late final List<Map<String, Object>> _types = _vehicleTypes();
+
+  static List<Map<String, Object>> _vehicleTypes() {
+    final raw = ServiceBookingDraft.item['vehicles'];
+    final language = apiLanguageCode();
+    final fromApi = <Map<String, Object>>[
+      if (raw is List)
+        for (final row in raw)
+          if (row is Map && '${row['name'] ?? ''}'.trim().isNotEmpty)
+            {
+              'label': '${row['name']}'.trim(),
+              'display': '${row['name_$language'] ?? ''}'.trim().isNotEmpty
+                  ? '${row['name_$language']}'.trim()
+                  : '${row['name']}'.trim(),
+              'price': num.tryParse('${row['price'] ?? ''}')?.round() ?? 0,
+              'image': _imageFor('${row['name']}'),
+            },
+    ];
+    if (fromApi.isNotEmpty) return fromApi;
+    return [
+      for (final (label, key) in const [
+        ('Sedan', 'svc_vehicle_sedan'),
+        ('SUV/4x4', 'svc_vehicle_suv'),
+        ('Pickup', 'svc_vehicle_pickup'),
+        ('Mini bus', 'svc_vehicle_minibus'),
+      ])
+        {
+          'label': label,
+          'display': key.tr,
+          'price': 0,
+          'image': _imageFor(label),
+        },
+    ];
+  }
+
+  /// The closest bundled picture for a vehicle type name.
+  static String _imageFor(String name) {
+    final value = name.toLowerCase();
+    if (value.contains('suv') || value.contains('4x4')) {
+      return 'lib/assets/images/SUV.png';
+    }
+    if (value.contains('pick')) return 'lib/assets/images/Pickup.png';
+    if (value.contains('bus') || value.contains('van')) {
+      return 'lib/assets/images/MiniBus.png';
+    }
+    return 'lib/assets/images/Sedan.png';
+  }
 
   @override
   void dispose() {
@@ -130,6 +181,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
       context,
       CarWashAddedVehicle(
         label: type['label'] as String,
+        displayLabel: type['display'] as String,
         image: type['image'] as String,
         price: type['price'] as int,
         plateNumber: plate,
@@ -277,7 +329,7 @@ class _AddVehiclesSheetState extends State<_AddVehiclesSheet> {
                                                       4,
                                                     ),
                                                 child: Text(
-                                                  type['label'] as String,
+                                                  type['display'] as String,
                                                   style: AppFonts.outfit(
                                                     color: const Color(
                                                       0xFF0F1E31,

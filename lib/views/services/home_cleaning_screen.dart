@@ -11,6 +11,8 @@ import '../select_location_screen.dart';
 import '../../models/service_repository.dart';
 import 'home_cleaning_provider_detail_screen.dart';
 import 'service_provider_list.dart';
+import 'service_banner_image.dart';
+import '../../utils/api_language.dart';
 
 import '../../utils/app_fonts.dart';
 import '../../widgets/status_dot.dart';
@@ -18,24 +20,20 @@ import '../../widgets/status_dot.dart';
 class HomeCleaningScreen extends StatelessWidget {
   const HomeCleaningScreen({super.key});
 
-  static const _categories = [
-    {
-      'label': 'svc_hc_cat_deep',
-      'image': 'lib/assets/images/Deep Cleaning.png',
-    },
-    {
-      'label': 'svc_hc_cat_kitchen',
-      'image': 'lib/assets/images/Kitchen Cleaning.png',
-    },
-    {
-      'label': 'svc_hc_cat_bedroom',
-      'image': 'lib/assets/images/bedroom_cleaning.png',
-    },
-    {
-      'label': 'svc_hc_cat_sofa',
-      'image': 'lib/assets/images/Sofa Cleaning.png',
-    },
-  ];
+  /// The bundled picture that fits a service type name (from the design);
+  /// null shows the cleaning icon.
+  static String? _categoryImage(String nameEn) {
+    final name = nameEn.toLowerCase();
+    if (name.contains('deep')) return 'lib/assets/images/Deep Cleaning.png';
+    if (name.contains('kitchen')) {
+      return 'lib/assets/images/Kitchen Cleaning.png';
+    }
+    if (name.contains('bed')) return 'lib/assets/images/bedroom_cleaning.png';
+    if (name.contains('sofa') || name.contains('upholster')) {
+      return 'lib/assets/images/Sofa Cleaning.png';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +68,6 @@ class HomeCleaningScreen extends StatelessWidget {
                           _buildPageTitle(),
                           const SizedBox(height: 22),
                           _buildExploreCategories(),
-                          const SizedBox(height: 18),
                           _buildSearchBar(),
                           const SizedBox(height: 22),
                           _buildNearbySection(),
@@ -100,12 +97,9 @@ class HomeCleaningScreen extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Image.asset(
-          'lib/assets/images/Home_cleaning_banner.png',
-          width: double.infinity,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) =>
-              Container(height: 240, color: const Color(0xFFFF5216)),
+        const ServiceBannerImage(
+          vertical: ServiceRepository.homeCleaning,
+          asset: 'lib/assets/images/Home_cleaning_banner.png',
         ),
         Positioned(
           left: 16,
@@ -257,7 +251,31 @@ class HomeCleaningScreen extends StatelessWidget {
     );
   }
 
+  /// Home cleaning's service types from Admin (`customer/serviceHome` →
+  /// `service_types`), in the app language. It was a fixed list (Deep,
+  /// Kitchen, Bedroom, Sofa) whatever Admin set; nothing shows without types.
   Widget _buildExploreCategories() {
+    if (!Get.isRegistered<ServiceRepository>()) return const SizedBox.shrink();
+    return FutureBuilder<ServiceHome>(
+      future: Get.find<ServiceRepository>().fetchServiceHome(
+        vertical: ServiceRepository.homeCleaning,
+        language: apiLanguageCode(),
+      ),
+      builder: (context, snapshot) {
+        final types = (snapshot.data?.types ?? const []).take(4).toList();
+        if (types.isEmpty) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 18),
+          child: _exploreCategoriesCard([
+            for (final type in types)
+              {'label': type.name, 'image': _categoryImage(type.nameEn) ?? ''},
+          ]),
+        );
+      },
+    );
+  }
+
+  Widget _exploreCategoriesCard(List<Map<String, String>> categories) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -275,27 +293,27 @@ class HomeCleaningScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'svc_explore_categories'.tr,
-                style: AppFonts.outfit(
-                  color: const Color(0xFF2C2520),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SeeAllButton(),
-            ],
+          // "See All" removed: it had no action.
+          Text(
+            'svc_explore_categories'.tr,
+            style: AppFonts.outfit(
+              color: const Color(0xFF2C2520),
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: 14),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (var i = 0; i < _categories.length; i++) ...[
+              for (var i = 0; i < categories.length; i++) ...[
                 if (i > 0) const SizedBox(width: 8),
-                Expanded(child: _buildCategoryItem(_categories[i])),
+                Expanded(child: _buildCategoryItem(categories[i])),
+              ],
+              // Keep four equal columns when Admin has fewer types.
+              for (var i = categories.length; i < 4; i++) ...[
+                const SizedBox(width: 8),
+                const Expanded(child: SizedBox.shrink()),
               ],
             ],
           ),
@@ -315,21 +333,21 @@ class HomeCleaningScreen extends StatelessWidget {
             height: 66,
             fit: BoxFit.cover,
             errorBuilder: (_, _, _) => Container(
-              width: 58,
-              height: 58,
+              width: 66,
+              height: 66,
               color: const Color(0xFFFFF3EB),
               alignment: Alignment.center,
               child: const Icon(
                 Icons.cleaning_services_rounded,
                 color: Color(0xFFFF5216),
-                size: 24,
+                size: 26,
               ),
             ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          cat['label']!.tr,
+          cat['label']!,
           textAlign: TextAlign.center,
           maxLines: 2,
           style: AppFonts.outfit(

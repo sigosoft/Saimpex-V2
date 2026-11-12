@@ -21,6 +21,7 @@ import 'widgets/pharmacy_subcategory_icon.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+
 class PharmacyItemsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
   final int initialSubcategoryIndex;
@@ -170,8 +171,8 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
         Get.find<HomeController>().setCartItem(
           storeName: _storeText('title', ''),
           itemName: item['title']?.toString(),
-          itemPortion: portion ?? item['tag']?.toString() ?? '10 Tablets',
-          basePrice: parsePrice(item['price']?.toString() ?? '50'),
+          itemPortion: portion ?? item['tag']?.toString() ?? '',
+          basePrice: parsePrice(item['price']?.toString() ?? ''),
           itemImage: item['image']?.toString(),
           quantity: quantity,
         );
@@ -564,12 +565,12 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
-    final storeId = _storeText('id', 'p1');
+    final storeId = _storeText('id', '');
     final storeTitle = _storeText('title', '');
     final storeImage = _storeText('image', '');
-    final storeTime = _storeText('time', '30-35 min');
-    final storeDistance = _storeText('dist', '10 Km');
-    final storeDiscount = _storeText('discount', '50% OFF');
+    final storeTime = _storeText('time', '');
+    final storeDistance = _storeText('dist', '');
+    final storeDiscount = _storeText('discount', '');
     final isClosed = widget.store['isClosed'] == true;
     final isTemporarilyClosed = widget.store['isTemporarilyClosed'] == true;
     final isNotAccepting = isClosed || isTemporarilyClosed;
@@ -691,7 +692,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                               ),
                                               const SizedBox(width: 2),
                                               Text(
-                                                _storeText('rating', '4.6'),
+                                                _storeText('rating', ''),
                                                 style: AppFonts.outfit(
                                                   color: Colors.white,
                                                   fontSize: 10,
@@ -705,7 +706,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      _storeText('subtitle', 'Trusted'),
+                                      _storeText('subtitle', ''),
                                       style: AppFonts.outfit(
                                         color: const Color(0xFF7A6A60),
                                         fontSize: 11,
@@ -1139,7 +1140,7 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                         storeName: storeTitle,
                         itemName: lastAddedItem?['title'],
                         itemPortion: lastAddedItemPortion,
-                        basePrice: parsePrice(lastAddedItem?['price'] ?? '50'),
+                        basePrice: parsePrice(lastAddedItem?['price'] ?? ''),
                         itemImage: lastAddedItem?['image'],
                       ),
                     );

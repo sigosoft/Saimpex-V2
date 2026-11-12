@@ -6,7 +6,11 @@ import 'home_cleaning_cart_screen.dart';
 import 'home_cleaning_choose_slot_sheet.dart';
 import '../../widgets/app_back_button.dart';
 
+import '../../controllers/service_booking_draft.dart';
+import '../../utils/api_language.dart';
 import '../../utils/app_fonts.dart';
+import 'service_booking_submit.dart';
+
 class HomeCleaningServiceConfigureScreen extends StatefulWidget {
   final Map<String, String> service;
   final String providerName;
@@ -24,124 +28,145 @@ class HomeCleaningServiceConfigureScreen extends StatefulWidget {
 
 class _HomeCleaningServiceConfigureScreenState
     extends State<HomeCleaningServiceConfigureScreen> {
-  String _propertyType = 'Apartment';
-  int _bedrooms = 4;
-  int _kitchens = 1;
-  int _bathrooms = 0;
-  int _balconies = 0;
+  // Everything below comes from the picked service's catalog in
+  // customer/serviceProvider (ServiceBookingDraft.item): spaces, addons,
+  // property_types, issues, supply_fee. It used to be a fixed list (Bedrooms
+  // 100, Kitchens 150, Bathrooms 80, Balconies 60, Fridge 100, Dish 150,
+  // products +120, 4 bedrooms preselected), so a provider whose rooms are
+  // named or priced differently got wrong prices and a refused booking.
+  late final List<Map<String, Object>> _roomRates = _catalogRows('spaces');
+  late final List<Map<String, Object>> _extraClean = _catalogRows('addons');
+  late final List<Map<String, Object>> _pestIssues = _issueRows();
+  late final List<String> _propertyTypes = _textList('property_types');
 
-  /// `self` = customer provides, `provider` = provider provides (+120)
+  late String _propertyType = _propertyTypes.isEmpty
+      ? ''
+      : _propertyTypes.first;
+  final Map<String, int> _spaceQty = {};
+  final Map<String, int> _addonQty = {};
+
+  /// `self` = customer provides, `provider` = the provider brings them
+  /// (+ the service's `supply_fee`).
   String _productsProvider = 'self';
   final _notesController = TextEditingController();
-  int _fridgeCleaning = 0;
-  int _dishWashing = 0;
   final Set<String> _selectedPests = {};
 
-  static const _roomRates = [
-    {
-      'key': 'bedrooms',
-      'label': 'Bedrooms',
-      'unitLabel': 'svc_rate_per_room',
-      'rate': 100,
-    },
-    {
-      'key': 'kitchens',
-      'label': 'Kitchens',
-      'unitLabel': 'svc_rate_per_room',
-      'rate': 150,
-    },
-    {
-      'key': 'bathrooms',
-      'label': 'Bathrooms / WC',
-      'unitLabel': 'svc_rate_per_room',
-      'rate': 80,
-    },
-    {
-      'key': 'balconies',
-      'label': 'Balconies',
-      'unitLabel': 'svc_rate_per_unit',
-      'rate': 60,
-    },
-  ];
+  static Map<String, dynamic> get _item => ServiceBookingDraft.item;
 
-  static const _extraClean = [
-    {
-      'key': 'fridge',
-      'label': 'Fridge Cleaning',
-      'unitLabel': 'svc_rate_per_unit',
-      'rate': 100,
-    },
-    {
-      'key': 'dish',
-      'label': 'Dish Washing',
-      'unitLabel': 'svc_rate_per_unit',
-      'rate': 150,
-    },
-  ];
+  static List<Map<String, Object>> _catalogRows(String key) {
+    final raw = _item[key];
+    if (raw is! List) return const [];
+    final language = apiLanguageCode();
+    final rows = <Map<String, Object>>[];
+    for (final entry in raw) {
+      if (entry is! Map) continue;
+      final name = '${entry['name'] ?? ''}'.trim();
+      if (name.isEmpty) continue;
+      final local = '${entry['name_$language'] ?? ''}'.trim();
+      final unit = '${entry['unit'] ?? ''}'.trim().toLowerCase();
+      rows.add({
+        'key': '${entry['id'] ?? rows.length}',
+        'label': name,
+        'display': local.isNotEmpty ? local : homeCleaningLabelText(name),
+        'unitLabel': unit.contains('room')
+            ? 'svc_rate_per_room'
+            : 'svc_rate_per_unit',
+        'rate': num.tryParse('${entry['price'] ?? ''}')?.round() ?? 0,
+      });
+    }
+    return rows;
+  }
 
-  static const _pestIssues = [
-    {
-      'id': 'cockroaches',
-      'label': 'Cockroaches',
-      'image': 'lib/assets/images/Cockroach.png',
-    },
-    {'id': 'ants', 'label': 'Ants', 'image': 'lib/assets/images/Ant.png'},
-    {
-      'id': 'bed_bugs',
-      'label': 'Bed Bugs',
-      'image': 'lib/assets/images/BedBug.png',
-    },
-    {
-      'id': 'mosquitoes',
-      'label': 'Mosquitoes',
-      'image': 'lib/assets/images/Mosquito.png',
-    },
-    {
-      'id': 'rodents',
-      'label': 'Rodents',
-      'image': 'lib/assets/images/Rodent.png',
-    },
-    {
-      'id': 'termites',
-      'label': 'Termites',
-      'image': 'lib/assets/images/Termite.png',
-    },
-    {
-      'id': 'disinfection',
-      'label': 'General Disinfection',
-      'image': 'lib/assets/images/BlueShield.png',
-    },
-    {'id': 'flies', 'label': 'Flies', 'image': 'lib/assets/images/Fly.png'},
-    {'id': 'other', 'label': 'Other'},
-  ];
+  static List<String> _textList(String key) {
+    final raw = _item[key];
+    if (raw is! List) return const [];
+    return [
+      for (final entry in raw)
+        if ('$entry'.trim().isNotEmpty) '$entry'.trim(),
+    ];
+  }
 
-  String get _title => widget.service['title'] ?? 'Regular Cleaning';
+  /// The provider's pest issues, with the bundled picture for known ones.
+  static List<Map<String, Object>> _issueRows() {
+    const pictures = {
+      'cockroach': 'lib/assets/images/Cockroach.png',
+      'ant': 'lib/assets/images/Ant.png',
+      'bed bug': 'lib/assets/images/BedBug.png',
+      'mosquito': 'lib/assets/images/Mosquito.png',
+      'rodent': 'lib/assets/images/Rodent.png',
+      'termite': 'lib/assets/images/Termite.png',
+      'disinfection': 'lib/assets/images/BlueShield.png',
+      'fl': 'lib/assets/images/Fly.png',
+    };
+    return [
+      for (final name in _textList('issues'))
+        {
+          'id': name,
+          'label': name,
+          'display': homeCleaningLabelText(name),
+          for (final entry in pictures.entries)
+            if (name.toLowerCase().startsWith(entry.key)) 'image': entry.value,
+        },
+    ];
+  }
+
+  static int get _supplyFee =>
+      num.tryParse('${_item['supply_fee'] ?? ''}')?.round() ?? 0;
+
+  /// The provider can bring the products: a fee or a product list is set.
+  static bool get _offersProducts =>
+      _supplyFee > 0 || _textList('product_supply').isNotEmpty;
+
+  String get _title => widget.service['title'] ?? '';
 
   bool get _isPestControl =>
       _title.toLowerCase().contains('pest') ||
-      _title.toLowerCase().contains('disinfection');
+      _title.toLowerCase().contains('disinfection') ||
+      _pestIssues.isNotEmpty;
 
   int get _basePrice {
-    final raw = widget.service['price'] ?? '550';
-    return int.tryParse(raw.replaceAll(RegExp(r'[^0-9]'), '')) ?? 550;
+    final raw = widget.service['price'] ?? '';
+    return int.tryParse(raw.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
   }
 
-  int get _baseDurationMin {
-    final raw = widget.service['duration'] ?? '1 hr 30 min';
-    return _parseDurationMinutes(raw);
+  int get _baseDurationMin =>
+      _parseDurationMinutes(widget.service['duration'] ?? '');
+
+  int _sum(List<Map<String, Object>> rows, Map<String, int> qty) =>
+      rows.fold<int>(
+        0,
+        (sum, row) => sum + (row['rate'] as int) * (qty[row['key']] ?? 0),
+      );
+
+  int get _roomsPrice => _sum(_roomRates, _spaceQty);
+
+  int get _productsPrice => _productsProvider == 'provider' ? _supplyFee : 0;
+
+  int get _extrasPrice => _isPestControl ? 0 : _sum(_extraClean, _addonQty);
+
+  /// The app's estimate; the cart shows the server's quote.
+  int get _totalPrice {
+    final selected =
+        _roomsPrice + (_isPestControl ? 0 : _productsPrice) + _extrasPrice;
+    return selected > 0 ? selected : _basePrice;
   }
 
-  int get _roomsPrice =>
-      _bedrooms * 100 + _kitchens * 150 + _bathrooms * 80 + _balconies * 60;
-
-  int get _productsPrice => _productsProvider == 'provider' ? 120 : 0;
-
-  int get _extrasPrice =>
-      _isPestControl ? 0 : (_fridgeCleaning * 100 + _dishWashing * 150);
-
-  int get _totalPrice =>
-      _roomsPrice + (_isPestControl ? 0 : _productsPrice) + _extrasPrice;
   int get _totalDurationMin => _baseDurationMin;
+
+  /// Rows the cart sends to service/quote and service/book.
+  List<Map<String, dynamic>> _selectedRows(
+    List<Map<String, Object>> rows,
+    Map<String, int> qty,
+  ) => [
+    for (final row in rows)
+      if ((qty[row['key']] ?? 0) > 0)
+        {
+          'label': row['label'],
+          'display': row['display'],
+          'rate': row['rate'],
+          'qty': qty[row['key']],
+        },
+  ];
 
   String get _heroImage {
     final image = widget.service['image'];
@@ -164,21 +189,13 @@ class _HomeCleaningServiceConfigureScreenState
     final minMatch = RegExp(r'(\d+)\s*min').firstMatch(raw);
     if (hourMatch != null) hours = int.parse(hourMatch.group(1)!);
     if (minMatch != null) mins = int.parse(minMatch.group(1)!);
-    if (hours == 0 && mins == 0) return 90;
+    if (hours == 0 && mins == 0) return 0;
     return hours * 60 + mins;
   }
 
-  String _slotRangeFromLabel(String label) {
-    final match = RegExp(
-      r'(\d+)\s*-\s*(\d+)\s*(AM|PM)',
-      caseSensitive: false,
-    ).firstMatch(label);
-    if (match == null) return label;
-    final start = match.group(1)!;
-    final end = match.group(2)!;
-    final period = match.group(3)!.toUpperCase();
-    return '$start:00 $period - $end:00 $period';
-  }
+  // "10-12 PM" is 10 AM – 12 PM; the local copy made it 10 PM – 12 PM, and
+  // that night-time slot was booked. The shared helper gets it right.
+  String _slotRangeFromLabel(String label) => formatServiceSlotLabel(label);
 
   Future<void> _openSlotAndGoToCart() async {
     final result = await HomeCleaningChooseSlotSheet.show(context);
@@ -195,30 +212,14 @@ class _HomeCleaningServiceConfigureScreenState
         serviceDescription: _isPestControl
             ? 'svc_pest_service_desc'.tr
             : 'svc_regular_service_desc'.tr,
-        bedrooms: _bedrooms,
-        bathrooms: _bathrooms,
-        kitchens: _kitchens,
-        balconies: _balconies,
-        spaces: [
-          if (_bedrooms > 0)
-            {'label': 'Bedrooms', 'rate': 100, 'qty': _bedrooms},
-          if (_kitchens > 0)
-            {'label': 'Kitchens', 'rate': 150, 'qty': _kitchens},
-          if (_bathrooms > 0)
-            {'label': 'Bathrooms / WC', 'rate': 80, 'qty': _bathrooms},
-          if (_balconies > 0)
-            {'label': 'Balconies', 'rate': 60, 'qty': _balconies},
-        ],
-        extras: [
-          if (!_isPestControl && _fridgeCleaning > 0)
-            {'label': 'Fridge Cleaning', 'rate': 100, 'qty': _fridgeCleaning},
-          if (!_isPestControl && _dishWashing > 0)
-            {'label': 'Dish Washing', 'rate': 150, 'qty': _dishWashing},
-        ],
+        spaces: _selectedRows(_roomRates, _spaceQty),
+        extras: _isPestControl
+            ? const []
+            : _selectedRows(_extraClean, _addonQty),
         productsProvider: _isPestControl ? 'self' : _productsProvider,
         propertyType: _propertyType,
         notes: _notesController.text,
-        productsFee: 120,
+        productsFee: _supplyFee,
         selectedPests: _isPestControl
             ? _pestIssues
                   .where((p) => _selectedPests.contains(p['id']))
@@ -281,23 +282,38 @@ class _HomeCleaningServiceConfigureScreenState
                       children: [
                         _buildHero(),
                         const SizedBox(height: 12),
-                        _buildInfoChips(),
-                        const SizedBox(height: 22),
-                        _buildPropertyType(),
-                        const SizedBox(height: 22),
+                        // Each section shows only what this service lists.
+                        if (_basePrice > 0) ...[
+                          _buildInfoChips(),
+                          const SizedBox(height: 22),
+                        ],
+                        if (_propertyTypes.isNotEmpty) ...[
+                          _buildPropertyType(),
+                          const SizedBox(height: 22),
+                        ],
                         if (_isPestControl) ...[
-                          _buildPestFacing(),
-                          const SizedBox(height: 22),
-                          _buildAreasToTreat(),
-                          const SizedBox(height: 22),
+                          if (_pestIssues.isNotEmpty) ...[
+                            _buildPestFacing(),
+                            const SizedBox(height: 22),
+                          ],
+                          if (_roomRates.isNotEmpty) ...[
+                            _buildAreasToTreat(),
+                            const SizedBox(height: 22),
+                          ],
                           _buildSpecialNotes(),
                         ] else ...[
-                          _buildHomeDetails(),
-                          const SizedBox(height: 22),
-                          _buildCleaningProducts(),
-                          const SizedBox(height: 22),
-                          _buildAddons(),
-                          const SizedBox(height: 22),
+                          if (_roomRates.isNotEmpty) ...[
+                            _buildHomeDetails(),
+                            const SizedBox(height: 22),
+                          ],
+                          if (_offersProducts) ...[
+                            _buildCleaningProducts(),
+                            const SizedBox(height: 22),
+                          ],
+                          if (_extraClean.isNotEmpty) ...[
+                            _buildAddons(),
+                            const SizedBox(height: 22),
+                          ],
                           _buildSpecialNotes(),
                         ],
                       ],
@@ -460,23 +476,49 @@ class _HomeCleaningServiceConfigureScreenState
       children: [
         _sectionTitleWithOptional('svc_property_type'.tr),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _propertyCard(
-                type: 'Apartment',
-                icon: Icons.apartment_rounded,
+        // The provider's own property types, two per row.
+        for (var i = 0; i < _propertyTypes.length; i += 2) ...[
+          if (i > 0) const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _propertyCard(
+                  type: _propertyTypes[i],
+                  icon: _propertyIcon(_propertyTypes[i]),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _propertyCard(type: 'Villa', icon: Icons.home_rounded),
-            ),
-          ],
-        ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: i + 1 < _propertyTypes.length
+                    ? _propertyCard(
+                        type: _propertyTypes[i + 1],
+                        icon: _propertyIcon(_propertyTypes[i + 1]),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
+
+  static IconData _propertyIcon(String type) {
+    final value = type.toLowerCase();
+    if (value.contains('villa') || value.contains('house')) {
+      return Icons.home_rounded;
+    }
+    if (value.contains('office')) return Icons.business_rounded;
+    return Icons.apartment_rounded;
+  }
+
+  /// Known types in the app language; any other name as the provider wrote it.
+  static String _propertyText(String type) => switch (type.toLowerCase()) {
+    'villa' => 'svc_villa'.tr,
+    'apartment' => 'svc_apartment'.tr,
+    'office' => 'svc_office'.tr,
+    _ => type,
+  };
 
   Widget _propertyCard({required String type, required IconData icon}) {
     final selected = _propertyType == type;
@@ -517,7 +559,7 @@ class _HomeCleaningServiceConfigureScreenState
             const SizedBox(width: 8),
             Flexible(
               child: Text(
-                type == 'Villa' ? 'svc_villa'.tr : 'svc_apartment'.tr,
+                _propertyText(type),
                 style: AppFonts.outfit(
                   color: selected
                       ? const Color(0xFFFF5216)
@@ -617,7 +659,7 @@ class _HomeCleaningServiceConfigureScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  homeCleaningLabelText(room['label'] as String),
+                  room['display'] as String,
                   style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 14.5,
@@ -789,7 +831,7 @@ class _HomeCleaningServiceConfigureScreenState
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      homeCleaningLabelText(item['label'] as String),
+                      item['display'] as String,
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -810,39 +852,10 @@ class _HomeCleaningServiceConfigureScreenState
     );
   }
 
-  int _roomCountFor(String key) {
-    switch (key) {
-      case 'bedrooms':
-        return _bedrooms;
-      case 'kitchens':
-        return _kitchens;
-      case 'bathrooms':
-        return _bathrooms;
-      case 'balconies':
-        return _balconies;
-      default:
-        return 0;
-    }
-  }
+  int _roomCountFor(String key) => _spaceQty[key] ?? 0;
 
   void _setRoomCount(String key, int value) {
-    final next = value < 0 ? 0 : value;
-    setState(() {
-      switch (key) {
-        case 'bedrooms':
-          _bedrooms = next;
-          break;
-        case 'kitchens':
-          _kitchens = next;
-          break;
-        case 'bathrooms':
-          _bathrooms = next;
-          break;
-        case 'balconies':
-          _balconies = next;
-          break;
-      }
-    });
+    setState(() => _spaceQty[key] = value < 0 ? 0 : value);
   }
 
   Widget _roomRateRow(Map<String, Object> room) {
@@ -860,7 +873,7 @@ class _HomeCleaningServiceConfigureScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  homeCleaningLabelText(room['label'] as String),
+                  room['display'] as String,
                   style: AppFonts.outfit(
                     color: const Color(0xFF1B2B4A),
                     fontSize: 14.5,
@@ -957,7 +970,7 @@ class _HomeCleaningServiceConfigureScreenState
           id: 'provider',
           title: 'svc_provider_provides_products'.tr,
           description: 'svc_provider_products_hint'.tr,
-          priceLabel: 'svc_plus_mru'.trParams({'amount': '120'}),
+          priceLabel: 'svc_plus_mru'.trParams({'amount': '$_supplyFee'}),
           priceOrange: true,
         ),
       ],
@@ -1205,29 +1218,10 @@ class _HomeCleaningServiceConfigureScreenState
     );
   }
 
-  int _extraCountFor(String key) {
-    switch (key) {
-      case 'fridge':
-        return _fridgeCleaning;
-      case 'dish':
-        return _dishWashing;
-      default:
-        return 0;
-    }
-  }
+  int _extraCountFor(String key) => _addonQty[key] ?? 0;
 
   void _setExtraCount(String key, int value) {
-    final next = value < 0 ? 0 : value;
-    setState(() {
-      switch (key) {
-        case 'fridge':
-          _fridgeCleaning = next;
-          break;
-        case 'dish':
-          _dishWashing = next;
-          break;
-      }
-    });
+    setState(() => _addonQty[key] = value < 0 ? 0 : value);
   }
 
   Widget _extraCleanRow(Map<String, Object> item) {
@@ -1249,7 +1243,7 @@ class _HomeCleaningServiceConfigureScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  homeCleaningLabelText(item['label'] as String),
+                  item['display'] as String,
                   style: AppFonts.outfit(
                     color: const Color(0xFF1A1A1A),
                     fontSize: 14,
