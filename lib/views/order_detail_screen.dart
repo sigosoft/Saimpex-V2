@@ -595,11 +595,20 @@ class OrderDetailScreen extends StatelessWidget {
   /// tracking screen's form, month in the app language); other text as sent.
   /// The time is shown as the server sends it: it carries no time zone.
   static String _readableTime(String raw) {
-    final time = DateTime.tryParse(raw);
-    if (time == null) return raw;
+    // placed_at is UTC without a zone ("2026-11-12 10:26:04"); it showed
+    // 10:26 AM for an order placed at 3:56 PM on a phone in India.
+    final utc = RegExp(
+      r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}$',
+    ).hasMatch(raw.trim());
+    final parsed = DateTime.tryParse(
+      utc ? '${raw.trim().replaceFirst(' ', 'T')}Z' : raw,
+    );
+    if (parsed == null) return raw;
+    final time = parsed.toLocal();
     final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
     String two(int n) => n.toString().padLeft(2, '0');
-    final month = 'svc_month_${time.month}'.tr;
+    // Left-to-right mark keeps the date in order next to an Arabic month.
+    final month = 'svc_month_${time.month}'.tr + String.fromCharCode(0x200E);
     return '${two(time.day)} $month ${time.year}, '
         '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
   }

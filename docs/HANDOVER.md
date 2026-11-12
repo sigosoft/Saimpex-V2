@@ -1044,7 +1044,7 @@ Sweep of the whole app for fixed data customers can see. Each item now comes fro
 - **Not covered by the Figma passes** (updated 12 Nov evening, `fix/figma-pass-remaining`; Store Map, Scan, Redeem detail, Replace item, FR/AR checkout and the prescription quotation / paid order are now done):
   - Subscription Cart: no water supplier on dev has a plan (`water/plans` returns [] for every vendor), so Subscribe never shows;
   - prescription cart (checkout) and prescription success: need a fresh, unexpired quote from a pharmacy (the only quote, #13, expired on 4 Nov);
-  - success screens after a real payment, and Cart Pay Later: need a test order to be placed (not done without the owner's OK).
+  - (done 12 Nov evening: a cash test order ORD-001568 was placed and cancelled at once to compare the order success, cancel sheet and cancelled screens, and the cart's Pay After Delivery option.)
 - **Local only (not pushed):** branch `test/figma-pass-rest`, which merges every open PR for phone builds; emulator `saimpex_figma` (doesn't start on this machine).
 
 ### Figma pass, last screens + FR/AR checkout (`fix/figma-pass-final`, 12 Nov late afternoon) ✅
@@ -1088,3 +1088,6 @@ Store Map and the prescription screens, on the Samsung M11 (release, dev, 952000
   - Subscription Cart (no water plans);
   - prescription checkout and success (needs a fresh quote);
   - success screens after payment, and Pay Later (need a test order to be placed).
+- **Order success, cancel and Pay After Delivery** (with the owner's OK): one cash-on-delivery test order, **ORD-001568** (Pizzeria Atlantique, 310 MRU), placed and cancelled at once. The server shows status 10, and the cart is empty again.
+  - Matching Figma: the cart's payment list (Pay After Delivery shows, since the account can use it), "Order Placed Successfully!" with Back to Home / View Order, the cancel-reason sheet, and "Order Cancelled". Figma's success subtitle mentions points earned; the app shows the order code and amount.
+  - **Fixed:** the food order "Order placed" time read the server's UTC `placed_at` as local ("10:26 AM" for an order placed at 3:56 PM in India). It now converts to the phone's time zone, and Arabic months stay in order.
