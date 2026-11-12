@@ -1575,7 +1575,16 @@ class _CartScreenState extends State<CartScreen> {
               Positioned.fill(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
+                  // As the Cart tab, the bar and the raised Services button
+                  // sit over the list: the Pay button ended under them.
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    widget.showBottomNav
+                        ? 150 + MediaQuery.of(context).padding.bottom
+                        : 110,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
