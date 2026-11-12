@@ -505,7 +505,7 @@ const storesStrings = <String, Map<String, String>>{
     'st_online_payment': 'الدفع الإلكتروني',
     'st_order': 'الطلب',
     'st_order_details_unavailable': 'تفاصيل الطلب غير متوفرة',
-    'st_order_id': 'الطلب @id',
+    'st_order_id': 'الطلب \u2066@id\u2069',
     'st_order_status': 'حالة الطلب',
     'st_otp_copied': 'تم نسخ الرمز',
     'st_pin_after_booking':
@@ -562,7 +562,7 @@ const storesStrings = <String, Map<String, String>>{
     'st_to_pay': 'المبلغ المطلوب',
     'st_total_paid': 'إجمالي المدفوع',
     'st_track_delivery': 'تتبع التوصيل',
-    'st_track_order': 'تتبع الطلب @id',
+    'st_track_order': 'تتبع الطلب \u2066@id\u2069',
     'st_view_coupons': 'عرض القسائم',
     'st_view_order': 'عرض الطلب',
     'st_view_order_status': 'عرض حالة الطلب وتفاصيله',

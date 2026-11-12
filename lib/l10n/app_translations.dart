@@ -388,9 +388,9 @@ const _ar = {
   'water_sub_payment_failed': 'فشل الدفع. اضغط ادفع للمحاولة مرة أخرى.',
   'water_sub_payment_pending':
       'لم يتم تأكيد الدفع بعد. اضغط ادفع للمحاولة مرة أخرى أو راجع اشتراكاتي.',
-  'coupon_removed': 'القسيمة @code لم تعد صالحة وتمت إزالتها.',
+  'coupon_removed': 'القسيمة \u2066@code\u2069 لم تعد صالحة وتمت إزالتها.',
   'subs_review': 'مراجعة التغييرات',
-  'subs_order': 'الطلب @code',
+  'subs_order': 'الطلب \u2066@code\u2069',
   'subs_help': 'مساعدة',
   'subs_changes': 'تغييرات الطلب',
   'subs_none': 'لم يغيّر المتجر أي شيء.',
