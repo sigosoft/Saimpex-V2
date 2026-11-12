@@ -15,6 +15,7 @@ import 'car_wash_provider_detail_screen.dart';
 import 'service_provider_list.dart';
 
 import '../../utils/app_fonts.dart';
+import '../../widgets/status_dot.dart';
 
 class CarWashScreen extends StatelessWidget {
   const CarWashScreen({super.key});
@@ -389,16 +390,7 @@ class CarWashScreen extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(
-                          'lib/assets/images/Coin.png',
-                          width: 12,
-                          height: 12,
-                          errorBuilder: (_, _, _) => const Icon(
-                            Icons.monetization_on,
-                            color: Color(0xFFFFAE00),
-                            size: 12,
-                          ),
-                        ),
+                        StatusDot(open: item['points'] == 'core_open'.tr),
                         const SizedBox(width: 4),
                         Text(
                           item['points']!,

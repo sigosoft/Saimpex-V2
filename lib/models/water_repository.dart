@@ -347,10 +347,10 @@ class WaterRepository {
       'imageUrl':
           ApiConstants.mediaUrl(item['product_image']?.toString()) ?? '',
       'frequency': slot.isEmpty ? frequency : '$frequency ($slot)',
-      'nextDelivery': text(item['next_delivery_at']).split(' ').first,
-      'startDate': text(item['start_date']),
-      'endDate': text(item['end_date']),
-      'pauseUntil': text(item['pause_until']).split(' ').first,
+      'nextDelivery': readableDay(item['next_delivery_at']),
+      'startDate': readableDay(item['start_date']),
+      'endDate': readableDay(item['end_date']),
+      'pauseUntil': readableDay(item['pause_until']),
     };
   }
 

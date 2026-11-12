@@ -959,3 +959,13 @@ From the full Figma comparison (`test-reports/figma-comparison-full-2026-11-12.m
 - **Home profile picture** opens the Profile tab (log-in sheet for guests); it did nothing.
 - New strings EN/FR/AR: `core_chat_yesterday`, `pw_quote_expired`, `pw_quote_expired_hint`. Tests: `test/figma_pass_fixes_test.dart`. Analyzer clean, 50 tests pass.
 - Not checked on the phone: grocery order details after the change (code path only).
+
+### Figma pass, small items (`fix/figma-pass-small`, 12 Nov) ✅ in code
+The "Small" line of `test-reports/figma-comparison-full-2026-11-12.md` plus two items marked 🟡 there. Stacked on `fix/figma-pass-bugs` (PR #58).
+- **Water subscription dates:** My Subscriptions showed the raw "2026-11-06"; next delivery, paused until, start and end dates now read "Today", "Tomorrow" or "06 Nov 2026" with the month in the app language (`readableDay` in `lib/utils/store_labels.dart`).
+- **"Open" badge on car wash, home cleaning and laundry provider cards:** used the coin picture; now a small status dot as in Figma, green when open, red otherwise (`lib/widgets/status_dot.dart`).
+- **Empty cart:** a plain text row; now a centred empty state (cart icon in a soft circle, "Your cart is empty", a hint, and "Start shopping" back to Home). No Figma frame: built in the cart's card style. New strings `orders_cart_empty_hint`, `orders_cart_start_shopping` (EN/FR/AR).
+- **Chat header "Online":** always shown although the API has no presence data; removed (no invented values).
+- **Language sheet Cancel:** plain text under Continue, as in Figma (was a grey button).
+- Analyzer clean, 51 tests pass (`test/store_labels_test.dart`). **Not checked on a device** (no phone or emulator on this machine).
+- **Still open for the customer app, not app work:** masked driver calls (C16, no telephony provider), release signing and app ID decision (C19 / C-B19), laundry balance payment (backend #163), push data for order/chat taps (#178), cancel reason field (#177), `is_rated` on order lists (#165), notification read flag (#183), courier offer sliders (#164). Decisions: bottom bar 7 items vs Figma 5 (PR #38), Local Store search icons, grocery "AI predictive" cards, CA-17 "Specify quantity" box, shorter French bottom-bar labels.

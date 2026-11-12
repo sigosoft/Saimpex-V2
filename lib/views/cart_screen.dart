@@ -1834,8 +1834,15 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         const SizedBox(height: 14),
                       ] else ...[
+                        // No Figma frame for the empty cart: built in the
+                        // app's card style (icon in a soft circle, title,
+                        // hint, way back to shopping).
                         Container(
-                          padding: const EdgeInsets.all(20),
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 32,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -1844,36 +1851,71 @@ class _CartScreenState extends State<CartScreen> {
                               width: 0.8,
                             ),
                           ),
-                          child: Row(
+                          child: Column(
                             children: [
-                              const Icon(
-                                Icons.shopping_cart_outlined,
-                                color: Color(0xFFA59A94),
-                                size: 24,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'orders_cart_empty'.tr,
-                                  style: AppFonts.outfit(
-                                    color: const Color(0xFF2C2520),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              Container(
+                                width: 84,
+                                height: 84,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFF4EF),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.shopping_cart_outlined,
+                                  color: Color(0xFFFF5216),
+                                  size: 40,
                                 ),
                               ),
-                              if (!_cartLoaded)
-                                GestureDetector(
-                                  onTap: () => _setQuantity(1),
+                              const SizedBox(height: 16),
+                              Text(
+                                'orders_cart_empty'.tr,
+                                textAlign: TextAlign.center,
+                                style: AppFonts.outfit(
+                                  color: const Color(0xFF2C2520),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'orders_cart_empty_hint'.tr,
+                                textAlign: TextAlign.center,
+                                style: AppFonts.outfit(
+                                  color: const Color(0xFFA59A94),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              GestureDetector(
+                                onTap: _cartLoaded
+                                    ? () => BottomNavRouter.returnToShell(
+                                        tabIndex: HomeController.navHome,
+                                      )
+                                    : () => _setQuantity(1),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(
+                                      color: const Color(0xFFFF5216),
+                                    ),
+                                  ),
                                   child: Text(
-                                    'orders_add_product'.tr,
+                                    _cartLoaded
+                                        ? 'orders_cart_start_shopping'.tr
+                                        : 'orders_add_product'.tr,
                                     style: AppFonts.outfit(
                                       color: const Color(0xFFFF5216),
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
+                              ),
                             ],
                           ),
                         ),

@@ -234,11 +234,12 @@ class _SheetActionButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 54,
+        // Figma: Cancel is plain text under the Continue button.
+        height: filled ? 54 : 44,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
-          color: filled ? null : const Color(0xFFE8E8E8),
+          color: filled ? null : Colors.transparent,
           gradient: filled
               ? const LinearGradient(
                   colors: [AppColors.primaryOrange, AppColors.gradientYellow],
