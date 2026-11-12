@@ -1028,7 +1028,7 @@ Sweep of the whole app for fixed data customers can see. Each item now comes fro
   - Laundry and car wash slot sheets (same code as home cleaning).
 
 ## Status at end of day, 12 Nov 2026 (customer app)
-- **Open PRs, in merge order:** #58 → #59 → #60 → #61 → #62 → #63 (static content); plus #52, #54, #55 on their own. Each stacked PR targets the one before it; retarget to `main` after each merge. Never merge without Praveen's go-ahead.
+- **Open PRs, in merge order:** #58 → #59 → #60 → #61 → #62 → #63 (static content) → #64 (last Figma screens); plus #52, #54, #55 on their own. Each stacked PR targets the one before it; retarget to `main` after each merge. Never merge without Praveen's go-ahead.
 - **Backend items still open:** see `test-reports/message-to-backend-2026-11-12.md` (ready to send): #163, #164, #165, #166, #167 (probably done, confirm), #177, #178, #183, #184, #185, push data. New from this pass:
   - support hours for Help, e.g. `support_hours_en/fr/ar` in Branding;
   - `name_ar` / `name_fr` on home cleaning `spaces` / `addons` and car wash `vehicles`;
@@ -1047,3 +1047,23 @@ Sweep of the whole app for fixed data customers can see. Each item now comes fro
   - FR/AR checkout;
   - success screens after a real payment.
 - **Local only (not pushed):** branch `test/figma-pass-rest`, which merges every open PR for phone builds; emulator `saimpex_figma` (doesn't start on this machine).
+
+### Figma pass, last screens + FR/AR checkout (`fix/figma-pass-final`, 12 Nov late afternoon) ✅
+Screens the earlier passes left out, on the Samsung M11 (release, dev, 95200021) in English, Arabic and French.
+- **Rewards / Redeem detail:** matches Figma; referral amount and missions come from the API. Without a reward photo, the white store name was invisible on the light placeholder; it now sits in a dark pill.
+- **Replace cart item dialog:** matches Figma. It added "Restaurant" after every store name, grocery stores too ("Alimentation Tevragh Zeina Restaurant"); it now shows the store's own name.
+- **Restaurant page cart bar:** on another store's page it showed that cart with this store's name and ready time. It now shows only this store's cart; the Cart tab and the replace dialog cover the other case. The "Full portion" fallback is gone.
+- **Cart:** the address card repeated the address as its second line; it now shows only when it adds something.
+- **Cart tab:** the raised Services button covered the Pay button at the end of the list. The bottom padding now counts the bar and the phone's navigation area.
+- **My Orders:** the last card's link was under the Services button; the bottom padding is fixed the same way. Courier codes read "CRBR1LK9XE#" in Arabic; they now read "#CRBR1LK9XE".
+- **Checkout in Arabic and French:** payment methods, split wallet + online line, server totals and Pay button read correctly in both. The French empty cart reads correctly too.
+- **Help:** no fixed hours row (checked).
+- **Test data:** a Pizza Margherita was added to the cart for the checks and removed afterwards; nothing ordered. Phone set back to English.
+- **Still not covered:**
+  - Store Map, Scan, Subscription Cart (no plans on dev);
+  - prescription cart / quotation / success;
+  - (Reorder on completed service bookings opens that service's home screen: works, not a dead button.)
+  - service names in My Bookings ("Wash & Fold", "New Cylinder 12 kg") are the server's English.
+- **Checked after the fix** (new build, English): the My Orders list ends clear of the Services button; the courier card reads "#CRBR1LK9XE".
+- **Noticed, not changed:** order status chips are upper-case for water and courier ("DELIVERED", as in Figma) but mixed case for food, grocery and pharmacy ("Delivered"). One style should be picked.
+- Analyzer clean, 57 tests pass.

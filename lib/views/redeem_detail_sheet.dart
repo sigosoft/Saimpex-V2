@@ -101,31 +101,48 @@ class RedeemDetailSheet extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                PositionedDirectional(
-                                  top: 16,
-                                  start: 16,
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 6,
-                                        height: 6,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
+                                // A dark pill keeps the white store name
+                                // readable over a light photo or the
+                                // placeholder (it was invisible there).
+                                if (store.isNotEmpty)
+                                  PositionedDirectional(
+                                    top: 16,
+                                    start: 16,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
                                       ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        store,
-                                        style: AppFonts.outfit(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.45,
                                         ),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
-                                    ],
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 6,
+                                            height: 6,
+                                            decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            store,
+                                            style: AppFonts.outfit(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),

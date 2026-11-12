@@ -1575,7 +1575,16 @@ class _CartScreenState extends State<CartScreen> {
               Positioned.fill(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
+                  // As the Cart tab, the bar and the raised Services button
+                  // sit over the list: the Pay button ended under them.
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    widget.showBottomNav
+                        ? 150 + MediaQuery.of(context).padding.bottom
+                        : 110,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -2219,25 +2228,32 @@ class _CartScreenState extends State<CartScreen> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        SelectLocationController
-                                                .selectedSubtitle
-                                                .trim()
-                                                .isEmpty
-                                            ? SelectLocationController
+                                      // Second line only when it adds
+                                      // something (it repeated the title).
+                                      if (SelectLocationController
+                                              .selectedSubtitle
+                                              .trim()
+                                              .isNotEmpty &&
+                                          SelectLocationController
+                                                  .selectedSubtitle
+                                                  .trim() !=
+                                              SelectLocationController
                                                   .deliveryLabel
                                                   .value
-                                            : SelectLocationController
-                                                  .selectedSubtitle,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: AppFonts.outfit(
-                                          color: const Color(0xFFA59A94),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
+                                                  .trim()) ...[
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          SelectLocationController
+                                              .selectedSubtitle,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppFonts.outfit(
+                                            color: const Color(0xFFA59A94),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ],
                                   ),
                                 ),
