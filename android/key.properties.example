@@ -1,0 +1,10 @@
+# Release signing (V1's keystore). Copy this file to android/key.properties
+# (ignored by git) and fill in the real values. Never commit key.properties
+# or the keystore file, and never share the passwords in chat or tickets.
+#
+# storeFile: absolute path to V1's keystore, kept outside this repository.
+# Use forward slashes on Windows.
+storeFile=D:/sigosoft/Saimpex-SA/saimpexcustomer
+storePassword=
+keyAlias=
+keyPassword=

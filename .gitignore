@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Signing keys and their passwords never go into git (V1 keystore, key.properties).
+*.keystore
+*.jks
+*.p12
+key.properties
