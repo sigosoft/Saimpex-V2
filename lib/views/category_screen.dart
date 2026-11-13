@@ -538,7 +538,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                           sub['label'] as String,
                                           textAlign: TextAlign.center,
                                           maxLines: 1,
-                                          overflow: TextOverflow.visible,
+                                          overflow: TextOverflow.ellipsis,
                                           style: AppFonts.outfit(
                                             color: isSelected
                                                 ? const Color(0xFFFF5216)

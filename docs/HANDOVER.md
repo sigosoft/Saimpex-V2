@@ -1091,3 +1091,40 @@ Store Map and the prescription screens, on the Samsung M11 (release, dev, 952000
 - **Order success, cancel and Pay After Delivery** (with the owner's OK): one cash-on-delivery test order, **ORD-001568** (Pizzeria Atlantique, 310 MRU), placed and cancelled at once. The server shows status 10, and the cart is empty again.
   - Matching Figma: the cart's payment list (Pay After Delivery shows, since the account can use it), "Order Placed Successfully!" with Back to Home / View Order, the cancel-reason sheet, and "Order Cancelled". Figma's success subtitle mentions points earned; the app shows the order code and amount.
   - **Fixed:** the food order "Order placed" time read the server's UTC `placed_at` as local ("10:26 AM" for an order placed at 3:56 PM in India). It now converts to the phone's time zone, and Arabic months stay in order.
+
+### Backend 12 Nov fields wired (`feature/backend-12nov-fields`, 13 Nov) ✅
+Backend `ae3c194` (deployed on dev 13 Nov) answered the 12 Nov list. The app now uses it and the phone-side workarounds are gone.
+- **#165 / #166 order lists:** Rate shows from the list's `is_rated`; pickup from `is_self_pickup`. The extra `orderDetails` / `rating` call per order and `utils/order_flags.dart` are removed. The Rate form gets `hasDelivery` from the row.
+- **#183 notifications:** the Home bell is homeHub's unread count. Opening Notifications calls `POST notifications/read`, so the badge clears on every phone. Unread cards are tinted with a dot. `utils/seen_notifications.dart` is removed.
+- **#178 notification tap:** order rows open the order (same routing as pushes, `PushNotifications.openOrder`); booking rows open the Bookings tab.
+- **#177 cancel reason:** the reason picked in the cancel sheet is sent with `cancelOrder` (`reason`, in the customer's language).
+- **#185 opening time:** closed stores show "Opens 10:00 AM" (today) or "Opens 14 Nov, 10:00 AM" from `opens_at` (`opensAtLabel` in `store_labels.dart`) on home, restaurant, grocery, local store, pharmacy and water lists.
+- **#184 courier "Schedule for Later":** opens the pre-order slot sheet (moved out of the cart into `views/widgets/preorder_slot_sheet.dart`, shared) and sends `scheduled_for`. New string `st_pick_pickup_time` (EN/FR/AR).
+- **#164 courier offers:** "Exclusive Offers" shows Admin banners from `courier/sliders` (Standard or Express, following the selected option). A banner whose image doesn't load is hidden. The only banner on dev (slider 17) answers 403 from storage, so the section is hidden on dev today.
+- **#163 laundry balance:** a prepaid booking re-weighed for more has a Pay button (`can_pay_balance`, `amount_due`) that opens the payment page through `orders/{id}/payDue`. Cash bookings still pay at delivery (no button). The bookings list button opens the booking's details.
+- Already worked, no change needed: `min_order_value` / `min_order_shortfall` on `checkoutSummaryV2` (the cart read them already), translated store names in search.
+- Analyzer clean, 61 tests pass (new `test/backend_12nov_test.dart`).
+- **Checked on the phone (French):** bell count from the server; Notifications dots and tap opening ORD-001568; the bell cleared and the server says `unread_count` 0; the order list; courier home with the broken banner hidden.
+- **Not checked on the phone:** courier scheduling and laundry balance payment (they need a booking flow or a re-weighed prepaid booking), the cart slot sheet after the move (cart empty), and opening times (every nearby store was open).
+
+### Remaining frontend: Subscription Cart, localization pass, phone checks (`feature/backend-12nov-fields`, 13 Nov) ✅
+Release build on the Samsung M11 (dev, 95200021), French and Arabic. Nothing was ordered, booked or subscribed: the cart item added for the check was removed again.
+- **Checked on the phone:** courier "Schedule for Later" (pickup sheet, chosen slot shown, × clears it; booking not placed) and the cart's slot sheet after it moved to `widgets/preorder_slot_sheet.dart`. The sheet now says "Schedule Pickup" for courier (new `st_schedule_pickup_title/subtitle`), and the picked day reads "Sam 14 nov." in French, "السبت 14 نوفمبر" in Arabic (was "Sam, NOV. 14").
+- **Courier order cards and details** show "Scheduled for …" for a later pickup (`is_preorder` / `scheduled_for`, #184).
+- **Subscription Cart vs Figma** (frame "Subscription Cart"; water plans exist on dev now, vendor 67 "Eau Pure Arafat"):
+  - Fixed: the title is "Cart" (was "Subscription"); the "From <store>" line was always empty (supplier rows carry `name`, not `title`); type and slot were English ("Weekly", "8 - 10 AM").
+  - Subscription screen: it opened on Daily and showed "— MRU" for a weekly-only product, so it now opens on a type the product has a plan for. Slots read "8h–10h" in French, "8–10 ص" in Arabic (`slotRangeLabel`).
+  - Not in the app because `water/subscribe` has no field for them (backend): delivery note, coupon and points ("Save More"), the address Edit link, and the Figma price breakdown (savings, delivery fee, tax).
+- **My Subscriptions:** type from `frequency_key` ("Mensuel (8h–10h)", kept on one line). The status badge says "Actif" / "نشط" (was the server's English "New"), and its colours follow the state.
+- **Water names:** product, category and supplier names were always English: `_localized` tried `name_en` first. It now tries the app language first. "0 reviews" is translated (`pw_reviews_plain`).
+- **Address in store headers (Arabic):** a Latin address was cut at both ends on Grocery, Pharmacy, Express, Water and Local Store. It now runs in its own direction, as on Home.
+- **Phone numbers (Arabic):** "+222" showed as "222+" in the courier and prescription forms and the login field, and the courier review and details showed "22000000 222+". These are kept left to right now.
+- **French category strips:** long names were cut mid-phrase ("Fruits et", "Riz, pâtes et"). They now end with "…".
+- **Laundry cards:** "Open until 11:59 PM" and "40 MRU/item" were English. They now read "Ouvert jusqu'à 23:59" and "40 MRU/article" (`open_until`, `rate_unit`; new `svc_unit_*`, `clockLabel`).
+- **Wallet history:** times were the server's UTC shown as phone time (`parseServerTime`).
+- **French "From":** "De Eau Pure Arafat" now reads "Chez Eau Pure Arafat".
+- **Localization pass done:**
+  - Arabic: Home, Food, Grocery, Pharmacy, Water, Courier (home → review → pickup sheet), Rewards, Account, My Subscriptions.
+  - French: Food, Grocery, Pharmacy, Express, Local Store, Services, Laundry, Water flow, Subscription Cart, Wallet.
+- **Still from the server, not translatable in the app:** city in "Tendances à Nouakchott" (Arabic shows "Nouakchott"), addresses, vendor-entered names, and banner artwork with English text.
+- Analyzer clean, 67 tests pass (new `test/localized_labels_test.dart`).

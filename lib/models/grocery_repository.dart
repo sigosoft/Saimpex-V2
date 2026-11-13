@@ -368,6 +368,8 @@ class GroceryRepository {
       'name': title,
       'title': title,
       'category': category,
+      // Next opening of a closed store (#185).
+      'opensAt': isClosed ? opensAtLabel(raw['opens_at']) : '',
       'rating': _ratingText(raw['rating']),
       'time': time,
       'dist': dist,
@@ -825,6 +827,8 @@ class GroceryRepository {
       'isDelivered': lower.contains('deliver'),
       'isSelfPickup':
           item['is_self_pickup'] == 1 || item['is_self_pickup'] == true,
+      // Backend #165: whether this customer already rated the order.
+      'isRated': item['is_rated'] == true || item['is_rated'] == 1,
       'orderId': orderId,
       'numericOrderId': _asInt(item['order_id'] ?? item['id']),
       'totalText': total == null ? '' : mruAmount(total),

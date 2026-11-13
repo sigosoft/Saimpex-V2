@@ -163,6 +163,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         'actualPrice': mru(actualKg * rate),
       },
       'balanceDue': mru(balance),
+      // Prepaid and re-weighed for more: payable online (#163). Cash
+      // bookings pay the balance at delivery.
+      'canPayBalance':
+          row['can_pay_balance'] == true || row['can_pay_balance'] == 1,
       'id': code.isEmpty ? text(row['id']) : code,
       'apiOrderId': int.tryParse(text(row['id'])),
       'provider': text(row['provider_name']).isEmpty
@@ -735,39 +739,43 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
-              GestureDetector(
-                // Balance payments aren't in the service API yet.
-                onTap: () => showAppToast('svc_coming_soon'.tr),
-                child: Container(
-                  width: double.infinity,
-                  height: 46,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
-                    ),
-                    borderRadius: BorderRadius.circular(23),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFF5216).withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+              if (booking['canPayBalance'] == true) ...[
+                const SizedBox(height: 14),
+                GestureDetector(
+                  // Paid on the booking's details (orders/{id}/payDue, #163).
+                  onTap: () => Get.to(
+                    () => LaundryBookingDetailScreen(booking: booking),
+                  )?.then((_) => _load()),
+                  child: Container(
+                    width: double.infinity,
+                    height: 46,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5216), Color(0xFFFFAE00)],
                       ),
-                    ],
-                  ),
-                  child: Text(
-                    'orders_pay_amount'.trParams({
-                      'amount': '${booking['balanceDue'] ?? ''}',
-                    }),
-                    style: AppFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                      borderRadius: BorderRadius.circular(23),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF5216).withValues(alpha: 0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'orders_pay_amount'.trParams({
+                        'amount': '${booking['balanceDue'] ?? ''}',
+                      }),
+                      style: AppFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ] else ...[
               if (booking['canCancel'] == true)
                 GestureDetector(

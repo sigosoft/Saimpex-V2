@@ -329,6 +329,10 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                                                       SelectLocationController
                                                           .deliveryLabel
                                                           .value,
+                                                      // A Latin address in Arabic was cut at both ends.
+                                                      textDirection: textDirectionOf(
+                                                        SelectLocationController.deliveryLabel.value,
+                                                      ),
                                                       style: AppFonts.outfit(
                                                         color: const Color(
                                                           0xFF2C2520,

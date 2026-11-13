@@ -12,7 +12,6 @@ import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../utils/currency.dart';
-import '../utils/seen_notifications.dart';
 
 class HomeController extends GetxController {
   static const int navHome = 0;
@@ -106,7 +105,12 @@ class HomeController extends GetxController {
   }
 
   /// Tabs that only make sense with an account; guests get the login sheet.
-  static const _accountTabs = {navChat, navBookings, navOrders, navProfile}; // Cart works for guests (§19)
+  static const _accountTabs = {
+    navChat,
+    navBookings,
+    navOrders,
+    navProfile,
+  }; // Cart works for guests (§19)
 
   void selectNavigation(int index) {
     if (_accountTabs.contains(index) && !GuestGate.ensureLoggedIn()) return;
@@ -257,17 +261,10 @@ class HomeController extends GetxController {
   final homeLoading = false.obs;
   final walletBalance = ''.obs;
   final walletCurrency = ''.obs;
-  /// Notifications not opened yet on this phone (Home bell badge).
-  final unreadNotifications = 0.obs;
-  int _notificationsTotal = 0;
-  String _notificationsUserId = '';
 
-  /// Called when Notifications opens: everything there counts as seen, so
-  /// the bell badge clears.
-  Future<void> markNotificationsSeen() async {
-    unreadNotifications.value = 0;
-    await SeenNotifications.save(_notificationsUserId, _notificationsTotal);
-  }
+  /// Unread notifications (homeHub `unread_notifications`, #183): the Home
+  /// bell badge.
+  final unreadNotifications = 0.obs;
   final profileImage = ''.obs;
   final homeVerticals = <Map<String, dynamic>>[].obs;
   final homeSliders = <Map<String, dynamic>>[].obs;
@@ -387,14 +384,7 @@ class HomeController extends GetxController {
       _applyHomeLocation(home);
       walletBalance.value = home['walletBalance']?.toString() ?? '';
       walletCurrency.value = home['walletCurrency']?.toString() ?? '';
-      _notificationsTotal = home['unreadNotifications'] as int? ?? 0;
-      _notificationsUserId = '${home['profileUserId'] ?? ''}';
-      final seen = await SeenNotifications.load(_notificationsUserId);
-      if (request != _homeRequest) return;
-      unreadNotifications.value = SeenNotifications.unread(
-        _notificationsTotal,
-        seen,
-      );
+      unreadNotifications.value = home['unreadNotifications'] as int? ?? 0;
       profileImage.value = home['profileImage']?.toString() ?? '';
       homeVerticals.assignAll(_maps(home['verticals']));
       homeSliders.assignAll(_maps(home['sliders']));

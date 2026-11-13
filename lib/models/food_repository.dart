@@ -271,6 +271,8 @@ class FoodRepository {
       'isDelivered': lower.contains('deliver'),
       'isSelfPickup':
           item['is_self_pickup'] == 1 || item['is_self_pickup'] == true,
+      // Backend #165: whether this customer already rated the order.
+      'isRated': item['is_rated'] == true || item['is_rated'] == 1,
       'orderId': orderId,
       'numericOrderId': _asInt(item['order_id'] ?? item['id']),
       'totalText': totalValue <= 0 ? '' : mruAmount(totalValue.round()),
@@ -670,7 +672,7 @@ class FoodRepository {
       'points': points,
       'isClosed': isClosed,
       'isTemporarilyClosed': isTemporarilyClosed,
-      'opensAt': raw['opens_at']?.toString() ?? '',
+      'opensAt': opensAtLabel(raw['opens_at']),
       'isFavourite': _asInt(raw['is_favorite']) == 1,
       'address': raw['address']?.toString() ?? '',
       'latitude': raw['latitude']?.toString() ?? '',

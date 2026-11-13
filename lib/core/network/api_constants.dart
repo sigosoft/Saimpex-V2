@@ -19,6 +19,8 @@ class ApiConstants {
   static const String notificationPreference =
       'customer/notification/preference';
   static const String notifications = 'customer/notifications';
+  // #183: marks notifications read (ids[]; none = all).
+  static const String notificationsRead = 'customer/notifications/read';
   static const String userPoints = 'customer/userPoints';
   static const String updateLocation = 'customer/updateLocation';
   static const String fetchLocation = 'customer/fetchLocation';
@@ -157,6 +159,8 @@ class ApiConstants {
   static const String groceryTags = 'customer/getGroceryTags';
   static const String groceryOrders = 'customer/orders/grocery';
   static const String courierQuote = 'customer/courier/quote';
+  // #164: offer banners from Admin → Sliders (type 5 courier, 6 express).
+  static const String courierSliders = 'customer/courier/sliders';
   static const String courierCreate = 'customer/courier/create';
   static const String courierOrders = 'customer/courier/orders';
   static const String waterHome = 'customer/waterHome';

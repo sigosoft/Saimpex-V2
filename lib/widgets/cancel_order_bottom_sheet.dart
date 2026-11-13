@@ -14,7 +14,7 @@ import '../utils/app_fonts.dart';
 /// [apiOrderId] itself. The success screen only opens once the cancel succeeds.
 void showCancelOrderBottomSheet(
   BuildContext context, {
-  Future<bool> Function()? onConfirm,
+  Future<bool> Function(String reason)? onConfirm,
   String? orderId,
   int? apiOrderId,
   VoidCallback? onCancelled,
@@ -266,11 +266,17 @@ void showCancelOrderBottomSheet(
                                           setModalState(
                                             () => cancelling = true,
                                           );
+                                          // The reason as the customer read
+                                          // it (#177).
+                                          final reason =
+                                              cancelReasons[selectedReasonIndex]
+                                                  .tr;
                                           final cancelled =
                                               await (onConfirm ??
-                                                  () => _cancelOrderById(
+                                                  (r) => _cancelOrderById(
                                                     apiOrderId,
-                                                  ))();
+                                                    r,
+                                                  ))(reason);
                                           if (!context.mounted) return;
                                           setModalState(
                                             () => cancelling = false,
@@ -333,7 +339,7 @@ void showCancelOrderBottomSheet(
   );
 }
 
-Future<bool> _cancelOrderById(int? orderId) async {
+Future<bool> _cancelOrderById(int? orderId, String reason) async {
   if (orderId == null || orderId < 1 || !Get.isRegistered<OrderRepository>()) {
     showAppToast(
       'core_cancel_order_unavailable'.tr,
@@ -347,6 +353,7 @@ Future<bool> _cancelOrderById(int? orderId) async {
     await Get.find<OrderRepository>().cancelOrder(
       orderId: orderId,
       language: apiLanguageCode(),
+      reason: reason,
     );
     return true;
   } on ApiException catch (error) {

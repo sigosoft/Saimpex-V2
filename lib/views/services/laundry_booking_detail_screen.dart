@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../core/network/api_exception.dart';
+import '../../models/order_repository.dart';
+import '../../utils/api_language.dart';
+import '../../utils/payment_page.dart';
 import '../../models/service_booking_detail.dart';
 import '../../utils/store_labels.dart';
 import '../../utils/toast_helper.dart';
@@ -10,6 +13,7 @@ import '../../widgets/cancel_booking_bottom_sheet.dart';
 import '../help_support_screen.dart';
 
 import '../../utils/app_fonts.dart';
+
 class LaundryBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
 
@@ -23,6 +27,7 @@ class LaundryBookingDetailScreen extends StatefulWidget {
 class _LaundryBookingDetailScreenState
     extends State<LaundryBookingDetailScreen> {
   ServiceBookingDetail? _detail;
+  bool _payingBalance = false;
 
   Map<String, dynamic> get booking => widget.booking;
 
@@ -148,6 +153,53 @@ class _LaundryBookingDetailScreenState
   }
 
   bool get _canCancel => _detail?.canCancel ?? booking['canCancel'] == true;
+
+  /// A prepaid booking re-weighed for more (#163): the extra is on the
+  /// order's `amount_due` and can be paid online here. Cash bookings pay it
+  /// at delivery, so they get no button.
+  bool get _canPayBalance {
+    if (_detail?.isCancelled ?? true) return false;
+    final flag = _raw('can_pay_balance');
+    return (flag == 'true' || flag == '1') && (_number('amount_due') ?? 0) > 0;
+  }
+
+  /// Opens the payment page for the balance (orders/{id}/payDue), then
+  /// reloads the booking.
+  Future<void> _payBalance() async {
+    final orderId = booking['apiOrderId'] as int?;
+    if (_payingBalance || orderId == null) return;
+    setState(() => _payingBalance = true);
+    try {
+      final url = paymentPageUrl(
+        await Get.find<OrderRepository>().payDue(
+          orderId: orderId,
+          language: apiLanguageCode(),
+        ),
+      );
+      if (!mounted) return;
+      if (url == null) {
+        showAppToast(
+          'payment_page_failed'.tr,
+          backgroundColor: const Color(0xFFEF4444),
+        );
+        return;
+      }
+      final paid = await openPaymentPage(url);
+      if (!mounted) return;
+      showAppToast(
+        paid == true ? 'pad_paid'.tr : 'payment_not_completed'.tr,
+        backgroundColor: paid == true
+            ? const Color(0xFFFF5216)
+            : const Color(0xFFEF4444),
+      );
+      await _load();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+    } finally {
+      if (mounted) setState(() => _payingBalance = false);
+    }
+  }
 
   List<Map<String, dynamic>> get _statusSteps {
     const steps = [
@@ -288,7 +340,7 @@ class _LaundryBookingDetailScreenState
             ],
           ),
         ),
-        bottomNavigationBar: _canCancel || _balanceDue > 0
+        bottomNavigationBar: _canCancel || _canPayBalance
             ? _buildCancelBar(bottomInset)
             : null,
       ),
@@ -1142,17 +1194,17 @@ class _LaundryBookingDetailScreenState
   }
 
   Widget _buildCancelBar(double bottomInset) {
-    final balance = _balanceDue;
+    final balance = _number('amount_due') ?? _balanceDue;
 
     return Container(
       padding: EdgeInsets.fromLTRB(16, 10, 16, 12 + bottomInset),
       color: const Color(0xFFFAF6F0),
       child: Row(
         children: [
-          if (balance > 0) ...[
+          if (_canPayBalance) ...[
             Expanded(
               child: GestureDetector(
-                onTap: () => showAppToast('svc_coming_soon'.tr),
+                onTap: _payBalance,
                 child: Container(
                   height: 48,
                   alignment: Alignment.center,
@@ -1169,14 +1221,25 @@ class _LaundryBookingDetailScreenState
                       ),
                     ],
                   ),
-                  child: Text(
-                    'svc_pay_value'.trParams({'amount': serviceMru(balance)}),
-                    style: AppFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  child: _payingBalance
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.4,
+                          ),
+                        )
+                      : Text(
+                          'svc_pay_value'.trParams({
+                            'amount': serviceMru(balance),
+                          }),
+                          style: AppFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                 ),
               ),
             ),

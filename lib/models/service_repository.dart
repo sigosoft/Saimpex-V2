@@ -5,6 +5,7 @@ import '../core/network/api_constants.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
+import '../utils/store_labels.dart';
 
 /// Service verticals (car wash, home cleaning, laundry): providers,
 /// slots, quotes and bookings.
@@ -223,7 +224,13 @@ class ServiceRepository {
     String text(dynamic value) => '${value ?? ''}'.trim();
     final rating = double.tryParse(text(row['rating'])) ?? 0;
     final rate = text(row['starting_rate']);
-    final unit = text(row['rate_unit']);
+    // rate_unit is English ("item", "piece", "kg").
+    final unit = switch (text(row['rate_unit']).toLowerCase()) {
+      'item' => 'svc_unit_item'.tr,
+      'piece' => 'svc_unit_piece'.tr,
+      'kg' => 'svc_unit_kg'.tr,
+      final other => other,
+    };
     // The server sends these two in English only ("Open", "1.4 km away"):
     // rebuilt from the app's own texts so they follow the app language.
     final availability = switch (text(row['availability'])) {
@@ -250,7 +257,13 @@ class ServiceRepository {
       'points': availability,
       'image': ApiConstants.mediaUrl(text(row['image'])) ?? '',
       'isOpen': row['is_open'] == true ? '1' : '0',
-      'ready': text(row['hours_label']).isEmpty
+      // hours_label is English ("Open until 11:59 PM"); open_until gives
+      // the time to put in the app's own text.
+      'ready': text(row['open_until']).isNotEmpty
+          ? 'svc_open_until'.trParams({
+              'time': clockLabel(text(row['open_until'])),
+            })
+          : text(row['hours_label']).isEmpty
           ? availability
           : text(row['hours_label']),
       'tag1': 'svc_starting_from'.tr,

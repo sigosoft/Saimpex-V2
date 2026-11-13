@@ -376,9 +376,25 @@ class ProfileRepository {
             'content': _localizedText(item, 'content', language),
             'date': item['date']?.toString() ?? '',
             'time': item['time']?.toString() ?? '',
+            // #178 / #183: what the row is about and whether it was read.
+            'type': item['type']?.toString() ?? '',
+            'orderId': int.tryParse('${item['order_id'] ?? ''}'),
+            'orderType': int.tryParse('${item['order_type'] ?? ''}') ?? 0,
+            'isRead': item['is_read'] == true || item['is_read'] == 1,
           },
         )
         .toList();
+  }
+
+  /// Marks every notification read (POST notifications/read, #183); returns
+  /// the unread count left (0).
+  Future<int> markNotificationsRead({required String language}) async {
+    final envelope = await _send(
+      () => _client.dio.post(ApiConstants.notificationsRead),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    return int.tryParse('${data?['unread_count'] ?? ''}') ?? 0;
   }
 
   /// Deletes the customer account on the server (delete).

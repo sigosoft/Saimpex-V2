@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart' show Trans;
 
 import '../core/network/api_constants.dart';
+import '../utils/api_language.dart';
 import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
@@ -343,10 +344,29 @@ class WaterRepository {
       'subtitle': _localized(item, 'product_name', fallback: ''),
       'size': text(item['package_label']),
       'qty': bottles > 0 ? 'x$bottles' : '',
-      'status': text(item['status_label']),
+      // status_label is English ("New"); the state gives the text.
+      'status': switch (status) {
+        'new' || 'active' => 'core_subscriptions_state_active'.tr,
+        'paused' => 'core_subscriptions_state_paused'.tr,
+        'pending_payment' => 'core_subscriptions_state_pending'.tr,
+        'cancelled' => 'core_subscriptions_state_cancelled'.tr,
+        'expired' || 'completed' => 'core_subscriptions_state_expired'.tr,
+        _ => text(item['status_label']),
+      },
       'imageUrl':
           ApiConstants.mediaUrl(item['product_image']?.toString()) ?? '',
-      'frequency': slot.isEmpty ? frequency : '$frequency ($slot)',
+      // Key-based labels: the server's frequency_label and slot are English.
+      'frequency': () {
+        final label = waterFrequencyLabel(
+          '${item['frequency_key'] ?? ''}',
+          frequency,
+        );
+        if (slot.isEmpty) return label;
+        // No line break inside "(8h–10h)": it wrapped as "(8h–" / "10h)".
+        final join = String.fromCharCode(0x2060);
+        final range = slotRangeLabel(slot).replaceAll("–", "$join–$join");
+        return "$label${String.fromCharCode(0xA0)}($range)";
+      }(),
       'nextDelivery': readableDay(item['next_delivery_at']),
       'startDate': readableDay(item['start_date']),
       'endDate': readableDay(item['end_date']),
@@ -377,7 +397,9 @@ class WaterRepository {
       'isFavorite': item['is_favorite'] == true,
       'isClosed': closed,
       'isTemporarilyClosed': busy,
-      'opensAt': item['opening_time']?.toString() ?? '',
+      // Next opening of a closed supplier (#185); older rows had
+      // opening_time.
+      'opensAt': opensAtLabel(item['opens_at'] ?? item['opening_time']),
     };
   }
 
@@ -437,7 +459,9 @@ class WaterRepository {
       'bottleTag': package,
       'quantity': package,
       'rating': _ratingText(item['rating']),
-      'reviews': '${_asInt(item['rating_count'])} reviews',
+      'reviews': 'pw_reviews_plain'.trParams({
+        'count': '${_asInt(item['rating_count'])}',
+      }),
       'price': selling > 0 ? mruAmount(selling.round()) : mruAmount('—'),
       'originalPrice': original > selling ? mruAmount(original.round()) : '',
       'discount': offer > 0 ? offLabel(offer) : '',
@@ -509,7 +533,9 @@ class WaterRepository {
     String key, {
     required String fallback,
   }) {
-    for (final code in ['en', 'fr', 'ar']) {
+    // The app language first: English came first, so French and Arabic
+    // customers read English product and category names.
+    for (final code in [apiLanguageCode(), 'en', 'fr', 'ar']) {
       final value = item['${key}_$code']?.toString().trim() ?? '';
       if (value.isNotEmpty && value != 'null') return value;
     }
@@ -555,4 +581,20 @@ class WaterRepository {
       throw ApiException.fromDio(error, language);
     }
   }
+}
+
+/// A plan or subscription frequency (`frequency_key`) in the app language;
+/// the server's `frequency_label` is English only, kept for keys the app
+/// doesn't know (English) or shown as "Custom".
+String waterFrequencyLabel(String key, String serverLabel) {
+  final known = switch (key) {
+    'daily' => 'pw_type_daily',
+    'weekly' => 'pw_type_weekly',
+    'biweekly' || 'bi_weekly' => 'pw_freq_biweekly',
+    'monthly' => 'pw_freq_monthly',
+    _ => null,
+  };
+  if (known != null) return known.tr;
+  if (apiLanguageCode() == 'en' && serverLabel.isNotEmpty) return serverLabel;
+  return 'pw_type_custom'.tr;
 }

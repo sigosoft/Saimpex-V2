@@ -142,7 +142,7 @@ class GeneralRepository {
       'profileImage': _profileImage(data['profile']),
       'walletBalance': data['wallet_balance']?.toString() ?? '',
       'walletCurrency': data['wallet_currency']?.toString() ?? '',
-      // The server's total, not an unread count (see SeenNotifications).
+      // Unread only since #183.
       'unreadNotifications': _asInt(data['unread_notifications']),
       'profileUserId': '${asJsonMap(data['profile'])?['user_id'] ?? ''}',
       'verticals': _verticals(data['verticals'], language),
@@ -305,6 +305,8 @@ class GeneralRepository {
             : (offer > 0 ? offLabel(_number(offer)) : ''),
         'points': points > 0 ? pointsLabel(_number(points)) : '',
         'isClosed': !isOpen,
+        // Next opening of a closed store (#185).
+        'opensAt': isOpen ? '' : opensAtLabel(vendor['opens_at']),
         'isTemporarilyClosed': busyMode > 1,
         'isFavourite': isFav,
         'image': ApiConstants.mediaUrl(vendor['image']?.toString()) ?? '',

@@ -113,10 +113,48 @@ class _CourierScreenState extends State<CourierScreen> {
     }
   }
 
-  // Offer banners. The bundled samples ("30% OFF") promised discounts the
-  // quote never applies, so none show until the API sends courier offers
-  // (backend issue: courier sliders).
-  final offers = <String>[];
+  // Offer banners from Admin (courier/sliders, #164), keyed by is_express:
+  // the selected option's banners show. Banners only; a discount they
+  // advertise is a coupon the quote applies.
+  final Map<bool, List<String>> _offers = {};
+
+  // Banners whose image didn't load (dev answered 403 for one): hidden
+  // rather than shown as an empty box.
+  final Set<String> _brokenOffers = {};
+
+  List<String> get offers => [
+    for (final url
+        in _offers[vehicles[selectedVehicleIndex]['isExpress'] as bool] ??
+            const <String>[])
+      if (!_brokenOffers.contains(url)) url,
+  ];
+
+  void _hideOffer(String url) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _brokenOffers.add(url)) setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOffers();
+  }
+
+  Future<void> _loadOffers() async {
+    for (final express in [false, true]) {
+      try {
+        final urls = await _courier.sliders(
+          isExpress: express,
+          language: apiLanguageCode(),
+        );
+        if (!mounted) return;
+        setState(() => _offers[express] = urls);
+      } on ApiException catch (_) {
+        // No banners: the section stays hidden.
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -595,19 +633,22 @@ class _CourierScreenState extends State<CourierScreen> {
         itemCount: offers.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
+          final url = offers[index];
           return ClipRRect(
             borderRadius: BorderRadius.circular(18),
-            child: Image.asset(
-              offers[index],
+            child: Image.network(
+              url,
               width: bannerWidth,
               height: bannerHeight,
-              fit: BoxFit.fill,
-              errorBuilder: (_, _, _) => Container(
-                width: bannerWidth,
-                height: bannerHeight,
-                color: const Color(0xFFFFF0EA),
-                child: const Icon(Icons.image_not_supported_outlined),
-              ),
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) {
+                _hideOffer(url);
+                return Container(
+                  width: bannerWidth,
+                  height: bannerHeight,
+                  color: const Color(0xFFFFF0EA),
+                );
+              },
             ),
           );
         },

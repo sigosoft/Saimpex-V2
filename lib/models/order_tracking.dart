@@ -35,6 +35,10 @@ class OrderTracking {
     selfPickup: isSelfPickup,
   );
   bool get isDelivered => status == 9;
+
+  /// The raw detail, for widgets that read their own fields
+  /// (ScheduledForBanner: `is_preorder`, `scheduled_for`).
+  Map<String, dynamic> get raw => _data;
   bool get isCancelled => status == 10;
   bool get isFinished => isDelivered || isCancelled;
 

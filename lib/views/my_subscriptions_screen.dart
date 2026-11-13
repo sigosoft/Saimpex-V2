@@ -365,30 +365,34 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
     );
   }
 
-  Color _statusBg(String status) {
-    switch (status) {
-      case 'Active':
+  Color _statusBg(String state) {
+    switch (state) {
+      case 'active':
+      case 'new':
         return const Color(0xFFE8F5E9);
-      case 'Cancelled':
+      case 'cancelled':
         return const Color(0xFFFFEAEA);
-      case 'Expired':
+      case 'expired':
+      case 'completed':
         return const Color(0xFFBDB8B3);
-      case 'Paused':
+      case 'paused':
         return const Color(0xFFFFF4CC);
       default:
         return const Color(0xFFF0EAE3);
     }
   }
 
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'Active':
+  Color _statusColor(String state) {
+    switch (state) {
+      case 'active':
+      case 'new':
         return const Color(0xFF2E7D32);
-      case 'Cancelled':
+      case 'cancelled':
         return const Color(0xFFD32F2F);
-      case 'Expired':
+      case 'expired':
+      case 'completed':
         return const Color(0xFF5A5A5A);
-      case 'Paused':
+      case 'paused':
         return const Color(0xFFFF9800);
       default:
         return const Color(0xFF8A7E76);
@@ -588,7 +592,10 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            _buildStatusBadge('${item['status'] ?? 'Active'}'),
+            _buildStatusBadge(
+              '${item['status'] ?? ''}',
+              '${item['state'] ?? ''}',
+            ),
           ],
         ),
       ],
@@ -683,7 +690,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                     ),
                   ),
                   const Spacer(),
-                  _buildStatusBadge(status),
+                  _buildStatusBadge(status, '${item['state'] ?? ''}'),
                 ],
               ),
             ],
@@ -693,11 +700,11 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
     );
   }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(String status, String state) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: _statusBg(status),
+        color: _statusBg(state),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -707,7 +714,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
             width: 6,
             height: 6,
             decoration: BoxDecoration(
-              color: _statusColor(status),
+              color: _statusColor(state),
               shape: BoxShape.circle,
             ),
           ),
@@ -715,7 +722,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
           Text(
             status,
             style: AppFonts.outfit(
-              color: _statusColor(status),
+              color: _statusColor(state),
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),

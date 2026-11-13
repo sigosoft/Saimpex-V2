@@ -321,6 +321,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 controller.selectedCountryCode.value,
+                textDirection: TextDirection.ltr,
                 style: AppFonts.outfit(
                   color: Colors.black87,
                   fontSize: 14,

@@ -761,6 +761,7 @@ class PharmacyRepository {
       'isQuotation': quoted,
       'isPrescription': isPrescription,
       'isSelfPickup': selfPickup,
+      'isRated': item['is_rated'] == true || item['is_rated'] == 1,
       'isCancelled': cancelled,
       'isDelivered': delivered,
       // A request can be withdrawn until it is paid (POST
@@ -1106,7 +1107,10 @@ class PharmacyRepository {
       'isClosed': !isOpen,
       'isTemporarilyClosed': false,
       'isOpen247': isOpenAllDay,
-      'opensAt': status,
+      // A closed pharmacy's next opening (#185), else its status label.
+      'opensAt': !isOpen && opensAtLabel(item['opens_at']).isNotEmpty
+          ? opensAtLabel(item['opens_at'])
+          : status,
       'image': ApiConstants.mediaUrl(item['image']?.toString()) ?? '',
       'latitude': double.tryParse('${item['latitude']}'),
       'longitude': double.tryParse('${item['longitude']}'),

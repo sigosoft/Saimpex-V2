@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/network/api_exception.dart';
 import '../../models/water_repository.dart';
 import '../../utils/api_language.dart';
+import '../../utils/store_labels.dart';
 import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 
@@ -94,6 +95,15 @@ class _WaterProductSubscriptionScreenState
         _plans = plans;
         _plansLoading = false;
         _plansError = plans.isEmpty ? 'pw_no_subscription_plans'.tr : null;
+        // Open on a type this product has a plan for: it opened on Daily
+        // and showed "— MRU" for a weekly-only product.
+        if (_selectedPlan == null) {
+          for (var i = 0; i < subscriptionTypes.length; i++) {
+            selectedTypeIndex = i;
+            if (_selectedPlan != null) break;
+          }
+          if (_selectedPlan == null) selectedTypeIndex = 0;
+        }
       });
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -484,10 +494,11 @@ class _WaterProductSubscriptionScreenState
                                   ' - ',
                                 ));
 
+                    // Supplier rows carry `name` (not `title`), so the
+                    // cart's "From …" line was always empty.
                     final storeName =
-                        widget.supplier?['title']?.toString() ??
-                        product['supplier']?.toString() ??
-                        '';
+                        '${widget.supplier?['name'] ?? widget.supplier?['title'] ?? product['supplier'] ?? ''}'
+                            .trim();
                     Get.to(
                       () => WaterSubscriptionCartScreen(
                         planId: plan['id'] as int,
@@ -507,10 +518,11 @@ class _WaterProductSubscriptionScreenState
                         startDateLabel: _formatCartDate(startDate),
                         endDateLabel: _formatCartDate(endDate),
                         timeSlot: slotLabel,
-                        subscriptionType:
-                            '${plan['frequencyLabel'] ?? ''}'.isEmpty
-                            ? _label(subscriptionTypes[selectedTypeIndex])
-                            : '${plan['frequencyLabel']}',
+                        // The server's label is English only.
+                        subscriptionType: waterFrequencyLabel(
+                          '${plan['frequencyKey'] ?? ''}',
+                          '${plan['frequencyLabel'] ?? ''}',
+                        ),
                       ),
                     );
                   },
@@ -850,7 +862,7 @@ class _WaterProductSubscriptionScreenState
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          _label(timeSlots[index]),
+                          slotRangeLabel(timeSlots[index]),
                           style: AppFonts.outfit(
                             color: selected
                                 ? const Color(0xFF2C2520)
