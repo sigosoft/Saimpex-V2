@@ -253,14 +253,22 @@ class OrderRepository {
     return data;
   }
 
+  /// [reason] is what the customer picked, kept by the server as the
+  /// cancellation's timeline remark (#177, max 255).
   Future<String> cancelOrder({
     required int orderId,
     required String language,
+    String reason = '',
   }) async {
+    final text = reason.trim();
     final envelope = await _send(
       () => _client.dio.post(
         ApiConstants.cancelOrder,
-        data: {'order_id': '$orderId'},
+        data: {
+          'order_id': '$orderId',
+          if (text.isNotEmpty)
+            'reason': text.length > 255 ? text.substring(0, 255) : text,
+        },
         options: Options(contentType: Headers.jsonContentType),
       ),
       language,

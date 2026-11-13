@@ -1091,3 +1091,18 @@ Store Map and the prescription screens, on the Samsung M11 (release, dev, 952000
 - **Order success, cancel and Pay After Delivery** (with the owner's OK): one cash-on-delivery test order, **ORD-001568** (Pizzeria Atlantique, 310 MRU), placed and cancelled at once. The server shows status 10, and the cart is empty again.
   - Matching Figma: the cart's payment list (Pay After Delivery shows, since the account can use it), "Order Placed Successfully!" with Back to Home / View Order, the cancel-reason sheet, and "Order Cancelled". Figma's success subtitle mentions points earned; the app shows the order code and amount.
   - **Fixed:** the food order "Order placed" time read the server's UTC `placed_at` as local ("10:26 AM" for an order placed at 3:56 PM in India). It now converts to the phone's time zone, and Arabic months stay in order.
+
+### Backend 12 Nov fields wired (`feature/backend-12nov-fields`, 13 Nov) ✅
+Backend `ae3c194` (deployed on dev 13 Nov) answered the 12 Nov list. The app now uses it and the phone-side workarounds are gone.
+- **#165 / #166 order lists:** Rate shows from the list's `is_rated`; pickup from `is_self_pickup`. The extra `orderDetails` / `rating` call per order and `utils/order_flags.dart` are removed. The Rate form gets `hasDelivery` from the row.
+- **#183 notifications:** the Home bell is homeHub's unread count. Opening Notifications calls `POST notifications/read`, so the badge clears on every phone. Unread cards are tinted with a dot. `utils/seen_notifications.dart` is removed.
+- **#178 notification tap:** order rows open the order (same routing as pushes, `PushNotifications.openOrder`); booking rows open the Bookings tab.
+- **#177 cancel reason:** the reason picked in the cancel sheet is sent with `cancelOrder` (`reason`, in the customer's language).
+- **#185 opening time:** closed stores show "Opens 10:00 AM" (today) or "Opens 14 Nov, 10:00 AM" from `opens_at` (`opensAtLabel` in `store_labels.dart`) on home, restaurant, grocery, local store, pharmacy and water lists.
+- **#184 courier "Schedule for Later":** opens the pre-order slot sheet (moved out of the cart into `views/widgets/preorder_slot_sheet.dart`, shared) and sends `scheduled_for`. New string `st_pick_pickup_time` (EN/FR/AR).
+- **#164 courier offers:** "Exclusive Offers" shows Admin banners from `courier/sliders` (Standard or Express, following the selected option). A banner whose image doesn't load is hidden. The only banner on dev (slider 17) answers 403 from storage, so the section is hidden on dev today.
+- **#163 laundry balance:** a prepaid booking re-weighed for more has a Pay button (`can_pay_balance`, `amount_due`) that opens the payment page through `orders/{id}/payDue`. Cash bookings still pay at delivery (no button). The bookings list button opens the booking's details.
+- Already worked, no change needed: `min_order_value` / `min_order_shortfall` on `checkoutSummaryV2` (the cart read them already), translated store names in search.
+- Analyzer clean, 61 tests pass (new `test/backend_12nov_test.dart`).
+- **Checked on the phone (French):** bell count from the server; Notifications dots and tap opening ORD-001568; the bell cleared and the server says `unread_count` 0; the order list; courier home with the broken banner hidden.
+- **Not checked on the phone:** courier scheduling and laundry balance payment (they need a booking flow or a re-weighed prepaid booking), the cart slot sheet after the move (cart empty), and opening times (every nearby store was open).

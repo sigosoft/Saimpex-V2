@@ -201,7 +201,7 @@ class PushNotifications {
     // Order updates and substitutions carry order_id + order_type (backend c46b7bf).
     if ((data['type'] == 'order_status' || data['type'] == 'substitution') &&
         orderId != null) {
-      _openOrder(orderId, int.tryParse('${data['order_type'] ?? ''}') ?? 0);
+      openOrder(orderId, int.tryParse('${data['order_type'] ?? ''}') ?? 0);
       return;
     }
     Get.to(() => const NotificationsScreen());
@@ -209,7 +209,7 @@ class PushNotifications {
 
   /// Food → Order Details; grocery, pharmacy and local store → their order
   /// screen (where substitutions show); other types → the Orders tab.
-  static Future<void> _openOrder(int orderId, int orderType) async {
+  static Future<void> openOrder(int orderId, int orderType) async {
     switch (orderType) {
       case 1:
         try {

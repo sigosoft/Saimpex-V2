@@ -377,7 +377,9 @@ class WaterRepository {
       'isFavorite': item['is_favorite'] == true,
       'isClosed': closed,
       'isTemporarilyClosed': busy,
-      'opensAt': item['opening_time']?.toString() ?? '',
+      // Next opening of a closed supplier (#185); older rows had
+      // opening_time.
+      'opensAt': opensAtLabel(item['opens_at'] ?? item['opening_time']),
     };
   }
 

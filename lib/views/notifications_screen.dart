@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';
 import '../core/network/api_exception.dart';
+import '../core/push/push_notifications.dart';
 import '../models/profile_repository.dart';
 import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
@@ -11,6 +12,7 @@ import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/store_labels.dart';
+
 /// The customer's notifications from the server, newest first.
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -26,10 +28,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
-    // Opening Notifications counts them as seen: the Home bell badge clears.
-    if (Get.isRegistered<HomeController>()) {
-      Get.find<HomeController>().markNotificationsSeen();
+    _load().then((_) => _markRead());
+  }
+
+  /// Opening Notifications reads them all on the server (#183), so the Home
+  /// bell badge clears on every phone. The cards keep their unread dot until
+  /// the list is reloaded.
+  Future<void> _markRead() async {
+    if (!_notifications.any((n) => n['isRead'] != true)) return;
+    try {
+      await Get.find<ProfileRepository>().markNotificationsRead(
+        language: apiLanguageCode(),
+      );
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().unreadNotifications.value = 0;
+      }
+    } on ApiException catch (_) {
+      // Stays unread; tried again next time.
+    }
+  }
+
+  /// An order or booking notification opens it (#178 `order_id`, `type`).
+  void _open(Map<String, dynamic> item) {
+    final orderId = item['orderId'] as int?;
+    if (item['type'] == 'order' && orderId != null) {
+      PushNotifications.openOrder(orderId, item['orderType'] as int? ?? 0);
+    } else if (item['type'] == 'booking' &&
+        Get.isRegistered<HomeController>()) {
+      Get.until((route) => route.isFirst);
+      Get.find<HomeController>().selectNavigation(HomeController.navBookings);
     }
   }
 
@@ -114,7 +141,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         itemCount: _notifications.length,
         separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) => FadeSlideIn(child: _card(_notifications[index])),
+        itemBuilder: (context, index) =>
+            FadeSlideIn(child: _card(_notifications[index])),
       ),
     );
   }
@@ -130,23 +158,54 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           .join(' '),
     );
 
-    return Container(
+    final unread = item['isRead'] != true;
+    final opens =
+        (item['type'] == 'order' && item['orderId'] != null) ||
+        item['type'] == 'booking';
+
+    final card = Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: unread ? const Color(0xFFFFF4EE) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFEAD8C9), width: 0.8),
+        border: Border.all(
+          color: unread ? const Color(0xFFFFC9B3) : const Color(0xFFEAD8C9),
+          width: 0.8,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppFonts.outfit(
-              color: const Color(0xFF2C2520),
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              if (unread) ...[
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFF5216),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppFonts.outfit(
+                    color: const Color(0xFF2C2520),
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (opens)
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: Color(0xFFA59A94),
+                ),
+            ],
           ),
           if (content.isNotEmpty && content != 'null') ...[
             const SizedBox(height: 6),
@@ -173,6 +232,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ],
         ],
       ),
+    );
+    if (!opens) return card;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _open(item),
+      child: card,
     );
   }
 }

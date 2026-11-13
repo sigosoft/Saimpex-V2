@@ -147,6 +147,29 @@ String readableIsoTime(Object? raw) {
   return '$_lri${_dateTimeText(time.toLocal())}$_pdi';
 }
 
+/// A closed store's next opening (`opens_at`, ISO 8601 with offset, #185)
+/// for "Opens …": the time alone when it is today on the phone ("10:00 AM",
+/// "10:00" in French), else the day and time ("14 Nov, 10:00 AM"). '' when
+/// there is none; any other text is returned as it is. [now] is for tests.
+String opensAtLabel(Object? raw, {DateTime? now}) {
+  final text = '${raw ?? ''}'.trim();
+  if (text.isEmpty || text == 'null') return '';
+  final parsed = DateTime.tryParse(text);
+  if (parsed == null) return text;
+  final time = parsed.toLocal();
+  final today = now ?? DateTime.now();
+  final full = _dateTimeText(time);
+  final clock = full.split(', ').last;
+  final sameDay =
+      time.year == today.year &&
+      time.month == today.month &&
+      time.day == today.day;
+  if (sameDay) return '$_lri$clock$_pdi';
+  // "14 Nov 2026, 10:00 AM" without the year.
+  final day = full.split(', ').first.replaceFirst(' ${time.year}', '');
+  return '$_lri$day, $clock$_pdi';
+}
+
 // Left-to-right isolate around a time range (U+2066 … U+2069).
 final _lri = String.fromCharCode(0x2066);
 final _pdi = String.fromCharCode(0x2069);

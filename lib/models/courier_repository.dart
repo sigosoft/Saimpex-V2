@@ -6,6 +6,7 @@ import '../core/network/api_exception.dart';
 import '../core/network/api_message.dart';
 import '../core/network/dio_client.dart';
 import '../utils/currency.dart';
+import 'order_repository.dart';
 
 /// Courier vertical: delivery quote and booking.
 class CourierRepository {
@@ -44,6 +45,32 @@ class CourierRepository {
     );
   }
 
+  /// Offer banners Admin set for Courier or Express (GET courier/sliders,
+  /// #164): their image URLs, in Admin's order.
+  Future<List<String>> sliders({
+    required bool isExpress,
+    required String language,
+  }) async {
+    final envelope = await _send(
+      () => _client.dio.get(
+        ApiConstants.courierSliders,
+        queryParameters: {if (isExpress) 'express': 1},
+      ),
+      language,
+    );
+    final data = asJsonMap(envelope.data);
+    final raw = data?['sliders'];
+    if (raw is! List) return const [];
+    return [
+      for (final row in raw.map(asJsonMap).whereType<Map<String, dynamic>>())
+        if ('${row['status'] ?? 1}' == '1')
+          ApiConstants.mediaUrl(
+                '${row['image_url'] ?? row['image'] ?? ''}'.trim(),
+              ) ??
+              '',
+    ].where((url) => url.isNotEmpty).toList();
+  }
+
   /// Books a courier delivery. Needs a session. Returns the server message,
   /// the order id, and for online payment the Masrvi `payment_url`.
   Future<({String message, int? orderId, String? paymentUrl})> create({
@@ -54,11 +81,15 @@ class CourierRepository {
     required String language,
     String packageSize = '',
     String packageDescription = '',
+    // Pickup time for "Schedule for Later" (#184); null picks up now.
+    DateTime? scheduledFor,
   }) async {
     final envelope = await _send(
       () => _client.dio.post(
         ApiConstants.courierCreate,
         data: {
+          if (scheduledFor != null)
+            'scheduled_for': OrderRepository.scheduledForValue(scheduledFor),
           'package_size': packageSize,
           'package_description': packageDescription,
           'is_express': isExpress,

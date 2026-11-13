@@ -13,6 +13,7 @@ import 'courier_booking_success_screen.dart';
 import '../../utils/wallet_balance.dart';
 import '../../utils/payment_methods.dart';
 import '../../widgets/no_payment_method_note.dart';
+import '../widgets/preorder_slot_sheet.dart';
 
 import '../../utils/app_fonts.dart';
 
@@ -95,6 +96,9 @@ class _CourierReviewBookingScreenState
   }
 
   bool _placingBooking = false;
+  // "Schedule for Later" (#184): the pickup time picked, null = now.
+  DateTime? _scheduledFor;
+  String _scheduleText = '';
   final int redeemedPointsDiscount = 0;
   final int tax = 0;
   // Booked with online payment but not paid yet: paying again reuses this
@@ -173,6 +177,7 @@ class _CourierReviewBookingScreenState
         language: apiLanguageCode(),
         packageSize: widget.packageSize,
         packageDescription: widget.packageDescription,
+        scheduledFor: _scheduledFor,
       );
       if (!mounted) return;
       showAppToast(result.message, backgroundColor: const Color(0xFFFF5216));
@@ -670,15 +675,25 @@ class _CourierReviewBookingScreenState
     );
   }
 
-  /// Figma's "Schedule for Later". It did nothing on tap; `courier/create`
-  /// takes no pickup time yet (backend issue), so it says "Coming soon" like
-  /// the app's other unfinished features.
+  /// Figma's "Schedule for Later": a pickup slot inside the pre-order window
+  /// (`courier/create` `scheduled_for`, #184). The driver search starts
+  /// shortly before it.
   Widget _buildScheduleCard() {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => showAppToast('svc_coming_soon_message'.tr),
+      onTap: _pickSchedule,
       child: _scheduleCardBody(),
     );
+  }
+
+  Future<void> _pickSchedule() async {
+    if (_placingBooking) return;
+    final picked = await showPreorderSlotSheet(context);
+    if (picked == null || !mounted) return;
+    setState(() {
+      _scheduledFor = picked.time;
+      _scheduleText = picked.text;
+    });
   }
 
   Widget _scheduleCardBody() {
@@ -719,7 +734,9 @@ class _CourierReviewBookingScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'svc_coming_soon'.tr,
+                  _scheduledFor == null
+                      ? 'st_pick_pickup_time'.tr
+                      : _scheduleText,
                   style: AppFonts.outfit(
                     color: const Color(0xFF3BA162),
                     fontSize: 10,
@@ -729,11 +746,22 @@ class _CourierReviewBookingScreenState
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: Color(0xFF00B25C),
-            size: 20,
-          ),
+          if (_scheduledFor != null)
+            // Back to picking up now.
+            GestureDetector(
+              onTap: () => setState(() => _scheduledFor = null),
+              child: const Icon(
+                Icons.close_rounded,
+                color: Color(0xFF00B25C),
+                size: 20,
+              ),
+            )
+          else
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF00B25C),
+              size: 20,
+            ),
         ],
       ),
     );
