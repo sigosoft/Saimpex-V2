@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,11 +13,13 @@ import '../utils/api_language.dart';
 import '../utils/toast_helper.dart';
 import '../widgets/app_back_button.dart';
 import 'grocery/grocery_details_screen.dart';
+import 'home_scanner_screen.dart';
 import 'pharmacy/pharmacy_items_screen.dart';
 import 'restaurant_details_screen.dart';
 import 'water/water_supplier_details_screen.dart';
 
 import '../utils/app_fonts.dart';
+
 /// Home search across every category: typed or voice text with GET
 /// customer/search, or a photo with image-recognition/analyze. Stores that
 /// deliver to the selected location, nearest first, grouped by category,
@@ -46,23 +50,48 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
   bool _loading = false;
   int _requestId = 0;
 
+  /// The photo being searched (shown above the results); null for a typed
+  /// search.
+  String? _photoPath;
+
+  /// Why the photo search failed, kept on screen instead of a short toast
+  /// that the keyboard could hide.
+  String? _photoError;
+
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialKeyword);
     final imagePath = widget.imagePath;
     if (imagePath != null) {
-      _run(
-        () => Get.find<GeneralRepository>().searchByImage(
-          imagePath: imagePath,
-          latitude: SelectLocationController.selectedLatitude,
-          longitude: SelectLocationController.selectedLongitude,
-          language: apiLanguageCode(),
-        ),
-      );
+      _searchPhoto(imagePath);
     } else {
       _search();
     }
+  }
+
+  void _searchPhoto(String imagePath) {
+    _controller.clear();
+    setState(() {
+      _photoPath = imagePath;
+      _photoError = null;
+    });
+    _run(
+      () => Get.find<GeneralRepository>().searchByImage(
+        imagePath: imagePath,
+        latitude: SelectLocationController.selectedLatitude,
+        longitude: SelectLocationController.selectedLongitude,
+        language: apiLanguageCode(),
+      ),
+      byPhoto: true,
+    );
+  }
+
+  Future<void> _retakePhoto() async {
+    FocusScope.of(context).unfocus();
+    final path = await Get.to<String>(() => const HomeScannerScreen());
+    if (path == null || !mounted) return;
+    _searchPhoto(path);
   }
 
   @override
@@ -138,6 +167,11 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
     final keyword = _controller.text.trim();
     // The API takes 2–100 characters.
     if (keyword.length < 2) return;
+    // A typed search replaces the photo search.
+    setState(() {
+      _photoPath = null;
+      _photoError = null;
+    });
     await _run(
       () => Get.find<GeneralRepository>().search(
         query: keyword.length > 100 ? keyword.substring(0, 100) : keyword,
@@ -153,8 +187,9 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
       ({List<Map<String, dynamic>> stores, List<Map<String, dynamic>> products})
     >
     Function()
-    load,
-  ) async {
+    load, {
+    bool byPhoto = false,
+  }) async {
     final requestId = ++_requestId;
     setState(() => _loading = true);
     try {
@@ -214,8 +249,13 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
       setState(() => _sections = sections);
     } on ApiException catch (error) {
       if (!mounted || requestId != _requestId) return;
-      setState(() => _sections = const []);
-      showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      setState(() {
+        _sections = const [];
+        if (byPhoto) _photoError = error.message;
+      });
+      if (!byPhoto) {
+        showAppToast(error.message, backgroundColor: const Color(0xFFEF4444));
+      }
     } finally {
       if (mounted && requestId == _requestId) {
         setState(() => _loading = false);
@@ -237,6 +277,7 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
           child: Column(
             children: [
               _buildSearchBar(),
+              if (_photoPath != null) _buildPhotoCard(_photoPath!),
               Expanded(child: _buildResults()),
             ],
           ),
@@ -272,13 +313,13 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      autofocus: widget.initialKeyword.isEmpty,
+                      // No keyboard over a photo search's results.
+                      autofocus:
+                          widget.initialKeyword.isEmpty &&
+                          widget.imagePath == null,
                       textInputAction: TextInputAction.search,
                       onSubmitted: (_) => _search(),
-                      style: AppFonts.outfit(
-                        color: Colors.black,
-                        fontSize: 13,
-                      ),
+                      style: AppFonts.outfit(color: Colors.black, fontSize: 13),
                       decoration: InputDecoration(
                         hintText: 'search_hint'.tr,
                         hintStyle: AppFonts.outfit(
@@ -305,6 +346,9 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
       return const Center(
         child: CircularProgressIndicator(color: Color(0xFFFF5216)),
       );
+    }
+    if (_sections.isEmpty && _photoPath != null) {
+      return _buildPhotoEmpty();
     }
     if (_sections.isEmpty) {
       return Center(
@@ -339,6 +383,146 @@ class _AllSearchScreenState extends State<AllSearchScreen> {
           const SizedBox(height: 12),
         ],
       ],
+    );
+  }
+
+  /// The searched photo with a way to try another one.
+  Widget _buildPhotoCard(String path) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFEAD8C9)),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.file(
+                File(path),
+                width: 52,
+                height: 52,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => _imageFallback(),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'search_photo_title'.tr,
+                style: AppFonts.outfit(
+                  color: const Color(0xFF2C2520),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            if (!_loading)
+              IconButton(
+                onPressed: _retakePhoto,
+                tooltip: 'search_photo_retry'.tr,
+                icon: const Icon(
+                  Icons.photo_camera_outlined,
+                  color: Color(0xFFFF5216),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// No results, or the photo could not be read: say so and offer another
+  /// photo (the customer can also type in the search box).
+  Widget _buildPhotoEmpty() {
+    final error = _photoError;
+    final title = error == null
+        ? 'search_photo_no_match'.tr
+        : 'search_photo_failed'.tr;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFEDE4),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                error == null
+                    ? Icons.image_search_rounded
+                    : Icons.broken_image_outlined,
+                color: const Color(0xFFFF5216),
+                size: 30,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: AppFonts.outfit(
+                color: const Color(0xFF2C2520),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            // The server's own reason (for example a daily limit), when it
+            // says more than our title.
+            if (error != null && error.trim().isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                error,
+                textAlign: TextAlign.center,
+                style: AppFonts.outfit(
+                  color: const Color(0xFFEF4444),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+            Text(
+              'search_photo_failed_hint'.tr,
+              textAlign: TextAlign.center,
+              style: AppFonts.outfit(
+                color: const Color(0xFF8C7D73),
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: _retakePhoto,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF5216),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                icon: const Icon(Icons.photo_camera_outlined, size: 20),
+                label: Text(
+                  'search_photo_retry'.tr,
+                  style: AppFonts.outfit(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -1237,6 +1237,8 @@ class _MessageBubble extends StatelessWidget {
                   children: [
                     Text(
                       timeLabel,
+                      // "10:45 AM" keeps its order in a right-to-left chat.
+                      textDirection: TextDirection.ltr,
                       style: AppFonts.outfit(
                         color: const Color(0xFF9A9088),
                         fontSize: 11,
