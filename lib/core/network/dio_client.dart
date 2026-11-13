@@ -29,7 +29,12 @@ class DioClient {
           final token = (session.token != null && session.token!.isNotEmpty)
               ? session.token
               : session.guestToken;
-          if (!isOpenAuth && token != null && token.isNotEmpty) {
+          // The session token is for the SAIMPEX API only. Address search
+          // calls Google Places with this client too, and every search used
+          // to send the customer's token to maps.googleapis.com.
+          if (!isOwnApi(options.uri)) {
+            options.headers.remove('Authorization');
+          } else if (!isOpenAuth && token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
           logDioRequest(options);
@@ -169,6 +174,29 @@ class DioClient {
   }
 }
 
+/// Whether [uri] goes to the SAIMPEX API (same scheme, host and port as
+/// [ApiConstants.baseUrl]); only those requests may carry the session token.
+@visibleForTesting
+bool isOwnApi(Uri uri) {
+  final api = Uri.parse(ApiConstants.baseUrl);
+  return uri.scheme == api.scheme &&
+      uri.host.toLowerCase() == api.host.toLowerCase() &&
+      uri.port == api.port;
+}
+
+/// [uri] with any `key` query value hidden (the Google Maps key on Places
+/// requests), so debug logs don't print it.
+@visibleForTesting
+String safeUriForLog(Uri uri) {
+  if (!uri.queryParameters.containsKey('key')) return uri.toString();
+  return uri
+      .replace(queryParameters: {...uri.queryParameters, 'key': '…'})
+      .toString();
+}
+
+Map<String, dynamic> _safeQueryForLog(Map<String, dynamic> query) =>
+    query.containsKey('key') ? {...query, 'key': '…'} : query;
+
 /// "Bearer …a1b2c3": enough to tell tokens apart in debug logs without
 /// leaking them into shared logs or screenshots.
 String _maskAuthorization(String? authorization) {
@@ -228,11 +256,11 @@ void logDioRequest(RequestOptions options) {
     if (token != null) 'Authorization': _maskAuthorization(token),
   };
   final query = options.queryParameters.isNotEmpty
-      ? '\n[Query Parameters]: ${options.queryParameters}'
+      ? '\n[Query Parameters]: ${_safeQueryForLog(options.queryParameters)}'
       : '';
   _printConsole(
     '==================== [API REQUEST] ====================\n'
-    '[Method & URL]: ${options.method} ${options.uri}\n'
+    '[Method & URL]: ${options.method} ${safeUriForLog(options.uri)}\n'
     '[Token]: ${token != null && token.isNotEmpty ? _maskAuthorization(token) : 'No Token'}\n'
     '[Headers]: $headers'
     '$query\n'
@@ -244,7 +272,7 @@ void logDioRequest(RequestOptions options) {
 void logDioResponse(Response response) {
   _printConsole(
     '==================== [API RESPONSE] ====================\n'
-    '[Method & URL]: ${response.requestOptions.method} ${response.requestOptions.uri}\n'
+    '[Method & URL]: ${response.requestOptions.method} ${safeUriForLog(response.requestOptions.uri)}\n'
     '[Status Code]: ${response.statusCode} ${response.statusMessage ?? ''}\n'
     '[Headers]: ${response.headers.map}\n'
     '[Response Body]:\n${_formatData(response.data)}\n'
@@ -257,7 +285,7 @@ void logDioError(DioException error) {
   final statusMessage = error.response?.statusMessage;
   _printConsole(
     '==================== [API ERROR] ====================\n'
-    '[Method & URL]: ${error.requestOptions.method} ${error.requestOptions.uri}\n'
+    '[Method & URL]: ${error.requestOptions.method} ${safeUriForLog(error.requestOptions.uri)}\n'
     '[Status Code]: ${statusCode ?? '-'} ${statusMessage ?? ''}\n'
     '[Error Message]: ${error.message}\n'
     '[Error Type]: ${error.type}\n'
@@ -278,7 +306,7 @@ void logDioResult({
     options.headers['Authorization']?.toString(),
   );
   _printConsole(
-    '[DIO] ${options.method} ${options.uri}\n'
+    '[DIO] ${options.method} ${safeUriForLog(options.uri)}\n'
     'bearer: $bearer\n'
     'status: ${statusCode ?? '-'}\n'
     'message: $message',

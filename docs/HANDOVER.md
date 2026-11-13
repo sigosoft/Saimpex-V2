@@ -914,6 +914,12 @@ From `SAIMPEX-V2-customer-app-test-report.md` (main 703f82e). Backend c8f8e30 (l
   - Not checked on the phone yet (built and installed; the phone was taken before the Orders tab opened).
 - **Noticed, not changed:** the same store shows different distances on Home (2.1 Km), Favourites (1.2 km) and the store page (1.7 km), and "Km" vs "km". The distances come from different endpoints; worth one backend rule. Food orders in "Ready" still show Cancel (existing rule, not checked against the scope).
 
+### Security: session token no longer sent to Google (`fix/no-token-to-google`, 11 Nov) ✅
+- Address search (location screen) calls Google Places autocomplete/details through `DioClient`, which added `Authorization: Bearer <customer token>` to every request, so each search sent the customer's SAIMPEX token to `maps.googleapis.com`. The token is now added only when the request goes to the SAIMPEX API host (`isOwnApi`, same scheme/host/port as `ApiConstants.baseUrl`); any Authorization header on other hosts is removed.
+- Debug logs printed the full Places URL including the Maps key; the `key` value is now hidden in logs.
+- Tests: `test/dio_client_token_test.dart`.
+- **Open (not app code):** the Google Maps key (Android manifest, iOS AppDelegate, `select_location_controller.dart`) must be restricted in Google Cloud Console: Android `app.saimpex` + release SHA-1, the iOS bundle ID, and only the Maps SDK / Places / Geocoding APIs. It is committed in the repo, so if it was ever unrestricted, rotate it.
+
 ### Phone-time order steps and laundry windows (11 Nov) ✅ in code
 Uses two backend fields from the 7 Nov changelog.
 - **Order step times (C-B9, W-12):** `trackOrder` `timeline[]` now sends `updated_at_iso` (ISO 8601 with offset). `OrderTracking.timeOf` shows it in the phone's time zone, month in the app language (`readableIsoTime` in `lib/utils/store_labels.dart`); it falls back to the old `updated_at` text when the field is missing. Covers every order detail and tracking screen that reads the timeline. Service booking timelines are unchanged (no ISO field there).
