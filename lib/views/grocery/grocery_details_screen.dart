@@ -1262,6 +1262,8 @@ class _GroceryDetailsScreenState extends State<GroceryDetailsScreen> {
                         child: GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
+                          // No status-bar inset above an embedded grid.
+                          padding: EdgeInsets.zero,
                           itemCount: menuItems.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(

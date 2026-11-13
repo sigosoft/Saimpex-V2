@@ -699,6 +699,8 @@ class _AccountScreenState extends State<AccountScreen> {
       itemCount: actions.length,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      // No status-bar inset above an embedded grid.
+      padding: EdgeInsets.zero,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 12,

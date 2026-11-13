@@ -510,6 +510,8 @@ class _LocalStoreScreenState extends State<LocalStoreScreen> {
                             child: GridView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
+                              // No status-bar inset above an embedded grid.
+                              padding: EdgeInsets.zero,
                               itemCount: categories.length,
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(

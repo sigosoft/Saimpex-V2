@@ -368,6 +368,8 @@ class WaterSubscriptionScreen extends StatelessWidget {
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
+            // No status-bar inset above an embedded grid.
+            padding: EdgeInsets.zero,
             itemCount: features.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,

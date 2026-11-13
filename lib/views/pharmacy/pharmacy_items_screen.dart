@@ -21,6 +21,7 @@ import 'widgets/pharmacy_subcategory_icon.dart';
 import '../../widgets/app_back_button.dart';
 
 import '../../utils/app_fonts.dart';
+
 class PharmacyItemsScreen extends StatefulWidget {
   final Map<String, dynamic> store;
   final int initialSubcategoryIndex;
@@ -81,7 +82,15 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
 
   int? get _pharmacyId => int.tryParse('${widget.store['id']}');
 
-  Map<String, dynamic> get _store => {...widget.store, ...?_pharmacyDetails};
+  /// The list card the customer tapped, updated by the store API. Empty API
+  /// fields don't wipe what the card already had: the store response has no
+  /// delivery time or offer for some pharmacies, and the header lost the
+  /// "20-25 min" and discount the list showed (Figma has both).
+  Map<String, dynamic> get _store => {
+    ...widget.store,
+    for (final entry in (_pharmacyDetails ?? const {}).entries)
+      if ('${entry.value ?? ''}'.trim().isNotEmpty) entry.key: entry.value,
+  };
 
   bool get _usesApi => _pharmacyId != null;
 
@@ -1013,6 +1022,10 @@ class _PharmacyItemsScreenState extends State<PharmacyItemsScreen> {
                         child: GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
+                          // Without a padding the grid adds the status-bar
+                          // height above itself: an empty band under "All
+                          // Items from This Pharmacy".
+                          padding: const EdgeInsets.only(top: 10),
                           itemCount: menuItems.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
