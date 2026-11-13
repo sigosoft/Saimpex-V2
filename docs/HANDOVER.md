@@ -963,3 +963,10 @@ Overall test of `main` 8d644e6 on the emulator (release build, Arabic and French
 - `android/app/build.gradle.kts` now signs release builds with `android/key.properties` (ignored by git): `storeFile`, `storePassword`, `keyAlias`, `keyPassword`. Template: `android/key.properties.example`. While the passwords are empty the release build falls back to the debug key, so nothing breaks.
 - **To finish:** fill the passwords and alias in `android/key.properties` (from Praveen), then `cd android && ./gradlew app:signingReport` must show the release variant on that keystore; compare its SHA-1 with the live V1 app (Play Console → App integrity). Then install over a phone that has V1 from the Play Store to prove it updates.
 - `google-services.json` has no SHA-1 entries, so Firebase push doesn't depend on the signing key; push still needs an end-to-end check on a phone.
+
+### Release signing with V1's keystore working (13 Nov) ✅
+`android/key.properties` (git-ignored) now holds V1's keystore path, alias `myflutterkey` and passwords; the keystore file sits at the repo root (`saimpex-customer.keystore`, git-ignored there too since `c51edd0`). `flutter build apk --release` is signed with V1's certificate:
+- DN: `C=IN, ST=kerala, L=calicut, O=sigosoft, OU=sigosoft, CN=sigosoft`
+- SHA-1: `c5:1f:34:59:15:57:68:ad:41:e7:4c:d7:a9:ae:94:1e:98:62:df:a1`
+- SHA-256: `2d:bf:6f:ee:ab:3c:32:32:c0:71:5b:84:2e:86:39:5a:88:7a:80:f9:00:45:f8:b3:e9:20:cb:9b:c2:34:0a:c0`
+**Next:** (1) check in Play Console → Setup → App signing that this is V1's upload key (or app signing key); (2) add this SHA-1 (and Play's app-signing SHA-1) to the `app.saimpex` Android app in Firebase `saimpex-customer` so push tokens work in release; (3) testers with a debug V2 build must uninstall it once (signatures differ). V1's repo has this keystore committed (`9f9474d`); it should be removed from that repo's history.
