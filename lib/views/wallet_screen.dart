@@ -14,6 +14,7 @@ import '../widgets/app_back_button.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/currency.dart';
+import '../utils/store_labels.dart';
 
 /// SAIMPEX Wallet: balance, transaction history (GET wallet) and top-up
 /// (POST wallet/topup, paid on the Masrvi page). Built without a Figma screen,
@@ -441,7 +442,8 @@ class _WalletScreenState extends State<WalletScreen> {
       text('title'),
       text('description'),
     ].firstWhere((value) => value.isNotEmpty, orElse: () => '');
-    final date = DateTime.tryParse('${row['created_at'] ?? ''}')?.toLocal();
+    // created_at is UTC without a zone; it was shown as phone time.
+    final date = parseServerTime(row['created_at']);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(

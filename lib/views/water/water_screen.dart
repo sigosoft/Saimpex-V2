@@ -6,6 +6,7 @@ import '../../widgets/see_all_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../../utils/store_labels.dart';
 import '../../controllers/select_location_controller.dart';
 import '../select_location_screen.dart';
 import '../rewards_referral_screen.dart';
@@ -267,6 +268,10 @@ class _WaterScreenState extends State<WaterScreen> {
                               child: Obx(
                                 () => Text(
                                   SelectLocationController.deliveryLabel.value,
+                                  // A Latin address in Arabic was cut at both ends.
+                                  textDirection: textDirectionOf(
+                                    SelectLocationController.deliveryLabel.value,
+                                  ),
                                   style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 13,

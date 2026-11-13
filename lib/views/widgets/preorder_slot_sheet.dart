@@ -32,9 +32,14 @@ String _slotText(String slot) => switch (slot) {
 /// window (`preorder/window`); returns the slot's start and its text
 /// ("Sat, Nov 14 • 10 AM – 12 PM"), or null when closed. Used by the cart
 /// and courier "Schedule for Later".
+///
+/// [titleKey] / [subtitleKey] name what is scheduled (delivery by default;
+/// courier passes its pickup texts).
 Future<({DateTime time, String text})?> showPreorderSlotSheet(
-  BuildContext context,
-) async {
+  BuildContext context, {
+  String titleKey = 'preorder_sheet_title',
+  String subtitleKey = 'preorder_sheet_subtitle',
+}) async {
   // Only times inside the server's pre-order window can be picked.
   final ({DateTime earliest, DateTime latest}) window;
   try {
@@ -165,7 +170,7 @@ Future<({DateTime time, String text})?> showPreorderSlotSheet(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'preorder_sheet_title'.tr,
+                                  titleKey.tr,
                                   style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),
                                     fontSize: 16,
@@ -174,7 +179,7 @@ Future<({DateTime time, String text})?> showPreorderSlotSheet(
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'preorder_sheet_subtitle'.tr,
+                                  subtitleKey.tr,
                                   style: AppFonts.outfit(
                                     color: const Color(0xFFA59A94),
                                     fontSize: 11,
@@ -369,12 +374,10 @@ Future<({DateTime time, String text})?> showPreorderSlotSheet(
                             );
                             return;
                           }
-                          final month = months[selectedDate.month - 1].tr;
-                          final weekday = weekdays[selectedDate.weekday - 1].tr;
                           Navigator.pop(context, (
                             time: slotStart(selectedDate, slot),
                             text:
-                                '$weekday, $month ${selectedDate.day} • ${_slotText(slot)}',
+                                '${preorderDayText(selectedDate)} • ${_slotText(slot)}',
                           ));
                         },
                         child: Container(
@@ -443,4 +446,22 @@ Future<({DateTime time, String text})?> showPreorderSlotSheet(
       );
     },
   );
+}
+/// The picked day in the app language: "Sat, Nov 14" in English, the day
+/// first in French and Arabic ("sam. 14 nov.", "السبت 14 نوفمبر"); it read
+/// "Sam, NOV. 14" in French.
+String preorderDayText(DateTime day) {
+  const weekdays = [
+    'orders_day_mon',
+    'orders_day_tue',
+    'orders_day_wed',
+    'orders_day_thu',
+    'orders_day_fri',
+    'orders_day_sat',
+    'orders_day_sun',
+  ];
+  final weekday = weekdays[day.weekday - 1].tr;
+  final month = 'svc_month_${day.month}'.tr;
+  if (apiLanguageCode() == 'en') return '$weekday, $month ${day.day}';
+  return '\u2066$weekday ${day.day} $month\u2069';
 }

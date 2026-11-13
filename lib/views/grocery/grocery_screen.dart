@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../utils/store_labels.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
@@ -388,6 +389,13 @@ class _GroceryScreenState extends State<GroceryScreen> {
                               child: Obx(
                                 () => Text(
                                   SelectLocationController.deliveryLabel.value,
+                                  // A Latin address in Arabic was cut at both
+                                  // ends; it runs in its own direction.
+                                  textDirection: textDirectionOf(
+                                    SelectLocationController
+                                        .deliveryLabel
+                                        .value,
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: AppFonts.outfit(
@@ -656,7 +664,7 @@ class _GroceryScreenState extends State<GroceryScreen> {
                                 : (sub['label'] ?? '').toString(),
                             textAlign: TextAlign.center,
                             maxLines: 1,
-                            overflow: TextOverflow.visible,
+                            overflow: TextOverflow.ellipsis,
                             style: AppFonts.outfit(
                               color: isSelected
                                   ? const Color(0xFFFF5216)

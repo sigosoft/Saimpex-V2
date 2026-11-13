@@ -598,6 +598,7 @@ class _UploadPrescriptionScreenState extends State<UploadPrescriptionScreen> {
                   const SizedBox(width: 4),
                   Text(
                     countryCode,
+                    textDirection: TextDirection.ltr,
                     style: AppFonts.outfit(
                       color: const Color(0xFF2C2520),
                       fontSize: 13,

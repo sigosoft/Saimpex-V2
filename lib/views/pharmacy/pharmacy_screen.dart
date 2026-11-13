@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../utils/store_labels.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
 import '../../core/network/api_exception.dart';
@@ -337,6 +338,10 @@ class _PharmacyScreenState extends State<PharmacyScreen> {
                                     SelectLocationController
                                         .deliveryLabel
                                         .value,
+                                    // A Latin address in Arabic was cut at both ends.
+                                    textDirection: textDirectionOf(
+                                      SelectLocationController.deliveryLabel.value,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: AppFonts.outfit(

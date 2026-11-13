@@ -1106,3 +1106,25 @@ Backend `ae3c194` (deployed on dev 13 Nov) answered the 12 Nov list. The app now
 - Analyzer clean, 61 tests pass (new `test/backend_12nov_test.dart`).
 - **Checked on the phone (French):** bell count from the server; Notifications dots and tap opening ORD-001568; the bell cleared and the server says `unread_count` 0; the order list; courier home with the broken banner hidden.
 - **Not checked on the phone:** courier scheduling and laundry balance payment (they need a booking flow or a re-weighed prepaid booking), the cart slot sheet after the move (cart empty), and opening times (every nearby store was open).
+
+### Remaining frontend: Subscription Cart, localization pass, phone checks (`feature/backend-12nov-fields`, 13 Nov) ✅
+Release build on the Samsung M11 (dev, 95200021), French and Arabic. Nothing was ordered, booked or subscribed: the cart item added for the check was removed again.
+- **Checked on the phone:** courier "Schedule for Later" (pickup sheet, chosen slot shown, × clears it; booking not placed) and the cart's slot sheet after it moved to `widgets/preorder_slot_sheet.dart`. The sheet now says "Schedule Pickup" for courier (new `st_schedule_pickup_title/subtitle`), and the picked day reads "Sam 14 nov." in French, "السبت 14 نوفمبر" in Arabic (was "Sam, NOV. 14").
+- **Courier order cards and details** show "Scheduled for …" for a later pickup (`is_preorder` / `scheduled_for`, #184).
+- **Subscription Cart vs Figma** (frame "Subscription Cart"; water plans exist on dev now, vendor 67 "Eau Pure Arafat"):
+  - Fixed: the title is "Cart" (was "Subscription"); the "From <store>" line was always empty (supplier rows carry `name`, not `title`); type and slot were English ("Weekly", "8 - 10 AM").
+  - Subscription screen: it opened on Daily and showed "— MRU" for a weekly-only product, so it now opens on a type the product has a plan for. Slots read "8h–10h" in French, "8–10 ص" in Arabic (`slotRangeLabel`).
+  - Not in the app because `water/subscribe` has no field for them (backend): delivery note, coupon and points ("Save More"), the address Edit link, and the Figma price breakdown (savings, delivery fee, tax).
+- **My Subscriptions:** type from `frequency_key` ("Mensuel (8h–10h)", kept on one line). The status badge says "Actif" / "نشط" (was the server's English "New"), and its colours follow the state.
+- **Water names:** product, category and supplier names were always English: `_localized` tried `name_en` first. It now tries the app language first. "0 reviews" is translated (`pw_reviews_plain`).
+- **Address in store headers (Arabic):** a Latin address was cut at both ends on Grocery, Pharmacy, Express, Water and Local Store. It now runs in its own direction, as on Home.
+- **Phone numbers (Arabic):** "+222" showed as "222+" in the courier and prescription forms and the login field, and the courier review and details showed "22000000 222+". These are kept left to right now.
+- **French category strips:** long names were cut mid-phrase ("Fruits et", "Riz, pâtes et"). They now end with "…".
+- **Laundry cards:** "Open until 11:59 PM" and "40 MRU/item" were English. They now read "Ouvert jusqu'à 23:59" and "40 MRU/article" (`open_until`, `rate_unit`; new `svc_unit_*`, `clockLabel`).
+- **Wallet history:** times were the server's UTC shown as phone time (`parseServerTime`).
+- **French "From":** "De Eau Pure Arafat" now reads "Chez Eau Pure Arafat".
+- **Localization pass done:**
+  - Arabic: Home, Food, Grocery, Pharmacy, Water, Courier (home → review → pickup sheet), Rewards, Account, My Subscriptions.
+  - French: Food, Grocery, Pharmacy, Express, Local Store, Services, Laundry, Water flow, Subscription Cart, Wallet.
+- **Still from the server, not translatable in the app:** city in "Tendances à Nouakchott" (Arabic shows "Nouakchott"), addresses, vendor-entered names, and banner artwork with English text.
+- Analyzer clean, 67 tests pass (new `test/localized_labels_test.dart`).

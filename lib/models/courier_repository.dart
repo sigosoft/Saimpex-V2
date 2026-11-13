@@ -149,6 +149,11 @@ class CourierRepository {
       'total': mruAmount(_asDouble(item['total']).round()),
       'pickupAddress': item['pickup_address']?.toString() ?? '',
       'dropoffAddress': item['dropoff_address']?.toString() ?? '',
+      // "Schedule for Later" pickup (#184); '' when picked up now.
+      'scheduledFor':
+          (item['is_preorder'] == true || item['is_preorder'] == 1)
+          ? '${item['scheduled_for'] ?? ''}'.trim()
+          : '',
     };
   }
 

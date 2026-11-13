@@ -494,6 +494,7 @@ class _CourierReviewBookingScreenState
                     const SizedBox(height: 2),
                     Text(
                       _formattedPhone,
+                      textDirection: TextDirection.ltr,
                       style: AppFonts.outfit(
                         color: const Color(0xFF2C2520),
                         fontSize: 13,
@@ -688,7 +689,11 @@ class _CourierReviewBookingScreenState
 
   Future<void> _pickSchedule() async {
     if (_placingBooking) return;
-    final picked = await showPreorderSlotSheet(context);
+    final picked = await showPreorderSlotSheet(
+      context,
+      titleKey: 'st_schedule_pickup_title',
+      subtitleKey: 'st_schedule_pickup_subtitle',
+    );
     if (picked == null || !mounted) return;
     setState(() {
       _scheduledFor = picked.time;

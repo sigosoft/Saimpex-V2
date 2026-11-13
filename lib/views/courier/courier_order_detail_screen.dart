@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../widgets/cancel_reason_note.dart';
 import '../../widgets/app_back_button.dart';
+import '../widgets/scheduled_for_banner.dart';
 
 import '../../core/network/api_exception.dart';
 import '../../models/order_tracking.dart';
@@ -12,6 +13,7 @@ import '../../widgets/cancel_order_bottom_sheet.dart';
 import 'courier_track_order_screen.dart';
 
 import '../../utils/app_fonts.dart';
+
 /// A courier or express order's status, route, driver and payment, from
 /// customer/orderDetails.
 class CourierOrderDetailScreen extends StatefulWidget {
@@ -164,10 +166,13 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            ScheduledForBanner(detail: _detail!.raw),
                             _sectionTitle('st_order_status'.tr),
                             const SizedBox(height: 10),
                             _buildOrderStatusCard(),
-                            CancelReasonNote(reason: _detail?.cancelReason ?? ''),
+                            CancelReasonNote(
+                              reason: _detail?.cancelReason ?? '',
+                            ),
                             const SizedBox(height: 18),
                             _sectionTitle('st_delivery_details'.tr),
                             const SizedBox(height: 10),
@@ -487,7 +492,9 @@ class _CourierOrderDetailScreenState extends State<CourierOrderDetailScreen> {
 
   static String _contactLine(CourierStop stop) => [
     if (stop.contactName.isNotEmpty) stop.contactName,
-    if (stop.contactPhone.isNotEmpty) stop.contactPhone,
+    // Kept left to right: Arabic showed "22000000 222+".
+    if (stop.contactPhone.isNotEmpty)
+      "${String.fromCharCode(0x2066)}${stop.contactPhone}${String.fromCharCode(0x2069)}",
   ].join(' • ');
 
   Widget _routeDot({required Color fill, required Color halo}) {

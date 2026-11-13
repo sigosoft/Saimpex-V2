@@ -663,7 +663,7 @@ class _GroceryStoresScreenState extends State<GroceryStoresScreen> {
                           isAll ? 'st_all'.tr : sub['label'] as String,
                           textAlign: TextAlign.center,
                           maxLines: 1,
-                          overflow: TextOverflow.visible,
+                          overflow: TextOverflow.ellipsis,
                           style: AppFonts.outfit(
                             color: isSelected
                                 ? const Color(0xFFFF5216)

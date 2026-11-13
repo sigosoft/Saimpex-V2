@@ -6,6 +6,7 @@ import '../../core/network/api_exception.dart';
 import '../../models/wallet_repository.dart';
 import '../../models/water_repository.dart';
 import '../../utils/api_language.dart';
+import '../../utils/store_labels.dart';
 import '../../utils/payment_page.dart';
 import '../../utils/toast_helper.dart';
 import '../../utils/payment_methods.dart';
@@ -304,7 +305,7 @@ class _WaterSubscriptionCartScreenState
           AppBackButton(onTap: () => Get.back()),
           Expanded(
             child: Text(
-              'pw_subscription'.tr,
+              'orders_cart'.tr,
               textAlign: TextAlign.center,
               style: AppFonts.outfit(
                 color: const Color(0xFF2C2520),
@@ -533,9 +534,7 @@ class _WaterSubscriptionCartScreenState
                     child: _detailBox(
                       label: 'preorder_time_slot'.tr,
                       // The slot is sent to the server as is; only shown translated.
-                      value: widget.timeSlot == 'Late night'
-                          ? 'pw_late_night'.tr
-                          : widget.timeSlot,
+                      value: slotRangeLabel(widget.timeSlot),
                     ),
                   ),
                   const SizedBox(width: 10),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../utils/store_labels.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../controllers/select_location_controller.dart';
@@ -274,6 +275,13 @@ class _ExpressScreenState extends State<ExpressScreen> {
                               child: Obx(
                                 () => Text(
                                   SelectLocationController.deliveryLabel.value,
+                                  // A Latin address in Arabic was cut at both
+                                  // ends; it runs in its own direction.
+                                  textDirection: textDirectionOf(
+                                    SelectLocationController
+                                        .deliveryLabel
+                                        .value,
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                   style: AppFonts.outfit(
                                     color: const Color(0xFF2C2520),

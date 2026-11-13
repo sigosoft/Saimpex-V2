@@ -31,6 +31,7 @@ import '../navigation/bottom_nav_router.dart';
 
 import '../utils/app_fonts.dart';
 import '../utils/store_labels.dart';
+import 'widgets/scheduled_for_banner.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   final bool showBottomNav;
@@ -1045,6 +1046,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ? (const Color(0xFF00B25C), const Color(0xFFE8F8EE))
         : (const Color(0xFFFF8A00), const Color(0xFFFFF4EC));
     final dropoff = '${order['dropoffAddress']}'.trim();
+    final scheduled = '${order['scheduledFor'] ?? ''}';
     return _buildOrderCard(
       restaurantName: dropoff.isEmpty
           ? 'orders_courier_delivery'.tr
@@ -1057,6 +1059,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         '${order['total']}',
         // Isolated left to right: Arabic showed "CRBR1LK9XE#".
         '\u2066#$orderId\u2069',
+        // A pickup booked for later (#184), until it is done.
+        if (scheduled.isNotEmpty && !cancelled && !delivered)
+          'orders_scheduled_for'.trParams({
+            'time': formatScheduledFor(scheduled),
+          }),
       ].join(' • '),
       buttons: [
         if (!cancelled && !delivered)

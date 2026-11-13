@@ -147,6 +147,69 @@ String readableIsoTime(Object? raw) {
   return '$_lri${_dateTimeText(time.toLocal())}$_pdi';
 }
 
+/// A server time: "2026-11-07 06:00:02" is UTC without a zone (its ISO
+/// twins end in +00:00), so it is read as UTC; ISO times keep their offset.
+/// In the phone's time zone; null when it isn't a time.
+DateTime? parseServerTime(Object? raw) {
+  final text = '${raw ?? ''}'.trim();
+  final utc = _serverUtc.hasMatch(text);
+  return DateTime.tryParse(
+    utc ? '${text.replaceFirst(' ', 'T')}Z' : text,
+  )?.toLocal();
+}
+
+final _clock12 = RegExp(r'^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$');
+
+/// A server clock time ("11:59 PM", English) as the app language writes
+/// it: "23:59" in French, "11:59 م" in Arabic. Anything else unchanged.
+String clockLabel(String raw) {
+  final text = raw.trim();
+  final match = _clock12.firstMatch(text);
+  if (match == null) return text;
+  final hour = int.parse(match.group(1)!);
+  final minute = match.group(2)!;
+  final pm = match.group(3)!.toUpperCase() == 'PM';
+  switch (apiLanguageCode()) {
+    case 'fr':
+      final h24 = hour % 12 + (pm ? 12 : 0);
+      return '${h24.toString().padLeft(2, '0')}:$minute';
+    case 'ar':
+      return '$_lri$hour:$minute$_pdi ${(pm ? 'pw_pm' : 'pw_am').tr}';
+    default:
+      return text;
+  }
+}
+
+final _slotRange = RegExp(
+  r'^(\d{1,2})(?::00)?\s*[–-]\s*(\d{1,2})(?::00)?\s*([AaPp][Mm])$',
+);
+
+/// A delivery slot value ("8–10 AM", "12 - 2 PM", "Late night"; the English
+/// value is what the server gets) as the app language writes it: unchanged
+/// in English, "12h–14h" in French, "8–10 ص" in Arabic. One meridiem covers
+/// the range, so "10–12 PM" is 10 AM to noon. Anything else is returned as
+/// it is.
+String slotRangeLabel(String slot) {
+  final text = slot.trim();
+  if (text.toLowerCase() == 'late night') return 'pw_late_night'.tr;
+  final match = _slotRange.firstMatch(text);
+  if (match == null) return text;
+  final a = int.parse(match.group(1)!);
+  final b = int.parse(match.group(2)!);
+  final pm = match.group(3)!.toUpperCase() == 'PM';
+  final end = b == 12 ? 12 : b % 12 + (pm ? 12 : 0);
+  var start = a % 12 + (pm ? 12 : 0);
+  if (start > end) start = a % 12;
+  switch (apiLanguageCode()) {
+    case 'fr':
+      return '${start}h–${end}h';
+    case 'ar':
+      return '$_lri$a–$b$_pdi ${(pm ? 'pw_pm' : 'pw_am').tr}';
+    default:
+      return '$a–$b ${pm ? 'PM' : 'AM'}';
+  }
+}
+
 /// A closed store's next opening (`opens_at`, ISO 8601 with offset, #185)
 /// for "Opens …": the time alone when it is today on the phone ("10:00 AM",
 /// "10:00" in French), else the day and time ("14 Nov, 10:00 AM"). '' when
