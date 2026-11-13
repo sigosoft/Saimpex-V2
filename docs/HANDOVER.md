@@ -978,3 +978,14 @@ vivo V2239, Android 15, release build of `main` (PR #68) signed with V1's keysto
 - Likely server side: the token isn't saved, or the server's Firebase service account isn't for project `saimpex-customer` (sender mismatch), or the send fails. Backend issue [praveensigo/saimpex-backend-new#187](https://github.com/praveensigo/saimpex-backend-new/issues/187).
 - Note: `flutter run --profile` signs with the debug key, so on a phone with the V1-signed app it uninstalls it (logging the user out). Test push with release builds.
 - Test data left on dev: ORD-001570 (cash, cancelled).
+
+### Play Console first upload: errors fixed (13 Nov) (`fix/play-release`)
+The first production upload (versionCode 12, V1-signed: accepted signature) showed 3 errors:
+- **Target API 34 too low:** now `targetSdk = 36` (compileSdk was 36).
+- **Photo and video permissions:** `READ_MEDIA_IMAGES` removed, also from plugins (`tools:node="remove"` for `READ_MEDIA_IMAGES` / `READ_MEDIA_VIDEO`). Photos come from the system photo picker (`image_picker`, `file_picker`), which needs no permission, so no Play declaration is needed.
+- **Advertising ID:** Play Console → App content → Advertising ID must say **No** (V2 has no ads/analytics; no `AD_ID` permission). Console step, not code.
+- versionCode **13** (12 is used up by the first upload). Bundle: `build/app/outputs/bundle/release/app-release.aab`, signed with V1's key.
+- Warnings (fine to continue): ~90 old devices dropped (minSdk 24, needed by Firebase); bigger download.
+- **Checked on the phone (vivo V2239, Android 15, release v13, target 36, edge to edge):** onboarding, Home, store page with cart bar, cart with Order button, Services, bottom bar and the login sheet all clear of the status bar and the gesture line.
+- **Build machine note:** C: was full (151 MB free), which also caused out-of-memory Gradle crashes. Built with temp files on D: (`TEMP=D:\tmp\gradle-tmp`, `-Djava.io.tmpdir`, Gradle heap 2.5 GB, 2 workers). `./gradlew` reads the version from `android/local.properties` (`flutter.versionCode`), which only `flutter build` updates.
+- A phone with an older V2 build (versionCode 100) must uninstall it before installing 13.
