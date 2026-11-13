@@ -957,3 +957,9 @@ Overall test of `main` 8d644e6 on the emulator (release build, Arabic and French
 - **Not bugs (checked):** the cancel sheet subtitle is complete ("…التحسّن"; it only looked cut in a reduced screenshot), and the assistant's quick-action chips don't move (the test tap landed on another chip).
 - **Server / Admin, from the same test:** store names in English in search and Grocery recent orders empty (#178); two different distances for one store (C-B14); laundry booking slot is the server's English date and reads jumbled in Arabic (to open); English names for water categories/suppliers and laundry services, an Express test store named "test", no cover for Pizzeria Atlantique (Admin data).
 - **Test data left on dev:** ORD-001567 (cash, cancelled).
+
+### C19 (part): release signing with V1's keystore (13 Nov) 🟡 waiting for the password
+- V1's keystore is the file `D:\sigosoft\Saimpex-SA\saimpexcustomer` (PKCS12, no extension). **It is committed in V1's git repo**: tell Praveen (it should be removed from that repo's history and kept in a password manager). V1's own Gradle file never used it (its release builds were signed with the debug key).
+- `android/app/build.gradle.kts` now signs release builds with `android/key.properties` (ignored by git): `storeFile`, `storePassword`, `keyAlias`, `keyPassword`. Template: `android/key.properties.example`. While the passwords are empty the release build falls back to the debug key, so nothing breaks.
+- **To finish:** fill the passwords and alias in `android/key.properties` (from Praveen), then `cd android && ./gradlew app:signingReport` must show the release variant on that keystore; compare its SHA-1 with the live V1 app (Play Console → App integrity). Then install over a phone that has V1 from the Play Store to prove it updates.
+- `google-services.json` has no SHA-1 entries, so Firebase push doesn't depend on the signing key; push still needs an end-to-end check on a phone.
