@@ -970,3 +970,11 @@ Overall test of `main` 8d644e6 on the emulator (release build, Arabic and French
 - SHA-1: `c5:1f:34:59:15:57:68:ad:41:e7:4c:d7:a9:ae:94:1e:98:62:df:a1`
 - SHA-256: `2d:bf:6f:ee:ab:3c:32:32:c0:71:5b:84:2e:86:39:5a:88:7a:80:f9:00:45:f8:b3:e9:20:cb:9b:c2:34:0a:c0`
 **Next:** (1) check in Play Console → Setup → App signing that this is V1's upload key (or app signing key); (2) add this SHA-1 (and Play's app-signing SHA-1) to the `app.saimpex` Android app in Firebase `saimpex-customer` so push tokens work in release; (3) testers with a debug V2 build must uninstall it once (signatures differ). V1's repo has this keystore committed (`9f9474d`); it should be removed from that repo's history.
+
+### Push notification test, V1-signed release (13 Nov) ❌ no push received (backend)
+vivo V2239, Android 15, release build of `main` (PR #68) signed with V1's keystore, notification permission granted, test customer 95200021. Fresh install (the debug V2 had to be uninstalled: different signature), login, cash order **ORD-001570** placed and cancelled from the app.
+- The app logged no "push token not available / not saved" error after login, so the FCM token was fetched and sent to `updateFcmToken`.
+- The server stored the in-app "Order cancelled #ORD-001570" notification, but **no push arrived** for the order placed or the cancel. No "Order placed" row was stored for ORD-001570 either.
+- Likely server side: the token isn't saved, or the server's Firebase service account isn't for project `saimpex-customer` (sender mismatch), or the send fails. Backend issue [praveensigo/saimpex-backend-new#187](https://github.com/praveensigo/saimpex-backend-new/issues/187).
+- Note: `flutter run --profile` signs with the debug key, so on a phone with the V1-signed app it uninstalls it (logging the user out). Test push with release builds.
+- Test data left on dev: ORD-001570 (cash, cancelled).
