@@ -113,8 +113,12 @@ String _dateTimeText(DateTime time) {
   // pulled the year and time after it into right-to-left order
   // ("06 11:23 ,2026 نوفمبر AM").
   final month = 'svc_month_${time.month}'.tr + String.fromCharCode(0x200E);
-  return '${two(time.day)} $month ${time.year}, '
-      '${two(hour)}:${two(time.minute)} '
+  final date = '${two(time.day)} $month ${time.year}, ';
+  // French writes the 24-hour clock ("15:56"), not "03:56 PM".
+  if (apiLanguageCode() == 'fr') {
+    return '$date${two(time.hour)}:${two(time.minute)}';
+  }
+  return '$date${two(hour)}:${two(time.minute)} '
       '${(time.hour < 12 ? 'pw_am' : 'pw_pm').tr}';
 }
 
