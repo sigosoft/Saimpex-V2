@@ -10,6 +10,7 @@ import '../controllers/home_controller.dart';
 import '../core/network/api_exception.dart';
 import '../models/service_repository.dart';
 import '../utils/api_language.dart';
+import '../utils/store_labels.dart';
 import '../utils/toast_helper.dart';
 import 'rate_order_screen.dart';
 import 'services/car_wash_screen.dart';
@@ -58,6 +59,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   List<Map<String, dynamic>> _bookings = const [];
   bool _loading = true;
 
+  /// Language the cards were built in. The tab stays alive, so after a
+  /// language change it kept the old texts ("ملغى", "200 أوقية" in French).
+  String _loadedLanguage = '';
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +74,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       setState(() => _loading = false);
       return;
     }
+    _loadedLanguage = apiLanguageCode();
     setState(() => _loading = true);
     try {
       final repository = Get.find<ServiceRepository>();
@@ -114,7 +120,19 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     final location = text(row['location']).isEmpty
         ? text(row['address'])
         : text(row['location']);
-    final slot = text(row['slot']).isEmpty
+    // The server's slot text is English ("09 Nov 2026, 2:00 PM – 4:00 PM");
+    // built from the raw start / end instead, in the app language.
+    String iso(String raw) =>
+        RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$').hasMatch(raw)
+        ? '${raw.replaceFirst(' ', 'T')}Z'
+        : raw;
+    final window = readableWindow({
+      'start_iso': iso(text(row['scheduled_for'])),
+      'end_iso': iso(text(row['slot_end'])),
+    });
+    final slot = window.isNotEmpty
+        ? window
+        : text(row['slot']).isEmpty
         ? text(row['scheduled_for'])
         : text(row['slot']);
     // Laundry by kg: the vendor's re-weigh can leave an extra amount to pay.
@@ -165,7 +183,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         _ => text(row['status_label']),
       },
       'datetime': slot,
-      'slot': text(row['slot_window']).isEmpty
+      'slot': window.isNotEmpty || text(row['slot_window']).isEmpty
           ? slot
           : text(row['slot_window']),
       'location': location,
@@ -228,6 +246,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loadedLanguage.isNotEmpty &&
+        _loadedLanguage != apiLanguageCode() &&
+        !_loading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _loadedLanguage != apiLanguageCode()) _load();
+      });
+    }
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     final list = _filtered;
 

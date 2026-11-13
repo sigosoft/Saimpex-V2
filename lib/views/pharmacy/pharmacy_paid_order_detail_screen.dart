@@ -11,6 +11,7 @@ import 'widgets/pharmacy_background.dart';
 import 'widgets/pharmacy_order_detail_loader.dart';
 
 import '../../utils/app_fonts.dart';
+
 /// Loads the order from the API, then shows it.
 class PharmacyPaidOrderDetailScreen extends StatelessWidget {
   final String orderId;
@@ -223,7 +224,15 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
                 width: double.infinity,
                 color: PharmacyBackground.bottom,
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-                child: isDelivery
+                // No Cancel once delivered or cancelled (a delivered order
+                // offered it); nothing to track once cancelled.
+                child: order?.isCancelled == true
+                    ? const SizedBox.shrink()
+                    : order?.isDelivered == true
+                    ? (isDelivery
+                          ? _buildTrackButton()
+                          : const SizedBox.shrink())
+                    : isDelivery
                     ? Row(
                         children: [
                           Expanded(child: _buildCancelButton(context)),
@@ -891,13 +900,17 @@ class _PharmacyPaidOrderDetailBody extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           _payRow('cart_tax'.tr, orderMoneyText(_payment['tax'])),
-          const SizedBox(height: 10),
-          _payRow(
-            'cart_redeemed_points'.tr,
-            orderMoneyText(_payment['redeemed_points'], negative: true),
-            valueColor: const Color(0xFFFF5216),
-            labelColor: const Color(0xFFFF5216),
-          ),
+          // Only when points were used; it read "Redeemed points — MRU".
+          if ((num.tryParse('${_payment['redeemed_points'] ?? ''}') ?? 0) >
+              0) ...[
+            const SizedBox(height: 10),
+            _payRow(
+              'cart_redeemed_points'.tr,
+              orderMoneyText(_payment['redeemed_points'], negative: true),
+              valueColor: const Color(0xFFFF5216),
+              labelColor: const Color(0xFFFF5216),
+            ),
+          ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 14),
             child: Divider(height: 1, color: Color(0xFF3A434E)),

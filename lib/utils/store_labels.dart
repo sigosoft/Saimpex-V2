@@ -91,16 +91,35 @@ String ratingLabel(Object? value) {
 /// language (as order details); any other text is returned unchanged.
 String readableDateTime(Object? raw) {
   final text = '${raw ?? ''}'.trim();
-  final time = DateTime.tryParse(text);
-  if (time == null) return text;
+  // The server's "2026-11-12 10:26:04" is UTC without a zone (its ISO twin
+  // ends in +00:00); it was shown as the phone's time. Same in Mauritania
+  // (UTC+0), wrong on a phone in another zone.
+  final utc = _serverUtc.hasMatch(text);
+  final parsed = DateTime.tryParse(
+    utc ? '${text.replaceFirst(' ', 'T')}Z' : text,
+  );
+  if (parsed == null) return text;
+  return '$_lri${_dateTimeText(utc ? parsed.toLocal() : parsed)}$_pdi';
+}
+
+final _serverUtc = RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$');
+
+/// "12 Nov 2026, 03:56 PM" with the month and AM/PM in the app language,
+/// without the isolate (for building ranges).
+String _dateTimeText(DateTime time) {
   String two(int n) => n.toString().padLeft(2, '0');
   final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
   // A left-to-right mark after the month: an Arabic month name otherwise
   // pulled the year and time after it into right-to-left order
   // ("06 11:23 ,2026 نوفمبر AM").
   final month = 'svc_month_${time.month}'.tr + String.fromCharCode(0x200E);
-  return '${two(time.day)} $month ${time.year}, '
-      '${two(hour)}:${two(time.minute)} ${time.hour < 12 ? 'AM' : 'PM'}';
+  final date = '${two(time.day)} $month ${time.year}, ';
+  // French writes the 24-hour clock ("15:56"), not "03:56 PM".
+  if (apiLanguageCode() == 'fr') {
+    return '$date${two(time.hour)}:${two(time.minute)}';
+  }
+  return '$date${two(hour)}:${two(time.minute)} '
+      '${(time.hour < 12 ? 'pw_am' : 'pw_pm').tr}';
 }
 
 /// A date without the time, as Figma shows subscription dates: "Today",
@@ -117,7 +136,7 @@ String readableDay(Object? raw, {DateTime? now}) {
   if (diff.inDays == 0) return 'svc_today'.tr;
   if (diff.inDays == 1) return 'svc_tomorrow'.tr;
   final month = 'svc_month_${time.month}'.tr + String.fromCharCode(0x200E);
-  return '${time.day.toString().padLeft(2, '0')} $month ${time.year}';
+  return '$_lri${time.day.toString().padLeft(2, '0')} $month ${time.year}$_pdi';
 }
 
 /// An ISO 8601 time with an offset ("2026-11-03T10:00:00+00:00") in the
@@ -125,7 +144,7 @@ String readableDay(Object? raw, {DateTime? now}) {
 String readableIsoTime(Object? raw) {
   final time = DateTime.tryParse('${raw ?? ''}'.trim());
   if (time == null) return '';
-  return readableDateTime(time.toLocal().toIso8601String());
+  return '$_lri${_dateTimeText(time.toLocal())}$_pdi';
 }
 
 // Left-to-right isolate around a time range (U+2066 … U+2069).
@@ -139,7 +158,7 @@ String readableWindow(Object? window) {
   if (window is! Map) return '';
   final start = DateTime.tryParse('${window['start_iso'] ?? ''}'.trim());
   if (start == null) return '';
-  final from = readableIsoTime(window['start_iso']);
+  final from = _dateTimeText(start.toLocal());
   final end = DateTime.tryParse('${window['end_iso'] ?? ''}'.trim());
   if (end == null) return '$_lri$from$_pdi';
   final localStart = start.toLocal();
@@ -148,7 +167,7 @@ String readableWindow(Object? window) {
       localStart.year == localEnd.year &&
       localStart.month == localEnd.month &&
       localStart.day == localEnd.day;
-  final to = readableIsoTime(window['end_iso']);
+  final to = _dateTimeText(end.toLocal());
   // Kept left to right (Unicode isolate): in Arabic the times and "–" were
   // reordered ("PM – 04:00 PM 02:00").
   return '$_lri$from – ${sameDay ? to.split(', ').last : to}$_pdi';

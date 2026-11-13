@@ -10,6 +10,7 @@ import '../../widgets/app_back_button.dart';
 import '../../widgets/help_sheet.dart';
 
 import '../../utils/app_fonts.dart';
+
 class CarWashBookingDetailScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
 
@@ -498,7 +499,7 @@ class _CarWashBookingDetailScreenState
                     ? addons[i].name
                     : 'svc_addon'.tr,
                 description: _lineDescription(addons[i]),
-                priceLabel: '+${serviceMru(addons[i].total)}',
+                priceLabel: serviceMru(addons[i].total, sign: '+'),
               ),
             ],
           ],
@@ -510,7 +511,7 @@ class _CarWashBookingDetailScreenState
               icon: Icons.near_me_rounded,
               title: distance.name,
               description: '',
-              priceLabel: '+${serviceMru(distance.total)}',
+              priceLabel: serviceMru(distance.total, sign: '+'),
             ),
           ],
         ],

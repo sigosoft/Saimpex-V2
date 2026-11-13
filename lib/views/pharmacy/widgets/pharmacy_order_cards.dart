@@ -16,6 +16,7 @@ import '../pharmacy_track_order_screen.dart';
 import '../quotation_detail_screen.dart';
 import '../pharmacy_paid_order_detail_screen.dart';
 import '../pharmacy_item_order_detail_screen.dart';
+import 'prescription_viewer.dart';
 
 import '../../../utils/app_fonts.dart';
 
@@ -380,6 +381,9 @@ class PharmacyActiveOrderCard extends StatelessWidget {
   final String orderId;
   final int? apiOrderId;
   final bool showPrescription;
+
+  /// The uploaded prescription, opened by "View Full Prescription".
+  final String? prescriptionUrl;
   final bool showTrack;
   final bool canCancel;
   final bool delivered;
@@ -401,6 +405,7 @@ class PharmacyActiveOrderCard extends StatelessWidget {
     this.vendorId,
     this.apiOrderId,
     this.showPrescription = false,
+    this.prescriptionUrl,
     this.showTrack = true,
     this.canCancel = true,
     this.delivered = false,
@@ -483,6 +488,8 @@ class PharmacyActiveOrderCard extends StatelessWidget {
           orderId: orderId,
           apiOrderId: apiOrderId,
           isDelivery: statusText != 'SELF PICKUP',
+          pharmacyName: pharmacyName,
+          prescriptionImageUrl: prescriptionUrl,
         ),
       );
     } else {
@@ -653,67 +660,71 @@ class PharmacyActiveOrderCard extends StatelessWidget {
             ),
             if (showPrescription) ...[
               const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F0EC),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        color: Colors.white,
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.description_outlined,
-                          color: Color(0xFFA59A94),
-                          size: 22,
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => openPrescription(context, prescriptionUrl),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F0EC),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          width: 42,
+                          height: 42,
+                          color: Colors.white,
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.description_outlined,
+                            color: Color(0xFFA59A94),
+                            size: 22,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            // The stored file name is random; name it instead.
-                            'pw_prescription'.tr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppFonts.outfit(
-                              color: const Color(0xFF2C2520),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              // The stored file name is random; name it instead.
+                              'pw_prescription'.tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppFonts.outfit(
+                                color: const Color(0xFF2C2520),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 3),
-                          Row(
-                            children: [
-                              Text(
-                                'pw_view_full_prescription'.tr,
-                                style: AppFonts.outfit(
-                                  color: const Color(0xFFFF5216),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
+                            const SizedBox(height: 3),
+                            Row(
+                              children: [
+                                Text(
+                                  'pw_view_full_prescription'.tr,
+                                  style: AppFonts.outfit(
+                                    color: const Color(0xFFFF5216),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.open_in_new_rounded,
-                                color: Color(0xFFFF5216),
-                                size: 13,
-                              ),
-                            ],
-                          ),
-                        ],
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.open_in_new_rounded,
+                                  color: Color(0xFFFF5216),
+                                  size: 13,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

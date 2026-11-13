@@ -1041,11 +1041,10 @@ Sweep of the whole app for fixed data customers can see. Each item now comes fro
   - CA-17 "Specify quantity" box;
   - French bottom-bar labels;
   - service banner artwork without a printed price.
-- **Not covered by the Figma passes:**
-  - Store Map, Redeem detail, Scan, Replace item, Cart Pay Later, Subscription Cart;
-  - prescription cart / quotation / success;
-  - FR/AR checkout;
-  - success screens after a real payment.
+- **Not covered by the Figma passes** (updated 12 Nov evening, `fix/figma-pass-remaining`; Store Map, Scan, Redeem detail, Replace item, FR/AR checkout and the prescription quotation / paid order are now done):
+  - Subscription Cart: no water supplier on dev has a plan (`water/plans` returns [] for every vendor), so Subscribe never shows;
+  - prescription cart (checkout) and prescription success: need a fresh, unexpired quote from a pharmacy (the only quote, #13, expired on 4 Nov);
+  - (done 12 Nov evening: a cash test order ORD-001568 was placed and cancelled at once to compare the order success, cancel sheet and cancelled screens, and the cart's Pay After Delivery option.)
 - **Local only (not pushed):** branch `test/figma-pass-rest`, which merges every open PR for phone builds; emulator `saimpex_figma` (doesn't start on this machine).
 
 ### Figma pass, last screens + FR/AR checkout (`fix/figma-pass-final`, 12 Nov late afternoon) ✅
@@ -1067,3 +1066,28 @@ Screens the earlier passes left out, on the Samsung M11 (release, dev, 95200021)
 - **Checked after the fix** (new build, English): the My Orders list ends clear of the Services button; the courier card reads "#CRBR1LK9XE".
 - **Noticed, not changed:** order status chips are upper-case for water and courier ("DELIVERED", as in Figma) but mixed case for food, grocery and pharmacy ("Delivered"). One style should be picked.
 - Analyzer clean, 57 tests pass.
+
+### Figma pass, remaining screens (`fix/figma-pass-remaining`, 12 Nov evening) ✅
+Store Map and the prescription screens, on the Samsung M11 (release, dev, 95200021).
+- **Store Map:** Google's red drop pins and full map (hospital, shop, bus icons) replaced by the Figma look: the light map style (now shared, `lib/utils/map_style.dart`, also used by tracking) and round store-photo pins with the name underneath, yellow ring on the selected store (`lib/views/widgets/store_map_pin.dart`; the default pin shows until a store's photo loads).
+- **Scan:** matches Figma (checked 11 Nov; close button and hint added then).
+- **Quotation detail:**
+  - The step times were fixed sample dates ("22 Oct 2023, 10:30 AM"). They now come from the prescription: `created_at` (sent) and `payment_requested_at` (quote ready); "Under review" has no time because the API has none.
+  - An expired quote still offered Review & Pay. It now shows "This quote has expired" and a hint to ask the pharmacy for a new quote; the prescription endpoint sends only `quote_expires_at`, so the remaining time is worked out from that.
+  - The random stored file name ("5G4rEW….png") is replaced by "Prescription".
+- **View Full Prescription** did nothing on the order cards and the quotation screen. It now opens the photo full screen (pinch to zoom) or a PDF in the phone's viewer (`widgets/prescription_viewer.dart`).
+- **Paid prescription orders** (e.g. ORD-001497 from prescription #14) opened the plain item-order screen. Pharmacy order cards with a prescription file now show the prescription row and open the paid-order screen with the photo, as in Figma ("Completed Payment order detail").
+- **Paid-order screen:** no Cancel on delivered or cancelled orders; the "Redeemed points — MRU" row only when points were used.
+- **My Prescriptions:**
+  - Dates were raw server text ("2026-11-06 11:27:48", UTC). They now read "06 Nov 2026, 04:57 PM" in the phone's time zone.
+  - Accepted-but-unpaid quotes ("Quotation Ready") can be opened, not only "quoted" ones.
+- **Cart:** the offline fallback item was a sample "Paracetamol 500 Mg / 10 Tablets / 50 MRU". It is now empty.
+- New string `pw_prescription_unavailable` (EN/FR/AR).
+- Analyzer clean, 57 tests pass.
+- **Blocked on dev data / an OK, not compared:**
+  - Subscription Cart (no water plans);
+  - prescription checkout and success (needs a fresh quote);
+  - success screens after payment, and Pay Later (need a test order to be placed).
+- **Order success, cancel and Pay After Delivery** (with the owner's OK): one cash-on-delivery test order, **ORD-001568** (Pizzeria Atlantique, 310 MRU), placed and cancelled at once. The server shows status 10, and the cart is empty again.
+  - Matching Figma: the cart's payment list (Pay After Delivery shows, since the account can use it), "Order Placed Successfully!" with Back to Home / View Order, the cancel-reason sheet, and "Order Cancelled". Figma's success subtitle mentions points earned; the app shows the order code and amount.
+  - **Fixed:** the food order "Order placed" time read the server's UTC `placed_at` as local ("10:26 AM" for an order placed at 3:56 PM in India). It now converts to the phone's time zone, and Arabic months stay in order.

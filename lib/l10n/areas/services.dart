@@ -708,7 +708,7 @@ const servicesStrings = <String, Map<String, String>>{
   },
   'ar': {
     'svc_gas_title': "تفاصيل حجز الغاز",
-    'svc_gas_booking': "الحجز #@code",
+    'svc_gas_booking': "الحجز \u2066#@code\u2069",
     'svc_gas_supplier': "المورد",
     'svc_gas_slot': "الموعد",
     'svc_gas_items': "المنتجات",
@@ -996,7 +996,7 @@ const servicesStrings = <String, Map<String, String>>{
     'svc_pickup_slot': 'موعد الاستلام',
 
     // Booking details
-    'svc_booking_number': 'الحجز رقم @id',
+    'svc_booking_number': 'الحجز رقم \u2066@id\u2069',
     'svc_help': 'مساعدة',
     'svc_booking_status': 'حالة الحجز',
     'svc_vehicles': 'المركبات',

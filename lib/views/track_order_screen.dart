@@ -10,6 +10,7 @@ import '../widgets/app_back_button.dart';
 import 'widgets/tracking_widgets.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/map_style.dart';
 
 class TrackOrderScreen extends StatefulWidget {
   final String orderId;
@@ -56,23 +57,6 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
   Offset? _homeScreen;
   bool _updatingPins = false;
   bool _needsPinUpdate = false;
-
-  static const String _lightMapStyle = '''
-[
-  {"elementType":"geometry","stylers":[{"color":"#f4efe8"}]},
-  {"elementType":"labels.icon","stylers":[{"visibility":"off"}]},
-  {"elementType":"labels.text.fill","stylers":[{"color":"#8a7d74"}]},
-  {"elementType":"labels.text.stroke","stylers":[{"color":"#f4efe8"}]},
-  {"featureType":"administrative","elementType":"geometry","stylers":[{"visibility":"off"}]},
-  {"featureType":"poi","stylers":[{"visibility":"off"}]},
-  {"featureType":"poi.park","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#e4efe0"}]},
-  {"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},
-  {"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#e6dcd3"}]},
-  {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#f7e7d4"}]},
-  {"featureType":"transit","stylers":[{"visibility":"off"}]},
-  {"featureType":"water","elementType":"geometry","stylers":[{"color":"#d5e6ee"}]}
-]
-''';
 
   @override
   void initState() {
@@ -287,7 +271,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen>
               },
               onCameraMove: (_) => _updateMarkerScreens(),
               onCameraIdle: _updateMarkerScreens,
-              style: _lightMapStyle,
+              style: lightMapStyle,
               polylines: _polylines,
               padding: const EdgeInsets.only(bottom: 280, top: 8),
               zoomControlsEnabled: false,

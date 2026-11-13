@@ -27,6 +27,7 @@ import 'widgets/coupons_sheet.dart';
 import 'pay_later_screen.dart';
 
 import '../utils/app_fonts.dart';
+import '../utils/currency.dart';
 
 class CartScreen extends StatefulWidget {
   final String? storeName;
@@ -942,7 +943,8 @@ class _CartScreenState extends State<CartScreen> {
       final saved = Get.find<HomeController>().lastCartItem;
       if (saved?['itemName'] != null) return saved!['itemName'].toString();
     }
-    return "Paracetamol 500 Mg";
+    // No sample product when nothing is known (was "Paracetamol 500 Mg").
+    return "";
   }
 
   String get itemPortion {
@@ -953,7 +955,7 @@ class _CartScreenState extends State<CartScreen> {
         return saved!['itemPortion'].toString();
       }
     }
-    return "10 Tablets";
+    return "";
   }
 
   int get basePrice {
@@ -969,10 +971,10 @@ class _CartScreenState extends State<CartScreen> {
       final priceVal = saved?['basePrice'];
       if (priceVal is num) return priceVal.toInt();
       if (priceVal is String) {
-        return int.tryParse(priceVal.replaceAll(RegExp(r'[^0-9]'), '')) ?? 50;
+        return int.tryParse(priceVal.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
       }
     }
-    return 50;
+    return 0;
   }
 
   String get itemImage {
@@ -3090,7 +3092,7 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '-${'mru'.trParams({'amount': '$pointsOff'})}',
+                                      signedMru('-', pointsOff),
                                       style: AppFonts.outfit(
                                         color: const Color(0xFFFF5216),
                                         fontSize: 12,

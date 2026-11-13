@@ -293,7 +293,12 @@ void main() {
       expect(cancelled.isCancelled, isTrue);
       expect(cancelled.reached(1), isTrue);
       expect(cancelled.reached(2), isFalse);
-      expect(cancelled.timeOf(10), '31 Oct 2026,\n2:05 PM');
+      // Shared date format (app-language month, phone time zone), on two
+      // lines under the step.
+      final time = cancelled.timeOf(10);
+      expect(time, formatServiceTime('2026-10-31 14:05:00'));
+      expect(time, contains('svc_month_10'));
+      expect(time, contains(',\n'));
     });
 
     test('unpaid bookings are not paid', () {

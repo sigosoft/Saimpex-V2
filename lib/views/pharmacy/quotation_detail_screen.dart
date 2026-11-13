@@ -15,9 +15,12 @@ import '../order_success_screen.dart';
 import '../payment_webview_screen.dart';
 import 'prescription_checkout_screen.dart';
 import 'widgets/pharmacy_background.dart';
+import 'widgets/prescription_viewer.dart';
 
 import '../../utils/app_fonts.dart';
 import '../../utils/currency.dart';
+import '../../utils/store_labels.dart';
+
 /// Asks the customer to confirm, then declines the quotation on the server.
 /// Returns true once it is declined.
 Future<bool> declineQuotation(BuildContext context, int prescriptionId) async {
@@ -28,10 +31,7 @@ Future<bool> declineQuotation(BuildContext context, int prescriptionId) async {
         'pw_decline_quotation_q'.tr,
         style: AppFonts.outfit(fontWeight: FontWeight.w800),
       ),
-      content: Text(
-        'pw_decline_quotation_body'.tr,
-        style: AppFonts.outfit(),
-      ),
+      content: Text('pw_decline_quotation_body'.tr, style: AppFonts.outfit()),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, false),
@@ -95,7 +95,7 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   // Server status of the prescription (uploaded, quoted, accepted, ...)
   String _status = '';
   String _pharmacyName = '';
-  String _fileName = '';
+  String _fileUrl = '';
   String _amountText = '';
   num _quoteAmount = 0;
   final _availableItems = <Map<String, dynamic>>[];
@@ -104,6 +104,21 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   // by the server until this is 0.
   int _pendingAlternatives = 0;
   int? _decidingItemId;
+
+  /// False when the server sent no expiry: no countdown and still payable.
+  late bool _hasExpiry;
+
+  /// Step times from the prescription (sent, quote ready); they were fixed
+  /// sample dates ("22 Oct 2023").
+  String _sentAt = '';
+  String _quotedAt = '';
+
+  /// The quote ran out: no Review & Pay (it was still offered at 00:00:00).
+  bool get _expired => _hasExpiry && _remaining.inSeconds <= 0;
+
+  /// "12 Nov 2026, 10:30 AM" → two lines under a step.
+  static String _stepTime(Object? raw) =>
+      readableIsoTime(raw).replaceFirst(', ', ',\n');
 
   Future<void> _decideAlternative(int itemId, bool accept) async {
     final id = widget.prescriptionId;
@@ -132,12 +147,10 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
     _pharmacyName = widget.pharmacyName;
     _amountText = widget.amount;
     _remaining = widget.expiresIn;
+    // Corrected once the prescription loads.
+    _hasExpiry = widget.expiresIn > Duration.zero;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted) return;
-      if (_remaining.inSeconds <= 0) {
-        _timer?.cancel();
-        return;
-      }
+      if (!mounted || _remaining.inSeconds <= 0) return;
       setState(() => _remaining -= const Duration(seconds: 1));
     });
     _loadPrescription();
@@ -162,10 +175,15 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
       );
       if (!mounted) return;
       final pharmacy = '${data['mapped_pharmacy_name'] ?? ''}'.trim();
-      final fileName = '${data['mapped_file_name'] ?? ''}'.trim();
       final quote = data['quote_amount'] ?? data['total'] ?? data['payable'];
       final quoteNumber = quote is num ? quote : num.tryParse('$quote');
-      final seconds = data['quote_expires_in_seconds'];
+      // The prescription endpoint sends only quote_expires_at; the list
+      // sends the seconds too.
+      final expiresAt = DateTime.tryParse('${data['quote_expires_at'] ?? ''}');
+      final rawSeconds = data['quote_expires_in_seconds'];
+      final seconds = rawSeconds is int
+          ? rawSeconds
+          : expiresAt?.difference(DateTime.now()).inSeconds;
       final items = data['mapped_items'];
       _availableItems.clear();
       _alternativeItems.clear();
@@ -185,14 +203,19 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
         _pendingAlternatives =
             int.tryParse('${data['pending_alternatives'] ?? 0}') ?? 0;
         if (pharmacy.isNotEmpty) _pharmacyName = pharmacy;
-        if (fileName.isNotEmpty) _fileName = fileName;
+        _fileUrl = '${data['mapped_file_url'] ?? ''}'.trim();
         if (quoteNumber != null) {
           _quoteAmount = quoteNumber;
           _amountText = _moneyText(quoteNumber);
         }
-        if (seconds is int && seconds > 0) {
-          _remaining = Duration(seconds: seconds);
+        _hasExpiry = seconds is int;
+        if (seconds is int) {
+          _remaining = Duration(seconds: seconds < 0 ? 0 : seconds);
         }
+        _sentAt = _stepTime(data['created_at']);
+        _quotedAt = _stepTime(
+          data['payment_requested_at'] ?? data['quoted_at'],
+        );
         _loading = false;
       });
     } on ApiException catch (error) {
@@ -559,6 +582,44 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   }
 
   Widget _buildExpiryBanner() {
+    if (!_hasExpiry) return const SizedBox.shrink();
+    if (_expired) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1B2430),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEF4444),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: const Icon(
+                Icons.timer_off_outlined,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'pw_quote_expired'.tr,
+                style: AppFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
@@ -605,6 +666,15 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   }
 
   Widget _buildPrescriptionCard() {
+    // "View Full Prescription" did nothing; the whole card opens the file.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => openPrescription(context, _fileUrl),
+      child: _prescriptionCardBody(),
+    );
+  }
+
+  Widget _prescriptionCardBody() {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -633,7 +703,9 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _fileName.isEmpty ? 'pw_prescription'.tr : _fileName,
+                  // The stored file name is random ("5G4rEW….png"), as on
+                  // the order cards.
+                  'pw_prescription'.tr,
                   style: AppFonts.outfit(
                     color: const Color(0xFF2C2520),
                     fontSize: 12,
@@ -1021,22 +1093,23 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   }
 
   Widget _buildOrderStatusCard() {
-    const steps = [
+    // The API has no separate "reviewed" time.
+    final steps = [
       _StatusStep(
         label: 'pw_step2_prescription_sent',
-        time: '22 Oct 2023,\n10:30 AM',
+        time: _sentAt,
         done: true,
         icon: Icons.check_rounded,
       ),
-      _StatusStep(
+      const _StatusStep(
         label: 'pw_step2_under_review',
-        time: '22 Oct 2023,\n10:35 AM',
+        time: '',
         done: true,
         icon: Icons.description_outlined,
       ),
       _StatusStep(
         label: 'pw_step2_quotation_ready',
-        time: '22 Oct 2023,\n10:40 AM',
+        time: _quotedAt,
         done: true,
         icon: Icons.request_quote_outlined,
       ),
@@ -1304,6 +1377,21 @@ class _QuotationDetailScreenState extends State<QuotationDetailScreen> {
   }
 
   Widget _buildPayButton() {
+    // An expired quote can't be paid; say how to get a new one.
+    if (_expired) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          'pw_quote_expired_hint'.tr,
+          textAlign: TextAlign.center,
+          style: AppFonts.outfit(
+            color: const Color(0xFF8A7F77),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
     return GestureDetector(
       onTap: _paying ? null : _payPrescription,
       child: Container(
